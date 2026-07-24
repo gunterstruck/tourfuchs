@@ -130,6 +130,19 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(vault.steps.some((step) => step.t === 'say' && step.sel === '#recovery-code')).toBe(true);
     });
 
+    it('wechselt vor dem Optimieren auf den Schritt „Meine Tour" (Desktop-Fokus blendet ihn sonst aus)', () => {
+        const tour = STORIES.find((story) => story.id === 'tour');
+        const keys = tour.steps.map((s) => s.key);
+        const idxShowMyTour = tour.steps.findIndex((s) => s.key === 'showMyTour');
+        const idxOptimize = tour.steps.findIndex((s) => s.sel === '#btn-optimize' && s.t === 'click');
+        expect(idxShowMyTour).toBeGreaterThan(-1);
+        // „Meine Tour" muss VOR dem Optimieren-Klick aktiviert werden.
+        expect(idxShowMyTour).toBeLessThan(idxOptimize);
+        // Der Helfer existiert in der Engine.
+        expect(showcaseSource).toContain('async showMyTour(');
+        expect(keys).toContain('addTwoSuggestions');
+    });
+
     it('öffnet native Dialoge in Demos zuverlässig und erklärt einen Abbruch konkret', () => {
         const handy = STORIES.find((story) => story.id === 'handy-qr');
         expect(handy.steps.some((step) => step.key === 'shareTourQr')).toBe(true);
