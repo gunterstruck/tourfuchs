@@ -56,6 +56,7 @@ export const STORIES = [
             { t: 'run', key: 'pickStart' },
             { t: 'say', text: 'TourFuchs schlägt Kunden in der Nähe vor – einfach hinzufügen.', ms: 2200 },
             { t: 'run', key: 'addTwoSuggestions' },
+            { t: 'run', key: 'showMyTour' },
             { t: 'say', text: 'Die Stopps stehen. Jetzt sortiert TourFuchs sie in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
             { t: 'click', sel: '#btn-optimize' },
             { t: 'say', text: 'Reihenfolge optimiert – kürzeste Strecke.', ms: 1800 },

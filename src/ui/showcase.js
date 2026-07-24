@@ -442,6 +442,21 @@ const HELPERS = {
         fitTourRoute();
         await sleep(900);
     },
+    // Auf den Schritt „Meine Tour" wechseln, damit die dortigen Aktionen
+    // (Optimieren, Route auf Karte, QR-Übergabe) sichtbar und erreichbar sind.
+    // Im Desktop-Fokus liegt die kompakte Schrittleiste vor – ein Tipp darauf
+    // öffnet den Schritt; sonst genügt der Akkordeon-Kopf.
+    async showMyTour() {
+        const stepper = document.getElementById('tour-stepper');
+        if (stepper && !stepper.hidden && await resolveEl('#tour-stepper .tour-step[data-step="mytour"]', 600)) {
+            await clickEl('#tour-stepper .tour-step[data-step="mytour"]');
+        } else {
+            const acc = document.querySelector('.tour-acc[data-acc="mytour"]');
+            if (acc && !acc.classList.contains('open')) await clickEl('.tour-acc[data-acc="mytour"] .acc-head');
+        }
+        await resolveEl('#btn-optimize', 1500);
+        await sleep(500);
+    },
     async closeQr() {
         const d = document.getElementById('qr-share-dialog');
         if (d?.open) d.close();
