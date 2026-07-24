@@ -26,7 +26,7 @@ import {
 import { distanceKm } from '../services/geocode.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups } from '../features/map.js';
-import { showMapView, captureSheetForDemo, expandSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
+import { showMapView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
 import { loadDemo } from './importWizard.js';
@@ -438,6 +438,9 @@ const HELPERS = {
     },
     async focusTourRoute() {
         showMapView();
+        // Handy: das (für die Bedienung aufgezogene) Blatt zurückziehen, damit die
+        // Route die volle Kartenhöhe bekommt und nicht nach oben gequetscht wird.
+        collapseSheetForDemo();
         await sleep(isMobileView() ? 700 : 300);
         fitTourRoute();
         await sleep(900);
@@ -476,6 +479,7 @@ const HELPERS = {
         // Vordergrund rückt – dann bliebe es bei der Luftlinie.
         const toggled = await clickEl('#btn-route-mode');
         if (!toggled) await clickEl('#btn-route-focus');
+        collapseSheetForDemo();               // Karte frei halten, Blatt bleibt unten
         await sleep(2600);                    // Straßenroute (OSRM) berechnen/zeichnen lassen
         fitTourRoute();
         await sleep(700);

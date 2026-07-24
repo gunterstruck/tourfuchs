@@ -573,6 +573,22 @@ export function restoreSheetAfterDemo() {
     applySidebar();
 }
 
+/**
+ * Handy während einer Demo: das Blatt auf die Guckhöhe zurückziehen, damit die
+ * Karte (Route/Tour) frei liegt und nicht nach oben gequetscht wird. Der vom
+ * Nutzer gewählte Zustand ist über den Demo-Schnappschuss gesichert und kommt
+ * per restoreSheetAfterDemo zurück (die gespeicherte Höhe bleibt unangetastet).
+ */
+export function collapseSheetForDemo() {
+    if (!isMobileUi()) return;
+    captureSheetForDemo();
+    const sidebar = document.getElementById('sidebar');
+    sidebar?.classList.remove('sheet-sized');
+    document.documentElement.style.removeProperty('--sheet-height');
+    state.ui.sidebarOpen = false;
+    applySidebar();
+}
+
 function toggleSheet() {
     const sidebar = document.getElementById('sidebar');
     if (isMobileUi()) {
