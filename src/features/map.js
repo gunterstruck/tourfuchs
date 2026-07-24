@@ -1848,7 +1848,20 @@ export function fitTourRoute() {
 }
 
 function fitPadding(mobileBottom) {
-    if (isMobileMap()) return { topLeft: [18, 76], bottomRight: [18, mobileBottom] };
+    if (isMobileMap()) {
+        // Untere Aussparung an die tatsächlich sichtbare Blatt-Höhe koppeln:
+        // Ist das Blatt eingeklappt (nur Guckhöhe), bekommt die Route/der Bestand
+        // fast die volle Kartenhöhe und wird nicht nach oben gequetscht; ist es
+        // aufgezogen, gilt der übergebene Richtwert als Obergrenze.
+        const mapRect = map?.getContainer()?.getBoundingClientRect();
+        const sheetRect = visibleElementRect(document.getElementById('sidebar'));
+        let bottom = mobileBottom;
+        if (mapRect && sheetRect && sheetRect.top < mapRect.bottom) {
+            const overlap = mapRect.bottom - sheetRect.top; // wie weit das Blatt in die Karte ragt
+            bottom = Math.max(56, Math.min(mobileBottom, Math.round(overlap + 16)));
+        }
+        return { topLeft: [18, 76], bottomRight: [18, bottom] };
+    }
     const mapRect = map?.getContainer()?.getBoundingClientRect();
     const sidebar = document.getElementById('sidebar');
     let left = 24;
