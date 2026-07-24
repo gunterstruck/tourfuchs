@@ -659,6 +659,9 @@ function showChrome(story) {
         <span class="sc-progress"></span>
         <button type="button" class="sc-cancel">Beenden</button>`;
     document.body.append(shieldEl, toolbarEl);
+    // Während einer Vorführung ruht die schwebende „nächster Schritt"-Hilfe –
+    // sie würde sonst über der Karte mitlaufen und die Demo überlagern.
+    document.body.classList.add('sc-running');
     toolbarEl.querySelector('.sc-cancel').addEventListener('click', abortNow);
     cursorEl.hidden = false;
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
@@ -673,6 +676,7 @@ function cleanup(story) {
     if (cursorEl) { document.body.append(cursorEl, bubbleEl); cursorEl.hidden = true; cursorEl.classList.remove('sc-click', 'sc-press'); }
     shieldEl?.remove(); shieldEl = null;
     toolbarEl?.remove(); toolbarEl = null;
+    document.body.classList.remove('sc-running');
 
     // Simulation gefahrlos verwerfen (auch bei Abbruch) – confirm dabei bejahen
     const savedConfirm = window.confirm;
