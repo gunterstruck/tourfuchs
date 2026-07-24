@@ -469,7 +469,13 @@ const HELPERS = {
             try { priorConsent = localStorage.getItem(ROUTING_CONSENT_KEY); } catch { priorConsent = null; }
         }
         try { localStorage.setItem(ROUTING_CONSENT_KEY, 'yes'); } catch { /* egal */ }
-        await clickEl('#btn-route-focus');   // schaltet Luftlinie -> Straße (mapFocus ist bereits aktiv)
+        // Umschalten Luftlinie -> Straße (mapFocus ist bereits aktiv). Der richtige
+        // Knopf dafür ist die Leiste ÜBER der Karte (#btn-route-mode): Sie ist im
+        // Kartenfokus auf Desktop wie Handy sichtbar. Der #btn-route-focus im
+        // Tour-Blatt verschwindet dagegen auf dem Handy, sobald die Karte in den
+        // Vordergrund rückt – dann bliebe es bei der Luftlinie.
+        const toggled = await clickEl('#btn-route-mode');
+        if (!toggled) await clickEl('#btn-route-focus');
         await sleep(2600);                    // Straßenroute (OSRM) berechnen/zeichnen lassen
         fitTourRoute();
         await sleep(700);

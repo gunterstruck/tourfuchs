@@ -130,6 +130,17 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(vault.steps.some((step) => step.t === 'say' && step.sel === '#recovery-code')).toBe(true);
     });
 
+    it('schaltet die Straßenroute über den sichtbaren Karten-Umschalter (nicht den im Handy-Blatt versteckten Knopf)', () => {
+        // Nach dem Kartenfokus verschwindet #btn-route-focus im eingeklappten
+        // Handy-Blatt; der Umschalter liegt dann als Leiste über der Karte
+        // (#btn-route-mode) und muss dort geklickt werden, sonst bleibt Luftlinie.
+        const road = showcaseSource.slice(showcaseSource.indexOf('async showRoadRoute('));
+        expect(road.slice(0, 900)).toContain("clickEl('#btn-route-mode')");
+        const tour = STORIES.find((story) => story.id === 'tour');
+        const roadSay = tour.steps.find((s) => s.t === 'say' && /Straßenroute/.test(s.text) && s.sel);
+        expect(roadSay?.sel).toBe('#btn-route-mode');
+    });
+
     it('wechselt vor dem Optimieren auf den Schritt „Meine Tour" (Desktop-Fokus blendet ihn sonst aus)', () => {
         const tour = STORIES.find((story) => story.id === 'tour');
         const keys = tour.steps.map((s) => s.key);
