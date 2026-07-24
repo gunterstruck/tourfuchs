@@ -479,6 +479,9 @@ const HELPERS = {
         await clickEl('.tab-button[data-tab="tour"]');
         expandSheetForDemo();
         await sleep(300);
+        // Der QR-Knopf sitzt im Schritt „Meine Tour"; im Desktop-Fokus ist der
+        // sonst ausgeblendet – erst aktivieren, dann übergeben.
+        await HELPERS.showMyTour();
         const btn = await resolveEl('#btn-tour-qr', 2500);
         if (!btn || btn.disabled) throw new Error('Die Tour ist noch nicht für die QR-Übergabe bereit.');
         await clickEl('#btn-tour-qr');
