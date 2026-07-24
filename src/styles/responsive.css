@@ -695,6 +695,9 @@
 /* Der schwebende Fuchs-Knopf begleitet jetzt Desktop und Handy; die Sichtbarkeit
    steuert das JS (Modus, geladene Kunden, Route). Kein pauschales Ausblenden ab
    769px mehr – das Desktop-Styling ab 901px übernimmt die Platzierung. */
+/* Während einer laufenden Live-Demo ruht der Fuchs, damit er die Vorführung
+   nicht überlagert (Desktop wie Handy). */
+body.sc-running .mobile-next-step { display: none !important; }
 @media (prefers-reduced-motion: reduce) {
     .mobile-next-step .mns-fox { animation: none; }
 }

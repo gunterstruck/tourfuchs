@@ -26,11 +26,18 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
     it('erscheint jetzt auch auf dem Desktop (kein pauschales Ausblenden mehr)', () => {
         // Der frühere Hard-Hide ab 769px ist entfernt; ab 901px gibt es eine
         // eigene Desktop-Platzierung (unten mittig über der Karte).
-        expect(css).not.toContain('.mobile-next-step { display: none !important; }');
+        expect(css).not.toContain('@media (min-width: 769px) {\n    .mobile-next-step { display: none !important; }');
         expect(css).toContain('@media (min-width: 901px)');
         const desktopBlock = css.slice(css.indexOf('@media (min-width: 901px)'));
         expect(desktopBlock).toContain('.mobile-next-step {');
         expect(desktopBlock).toContain('position: fixed');
+    });
+
+    it('ruht während einer laufenden Live-Demo (kein Überlagern der Vorführung)', () => {
+        const showcase = read('src/ui/showcase.js');
+        expect(css).toContain('body.sc-running .mobile-next-step { display: none !important; }');
+        expect(showcase).toContain("classList.add('sc-running')");
+        expect(showcase).toContain("classList.remove('sc-running')");
     });
 
     it('führt als Kette durch den Flow und mobil nur bei zugeklapptem Blatt', () => {
