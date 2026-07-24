@@ -65,7 +65,7 @@ export const STORIES = [
             { t: 'wait', ms: 1500 },
             { t: 'run', key: 'focusTourRoute' },
             { t: 'say', text: 'Die Route liegt auf der Karte – zuerst als Luftlinie.', ms: 2200, pos: 'bottom' },
-            { t: 'say', text: 'Für die Fahrt: ein Tipp wechselt von Luftlinie auf die echte Straßenroute.', sel: '#btn-route-focus', ms: 2300 },
+            { t: 'say', text: 'Für die Fahrt: ein Tipp wechselt von Luftlinie auf die echte Straßenroute.', sel: '#btn-route-mode', ms: 2300 },
             { t: 'run', key: 'showRoadRoute' },
             { t: 'say', text: 'So fährt sich der Tag – Reihenfolge und Strecke stehen.', ms: 2600, pos: 'bottom' },
             { t: 'say', text: 'Und wie kommt die fertige Tour aufs Handy? Genau das zeigt die nächste Demo.', ms: 2800, desktopOnly: true }
