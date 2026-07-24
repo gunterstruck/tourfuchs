@@ -582,9 +582,13 @@ export function restoreSheetAfterDemo() {
 export function collapseSheetForDemo() {
     if (!isMobileUi()) return;
     captureSheetForDemo();
+    // Blatt für den Karten-Reveal auf reine Guckhöhe schrumpfen, damit die Karte
+    // fast die volle Höhe bekommt. Bewusst über eine kleine, feste Blatt-Höhe
+    // statt nur über den Einklapp-Transform: So bleibt das Blatt unten – auch
+    // wenn Höhen- und Transform-Übergang während der Demo gegeneinander laufen.
     const sidebar = document.getElementById('sidebar');
-    sidebar?.classList.remove('sheet-sized');
-    document.documentElement.style.removeProperty('--sheet-height');
+    sidebar?.classList.add('sheet-sized');
+    document.documentElement.style.setProperty('--sheet-height', `${peekPx() + 24}px`);
     state.ui.sidebarOpen = false;
     applySidebar();
 }
