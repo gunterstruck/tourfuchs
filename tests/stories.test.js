@@ -146,6 +146,10 @@ describe('Showcase-Stories: Guardrail', () => {
     it('öffnet native Dialoge in Demos zuverlässig und erklärt einen Abbruch konkret', () => {
         const handy = STORIES.find((story) => story.id === 'handy-qr');
         expect(handy.steps.some((step) => step.key === 'shareTourQr')).toBe(true);
+        // Der QR-Knopf liegt im Schritt „Meine Tour"; shareTourQr aktiviert ihn,
+        // sonst blendet der Desktop-Fokus ihn aus (QR-Übergabe nicht erreichbar).
+        const share = showcaseSource.slice(showcaseSource.indexOf('async shareTourQr('));
+        expect(share.slice(0, 400)).toContain('showMyTour()');
         expect(showcaseSource).toContain("el.matches?.('dialog[open]')");
         expect(showcaseSource).toContain('Hängengeblieben bei Schritt');
         expect(showcaseSource).toContain('showStoryFailure(story, failure)');
