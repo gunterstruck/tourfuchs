@@ -144,7 +144,10 @@ async function moveToEl(sel) {
     const el = await resolveEl(sel);
     if (!el) return null;
     moveOverlaysInto(layerFor(el));
-    el.scrollIntoView({ block: 'center', behavior: prefersReduced ? 'auto' : 'smooth' });
+    // „nearest" statt „center": schon sichtbare Ziele (Kartenmarker, Blatt-Knöpfe)
+    // NICHT ins Fenster scrollen – sonst schiebt sich auf dem Handy die feste App
+    // samt Kopfleiste nach oben aus dem Bild.
+    el.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
     await sleep(prefersReduced ? 60 : 260);
     const c = centerOf(el);
     await moveTo(c.x, c.y);
@@ -217,7 +220,7 @@ async function say(text, sel, pos) {
     const anchor = sel ? await resolveEl(sel, 800) : null;
     if (anchor) {
         moveOverlaysInto(layerFor(anchor));
-        anchor.scrollIntoView({ block: 'center', behavior: prefersReduced ? 'auto' : 'smooth' });
+        anchor.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
         await sleep(prefersReduced ? 40 : 240);
         const target = centerOf(anchor);
         await moveTo(target.x, target.y);
@@ -782,6 +785,10 @@ function cleanup(story) {
 // So beginnt und endet jede Vorführung gleich – „so wie man startet".
 function resetView() {
     closeMapPopups();
+    // Sicherheitsnetz: Falls ein Schritt das Fenster doch verschoben hat, die
+    // feste App wieder ganz nach oben holen – sonst bleibt die Kopfleiste nach
+    // der Demo teilweise aus dem Bild geschoben.
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
     if (state.customers.length > 0) fitToCustomers();
 }
 
