@@ -469,8 +469,11 @@ function updateMobileNextStep() {
 function goToTourPlanning() {
     activateTab('tour');
     state.ui.sidebarOpen = true;
-    // Ganz aufziehen – beim Planen brauchen wir den Platz; das Akkordeon
-    // öffnet dank gesetztem Start automatisch die Gruppe „Vorschläge".
+    // Ganz aufziehen – beim Planen brauchen wir den Platz. Anders als beim
+    // normalen Öffnen des Tour-Tabs (das bewusst in der Übersicht landet) will
+    // der Nutzer hier sofort arbeiten: direkt in den Fokus-Modus auf den
+    // passenden Schritt (dank gesetztem Start meist „Vorschläge").
+    emit('tour:focus-plan');
     setSheetHeight(tourSheetHeight(), true);
     applySidebar();
 }

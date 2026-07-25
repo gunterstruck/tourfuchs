@@ -1000,9 +1000,11 @@ function updateTourAccordion() {
     // die Body-Klasse blendet den Knopf mobil aus und schafft Platz für die
     // Akkordeon-Köpfe.
     document.body.classList.toggle('tour-has-start', !!state.tour.start);
-    // Das Ein-Schritt-Verhalten gilt am Handy immer (Akkordeon) und am Desktop
-    // im Fokus-Modus. In der Desktop-Übersicht bleiben alle Schritte offen.
-    if (!isMobileTour() && !document.body.classList.contains('tour-focus')) return;
+    // Das „genau ein Schritt offen"-Verhalten (und das automatische Mitführen des
+    // Arbeitsflusses) gilt nur im Fokus-Modus – Handy wie Desktop. In der
+    // Übersicht bleiben bewusst ALLE Schritte eingeklappt (Handy) bzw. offen
+    // (Desktop via display:contents), damit man erst den ganzen Prozess sieht.
+    if (!document.body.classList.contains('tour-focus')) return;
     // Leere Tour = neuer Anlauf: Das Akkordeon folgt wieder von selbst dem Flow.
     if (!state.tour.start && state.tour.stops.length === 0) tourAccPinned = false;
     // Ohne manuelle Wahl der Bühne folgt das Akkordeon dem Arbeitsfluss.
@@ -1036,7 +1038,16 @@ function initTourAccordion() {
         });
     });
     document.querySelector('#tour-stepper .tour-focus-exit')
-        ?.addEventListener('click', () => setTourFocus(false));
+        // „☰ Übersicht": Fokus beenden UND alle Schritte einklappen, damit man
+        // wieder den kompletten Prozess (1 · 2 · 3) auf einen Blick sieht.
+        ?.addEventListener('click', () => { setTourFocus(false); openTourAcc(null); });
+
+    // Der Fuchs-Nudge „🚩 Tour ab hier planen" führt bewusst direkt in die Arbeit:
+    // Fokus an, passender Schritt offen (dank gesetztem Start i. d. R. „Vorschläge").
+    on('tour:focus-plan', () => {
+        setTourFocus(true);
+        openTourAcc(currentTourStep());
+    });
 
     // Verlässt der Nutzer den Tour-Tab oder wechselt den Modus, endet der Fokus.
     on('tab:changed', (tab) => {
@@ -1048,6 +1059,11 @@ function initTourAccordion() {
         if (!isMobileTour() && state.tour.bezirk && state.tour.bezirk !== '__none__') {
             setTourFocus(true);
             openTourAcc(currentTourStep());
+        } else {
+            // Handy (und Desktop ohne Bezirk): Übersicht mit allen Schritten
+            // eingeklappt – erst den Prozess zeigen, Antippen wechselt in den Fokus.
+            setTourFocus(false);
+            openTourAcc(null);
         }
     });
     on('mode:changed', () => setTourFocus(false));
