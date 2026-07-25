@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.4 · Stand: 25.07.2026 · App-Version: 3.0.0**
+**Version 2.5 · Stand: 25.07.2026 · App-Version: 3.0.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -616,7 +616,10 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 3. **"Excel-/CSV-Datei auswählen"** oder Datei per Drag & Drop auf die Karte
    ziehen.
 4. Im Dialog **"Spalten zuordnen"** automatische Zuordnung und Beispielwerte
-   prüfen.
+   prüfen. Oben stehen die **wichtigen Felder** (Kundenname, PLZ, Straße, Ort,
+   Vertriebsbezirk, Vertriebsgruppe, Umsatz); die übrigen **optionalen Felder**
+   liegen unter **"Weitere Felder"** eingeklappt (mit Anzahl der automatisch
+   erkannten). Beim Import werden alle Felder gelesen – auch die eingeklappten.
 5. **"Importieren"**. Ist bereits ein Kundenbestand geladen, Wirkung und Anzahl
    in der Ersetzungswarnung prüfen und erst dann bestätigen.
 6. Erfolgsmeldung beziehungsweise Dialog **"Import abgeschlossen"** prüfen.
@@ -1026,7 +1029,10 @@ die ausgewählten Stopps.
 
 Profi ergänzt:
 
-- Kartenansicht **"Kunden"**, **"Status"**, **"Chancen"**
+- Kartenansicht **"Kunden"**, **"Status"**, **"Chancen"** – die Karten-
+  Einfärbung liegt **nur auf dem Desktop** (dort ist die Karte sichtbar). Im
+  mobilen Tour-Flow ist sie bewusst nicht enthalten; „Was ist in meiner Nähe?"
+  und „Überfällige zuerst" decken den Bedarf dort ab.
 - festen **"Ziel"**-Kunden
 - Vorschlagsmodus **"Umkreis um Start"** / **"Entlang der Tour"**
 - **"Rundreise (zurück zum Start)"**
@@ -1407,12 +1413,18 @@ Wichtige Elemente:
 - Top-3/Flop-3 oder **"Alle anzeigen"**
 - Suche innerhalb der Einheiten
 
+Das Cockpit öffnet als reine **Analyse** (KPIs). Die Simulation darunter ist
+standardmäßig **eingeklappt** und wird bei Bedarf aufgezogen (Überblick →
+aufzoomen).
+
 **Fairness:** bis zu einem Kunden-Faktor von 1,5 gilt die Verteilung als
 ausgewogen; darüber als ungleich verteilt.
 
 ### 13.5 Was-wäre-wenn-Simulation
 
-**Klickpfad:** Cockpit -> Bereich **"Was-wäre-wenn: Gebiete zuweisen"**.
+**Klickpfad:** Cockpit -> Abschnitt **"Was-wäre-wenn: Gebiete zuweisen"**
+aufklappen. Der Abschnitt ist standardmäßig eingeklappt; läuft bereits eine
+Simulation mit offenen Zuweisungen, öffnet das Cockpit ihn aufgeklappt.
 
 1. Ebene wählen.
 2. Kreisname oder PLZ-Präfix suchen.
@@ -1456,8 +1468,11 @@ Farbe.
 
 Klickpfade:
 
-- Topbar -> offenes Schloss/Tresor-Symbol
-- oder `"Daten" -> "Datentresor" -> "Tresor aktivieren (PIN)"`
+- Topbar -> offenes Schloss/Tresor-Symbol (der stets erreichbare Einstieg)
+- oder im **"Daten"**-Tab den eingeklappten Block
+  **"🔐 Datentresor & sicherer Umzug"** aufklappen -> **"Tresor aktivieren
+  (PIN)"**. Der Block zeigt eingeklappt den Status (Tresor aus/aktiv/gesperrt)
+  und macht so der eigentlichen Datenarbeit Platz.
 
 Nach dem Import eigener Kundendaten bietet TourFuchs die Einrichtung geführt an.
 Demo-Daten verlangen keine PIN.
@@ -2318,7 +2333,44 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 2.4
+### 26.3 Änderungen in Version 2.5
+
+- **Durchgängiges Muster „Überblick → aufzoomen":** Grobe, mehrstufige Bereiche
+  zeigen zuerst den Prozess/Überblick, Details kommen auf Abruf – wie das Zoomen
+  auf der Karte.
+  - **Tourplaner (Handy UND Desktop):** öffnet in der Übersicht mit allen drei
+    Schritten eingeklappt (1. Startpunkt · 2. Vorschläge · 3. Meine Tour, je mit
+    Zusammenfassung). Antippen eines Schritts zoomt in den Fokus-Modus (obere
+    Chrome-Elemente weichen, volle Fläche); „☰ Übersicht" klappt wieder alle ein.
+    Der Fuchs-Nudge „Tour ab hier planen" führt weiter direkt in den Fokus.
+  - **Gebiets-Cockpit:** öffnet als reine KPI-Analyse; die „Was-wäre-wenn"-
+    Simulation ist standardmäßig eingeklappt und wird bei Bedarf aufgezogen
+    (läuft bereits eine Simulation mit offenen Zuweisungen, öffnet sie
+    aufgeklappt).
+  - **Service/Verträge:** der Datenquellen-/Import-Block klappt bei geladenen
+    Verträgen ein (Kurzstatus „N Verträge · M Quellen") – konsistent mit dem
+    Einsätze-Tab.
+  - **Import-Assistent:** „Spalten zuordnen" zeigt die wichtigen Felder
+    (Kundenname*, PLZ*, Straße, Ort, Vertriebsbezirk, Vertriebsgruppe, Umsatz)
+    sofort; die übrigen optionalen Felder liegen unter „Weitere Felder"
+    eingeklappt (mit „N automatisch erkannt"). Beim Import werden weiterhin alle
+    Felder gelesen.
+  - **Datentresor & sicherer Umzug:** als eingeklappter Block mit Statuszeile
+    („Tresor aus/aktiv/gesperrt"); das Topbar-Schloss bleibt der schnelle
+    Einstieg.
+- **Vorübergehende Angebote treten beim Scrollen zurück (ohne Timer):** Beim
+  Scrollen in den Inhalt (= man wendet sich dem Prozess zu) klappen angepinnte
+  Angebote wie der Kartenstil-Wähler und der Beispieldaten-Streifen sanft ein und
+  geben der Prozessfläche Raum. Hochscrollen oder das (Wieder-)Betreten eines
+  Bereichs holt sie zurück – nichts wird dauerhaft ausgeblendet.
+- **Kartenansicht (Kunden/Status/Chancen) nur noch am Desktop:** Die Karten-
+  Einfärbung ist eine Analyse-/Karten-Sache und wurde aus dem mobilen Tour-Flow
+  entfernt (dort liegt die Karte beim Planen hinter dem Blatt; „Was ist in meiner
+  Nähe?" und „Überfällige zuerst" decken den Bedarf ab). Auf dem Desktop bleibt
+  sie neben der sichtbaren Karte. Die „Chancen"-Live-Demo überspringt die
+  Einfärb-Schritte auf dem Handy.
+
+### 26.4 Änderungen in Version 2.4
 
 - **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
   Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
@@ -2357,7 +2409,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
   danach sauber wieder her.
 
-### 26.4 Änderungen in Version 2.3
+### 26.5 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -2397,7 +2449,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.5 Änderungen in Version 2.2
+### 26.6 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -2428,7 +2480,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.6 Änderungen in Version 2.1
+### 26.7 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -2441,7 +2493,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.7 Änderungen in Version 2.0
+### 26.8 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.
