@@ -208,6 +208,89 @@
     text-align: center;
 }
 
+/* Änderungsbericht beim Reimport: „Was ändert sich?" */
+.import-diff-dialog {
+    width: min(720px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+}
+.import-diff-dialog header h2 { font-size: 1.15rem; }
+#import-diff-body {
+    max-height: min(58dvh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.diff-headline {
+    margin: 6px 0 12px;
+    font-size: 1.02rem;
+    font-weight: 800;
+}
+.diff-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(92px, 1fr));
+    gap: 8px;
+}
+.diff-stat {
+    padding: 10px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    background: var(--color-surface-2);
+    text-align: center;
+}
+.diff-stat b { display: block; font-size: 1.3rem; line-height: 1.2; }
+.diff-stat span {
+    display: block;
+    margin-top: 2px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+}
+.diff-stat-up b { color: #0f766e; }
+.diff-stat-down b { color: #b45309; }
+.diff-totals {
+    display: grid;
+    gap: 4px;
+    margin: 12px 0;
+    padding: 10px 12px;
+    border-left: 3px solid var(--color-primary, #0d9488);
+    background: #f8fafc;
+    font-size: 0.88rem;
+}
+.diff-totals em { font-style: normal; font-weight: 800; margin-left: 6px; }
+.diff-up { color: #0f766e; }
+.diff-down { color: #b45309; }
+.diff-flat { color: var(--color-text-muted); }
+.diff-districts,
+.diff-list {
+    margin-top: 8px;
+    border-top: 1px solid var(--color-border);
+    padding-top: 8px;
+}
+.diff-districts > summary,
+.diff-list > summary {
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 700;
+}
+.diff-table { width: 100%; border-collapse: collapse; font-size: 0.84rem; }
+.diff-table th,
+.diff-table td { padding: 6px 8px; border-bottom: 1px solid var(--color-border); text-align: left; }
+.diff-table .num { text-align: right; white-space: nowrap; }
+.diff-list ul { margin: 8px 0 0; padding-left: 18px; }
+.diff-list li { margin-bottom: 4px; font-size: 0.86rem; line-height: 1.35; }
+.diff-list li span {
+    display: block;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+}
+.diff-warning {
+    margin: 14px 0 0;
+    padding: 10px 12px;
+    border-left: 3px solid #f59e0b;
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 0.84rem;
+    line-height: 1.45;
+}
+
 /* Einfügen statt Datei: Liste direkt aus Excel in den Import übernehmen */
 .paste-dialog {
     width: 560px;

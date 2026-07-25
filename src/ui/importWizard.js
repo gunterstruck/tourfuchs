@@ -36,6 +36,7 @@ import {
 } from '../features/demoServiceVisits.js';
 import { confirmDatasetReplacement, hasExistingDataset } from './datasetReplacement.js';
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
+import { confirmImportWithDiff } from './importDiff.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -456,12 +457,24 @@ async function confirmImport() {
     }
 
     const replacedExisting = customers.length > 0 && hasExistingDataset();
-    if (customers.length > 0 && !confirmDatasetReplacement({
-        incomingCount: customers.length,
-        sourceLabel: 'Die ausgewählte Kundenliste'
-    })) {
-        showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
-        return;
+    if (customers.length > 0) {
+        // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
+        // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
+        // Ohne Vorbestand gibt es nichts zu vergleichen: kurze Standardabfrage.
+        const confirmed = state.customers.length > 0
+            ? await confirmImportWithDiff({
+                previous: state.customers,
+                incoming: customers,
+                sourceLabel: 'Die ausgewählte Kundenliste'
+            })
+            : confirmDatasetReplacement({
+                incomingCount: customers.length,
+                sourceLabel: 'Die ausgewählte Kundenliste'
+            });
+        if (!confirmed) {
+            showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
+            return;
+        }
     }
 
     dialog.close();

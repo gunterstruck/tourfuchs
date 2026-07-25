@@ -672,8 +672,23 @@ wieder; die Installation bleibt über das Browsermenü möglich.
 
 Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
 kein Delta und kein Upsert. TourFuchs liest und prüft die Datei zuerst. Sind
-bereits Daten vorhanden, erscheint vor jeder Änderung eine Warnung mit bisheriger
-und neuer Kundenanzahl.
+bereits Kunden vorhanden, erscheint vor jeder Änderung der **Änderungsbericht**
+**"Was ändert sich?"**:
+
+- **neue Kunden**, **entfallene Kunden**, **Bezirkswechsel** und **unverändert**
+  als vier Zahlen,
+- Kunden und Umsatz **gesamt vorher → nachher** mit Vorzeichen,
+- eingeklappt die **Wirkung je Vertriebsbezirk** (Kunden vorher/nachher, Δ
+  Kunden, Δ Umsatz) und die **namentlichen Listen** der drei Gruppen.
+
+Zugeordnet wird wie beim Import selbst: **Kundennummer**, sonst **Name + PLZ**.
+Ein Kunde, der nur umbenannt wurde, gilt bei gleicher Kundennummer als derselbe
+Kunde. Kunden ohne Bezirk laufen unter **"Ohne Zuordnung"**.
+
+Erst **"Bestand ersetzen"** führt den Import aus; **"Abbrechen"**, Schließen und
+Escape lassen den bisherigen Bestand vollständig unangetastet. Ohne vorhandenen
+Kundenbestand gibt es nichts zu vergleichen – dann bleibt es bei der kurzen
+Standardabfrage.
 
 Nach Bestätigung werden gemeinsam ersetzt:
 

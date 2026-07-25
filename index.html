@@ -602,6 +602,19 @@
             </div>
         </dialog>
 
+        <!-- Reimport: erst zeigen, was sich ändert, dann ersetzen lassen -->
+        <dialog id="import-diff-dialog" class="import-diff-dialog" aria-label="Was ändert sich durch die neue Liste?">
+            <header>
+                <h2>🔄 Was ändert sich?</h2>
+                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+            </header>
+            <div id="import-diff-body"></div>
+            <footer>
+                <button type="button" data-diff-cancel>Abbrechen</button>
+                <button type="button" class="primary" data-diff-confirm>Bestand ersetzen</button>
+            </footer>
+        </dialog>
+
         <!-- Einfügen statt Datei: die Liste ist meist ohnehin in Excel offen -->
         <dialog id="paste-dialog" class="paste-dialog" aria-label="Kundenliste einfügen">
             <header>
