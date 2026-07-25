@@ -618,7 +618,10 @@
         position: fixed;
         z-index: 1035;
         left: 50%;
-        bottom: calc(var(--mobile-sheet-peek, 46px) + 12px);
+        /* Deutlich über dem eingeklappten Blatt schweben (Griff + Beispieldaten-
+           Streifen), damit die Pille das Blatt nicht überlagert, sondern klar als
+           eigener Hinweis darüber steht. */
+        bottom: calc(var(--mobile-sheet-peek, 46px) + 30px);
         display: inline-flex;
         align-items: center;
         gap: 7px;
