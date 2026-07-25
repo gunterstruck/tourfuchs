@@ -36,6 +36,21 @@ describe('Fokus-Modus: mehr Übersicht im Tourplaner (Handy und Desktop)', () =>
         expect(panel).toContain("if (!isMobileTour() && state.tour.bezirk && state.tour.bezirk !== '__none__')");
     });
 
+    it('startet in der Übersicht (alle Schritte eingeklappt), Fokus erst beim Tippen', () => {
+        const sidebar = read('src/ui/sidebar.js');
+        // Das automatische „genau ein Schritt offen" gilt nur noch im Fokus-Modus –
+        // nicht mehr generell auf dem Handy. In der Übersicht bleibt alles zu.
+        expect(panel).toContain("if (!document.body.classList.contains('tour-focus')) return;");
+        // „☰ Übersicht" beendet den Fokus UND klappt alle Schritte ein.
+        expect(panel).toContain('setTourFocus(false); openTourAcc(null);');
+        // Tour-Tab ohne Desktop-Bezirk landet in der eingeklappten Übersicht
+        // (else-Zweig des tab:changed-Handlers).
+        expect(panel).toMatch(/setTourFocus\(false\);\s*\n\s*openTourAcc\(null\);/);
+        // Der Fuchs-Nudge „Tour ab hier planen" führt bewusst direkt in den Fokus.
+        expect(panel).toContain("on('tour:focus-plan'");
+        expect(sidebar).toContain("emit('tour:focus-plan')");
+    });
+
     it('führt die Schrittleiste synchron zum offenen Akkordeon', () => {
         // openTourAcc markiert den aktiven Schritt-Button.
         const from = panel.indexOf('function openTourAcc');
