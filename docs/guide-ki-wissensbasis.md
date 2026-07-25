@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.3 · Stand: 20.07.2026 · App-Version: 3.0.0**
+**Version 2.4 · Stand: 25.07.2026 · App-Version: 3.0.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -386,6 +386,13 @@ Sidebar sichtbar. Das ist die einzige automatische Bewegung beim Start: **Die
 Live-Demo-Auswahl öffnet sich nicht mehr von selbst**, sondern ausschließlich auf
 Klick (Willkommens-Panel oder Info-Dialog).
 
+Solange Beispieldaten laufen, liegt zusätzlich **mittig über der Karte** eine
+ruhige, nicht-blockierende Hinweiskarte („🧪 Das sind Beispieldaten" · **Eigene
+Daten laden** · **Kurze Live-Demos ansehen** · Quittung **"Verstanden – erst
+umsehen"**). Die Karte dahinter bleibt bedienbar. Ein dezenter Streifen im Panel
+(„🧪 Beispieldaten – Eigene Daten laden") bietet den geführten Upload jederzeit
+an, solange die Demo läuft.
+
 ### 5.2 Live-Demo-Auswahl nur auf Klick
 
 Die Demo-Auswahl öffnet ausschließlich über zwei bewusste Einstiege:
@@ -479,11 +486,11 @@ Die Vorführung:
 
 | Live-Demo | Desktop | Smartphone | Kernaussage |
 |---|---:|---:|---|
-| **"Aus Excel wird eine Landkarte"** | Ja | Ja | Demo-Liste laden, Kunden deutschlandweit sehen, Kunden öffnen |
-| **"Deine Tour in 30 Sekunden"** | Ja | Ja | ins Ruhrgebiet zoomen, Start und Kunden wählen, optimieren, Luftlinie und Straßenroute |
+| **"Vom Stapel zur Kundenkarte"** | Ja | Ja | Demo-Liste laden, Kundenstapel antippen bis zur einzelnen Kundenkachel, Details öffnen |
+| **"Deine Tour, Schritt für Schritt"** | Ja | Ja | ins Ruhrgebiet zoomen, Start und Kunden wählen, optimieren, Luftlinie und Straßenroute |
 | **"Aufs Handy - ohne Kabel, ohne Cloud"** | Ja | Nein | Desktop-Tour per QR ans Smartphone übergeben |
 | **"Was wäre wenn? Gebiete umbauen - ohne Risiko"** | Ja | Nein | Simulation ohne dauerhafte Änderung |
-| **"Dein Service-Tag in 20 Sekunden"** | Ja | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
+| **"Dein Service-Tag, verständlich geplant"** | Ja | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
 | **"Spontaner Termin? Sofort gebrieft"** | Ja | Ja | passenden Kunden finden und eine sichere Briefing-Ergebnisvorschau erleben |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
 | **"Verschlüsselte Daten aufs Handy holen"** | Nein | Ja | `.tfsafe`-Datei wählen und getrennten Schlüssel scannen |
@@ -778,7 +785,11 @@ wird intuitiv mit zwei Fingern gezoomt.
 ### 8.4 Kundenmarker und Cluster
 
 - Markerfarbe folgt der gewählten Ansicht.
-- viele Marker werden als Clusterzahl zusammengefasst.
+- viele Marker werden als Clusterzahl (Stapel) zusammengefasst; ein **Stapel
+  entsteht erst ab 6 Kunden**. Darunter stehen einzelne Marker statt eines
+  „Spinnennetzes"; ein kleiner Stapel (≤ 5) fächert mit **einem Tipp** auf.
+- **Kundennamen erscheinen erst im Nahbereich** (weiter draußen bleibt es ruhig);
+  kleine Cluster lösen sich beim Reinzoomen etwas später auf.
 - Kunden in der Tour werden hervorgehoben.
 - bei PLZ-Verortung ist die Position nur näherungsweise.
 - in der Ansicht **"Status"** folgen Farben dem Besuchsstatus.
@@ -1211,8 +1222,10 @@ Alternativ zum Live-Kamerascan kann ein Foto des QR-Codes ausgewählt werden.
 Nach erfolgreichem Scan:
 
 - **"Als Tour übernehmen"** gleicht Stopps über Kundennummer, sonst Name + PLZ,
-  mit lokalen Kunden ab.
-- **"In Google Maps navigieren"** funktioniert direkt aus dem QR-Code.
+  mit lokalen Kunden ab. **Im Code enthaltene, lokal unbekannte Kunden werden
+  dabei angelegt**, damit die Tour vollständig übernommen wird.
+- **"In Google Maps navigieren"** funktioniert direkt aus dem QR-Code – auf
+  Wunsch **ab dem aktuellen Standort**.
 - **Kalender (.ics)** funktioniert ebenfalls direkt aus dem QR-Code.
 
 ### 11.4 Warum "An Handy übergeben" mobil fehlt
@@ -1249,6 +1262,11 @@ Das Bedienpanel ist unten an den Bildschirm angedockt.
   falsch zu schrumpfen.
 - ein reiner Tipp auf den Griff ändert mobil nichts.
 - die gewählte Höhe wird gespeichert.
+- der eingeklappte Peek und die schwebenden Overlays liegen bewusst **über der
+  System-Navigationsleiste** (Android/iOS): Ist im Edge-to-Edge-Modus unten eine
+  Zurück/Home/Übersicht-Leiste sichtbar, verdeckt sie den Beispieldaten-Streifen
+  und die Bedienelemente nicht mehr. Ohne sichtbare Leiste sitzt das Blatt wie
+  bisher ganz unten.
 
 **Tour-Akkordeon (mobil):** Im Tour-Blatt sind **1. Startpunkt · 2. Vorschläge ·
 3. Meine Tour** drei ein-/ausklappbare Karten. Es ist immer **genau eine offen**;
@@ -1264,6 +1282,10 @@ im Außendienst eine kleine helle Pille über der Griff-Leiste und schlägt den
 nächsten sinnvollen Schritt vor: 📍 „Kunden in meiner Nähe" → 🚩 „Tour ab hier
 planen" (öffnet das Tour-Blatt mit gesetztem Start) → 🗺️ „Route auf die Karte".
 Liegt die Route, tritt der Fuchs zurück und die Straßenroute-Leiste übernimmt.
+
+**„Meine Tour" (mobil):** Die Stopps sind kompakte **Ein-Zeilen-Karten** mit
+durchgehender grüner Tourlinie. Umsortiert wird per **Halten & Ziehen**; ein
+**Fokus-Modus** gibt dem gerade aktiven Element mehr Platz.
 
 Im Sheet funktionieren Scrollbar, Finger-Scrollen und Ziehen auf Freiflächen.
 Die Karte wird mobil mit zwei Fingern gezoomt. Sowohl die zusätzlichen
@@ -2296,7 +2318,46 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 2.3
+### 26.3 Änderungen in Version 2.4
+
+- **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
+  Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
+  (`env(safe-area-inset-bottom)`) ein. Der eingeklappte Blatt-Peek und alle
+  schwebenden Overlays (Fuchs-Pille, Straßenrouten-Umschalter, Willkommens-
+  Hinweis) liegen dadurch vollständig **über** der Android/iOS-Navigationsleiste
+  statt an deren Rand. Ist keine Leiste sichtbar (oder eingeklappt), bleibt alles
+  wie bisher. Solange Beispieldaten laufen, zeigt der eingeklappte Peek jetzt den
+  **kompletten** „Beispieldaten – eigene Daten laden"-Streifen statt nur einen
+  Ansatz.
+- **Mobile „Meine Tour" aufgeräumt:** Stopps sind kompakte Ein-Zeilen-Karten mit
+  durchgehender grüner Tourlinie; Umsortieren erfolgt per **Halten & Ziehen**
+  (Touch). Ein **Fokus-Modus** gibt dem aktiven Element mehr Platz.
+- **Tour-Aktionen (Handy) neu geordnet:** „Tour vom Desktop scannen" steht als
+  Einstieg oben, die QR-Übergabe ist am Desktop prominent, die Timeline ist
+  grün. Ein gesetzter **Startpunkt lässt sich wieder entfernen** (nicht nur
+  ersetzen); sobald ein Start steht, verschwindet der Scan-Einstieg.
+- **QR-Empfang erweitert:** Beim „Als Tour übernehmen" werden **unbekannte
+  Kunden aus dem Code angelegt**, und die Navigation kann **ab dem aktuellen
+  Standort** starten.
+- **Karte ruhiger:** Kundenstapel entstehen erst **ab 6 Kunden** – darunter
+  stehen Einzelmarker (kleine Stapel ≤ 5 fächern mit einem Tipp auf). Kundennamen
+  erscheinen erst **im Nahbereich**, kleine Cluster halten länger.
+- **Desktop-Tourplaner** startet direkt in der kompakten, horizontalen
+  Schrittleiste (gleicher Fokus wie im Mobile View); Stopps kompakter,
+  Umsortieren per Maus-Ziehen.
+- **Zentraler Willkommens-Hinweis auf dem Desktop:** Solange Beispieldaten
+  laufen, liegt mittig über der Karte eine ruhige, nicht-blockierende
+  Hinweiskarte („Das sind Beispieldaten" · eigene Daten laden · Live-Demos) mit
+  einer Quittung „Verstanden – erst umsehen"; die Karte dahinter bleibt bedienbar.
+  Ein dauerhafter Streifen im Panel bietet „Eigene Daten laden" jederzeit an.
+- **Live-Demos geschärft:** Der Geister-Zeiger klickt jetzt **exakt** auf sein
+  Ziel (auch in Dialogen); Titel angepasst („Vom Stapel zur Kundenkarte", „Deine
+  Tour, Schritt für Schritt", „Dein Service-Tag, verständlich geplant"). Auf dem
+  Handy blendet die Vorführung die Fuchs-Pille aus, klappt das Blatt für den
+  Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
+  danach sauber wieder her.
+
+### 26.4 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -2336,7 +2397,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.4 Änderungen in Version 2.2
+### 26.5 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -2367,7 +2428,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.5 Änderungen in Version 2.1
+### 26.6 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -2380,7 +2441,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.6 Änderungen in Version 2.0
+### 26.7 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.

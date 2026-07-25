@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 20.07.2026
+Stand: 25.07.2026
 
 ## 1. Ziel der Schulung
 
@@ -235,11 +235,13 @@ Für Schulungen empfiehlt sich der Demo-Modus:
 
 Vorteil: Alle Teilnehmenden sehen dieselbe Datenbasis, ohne echte Kundendaten verwenden zu müssen.
 
+Solange Beispieldaten laufen, weist eine ruhige Hinweiskarte mittig über der Karte darauf hin („Das sind Beispieldaten") und bietet „Eigene Daten laden" sowie „Kurze Live-Demos ansehen" an; ein Klick auf „Verstanden – erst umsehen" legt sie beiseite. Für die Vorführung eignen sich die geführten Live-Demos (ein sichtbarer Zeiger bedient die echte App, je ~30–60 s): u. a. „Vom Stapel zur Kundenkarte", „Deine Tour, Schritt für Schritt", „Aufs Handy – ohne Kabel, ohne Cloud" und „Dein Service-Tag, verständlich geplant".
+
 ## 9. Karte verstehen
 
 ### Kundenpunkte
 
-Kunden erscheinen als Marker auf der Karte. Je nach Ansicht können Marker clustern, also als Zahl zusammengefasst werden.
+Kunden erscheinen als Marker auf der Karte. Je nach Ansicht können Marker clustern, also als Zahl (Stapel) zusammengefasst werden. Ein Stapel entsteht erst ab 6 Kunden; kleinere Ansammlungen bleiben Einzelmarker und fächern mit einem Tipp auf. Kundennamen werden erst im Nahbereich eingeblendet, damit die Übersicht draußen ruhig bleibt.
 
 Klick auf einen Kunden zeigt:
 
@@ -445,7 +447,7 @@ Der Umkreis kann eingestellt werden. Überfällige Kunden können priorisiert we
 
 ### Meine Tour
 
-Kunden werden der Tour hinzugefügt. Danach kann die Reihenfolge optimiert werden.
+Kunden werden der Tour hinzugefügt. Danach kann die Reihenfolge optimiert werden. Auf dem Smartphone sind die Stopps kompakte Ein-Zeilen-Karten mit durchgehender grüner Tourlinie; die Reihenfolge lässt sich per Halten & Ziehen ändern, ein Fokus-Modus gibt dem aktiven Element mehr Platz.
 
 Funktionen:
 
@@ -486,7 +488,7 @@ Das mobile Tour-Panel kann in Stufen bewegt werden:
 - halb offen
 - voll geöffnet
 
-Damit bleibt die Karte sichtbar, während Tourdaten zugänglich sind.
+Damit bleibt die Karte sichtbar, während Tourdaten zugänglich sind. Der Griff wird senkrecht gezogen, „Tour" zieht das Blatt ganz auf. Startpunkt · Vorschläge · Meine Tour bilden ein Akkordeon (genau eine Gruppe offen); ein kleiner schwebender Fuchs-Knopf schlägt den nächsten Schritt vor. Der eingeklappte Blattrand und die schwebenden Bedienelemente liegen über einer eingeblendeten System-Navigationsleiste (Android/iOS), sodass Hinweise dort nicht verdeckt werden.
 
 ### Hochformat
 
