@@ -34,9 +34,83 @@ export default defineConfig({
                     { src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
                     { src: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
                     { src: '/icons/maskable-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' }
-                ]
+                ],
+                // Ohne Screenshot zeigt der Browser nur den kargen Installations-
+                // Dialog; mit Screenshot die ausführliche App-Karte.
+                screenshots: [
+                    {
+                        src: '/og-image.png',
+                        sizes: '1200x630',
+                        type: 'image/png',
+                        form_factor: 'wide',
+                        label: 'Kunden und Vertriebsgebiete auf der Deutschlandkarte'
+                    }
+                ],
+                // Long-Press auf das App-Icon: direkt in die Aufgabe statt auf den Start.
+                shortcuts: [
+                    {
+                        name: 'Meine Tour',
+                        short_name: 'Tour',
+                        description: 'Tagestour planen und navigieren',
+                        url: '/?start=tour',
+                        icons: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
+                    },
+                    {
+                        name: 'Kunden in der Nähe',
+                        short_name: 'In der Nähe',
+                        description: 'Wen könnte ich hier noch besuchen?',
+                        url: '/?start=nearby',
+                        icons: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
+                    },
+                    {
+                        name: 'Liste importieren',
+                        short_name: 'Import',
+                        description: 'Excel-/CSV-Liste laden oder einfügen',
+                        url: '/?start=import',
+                        icons: [{ src: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }]
+                    }
+                ],
+                // Doppelklick auf eine Kundenliste im Explorer/Finder öffnet TourFuchs.
+                file_handlers: [
+                    {
+                        action: '/',
+                        accept: {
+                            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+                            'application/vnd.ms-excel': ['.xls'],
+                            'text/csv': ['.csv']
+                        },
+                        launch_type: 'single-client'
+                    }
+                ],
+                // Android: Excel-Anhang aus Outlook/Drive per „Teilen" an TourFuchs.
+                // Der POST wird im Service Worker abgefangen (public/share-target.js).
+                share_target: {
+                    action: '/share-target',
+                    method: 'POST',
+                    enctype: 'multipart/form-data',
+                    params: {
+                        files: [{
+                            name: 'file',
+                            accept: [
+                                '.xlsx', '.xls', '.csv',
+                                'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel',
+                                'text/csv'
+                            ]
+                        }]
+                    }
+                },
+                // Eine geteilte Datei soll die laufende App weiterverwenden,
+                // statt ein zweites Fenster mit leerem Zustand zu öffnen.
+                launch_handler: { client_mode: 'navigate-existing' }
             },
             workbox: {
+                // Eigener Fetch-Handler für das Android-Teilen-Ziel. Wird vor der
+                // Workbox-Routenkonfiguration eingebunden, damit der POST auf
+                // /share-target zuerst greift.
+                importScripts: ['share-target.js'],
+                // Der Handler wird importiert, nicht als Seite geladen.
+                globIgnores: ['share-target.js'],
                 // App-Shell + kleine Gebietsdaten vorab cachen (offline-fähig ab dem ersten Besuch)
                 globPatterns: [
                     '**/*.{js,css,html,svg,png,woff2,xlsx,csv}',

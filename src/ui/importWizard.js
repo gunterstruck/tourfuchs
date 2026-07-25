@@ -41,6 +41,7 @@ let dialog = null;
 let resultDialog = null;
 let ownDataDialog = null;
 let pasteDialog = null;
+let pendingExternalFile = null;
 let parsed = null; // { headers, rows, fileName }
 let lastErrors = [];
 let lastFileBase = 'TourFuchs';
@@ -119,6 +120,7 @@ export function initImportWizard() {
     });
 
     initPasteImport();
+    initPendingExternalFile();
 
     const downloadTemplate = async () => (await excel()).downloadTemplate();
     document.getElementById('btn-template').addEventListener('click', downloadTemplate);
@@ -225,6 +227,43 @@ function showComplianceToast() {
         el.classList.add('attention');
     });
     showToast('Bitte bestätigen Sie zuerst, dass Sie zur Verarbeitung der Daten berechtigt sind.', 'info', 6000);
+}
+
+/** Von außen geöffnete Datei (Shortcut „Import", Teilen-Ziel, Datei-Handler). */
+export function openOwnDataDialog() {
+    cancelWelcomeDemo();
+    ownDataDialog?.showModal();
+}
+
+/**
+ * Kundenliste, die das Betriebssystem übergibt (geteilt oder „Öffnen mit").
+ * Die Berechtigungs-Bestätigung bleibt Pflicht: Ohne Häkchen wartet die Datei
+ * sichtbar im „Eigene Daten laden"-Dialog und wird übernommen, sobald bestätigt.
+ */
+export function importExternalFile(file) {
+    if (!file) return;
+    cancelWelcomeDemo();
+    if (hasComplianceOptIn()) {
+        handleFile(file);
+        return;
+    }
+    pendingExternalFile = file;
+    ownDataDialog?.showModal();
+    showComplianceToast();
+    showToast(`„${file.name}" wartet – bitte zuerst die Berechtigung bestätigen.`, 'info', 7000);
+}
+
+/** Sobald die Berechtigung bestätigt ist, die wartende Datei übernehmen. */
+function initPendingExternalFile() {
+    for (const input of document.querySelectorAll('[data-compliance-optin]')) {
+        input.addEventListener('change', () => {
+            if (!input.checked || !pendingExternalFile) return;
+            const file = pendingExternalFile;
+            pendingExternalFile = null;
+            ownDataDialog?.close();
+            handleFile(file);
+        });
+    }
 }
 
 async function handleFile(file) {

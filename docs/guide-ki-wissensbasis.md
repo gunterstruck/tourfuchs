@@ -645,6 +645,29 @@ bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
 Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
 Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
+#### 7.5.2 Wege der installierten App
+
+Ist TourFuchs installiert, führen drei weitere Wege in den Import beziehungsweise
+direkt in die Aufgabe:
+
+- **Datei-Handler:** Eine `.xlsx`, `.xls` oder `.csv` im Explorer/Finder mit
+  TourFuchs öffnen. Die laufende App übernimmt die Datei, sie startet kein
+  zweites Fenster.
+- **Teilen (Android):** Excel-Anhang in Outlook/Drive -> **Teilen** -> TourFuchs.
+  Der Service Worker nimmt die Datei **lokal** entgegen; sie wird zu keinem
+  Zeitpunkt an einen Server gesendet.
+- **Icon-Kurzbefehle:** Long-Press auf das App-Icon -> **"Meine Tour"**,
+  **"Kunden in der Nähe"** oder **"Liste importieren"**.
+
+In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noch
+nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
+wird übernommen, sobald bestätigt wurde.
+
+Das **Installations-Angebot** erscheint nicht sofort. TourFuchs hebt es sich für
+den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
+mindestens einem Stopp geplant. Einmal mit **"Später"** abgelehnt, kommt es nicht
+wieder; die Installation bleibt über das Browsermenü möglich.
+
 ### 7.6 Erneuter Import und vollständige Ersetzung
 
 Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
@@ -2011,6 +2034,29 @@ Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
 bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
 Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
 Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
+
+#### 7.5.2 Wege der installierten App
+
+Ist TourFuchs installiert, führen drei weitere Wege in den Import beziehungsweise
+direkt in die Aufgabe:
+
+- **Datei-Handler:** Eine `.xlsx`, `.xls` oder `.csv` im Explorer/Finder mit
+  TourFuchs öffnen. Die laufende App übernimmt die Datei, sie startet kein
+  zweites Fenster.
+- **Teilen (Android):** Excel-Anhang in Outlook/Drive -> **Teilen** -> TourFuchs.
+  Der Service Worker nimmt die Datei **lokal** entgegen; sie wird zu keinem
+  Zeitpunkt an einen Server gesendet.
+- **Icon-Kurzbefehle:** Long-Press auf das App-Icon -> **"Meine Tour"**,
+  **"Kunden in der Nähe"** oder **"Liste importieren"**.
+
+In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noch
+nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
+wird übernommen, sobald bestätigt wurde.
+
+Das **Installations-Angebot** erscheint nicht sofort. TourFuchs hebt es sich für
+den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
+mindestens einem Stopp geplant. Einmal mit **"Später"** abgelehnt, kommt es nicht
+wieder; die Installation bleibt über das Browsermenü möglich.
 
 ### 20.4 Gebiets-Cockpit in 10 Minuten
 

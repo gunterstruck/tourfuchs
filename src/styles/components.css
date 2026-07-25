@@ -1571,7 +1571,8 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
 .toast-success { background: var(--color-success); }
 
 /* PWA-Update-Hinweis */
-.pwa-update-banner {
+.pwa-update-banner,
+.install-offer {
     position: fixed;
     left: 50%;
     bottom: calc(18px + env(safe-area-inset-bottom, 0px));
@@ -1590,40 +1591,48 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
     transition: opacity 0.18s ease, transform 0.18s ease;
 }
 
-.pwa-update-banner.visible {
+.pwa-update-banner.visible,
+.install-offer.visible {
     opacity: 1;
     transform: translate(-50%, 0);
 }
 
-.pwa-update-copy {
+.pwa-update-copy,
+.install-offer-copy {
     flex: 1;
     min-width: 0;
     line-height: 1.3;
 }
 
 .pwa-update-copy strong,
-.pwa-update-copy span {
+.pwa-update-copy span,
+.install-offer-copy strong,
+.install-offer-copy span {
     display: block;
 }
 
-.pwa-update-copy strong {
+.pwa-update-copy strong,
+.install-offer-copy strong {
     font-size: 0.92rem;
 }
 
-.pwa-update-copy span {
+.pwa-update-copy span,
+.install-offer-copy span {
     margin-top: 2px;
     color: var(--color-text-muted);
     font-size: 0.82rem;
 }
 
-.pwa-update-actions {
+.pwa-update-actions,
+.install-offer-actions {
     display: flex;
     align-items: center;
     gap: 8px;
     flex-shrink: 0;
 }
 
-.pwa-update-actions button {
+.pwa-update-actions button,
+.install-offer-actions button {
     min-height: 40px;
     padding-inline: 14px;
     font-weight: 700;
