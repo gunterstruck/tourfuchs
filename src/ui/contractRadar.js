@@ -278,11 +278,16 @@ function renderSources() {
     if (!target) return;
     const entries = Object.entries(sources());
     const index = customerIndex();
+    const details = el('contract-data-sources');
+    const health = el('contract-source-health');
     if (!entries.length) {
         target.innerHTML = `<div class="contract-empty compact">
             <b>Noch keine Vertragsdaten</b>
             <span>Laden Sie einen aktuellen SAP-/Service-Abzug. Kundendaten und Touren bleiben dabei unverändert.</span>
         </div>`;
+        // Ohne Daten bleibt die Datenquelle aufgeklappt – man braucht den Import.
+        if (details) details.open = true;
+        if (health) health.textContent = 'Verträge fehlen';
         return;
     }
 
@@ -301,6 +306,17 @@ function renderSources() {
             <small>Importiert ${escapeHtml(formatDate(meta?.importedAt))}</small>
         </article>`;
     }).join('')}</div>`;
+    // Konzept „Überblick → aufzoomen": Sind Verträge geladen, klappt die
+    // Datenquelle (Import/Vorlagen) ein und macht der eigentlichen Arbeitsfläche
+    // (KPIs, Fristen, Vertragsliste) Platz. Zum Nachladen wieder aufklappbar.
+    const total = contracts().length;
+    const unmatchedTotal = contracts().filter((contract) => !customerForContract(contract, index)).length;
+    if (details) details.open = false;
+    if (health) {
+        health.textContent = unmatchedTotal
+            ? `${total} Verträge · ${unmatchedTotal} nicht zugeordnet`
+            : `${total} Verträge · ${entries.length} Quelle${entries.length === 1 ? '' : 'n'}`;
+    }
 }
 
 function summaryFor(all) {

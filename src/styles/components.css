@@ -454,6 +454,31 @@
     border-radius: var(--radius-xl);
 }
 .simulation-panel h3 { margin-top: 0; }
+/* Konzept „Überblick → aufzoomen": Das Cockpit öffnet als Analyse (KPIs); die
+   Simulation ist standardmäßig eingeklappt und wird bei Bedarf aufgezogen. */
+.simulation-panel > summary {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    list-style: none;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--color-text);
+}
+.simulation-panel > summary::-webkit-details-marker { display: none; }
+.simulation-panel > summary::after {
+    content: "▾";
+    margin-left: auto;
+    color: #94a3b8;
+    font-size: 0.9rem;
+    transition: transform 0.2s ease;
+}
+.simulation-panel[open] > summary::after { transform: rotate(180deg); color: var(--color-primary, #0d9488); }
+.simulation-panel .sim-panel-hint { font-weight: 400; }
+.simulation-panel[open] .sim-panel-hint { display: none; }
+.simulation-panel[open] > summary { margin-bottom: 4px; }
 .simulation-panel footer {
     display: flex;
     justify-content: space-between;

@@ -299,6 +299,9 @@ async function open() {
     if (pendingTerr.size > 0 || overrides.size > 0) {
         hideSimulationMap();
         renderAll();
+        // Läuft bereits eine Simulation (offene Zuweisungen), direkt aufgeklappt
+        // öffnen – hier gibt es aktiv etwas zu prüfen/übernehmen.
+        setSimulationPanelOpen(true);
         dialog.showModal();
         return;
     }
@@ -323,8 +326,17 @@ async function open() {
     await loadMembership();
     if (sequence !== openSequence || !expertPlanningAvailable()) return;
     renderAll();
+    // Frisches Öffnen: Cockpit zeigt zuerst die Analyse (KPIs); die Simulation
+    // ist eingeklappt und wird bei Bedarf aufgezogen (Überblick → aufzoomen).
+    setSimulationPanelOpen(false);
     dialog.showModal();
     dialog.scrollTop = 0;
+}
+
+/** Klappt das „Was-wäre-wenn"-Simulationspanel auf/zu (Konzept: Analyse zuerst). */
+function setSimulationPanelOpen(open) {
+    const panel = document.getElementById('simulation-panel');
+    if (panel) panel.open = open;
 }
 
 function renderAssignAttrSelect() {
