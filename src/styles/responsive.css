@@ -348,10 +348,26 @@
     }
 
     :root {
+        /* Sichere Zone am unteren Rand: Auf Android/iOS liegt dort im
+           Edge-to-Edge-Modus (viewport-fit=cover) die System-Navigationsleiste
+           (Zurück/Home/Übersicht). Ohne diesen Abstand verschwindet die unterste
+           Blatt-Zeile (z. B. der Beispieldaten-Hinweis) hinter dieser Leiste.
+           Ist keine Leiste da (oder eingeklappt), ist der Wert 0 – kein Nachteil. */
+        --safe-bottom: env(safe-area-inset-bottom, 0px);
         /* Nur der Griff schaut im Ruhezustand heraus – Basis/Profi und Tabs
-           „hängen" jetzt oben, das Blatt ist reine Inhaltsfläche auf Abruf. */
+           „hängen" jetzt oben, das Blatt ist reine Inhaltsfläche auf Abruf.
+           Das Blatt selbst wird über --safe-bottom komplett angehoben (siehe
+           `.sidebar { bottom }`), daher bleibt der Peek der reine Inhaltswert. */
         --mobile-sheet-peek: 46px;
         --mobile-sheet-half: min(68dvh, 620px);
+    }
+
+    /* Beispieldaten-Betrieb: der eingeklappte Peek zeigt zusätzlich zum Griff den
+       vollständigen „Beispieldaten – eigene Daten laden"-Streifen, damit dieser
+       Hinweis nicht nur als Ansatz am unteren Rand (bzw. hinter der System-Leiste)
+       erscheint. Alle Peek-abhängigen Overlays steigen automatisch mit. */
+    body.demo-data-active {
+        --mobile-sheet-peek: 100px;
     }
 
     /* Fixer Kopf-Streifen unter der Topbar: Ansichtstiefe + Tabs immer sichtbar.
@@ -421,7 +437,13 @@
         top: auto;
         left: 0;
         right: 0;
-        bottom: 0;
+        /* Das gesamte Blatt sitzt oberhalb der sicheren Zone. So bleibt der
+           eingeklappte Peek (Griff + Beispieldaten-Streifen) vollständig über
+           der System-Navigationsleiste, statt an deren Rand zu kleben. Ohne
+           Leiste ist --safe-bottom 0 – das Blatt sitzt wie bisher ganz unten.
+           Im aufgeklappten Zustand reicht das Blatt weit über die Leiste hinaus,
+           daher entsteht am unteren Rand keine sichtbare Lücke. */
+        bottom: var(--safe-bottom);
         width: 100%;
         height: var(--sheet-height, var(--mobile-sheet-half));
         border-right: none;
@@ -534,7 +556,13 @@
     }
 
     .sidebar:not(.open) .mobile-desktop-note,
+    .sidebar:not(.open) .basemap-control,
+    .sidebar:not(.open) .first-steps,
     .sidebar:not(.open) .tab-panel {
+        /* Eingeklappt zeigt der Peek bewusst nur Griff + Beispieldaten-Streifen.
+           Kartenstil-Wähler und Erste-Schritte-Checkliste würden sonst als
+           Rest-Zeilen unter die Leiste bluten – sie kommen beim Aufziehen
+           ohnehin wieder. */
         display: none !important;
     }
 
@@ -598,14 +626,14 @@
     }
 
     /* Über dem eingeklappten Blatt platzieren, damit der Umschalter frei liegt. */
-    .route-mode-bar { bottom: calc(var(--mobile-sheet-peek, 46px) + 14px); }
+    .route-mode-bar { bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 14px); }
     .route-mode-toggle { padding: 7px 13px; font-size: 0.8rem; }
 
     /* Willkommens-Hinweis mobil: die Sidebar ist ein Blatt am unteren Rand –
        daher über die volle Kartenbreite zentrieren, oberhalb des Blatts. */
     .demo-welcome {
         left: 0;
-        bottom: calc(var(--mobile-sheet-peek, 46px) + 12px);
+        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 12px);
         align-items: center;
         padding: 16px;
     }
@@ -621,7 +649,7 @@
         /* Deutlich über dem eingeklappten Blatt schweben (Griff + Beispieldaten-
            Streifen), damit die Pille das Blatt nicht überlagert, sondern klar als
            eigener Hinweis darüber steht. */
-        bottom: calc(var(--mobile-sheet-peek, 46px) + 30px);
+        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 30px);
         display: inline-flex;
         align-items: center;
         gap: 7px;

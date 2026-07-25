@@ -1353,7 +1353,12 @@ function renderDataStatus() {
     // Demo-Streifen: nur bei aktiven Beispieldaten (nicht im leeren Willkommen,
     // nicht bei echten Daten). Überall im Panel sichtbar, führt zum Upload.
     const demoBanner = document.getElementById('demo-banner');
-    if (demoBanner) demoBanner.hidden = empty || !isDemoDataset(state.customers);
+    const demoActive = !empty && isDemoDataset(state.customers);
+    if (demoBanner) demoBanner.hidden = !demoActive;
+    // Solange Beispieldaten laufen, darf der eingeklappte mobile Peek etwas höher
+    // stehen, damit der Beispieldaten-/Upload-Streifen vollständig sichtbar ist
+    // (statt nur als Ansatz am unteren Rand). Steuert per CSS die Peek-Höhe.
+    document.body.classList.toggle('demo-data-active', demoActive);
     if (empty) {
         if (onboarding) onboarding.style.display = '';
         if (loaded) loaded.style.display = 'none';
