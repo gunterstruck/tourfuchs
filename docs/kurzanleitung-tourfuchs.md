@@ -79,6 +79,10 @@ Auf dem Smartphone stehen Karte und Tour im Mittelpunkt.
   genau eine Gruppe ist offen und folgt dem Arbeitsfluss.
 - Ein kleiner schwebender **Fuchs-Knopf** schlägt den nächsten Schritt vor:
   📍 Kunden in der Nähe → 🚩 Tour ab hier planen → 🗺️ Route auf die Karte.
+- In **Meine Tour** sind die Stopps kompakte Ein-Zeilen-Karten mit grüner
+  Tourlinie; Reihenfolge per **Halten & Ziehen** ändern.
+- Eine eingeblendete Android/iOS-**System-Navigationsleiste** verdeckt das Blatt
+  nicht mehr – Hinweise und Bedienelemente liegen darüber.
 
 Der Service-Modus ist ein optionales Modul: im Profi-Modus unten in der
 Gebietsplanung per Häkchen einblendbar.
