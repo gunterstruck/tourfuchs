@@ -17,7 +17,8 @@ describe('Demo-Streifen: „Eigene Daten laden" bei Beispieldaten überall anbie
     });
 
     it('zeigt den Streifen nur bei aktiven Beispieldaten', () => {
-        expect(sidebar).toContain("demoBanner.hidden = empty || !isDemoDataset(state.customers)");
+        expect(sidebar).toContain("const demoActive = !empty && isDemoDataset(state.customers)");
+        expect(sidebar).toContain("demoBanner.hidden = !demoActive");
     });
 
     it('führt den Streifen-Knopf in den geführten Upload-Dialog', () => {

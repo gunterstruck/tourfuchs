@@ -21,7 +21,7 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
         expect(css).toContain('.mobile-next-step {');
         // Klarer Abstand zum eingeklappten Blatt (Griff + Beispieldaten-Streifen):
         // die Pille sitzt darüber, nicht darauf.
-        expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + 30px)');
+        expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 30px)');
         expect(css).toMatch(/max-width: 82vw/); // nicht die volle Breite
     });
 
