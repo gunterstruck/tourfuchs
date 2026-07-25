@@ -22,7 +22,7 @@ export const STORIES = [
     {
         id: 'excel-karte',
         icon: '🗺️',
-        title: 'Von der Liste zur Kundenkarte',
+        title: 'Vom Stapel zur Kundenkarte',
         blurb: 'Kundenstapel verstehen und bis zum Detail aufzoomen.',
         duration: 30,
         minRuntimeMs: 15000,
