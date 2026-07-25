@@ -69,13 +69,11 @@ export function initTourPanel() {
         scopeExpanded = false;
         renderTourScope();
         updatePlannerVisibility();
-        // Desktop: mit gewähltem Bezirk direkt in die kompakte Schrittleiste; ohne
-        // Bezirk zurück zur Übersicht mit der Bezirkswahl.
-        if (!isMobileTour()) {
-            const chosen = state.tour.bezirk && state.tour.bezirk !== '__none__';
-            setTourFocus(chosen);
-            if (chosen) openTourAcc(currentTourStep());
-        }
+        // Nach der Bezirkswahl erscheint der Prozess als Übersicht (alle drei
+        // Schritte eingeklappt) – Handy wie Desktop. Antippen eines Schritts zoomt
+        // in den Fokus. Eine evtl. noch aktive Fokus-Ansicht wird zurückgesetzt.
+        setTourFocus(false);
+        openTourAcc(null);
         emit('tour:scope-changed');
         renderPanel();
     });
@@ -1052,19 +1050,11 @@ function initTourAccordion() {
     // Verlässt der Nutzer den Tour-Tab oder wechselt den Modus, endet der Fokus.
     on('tab:changed', (tab) => {
         if (tab !== 'tour') { setTourFocus(false); return; }
-        // Desktop: den Tourplaner direkt in der kompakten Schrittleiste öffnen –
-        // aber erst, wenn ein Bezirk gewählt ist (sonst braucht man die
-        // Bezirkswahl, die der Fokus ausblendet). „☰ Übersicht" bleibt der Weg
-        // zurück (bis zum nächsten Öffnen des Tabs).
-        if (!isMobileTour() && state.tour.bezirk && state.tour.bezirk !== '__none__') {
-            setTourFocus(true);
-            openTourAcc(currentTourStep());
-        } else {
-            // Handy (und Desktop ohne Bezirk): Übersicht mit allen Schritten
-            // eingeklappt – erst den Prozess zeigen, Antippen wechselt in den Fokus.
-            setTourFocus(false);
-            openTourAcc(null);
-        }
+        // Der Tour-Tab öffnet immer in der Übersicht (alle Schritte eingeklappt) –
+        // Handy wie Desktop. So sieht man erst den ganzen Prozess (1 · 2 · 3);
+        // Antippen eines Schritts zoomt in den Fokus, „☰ Übersicht" führt zurück.
+        setTourFocus(false);
+        openTourAcc(null);
     });
     on('mode:changed', () => setTourFocus(false));
 }

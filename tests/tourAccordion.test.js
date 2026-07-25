@@ -31,10 +31,13 @@ describe('Mobiles Tour-Akkordeon (Startpunkt · Vorschläge · Meine Tour)', () 
         expect(html).toContain('id="tour-stops"');
     });
 
-    it('bleibt auf dem Desktop layout-transparent, wird erst mobil zur Karte', () => {
-        // Desktop: display:contents + Zusammenfassung/Pfeil unsichtbar.
-        expect(css).toContain('.tour-acc { display: contents; }');
-        expect(css).toMatch(/@media \(max-width: 768px\)[\s\S]*\.tour-acc \{\s*display: block;/);
+    it('rendert die drei Schritte auf ALLEN Breiten als ein-/ausklappbare Karten', () => {
+        // Bewusste Vereinheitlichung: der „Überblick → aufzoomen"-Prozess gilt auch
+        // auf dem Desktop. Die Karten stehen daher außerhalb der Mobile-Media-Query.
+        expect(css).not.toContain('.tour-acc { display: contents; }');
+        expect(css).toMatch(/\.tour-acc \{\s*\n\s*display: block;/);
+        // Zusammenfassungszeile ist jetzt generell sichtbar (Überblick je Schritt).
+        expect(css).toContain('.tour-acc.open .acc-summary { display: none; }');
     });
 
     it('öffnet genau eine Gruppe und folgt sonst dem Arbeitsfluss', () => {
