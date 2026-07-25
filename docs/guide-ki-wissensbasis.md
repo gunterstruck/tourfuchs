@@ -663,6 +663,24 @@ In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noc
 nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
 wird übernommen, sobald bestätigt wurde.
 
+**Wichtig zum Teilen-Ziel:** Android trägt TourFuchs beim **Installieren** in die
+Teilen-Liste ein, nicht beim Aufrufen der Website. Erscheint TourFuchs nicht im
+Teilen-Menü, ist fast immer eine der drei Ursachen schuld:
+
+1. Die App war **schon vor dieser Version installiert**. Der Teilen-Eintrag steckt
+   in der installierten App (WebAPK) und wird von Chrome erst mit Verzögerung
+   erneuert. Verlässlicher Weg: App deinstallieren und **aus Chrome neu
+   installieren**. Vorher unbedingt eine **Sicherung** anlegen (Daten → Export
+   bzw. „Sicherer Umzug").
+2. Die App wurde **nicht mit Chrome** installiert. Samsung Internet und Firefox
+   erzeugen kein WebAPK und damit kein Teilen-Ziel.
+3. Es wurde nur eine **Verknüpfung** auf den Startbildschirm gelegt statt einer
+   echten Installation.
+
+Der Weg, der immer funktioniert und keine Installation braucht:
+**„Eigene Daten laden" → „Excel-/CSV-Datei auswählen"** und die Datei im
+Dateiauswahl-Dialog öffnen.
+
 Das **Installations-Angebot** erscheint nicht sofort. TourFuchs hebt es sich für
 den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
 mindestens einem Stopp geplant. Einmal mit **"Später"** abgelehnt, kommt es nicht
@@ -1810,6 +1828,14 @@ Lösung: Luftlinie weiterverwenden, Verbindung prüfen und erneut auf
 Das ist der erwartete Basisweg. Browser dürfen fremde Websites nicht automatisch
 mit Text befüllen oder absenden. Der Prompt liegt in der Zwischenablage. In
 Assistenten einfügen, prüfen und selbst absenden.
+
+### 18.7a TourFuchs fehlt im Teilen-Menü von Android
+
+Siehe 7.5.2: Der Teilen-Eintrag entsteht beim Installieren. Reihenfolge der
+Prüfung: mit Chrome installiert? echte Installation statt Verknüpfung? vor
+dieser Version installiert (dann neu installieren, vorher sichern)? Als
+sofortiger Weg genügt immer **"Eigene Daten laden" → "Excel-/CSV-Datei
+auswählen"**.
 
 ### 18.8 Beim Briefing öffnet sich kein Assistent
 

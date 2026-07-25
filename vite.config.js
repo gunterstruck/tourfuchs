@@ -71,13 +71,22 @@ export default defineConfig({
                     }
                 ],
                 // Doppelklick auf eine Kundenliste im Explorer/Finder öffnet TourFuchs.
+                // Die Alias-Typen sind kein Zierrat: Dateimanager und Mail-Apps
+                // melden dieselbe .xls-Datei je nach Hersteller unterschiedlich,
+                // und ein nicht gemeldeter Typ heißt „TourFuchs erscheint nicht".
                 file_handlers: [
                     {
                         action: '/',
                         accept: {
                             'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet': ['.xlsx'],
+                            'application/vnd.ms-excel.sheet.macroEnabled.12': ['.xlsm'],
                             'application/vnd.ms-excel': ['.xls'],
-                            'text/csv': ['.csv']
+                            'application/msexcel': ['.xls'],
+                            'application/x-msexcel': ['.xls'],
+                            'application/excel': ['.xls'],
+                            'text/csv': ['.csv'],
+                            'text/comma-separated-values': ['.csv'],
+                            'application/csv': ['.csv']
                         },
                         launch_type: 'single-client'
                     }
@@ -92,10 +101,16 @@ export default defineConfig({
                         files: [{
                             name: 'file',
                             accept: [
-                                '.xlsx', '.xls', '.csv',
+                                '.xlsx', '.xlsm', '.xls', '.csv',
                                 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+                                'application/vnd.ms-excel.sheet.macroEnabled.12',
                                 'application/vnd.ms-excel',
-                                'text/csv'
+                                'application/msexcel',
+                                'application/x-msexcel',
+                                'application/excel',
+                                'text/csv',
+                                'text/comma-separated-values',
+                                'application/csv'
                             ]
                         }]
                     }

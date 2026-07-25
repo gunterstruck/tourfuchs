@@ -268,9 +268,9 @@ function initPendingExternalFile() {
 }
 
 async function handleFile(file) {
-    const isExcel = /\.(xlsx|xls|csv|ods)$/i.test(file.name);
+    const isExcel = /\.(xlsx|xlsm|xls|csv|ods)$/i.test(file.name);
     if (!isExcel) {
-        showToast('Bitte eine Excel- oder CSV-Datei wählen (.xlsx, .xls, .csv).', 'error');
+        showToast('Bitte eine Excel- oder CSV-Datei wählen (.xlsx, .xlsm, .xls, .csv).', 'error');
         return;
     }
     try {
