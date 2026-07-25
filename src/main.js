@@ -29,6 +29,7 @@ import { initShowcase } from './ui/showcase.js';
 import { initVault } from './ui/lockVault.js';
 import { initPwaUpdates } from './ui/pwaUpdate.js';
 import { initPwaLaunch } from './ui/pwaLaunch.js';
+import { initDayReview } from './ui/dayReview.js';
 import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
@@ -204,6 +205,7 @@ async function init() {
     initShowcase();
     initPwaUpdates();
     initPwaLaunch();
+    initDayReview();
     initContextHelp();
     initFirstSteps();
     initOfferAutoHide();

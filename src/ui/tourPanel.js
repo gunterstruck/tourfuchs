@@ -1167,6 +1167,7 @@ function renderStops() {
             if (!c) return;
             markVisitedToday(c);
             markDirty(); // persistieren + Karte/Status neu zeichnen
+            emit('visits:changed');
             renderPanel();
             showToast(`Besuch bei ${c.name} für heute eingetragen.`, 'success');
         }));
@@ -1179,6 +1180,7 @@ function renderStops() {
             if (!c) return;
             markVisitedToday(c);
             markDirty();
+            emit('visits:changed');
             renderPanel();
             showToast(`Besuch bei ${c.name} für heute eingetragen.`, 'success');
         }));
