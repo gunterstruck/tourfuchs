@@ -591,7 +591,8 @@
                         <span>Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</span>
                     </label>
                     <button id="btn-upload" class="primary">Excel-/CSV-Datei auswählen</button>
-                    <button id="btn-template" class="linklike">📋 Noch keine Liste? Excel-Vorlage herunterladen</button>
+                    <button id="btn-paste" class="linklike">📋 Liste schon offen? Aus Excel kopieren und hier einfügen</button>
+                    <button id="btn-template" class="linklike">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
                 </section>
                 <section class="own-data-option" aria-labelledby="own-data-safe-title">
                     <h3 id="own-data-safe-title">🔐 Verschlüsselte TourFuchs-Datei</h3>
@@ -599,6 +600,26 @@
                     <button id="btn-safe-receive-ob" class="primary">Verschlüsselte Datei öffnen</button>
                 </section>
             </div>
+        </dialog>
+
+        <!-- Einfügen statt Datei: die Liste ist meist ohnehin in Excel offen -->
+        <dialog id="paste-dialog" class="paste-dialog" aria-label="Kundenliste einfügen">
+            <header>
+                <h2>📋 Kundenliste einfügen</h2>
+                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+            </header>
+            <ol class="paste-steps">
+                <li>In Excel die Liste <b>mit der Überschriftenzeile</b> markieren.</li>
+                <li><b>Strg</b> + <b>C</b> drücken (Mac: <b>⌘</b> + <b>C</b>).</li>
+                <li>Hier ins Feld klicken und <b>Strg</b> + <b>V</b> drücken.</li>
+            </ol>
+            <textarea id="paste-input" rows="6" spellcheck="false" aria-label="Kundenliste einfügen"
+                placeholder="Kundenname	PLZ	Ort	Vertriebsbezirk&#10;Muster GmbH	45136	Essen	Bezirk West"></textarea>
+            <p id="paste-status" class="muted small" role="status"></p>
+            <footer>
+                <button id="paste-cancel">Abbrechen</button>
+                <button id="paste-confirm" class="primary" disabled>Spalten zuordnen</button>
+            </footer>
         </dialog>
 
         <!-- Import-Dialog: Spalten-Zuordnung -->

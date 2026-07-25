@@ -613,8 +613,8 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 2. Im Bereich **"Excel- oder CSV-Liste"** bestätigen:
    **"Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu
    verwenden."**
-3. **"Excel-/CSV-Datei auswählen"** oder Datei per Drag & Drop auf die Karte
-   ziehen.
+3. **"Excel-/CSV-Datei auswählen"**, Datei per Drag & Drop auf die Karte ziehen
+   **oder die Liste direkt einfügen** (siehe 7.5.1).
 4. Im Dialog **"Spalten zuordnen"** automatische Zuordnung und Beispielwerte
    prüfen. Oben stehen die **wichtigen Felder** (Kundenname, PLZ, Straße, Ort,
    Vertriebsbezirk, Vertriebsgruppe, Umsatz); die übrigen **optionalen Felder**
@@ -627,6 +627,23 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 8. Nach eigenen Kundendaten dem geführten Tresor-Angebot folgen.
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
+
+#### 7.5.1 Einfügen statt Datei (Strg+V)
+
+Wer die Liste ohnehin in Excel offen hat, braucht keinen Export: Bereich
+**inklusive Überschriftenzeile** markieren, **Strg+C**, dann in TourFuchs
+einfügen. Zwei Wege:
+
+- **"Eigene Daten laden" -> "Liste schon offen? Aus Excel kopieren und hier
+  einfügen"** öffnet ein Feld; dort **Strg+V**. TourFuchs meldet sofort, wie
+  viele Zeilen und Spalten erkannt wurden, dann **"Spalten zuordnen"**.
+- **Strg+V irgendwo in der App** (außerhalb von Eingabefeldern) führt direkt in
+  die Spaltenzuordnung.
+
+Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
+bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
+Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
+Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
 ### 7.6 Erneuter Import und vollständige Ersetzung
 
@@ -1977,6 +1994,23 @@ aktuelle interne Wissen.
 8. Tresor-Angebot erklären.
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
+
+#### 7.5.1 Einfügen statt Datei (Strg+V)
+
+Wer die Liste ohnehin in Excel offen hat, braucht keinen Export: Bereich
+**inklusive Überschriftenzeile** markieren, **Strg+C**, dann in TourFuchs
+einfügen. Zwei Wege:
+
+- **"Eigene Daten laden" -> "Liste schon offen? Aus Excel kopieren und hier
+  einfügen"** öffnet ein Feld; dort **Strg+V**. TourFuchs meldet sofort, wie
+  viele Zeilen und Spalten erkannt wurden, dann **"Spalten zuordnen"**.
+- **Strg+V irgendwo in der App** (außerhalb von Eingabefeldern) führt direkt in
+  die Spaltenzuordnung.
+
+Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
+bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
+Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
+Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
 ### 20.4 Gebiets-Cockpit in 10 Minuten
 

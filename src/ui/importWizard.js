@@ -35,10 +35,12 @@ import {
     createDemoServiceVisitSourceMeta
 } from '../features/demoServiceVisits.js';
 import { confirmDatasetReplacement, hasExistingDataset } from './datasetReplacement.js';
+import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 
 let dialog = null;
 let resultDialog = null;
 let ownDataDialog = null;
+let pasteDialog = null;
 let parsed = null; // { headers, rows, fileName }
 let lastErrors = [];
 let lastFileBase = 'TourFuchs';
@@ -115,6 +117,8 @@ export function initImportWizard() {
         if (e.target.files[0]) handleFile(e.target.files[0]);
         fileInput.value = '';
     });
+
+    initPasteImport();
 
     const downloadTemplate = async () => (await excel()).downloadTemplate();
     document.getElementById('btn-template').addEventListener('click', downloadTemplate);
@@ -236,6 +240,92 @@ async function handleFile(file) {
         await showMappingStep();
     } catch (error) {
         showToast(`Datei konnte nicht gelesen werden: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Einfügen statt Datei: Wer seine Liste in Excel offen hat, kommt so ohne
+ * Zwischenspeichern in den Import. Zwei Wege führen hinein – der sichtbare
+ * Knopf im „Eigene Daten laden"-Dialog und ein globales Strg+V in der App.
+ */
+function initPasteImport() {
+    pasteDialog = document.getElementById('paste-dialog');
+    if (!pasteDialog) return;
+    const input = document.getElementById('paste-input');
+    const confirm = document.getElementById('paste-confirm');
+    const status = document.getElementById('paste-status');
+
+    const review = () => {
+        const text = input.value;
+        if (!text.trim()) {
+            status.textContent = '';
+            status.classList.remove('paste-status-error', 'paste-status-ok');
+            confirm.disabled = true;
+            return;
+        }
+        try {
+            const { headers, rows } = parseClipboardTable(text);
+            status.textContent = `Erkannt: ${rows.length} ${rows.length === 1 ? 'Zeile' : 'Zeilen'}, ${headers.length} Spalten – erste Spalte „${headers[0]}".`;
+            status.classList.add('paste-status-ok');
+            status.classList.remove('paste-status-error');
+            confirm.disabled = false;
+        } catch (error) {
+            status.textContent = error.message;
+            status.classList.add('paste-status-error');
+            status.classList.remove('paste-status-ok');
+            confirm.disabled = true;
+        }
+    };
+
+    input.addEventListener('input', review);
+    pasteDialog.querySelector('.dialog-close')?.addEventListener('click', () => pasteDialog.close());
+    document.getElementById('paste-cancel')?.addEventListener('click', () => pasteDialog.close());
+    confirm.addEventListener('click', () => {
+        const text = input.value;
+        pasteDialog.close();
+        usePastedTable(text);
+    });
+    pasteDialog.addEventListener('close', () => { input.value = ''; review(); });
+
+    document.getElementById('btn-paste')?.addEventListener('click', () => openPasteDialog());
+
+    // Globales Strg+V: nur außerhalb von Eingabefeldern und nur, wenn wirklich
+    // eine Tabelle in der Zwischenablage liegt – ein kopierter Satz löst nichts aus.
+    document.addEventListener('paste', (event) => {
+        const target = event.target;
+        if (target?.closest?.('input, textarea, select, [contenteditable]')) return;
+        if (pasteDialog.open) return;
+        if ([...document.querySelectorAll('dialog[open]')].some((el) => el !== ownDataDialog)) return;
+        const text = event.clipboardData?.getData('text/plain') || '';
+        if (!looksLikeTable(text)) return;
+        event.preventDefault();
+        if (!hasComplianceOptIn()) {
+            showComplianceToast();
+            return;
+        }
+        ownDataDialog?.close();
+        usePastedTable(text);
+    });
+}
+
+function openPasteDialog() {
+    if (!hasComplianceOptIn()) {
+        showComplianceToast();
+        return;
+    }
+    if (ownDataDialog?.open) ownDataDialog.close();
+    pasteDialog?.showModal();
+    document.getElementById('paste-input')?.focus();
+}
+
+async function usePastedTable(text) {
+    cancelWelcomeDemo();
+    try {
+        const { headers, rows } = parseClipboardTable(text);
+        parsed = { headers, rows, fileName: 'Eingefügte Liste' };
+        await showMappingStep();
+    } catch (error) {
+        showToast(`Eingefügte Daten konnten nicht gelesen werden: ${error.message}`, 'error', 6000);
     }
 }
 
