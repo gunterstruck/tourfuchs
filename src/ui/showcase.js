@@ -131,14 +131,62 @@ function layerFor(el) {
 
 // ---- Cursor-Bewegung / Klick ----
 function placeCursor(x, y) {
-    cursorEl.style.setProperty('--sc-x', `${x - 4}px`);
-    cursorEl.style.setProperty('--sc-y', `${y - 2}px`);
-    cursorEl.style.transform = `translate(${x - 4}px, ${y - 2}px)`;
+    // Sitzt der Cursor in einem transformierten Vorfahren, ist „fixed" relativ zu
+    // diesem – nicht zum Viewport. Offene Dialoge tragen durch die Einblend-
+    // Animation dauerhaft ein transform (scale(1) via fill-mode „both") und bilden
+    // damit einen solchen Bezugsrahmen. Dessen Viewport-Versatz abziehen, damit die
+    // Zeigerspitze trotzdem exakt auf den Viewport-Koordinaten (x, y) sitzt.
+    let ox = 0;
+    let oy = 0;
+    for (let n = cursorEl.parentElement; n && n !== document.body; n = n.parentElement) {
+        const cs = getComputedStyle(n);
+        if (cs.transform !== 'none' || cs.perspective !== 'none' || (cs.willChange || '').includes('transform')) {
+            const r = n.getBoundingClientRect();
+            ox = r.left;
+            oy = r.top;
+            break;
+        }
+    }
+    const px = x - ox - 4;
+    const py = y - oy - 2;
+    cursorEl.style.setProperty('--sc-x', `${px}px`);
+    cursorEl.style.setProperty('--sc-y', `${py}px`);
+    cursorEl.style.transform = `translate(${px}px, ${py}px)`;
 }
 async function moveTo(x, y) {
     cursorEl.hidden = false;
     placeCursor(x, y);
     await sleep(prefersReduced ? 120 : 680);
+}
+// Cursor OHNE Übergang exakt auf eine Position setzen. Wird kurz vor dem Klick
+// genutzt, um die Zeigerspitze auf die AKTUELLE Ziel-Mitte nachzuführen, falls
+// sich das Element seit dem Anvisieren verschoben hat (Liste re-rendert, Karte
+// animiert noch, Dialog öffnet). So klickt der Zeiger nicht sichtbar daneben.
+function snapCursor(x, y) {
+    const prevTransition = cursorEl.style.transition;
+    cursorEl.style.transition = 'none';
+    // Robust gegen transformierte Container / Re-Parenting: grob setzen, die
+    // TATSÄCHLICHE Lage der Spitze im Viewport messen und den Restfehler in ein
+    // paar Schritten ausgleichen, bis die Spitze exakt auf (x, y) sitzt.
+    let px = x - 4;
+    let py = y - 2;
+    const apply = () => {
+        cursorEl.style.setProperty('--sc-x', `${px}px`);
+        cursorEl.style.setProperty('--sc-y', `${py}px`);
+        cursorEl.style.transform = `translate(${px}px, ${py}px)`;
+        void cursorEl.offsetWidth; // Reflow, damit die Messung die neue Lage sieht
+    };
+    apply();
+    for (let i = 0; i < 3; i++) {
+        const r = cursorEl.getBoundingClientRect();
+        const dx = x - (r.left + 4);
+        const dy = y - (r.top + 2);
+        if (Math.abs(dx) < 0.5 && Math.abs(dy) < 0.5) break;
+        px += dx;
+        py += dy;
+        apply();
+    }
+    cursorEl.style.transition = prevTransition;
 }
 async function moveToEl(sel) {
     const el = await resolveEl(sel);
@@ -156,12 +204,17 @@ async function moveToEl(sel) {
 async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
     const el = await moveToEl(sel);
     if (!el) return false;
+    // Manche Dialog-Aktionen ersetzen ihren kompletten Inhalt – dann müssen die
+    // Overlays vorher aus dem Dialog heraus. Das ZUERST tun, damit die folgende
+    // Nachführung im endgültigen Bezugsrahmen (Body) misst und exakt sitzt.
+    if (keepOverlaysOutside) moveOverlaysInto(document.body);
+    // Ziel exakt nachführen: zwischen Anvisieren und Klick kann es sich verschoben
+    // haben (Vorschlagsliste re-rendert, Kartenanimation, frisch geöffneter Dialog).
+    const c = centerOf(el);
+    snapCursor(c.x, c.y);
     cursorEl.classList.add('sc-click', 'sc-press');
     await sleep(150);
     cursorEl.classList.remove('sc-press');
-    // Manche Dialog-Aktionen ersetzen ihren kompletten Inhalt. In diesem Fall
-    // müssen Cursor, Blase und Fortschritt vorher aus dem Dialog heraus.
-    if (keepOverlaysOutside) moveOverlaysInto(document.body);
     el.click();
     await sleep(120);
     cursorEl.classList.remove('sc-click');
