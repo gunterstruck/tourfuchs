@@ -247,8 +247,12 @@ async function showMappingStep() {
     document.getElementById('mapping-file-info').textContent =
         `${fileName} – ${rows.length} Zeilen, ${headers.length} Spalten`;
 
-    const tbody = document.getElementById('mapping-rows');
-    tbody.innerHTML = FIELDS.map((field) => {
+    // „Überblick → aufzoomen": Die wichtigsten Felder (Pflicht + die üblichen
+    // Vertriebsfelder) stehen sofort sichtbar oben. Die vielen optionalen Felder
+    // liegen eingeklappt darunter – erkannt werden sie trotzdem, das Summary sagt
+    // wie viele. So wirkt der Dialog nicht erschlagend, ohne etwas zu verstecken.
+    const IMPORTANT = new Set(['name', 'plz', 'strasse', 'ort', 'bezirk', 'gruppe', 'umsatz']);
+    const rowHtml = (field) => {
         const options = ['<option value="">– nicht vorhanden –</option>']
             .concat(headers.map((h) => {
                 const selected = mapping[field.key] === h ? ' selected' : '';
@@ -260,18 +264,30 @@ async function showMappingStep() {
             <td><select data-field="${field.key}">${options}</select></td>
             <td class="preview" data-preview="${field.key}"></td>
         </tr>`;
-    }).join('');
+    };
+    const important = FIELDS.filter((f) => IMPORTANT.has(f.key));
+    const optional = FIELDS.filter((f) => !IMPORTANT.has(f.key));
+    document.getElementById('mapping-rows').innerHTML = important.map(rowHtml).join('');
+    const optTbody = document.getElementById('mapping-rows-optional');
+    if (optTbody) optTbody.innerHTML = optional.map(rowHtml).join('');
+    const detected = optional.filter((f) => mapping[f.key]).length;
+    const moreCount = document.getElementById('mapping-more-count');
+    if (moreCount) moreCount.textContent = `(optional · ${optional.length}${detected ? ` · ${detected} automatisch erkannt` : ''})`;
+    const moreDetails = document.getElementById('mapping-more');
+    if (moreDetails) moreDetails.open = false;
 
+    const fieldSelects = () => dialog.querySelectorAll('select[data-field]');
     const updatePreview = () => {
-        tbody.querySelectorAll('select').forEach((sel) => {
-            const cell = tbody.querySelector(`[data-preview="${sel.dataset.field}"]`);
+        fieldSelects().forEach((sel) => {
+            const cell = dialog.querySelector(`[data-preview="${sel.dataset.field}"]`);
+            if (!cell) return;
             const header = sel.value;
             if (!header) { cell.textContent = ''; return; }
             const samples = rows.slice(0, 3).map((r) => r[header]).filter((v) => v !== '');
             cell.textContent = samples.slice(0, 2).join(' · ');
         });
     };
-    tbody.querySelectorAll('select').forEach((sel) => sel.addEventListener('change', updatePreview));
+    fieldSelects().forEach((sel) => sel.addEventListener('change', updatePreview));
     updatePreview();
 
     dialog.showModal();
@@ -279,7 +295,8 @@ async function showMappingStep() {
 
 async function confirmImport() {
     const mapping = {};
-    document.querySelectorAll('#mapping-rows select').forEach((sel) => {
+    // Wichtige + optionale (eingeklappte) Felder zusammen einlesen.
+    document.querySelectorAll('#import-dialog select[data-field]').forEach((sel) => {
         mapping[sel.dataset.field] = sel.value || null;
     });
 
