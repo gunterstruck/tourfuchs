@@ -32,19 +32,19 @@ describe('Fokus-Modus: mehr Übersicht im Tourplaner (Handy und Desktop)', () =>
         expect(panel).toContain("on('tab:changed'");
         expect(panel).toContain("if (tab !== 'tour') { setTourFocus(false); return; }");
         expect(panel).toContain("on('mode:changed', () => setTourFocus(false));");
-        // Desktop: mit gewähltem Bezirk direkt in die kompakte Schrittleiste.
-        expect(panel).toContain("if (!isMobileTour() && state.tour.bezirk && state.tour.bezirk !== '__none__')");
     });
 
-    it('startet in der Übersicht (alle Schritte eingeklappt), Fokus erst beim Tippen', () => {
+    it('startet auf Handy UND Desktop in der Übersicht, Fokus erst beim Tippen', () => {
         const sidebar = read('src/ui/sidebar.js');
         // Das automatische „genau ein Schritt offen" gilt nur noch im Fokus-Modus –
-        // nicht mehr generell auf dem Handy. In der Übersicht bleibt alles zu.
+        // in der Übersicht bleiben alle Schritte eingeklappt (beide Breiten).
         expect(panel).toContain("if (!document.body.classList.contains('tour-focus')) return;");
         // „☰ Übersicht" beendet den Fokus UND klappt alle Schritte ein.
         expect(panel).toContain('setTourFocus(false); openTourAcc(null);');
-        // Tour-Tab ohne Desktop-Bezirk landet in der eingeklappten Übersicht
-        // (else-Zweig des tab:changed-Handlers).
+        // Der Tour-Tab öffnet für ALLE Breiten in der Übersicht (kein Desktop-
+        // Sonderweg mehr, der direkt in den Fokus springt).
+        expect(panel).not.toContain("if (!isMobileTour() && state.tour.bezirk && state.tour.bezirk !== '__none__')");
+        // Auch die Bezirkswahl landet in der Übersicht (nicht mehr im Fokus).
         expect(panel).toMatch(/setTourFocus\(false\);\s*\n\s*openTourAcc\(null\);/);
         // Der Fuchs-Nudge „Tour ab hier planen" führt bewusst direkt in den Fokus.
         expect(panel).toContain("on('tour:focus-plan'");
