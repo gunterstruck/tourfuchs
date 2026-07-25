@@ -238,6 +238,13 @@
     body.tour-has-start #tab-tour.active #btn-nearby,
     body.tour-has-start #tab-tour.active #btn-tour-scan { display: none; }
 
+    /* Die Karten-Einfärbung „Kartenansicht" (Kunden/Status/Chancen) ist eine
+       Analyse-/Karten-Sache und gehört nicht in den mobilen Tour-Prozess: Auf dem
+       Handy liegt die Karte beim Planen hinter dem Blatt, und „Nähe" +
+       „Überfällige zuerst" decken den Bedarf im Flow bereits ab. Daher mobil aus;
+       auf dem Desktop bleibt sie neben der sichtbaren Karte erhalten. */
+    #tour-sales-map-view { display: none; }
+
     /* „Meine Tour" mobil: kompakte Ein-Zeilen-Stopps im Karten-Listenstil mit
        einer durchgehenden grünen Tourlinie links (Punkte an den Kunden). Statt
        Pfeilen bleibt nur „−" (Wegfall); das Umsortieren folgt per Halten & Ziehen.

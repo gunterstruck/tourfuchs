@@ -163,8 +163,11 @@ export const STORIES = [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'gotoTour' },
             { t: 'say', text: 'Du bist unterwegs und ein spontaner Kundentermin wird möglich.', ms: 2200 },
-            { t: 'say', text: '„Chancen" zeigt dir dafür nur fällige und überfällige Kunden.', sel: '.seg[data-view="chancen"]', ms: 2400 },
-            { t: 'run', key: 'chancenOn' },
+            // Die Karten-Einfärbung „Chancen" gibt es bewusst nur am Desktop (dort ist
+            // die Karte sichtbar). Am Handy übersprungen – der Tour-Flow findet fällige
+            // Kunden ohnehin über „Nähe" und „Überfällige zuerst".
+            { t: 'say', text: '„Chancen" zeigt dir dafür nur fällige und überfällige Kunden.', sel: '.seg[data-view="chancen"]', ms: 2400, desktopOnly: true },
+            { t: 'run', key: 'chancenOn', desktopOnly: true },
             { t: 'wait', ms: 1400 },
             { t: 'say', text: 'Bezirk und Startpunkt sind schnell gesetzt …', ms: 1800 },
             { t: 'run', key: 'pickBezirkAll' },
