@@ -10,6 +10,24 @@
 .vault-controls h3 { margin: 0 0 6px; font-size: 1rem; }
 .vault-controls .button-column { margin-top: 10px; }
 
+/* Sicherheit & Umzug sind fortgeschrittene, selten genutzte Funktionen: Der Block
+   ist eingeklappt und zeigt in der Kopfzeile den Tresor-Status – aufklappbar bei
+   Bedarf (Überblick → aufzoomen). Der zweite h3 (Umzug) bekommt oben Abstand. */
+.vault-details > summary {
+    cursor: pointer;
+    user-select: none;
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--color-text);
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.vault-details[open] > summary { margin-bottom: 6px; color: var(--color-primary, #0d9488); }
+.vault-details-body #safe-transfer-title { margin-top: 16px; }
+.vault-details-body h3:first-child { margin-top: 0; }
+
 /* Vollbild-Sperre */
 .vault-lock {
     position: fixed;
