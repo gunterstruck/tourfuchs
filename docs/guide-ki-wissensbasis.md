@@ -1178,8 +1178,32 @@ Aus Besuchsrhythmus und letztem Besuch entstehen:
 - überfällig
 
 Kunden ohne Rhythmus haben keinen Status. Ein Besuch wird in der Tour mit
-**"Heute"** oder im Kunden-Popup mit **"Heute besucht"** dokumentiert. Der Status
-aktualisiert sich sofort und wird lokal gespeichert.
+**"✓ Heute"** oder im Kunden-Popup mit **"Heute besucht"** dokumentiert; am Handy
+genügt ein Tipp auf den Tour-Punkt der Zeile. Der Status aktualisiert sich sofort
+und wird lokal gespeichert.
+
+#### 10.10.1 Feierabend-Rückblick
+
+Damit das Abhaken nicht reine Pflichteingabe bleibt, spiegelt TourFuchs den Tag
+zurück. **Klickpfad:** `Tab "Tour" -> "Meine Tour" -> "🌙 Feierabend-Rückblick"`.
+Der Knopf erscheint, sobald heute ein Besuch eingetragen wurde oder eine Tour
+steht; die Zahl daneben nennt die heutigen Besuche.
+
+Der Rückblick zeigt:
+
+- **Besuche heute** – geplante und spontane; spontane sind als solche markiert.
+- **Strecke (geschätzt)** – aus der geplanten Route, ausdrücklich **keine**
+  gefahrene Wegstrecke. Ohne Startpunkt bleibt das Feld leer.
+- **Überfällige erledigt** – Kunden, die **vor** dem heutigen Besuch überfällig
+  waren. Dafür wird der heutige Eintrag zurückgerechnet; sonst wäre nach dem
+  Abhaken jeder Kunde "im Rhythmus" und die Antwort immer 0.
+- **Offen geblieben** – geplante Stopps ohne Besuchseintrag. Sie bleiben in der
+  Tour und lassen sich morgen weiterverwenden.
+- je Kunde den Abstand zum vorherigen Besuch ("zuvor vor 9 Wochen").
+
+**"📋 Als Text kopieren"** legt einen schlichten Tagesabschluss in die
+Zwischenablage – für Wochenbericht, Notiz oder Mail. Der Rückblick öffnet sich
+nie von selbst: Wann Feierabend ist, entscheidet der Nutzer.
 
 ### 10.11 Service-Fokus (Profi): Einsätze, Verträge und Tagesvorschlag
 
@@ -1733,7 +1757,8 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Kundenbriefing Profi direkt | `Profi -> Kundenmarker -> "Briefing" -> Expertenfall -> Verbindung/Zustimmung -> "Briefing direkt erstellen"` |
 | Demo-Briefing | `Demo-Kundenmarker -> "Briefing" -> lokale Ergebnisvorschau -> "Verstanden"` |
 | Kunden anrufen | `Kundenmarker -> "Anrufen"` |
-| Besuch abhaken | `Kundenmarker -> "Heute besucht"` oder `Tourstopp -> "Heute"` |
+| Besuch abhaken | `Kundenmarker -> "Heute besucht"` oder `Tourstopp -> "✓ Heute"` (Handy: Tipp auf den Tour-Punkt) |
+| Feierabend-Rückblick | `Tab "Tour" -> "Meine Tour" -> "🌙 Feierabend-Rückblick"` |
 | Tour starten | `Außendienst -> Tour -> Vertriebsbezirk -> Startpunkt` |
 | GPS-Start | `Außendienst -> Tour -> "Mein Standort"` |
 | Kunde zur Tour | `Vorschlag oder Kunden-Popup -> "Zur Tour"` |

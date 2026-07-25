@@ -678,6 +678,7 @@ function handlePopupAction(action, customerId) {
     } else if (action === 'mark-visited') {
         markVisitedToday(customer);
         markDirty();
+        emit('visits:changed');
         emit('toast', { type: 'success', text: `Besuch bei ${customer.name} für heute eingetragen.` });
     } else if (action === 'customer-briefing') {
         openCustomerBriefing(customer);

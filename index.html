@@ -480,6 +480,7 @@
                     <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" disabled>🖨️ Tagesplan drucken</button>
                     <button id="btn-tour-ics" class="expert-only expert-swipe-section" data-expert-section="tour-ics" disabled>📅 Kalender-Export (.ics)</button>
                     <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
+                    <button id="btn-day-review" class="btn-day-review" hidden>🌙 Feierabend-Rückblick</button>
                     <button id="btn-tour-clear" class="danger" disabled>✕ Tour leeren</button>
                 </div>
                 </div><!-- /.acc-body -->
@@ -600,6 +601,19 @@
                     <button id="btn-safe-receive-ob" class="primary">Verschlüsselte Datei öffnen</button>
                 </section>
             </div>
+        </dialog>
+
+        <!-- Feierabend: der Tag in Zahlen, als Nachweis kopierbar -->
+        <dialog id="day-review-dialog" class="day-review-dialog" aria-label="Feierabend-Rückblick">
+            <header>
+                <h2>🌙 Feierabend</h2>
+                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+            </header>
+            <div id="day-review-body"></div>
+            <footer>
+                <button type="button" id="day-review-copy">📋 Als Text kopieren</button>
+                <button type="button" id="day-review-close" class="primary">Fertig</button>
+            </footer>
         </dialog>
 
         <!-- Reimport: erst zeigen, was sich ändert, dann ersetzen lassen -->

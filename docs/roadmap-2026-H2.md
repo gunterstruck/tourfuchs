@@ -60,7 +60,7 @@ Tourenoptimierung, Umkreis/Korridor) wird ein **Ein-Klick-Tagesplaner**:
 | 2.1 | ~~Tagesplan-Vorschlag (automatisch)~~ | ❌ gestrichen | Nutzerentscheidung: manuelle Planung bleibt der Weg. Logik in Git-Historie erhalten. |
 | 2.2 | Wochen-Vorschau | ⏸ zurückgestellt | Nur nach erneuter Validierung mit Nutzern. |
 | 2.3 | Morgen-Startscreen (Mobile) | ⏸ zurückgestellt | Nur nach erneuter Validierung mit Nutzern. |
-| 2.4 | **Besuch abhaken unterwegs** | offen | Stopp als „besucht" markieren aktualisiert `besuche[]` und den Fälligkeitsstatus sofort; nächster Stopp rückt nach. |
+| 2.4 | **Besuch abhaken unterwegs** | ✅ umgesetzt | War bereits gebaut und im Status-Feld übersehen: „✓ Heute" je Stopp, am Handy Tipp auf den Tour-Punkt, zusätzlich „Heute besucht" im Karten-Popup. `besuche[]` und Fälligkeitsstatus aktualisieren sich sofort. Ergänzt am 25.07.2026 um den **Feierabend-Rückblick**, der das Abhaken erst belohnt (siehe 5.6). |
 | 2.5 | **Route aufs Handy per QR-Code** | ✅ umgesetzt | Am Desktop geplante Tour als QR-Code anzeigen (nur die notwendigen Daten). Handy-PWA scannt per Kamera und übernimmt die Tour – ohne Netzwerk, ohne Datei, ohne Server. Es wird nie die Kundendatenbank übertragen, nur die Tour. |
 | 2.6 | **Plan-Einstellungen für Termine** | ✅ umgesetzt | Datum, Startzeit und Besuchsdauer (Standard 45 min) sind wählbar und steuern Tagesplan-Druck und Outlook-Kalendertermine (.ics, ein Termin je Besuch inkl. Fahrzeit). |
 
@@ -108,20 +108,19 @@ Website mit Offline-Cache, nicht eine App, die im System verankert ist.
 | 5.2 | **Zielassistent wählbar (Profi)** | ✅ umgesetzt | Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT oder eigene https-Adresse. Die Wahl passt auch die Quellenzeile im Prompt an. Basis bleibt ein Knopf ohne Entscheidung. |
 | 5.3 | **Kundenliste einfügen statt exportieren** | ✅ umgesetzt | Strg+C in Excel, Strg+V in TourFuchs. Erkennt Tab/Semikolon/Komma anhand der gleichmäßigsten Tabelle. Ab der Spaltenzuordnung identisch zum Datei-Import. |
 | 5.4 | **PWA ins Betriebssystem einhängen** | ✅ umgesetzt | Datei-Handler (.xlsx/.xls/.csv), Teilen-Ziel (Android, lokal im Service Worker), Icon-Kurzbefehle, Screenshot fürs Install-UI. Das Installations-Angebot kommt erst, wenn eigene Daten geladen und eine Tour geplant ist. |
+| 5.6 | **Feierabend-Rückblick** | ✅ umgesetzt | Der Tag in Zahlen: Besuche, geschätzte Strecke, abgearbeitete Überfällige, offen Gebliebenes – als Text kopierbar. Schließt die eigentliche Lücke hinter 2.4: Erfasst wurde schon, zurückgemeldet nichts. |
 | 5.5 | **Änderungsbericht beim Reimport** | ✅ umgesetzt | „Was ändert sich?" mit neu/entfallen/Bezirkswechsel, Summen und Wirkung je Bezirk – und übernimmt zugleich die Bestätigung. Macht aus der monatlichen Pflichtübung den Grund, die App regelmäßig zu öffnen. |
 
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
-1. **Besuch abhaken + Feierabend-Rückblick** (schließt Roadmap 2.4): „4 Besuche,
-   137 km, 2 überfällige abgearbeitet." Macht das Abhaken belohnend statt Pflicht.
-2. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
+1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
    Nutzt `visits.js` + `territory.js`, beides vorhanden.
-3. **Vorher/Nachher-Slider über der Karte** (zieht aus Release 3 den Teil vor,
+2. **Vorher/Nachher-Slider über der Karte** (zieht aus Release 3 den Teil vor,
    der im Management-Meeting wirklich überzeugt).
-4. **Haltbarkeit der lokalen Daten:** `navigator.storage.persist()` anfordern,
+3. **Haltbarkeit der lokalen Daten:** `navigator.storage.persist()` anfordern,
    Status ehrlich anzeigen, an Sicherung erinnern. Lokal-first ist nur dann ein
    Vorteil und kein Risiko, wenn dieser Punkt sichtbar beantwortet ist.
-5. **Korridor-Modus als eigene Frage:** „Ich muss nach Hamburg – wen nehme ich
+4. **Korridor-Modus als eigene Frage:** „Ich muss nach Hamburg – wen nehme ich
    mit?" Die Technik liegt bereits im OSRM-Korridor.
 
 ### Backlog & Vision (bewusst NICHT jetzt)
