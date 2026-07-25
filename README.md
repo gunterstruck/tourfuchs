@@ -23,7 +23,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 |---|---|
 | 🎬 **Onboarding & Live-Demos** | Ruhiger Erststart: leere Deutschlandkarte, die Beispielkunden erscheinen von selbst mit „Klick-mich-an"-Hinweis. Solange Beispieldaten laufen, liegt eine ruhige, nicht-blockierende Hinweiskarte mittig über der Karte („Das sind Beispieldaten" · eigene Daten laden · Live-Demos · Quittung „Verstanden"). Mehrere geführte **Live-Demos** (Geister-Cursor bedient die echte App, je ~30–60 s) und eine mitlaufende **„Erste Schritte"-Checkliste**, die einklappt, sobald der Nutzer erkennbar arbeitet |
 | 📄 **Daten** | Excel-/CSV-Import per Klick oder Drag & Drop, automatische Spaltenerkennung mit Prüf-Dialog; eine neue Kundenliste ersetzt nach Warnung den bisherigen Bestand, reine Kontakt-/Gebietsdateien ergänzen ihn gezielt |
-| 🛡️ **Sichere Demo** | Eindeutig markierte Beispielkunden, reservierte Drama-Rufnummern und `example.com`-Adressen; Telefon, E-Mail und Copilot-Briefing werden lokal simuliert, Exporte als Demo gekennzeichnet |
+| 🛡️ **Sichere Demo** | Eindeutig markierte Beispielkunden, reservierte Drama-Rufnummern und `example.com`-Adressen; Telefon, E-Mail und Briefing werden lokal simuliert, Exporte als Demo gekennzeichnet |
 | 📍 **Verortung** | Sofort über PLZ-Koordinaten (offline, ohne API-Schlüssel); optional adressgenau über OpenStreetMap/Nominatim |
 | 🗺️ **Gebiete** | Landkreise (400 Kreise & Städte) **und** PLZ-Ebenen (1-, 2-, 3- und 5-stellig); Flächen primär nach **Vertriebsbezirk** einfärbbar, optional nach Vertriebsgruppe (mit Label und Umsatzsumme); Klick zeigt Kunden & Bezirksverteilung je Gebiet |
 | ✏️ **Gebiets-Editor** | Im Gebiets-Popup „Kunden dieses Gebiets umordnen": Kundenliste des Gebiets mit Checkboxen & Filter, ausgewählte Kunden (oder das ganze Gebiet) einem anderen Vertriebsbezirk oder einer Gruppe zuweisen – auch gemischte Gebiete gezielt aufteilen; wirkt sofort auf der Karte, mit **Rückgängig** |
@@ -32,7 +32,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 | 🚗 **Tour** | Startpunkt = eigener GPS-Standort oder ein Kunde; Vorschläge „Wen könnte ich in der Nähe noch besuchen?“ (Umkreis einstellbar); Tourenoptimierung (kürzeste Strecke, Nearest-Neighbor + 2-Opt); Übergabe an Google Maps zur Navigation. Am Handy sind Startpunkt · Vorschläge · Meine Tour ein aufgeräumtes **Akkordeon** (genau eine Gruppe offen), und ein kleiner schwebender **Fuchs-Knopf** schlägt kontextabhängig den nächsten Schritt vor (Kunden in der Nähe → Tour ab hier planen → Route auf die Karte) |
 | 📆 **Plan-Einstellungen** | Datum, Startzeit und Besuchsdauer (z. B. 45 min) der Tagestour sind einstellbar und fließen in Tagesplan-Druck und Kalender-Termine (.ics für Outlook, ein Termin je Besuch inkl. Fahrzeit) ein |
 | 📲 **QR-Übergabe** | Am Desktop geplante Tour als QR-Code anzeigen, am Handy mit der Kamera scannen und übernehmen – nur die Tour (keine Datenbank), Bildschirm zu Kamera, ohne Netzwerk und ohne Server. Navigation und Kalender-Termine funktionieren direkt aus dem gescannten Code |
-| 📋 **Kundenbriefing** | In **Basis** sofort ohne Einrichtung nutzbar: kundenspezifischen Prompt kopieren, Corporate Copilot öffnen und dort bewusst absenden. **Profi** ergänzt optional die automatische Entra-/Copilot-Verbindung und zeigt das Ergebnis direkt in TourFuchs |
+| 📋 **Kundenbriefing** | Ohne Einrichtung nutzbar: TourFuchs baut lokal einen kundenspezifischen Prompt, kopiert ihn und öffnet den Assistenten – abgesendet wird dort bewusst vom Nutzer. **TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-API auf.** Im **Profi**-Modus ist das Ziel wählbar (Microsoft 365 Copilot, Google Gemini, ChatGPT oder eine eigene https-Adresse) |
 | 🛡️ **Service-Vertragsradar** | Separater Excel-/CSV-Import für Vertragsstände aus SAP, SieSales/Salesforce oder weiteren Quellen. Exakter Kundenabgleich per Kundennummer, Quellenalter, Handlungsfristen, Vertragswert, SLA und Verantwortliche. Der Service-Modus ist ein **optionales Modul** – standardmäßig ausgeblendet und im Profi-Modus unten in der Gebietsplanung per Häkchen einblendbar, damit der Einstieg nicht überfrachtet |
 | 🔊 **Zanobo-Brücke** | Serviceeinsätze mit Anlagen-ID verlinken direkt in die Schwester-App [Zanobo](https://zanobo.vercel.app) – akustischer Maschinen-Check am Smartphone, lokal im Browser, ohne Cloud. Vergleich statt Diagnose; die Anlagen-ID entspricht der Maschinen-ID am Zanobo-NFC-Tag und bleibt im URL-Fragment (wird nie an den Server übertragen). Eigene Zanobo-Instanz im Service-Cockpit einstellbar |
 | 🔍 **Suche** | Kunden nach Name, Ort, PLZ oder Kundennummer finden und anfliegen |
@@ -82,9 +82,8 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 ### Datenschutz
 
 - Kundendaten werden **lokal im Browser** gespeichert (IndexedDB); der Betreiber erhält sie nicht und es gibt kein Tracking.
-- Bei Demo-Kunden werden Telefon, E-Mail, Copilot-Briefing und exakte Adress-Geocodierung nicht extern gestartet. Die sichtbaren Aktionen sind sichere Simulationen; echte importierte Kunden bleiben unverändert nutzbar.
-- Im **Basis-Briefing** wird der vorbereitete Prompt zunächst nur lokal angezeigt und in die Zwischenablage kopiert. Eine Übertragung an Microsoft erfolgt erst, wenn der Nutzer ihn selbst in Copilot einfügt und absendet.
-- Nur das optionale **Profi-Briefing** kann nach ausdrücklicher Zustimmung Kundenidentität und Tourkontext automatisch an Microsoft 365 Copilot übergeben. Microsoft-Entra-Rechte, Richtlinien und Vertraulichkeitsbezeichnungen der Organisation bleiben wirksam.
+- Bei Demo-Kunden werden Telefon, E-Mail, Briefing und exakte Adress-Geocodierung nicht extern gestartet. Die sichtbaren Aktionen sind sichere Simulationen; echte importierte Kunden bleiben unverändert nutzbar.
+- Beim **Kundenbriefing** entsteht der Prompt ausschließlich lokal, wird vollständig angezeigt und nur in die Zwischenablage kopiert. Eine Übertragung erfolgt erst, wenn der Nutzer ihn selbst im Assistenten einfügt und absendet. TourFuchs führt dabei keine Anmeldung und keinen API-Aufruf durch; eine frühere automatische Entra-/Graph-Anbindung wurde entfernt.
 - Nur die optionale adressgenaue Verortung sendet die jeweilige Adresse an OpenStreetMap (Nominatim), gedrosselt gemäß deren Nutzungsrichtlinie.
 - Optionale Straßenrouten (Routenlinie und Korridor-Vorschläge) senden **nach ausdrücklicher Zustimmung** die Koordinaten von Start und Tour-Stopps an OSRM (`router.project-osrm.org`) – keine Namen oder sonstigen Kundendaten. Ohne Zustimmung rechnet die App mit der Luftlinie, komplett offline.
 
@@ -94,7 +93,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [Kurzanleitung für Anwender](./docs/kurzanleitung-tourfuchs.md)
 - [Wissensbasis für den Guide-Bot](./docs/guide-ki-wissensbasis.md) – aufgabenorientiert mit dokumentierten Klickpfaden, aktueller Funktionsstand
 - [PDF-Fassung der Guide-Wissensbasis](./TourFuchs_KI-Agent_Wissensbasis.pdf) – gut lesbare Referenz für Review, Schulung und Weitergabe
-- [Lokaler Test des Copilot-Kundenbriefings](./docs/copilot-briefing.md) – Entra-Konfiguration, Berechtigungen und Testablauf
+- [Kundenbriefing](./docs/kundenbriefing.md) – Ablauf, Inhalt des Prompts, Wahl des Assistenten und Prüfschritte
 
 ---
 
@@ -123,7 +122,7 @@ src/
 │   ├── geodata.js        # Gebiets-GeoJSON laden, Point-in-Polygon
 │   ├── routing.js        # optionale Straßenroute/Korridor (OSRM)
 │   ├── crypto.js · vault.js · biometric.js   # Datentresor (AES-256, PIN/PRF)
-│   ├── copilot.js · zanobo.js                # Briefing-/Zanobo-Anbindung
+│   ├── assistant.js · zanobo.js              # Ziel-Assistent (Briefing) / Zanobo-Anbindung
 │   ├── showcaseOnboarding.js # Willkommens-Automatik & Demo-Status
 │   └── storage.js        # IndexedDB-Persistenz
 ├── features/

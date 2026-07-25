@@ -207,7 +207,7 @@
                     </div>
                 </div>
 
-                <p class="privacy-note">🔒 Ihre Kundendaten bleiben lokal. Nur ein von Ihnen gestartetes Kundenbriefing übergibt die zuvor angezeigten Identifikationsdaten an Ihren Microsoft 365 Copilot.</p>
+                <p class="privacy-note">🔒 Ihre Kundendaten bleiben lokal. Das Kundenbriefing bereitet nur einen Prompt vor – übertragen wird er erst, wenn Sie ihn selbst im Assistenten absenden.</p>
             </section>
 
             <!-- Tab: operative Serviceeinsätze (bewusst nur im Profi-Fokus sichtbar) -->
@@ -693,7 +693,7 @@
                 <p><b>💬 Feedback &amp; Ideen:</b> Fehler gefunden oder einen Wunsch?
                     <a href="https://github.com/gunterstruck/tourfuchs/issues" target="_blank" rel="noopener">Auf GitHub melden</a> ·
                     <a href="mailto:tourfuchs@online.de?subject=TourFuchs%20Feedback">E-Mail schreiben</a></p>
-                <p><b>Datenschutz:</b> Kundendaten werden lokal in Ihrem Browser gespeichert. Optional lassen sie sich mit einem PIN- bzw. Face-/Touch-ID-geschützten <b>Datentresor AES-256-verschlüsseln</b>. Nur wenn Sie ein Kundenbriefing ausdrücklich starten, übergibt TourFuchs die im Briefing-Dialog genannten Identifikationsdaten an Ihren Microsoft 365 Copilot; dabei gelten Ihr Arbeitskonto und die Richtlinien Ihrer Organisation. Die optionale exakte Adress-Verortung sendet nur die jeweilige Adresse an OpenStreetMap (Nominatim).</p>
+                <p><b>Datenschutz:</b> Kundendaten werden lokal in Ihrem Browser gespeichert. Optional lassen sie sich mit einem PIN- bzw. Face-/Touch-ID-geschützten <b>Datentresor AES-256-verschlüsseln</b>. Das Kundenbriefing erzeugt einen Prompt ausschließlich lokal, kopiert ihn auf Ihren Klick und öffnet Ihren Assistenten – TourFuchs meldet sich nirgends an und sendet nichts; abgeschickt wird der Prompt erst von Ihnen. Die optionale exakte Adress-Verortung sendet nur die jeweilige Adresse an OpenStreetMap (Nominatim).</p>
                 <h3>Impressum</h3>
                 <p>Verantwortlich gemäß § 5 TMG:<br>
                 Günter Struck · Lönsberg 8 · 45136 Essen<br>
@@ -832,7 +832,7 @@
             </footer>
         </dialog>
 
-        <dialog id="customer-briefing-dialog" class="customer-briefing-dialog" aria-label="Kundenbriefing mit Microsoft 365 Copilot">
+        <dialog id="customer-briefing-dialog" class="customer-briefing-dialog" aria-label="Kundenbriefing für Ihren KI-Assistenten">
             <header>
                 <h2>📋 Kundenbriefing</h2>
                 <button type="button" class="dialog-close" data-briefing-header-close aria-label="Schließen">Schließen</button>

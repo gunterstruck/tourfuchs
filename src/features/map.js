@@ -1618,7 +1618,7 @@ export function customerPopupHtml(customer) {
             <button data-action="tour-start" data-id="${escapeHtml(customer.id)}">🚩 Als Start</button>
             ${profi ? `<button data-action="tour-dest" data-id="${escapeHtml(customer.id)}" ${isDest ? 'disabled' : ''}>${isDest ? '✓ Ziel' : '🏁 Als Ziel'}</button>` : ''}
             <button data-action="tour-add" data-id="${escapeHtml(customer.id)}" ${inTour ? 'disabled' : ''}>${inTour ? '✓ In Tour' : '➕ Zur Tour'}</button>
-            <button data-action="customer-briefing" data-id="${escapeHtml(customer.id)}" title="Aktuelles Kundenbriefing mit Microsoft 365 Copilot erstellen">📋 Briefing</button>
+            <button data-action="customer-briefing" data-id="${escapeHtml(customer.id)}" title="Prompt für ein Kundenbriefing vorbereiten und den Assistenten öffnen">📋 Briefing</button>
         </div>
     </div>`;
 }
