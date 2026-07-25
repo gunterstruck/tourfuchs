@@ -211,7 +211,7 @@ Beim Upload muss bestätigt werden, dass die Daten verarbeitet werden dürfen. D
 1. Tab Daten öffnen.
 2. Excel-Liste hochladen wählen.
 3. Datei auswählen oder per Drag and Drop ablegen.
-4. Spaltenzuordnung prüfen.
+4. Spaltenzuordnung prüfen. Oben stehen die wichtigen Felder (Kundenname, PLZ, Straße, Ort, Vertriebsbezirk, Vertriebsgruppe, Umsatz); weitere optionale Felder liegen unter „Weitere Felder" eingeklappt (mit Anzahl der automatisch erkannten). Beim Import werden alle Felder gelesen.
 5. Importieren wählen.
 6. Import-Ergebnis kontrollieren.
 
@@ -317,7 +317,7 @@ Die automatische Ansicht reduziert visuelle Überladung:
 
 ## 12. Gebiets-Cockpit
 
-Das Gebiets-Cockpit ist das Analysezentrum für die Gebietsplanung.
+Das Gebiets-Cockpit ist das Analysezentrum für die Gebietsplanung. Es öffnet als reine KPI-Analyse; die Was-wäre-wenn-Simulation darunter ist eingeklappt und wird bei Bedarf aufgeklappt (erst der Überblick, dann die Details).
 
 ### KPI-Karten
 
@@ -415,6 +415,8 @@ Nutzen:
 - Neue Kunden fallen später in eine vorbereitete Struktur.
 
 ## 16. Außendienst: Besuchsplanung
+
+Der Tourplaner öffnet – auf Handy wie Desktop – zuerst als Übersicht mit den drei Schritten eingeklappt (1. Startpunkt · 2. Vorschläge · 3. Meine Tour, je mit Zusammenfassung). Ein Tipp auf einen Schritt zoomt in ihn hinein (volle Fläche); „☰ Übersicht" klappt wieder alle ein. Die Karten-Einfärbung (Kunden/Status/Chancen) gibt es dabei nur auf dem Desktop.
 
 ### Bezirk wählen
 
