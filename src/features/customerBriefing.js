@@ -1,10 +1,16 @@
 /**
- * Fachlicher Prompt für ein kompaktes Kundenbriefing aus Microsoft-365-Wissen.
- * Es werden nur die zur eindeutigen Zuordnung und Besuchsvorbereitung nötigen
- * TourFuchs-Felder aufgenommen, nicht der vollständige Kundendatensatz.
+ * Fachlicher Prompt für ein kompaktes Kundenbriefing aus dem berechtigten
+ * Firmenwissen des gewählten Assistenten. Es werden nur die zur eindeutigen
+ * Zuordnung und Besuchsvorbereitung nötigen TourFuchs-Felder aufgenommen,
+ * nicht der vollständige Kundendatensatz.
+ *
+ * TourFuchs erzeugt den Prompt nur lokal. Wohin er geht und wann er abgesendet
+ * wird, entscheidet ausschließlich der Nutzer (Einfügen im Assistenten).
  */
 
 import { isDemoCustomer } from '../core/demoSafety.js';
+
+const DEFAULT_SOURCE_INSTRUCTION = 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
 
 function value(value) {
     return String(value ?? '').trim();
@@ -15,9 +21,12 @@ function formatLocalDate(isoDate) {
     return match ? `${match[3]}.${match[2]}.${match[1]}` : value(isoDate);
 }
 
-export function customerBriefingFlow(depth, configured) {
-    if (depth !== 'profi') return 'manual';
-    return configured ? 'automatic' : 'setup';
+/**
+ * Der Weg zum Briefing ist immer derselbe: Prompt kopieren, Assistent öffnen,
+ * selbst absenden. Der Profi-Modus ergänzt nur die Wahl des Assistenten.
+ */
+export function customerBriefingFlow(depth) {
+    return depth === 'profi' ? 'choice' : 'manual';
 }
 
 function identityLines(customer) {
@@ -50,10 +59,11 @@ function tourLines(context) {
     return lines;
 }
 
-export function buildCustomerBriefingPrompt(customer, context = {}) {
+export function buildCustomerBriefingPrompt(customer, context = {}, assistant = null) {
     if (isDemoCustomer(customer)) {
-        throw new Error('Für Demo-Kunden wird kein externer Copilot-Prompt erzeugt.');
+        throw new Error('Für Demo-Kunden wird kein externer Assistenten-Prompt erzeugt.');
     }
+    const sourceInstruction = value(assistant?.promptSources) || DEFAULT_SOURCE_INSTRUCTION;
     const identifiers = identityLines(customer);
     const plan = tourLines(context);
     const localContext = plan.length
@@ -65,7 +75,7 @@ export function buildCustomerBriefingPrompt(customer, context = {}) {
 Kunde zur eindeutigen Zuordnung:
 ${identifiers.join('\n')}
 ${localContext}
-Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien. Ordne Treffer nur diesem Kunden zu. Nutze dafür gemeinsam Kundenname, Kundennummer, Ort und Ansprechpartner. Vermische keine ähnlich benannten Kunden.
+${sourceInstruction} Ordne Treffer nur diesem Kunden zu. Nutze dafür gemeinsam Kundenname, Kundennummer, Ort und Ansprechpartner. Vermische keine ähnlich benannten Kunden.
 
 Zeitraum:
 - letzte 12 Monate, mit Schwerpunkt auf den letzten 90 Tagen

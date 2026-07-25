@@ -1,6 +1,6 @@
 # 🦊 TourFuchs Vertrieb – Produkt-Roadmap H2/2026
 
-**Stand:** 10.07.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
+**Stand:** 25.07.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
 
 ---
 
@@ -96,16 +96,44 @@ ausgewählte Daten direkt Bildschirm→Kamera und braucht keine Verschlüsselung
 Release 4 sichert den Fall ab, dass die **ganze Datenbank** als Datei den Rechner
 verlässt oder dauerhaft auf dem Gerät liegt.
 
+### Release 5 – „Vertrauen & Einstieg" *(25.07.2026 umgesetzt)*
+
+Zwei Befunde aus dem Produkt-Review: Der Einstieg scheitert nicht an der
+Spaltenzuordnung, sondern am Weg zur Datei – und die App war technisch eine
+Website mit Offline-Cache, nicht eine App, die im System verankert ist.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 5.1 | **Automatische Copilot-Anbindung entfernen** | ✅ umgesetzt | Grundsatzentscheidung: TourFuchs ist kein KI-Werkzeug. Der Entra-/Graph-Weg (Anmeldung mit Arbeitskonto, Copilot-Antwort im Dialog) verlangte IT-Freigaben, band an einen Anbieter und stand quer zum Lokal-first-Versprechen. Es bleibt: Prompt lokal bauen, kopieren, Assistent öffnen, Nutzer sendet selbst. MSAL ist aus dem Projekt entfernt. |
+| 5.2 | **Zielassistent wählbar (Profi)** | ✅ umgesetzt | Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT oder eigene https-Adresse. Die Wahl passt auch die Quellenzeile im Prompt an. Basis bleibt ein Knopf ohne Entscheidung. |
+| 5.3 | **Kundenliste einfügen statt exportieren** | ✅ umgesetzt | Strg+C in Excel, Strg+V in TourFuchs. Erkennt Tab/Semikolon/Komma anhand der gleichmäßigsten Tabelle. Ab der Spaltenzuordnung identisch zum Datei-Import. |
+| 5.4 | **PWA ins Betriebssystem einhängen** | ✅ umgesetzt | Datei-Handler (.xlsx/.xls/.csv), Teilen-Ziel (Android, lokal im Service Worker), Icon-Kurzbefehle, Screenshot fürs Install-UI. Das Installations-Angebot kommt erst, wenn eigene Daten geladen und eine Tour geplant ist. |
+| 5.5 | **Änderungsbericht beim Reimport** | ✅ umgesetzt | „Was ändert sich?" mit neu/entfallen/Bezirkswechsel, Summen und Wirkung je Bezirk – und übernimmt zugleich die Bestätigung. Macht aus der monatlichen Pflichtübung den Grund, die App regelmäßig zu öffnen. |
+
+### Nächste Kandidaten (bewertet, noch nicht terminiert)
+
+1. **Besuch abhaken + Feierabend-Rückblick** (schließt Roadmap 2.4): „4 Besuche,
+   137 km, 2 überfällige abgearbeitet." Macht das Abhaken belohnend statt Pflicht.
+2. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
+   Nutzt `visits.js` + `territory.js`, beides vorhanden.
+3. **Vorher/Nachher-Slider über der Karte** (zieht aus Release 3 den Teil vor,
+   der im Management-Meeting wirklich überzeugt).
+4. **Haltbarkeit der lokalen Daten:** `navigator.storage.persist()` anfordern,
+   Status ehrlich anzeigen, an Sicherung erinnern. Lokal-first ist nur dann ein
+   Vorteil und kein Risiko, wenn dieser Punkt sichtbar beantwortet ist.
+5. **Korridor-Modus als eigene Frage:** „Ich muss nach Hamburg – wen nehme ich
+   mit?" Die Technik liegt bereits im OSRM-Korridor.
+
 ### Backlog & Vision (bewusst NICHT jetzt)
 
 - **POIs auf der Karte** (Ladestationen, eigene Niederlassungen): nur als Opt-in –
   externe POI-Abfragen sind eine neue Drittdienst-Verbindung und unterliegen der
   Offenlegungspflicht (DoD Nr. 3). Eigene Niederlassungen alternativ als lokale
   Importdatei (kein externer Call) – das zuerst.
-- **KI-Assistent in der App:** kollidiert mit der aktiven Zusage „keine KI-Verarbeitung"
-  auf der Datenschutzseite. Nur denkbar als lokales Modell oder als ausdrückliches
-  Opt-in mit angepasster Datenschutzerklärung. Kein Termin, bewusste Grundsatz-
-  entscheidung nötig, bevor hier irgendetwas gebaut wird.
+- **KI-Assistent in der App:** Die Grundsatzentscheidung ist mit 5.1 gefallen und
+  gilt in die andere Richtung: TourFuchs bindet **keine** KI an – weder per API
+  noch per Anmeldung. Es bereitet den Prompt vor, mehr nicht. Ein lokales Modell
+  bleibt theoretisch denkbar, steht aber auf keiner Liste.
 - **Connector-Anleitungen** (Export-Leitfäden für CRM-Systeme): reine Dokumentation,
   geringer Aufwand – wird als Lückenfüller zwischen Releases mitgenommen.
 - Eigener OSRM-/Nominatim-Endpoint bzw. konfigurierbarer Routing-Server (F2) – erst
