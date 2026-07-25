@@ -59,6 +59,10 @@ Merksatz:
 
 ## 6. Tour planen
 
+Der Tourplaner öffnet zuerst als Übersicht: die drei Schritte **Startpunkt ·
+Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
+(volle Fläche), „☰ Übersicht" führt zurück – auf Handy wie Desktop.
+
 1. Modus Außendienst wählen.
 2. Tab Tour öffnen.
 3. Vertriebsbezirk auswählen.
