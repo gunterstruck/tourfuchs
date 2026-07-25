@@ -262,14 +262,17 @@
                 </div>
                 <p class="muted small">Fristen, Verlängerungen und Vertragswert – unabhängig von der Einsatzplanung. Kundendaten werden nur über die Kundennummer verknüpft.</p>
 
-                <div id="contract-source-summary" class="contract-source-summary"></div>
-                <div class="contract-source-actions">
-                    <button id="btn-contract-import" class="primary" type="button">📥 Vertragsdatei importieren</button>
-                    <button id="btn-contract-template" type="button">📋 Excel-Vorlage</button>
-                    <button id="btn-contract-csv" type="button">CSV-Beispiel</button>
-                    <button id="btn-contract-issues" type="button" hidden>⬇ Letzte Hinweise</button>
-                    <button id="btn-contract-clear" class="danger" type="button">Vertragsdaten löschen</button>
-                </div>
+                <details id="contract-data-sources" class="service-visit-data-sources" open>
+                    <summary>Datenquelle <span id="contract-source-health">Verträge fehlen</span></summary>
+                    <div id="contract-source-summary" class="contract-source-summary"></div>
+                    <div class="contract-source-actions">
+                        <button id="btn-contract-import" class="primary" type="button">📥 Vertragsdatei importieren</button>
+                        <button id="btn-contract-template" type="button">📋 Excel-Vorlage</button>
+                        <button id="btn-contract-csv" type="button">CSV-Beispiel</button>
+                        <button id="btn-contract-issues" type="button" hidden>⬇ Letzte Hinweise</button>
+                        <button id="btn-contract-clear" class="danger" type="button">Vertragsdaten löschen</button>
+                    </div>
+                </details>
 
                 <div id="contract-kpis" class="contract-kpis" aria-live="polite"></div>
                 <div class="contract-filter-grid">
@@ -732,8 +735,12 @@
                 <button id="cockpit-kpi-toggle" type="button" class="ghost">Alle anzeigen</button>
             </div>
 
-            <div class="simulation-panel">
-                <h3>Was-wäre-wenn: Gebiete zuweisen <span class="help-dot" tabindex="0" title="Simulation bedeutet: Die Karte und Kennzahlen zeigen eine testweise Zuordnung. Erst &quot;Zuweisung übernehmen&quot; schreibt die Änderung in Ihre Daten.">?</span></h3>
+            <details class="simulation-panel" id="simulation-panel">
+                <summary class="simulation-panel-summary">
+                    <span class="sim-panel-title">Was-wäre-wenn: Gebiete zuweisen</span>
+                    <span class="help-dot" tabindex="0" title="Simulation bedeutet: Die Karte und Kennzahlen zeigen eine testweise Zuordnung. Erst &quot;Zuweisung übernehmen&quot; schreibt die Änderung in Ihre Daten.">?</span>
+                    <span class="sim-panel-hint muted small">Gebiete testweise umbuchen – zum Bearbeiten aufklappen</span>
+                </summary>
                 <p class="muted small">Filtern Sie die Gebiete, wählen Sie eine oder mehrere aus (z. B. mehrere Landkreise oder alle PLZ 52xxx) und weisen Sie die gefilterten Kunden testweise einem Vertriebsbezirk oder einer Gruppe zu.</p>
                 <div class="sim-filters">
                     <label class="sim-field">
@@ -769,7 +776,7 @@
                     </div>
                     <button id="sim-commit" class="primary">Zuweisung übernehmen</button>
                 </footer>
-            </div>
+            </details>
         </dialog>
 
         <!-- Gebiets-Editor: Kunden eines Gebiets umordnen -->
