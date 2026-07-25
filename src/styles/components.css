@@ -1147,6 +1147,36 @@ body.tour-focus #tour-stepper {
 .demo-banner[hidden] { display: none; }
 .demo-banner-text { flex: 1; min-width: 9ch; }
 .demo-banner-text b { color: #92400e; }
+
+/* Kontextbasiertes Zurücktreten vorübergehender Angebote (Steuerung siehe
+   ui/offerAutoHide.js). Sobald man in den Inhalt scrollt (= man wendet sich dem
+   Hauptprozess zu), treten der Kartenstil-Wähler und der Beispieldaten-Streifen
+   sanft zurück und geben der Prozessfläche mehr Raum. Hochscrollen oder das
+   (Wieder-)Betreten eines Bereichs holt sie zurück – kein dauerhaftes Ausblenden,
+   kein Timer. Die eigentlichen Prozess-Schritte bleiben immer sichtbar. */
+.basemap-control,
+#demo-banner {
+    transition: max-height 0.3s ease, opacity 0.24s ease, margin 0.3s ease,
+                padding 0.3s ease, border-width 0.3s ease;
+    overflow: hidden;
+    max-height: 220px;
+}
+body.offers-receded .basemap-control,
+body.offers-receded #demo-banner {
+    max-height: 0;
+    opacity: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    border-width: 0;
+    pointer-events: none;
+}
+/* Reduzierte Bewegung: hart schalten statt animieren. */
+@media (prefers-reduced-motion: reduce) {
+    .basemap-control,
+    #demo-banner { transition: none; }
+}
 .demo-banner-cta {
     flex-shrink: 0;
     padding: 6px 12px;

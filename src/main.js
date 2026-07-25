@@ -30,6 +30,7 @@ import { initVault } from './ui/lockVault.js';
 import { initPwaUpdates } from './ui/pwaUpdate.js';
 import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
+import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
 import { initContractRadar } from './ui/contractRadar.js';
@@ -203,6 +204,7 @@ async function init() {
     initPwaUpdates();
     initContextHelp();
     initFirstSteps();
+    initOfferAutoHide();
     initDemoWelcome();
     initSafeTransfer();
 
