@@ -642,6 +642,10 @@ const HELPERS = {
     async openCockpit() {
         await clickEl('#btn-cockpit');
         await resolveEl('#cockpit-dialog[open]', 3000);
+        // Die Simulation ist standardmäßig eingeklappt (Analyse zuerst) – für die
+        // Vorführung aufklappen, damit die Zuweisung sichtbar bedient wird.
+        const sim = document.getElementById('simulation-panel');
+        if (sim && !sim.open) sim.open = true;
         await sleep(600);
     },
     async simAssign() {
