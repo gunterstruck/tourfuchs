@@ -391,7 +391,9 @@ export function applyDataPanelLayout() {
             nodes.progress, nodes.exportBtn, nodes.clear);
         nodes.safeNote.classList.remove('data-group-note');
         nodes.safeTitle.hidden = false;
-        vault.append(nodes.safeTitle, nodes.safeNote, nodes.safeActions);
+        // In den einklappbaren Tresor-/Umzug-Block einhängen (Konzept „aufzoomen"),
+        // damit der ganze Sicherheits-Bereich gemeinsam ein-/ausklappt.
+        (document.getElementById('vault-details-body') || vault).append(nodes.safeTitle, nodes.safeNote, nodes.safeActions);
         nodes.safeActions.append(nodes.safeExport, nodes.safeReceive);
     }
     dataPanelLayout = target;

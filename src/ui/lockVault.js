@@ -243,6 +243,16 @@ function renderControls() {
                 ? `🔓 Aktiv und entsperrt. Daten sind verschlüsselt gespeichert.${hasBio ? ' Face/Touch ID eingerichtet.' : ''}`
                 : '🔒 Aktiv und gesperrt.';
     }
+    // Kurzstatus in der eingeklappten „Sicherheit & Umzug"-Zeile: der Zustand bleibt
+    // sichtbar, ohne dass der ganze Block dauerhaft Platz belegt (Überblick → aufzoomen).
+    const summaryStatus = document.getElementById('vault-summary-status');
+    if (summaryStatus) {
+        summaryStatus.textContent = !enabled
+            ? '· Tresor aus'
+            : unlocked
+                ? `· Tresor aktiv${hasBio ? ' · Face/Touch ID' : ''}`
+                : '· Tresor gesperrt';
+    }
 }
 
 // Nach einem Import EIGENER Daten (nicht Demo): zum Verschlüsseln führen.
