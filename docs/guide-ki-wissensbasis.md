@@ -148,7 +148,7 @@ Nur fragen, wenn die Antwort davon abhängt:
 - Demo-Daten oder eigene Daten?
 - Nur prüfen oder dauerhaft übernehmen?
 - Luftlinie oder Straßenroute?
-- Manuelles Briefing oder direkte Entra-Verbindung?
+- Welcher Assistent wird für das Briefing genutzt?
 
 Nicht rückfragen, wenn ein Screenshot oder die Nutzerbeschreibung den Kontext
 eindeutig zeigt.
@@ -222,8 +222,8 @@ TourFuchs:
 - besitzt aktuell kein eigenes KI-Importschema für Priorität, Besuchsgrund oder
   Empfehlung. Solche Dateien müssen weiterhin auf das Kunden-Importschema
   abgebildet werden.
-- ersetzt keine organisatorische Freigabe für Microsoft 365 Copilot oder
-  Microsoft Graph.
+- ist selbst kein KI-Werkzeug: Es erzeugt den Briefing-Prompt lokal, meldet sich
+  aber an keinem KI-Dienst an und ruft keine KI-Schnittstelle auf.
 
 ---
 
@@ -273,10 +273,10 @@ Automatisierungswerkzeuge ein.
 | Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, "Heute besucht", "Als Start", "Zur Tour", "Briefing" | Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Als Ziel" |
 | Tour | Bezirk, Start, Datum/Zeit/Dauer, Umkreis, Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan | Kartenansicht Kunden/Status/Chancen, Ziel, Entlang der Tour, Rundreise, Druck, ICS, Text, gespeicherte Touren |
 | Gebiets-Popup | Kennzahlen und Verteilung | zusätzliche namentliche Kundenliste |
-| Kundenbriefing | transparenter manueller Copilot-Weg | einfacher Weg bleibt oben; optional darunter direkte Entra-/Graph-Verbindung |
+| Kundenbriefing | Prompt kopieren und Microsoft 365 Copilot öffnen | zusätzlich wählbarer Zielassistent (Gemini, ChatGPT, eigene https-Adresse) |
 
-Wichtig: **"Briefing" ist in beiden Ansichtstiefen sichtbar.** Eine vorhandene
-Profi-Konfiguration verändert den Basisweg nicht.
+Wichtig: **"Briefing" ist in beiden Ansichtstiefen sichtbar** und funktioniert
+überall gleich. Profi ergänzt nur die Wahl des Ziels.
 
 Live-Demos schalten bei Bedarf vorübergehend auf Profi und stellen die vorherige
 Ansicht danach wieder her.
@@ -508,10 +508,10 @@ Die Vorführung:
 
 Die Geschichte **"Spontaner Termin? Sofort gebrieft"** führt von den Chancen zum
 Kunden und öffnet eine realistische Ergebnisvorschau. Weil die Geschichte mit
-erfundenen Kunden läuft, erzeugt TourFuchs dabei bewusst keinen externen Prompt,
-öffnet keinen Copilot und startet keine Suche. Die Demo erklärt, dass bei echten
-Kundendaten weiterhin der direkt nutzbare manuelle Weg beziehungsweise optional
-die Entra-Automatisierung bereitsteht.
+erfundenen Kunden läuft, erzeugt TourFuchs dabei bewusst keinen externen Prompt
+und öffnet keinen Assistenten. Die Demo erklärt, dass TourFuchs bei echten
+Kundendaten den fertigen Prompt kopiert und den Assistenten öffnet - abgesendet
+wird dort vom Nutzer.
 
 ### 6.5 Besondere Regeln der Tresor-Demo
 
@@ -613,8 +613,8 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 2. Im Bereich **"Excel- oder CSV-Liste"** bestätigen:
    **"Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu
    verwenden."**
-3. **"Excel-/CSV-Datei auswählen"** oder Datei per Drag & Drop auf die Karte
-   ziehen.
+3. **"Excel-/CSV-Datei auswählen"**, Datei per Drag & Drop auf die Karte ziehen
+   **oder die Liste direkt einfügen** (siehe 7.5.1).
 4. Im Dialog **"Spalten zuordnen"** automatische Zuordnung und Beispielwerte
    prüfen. Oben stehen die **wichtigen Felder** (Kundenname, PLZ, Straße, Ort,
    Vertriebsbezirk, Vertriebsgruppe, Umsatz); die übrigen **optionalen Felder**
@@ -628,12 +628,67 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
 
+#### 7.5.1 Einfügen statt Datei (Strg+V)
+
+Wer die Liste ohnehin in Excel offen hat, braucht keinen Export: Bereich
+**inklusive Überschriftenzeile** markieren, **Strg+C**, dann in TourFuchs
+einfügen. Zwei Wege:
+
+- **"Eigene Daten laden" -> "Liste schon offen? Aus Excel kopieren und hier
+  einfügen"** öffnet ein Feld; dort **Strg+V**. TourFuchs meldet sofort, wie
+  viele Zeilen und Spalten erkannt wurden, dann **"Spalten zuordnen"**.
+- **Strg+V irgendwo in der App** (außerhalb von Eingabefeldern) führt direkt in
+  die Spaltenzuordnung.
+
+Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
+bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
+Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
+Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
+
+#### 7.5.2 Wege der installierten App
+
+Ist TourFuchs installiert, führen drei weitere Wege in den Import beziehungsweise
+direkt in die Aufgabe:
+
+- **Datei-Handler:** Eine `.xlsx`, `.xls` oder `.csv` im Explorer/Finder mit
+  TourFuchs öffnen. Die laufende App übernimmt die Datei, sie startet kein
+  zweites Fenster.
+- **Teilen (Android):** Excel-Anhang in Outlook/Drive -> **Teilen** -> TourFuchs.
+  Der Service Worker nimmt die Datei **lokal** entgegen; sie wird zu keinem
+  Zeitpunkt an einen Server gesendet.
+- **Icon-Kurzbefehle:** Long-Press auf das App-Icon -> **"Meine Tour"**,
+  **"Kunden in der Nähe"** oder **"Liste importieren"**.
+
+In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noch
+nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
+wird übernommen, sobald bestätigt wurde.
+
+Das **Installations-Angebot** erscheint nicht sofort. TourFuchs hebt es sich für
+den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
+mindestens einem Stopp geplant. Einmal mit **"Später"** abgelehnt, kommt es nicht
+wieder; die Installation bleibt über das Browsermenü möglich.
+
 ### 7.6 Erneuter Import und vollständige Ersetzung
 
 Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
 kein Delta und kein Upsert. TourFuchs liest und prüft die Datei zuerst. Sind
-bereits Daten vorhanden, erscheint vor jeder Änderung eine Warnung mit bisheriger
-und neuer Kundenanzahl.
+bereits Kunden vorhanden, erscheint vor jeder Änderung der **Änderungsbericht**
+**"Was ändert sich?"**:
+
+- **neue Kunden**, **entfallene Kunden**, **Bezirkswechsel** und **unverändert**
+  als vier Zahlen,
+- Kunden und Umsatz **gesamt vorher → nachher** mit Vorzeichen,
+- eingeklappt die **Wirkung je Vertriebsbezirk** (Kunden vorher/nachher, Δ
+  Kunden, Δ Umsatz) und die **namentlichen Listen** der drei Gruppen.
+
+Zugeordnet wird wie beim Import selbst: **Kundennummer**, sonst **Name + PLZ**.
+Ein Kunde, der nur umbenannt wurde, gilt bei gleicher Kundennummer als derselbe
+Kunde. Kunden ohne Bezirk laufen unter **"Ohne Zuordnung"**.
+
+Erst **"Bestand ersetzen"** führt den Import aus; **"Abbrechen"**, Schließen und
+Escape lassen den bisherigen Bestand vollständig unangetastet. Ohne vorhandenen
+Kundenbestand gibt es nichts zu vergleichen – dann bleibt es bei der kurzen
+Standardabfrage.
 
 Nach Bestätigung werden gemeinsam ersetzt:
 
@@ -840,29 +895,32 @@ Microsoft übertragen.
 
 ---
 
-## 9. Kundenbriefing mit Microsoft 365 Copilot
+## 9. Kundenbriefing über den KI-Assistenten
 
 ### 9.1 Product-Owner-Nutzen
 
 Das Kundenbriefing ist ein zentraler USP: Ein Nutzer kann unterwegs einen
-spontanen Besuch entscheiden und sich mit einem einzigen TourFuchs-Klick aus dem
-aktuellen, berechtigten Unternehmenswissen vorbereiten. TourFuchs verbindet dabei
-den richtigen Kunden auf der Karte mit Microsoft-365-Wissen. Eine allgemeine
-Kartenanwendung kennt diesen Kunden- und Tourkontext nicht.
+spontanen Besuch entscheiden und sich mit einem einzigen TourFuchs-Klick
+vorbereiten. TourFuchs verbindet den richtigen Kunden auf der Karte mit dem
+berechtigten Firmenwissen im Assistenten. Eine allgemeine Kartenanwendung kennt
+diesen Kunden- und Tourkontext nicht.
+
+**Entscheidende Abgrenzung:** TourFuchs ist selbst kein KI-Werkzeug. Es baut den
+Prompt, mehr nicht.
 
 ### 9.2 Voraussetzungen
 
-- Anmeldung bei Microsoft 365 mit dem Entra-Arbeitskonto.
-- passende Microsoft-365-Copilot-Lizenz.
-- Zugriff nur auf Inhalte, die dieses Arbeitskonto ohnehin sehen darf.
-- für den manuellen Basisweg keine TourFuchs-Client-ID.
-- für den direkten Profiweg eine von der IT registrierte Entra-SPA und
-  freigegebene Graph-Berechtigungen.
+- ein Assistent, den der Nutzer ohnehin nutzen darf (Microsoft 365 Copilot,
+  Google Gemini, ChatGPT oder ein Assistent der eigenen Organisation).
+- keine Einrichtung in TourFuchs, keine Client-ID, keine Anmeldung, keine
+  IT-Freigabe für TourFuchs.
+- die Qualität des Briefings hängt davon ab, auf welche internen Quellen der
+  Assistent im Konto des Nutzers zugreifen darf.
 
-### 9.3 Basisweg: sofort nutzbar
+### 9.3 Der Weg: sofort nutzbar, in Basis und Profi identisch
 
 **Klickpfad:** Kundenmarker -> **"Briefing"** ->
-**"Prompt kopieren & Copilot öffnen"**.
+**"Prompt kopieren & <Assistent> öffnen"**.
 
 Dieser Klickpfad gilt für echte importierte Kundendaten. Bei Demo-Kunden endet
 der Klickpfad sicher in der lokalen Briefing-Vorschau mit **"Verstanden"**.
@@ -871,15 +929,14 @@ Ablauf:
 
 1. TourFuchs zeigt Kundenidentität und den vollständigen vorbereiteten Prompt.
 2. Der Nutzer kann vorab lesen, welche Daten enthalten sind.
-3. TourFuchs kopiert den Prompt.
-4. Auf Windows wird bevorzugt Microsoft Edge mit
-   `https://m365.cloud.microsoft/chat` geöffnet; andernfalls ein normaler
-   Browser-Tab.
-5. Der Nutzer fügt den Prompt in Corporate Copilot ein.
+3. TourFuchs kopiert den Prompt in die Zwischenablage.
+4. Der Assistent wird in einem neuen Tab geöffnet; bei Copilot unter Windows
+   bevorzugt die installierte Edge-App mit `https://m365.cloud.microsoft/chat`.
+5. Der Nutzer fügt den Prompt dort ein.
 6. Der Nutzer sendet ihn selbst bewusst ab.
 
-Bis Schritt 6 überträgt TourFuchs keine Kundendaten automatisch an Microsoft.
-Das Öffnen des Browsers allein ist noch keine fachliche Anfrage.
+Bis Schritt 6 überträgt TourFuchs keine Kundendaten. Das Öffnen des Browsers
+allein ist noch keine fachliche Anfrage.
 
 ### 9.4 Inhalt des kompakten Prompts
 
@@ -894,13 +951,14 @@ Zur eindeutigen Zuordnung können enthalten sein:
 - Rolle als Start oder Ziel
 - letzter lokal dokumentierter Besuch
 
-Der Prompt verlangt ausschließlich berechtigtes internes Microsoft-365-Wissen:
+Der Prompt verlangt ausschließlich berechtigtes internes Wissen. Die Quellenzeile
+richtet sich nach dem gewählten Assistenten:
 
-- E-Mails
-- Outlook-Termine
-- Teams-Chats und Kanalnachrichten
-- Besprechungen und Transkripte
-- Dateien
+| Assistent | Quellenformulierung im Prompt |
+|---|---|
+| Microsoft 365 Copilot | E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte, Dateien |
+| Google Gemini | E-Mails, Kalendertermine, Chats, Dateien in Drive |
+| ChatGPT / eigener Assistent | neutral: verbundene Postfächer, Kalender und Dateiablagen |
 
 Zeitraum: letzte 12 Monate mit Schwerpunkt auf den letzten 90 Tagen sowie
 zukünftige Termine, Zusagen, Aufgaben und Fristen.
@@ -915,91 +973,67 @@ Ergebnisformat, maximal 250 Wörter:
 Der Prompt verbietet Websuche, allgemeine Internetinformationen und erfundene
 Fakten. Unsicherheiten und Schlussfolgerungen müssen gekennzeichnet werden.
 
-### 9.5 Profi: einfacher Weg zuerst
-
-Auch im Profi-Modus steht oben zuerst der sofort nutzbare Weg
-**"Prompt in Corporate Copilot verwenden"**. Das ist die bevorzugte
-Rückfalloption und benötigt kein IT-Setup.
-
-Darunter befindet sich eingeklappt:
-
-**"Expertenfall: Briefing direkt in TourFuchs"**.
-
-Diese Reihenfolge ist bewusst: erst Nutzen, dann technische Automatisierung.
-
-### 9.6 Profi: direkte Entra-/Graph-Verbindung
-
-Einrichtung:
-
-1. in **"Profi"** einen Kunden öffnen.
-2. **"Briefing"**.
-3. Expertenfall aufklappen.
-4. Client-ID und Tenant-ID oder Tenant-Domäne eintragen.
-5. angezeigte Redirect-URI in der Entra-SPA hinterlegen.
-6. Datenübergabe bestätigen.
-7. **"Briefing direkt erstellen"**.
-8. mit Arbeitskonto anmelden.
-
-Die SPA verwendet kein Client Secret. Client- und Tenant-ID werden lokal im
-Browser gespeichert; das Zugriffstoken liegt im Sitzungsspeicher und wird durch
-MSAL verwaltet.
-
-Der direkte Weg übergibt nach Zustimmung:
-
-- Kundenname
-- Kundennummer
-- PLZ/Ort
-- Hauptansprechpartner
-- aktuellen Tourkontext
-
-Nicht übergeben werden:
+Nicht im Prompt enthalten:
 
 - vollständige Kundenliste
+- Straße
 - Telefonnummer
 - E-Mail-Adresse
 - Umsatz
 - Kartenkoordinaten
 
-Die Antwort, Quellenhinweise und eine vorhandene Vertraulichkeitskennzeichnung
-werden direkt in TourFuchs gezeigt.
+### 9.5 Profi: Zielassistent wählen
 
-### 9.7 Technischer Stand des Profiwegs
+In **Basis** ist das Ziel fest Microsoft 365 Copilot - ein Knopf, keine
+Entscheidung.
 
-Stand Juli 2026 verwendet TourFuchs die Microsoft 365 Copilot Chat API unter
-Microsoft Graph `/beta/copilot`. Die API ist weiterhin Preview.
+Im **Profi**-Modus steht im Briefing-Dialog eingeklappt
+**"Ziel: <Assistent> · Anderen Assistenten wählen"**.
 
-Delegierte Berechtigungen:
+**Klickpfad:** `"Briefing" -> "Anderen Assistenten wählen" -> Auswahl`.
 
-- `Sites.Read.All`
-- `Mail.Read`
-- `People.Read.All`
-- `OnlineMeetingTranscript.Read.All`
-- `Chat.Read`
-- `ChannelMessage.Read.All`
-- `ExternalItem.Read.All`
+Auswahlmöglichkeiten: Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT,
+eigener Assistent mit selbst eingetragener **https**-Adresse. Die Wahl wird lokal
+gemerkt und ändert zwei Dinge: die geöffnete Adresse und die Quellenzeile im
+Prompt. Eine `http`-Adresse wird abgelehnt; eine unvollständige eigene Adresse
+fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
 
-Die Organisation muss diese Rechte gegebenenfalls administrativ freigeben.
-TourFuchs handelt immer im Namen des angemeldeten Nutzers. Die Websuche ist im
-API-Aufruf ausgeschaltet.
+### 9.6 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung
 
-Weitere technische Details: `docs/copilot-briefing.md`.
+Frühere Fassungen boten im Profi-Modus eine optionale automatische Anmeldung an
+Microsoft Entra ID und einen direkten Aufruf der Copilot-Chat-API über Microsoft
+Graph, mit Antwortanzeige in TourFuchs.
 
-### 9.8 Fehler und Fallback
+**Diese Funktion wurde am 25.07.2026 vollständig entfernt.** Gründe:
 
-Bei abgebrochener Anmeldung, blockiertem Popup, fehlender Administratorfreigabe,
-abgelaufener Anmeldung, API- oder Netzwerkfehler zeigt TourFuchs eine
-verständliche Meldung. Der Button **"Prompt kopieren & Copilot öffnen"** bleibt
-als manueller Rückfallweg verfügbar.
+- sie stand im Spannungsverhältnis zum Lokal-first-Versprechen,
+- sie verlangte eine IT-registrierte Entra-SPA und administrative Freigaben,
+- sie band das Produkt an einen einzigen Anbieter.
 
-### 9.9 Richtige Guide-Antwort bei Datenschutzfragen
+Die MSAL-Abhängigkeit ist aus dem Projekt entfernt. Lokal gespeicherte Kennungen
+(`tourfuchs:copilot-config:v1`) und Einwilligungen (`tourfuchs:copilot-consent:v1`)
+werden beim Start gelöscht.
+
+**Der Guide bietet diesen Weg nicht mehr an** und beschreibt bei Nachfragen den
+manuellen Weg als den vorgesehenen - nicht als Rückfalloption.
+
+### 9.7 Richtige Guide-Antwort bei Datenschutzfragen
 
 Der Guide sagt nicht pauschal "Es werden keine Daten übertragen". Korrekt ist:
 
-- Im Basisweg zeigt und kopiert TourFuchs den Prompt lokal. Erst der Nutzer sendet
-  ihn in Microsoft 365 Copilot.
-- Im Profiweg übergibt TourFuchs die vorher benannten Identifikations- und
-  Tourdaten nach ausdrücklicher Zustimmung direkt an Microsoft.
-- Microsoft-365-Berechtigungen und Richtlinien der Organisation bleiben wirksam.
+- TourFuchs erzeugt den Prompt lokal, zeigt ihn vollständig und kopiert ihn.
+- TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-Schnittstelle auf.
+- Übertragen werden die Daten erst, wenn der Nutzer den Prompt im Assistenten
+  einfügt und absendet. Ab da gelten die Bedingungen des Anbieters.
+- Berechtigungen und Richtlinien der Organisation bleiben wirksam.
+
+### 9.8 Wenn nichts passiert
+
+Öffnet sich kein Fenster, hat meist der Popup-Blocker zugeschlagen. Der Prompt
+liegt trotzdem in der Zwischenablage: Assistent von Hand öffnen und einfügen.
+Der Prompt ist im Dialog außerdem vollständig sichtbar und markierbar.
+
+Weitere Details: `docs/kundenbriefing.md`.
 
 ---
 
@@ -1612,7 +1646,7 @@ Dienste übergeben.
 | Straßenroute/Korridor | nach Zustimmung | Koordinaten der Routenpunkte | OSRM |
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |
 | Basis-Briefing | Nutzer fügt Prompt ein und sendet | im Prompt sichtbare Identität und Tourkontext | Microsoft 365 Copilot |
-| Profi-Briefing | Zustimmung + Anmeldung | Name, Nummer, PLZ/Ort, Hauptkontakt, Tourkontext | Microsoft Graph/Copilot |
+| Kundenbriefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | Name, Nummer, PLZ/Ort, Hauptkontakt, Tourkontext | vom Nutzer gewählter Assistent |
 | Demo-Kontakt und Demo-Briefing | Klick auf sichtbare Demo-Aktion | keine externe Übertragung; lokale Simulation/Vorschau | nur TourFuchs im Browser |
 | Tour-QR | QR anzeigen/scannen | keine TourFuchs-Serverübertragung; Tour im QR/URL-Fragment | Bildschirm/Kamera |
 | Sicherer Umzug | Export/Import | TourFuchs lädt nichts hoch; Dateiweg vom Nutzer gewählt | lokales Dateisystem/gewählter Kanal |
@@ -1775,18 +1809,16 @@ Lösung: Luftlinie weiterverwenden, Verbindung prüfen und erneut auf
 
 Das ist der erwartete Basisweg. Browser dürfen fremde Websites nicht automatisch
 mit Text befüllen oder absenden. Der Prompt liegt in der Zwischenablage. In
-Corporate Copilot einfügen, prüfen und selbst absenden.
+Assistenten einfügen, prüfen und selbst absenden.
 
-### 18.8 Briefing zeigt Entra-Fehler
+### 18.8 Beim Briefing öffnet sich kein Assistent
 
 Prüfen:
 
-- Basisweg als sofortigen Fallback nutzen.
-- gültige Client-ID und Tenant-ID?
-- Redirect-URI exakt registriert?
-- Arbeitskonto und Copilot-Lizenz vorhanden?
-- Graph-Rechte durch IT freigegeben?
-- Popup oder Anmeldung vom Browser blockiert?
+- Popup-Blocker aktiv? Der Prompt liegt trotzdem in der Zwischenablage.
+- eigener Assistent eingetragen: gültige **https**-Adresse?
+- Assistent im Browser abgemeldet? Dann dort anmelden und Prompt einfügen.
+- Notfalls den im Dialog sichtbaren Prompt markieren und von Hand kopieren.
 
 ### 18.9 Live-Demo erscheint nicht automatisch
 
@@ -1929,17 +1961,16 @@ altem Namen alte PWA entfernen und neu installieren.
 > Kunden nach ihrem gespeicherten Ort; es springt nicht zu einer Stadt ohne
 > passenden Kunden.
 
-### Brauche ich für das Briefing eine Client-ID?
+### Brauche ich für das Briefing eine Einrichtung?
 
-> Nein für den einfachen Basisweg. Dort kopiert TourFuchs den Prompt und öffnet
-> Corporate Copilot. Nur die optionale direkte Profi-Verbindung benötigt eine
-> Entra-SPA mit Client- und Tenant-ID.
+> Nein. TourFuchs kopiert den Prompt und öffnet den Assistenten - keine
+> Client-ID, keine Anmeldung, keine IT-Freigabe für TourFuchs. Die frühere
+> automatische Entra-Verbindung wurde entfernt.
 
 ### Sendet TourFuchs den Briefing-Prompt automatisch?
 
-> Im Basisweg nein. Der Nutzer fügt ihn in Copilot ein und sendet selbst. Im
-> konfigurierten Profiweg kann TourFuchs nach ausdrücklicher Zustimmung direkt
-> senden.
+> Nein. TourFuchs kopiert den Prompt und öffnet den Assistenten; eingefügt und
+> abgesendet wird er vom Nutzer. Es gibt keinen automatischen Versand.
 
 ### Kann ich Demo-Kunden wirklich anrufen oder per E-Mail kontaktieren?
 
@@ -2001,6 +2032,46 @@ aktuelle interne Wissen.
 8. Tresor-Angebot erklären.
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
+
+#### 7.5.1 Einfügen statt Datei (Strg+V)
+
+Wer die Liste ohnehin in Excel offen hat, braucht keinen Export: Bereich
+**inklusive Überschriftenzeile** markieren, **Strg+C**, dann in TourFuchs
+einfügen. Zwei Wege:
+
+- **"Eigene Daten laden" -> "Liste schon offen? Aus Excel kopieren und hier
+  einfügen"** öffnet ein Feld; dort **Strg+V**. TourFuchs meldet sofort, wie
+  viele Zeilen und Spalten erkannt wurden, dann **"Spalten zuordnen"**.
+- **Strg+V irgendwo in der App** (außerhalb von Eingabefeldern) führt direkt in
+  die Spaltenzuordnung.
+
+Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
+bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
+Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
+Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
+
+#### 7.5.2 Wege der installierten App
+
+Ist TourFuchs installiert, führen drei weitere Wege in den Import beziehungsweise
+direkt in die Aufgabe:
+
+- **Datei-Handler:** Eine `.xlsx`, `.xls` oder `.csv` im Explorer/Finder mit
+  TourFuchs öffnen. Die laufende App übernimmt die Datei, sie startet kein
+  zweites Fenster.
+- **Teilen (Android):** Excel-Anhang in Outlook/Drive -> **Teilen** -> TourFuchs.
+  Der Service Worker nimmt die Datei **lokal** entgegen; sie wird zu keinem
+  Zeitpunkt an einen Server gesendet.
+- **Icon-Kurzbefehle:** Long-Press auf das App-Icon -> **"Meine Tour"**,
+  **"Kunden in der Nähe"** oder **"Liste importieren"**.
+
+In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noch
+nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
+wird übernommen, sobald bestätigt wurde.
+
+Das **Installations-Angebot** erscheint nicht sofort. TourFuchs hebt es sich für
+den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
+mindestens einem Stopp geplant. Einmal mit **"Später"** abgelehnt, kommt es nicht
+wieder; die Installation bleibt über das Browsermenü möglich.
 
 ### 20.4 Gebiets-Cockpit in 10 Minuten
 
@@ -2078,9 +2149,9 @@ Danach:
 
 ### 21.3 "Ich möchte mein internes Wissen nutzen"
 
-> Das geht bereits ohne IT-Einrichtung über den Basisweg. Kunden-Popup ->
-> "Briefing" -> "Prompt kopieren & Copilot öffnen". Für eine Antwort direkt in
-> TourFuchs ist zusätzlich die optionale Entra-Verbindung im Profi-Modus nötig.
+> Das geht ohne jede Einrichtung: Kunden-Popup -> "Briefing" ->
+> "Prompt kopieren & Assistent öffnen". Die Antwort entsteht im Assistenten,
+> nicht in TourFuchs. Im Profi-Modus ist wählbar, welcher Assistent geöffnet wird.
 
 ### 21.4 "Ich möchte Gebiete fairer verteilen"
 
@@ -2200,15 +2271,16 @@ Vertriebsgruppe als bevorzugten Vergleichsrahmen. Verwende "Betriebsbezirk" nur
 als akzeptiertes Import-Synonym.
 
 Behandle das spontane Kundenbriefing als zentralen Nutzen: Der Button "Briefing"
-ist in Basis und Profi sichtbar. Im Basisweg zeigt und kopiert TourFuchs den
-Prompt und öffnet Corporate Copilot; der Nutzer fügt ihn dort ein und sendet
-selbst. Im Profi-Modus bleibt dieser einfache Weg zuerst sichtbar. Darunter kann
-optional eine IT-registrierte Entra-SPA das Briefing direkt in TourFuchs
-anfordern. Behaupte nie, dass TourFuchs Microsoft-Berechtigungen umgeht.
+ist in Basis und Profi sichtbar und funktioniert überall gleich: TourFuchs zeigt
+und kopiert den Prompt und öffnet den Assistenten; der Nutzer fügt ihn dort ein
+und sendet selbst. Im Profi-Modus ist zusätzlich wählbar, welcher Assistent
+geöffnet wird. Biete die frühere automatische Entra-Verbindung nicht mehr an -
+sie ist entfernt. Behaupte nie, dass TourFuchs Berechtigungen umgeht.
 
 Erkläre TourFuchs als lokal-first. Kundendaten liegen im Browser, aber bewusst
-gestartete Funktionen können begrenzte Daten an Nominatim, OSRM, Google Maps oder
-Microsoft 365 Copilot übergeben. Nenne bei Datenschutzfragen den konkreten
+gestartete Funktionen können begrenzte Daten an Nominatim, OSRM oder Google Maps
+übergeben. Beim Briefing überträgt nicht TourFuchs, sondern der Nutzer selbst,
+indem er den kopierten Prompt im Assistenten absendet. Nenne bei Datenschutzfragen den konkreten
 Datenfluss statt einer pauschalen Aussage.
 
 Weise klar darauf hin, dass Simulationsschritte erst durch "Zuweisung
@@ -2299,9 +2371,9 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - **Nominatim:** optionaler Dienst für exakte Adressverortung.
 - **OSRM:** externer Dienst für Straßenroute auf OSM-Basis.
 - **Corporate Copilot:** Microsoft 365 Copilot im Arbeitskonto.
-- **Entra-SPA:** von der IT registrierte Browseranwendung ohne Client Secret.
+- **Zielassistent:** das im Profi-Modus wählbare KI-Werkzeug, das beim Briefing geöffnet wird.
 - **Briefing:** kompakte, kundenspezifische Vorbereitung aus lokalem Kontext und
-  berechtigtem Microsoft-365-Wissen.
+  dem berechtigten Firmenwissen im Assistenten des Nutzers.
 - **Datentresor:** optionale lokale AES-256-Verschlüsselung.
 - **`.tfsafe`:** verschlüsselte TourFuchs-Umzugsdatei.
 - **T EUR:** Tausend Euro.
@@ -2499,7 +2571,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.
 - Kundenbriefing in Basis und Profi komplett dokumentiert.
 - kompakter 250-Wörter-Briefing-Prompt dokumentiert.
-- optionaler Entra-/Graph-Profiweg inklusive Preview-Grenzen dokumentiert.
+- automatische Entra-/Graph-Anbindung entfernt; Zielassistent im Profi wählbar.
 - neue Live-Demo **"Spontaner Termin? Sofort gebrieft"** ergänzt.
 - verzögertes Onboarding und Reset-Verhalten nach Datenlöschung ergänzt.
 - gerätespezifische Live-Demos und Abschlussdialoge ergänzt.
@@ -2523,10 +2595,10 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 | Smartphone | Karte, Kunden, Briefing, Tour, Navigation, QR-Empfang |
 | Desktop-Handyvorschau | "Mobile Außendienst & Tour"; startet tourfokussiert, zeigt aber den vollständigen mobilen Außendienstweg |
 | Basis | ruhiger Kernweg, Briefing inklusive |
-| Profi | Ziel, Chancen, Exporte, Simulation und optionale Copilot-Automatisierung |
+| Profi | Ziel, Chancen, Exporte, Simulation und Wahl des Zielassistenten |
 | Suche | Kunde nach Name, Ort, PLZ, exakter Nummer; keine allgemeine Ortssuche |
 | Briefing Basis | Prompt anzeigen/kopieren, Copilot öffnen, Nutzer sendet selbst |
-| Briefing Profi | optional direkt über Entra/Graph nach Zustimmung |
+| Briefing Profi | derselbe Weg, zusätzlich Zielassistent wählbar |
 | Import-Matching | Kundennummer, sonst Name + PLZ |
 | Ort | für Anzeige und Stadtsuche empfohlen |
 | Lokale Daten | IndexedDB; Einstellungen/Sicherheitsmeta lokal |

@@ -7,12 +7,14 @@ import {
     customerBriefingFlow
 } from '../src/features/customerBriefing.js';
 import {
-    CopilotApiError,
-    clearCopilotConfig,
-    copilotErrorMessage,
-    loadCopilotConfig,
-    saveCopilotConfig
-} from '../src/services/copilot.js';
+    ASSISTANTS,
+    assistantForDepth,
+    forgetLegacyCopilotSetup,
+    loadAssistantChoice,
+    resolveAssistant,
+    saveAssistantChoice,
+    validateAssistantUrl
+} from '../src/services/assistant.js';
 
 const customer = {
     id: 'kunde-1',
@@ -28,14 +30,12 @@ const customer = {
     besuche: ['2026-02-04', '2026-06-21']
 };
 
-beforeEach(() => clearCopilotConfig());
+beforeEach(() => localStorage.clear());
 
 describe('Kundenbriefing', () => {
-    it('hält das Briefing in Basis manuell und die Automatisierung in Profi', () => {
-        expect(customerBriefingFlow('basis', false)).toBe('manual');
-        expect(customerBriefingFlow('basis', true)).toBe('manual');
-        expect(customerBriefingFlow('profi', false)).toBe('setup');
-        expect(customerBriefingFlow('profi', true)).toBe('automatic');
+    it('bleibt in Basis und Profi derselbe manuelle Weg, Profi ergänzt nur die Zielwahl', () => {
+        expect(customerBriefingFlow('basis')).toBe('manual');
+        expect(customerBriefingFlow('profi')).toBe('choice');
     });
 
     it('baut einen eindeutigen, datensparsamen Vertriebs-Prompt', () => {
@@ -58,15 +58,24 @@ describe('Kundenbriefing', () => {
         expect(prompt).toContain('höchstens 250 Wörter');
         expect(prompt).toContain('keinen Vorspann');
         expect(prompt).toContain('jeden Quellenlink höchstens einmal');
-        expect(prompt).not.toContain('5 konkrete Fragen');
-        expect(prompt).not.toContain('600 Wörtern');
         expect(prompt).not.toContain(customer.strasse);
         expect(prompt).not.toContain(customer.telefon);
         expect(prompt).not.toContain(customer.email);
         expect(prompt).not.toContain(String(customer.umsatz));
     });
 
-    it('erzeugt für Demo-Kunden niemals einen externen Copilot-Prompt', () => {
+    it('nennt die Quellen des gewählten Assistenten', () => {
+        const copilot = buildCustomerBriefingPrompt(customer, {}, ASSISTANTS.find((a) => a.id === 'copilot'));
+        const gemini = buildCustomerBriefingPrompt(customer, {}, ASSISTANTS.find((a) => a.id === 'gemini'));
+
+        expect(copilot).toContain('Microsoft-365-Inhalte');
+        expect(gemini).toContain('Google-Workspace-Inhalte');
+        expect(gemini).not.toContain('Microsoft-365-Inhalte');
+        // ohne Angabe bleibt es beim Standard (Microsoft 365)
+        expect(buildCustomerBriefingPrompt(customer, {})).toContain('Microsoft-365-Inhalte');
+    });
+
+    it('erzeugt für Demo-Kunden niemals einen externen Prompt', () => {
         expect(() => buildCustomerBriefingPrompt({ ...customer, id: 'demo-1', demo: true }))
             .toThrow(/Demo-Kunden/);
     });
@@ -87,48 +96,63 @@ describe('Kundenbriefing', () => {
             lastLocalVisit: '2026-06-21'
         });
     });
+});
 
-    it('speichert ausschließlich öffentliche Entra-Kennungen lokal', () => {
-        saveCopilotConfig({
-            clientId: '12345678-1234-4123-a123-123456789abc',
-            tenantId: 'example.onmicrosoft.com'
-        });
-        expect(loadCopilotConfig()).toMatchObject({
-            clientId: '12345678-1234-4123-a123-123456789abc',
-            tenantId: 'example.onmicrosoft.com'
-        });
-        expect(localStorage.getItem('tourfuchs:copilot-config:v1')).not.toContain('secret');
+describe('Zielassistent', () => {
+    it('steht in Basis fest auf Copilot und ist nur im Profi wählbar', () => {
+        saveAssistantChoice({ id: 'gemini' });
+        expect(assistantForDepth('basis').id).toBe('copilot');
+        expect(assistantForDepth('profi').id).toBe('gemini');
     });
 
-    it('erklärt fehlende IT-Freigabe ohne technischen Jargon', () => {
-        const error = new CopilotApiError('Forbidden', { status: 403, code: 'Authorization_RequestDenied' });
-        expect(copilotErrorMessage(error)).toContain('IT freigegeben');
+    it('merkt die Wahl lokal und fällt bei Unbekanntem auf Copilot zurück', () => {
+        saveAssistantChoice({ id: 'chatgpt' });
+        expect(loadAssistantChoice().id).toBe('chatgpt');
+        localStorage.setItem('tourfuchs:briefing-assistant:v1', '{"id":"gibtsnicht"}');
+        expect(loadAssistantChoice().id).toBe('copilot');
     });
+
+    it('lässt für eigene Assistenten nur https zu', () => {
+        expect(validateAssistantUrl('https://assistent.example.com/chat')).toContain('https://');
+        expect(() => validateAssistantUrl('http://assistent.example.com')).toThrow(/https/);
+        expect(() => validateAssistantUrl('javascript:alert(1)')).toThrow(/https/);
+        expect(() => validateAssistantUrl('')).toThrow();
+        expect(() => saveAssistantChoice({ id: 'custom', customUrl: 'kein-url' })).toThrow();
+    });
+
+    it('führt eine unvollständige eigene Adresse nie ins Leere', () => {
+        expect(resolveAssistant({ id: 'custom', customUrl: '' }).id).toBe('copilot');
+        expect(resolveAssistant({ id: 'custom', customUrl: 'https://assistent.example.com' }).url)
+            .toContain('assistent.example.com');
+    });
+
+    it('räumt Kennungen und Einwilligung der früheren Automatik weg', () => {
+        localStorage.setItem('tourfuchs:copilot-config:v1', '{"clientId":"alt"}');
+        localStorage.setItem('tourfuchs:copilot-consent:v1', 'yes');
+        forgetLegacyCopilotSetup();
+        expect(localStorage.getItem('tourfuchs:copilot-config:v1')).toBeNull();
+        expect(localStorage.getItem('tourfuchs:copilot-consent:v1')).toBeNull();
+    });
+});
+
+describe('Keine automatische KI-Anbindung mehr', () => {
+    const briefingSource = readFileSync(resolve(process.cwd(), 'src/ui/customerBriefing.js'), 'utf8');
 
     it('ersetzt den bisherigen Kopieren-Button durch Briefing', () => {
         const mapSource = readFileSync(resolve(process.cwd(), 'src/features/map.js'), 'utf8');
-        const briefingSource = readFileSync(resolve(process.cwd(), 'src/ui/customerBriefing.js'), 'utf8');
         const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
         expect(mapSource).toContain('data-action="customer-briefing"');
         expect(mapSource).not.toContain('data-action="copy-customer"');
-        expect(briefingSource).toContain('Prompt kopieren &amp; Copilot öffnen');
-        expect(briefingSource).toContain("flow === 'manual'");
         expect(html).toContain('id="customer-briefing-dialog"');
     });
 
-    it('zeigt im Profi zuerst den einfachen Weg und startet nie ungefragt', () => {
-        const source = readFileSync(resolve(process.cwd(), 'src/ui/customerBriefing.js'), 'utf8');
-        const setup = source.slice(source.indexOf('function renderSetup'), source.indexOf('function renderConsent'));
-        const automatic = source.slice(source.indexOf('function renderConsent'), source.indexOf('function renderLoading'));
-        const opener = source.slice(source.indexOf('export function openCustomerBriefing'));
+    it('enthält weder Anmeldung noch API-Aufruf im Briefing-Dialog', () => {
+        expect(briefingSource).not.toMatch(/msal|graph\.microsoft|loginPopup|acquireToken|accessToken|clientId|tenantId/i);
+        expect(briefingSource).toContain('data-briefing-open');
+    });
 
-        for (const view of [setup, automatic]) {
-            expect(view.indexOf('${expertManualPath()}')).toBeGreaterThanOrEqual(0);
-            expect(view.indexOf('${expertManualPath()}')).toBeLessThan(view.indexOf('briefing-expert-path'));
-            expect(view).toContain('wireManualFallback();');
-        }
-        expect(source).toContain('class="primary briefing-path-action" data-briefing-fallback');
-        expect(opener).toContain('renderConsent();');
-        expect(opener).not.toContain('startBriefing();');
+    it('hat MSAL vollständig aus dem Projekt entfernt', () => {
+        const pkg = JSON.parse(readFileSync(resolve(process.cwd(), 'package.json'), 'utf8'));
+        expect(Object.keys(pkg.dependencies)).not.toContain('@azure/msal-browser');
     });
 });

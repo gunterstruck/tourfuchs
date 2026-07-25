@@ -28,6 +28,7 @@ import { initMobilePreview } from './ui/mobilePreview.js';
 import { initShowcase } from './ui/showcase.js';
 import { initVault } from './ui/lockVault.js';
 import { initPwaUpdates } from './ui/pwaUpdate.js';
+import { initPwaLaunch } from './ui/pwaLaunch.js';
 import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
@@ -202,6 +203,7 @@ async function init() {
     initMobilePreview();
     initShowcase();
     initPwaUpdates();
+    initPwaLaunch();
     initContextHelp();
     initFirstSteps();
     initOfferAutoHide();

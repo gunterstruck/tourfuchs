@@ -155,7 +155,7 @@ export const STORIES = [
         id: 'chancen',
         icon: '🎯',
         title: 'Spontaner Termin? Sofort gebrieft',
-        blurb: 'Passenden Kunden finden und mit Copilot vorbereitet starten.',
+        blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
         duration: 46,
         needsData: true,
         mutatesTour: true,
@@ -175,8 +175,8 @@ export const STORIES = [
             { t: 'run', key: 'addOneSuggestion' },
             { t: 'say', text: 'TourFuchs hat einen passenden Kunden in der Nähe gefunden. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
             { t: 'run', key: 'openCustomerBriefing' },
-            { t: 'say', text: 'Die Demo zeigt dir das Ergebnis kompakt und ohne erfundene Kunden an Copilot zu senden.', sel: '.briefing-demo-preview', ms: 3000 },
-            { t: 'say', text: 'Mit echten Kundendaten entscheidest du selbst, wann Corporate Copilot dein berechtigtes Microsoft-365-Wissen durchsucht.', sel: '.briefing-demo-note', ms: 3400 },
+            { t: 'say', text: 'Die Demo zeigt dir das Ergebnis kompakt – ohne erfundene Kunden an einen Assistenten zu senden.', sel: '.briefing-demo-preview', ms: 3000 },
+            { t: 'say', text: 'Mit echten Kunden kopiert TourFuchs den fertigen Prompt und öffnet deinen Assistenten – absenden tust du selbst.', sel: '.briefing-demo-note', ms: 3400 },
             { t: 'run', key: 'closeCustomerBriefing' },
             { t: 'say', text: 'Der nächste Kunde steht fest. Das aktuelle Gesprächsbriefing auch.', ms: 2500 }
         ]

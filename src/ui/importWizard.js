@@ -35,10 +35,14 @@ import {
     createDemoServiceVisitSourceMeta
 } from '../features/demoServiceVisits.js';
 import { confirmDatasetReplacement, hasExistingDataset } from './datasetReplacement.js';
+import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
+import { confirmImportWithDiff } from './importDiff.js';
 
 let dialog = null;
 let resultDialog = null;
 let ownDataDialog = null;
+let pasteDialog = null;
+let pendingExternalFile = null;
 let parsed = null; // { headers, rows, fileName }
 let lastErrors = [];
 let lastFileBase = 'TourFuchs';
@@ -115,6 +119,9 @@ export function initImportWizard() {
         if (e.target.files[0]) handleFile(e.target.files[0]);
         fileInput.value = '';
     });
+
+    initPasteImport();
+    initPendingExternalFile();
 
     const downloadTemplate = async () => (await excel()).downloadTemplate();
     document.getElementById('btn-template').addEventListener('click', downloadTemplate);
@@ -223,6 +230,43 @@ function showComplianceToast() {
     showToast('Bitte bestätigen Sie zuerst, dass Sie zur Verarbeitung der Daten berechtigt sind.', 'info', 6000);
 }
 
+/** Von außen geöffnete Datei (Shortcut „Import", Teilen-Ziel, Datei-Handler). */
+export function openOwnDataDialog() {
+    cancelWelcomeDemo();
+    ownDataDialog?.showModal();
+}
+
+/**
+ * Kundenliste, die das Betriebssystem übergibt (geteilt oder „Öffnen mit").
+ * Die Berechtigungs-Bestätigung bleibt Pflicht: Ohne Häkchen wartet die Datei
+ * sichtbar im „Eigene Daten laden"-Dialog und wird übernommen, sobald bestätigt.
+ */
+export function importExternalFile(file) {
+    if (!file) return;
+    cancelWelcomeDemo();
+    if (hasComplianceOptIn()) {
+        handleFile(file);
+        return;
+    }
+    pendingExternalFile = file;
+    ownDataDialog?.showModal();
+    showComplianceToast();
+    showToast(`„${file.name}" wartet – bitte zuerst die Berechtigung bestätigen.`, 'info', 7000);
+}
+
+/** Sobald die Berechtigung bestätigt ist, die wartende Datei übernehmen. */
+function initPendingExternalFile() {
+    for (const input of document.querySelectorAll('[data-compliance-optin]')) {
+        input.addEventListener('change', () => {
+            if (!input.checked || !pendingExternalFile) return;
+            const file = pendingExternalFile;
+            pendingExternalFile = null;
+            ownDataDialog?.close();
+            handleFile(file);
+        });
+    }
+}
+
 async function handleFile(file) {
     const isExcel = /\.(xlsx|xls|csv|ods)$/i.test(file.name);
     if (!isExcel) {
@@ -236,6 +280,92 @@ async function handleFile(file) {
         await showMappingStep();
     } catch (error) {
         showToast(`Datei konnte nicht gelesen werden: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Einfügen statt Datei: Wer seine Liste in Excel offen hat, kommt so ohne
+ * Zwischenspeichern in den Import. Zwei Wege führen hinein – der sichtbare
+ * Knopf im „Eigene Daten laden"-Dialog und ein globales Strg+V in der App.
+ */
+function initPasteImport() {
+    pasteDialog = document.getElementById('paste-dialog');
+    if (!pasteDialog) return;
+    const input = document.getElementById('paste-input');
+    const confirm = document.getElementById('paste-confirm');
+    const status = document.getElementById('paste-status');
+
+    const review = () => {
+        const text = input.value;
+        if (!text.trim()) {
+            status.textContent = '';
+            status.classList.remove('paste-status-error', 'paste-status-ok');
+            confirm.disabled = true;
+            return;
+        }
+        try {
+            const { headers, rows } = parseClipboardTable(text);
+            status.textContent = `Erkannt: ${rows.length} ${rows.length === 1 ? 'Zeile' : 'Zeilen'}, ${headers.length} Spalten – erste Spalte „${headers[0]}".`;
+            status.classList.add('paste-status-ok');
+            status.classList.remove('paste-status-error');
+            confirm.disabled = false;
+        } catch (error) {
+            status.textContent = error.message;
+            status.classList.add('paste-status-error');
+            status.classList.remove('paste-status-ok');
+            confirm.disabled = true;
+        }
+    };
+
+    input.addEventListener('input', review);
+    pasteDialog.querySelector('.dialog-close')?.addEventListener('click', () => pasteDialog.close());
+    document.getElementById('paste-cancel')?.addEventListener('click', () => pasteDialog.close());
+    confirm.addEventListener('click', () => {
+        const text = input.value;
+        pasteDialog.close();
+        usePastedTable(text);
+    });
+    pasteDialog.addEventListener('close', () => { input.value = ''; review(); });
+
+    document.getElementById('btn-paste')?.addEventListener('click', () => openPasteDialog());
+
+    // Globales Strg+V: nur außerhalb von Eingabefeldern und nur, wenn wirklich
+    // eine Tabelle in der Zwischenablage liegt – ein kopierter Satz löst nichts aus.
+    document.addEventListener('paste', (event) => {
+        const target = event.target;
+        if (target?.closest?.('input, textarea, select, [contenteditable]')) return;
+        if (pasteDialog.open) return;
+        if ([...document.querySelectorAll('dialog[open]')].some((el) => el !== ownDataDialog)) return;
+        const text = event.clipboardData?.getData('text/plain') || '';
+        if (!looksLikeTable(text)) return;
+        event.preventDefault();
+        if (!hasComplianceOptIn()) {
+            showComplianceToast();
+            return;
+        }
+        ownDataDialog?.close();
+        usePastedTable(text);
+    });
+}
+
+function openPasteDialog() {
+    if (!hasComplianceOptIn()) {
+        showComplianceToast();
+        return;
+    }
+    if (ownDataDialog?.open) ownDataDialog.close();
+    pasteDialog?.showModal();
+    document.getElementById('paste-input')?.focus();
+}
+
+async function usePastedTable(text) {
+    cancelWelcomeDemo();
+    try {
+        const { headers, rows } = parseClipboardTable(text);
+        parsed = { headers, rows, fileName: 'Eingefügte Liste' };
+        await showMappingStep();
+    } catch (error) {
+        showToast(`Eingefügte Daten konnten nicht gelesen werden: ${error.message}`, 'error', 6000);
     }
 }
 
@@ -327,12 +457,24 @@ async function confirmImport() {
     }
 
     const replacedExisting = customers.length > 0 && hasExistingDataset();
-    if (customers.length > 0 && !confirmDatasetReplacement({
-        incomingCount: customers.length,
-        sourceLabel: 'Die ausgewählte Kundenliste'
-    })) {
-        showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
-        return;
+    if (customers.length > 0) {
+        // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
+        // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
+        // Ohne Vorbestand gibt es nichts zu vergleichen: kurze Standardabfrage.
+        const confirmed = state.customers.length > 0
+            ? await confirmImportWithDiff({
+                previous: state.customers,
+                incoming: customers,
+                sourceLabel: 'Die ausgewählte Kundenliste'
+            })
+            : confirmDatasetReplacement({
+                incomingCount: customers.length,
+                sourceLabel: 'Die ausgewählte Kundenliste'
+            });
+        if (!confirmed) {
+            showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
+            return;
+        }
     }
 
     dialog.close();
