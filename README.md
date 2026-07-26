@@ -2,7 +2,7 @@
 
 **Kundenlisten aus Excel auf der Deutschlandkarte – Gebiets-, Besuchs- und Servicevertragsplanung.**
 
-> Installierbare Web-App (PWA) · Lokal nutzbar · Optionale M365-Anmeldung nur für Kundenbriefings
+> Installierbare Web-App (PWA) · Lokal nutzbar · Briefing-Prompts für Ihren KI-Assistenten – ohne Anmeldung, ohne API-Aufruf
 
 > ⚠️ **Privates, nicht-kommerzielles Projekt.** Nutzung auf eigene Gefahr, ohne Gewähr und ohne Haftung jeglicher Art. Siehe [LICENSE](./LICENSE).
 
@@ -33,6 +33,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 | 📆 **Plan-Einstellungen** | Datum, Startzeit und Besuchsdauer (z. B. 45 min) der Tagestour sind einstellbar und fließen in Tagesplan-Druck und Kalender-Termine (.ics für Outlook, ein Termin je Besuch inkl. Fahrzeit) ein |
 | 📲 **QR-Übergabe** | Am Desktop geplante Tour als QR-Code anzeigen, am Handy mit der Kamera scannen und übernehmen – nur die Tour (keine Datenbank), Bildschirm zu Kamera, ohne Netzwerk und ohne Server. Navigation und Kalender-Termine funktionieren direkt aus dem gescannten Code |
 | 📋 **Kundenbriefing** | Ohne Einrichtung nutzbar: TourFuchs baut lokal einen kundenspezifischen Prompt, kopiert ihn und öffnet den Assistenten – abgesendet wird dort bewusst vom Nutzer. **TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-API auf.** Im **Profi**-Modus ist das Ziel wählbar (Microsoft 365 Copilot, Google Gemini, ChatGPT oder eine eigene https-Adresse) |
+| 🧭 **Gebiets-Briefing** | „Wen zuerst?" unter den Tourvorschlägen und unter „In der Nähe": derselbe manuelle Weg für die Kunden eines Gebiets. Der Prompt enthält je Kunde nur Name, Kundennummer, PLZ/Ort, Fälligkeit und letzten Besuch – kein Umsatz, keine Kontaktdaten, keine Straße –, ist auf 12 Kunden begrenzt und verlangt eine Besuchsreihenfolge statt eines weiteren Berichts |
 | 🛡️ **Service-Vertragsradar** | Separater Excel-/CSV-Import für Vertragsstände aus SAP, SieSales/Salesforce oder weiteren Quellen. Exakter Kundenabgleich per Kundennummer, Quellenalter, Handlungsfristen, Vertragswert, SLA und Verantwortliche. Der Service-Modus ist ein **optionales Modul** – standardmäßig ausgeblendet und im Profi-Modus unten in der Gebietsplanung per Häkchen einblendbar, damit der Einstieg nicht überfrachtet |
 | 🔊 **Zanobo-Brücke** | Serviceeinsätze mit Anlagen-ID verlinken direkt in die Schwester-App [Zanobo](https://zanobo.vercel.app) – akustischer Maschinen-Check am Smartphone, lokal im Browser, ohne Cloud. Vergleich statt Diagnose; die Anlagen-ID entspricht der Maschinen-ID am Zanobo-NFC-Tag und bleibt im URL-Fragment (wird nie an den Server übertragen). Eigene Zanobo-Instanz im Service-Cockpit einstellbar |
 | 🔍 **Suche** | Kunden nach Name, Ort, PLZ oder Kundennummer finden und anfliegen |
@@ -85,7 +86,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 
 - Kundendaten werden **lokal im Browser** gespeichert (IndexedDB); der Betreiber erhält sie nicht und es gibt kein Tracking.
 - Bei Demo-Kunden werden Telefon, E-Mail, Briefing und exakte Adress-Geocodierung nicht extern gestartet. Die sichtbaren Aktionen sind sichere Simulationen; echte importierte Kunden bleiben unverändert nutzbar.
-- Beim **Kundenbriefing** entsteht der Prompt ausschließlich lokal, wird vollständig angezeigt und nur in die Zwischenablage kopiert. Eine Übertragung erfolgt erst, wenn der Nutzer ihn selbst im Assistenten einfügt und absendet. TourFuchs führt dabei keine Anmeldung und keinen API-Aufruf durch; eine frühere automatische Entra-/Graph-Anbindung wurde entfernt.
+- Beim **Kunden- und beim Gebiets-Briefing** entsteht der Prompt ausschließlich lokal, wird vollständig angezeigt und nur in die Zwischenablage kopiert. Eine Übertragung erfolgt erst, wenn der Nutzer ihn selbst im Assistenten einfügt und absendet. TourFuchs führt dabei keine Anmeldung und keinen API-Aufruf durch; eine frühere automatische Entra-/Graph-Anbindung wurde entfernt.
 - Nur die optionale adressgenaue Verortung sendet die jeweilige Adresse an OpenStreetMap (Nominatim), gedrosselt gemäß deren Nutzungsrichtlinie.
 - Optionale Straßenrouten (Routenlinie und Korridor-Vorschläge) senden **nach ausdrücklicher Zustimmung** die Koordinaten von Start und Tour-Stopps an OSRM (`router.project-osrm.org`) – keine Namen oder sonstigen Kundendaten. Ohne Zustimmung rechnet die App mit der Luftlinie, komplett offline.
 
@@ -95,7 +96,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [Kurzanleitung für Anwender](./docs/kurzanleitung-tourfuchs.md)
 - [Wissensbasis für den Guide-Bot](./docs/guide-ki-wissensbasis.md) – aufgabenorientiert mit dokumentierten Klickpfaden, aktueller Funktionsstand
 - [PDF-Fassung der Guide-Wissensbasis](./TourFuchs_KI-Agent_Wissensbasis.pdf) – gut lesbare Referenz für Review, Schulung und Weitergabe
-- [Kundenbriefing](./docs/kundenbriefing.md) – Ablauf, Inhalt des Prompts, Wahl des Assistenten und Prüfschritte
+- [Kunden- und Gebiets-Briefing](./docs/kundenbriefing.md) – Ablauf, Inhalt der Prompts, Wahl des Assistenten und Prüfschritte
 
 ---
 

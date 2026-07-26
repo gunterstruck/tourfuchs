@@ -16,7 +16,8 @@
     font-size: 1.15rem;
 }
 
-#customer-briefing-body {
+#customer-briefing-body,
+#area-briefing-body {
     max-height: calc(86dvh - 142px);
     overflow-y: auto;
     overscroll-behavior: contain;
@@ -200,6 +201,65 @@
     line-height: 1.5;
 }
 
+/* Gebiets-Briefing: Einstieg unter der Vorschlagsliste bzw. unter „In der Nähe". */
+.area-briefing-btn {
+    width: 100%;
+    margin-top: 10px;
+    min-height: 42px;
+    white-space: normal;
+}
+
+.area-briefing-btn[hidden] {
+    display: none;
+}
+
+/* Wer im Prompt steht, ist vor dem Kopieren nachlesbar – eingeklappt, damit
+   der Dialog nicht mit einer Liste beginnt, die man meist nicht braucht. */
+.area-customers {
+    margin-top: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+.area-customers > summary {
+    padding: 10px 12px;
+    cursor: pointer;
+}
+
+.area-customer-list {
+    max-height: 210px;
+    margin: 0;
+    padding: 4px 12px 10px;
+    overflow-y: auto;
+    border-top: 1px solid var(--color-border);
+    list-style: none;
+}
+
+.area-customer-list li {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 0.88rem;
+}
+
+.area-customer-list li + li {
+    border-top: 1px solid var(--color-border);
+}
+
+.area-customer-list span {
+    flex-shrink: 0;
+    color: var(--color-text-muted);
+    font-size: 0.8rem;
+}
+
+.area-truncated {
+    margin-top: 10px;
+    color: var(--color-text-muted);
+    font-size: 0.84rem;
+}
+
 .briefing-answer {
     white-space: pre-wrap;
     overflow-wrap: anywhere;
@@ -236,7 +296,8 @@
         grid-template-rows: auto minmax(0, 1fr) auto;
     }
 
-    #customer-briefing-body {
+    #customer-briefing-body,
+    #area-briefing-body {
         min-height: 0;
         max-height: none;
     }

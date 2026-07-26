@@ -61,7 +61,7 @@ Guide dieses Modell richtig.
 6. Live-Demos
 7. Daten laden, importieren und aktualisieren
 8. Karte, Suche und Kunden-Popup
-9. Kundenbriefing mit Microsoft 365 Copilot
+9. Kunden- und Gebiets-Briefing über den KI-Assistenten
 10. Tourplanung im Außendienst
 11. Tour vom Desktop aufs Smartphone übergeben
 12. Mobile Bedienung
@@ -266,6 +266,7 @@ Gerät.
 | Daten importieren und exportieren | Ja | Ja, bei Bedarf |
 | Kundenkarte und Suche | Ja | Ja |
 | Kundenbriefing | Ja | Ja |
+| Gebiets-Briefing "Wen zuerst?" | Ja | Ja, unter "In der Nähe" besonders sinnvoll |
 | Tour planen und navigieren | Ja | Ja |
 | Tour per QR an Smartphone senden | Ja | Nein, bewusst ausgeblendet |
 | Tour vom Desktop scannen | Ja | Ja, mobil besonders sinnvoll |
@@ -295,6 +296,7 @@ Automatisierungswerkzeuge ein.
 | Tour | Bezirk, Start, Datum/Zeit/Dauer, Umkreis, Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan | Kartenansicht Kunden/Status/Chancen, Ziel, Entlang der Tour, Rundreise, Druck, ICS, Text, gespeicherte Touren |
 | Gebiets-Popup | Kennzahlen und Verteilung | zusätzliche namentliche Kundenliste |
 | Kundenbriefing | Prompt kopieren und Microsoft 365 Copilot öffnen | zusätzlich wählbarer Zielassistent (Gemini, ChatGPT, eigene https-Adresse) |
+| Gebiets-Briefing | "Wen zuerst?" unter Tourvorschlägen und unter "In der Nähe" | dasselbe; das Ziel folgt der im Kundenbriefing getroffenen Wahl |
 
 Wichtig: **"Briefing" ist in beiden Ansichtstiefen sichtbar** und funktioniert
 überall gleich. Profi ergänzt nur die Wahl des Ziels.
@@ -1000,7 +1002,7 @@ Microsoft übertragen.
 
 ---
 
-## 9. Kundenbriefing über den KI-Assistenten
+## 9. Kunden- und Gebiets-Briefing über den KI-Assistenten
 
 ### 9.1 Product-Owner-Nutzen
 
@@ -1103,7 +1105,52 @@ gemerkt und ändert zwei Dinge: die geöffnete Adresse und die Quellenzeile im
 Prompt. Eine `http`-Adresse wird abgelehnt; eine unvollständige eigene Adresse
 fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
 
-### 9.6 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung
+### 9.6 Gebiets-Briefing: "Wen zuerst?"
+
+Das Kundenbriefing beantwortet "Was weiß meine Firma über diesen einen Kunden?".
+Die häufigere Frage im Außendienst ist aber: **"Ich bin hier - wen von diesen
+besuche ich zuerst?"** Entfernung und Fälligkeit weiß TourFuchs selbst; offene
+Vorgänge, Eskalationen und zugesagte Rückmeldungen weiß nur der Assistent.
+
+**Zwei Klickpfade, ein Dialog:**
+
+- `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"`
+- `Tab "Karte" -> "In der Nähe" -> Kartenmitte oder Standort -> "Wen zuerst? Briefing für diese Umgebung"`
+
+Beide Knöpfe erscheinen **erst ab zwei echten Kunden**. Bei einem einzigen Kunden
+ist das Kundenbriefing der bessere Weg; bei reinen Demo-Kunden wird kein Prompt
+gebaut und kein Assistent geöffnet.
+
+Der Ablauf ist identisch mit 9.3: lokal bauen, vollständig anzeigen, kopieren,
+im Assistenten selbst absenden. Kein Login, kein API-Aufruf.
+
+**Inhalt je Kunde - bewusst weniger als beim Einzelbriefing:**
+
+- Kundenname
+- Kundennummer
+- PLZ und Ort
+- Fälligkeitsstand ("überfällig" bzw. "bald fällig")
+- Datum des letzten dokumentierten Besuchs
+
+**Nicht enthalten:** Umsatz, Telefonnummer, E-Mail-Adresse, Straße,
+Kartenkoordinaten. Beim Einzelbriefing ist das zugesagt - bei einer ganzen Liste
+wiegt es schwerer, nicht leichter.
+
+**Höchstens 12 Kunden.** Eine Liste mit vierzig Namen ist weder ein guter Prompt
+noch eine gute Idee: Es zählt das Gebiet, nicht der Bestand. Wurde gekürzt, steht
+das ausdrücklich im Prompt ("Es sind 37 Kunden im Gebiet; hier stehen die 12
+nächstgelegenen") und der Dialog weist darauf hin.
+
+**Ergebnisformat, maximal 200 Wörter:**
+
+1. `Zuerst` - höchstens drei Kunden, je eine Zeile mit dem einen Grund.
+2. `Wenn Zeit bleibt` - die übrigen Kunden mit Rang.
+3. `Nichts gefunden` - Kunden ohne belastbare interne Information.
+
+Der Prompt verbietet ausdrücklich, die bereits mitgelieferte Besuchslücke als
+Begründung zu wiederholen: Entscheidend ist, was der Nutzer noch nicht weiß.
+
+### 9.7 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung
 
 Frühere Fassungen boten im Profi-Modus eine optionale automatische Anmeldung an
 Microsoft Entra ID und einen direkten Aufruf der Copilot-Chat-API über Microsoft
@@ -1122,7 +1169,7 @@ werden beim Start gelöscht.
 **Der Guide bietet diesen Weg nicht mehr an** und beschreibt bei Nachfragen den
 manuellen Weg als den vorgesehenen - nicht als Rückfalloption.
 
-### 9.7 Richtige Guide-Antwort bei Datenschutzfragen
+### 9.8 Richtige Guide-Antwort bei Datenschutzfragen
 
 Der Guide sagt nicht pauschal "Es werden keine Daten übertragen". Korrekt ist:
 
@@ -1132,7 +1179,7 @@ Der Guide sagt nicht pauschal "Es werden keine Daten übertragen". Korrekt ist:
   einfügt und absendet. Ab da gelten die Bedingungen des Anbieters.
 - Berechtigungen und Richtlinien der Organisation bleiben wirksam.
 
-### 9.8 Wenn nichts passiert
+### 9.9 Wenn nichts passiert
 
 Öffnet sich kein Fenster, hat meist der Popup-Blocker zugeschlagen. Der Prompt
 liegt trotzdem in der Zwischenablage: Assistent von Hand öffnen und einfügen.
@@ -1776,6 +1823,7 @@ Dienste übergeben.
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |
 | Basis-Briefing | Nutzer fügt Prompt ein und sendet | im Prompt sichtbare Identität und Tourkontext | Microsoft 365 Copilot |
 | Kundenbriefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | Name, Nummer, PLZ/Ort, Hauptkontakt, Tourkontext | vom Nutzer gewählter Assistent |
+| Gebiets-Briefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | je Kunde Name, Nummer, PLZ/Ort, Fälligkeit, letzter Besuch; höchstens 12 Kunden | vom Nutzer gewählter Assistent |
 | Demo-Kontakt und Demo-Briefing | Klick auf sichtbare Demo-Aktion | keine externe Übertragung; lokale Simulation/Vorschau | nur TourFuchs im Browser |
 | Tour-QR | QR anzeigen/scannen | keine TourFuchs-Serverübertragung; Tour im QR/URL-Fragment | Bildschirm/Kamera |
 | Sicherer Umzug | Export/Import | TourFuchs lädt nichts hoch; Dateiweg vom Nutzer gewählt | lokales Dateisystem/gewählter Kanal |
@@ -1840,8 +1888,10 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Export | `Daten -> "Als Excel exportieren"` |
 | Kunde suchen | `Topbar -> "Kunde, Ort, PLZ suchen..." -> Kundentreffer` |
 | Mobile Ansicht prüfen | `Topbar -> Smartphone-Symbol "Mobile Außendienst & Tour"` |
-| Kundenbriefing Basis | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Copilot öffnen"` |
-| Kundenbriefing Profi direkt | `Profi -> Kundenmarker -> "Briefing" -> Expertenfall -> Verbindung/Zustimmung -> "Briefing direkt erstellen"` |
+| Kundenbriefing Basis | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
+| Kundenbriefing Profi | `Profi -> Kundenmarker -> "Briefing" -> "Ziel: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
+| Gebiets-Briefing Tour | `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"` |
+| Gebiets-Briefing Karte | `Tab "Karte" -> "In der Nähe" -> Kartenmitte/Standort -> "Wen zuerst? Briefing für diese Umgebung"` |
 | Demo-Briefing | `Demo-Kundenmarker -> "Briefing" -> lokale Ergebnisvorschau -> "Verstanden"` |
 | Kunden anrufen | `Kundenmarker -> "Anrufen"` |
 | Besuch abhaken | `Kundenmarker -> "Heute besucht"` oder `Tourstopp -> "✓ Heute"` (Handy: Tipp auf den Tour-Punkt) |

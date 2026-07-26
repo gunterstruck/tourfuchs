@@ -36,6 +36,7 @@ import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
+import { initAreaBriefing } from './ui/areaBriefing.js';
 import { initContractRadar } from './ui/contractRadar.js';
 import { upgradeDemoServiceContracts } from './features/demoServiceContracts.js';
 import { upgradeDemoServiceVisits } from './features/demoServiceVisits.js';
@@ -193,6 +194,7 @@ function handleSharedTourFromUrl() {
 async function init() {
     initToasts();
     initCustomerBriefing();
+    initAreaBriefing();
     initContractRadar();
     initMap('map');
     initSidebar();

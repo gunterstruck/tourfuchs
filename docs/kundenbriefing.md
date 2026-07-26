@@ -52,6 +52,42 @@ Die Wahl wird lokal gemerkt und passt zwei Dinge an: die geöffnete Adresse **un
 Quellenzeile im Prompt. Für eigene Adressen ist ausschließlich `https` zulässig; eine
 unvollständige Eingabe fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
 
+## Gebiets-Briefing: „Wen zuerst?"
+
+Die häufigere Frage im Außendienst ist nicht „erzähl mir alles über einen Kunden",
+sondern **„ich bin hier – wen von diesen besuche ich zuerst?"**. Genau das kann
+TourFuchs allein nicht beantworten: Entfernung und Fälligkeit weiß es, offene
+Vorgänge und den letzten Schriftwechsel nicht.
+
+**Zwei Einstiege, ein Dialog** – beide erscheinen erst ab zwei echten Kunden:
+
+| Einstieg | Gebiet |
+|---|---|
+| Tourplaner → „2. Vorschläge" → **🧭 Wen zuerst?** | der eingestellte Umkreis um den Startpunkt bzw. der Korridor entlang der Strecke |
+| Karte → „In der Nähe" → **🧭 Wen zuerst?** | die nächstgelegenen Kunden um Kartenmitte oder GPS-Standort |
+
+Der Ablauf ist derselbe wie beim Kundenbriefing: lokal bauen, vollständig zeigen,
+kopieren, im Assistenten selbst absenden.
+
+**Im Prompt steht je Kunde nur:** Name, Kundennummer, PLZ/Ort, Fälligkeitsstand
+(„überfällig" / „bald fällig") und das Datum des letzten dokumentierten Besuchs.
+
+**Nicht enthalten:** Umsatz, Telefon, E-Mail, Straße, Koordinaten. Beim
+Einzelbriefing ist das zugesagt – bei einer ganzen Liste wiegt es schwerer, nicht
+leichter.
+
+**Höchstens 12 Kunden.** Eine Liste mit vierzig Namen ist weder ein guter Prompt
+noch eine gute Idee; es zählt das Gebiet, nicht der Bestand. Wurde gekürzt, sagt
+der Prompt es ausdrücklich („Es sind 37 Kunden im Gebiet; hier stehen die 12
+nächstgelegenen") und der Dialog weist darauf hin.
+
+Der Assistent liefert eine **Reihenfolge**, keinen weiteren Bericht: `## Zuerst`
+(höchstens drei Kunden mit je einem Grund), `## Wenn Zeit bleibt`,
+`## Nichts gefunden` – zusammen höchstens 200 Wörter. Dass der letzte Besuch lange
+her ist, steht bereits im Prompt und zählt ausdrücklich nicht als Begründung.
+
+Liegen im Gebiet nur Demo-Kunden, wird kein Prompt gebaut und kein Assistent geöffnet.
+
 ## Prüfschritte
 
 1. Basis-Modus, echter Kunde → Dialog zeigt Prompt, **keine** Assistentenwahl,
@@ -62,3 +98,9 @@ unvollständige Eingabe fällt sichtbar auf Copilot zurück, damit der Knopf nie
 4. Demo-Kunde → Demo-Vorschau, kein Fenster öffnet sich, nichts wird kopiert.
 5. Nach dem ersten Start sind `tourfuchs:copilot-config:v1` und
    `tourfuchs:copilot-consent:v1` nicht mehr im Local Storage.
+6. Gebiets-Briefing: Startpunkt setzen, Umkreis so wählen, dass mindestens zwei
+   eigene Kunden erscheinen → **🧭 Wen zuerst?** wird sichtbar; der Dialog listet
+   dieselben Kunden auf, die im Prompt stehen.
+7. Umkreis auf einen einzigen Kunden verkleinern → der Knopf verschwindet wieder.
+8. Nur Demo-Kunden im Gebiet → Hinweis „Für Beispielkunden wird kein Briefing
+   erzeugt", kein Fenster öffnet sich, nichts wird kopiert.
