@@ -134,6 +134,7 @@ export function areaLabelFor({ mode = 'radius', radiusKm = 0, startLabel = '', m
         const from = value(startLabel) ? ` ab ${value(startLabel)}` : '';
         return `Kunden entlang der geplanten Strecke${from}`;
     }
+    if (mode === 'lasso') return 'die von mir auf der Karte markierte Fläche';
     if (mode === 'gps') return 'Umkreis um meinen aktuellen Standort';
     return value(mapLabel) || 'der aktuell sichtbare Kartenausschnitt';
 }

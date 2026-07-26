@@ -633,6 +633,27 @@
     .route-mode-bar { bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 14px); }
     .route-mode-toggle { padding: 7px 13px; font-size: 0.8rem; }
 
+    /* Lasso mobil: Auswahlstreifen ebenfalls über das Blatt, und der
+       Werkzeugknopf unter die Topbar statt in die Ecke mit den Kartenknöpfen. */
+    .lasso-bar {
+        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 14px);
+        gap: 8px;
+        padding: 8px 8px 8px 13px;
+    }
+    .lasso-bar .lasso-count { font-size: 0.84rem; }
+    .lasso-bar button { min-height: 36px; padding: 6px 11px; font-size: 0.82rem; }
+    /* Oben rechts sitzen auf dem Handy bereits die Karten-Umschalter, unten
+       rechts die Zoomknöpfe. Der Zeichenknopf gehört ohnehin in Daumennähe:
+       unten links, auf derselben Höhe wie der Auswahlstreifen. */
+    .lasso-tools {
+        top: auto;
+        right: auto;
+        left: 10px;
+        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 14px);
+    }
+    .lasso-tools[hidden] { display: none; }
+    .lasso-toggle { padding: 8px 12px; font-size: 0.82rem; }
+
     /* Willkommens-Hinweis mobil: die Sidebar ist ein Blatt am unteren Rand –
        daher über die volle Kartenbreite zentrieren, oberhalb des Blatts. */
     .demo-welcome {
@@ -775,6 +796,15 @@ body.sc-running .mobile-next-step { display: none !important; }
        vollständig in den eingeklappten Peek, nicht halb dahinter. */
     body.demo-data-active {
         --mobile-sheet-peek: 104px;
+    }
+
+    /* Hier gilt die Blatt-GEOMETRIE, aber nicht die Handy-Feature-Reduktion:
+       Alles, was am unteren Rand schwebt, muss über dem Blatt liegen – sonst
+       verschwindet der Auswahlstreifen samt „Briefing erstellen" hinter dem
+       Griff. Die Handy-Regeln greifen erst ab 768px und damit hier nicht. */
+    .lasso-bar,
+    .route-mode-bar {
+        bottom: calc(var(--mobile-sheet-peek, 52px) + var(--safe-bottom, 0px) + 14px);
     }
 
     .sidebar {

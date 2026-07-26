@@ -521,6 +521,13 @@
         <div id="route-mode-bar" class="route-mode-bar" hidden>
             <button id="btn-route-mode" class="route-mode-toggle" type="button">🗺️ Straßenroute anzeigen</button>
         </div>
+        <!-- Lasso: eine Fläche mit der Hand umfahren statt einen Regler zu
+             schieben. Der Knopf schaltet einen Modus, den man sieht; der
+             Streifen erscheint erst, wenn eine Auswahl liegt. -->
+        <div id="lasso-tools" class="lasso-tools">
+            <button id="btn-lasso" class="lasso-toggle" type="button" aria-pressed="false" hidden>🖊️ Fläche markieren</button>
+        </div>
+        <div id="lasso-bar" class="lasso-bar" role="status" hidden></div>
         <section id="simulation-map-bar" class="simulation-map-bar" aria-label="Simulationsansicht" hidden>
             <div class="simulation-map-status">
                 <span class="simulation-map-badge">Simulation</span>
