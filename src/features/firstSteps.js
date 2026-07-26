@@ -13,7 +13,7 @@
 // Desktop wird die Tour PER QR ans Handy gegeben, am Handy werden die
 // gesicherten Daten EMPFANGEN – jeweils die Demo, die dort auch wirklich läuft.
 export const FIRST_STEPS = [
-    { id: 'daten',  icon: '🗺️', label: 'Kunden auf der Karte verstehen', hint: 'Live-Demo: vom Kundenstapel bis zum Detail', showcase: 'excel-karte' },
+    { id: 'daten',  icon: '🗺️', label: 'Kunden auf der Karte verstehen', hint: 'Live-Demo: Liste einfügen, dann bis zum Detail', showcase: 'excel-karte' },
     { id: 'tour',   icon: '🧭', label: 'Erste Tour planen', hint: 'Live-Demo: Start wählen und Stopps hinzufügen', showcase: 'tour' },
     {
         id: 'handy', icon: '📲', label: 'Tour aufs Handy holen',

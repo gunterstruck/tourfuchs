@@ -507,7 +507,7 @@ Die Vorführung:
 
 | Live-Demo | Desktop | Smartphone | Kernaussage |
 |---|---:|---:|---|
-| **"Vom Stapel zur Kundenkarte"** | Ja | Ja | Demo-Liste laden, Kundenstapel antippen bis zur einzelnen Kundenkachel, Details öffnen |
+| **"Von der Excel-Liste zur Kundenkarte"** | Ja | Ja | **am Schreibtisch zuerst das Einfügen vorführen** (siehe 6.2.1), dann Demo-Liste laden, Kundenstapel antippen bis zur einzelnen Kundenkachel, Details öffnen |
 | **"Deine Tour, Schritt für Schritt"** | Ja | Ja | ins Ruhrgebiet zoomen, Start und Kunden wählen, optimieren, Luftlinie und Straßenroute |
 | **"Aufs Handy - ohne Kabel, ohne Cloud"** | Ja | Nein | Desktop-Tour per QR ans Smartphone übergeben |
 | **"Was wäre wenn? Gebiete umbauen - ohne Risiko"** | Ja | Nein | Simulation ohne dauerhafte Änderung |
@@ -515,6 +515,26 @@ Die Vorführung:
 | **"Spontaner Termin? Sofort gebrieft"** | Ja | Ja | passenden Kunden finden und eine sichere Briefing-Ergebnisvorschau erleben |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
 | **"Verschlüsselte Daten aufs Handy holen"** | Nein | Ja | `.tfsafe`-Datei wählen und getrennten Schlüssel scannen |
+
+#### 6.2.1 Die Einfüge-Vorführung in der ersten Demo
+
+Die erste Live-Demo zeigt am Schreibtisch, **wie eigene Daten hineinkommen** –
+denn der schnellste Weg (Kopieren und Einfügen) findet sich nicht von selbst.
+
+Ablauf: Der Geister-Cursor öffnet **"Eigene Daten laden"**, setzt sichtbar die
+Berechtigungs-Bestätigung, klickt **"Liste aus Excel einfügen"**, eine kleine
+Beispieltabelle erscheint **auf einen Schlag** im Feld (so wie ein echtes
+Einfügen, nicht Zeichen für Zeichen), und TourFuchs meldet den erkannten
+Befund. Danach schließt die Demo den Dialog wieder.
+
+**Wichtig für Rückfragen:** Die Vorführung **importiert nichts**. Ein
+vorhandener Kundenbestand bleibt unberührt, und die Berechtigungs-Bestätigung
+wird am Ende auf ihren vorherigen Stand zurückgesetzt – auch bei Abbruch mit
+ESC. Anschließend läuft die Demo wie bisher mit den Beispielkunden weiter.
+
+Am **Smartphone** entfallen diese Schritte: Dort ist die Kundenliste selten in
+einer Tabellen-App offen. Die Demo beginnt dann unverändert mit den
+Beispieldaten.
 
 ### 6.3 Besondere Regeln der Tour-Demo
 

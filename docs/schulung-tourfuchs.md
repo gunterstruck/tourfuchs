@@ -235,7 +235,7 @@ Für Schulungen empfiehlt sich der Demo-Modus:
 
 Vorteil: Alle Teilnehmenden sehen dieselbe Datenbasis, ohne echte Kundendaten verwenden zu müssen.
 
-Solange Beispieldaten laufen, weist eine ruhige Hinweiskarte mittig über der Karte darauf hin („Das sind Beispieldaten") und bietet „Eigene Daten laden" sowie „Kurze Live-Demos ansehen" an; ein Klick auf „Verstanden – erst umsehen" legt sie beiseite. Für die Vorführung eignen sich die geführten Live-Demos (ein sichtbarer Zeiger bedient die echte App, je ~30–60 s): u. a. „Vom Stapel zur Kundenkarte", „Deine Tour, Schritt für Schritt", „Aufs Handy – ohne Kabel, ohne Cloud" und „Dein Service-Tag, verständlich geplant".
+Solange Beispieldaten laufen, weist eine ruhige Hinweiskarte mittig über der Karte darauf hin („Das sind Beispieldaten") und bietet „Eigene Daten laden" sowie „Kurze Live-Demos ansehen" an; ein Klick auf „Verstanden – erst umsehen" legt sie beiseite. Für die Vorführung eignen sich die geführten Live-Demos (ein sichtbarer Zeiger bedient die echte App, je ~30–60 s): u. a. „Von der Excel-Liste zur Kundenkarte" (führt am Schreibtisch das Einfügen aus Excel vor), „Deine Tour, Schritt für Schritt", „Aufs Handy – ohne Kabel, ohne Cloud" und „Dein Service-Tag, verständlich geplant".
 
 ## 9. Karte verstehen
 

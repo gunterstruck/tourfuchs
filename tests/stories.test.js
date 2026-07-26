@@ -35,6 +35,49 @@ describe('Showcase-Stories: Guardrail', () => {
         }
     });
 
+    it('jeder run-Schritt hat einen Helfer in der Engine', () => {
+        // Ein Tippfehler im Key fällt sonst erst mitten in der Vorführung auf –
+        // dann bricht die Demo vor Publikum mit „Demo-Schritt ist nicht
+        // definiert" ab.
+        const helpers = new Set([...showcaseSource.matchAll(/^\s{4}async (\w+)\(/gm)].map((m) => m[1]));
+        const missing = [];
+        for (const story of STORIES) {
+            for (const step of story.steps) {
+                if (step.t === 'run' && !helpers.has(step.key)) missing.push(`${story.id}: ${step.key}`);
+            }
+        }
+        expect(missing).toEqual([]);
+    });
+
+    it('führt den Einfüge-Weg vor, ohne echte Daten anzufassen', () => {
+        const mapStory = STORIES.find((story) => story.id === 'excel-karte');
+        const keys = mapStory.steps.filter((step) => step.t === 'run').map((step) => step.key);
+        expect(keys).toContain('openPasteDemo');
+        expect(keys).toContain('pasteDemoTable');
+        expect(keys).toContain('closePasteDemo');
+        // Reihenfolge: öffnen -> einfügen -> schließen -> erst dann Beispieldaten
+        expect(keys.indexOf('openPasteDemo')).toBeLessThan(keys.indexOf('pasteDemoTable'));
+        expect(keys.indexOf('pasteDemoTable')).toBeLessThan(keys.indexOf('closePasteDemo'));
+        expect(keys.indexOf('closePasteDemo')).toBeLessThan(keys.indexOf('excelToMap'));
+
+        // Am Handy ist die Liste selten in einer Tabellen-App offen
+        const mobileKeys = visibleStorySteps(mapStory, { isDesktop: false })
+            .filter((step) => step.t === 'run').map((step) => step.key);
+        expect(mobileKeys).not.toContain('openPasteDemo');
+        expect(mobileKeys).toContain('excelToMap');
+
+        // Die Vorführung importiert nichts und nimmt die Bestätigung zurück
+        const pasteBlock = showcaseSource.slice(showcaseSource.indexOf('async openPasteDemo()'), showcaseSource.indexOf('async excelToMap()'));
+        expect(pasteBlock).not.toContain('confirmImport');
+        expect(pasteBlock).not.toContain('replaceCustomers');
+        expect(pasteBlock).toContain('pasteDemoConsent = consent.checked;');
+        expect(pasteBlock).toContain('restorePasteDemoConsent();');
+        // Auch ein Abbruch darf nichts offen oder bestätigt zurücklassen
+        const cleanup = showcaseSource.slice(showcaseSource.indexOf('// Weitere Overlays schließen'));
+        expect(cleanup).toContain('restorePasteDemoConsent();');
+        expect(cleanup).toContain("document.getElementById('paste-dialog')");
+    });
+
     it('führt die Karten-Demo sichtbar vom Kundenstapel bis zum Popup', () => {
         const mapStory = STORIES.find((story) => story.id === 'excel-karte');
         expect(mapStory.steps.some((step) => step.sel === '.customer-stack-card')).toBe(true);
