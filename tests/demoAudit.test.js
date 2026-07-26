@@ -49,6 +49,35 @@ describe('Schwellenwerte passen zueinander', () => {
     });
 });
 
+describe('Offenlegung der Kartenquellen', () => {
+    it('nennt jede anwählbare Kartenebene in Datenschutz und README', () => {
+        // Befund: Die Kartenauswahl bietet auch „Satellit" von Esri an; die
+        // Datenschutzerklärung nannte nur OpenStreetMap und CARTO. Die
+        // Definition of Done verlangt die Offenlegung jeder externen Verbindung.
+        const config = read('src/core/config.js');
+        const privacy = read('public/datenschutz.html');
+        const readme = read('README.md');
+        const sidebar = read('src/ui/sidebar.js');
+
+        // Alle konfigurierten Ebenen landen in der Auswahl
+        expect(sidebar).toContain('Object.entries(CONFIG.tileLayers');
+
+        const hosts = [...config.matchAll(/url: 'https:\/\/(?:\{s\}\.)?([a-z0-9.-]+)/g)]
+            .map((m) => m[1])
+            .filter((h) => /tile|basemaps|arcgisonline/.test(h));
+
+        for (const host of hosts) {
+            const anbieter = host.includes('cartocdn') ? 'CARTO'
+                : host.includes('openstreetmap') ? 'OpenStreetMap'
+                    : 'Esri';
+            expect(privacy, `${host} (${anbieter}) fehlt in der Datenschutzerklärung`).toContain(anbieter);
+            expect(readme, `${host} (${anbieter}) fehlt im README`).toContain(anbieter);
+        }
+        // Der Host der am wenigsten offensichtlichen Quelle steht ausdrücklich da
+        expect(privacy).toContain('server.arcgisonline.com');
+    });
+});
+
 describe('Versprochene Laufzeiten', () => {
     it('nennt dem Handy die Handy-Laufzeit, wo es weniger Schritte sieht', () => {
         // Befund: excel-karte dauert am Desktop 48 s, am Handy 31 s – das Panel
