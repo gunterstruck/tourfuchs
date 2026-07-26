@@ -26,7 +26,10 @@ export default defineConfig({
                 start_url: '/',
                 scope: '/',
                 display: 'standalone',
-                orientation: 'portrait',
+                // Bewusst keine Orientierungssperre: `orientation: 'portrait'`
+                // hat die installierte App auf Tablets im Hochformat festgenagelt,
+                // obwohl gerade dort das Querformat die bessere Arbeitsfläche ist.
+                // Ohne Angabe folgt die App dem Gerät.
                 background_color: '#f8fafc',
                 theme_color: '#0d9488',
                 categories: ['business', 'productivity', 'navigation'],
