@@ -18,13 +18,23 @@
 // `duration` ist die real gemessene Laufzeit (Sekunden, kompletter Durchlauf
 // in der laufenden App) – keine Schätzung. Nach jeder Skript-Änderung neu
 // messen, damit das Demo-Panel hält, was es verspricht.
+//
+// `durationMobile` gilt, wo das Handy weniger Schritte sieht (desktopOnly).
+// Ohne diese zweite Zahl versprach das Panel dem Handy die Desktop-Laufzeit –
+// bei „Von der Excel-Liste zur Kundenkarte" waren das 44 s für 31 s Vorführung.
+//
+// Zuletzt gemessen am 26.07.2026 (Chromium, Produktions-Build) in vier
+// Formaten: Desktop 1440×900, Tablet 834×1112 und 1112×834, Handy 390×844.
+// Die Messung beginnt beim Klick auf die Kachel und endet mit dem
+// Ergebnis-Dialog; der Dialog-Vorlauf von rund einer Sekunde ist abgezogen.
 export const STORIES = [
     {
         id: 'excel-karte',
         icon: '🗺️',
         title: 'Von der Excel-Liste zur Kundenkarte',
         blurb: 'Liste einfügen, Stapel verstehen, bis zum Detail aufzoomen.',
-        duration: 44,
+        duration: 48,
+        durationMobile: 31,   // am Handy entfallen die Einfüge-Schritte
         minRuntimeMs: 15000,
         steps: [
             { t: 'say', text: 'TourFuchs macht aus einer Kundenliste eine verständliche Deutschlandkarte.', sel: '#map', ms: 2400 },
@@ -52,7 +62,8 @@ export const STORIES = [
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',
         blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 60,
+        duration: 64,
+        durationMobile: 58,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -86,7 +97,7 @@ export const STORIES = [
         icon: '📲',
         title: 'Aufs Handy – ohne Kabel, ohne Cloud',
         blurb: 'Tour per QR-Code an dein Smartphone.',
-        duration: 48,
+        duration: 54,
         desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
         needsData: true,
         mutatesTour: true,
@@ -116,7 +127,7 @@ export const STORIES = [
         icon: '🧪',
         title: 'Was wäre wenn? Gebiete umbauen – ohne Risiko',
         blurb: 'Testweise umverteilen, Wirkung sofort sehen.',
-        duration: 42,
+        duration: 41,
         desktopOnly: true,   // Gebietsplanung/Cockpit gibt es nur auf dem Desktop
         needsData: true,
         patchConfirm: true,   // „Verwerfen" bestätigt sich in der Vorführung automatisch
@@ -140,7 +151,7 @@ export const STORIES = [
         icon: '🛠️',
         title: 'Dein Service-Tag, verständlich geplant',
         blurb: 'Einsätze rein – erklärbarer Tagesplan raus.',
-        duration: 40,
+        duration: 52,
         desktopOnly: true,   // Service-Fokus (Profi) gibt es nur auf dem Desktop
         needsData: true,
         mutatesTour: true,
@@ -166,7 +177,8 @@ export const STORIES = [
         icon: '🎯',
         title: 'Spontaner Termin? Sofort gebrieft',
         blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
-        duration: 46,
+        duration: 48,
+        durationMobile: 37,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -218,7 +230,7 @@ export const STORIES = [
         icon: '📥',
         title: 'Verschlüsselte Daten aufs Handy holen',
         blurb: 'Datei wählen, Schlüssel scannen, fertig.',
-        duration: 30,
+        duration: 28,
         mobileOnly: true,     // Gegenstück zur Desktop-QR-Story; nur am Handy sinnvoll
         needsData: true,
         steps: [
@@ -345,6 +357,15 @@ export function selectShowcaseTour(customers, { areaRadiusKm = 85, maxRouteKm = 
         },
         inRuhr: geoDistanceKm(RUHR_CENTER, start) <= areaRadiusKm
     };
+}
+
+/**
+ * Die Laufzeit, die dem Nutzer versprochen wird – geräteabhängig, weil das
+ * Handy bei manchen Demos weniger Schritte sieht.
+ */
+export function storyDuration(story, { isDesktop = true } = {}) {
+    if (!isDesktop && story?.durationMobile) return story.durationMobile;
+    return story?.duration || 25;
 }
 
 export const CRITICAL_SELECTORS = [
