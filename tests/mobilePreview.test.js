@@ -108,7 +108,11 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
 
         expect(html).toContain('Mobile Außendienst &amp; Tour');
         expect(html).toContain('Kunden, Briefing &amp; Tour');
-        expect(css).toContain('@media (max-width: 900px) { .mobile-preview-entry { display: none; } }');
+        // Der Einstieg entfällt genau auf dem Handy – dort ist die Vorschau
+        // sinnlos. Auf dem Tablet gehört er dazu: Im Band 769–900px wurde sonst
+        // die QR-Demo angeboten, deren Schritt 9 diesen Knopf braucht.
+        expect(css).toContain('@media (max-width: 768px) { .mobile-preview-entry { display: none; } }');
+        expect(css).not.toContain('@media (max-width: 900px) { .mobile-preview-entry { display: none; } }');
         expect(css).toContain('inset: var(--topbar-height) 0 0;');
         expect(css).toContain('calc(100dvh - var(--topbar-height) - 16px)');
         expect(css).toContain('@media (prefers-reduced-motion: reduce)');

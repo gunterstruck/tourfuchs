@@ -2,7 +2,12 @@
 
 /* Mobile Außendienst & Tour: am Desktop sichtbar, im eingebetteten Handy nicht. */
 .mobile-preview-entry { position: relative; flex: 0 0 auto; }
-@media (max-width: 900px) { .mobile-preview-entry { display: none; } }
+/* Die Vorschau beantwortet „wie sieht das auf meinem Handy aus?" – auf einem
+   Handy ist das sinnlos, auf einem Tablet nicht. Die Schwelle liegt deshalb bei
+   der Handy-Grenze (768px), nicht bei 900px: Im Band 769–900px wurde die
+   QR-Demo angeboten, deren Schritt 9 aber genau diesen Knopf braucht und ins
+   Leere griff. Der Rahmen ist 390px breit und passt dort mühelos. */
+@media (max-width: 768px) { .mobile-preview-entry { display: none; } }
 .in-mobile-preview .mobile-preview-entry { display: none; }
 #btn-mobile-preview {
     border: 1px solid #99f6e4;
