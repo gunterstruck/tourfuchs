@@ -8,6 +8,7 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
     const html = read('index.html');
     const css = read('src/styles/responsive.css');
     const sidebar = read('src/ui/sidebar.js');
+    const components = read('src/styles/components.css');
 
     it('ist ein eigenes Element, getrennt vom Blatt', () => {
         expect(html).toContain('id="mobile-next-step"');
@@ -18,21 +19,23 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
     });
 
     it('schwebt mobil deutlich über der Griff-Leiste (kein Überlagern des Blatts)', () => {
-        expect(css).toContain('.mobile-next-step {');
-        // Klarer Abstand zum eingeklappten Blatt (Griff + Beispieldaten-Streifen):
-        // die Pille sitzt darüber, nicht darauf.
+        // Platzierung und Aussehen kommen seit der gemeinsamen Knopfzeile aus
+        // `.map-fab-row` / `.map-fab` – der Fuchs teilt sie sich mit dem
+        // Lasso-Knopf. Der klare Abstand zum eingeklappten Blatt bleibt.
+        expect(css).toContain('.map-fab-row {');
         expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 30px)');
-        expect(css).toMatch(/max-width: 82vw/); // nicht die volle Breite
+        expect(css).toMatch(/max-width: 4\d vw|max-width: 4\dvw/); // nicht die volle Breite
     });
 
     it('erscheint jetzt auch auf dem Desktop (kein pauschales Ausblenden mehr)', () => {
-        // Der frühere Hard-Hide ab 769px ist entfernt; ab 769px gibt es eine
-        // eigene Desktop-/Tablet-Platzierung (unten mittig über der Karte).
+        // Der frühere Hard-Hide ab 769px ist entfernt; die Platzierung unten
+        // mittig über der Karte liefert die gemeinsame Knopfzeile.
         expect(css).not.toContain('@media (min-width: 769px) {\n    .mobile-next-step { display: none !important; }');
         expect(css).toContain('@media (min-width: 769px)');
         const desktopBlock = css.slice(css.indexOf('@media (min-width: 769px)'));
         expect(desktopBlock).toContain('.mobile-next-step {');
-        expect(desktopBlock).toContain('position: fixed');
+        expect(components).toContain('.map-fab-row {');
+        expect(components).toContain('position: fixed');
     });
 
     it('ruht während einer laufenden Live-Demo (kein Überlagern der Vorführung)', () => {

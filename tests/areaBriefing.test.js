@@ -100,13 +100,23 @@ describe('Gebiets-Briefing: Prompt', () => {
         expect(prompt).toContain('zuletzt besucht 12.01.2026');
     });
 
-    it('verlangt eine Reihenfolge – nicht noch einen Bericht', () => {
-        expect(prompt).toContain('## Zuerst');
-        expect(prompt).toContain('## Wenn Zeit bleibt');
+    it('verlangt beides: was los ist und in welcher Reihenfolge', () => {
+        // Nur eine Rangliste wäre zu wenig – der Nutzer will auch wissen,
+        // warum. Nur Fließtext wäre zu viel: Er steht vor der Tür.
+        expect(prompt).toContain('## Tourreihenfolge');
+        expect(prompt).toContain('## Das solltest du wissen');
+        expect(prompt).toContain('## Mitnehmen / vorbereiten');
         expect(prompt).toContain('## Nichts gefunden');
-        expect(prompt).toContain('höchstens 200 Wörter');
+        expect(prompt).toContain('höchstens 300 Wörter');
         expect(prompt).toContain('Erfinde nichts');
         expect(prompt).toContain('Nutze keine Websuche');
+    });
+
+    it('lässt die Reihenfolge aus den Funden entstehen, nicht aus der Entfernung', () => {
+        // Die Entfernung kennt TourFuchs selbst – dafür braucht es keinen
+        // Assistenten. Wertvoll ist, was offen ist.
+        expect(prompt).toContain('nicht aus der Entfernung');
+        expect(prompt).toContain('Nenne bei jeder Aussage Datum und Anlass');
     });
 
     it('übernimmt die Quellenzeile des gewählten Assistenten', () => {

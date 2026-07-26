@@ -23,14 +23,22 @@ Dass zwei Wege zum selben Dialog führen, ist Absicht: **geplant** am Schreibtis
 
 ## Der Ablauf – drei Schläge, der mittlere zählt
 
-1. **🖊️ Fläche markieren** (rechts oben auf der Karte). Die Karte friert ein,
-   der Zeiger wird zum Fadenkreuz, ein Rahmen zeigt den Modus an.
-2. **Fläche ziehen.** Beim Loslassen schließt sich die Form von selbst, die
-   getroffenen Kunden leuchten auf, ein Streifen nennt die Zahl.
-3. **🧭 Briefing erstellen.** Öffnet das [Gebiets-Briefing](./kundenbriefing.md).
+1. **🖊️ Lasso ziehen.** Der Knopf steht in der Karten-Knopfzeile direkt neben
+   „Kunden in meiner Nähe" – zwei gleichrangige Angebote, gleiches Gewand. Die
+   Karte friert ein, der Zeiger wird zum Fadenkreuz, ein Rahmen zeigt den Modus.
+2. **Fläche ziehen.** Die Spur wächst **mit dem Finger mit** und ist ab dem
+   dritten Punkt gefüllt; ein Punkt markiert den Start, damit man weiß, wohin
+   man zurückkommen muss. Beim Loslassen schließt sich die Form, die getroffenen
+   Kunden leuchten auf – und es erscheint eine **Auswahlkarte im Gewand der
+   Kundenkarte**: Anzahl, fällige Kunden, Umsatz, Orte, die ersten Namen.
+3. **📋 Briefing über alle.** Öffnet das [Gebiets-Briefing](./kundenbriefing.md)
+   als Modal – genau wie beim einzelnen Kunden. Dort steht der fertige Prompt,
+   wird kopiert, und der Assistent wird geöffnet.
 
 Schritt 2 ist der eigentliche Moment: **erst sehen, dann gefragt werden.** Das
 Ziehen allein wählt nur aus – es öffnet nie von selbst einen Dialog.
+
+Im Profi-Modus bietet die Auswahlkarte zusätzlich **🚩 Alle zur Tour**.
 
 ## Warum die Karte einfriert
 
@@ -60,11 +68,19 @@ Zeiger festgehalten (`setPointerCapture`), damit ein Zug über ein Popup oder
 die Berührung doch ab, wird eine bereits brauchbare Fläche ausgewertet statt
 weggeworfen.
 
-**Die untere Kante ist überfüllt.** Dort liegen der schwebende Fuchs-Knopf, das
-Bedienblatt und der Auswahlstreifen übereinander. Der Werkzeugknopf sitzt
-deshalb am Handy unten links oberhalb dieser Zeile, und solange gezeichnet oder
-ausgewählt wird, tritt der Fuchs-Knopf zurück – er verdeckte sonst ausgerechnet
-„Briefing erstellen".
+**Die untere Kante ist überfüllt.** Dort liegen Bedienblatt, Griff und
+Beispieldaten-Streifen. Beide Knöpfe teilen sich deshalb **eine** Zeile
+(`.map-fab-row`), die deutlich darüber schwebt; ist das Blatt aufgezogen,
+verschwindet sie ganz, statt halb verdeckt hineinzuragen. Auf **Tablet-Hochkant**
+steht das Blatt meist offen und nimmt die untere Hälfte ein – dort wandert die
+Zeile an den **oberen** Kartenrand, wo das Blatt nie hinkommt.
+
+**Zwei Fallen beim Popup.** Leaflet wertet die Berührung direkt nach dem
+Loslassen als Kartenklick und schlösse die frisch geöffnete Auswahlkarte sofort
+(`closeOnClick: false`). Und das automatische Nachschwenken eines Popups löst
+`movestart` aus – womit die Regel „Karte bewegt, Auswahl verwerfen" die eigene
+Auswahl im selben Moment löschte. Deshalb `autoPan: false` und Aufräumen erst
+bei `dragstart`/`zoomstart`.
 
 **Prüfen lässt sich das nur mit echten Touch-Ereignissen.** Ein
 Playwright-Lauf mit `page.mouse` läuft grün durch, weil `touch-action` für die
@@ -79,7 +95,7 @@ Maus nicht gilt. Die Prüfstrecke dafür speist die Berührungen über CDP ein.
 | Weniger als zwei echte Kunden | Auswahl wird gezeigt, aber kein Briefing angeboten – für einen einzelnen Kunden ist das Kundenbriefing der bessere Weg |
 | Nur Beispielkunden | Kein Prompt, kein Assistent – wie überall sonst |
 | Karte verschieben oder zoomen | Auswahl wird verworfen: Sie galt für den Ausschnitt, in dem sie gezogen wurde |
-| Sehr große Auswahl | Der Streifen nennt die volle Zahl; hervorgehoben werden höchstens 250 Punkte, damit die Karte flüssig bleibt |
+| Sehr große Auswahl | Die Karte nennt die volle Zahl; hervorgehoben werden höchstens 250 Punkte, damit sie flüssig bleibt |
 
 Der Knopf erscheint nur, wenn mindestens zwei verortete Kunden sichtbar sind,
 und nicht in der Simulationsansicht.
@@ -101,12 +117,13 @@ Werbung; wenn ihn jeder Besucher selbst auslösen kann, ist er das Produkt.
 
 ## Prüfschritte
 
-1. Eigene Kunden laden → **🖊️ Fläche markieren** erscheint rechts oben.
+1. Eigene Kunden laden → **🖊️ Lasso ziehen** erscheint neben „Kunden in meiner Nähe“.
 2. Modus ein: Knopf wird farbig, Zeiger wird Fadenkreuz, Karte lässt sich nicht
    mehr verschieben.
-3. Fläche um mehrere Kunden ziehen → Fläche bleibt liegen, Treffer leuchten,
-   Streifen nennt die Zahl, Modus ist wieder aus.
-4. **🧭 Briefing erstellen** → Gebiets-Briefing mit „die von mir auf der Karte
+3. Fläche um mehrere Kunden ziehen → die Spur folgt dem Finger, die Fläche
+   bleibt liegen, Treffer leuchten, die Auswahlkarte nennt Zahl und Kennwerte,
+   Modus ist wieder aus.
+4. **📋 Briefing über alle** → Gebiets-Briefing mit „die von mir auf der Karte
    markierte Fläche" als Gebiet.
 5. Karte verschieben → Auswahl verschwindet.
 6. Modus ein, nur tippen → nichts wird ausgewählt.

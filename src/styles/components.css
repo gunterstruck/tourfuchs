@@ -2150,44 +2150,60 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
 }
 
 /* ---------------------------------------------------------------------------
-   Lasso: Fläche auf der Karte umfahren
+   Karten-Knopfzeile: „Kunden in meiner Nähe" und „Lasso ziehen"
 
-   Der Modus muss sichtbar sein, sonst wirkt jeder Zug wie ein Fehler. Deshalb
-   ändert der aktive Zustand drei Dinge gleichzeitig: Knopffarbe, Zeigerform
-   und ein ruhiger Rahmen um die Karte.
+   Zwei gleichrangige Angebote, also zwei gleich aussehende Pillen nebeneinander
+   in einer Zeile. Die Zeile positioniert, die Knöpfe selbst sind schlicht.
 --------------------------------------------------------------------------- */
-/* Bezugsrahmen ist der Body, nicht die Karte: Ohne den Versatz um die
-   Kopfleiste läge der Knopf hinter der Topbar und wäre nicht anklickbar. */
-.lasso-tools {
-    position: absolute;
-    z-index: 1030;
-    top: calc(var(--topbar-height) + 14px);
-    right: 14px;
+.map-fab-row {
+    position: fixed;
+    z-index: 1035;
+    left: calc((100vw + var(--sidebar-width, 0px)) / 2);
+    bottom: 20px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: calc(100vw - 20px);
     pointer-events: none;
 }
 
-.lasso-toggle {
+.map-fab-row:empty { display: none; }
+
+.map-fab {
     pointer-events: auto;
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
     min-height: 0;
-    padding: 9px 14px;
+    max-width: 46vw;
+    padding: 10px 16px;
     border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.96);
+    border-left: 3px solid var(--color-primary, #0d9488);
+    border-radius: var(--radius-pill, 999px);
+    background: rgba(255, 255, 255, 0.97);
     -webkit-backdrop-filter: blur(8px);
     backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-2);
-    color: var(--color-text);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.18);
+    color: var(--color-text, #0f172a);
+    font-size: 0.9rem;
     font-weight: 700;
     white-space: nowrap;
+    cursor: pointer;
 }
 
-.lasso-toggle[hidden] { display: none; }
+.map-fab[hidden] { display: none; }
+.map-fab:hover { box-shadow: 0 8px 24px rgba(15, 23, 42, 0.24); }
+.map-fab:active { transform: translateY(1px) scale(0.98); }
+.map-fab .mns-icon { font-size: 1.1rem; }
+.map-fab .mns-label { overflow: hidden; text-overflow: ellipsis; }
 
+/* Aktiver Zeichenmodus: derselbe Knopf, deutlich anders – man muss auf einen
+   Blick sehen, dass die Karte jetzt etwas anderes tut als sonst. */
 .lasso-toggle.active {
     border-color: var(--color-primary);
+    border-left-color: var(--color-primary);
     background: var(--color-primary);
     color: #fff;
 }
@@ -2209,12 +2225,6 @@ body.lasso-active #map .leaflet-pane {
 }
 body.lasso-active #map { cursor: crosshair; }
 body.lasso-active #map .leaflet-container { cursor: crosshair; }
-
-/* Der schwebende Fuchs-Knopf teilt sich auf dem Handy die untere Kante mit
-   Werkzeugknopf und Auswahlstreifen und liegt höher. Solange gezeichnet oder
-   ausgewählt wird, tritt er zurück – er verdeckt sonst genau die beiden
-   Bedienelemente, um die es gerade geht. */
-body.lasso-busy .mobile-next-step { display: none; }
 body.lasso-active #map::after {
     content: '';
     position: absolute;
@@ -2225,6 +2235,10 @@ body.lasso-active #map::after {
     pointer-events: none;
 }
 
+/* Während des Zeichnens tritt der Fuchs-Knopf zurück: Er säße sonst mitten im
+   Weg und beantwortet ohnehin eine andere Frage. */
+body.lasso-active .mobile-next-step { display: none; }
+
 /* Die Spur liegt über der Karte, fängt aber keine Eingaben ab: Gezeichnet
    wird auf dem Kartencontainer, nicht auf dem SVG. */
 .lasso-overlay {
@@ -2234,71 +2248,45 @@ body.lasso-active #map::after {
     pointer-events: none;
 }
 
+/* Kräftig genug, um auf einer bunten Karte im Sonnenlicht zu tragen. */
 .lasso-path {
-    fill: rgba(20, 184, 166, 0.16);
+    fill: rgba(20, 184, 166, 0.18);
     stroke: #0d9488;
-    stroke-width: 2.5;
+    stroke-width: 3.5;
     stroke-linecap: round;
     stroke-linejoin: round;
 }
 
-/* Auswahlstreifen: erscheint erst, wenn wirklich etwas ausgewählt ist. */
-.lasso-bar {
-    position: absolute;
-    z-index: 1035;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: calc(100vw - 28px);
-    padding: 9px 10px 9px 16px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.98);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-2);
-    animation: lasso-bar-in 180ms ease-out;
+/* Der Startpunkt zeigt, wohin man zurückkommen muss, um zu schließen. */
+.lasso-start {
+    fill: #ffffff;
+    stroke: #0d9488;
+    stroke-width: 3;
+}
+.lasso-start[hidden] { display: none; }
+
+/* Auswahlkarte: dasselbe Gewand wie die Kundenkarte, nur mit Mengenangaben. */
+.popup-lasso-list {
+    margin: 8px 0 0;
+    padding-left: 18px;
+    font-size: 0.88rem;
+    line-height: 1.5;
 }
 
-.lasso-bar[hidden] { display: none; }
-
-.lasso-bar .lasso-count {
-    font-weight: 800;
-    white-space: nowrap;
+.popup-lasso-note {
+    margin-top: 10px;
+    padding: 8px 10px;
+    border-left: 3px solid #0d9488;
+    background: #f0fdfa;
+    color: #115e59;
+    font-size: 0.84rem;
+    line-height: 1.4;
 }
 
-.lasso-bar button {
-    min-height: 38px;
-    padding: 7px 13px;
-    border-radius: var(--radius-pill);
-    white-space: nowrap;
-}
-
-@keyframes lasso-bar-in {
-    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
-    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
-}
-
-@media (prefers-reduced-motion: reduce) {
-    .lasso-bar { animation: none; }
-}
-
-/* Liegt eine Route auf der Karte, teilen sich zwei Streifen den unteren Rand.
-   Der Auswahlstreifen ist der jüngere Vorgang und rückt nach oben. */
-body:has(#route-mode-bar:not([hidden])) .lasso-bar { bottom: 74px; }
-
-.lasso-tools[hidden] { display: none; }
-
-/* Der Auswahlstreifen muss auch auf einem schmalen Telefon vollständig
-   lesbar bleiben – lieber ein Kreuz als ein abgeschnittenes Wort. */
-.lasso-clear-short { display: none; }
-
+/* Zwei Pillen nebeneinander brauchen auf einem schmalen Telefon weniger
+   Innenabstand, sonst passt die zweite nicht mehr in die Zeile. */
 @media (max-width: 520px) {
-    .lasso-bar { gap: 6px; padding-left: 12px; }
-    .lasso-clear-long { display: none; }
-    .lasso-clear-short { display: inline; }
-    .lasso-bar .lasso-count { font-size: 0.8rem; }
+    .map-fab-row { gap: 6px; }
+    .map-fab { padding: 9px 12px; font-size: 0.84rem; max-width: 48vw; }
+    .map-fab .mns-icon { font-size: 1rem; }
 }

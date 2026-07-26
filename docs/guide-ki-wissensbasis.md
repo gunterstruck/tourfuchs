@@ -1114,7 +1114,7 @@ Vorgänge, Eskalationen und zugesagte Rückmeldungen weiß nur der Assistent.
 
 **Drei Klickpfade, ein Dialog:**
 
-- `Karte -> "Fläche markieren" -> Fläche umfahren -> "Briefing erstellen"` (Lasso, siehe 9.7)
+- `Karte -> "Lasso ziehen" -> Fläche umfahren -> "Briefing über alle"` (Lasso, siehe 9.7)
 - `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"`
 - `Tab "Karte" -> "In der Nähe" -> Kartenmitte oder Standort -> "Wen zuerst? Briefing für diese Umgebung"`
 
@@ -1162,16 +1162,19 @@ besuche". Zwei Gründe, warum es das neben dem Umkreis gibt:
 2. **Unrunde Flächen.** Gewerbegebiet, eine Flussseite, ein Autobahnkorridor -
    nichts davon ist rund. Ein Radius nimmt dort immer zu viel oder zu wenig mit.
 
-**Klickpfad:** `Karte -> "Fläche markieren" -> ziehen -> "Briefing erstellen"`.
+**Klickpfad:** `Karte -> "Lasso ziehen" -> ziehen -> "Briefing über alle"`.
 
 Ablauf:
 
 1. Der Knopf schaltet einen sichtbaren Modus: Karte friert ein, Zeiger wird zum
    Fadenkreuz, ein Rahmen zeigt den Zustand. **Escape** verlässt ihn jederzeit.
-2. Beim Loslassen schließt sich die Form, die getroffenen Kunden leuchten auf,
-   ein Streifen nennt die Zahl. Der Modus schaltet sich selbst wieder ab.
-3. "Briefing erstellen" öffnet das Gebiets-Briefing aus 9.6 - **unverändert**:
-   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt.
+2. Die Spur wächst mit dem Finger mit, ein Punkt markiert den Start. Beim
+   Loslassen schließt sich die Form, die Treffer leuchten auf, und es erscheint
+   eine Auswahlkarte im Gewand der Kundenkarte: Anzahl, fällige Kunden, Umsatz,
+   Orte, die ersten Namen. Der Modus schaltet sich selbst wieder ab.
+3. "Briefing über alle" öffnet das Gebiets-Briefing aus 9.6 - **unverändert**:
+   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt. Im Profi-Modus
+   bietet die Karte zusätzlich "Alle zur Tour".
 
 Auf Handy und Tablet-Hochkant schiebt sich das Bedienblatt beim Einschalten auf
 Guckhöhe, damit überhaupt Karte zum Zeichnen da ist; es kommt zurück, sobald die
