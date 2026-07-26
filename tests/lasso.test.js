@@ -166,6 +166,32 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         expect(ui.slice(ui.indexOf('export function clearLassoSelection'))).toContain('returnMapRoom()');
     });
 
+    it('nimmt dem Browser die Wischgeste ab, sonst wird am Handy nichts gezeichnet', () => {
+        // Leaflet setzt `touch-action: pan-x pan-y`. Damit beansprucht der
+        // Browser jede Wischgeste für sich, schickt `pointercancel` und stellt
+        // die Bewegungsereignisse ein: Die Karte friert ein, aber der Finger
+        // zeichnet ins Leere. Leaflets Ziehen abzuschalten genügt dafür nicht.
+        expect(css).toContain('body.lasso-active #map,');
+        const block = css.slice(css.indexOf('body.lasso-active #map,'), css.indexOf('body.lasso-active #map {'));
+        expect(block).toContain('touch-action: none;');
+        expect(block).toContain('.leaflet-container');
+    });
+
+    it('hält den Zeiger fest und wirft eine abgebrochene Geste nicht weg', () => {
+        expect(ui).toContain('setPointerCapture');
+        expect(ui).toContain('releasePointerCapture');
+        const cancel = ui.slice(ui.indexOf('function onPointerCancel'), ui.indexOf('export function setLassoActive'));
+        expect(cancel).toContain('isUsableLasso(salvaged)');
+        expect(cancel).toContain('finishStroke()');
+    });
+
+    it('lässt den schwebenden Fuchs-Knopf zurücktreten, solange gezeichnet oder ausgewählt wird', () => {
+        // Er liegt am Handy über Werkzeugknopf und Auswahlstreifen – und
+        // verdeckte damit ausgerechnet „Briefing erstellen".
+        expect(ui).toContain("classList.toggle('lasso-busy', active || selection.length > 0)");
+        expect(css).toContain('body.lasso-busy .mobile-next-step { display: none; }');
+    });
+
     it('bleibt auf einem schmalen Telefon vollständig lesbar', () => {
         // Drei ausgeschriebene Beschriftungen passen auf 390 Pixel nicht.
         expect(ui).toContain("clear.setAttribute('aria-label', 'Auswahl aufheben')");

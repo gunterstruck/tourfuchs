@@ -44,6 +44,32 @@ ein Zustand, den man sieht und wieder verlässt:
 - Nach einem Zug schaltet er sich selbst wieder ab – man zieht selten zweimal
   hintereinander, und ein Werkzeug, das anbleibt, blockiert die Karte.
 
+## Was am Handy anders ist als am Schreibtisch
+
+Zwei Dinge, die beim ersten Gerätetest aufgefallen sind und ohne echten Finger
+nicht sichtbar werden:
+
+**Der Browser beansprucht die Wischgeste.** Leaflet setzt auf dem Kartenfenster
+`touch-action: pan-x pan-y`. Leaflets eigenes Ziehen abzuschalten genügt deshalb
+nicht: Die Karte friert zwar ein, aber der Browser wertet die Berührung
+weiterhin als Scrollen, schickt `pointercancel` und stellt die
+Bewegungsereignisse ein – der Finger zeichnet ins Leere. Nur `touch-action:
+none` im Zeichenmodus gibt die Geste an die App zurück. Zusätzlich wird der
+Zeiger festgehalten (`setPointerCapture`), damit ein Zug über ein Popup oder
+über den Kartenrand hinaus nicht mitten in der Fläche endet; bricht das System
+die Berührung doch ab, wird eine bereits brauchbare Fläche ausgewertet statt
+weggeworfen.
+
+**Die untere Kante ist überfüllt.** Dort liegen der schwebende Fuchs-Knopf, das
+Bedienblatt und der Auswahlstreifen übereinander. Der Werkzeugknopf sitzt
+deshalb am Handy unten links oberhalb dieser Zeile, und solange gezeichnet oder
+ausgewählt wird, tritt der Fuchs-Knopf zurück – er verdeckte sonst ausgerechnet
+„Briefing erstellen".
+
+**Prüfen lässt sich das nur mit echten Touch-Ereignissen.** Ein
+Playwright-Lauf mit `page.mouse` läuft grün durch, weil `touch-action` für die
+Maus nicht gilt. Die Prüfstrecke dafür speist die Berührungen über CDP ein.
+
 ## Grenzen und Verhalten
 
 | Fall | Verhalten |

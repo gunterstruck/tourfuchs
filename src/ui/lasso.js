@@ -122,6 +122,7 @@ export function clearLassoSelection() {
     const tools = document.getElementById('lasso-tools');
     if (tools) tools.hidden = false;
     returnMapRoom();
+    syncBusyState();
 }
 
 /**
@@ -146,6 +147,7 @@ function showSelection(polygon, customers) {
 
     selection = customers;
     renderBar();
+    syncBusyState();
 }
 
 /**
@@ -238,6 +240,10 @@ function onPointerDown(event) {
     if (!point) return;
     drawing = true;
     pointerId = event.pointerId;
+    // Den Zeiger festhalten: Sonst gehen Bewegung und Loslassen an das
+    // Element, über dem der Finger gerade steht – etwa an ein Karten-Popup
+    // oder an den Rand hinaus – und der Zug endet mitten in der Fläche.
+    try { mapEl()?.setPointerCapture(event.pointerId); } catch { /* nicht kritisch */ }
     clearLassoSelection();
     points = [point];
     ensureOverlay();
@@ -254,15 +260,39 @@ function onPointerMove(event) {
     event.preventDefault();
 }
 
+function releasePointer(id) {
+    try { mapEl()?.releasePointerCapture(id); } catch { /* schon frei */ }
+}
+
 function onPointerUp(event) {
     if (!active || !drawing || event.pointerId !== pointerId) return;
     drawing = false;
+    releasePointer(pointerId);
     pointerId = null;
     finishStroke();
     // Nach einem Zug wieder aus dem Modus: Man zieht selten zweimal
     // hintereinander, und ein Werkzeug, das anbleibt, blockiert die Karte.
     setLassoActive(false);
     event.preventDefault();
+}
+
+/**
+ * Der Browser kann eine Berührung jederzeit an sich ziehen (Systemgeste,
+ * zweiter Finger). Wenn dabei schon eine brauchbare Fläche entstanden ist,
+ * wird sie ausgewertet statt weggeworfen – der Nutzer hat sie gezogen.
+ */
+function onPointerCancel(event) {
+    if (!drawing || (pointerId !== null && event.pointerId !== pointerId)) return;
+    drawing = false;
+    releasePointer(pointerId);
+    pointerId = null;
+    const salvaged = simplifyPath(points);
+    if (isUsableLasso(salvaged)) {
+        finishStroke();
+        setLassoActive(false);
+        return;
+    }
+    clearTrace();
 }
 
 /**
@@ -289,6 +319,17 @@ function returnMapRoom() {
     sheetCollapsed = false;
 }
 
+/**
+ * „Beschäftigt": Es wird gezeichnet oder es liegt eine Auswahl.
+ *
+ * In diesem Zustand tritt der schwebende Fuchs-Knopf zurück. Er sitzt am Handy
+ * genau dort, wo Werkzeugknopf und Auswahlstreifen stehen, liegt darüber – und
+ * verdeckte damit ausgerechnet „Briefing erstellen".
+ */
+function syncBusyState() {
+    document.body.classList.toggle('lasso-busy', active || selection.length > 0);
+}
+
 /** Modus schalten. Getrennt exportiert, damit die Live-Demo ihn führen kann. */
 export function setLassoActive(next) {
     active = Boolean(next);
@@ -297,6 +338,7 @@ export function setLassoActive(next) {
     clearTrace();
     if (active) giveMapRoom();
     else returnMapRoom();
+    syncBusyState();
     document.body.classList.toggle('lasso-active', active);
     const button = document.getElementById('btn-lasso');
     if (button) {
@@ -307,7 +349,9 @@ export function setLassoActive(next) {
     if (overlay) overlay.classList.toggle('drawing', active);
     setMapInteraction(!active);
     if (active) {
-        emit('toast', { type: 'info', text: 'Zieh mit dem Finger oder der Maus eine Fläche um deine Kunden.' });
+        // Kurz halten: Der Hinweis steht am unteren Rand – genau dort, wo
+        // gleich der Auswahlstreifen erscheint.
+        emit('toast', { type: 'info', text: 'Zieh mit dem Finger oder der Maus eine Fläche um deine Kunden.', ms: 2600 });
     }
 }
 
@@ -352,12 +396,7 @@ export function initLasso() {
     container.addEventListener('pointerdown', onPointerDown, true);
     container.addEventListener('pointermove', onPointerMove, true);
     container.addEventListener('pointerup', onPointerUp, true);
-    container.addEventListener('pointercancel', () => {
-        if (!drawing) return;
-        drawing = false;
-        pointerId = null;
-        clearTrace();
-    }, true);
+    container.addEventListener('pointercancel', onPointerCancel, true);
 
     // Escape verlässt den Modus – wer sich verirrt, kommt ohne Suchen heraus.
     document.addEventListener('keydown', (event) => {
