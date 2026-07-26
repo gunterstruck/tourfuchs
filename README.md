@@ -161,7 +161,9 @@ Alternativ per CLI: `npx vercel`
 | Landkreisgrenzen (VG250, vereinfacht) | © GeoBasis-DE / [BKG](https://gdz.bkg.bund.de/) 2024 | [dl-de/by-2-0](https://www.govdata.de/dl-de/by-2-0) |
 | PLZ-Gebiete (vereinfacht, aus OSM) | [Esri Deutschland Open Data](https://opendata-esridede.opendata.arcgis.com/) / © OpenStreetMap-Mitwirkende | [ODbL](https://opendatacommons.org/licenses/odbl/) |
 | PLZ-Koordinaten | [WZB plz_geocoord](https://github.com/WZBSocialScienceCenter/plz_geocoord) / © OpenStreetMap-Mitwirkende | ODbL |
-| Kartendarstellung | © OpenStreetMap & [CARTO](https://carto.com/attributions) | – |
+| Kartendarstellung „Standard" (Voreinstellung) | © [OpenStreetMap](https://www.openstreetmap.org/copyright)-Mitwirkende | ODbL |
+| Kartendarstellung „Hell" | © OpenStreetMap & [CARTO](https://carto.com/attributions) | – |
+| Kartendarstellung „Satellit" (nur bei bewusster Wahl) | © [Esri](https://www.esri.com/), Maxar, Earthstar Geographics | Esri-Nutzungsbedingungen |
 | Geocoding (optional) | [Nominatim](https://nominatim.org/) | [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/) |
 
 Verwendete Software-Bibliotheken (mit Lizenz) sind in der App unter **Lizenz & Rechtliches** sowie in der [LICENSE](./LICENSE)-Datei aufgeführt.

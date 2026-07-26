@@ -11,7 +11,7 @@
  * am Ende wieder her. ESC / „Abbrechen" bricht jederzeit sauber ab.
  */
 
-import { STORIES, visibleStories, visibleStorySteps, prepareShowcaseTour, selectShowcaseTour } from '../features/stories.js';
+import { STORIES, visibleStories, visibleStorySteps, prepareShowcaseTour, selectShowcaseTour, storyDuration } from '../features/stories.js';
 import { state, emit, markDirty, datasetSnapshot, on } from '../core/state.js';
 import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
 import { saveDataset } from '../services/storage.js';
@@ -146,6 +146,27 @@ function moveOverlaysInto(layer) {
 }
 function layerFor(el) {
     return (el && el.closest('dialog[open]')) || document.body;
+}
+
+/**
+ * Von mehreren gleichartigen Zielen (Kartenkacheln) das am besten sichtbare
+ * wählen: ganz im Bild und möglichst nah an der Mitte. Sonst klickt der
+ * Geister-Cursor gern das erste im DOM – und das kann am Bildrand kleben.
+ */
+function pickMostCentral(sel) {
+    const cx = window.innerWidth / 2;
+    const cy = window.innerHeight / 2;
+    let best = null;
+    let bestScore = Infinity;
+    for (const el of document.querySelectorAll(sel)) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.height === 0) continue;
+        // Angeschnittene Ziele scheiden aus – der Klick soll sichtbar sein.
+        if (r.top < 0 || r.left < 0 || r.bottom > window.innerHeight || r.right > window.innerWidth) continue;
+        const score = Math.hypot(r.left + r.width / 2 - cx, r.top + r.height / 2 - cy);
+        if (score < bestScore) { bestScore = score; best = el; }
+    }
+    return best;
 }
 
 // ---- Cursor-Bewegung / Klick ----
@@ -422,7 +443,19 @@ const HELPERS = {
     },
     async openCustomerCard() {
         if (await resolveEl('.customer-marker-card', 800)) {
-            await clickEl('.customer-marker-card');
+            // Nicht einfach die erste Kachel im DOM: Die kann am Bildrand kleben
+            // und wird dann angeklickt, während sie halb abgeschnitten ist – in
+            // genau der Demo, die einen guten ersten Eindruck machen soll.
+            // Stattdessen die Kachel wählen, die am weitesten in der Mitte liegt
+            // und ganz im Bild steht.
+            const pick = pickMostCentral('.customer-marker-card');
+            if (pick) {
+                pick.classList.add('sc-pick');
+                await clickEl('.customer-marker-card.sc-pick');
+                pick.classList.remove('sc-pick');
+            } else {
+                await clickEl('.customer-marker-card');
+            }
             await resolveEl('.leaflet-popup-content', 2200);
             await sleep(1100);
             return;
@@ -1057,7 +1090,7 @@ function buildPanel() {
     const tiles = currentVisibleStories().map((s) => `
         <button type="button" class="sc-tile" data-story="${s.id}">
             <span class="sc-tile-icon">${s.icon}</span>
-            <span class="sc-tile-body"><b>${s.title}</b><span>${s.blurb}</span><small>ca. ${s.duration || 25} Sek.</small></span>
+            <span class="sc-tile-body"><b>${s.title}</b><span>${s.blurb}</span><small>ca. ${storyDuration(s, { isDesktop: window.matchMedia('(min-width: 769px)').matches })} Sek.</small></span>
             ${seen.has(s.id) ? '<span class="sc-tile-seen" title="schon gesehen">✓</span>' : '<span class="sc-tile-play">▶</span>'}
         </button>`).join('');
     dialog.dataset.view = 'intro';
