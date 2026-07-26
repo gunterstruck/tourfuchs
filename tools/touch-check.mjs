@@ -127,9 +127,43 @@ async function runFormat(browser, format, baseUrl) {
             await sleep(16);
             drawn = await page.evaluate(() => (document.querySelector('.lasso-path')?.getAttribute('d') || '').split('L').length - 1);
         }
+        // Nicht nur ob die Spur wächst, sondern ob sie auch SICHTBAR ist: Ein
+        // SVG ohne ausdrückliche Größe bleibt bei 300x150 und schneidet alles
+        // darunter ab – das `d`-Attribut stimmt dann trotzdem.
+        const trace = await page.evaluate(() => {
+            const svg = document.querySelector('.lasso-overlay');
+            const path = document.querySelector('.lasso-path');
+            const map = document.getElementById('map');
+            if (!svg || !path || !map) return null;
+            const s = svg.getBoundingClientRect();
+            const m = map.getBoundingClientRect();
+            const p = path.getBoundingClientRect();
+            return {
+                deckt: Math.round(s.width) >= Math.round(m.width) - 2 && Math.round(s.height) >= Math.round(m.height) - 2,
+                svg: `${Math.round(s.width)}x${Math.round(s.height)}`,
+                karte: `${Math.round(m.width)}x${Math.round(m.height)}`,
+                // Die gezeichnete Spur muss so hoch sein wie der gezogene Ring.
+                spurHoehe: Math.round(p.height)
+            };
+        });
+        if (!trace) problems.push('Die Zeichenebene fehlt.');
+        else {
+            if (!trace.deckt) problems.push(`Die Zeichenebene deckt die Karte nicht ab (${trace.svg} statt ${trace.karte}) – die Spur wird abgeschnitten.`);
+            if (trace.spurHoehe < radius) problems.push(`Die sichtbare Spur ist zu flach (${trace.spurHoehe} px bei Radius ${Math.round(radius)}) – vermutlich beschnitten.`);
+        }
         await touch('touchEnd', ring[ring.length - 1]);
         if (drawn < 5) problems.push(`Die Spur folgte dem Finger nicht (${drawn} Punkte).`);
         await sleep(1300);
+
+        // Abgeschnittene Beschriftungen: „Kunden in me…" ist keine Bedienung.
+        const labels = await page.evaluate(() => {
+            const out = [];
+            for (const el of document.querySelectorAll('.map-fab .mns-label')) {
+                if (el.scrollWidth > el.clientWidth + 1) out.push(el.textContent.trim());
+            }
+            return out;
+        });
+        for (const label of labels) problems.push(`Beschriftung abgeschnitten: „${label}"`);
 
         const card = await page.evaluate(() => {
             const el = document.querySelector('.popup-lasso');
