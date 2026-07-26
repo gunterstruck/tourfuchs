@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "serve": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "demo-check": "node tools/demo-check.mjs"
   },
   "dependencies": {
     "jsqr": "^1.4.0",

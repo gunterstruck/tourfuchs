@@ -34,3 +34,6 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
+
+# Berichte der Demo-Prüfstrecke (npm run demo-check)
+tmp/
