@@ -518,6 +518,10 @@
                 <span class="mns-label"></span>
                 <span class="mns-fox" aria-hidden="true">🦊</span>
             </button>
+            <button id="btn-route-mode" class="route-mode-toggle map-fab" type="button" hidden>
+                <span class="mns-icon" aria-hidden="true">🗺️</span>
+                <span class="mns-label"><span class="fab-text">Straßenroute</span><span class="fab-suffix"> anzeigen</span></span>
+            </button>
             <button id="btn-lasso" class="lasso-toggle map-fab" type="button" aria-pressed="false" hidden>
                 <span class="mns-icon" aria-hidden="true">🖊️</span>
                 <span class="mns-label">Lasso ziehen</span>
@@ -526,11 +530,6 @@
         </div>
 
         <main id="map" role="application" aria-label="Deutschlandkarte"></main>
-        <!-- Kleiner Umschalter über der Karte: nur sichtbar, wenn eine Route auf
-             der Karte liegt. Wechselt zwischen Luftlinie und Straßenroute. -->
-        <div id="route-mode-bar" class="route-mode-bar" hidden>
-            <button id="btn-route-mode" class="route-mode-toggle" type="button">🗺️ Straßenroute anzeigen</button>
-        </div>
 
         <section id="simulation-map-bar" class="simulation-map-bar" aria-label="Simulationsansicht" hidden>
             <div class="simulation-map-status">

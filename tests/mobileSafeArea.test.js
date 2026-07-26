@@ -30,8 +30,9 @@ describe('Untere System-Navigationsleiste (Android/iOS) verdeckt das Blatt nicht
     it('hebt auch die schwebenden Overlays über Peek UND sichere Zone', () => {
         // Fuchs-Pille, Straßenrouten-Umschalter und Willkommens-Hinweis hängen am
         // Peek und müssen zusätzlich die Navigationsleiste überspringen.
-        expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 30px)'); // Fuchs-Pille
-        expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 14px)'); // Route-Umschalter
+        // Fuchs-Pille, Lasso und Routen-Umschalter teilen sich seit dem Umbau
+        // EINE Zeile – ein Abstand genügt für alle drei.
+        expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 30px)'); // Knopfzeile
         expect(css).toContain('bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 12px)'); // Willkommen
     });
 

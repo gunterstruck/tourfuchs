@@ -132,7 +132,10 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         expect(row).toContain('id="btn-lasso"');
         // Beide Knöpfe tragen dieselbe Pillen-Klasse (die Zeile selbst heißt
         // `map-fab-row` und zählt hier nicht mit).
-        expect(row.match(/map-fab"/g)).toHaveLength(2);
+        // Alle Knöpfe der Zeile tragen dieselbe Pillen-Klasse (die Zeile selbst
+        // heißt `map-fab-row` und zählt hier nicht mit): Fuchs, Routen-
+        // Umschalter und Lasso.
+        expect(row.match(/map-fab"/g)).toHaveLength(3);
         expect(ui).toContain("label.textContent = active ? 'Ziehen …' : 'Lasso ziehen'");
     });
 
@@ -240,6 +243,16 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         expect(narrow).toContain('.map-fab-row');
         expect(narrow).toContain('max-width: 48vw');
     });
+
+    it('gibt der Knopfzeile eine echte Breite statt nur einer Mitte', () => {
+        // `left: 50%` + `translateX(-50%)` sieht zentriert aus, lässt der Zeile
+        // aber nur die halbe Fensterbreite zum Umbrechen. Zwei Kanten statt einer.
+        const start = css.indexOf('.map-fab-row {');
+        const block = css.slice(start, css.indexOf('}', start));
+        expect(block).toContain('left: var(--sidebar-width, 0px);');
+        expect(block).toContain('right: 0;');
+        expect(block).not.toContain('transform: translateX');
+    });
 });
 
 describe('Streifen und Knopf am unteren Rand', () => {
@@ -256,7 +269,18 @@ describe('Streifen und Knopf am unteren Rand', () => {
     it('schwebt am Handy über dem eingeklappten Blatt', () => {
         const start = responsive.indexOf('.map-fab-row {');
         expect(start).toBeGreaterThan(-1);
-        expect(responsive.slice(start, start + 300)).toContain('bottom: calc(var(--mobile-sheet-peek');
+        const block = responsive.slice(start, responsive.indexOf('}', start));
+        expect(block).toContain('bottom: calc(var(--mobile-sheet-peek');
+    });
+
+    it('spannt die Knopfzeile über die volle Breite, statt sie umbrechen zu lassen', () => {
+        // Ein fixiertes Element mit `left: 50%` und ohne rechte Kante bekommt nur
+        // die rechte Fensterhälfte als verfügbare Breite – die zweite Pille bräche
+        // dann um, obwohl beide zusammen ins Bild passen.
+        const start = responsive.indexOf('.map-fab-row {');
+        const block = responsive.slice(start, responsive.indexOf('}', start));
+        expect(block).toContain('left: 0;');
+        expect(responsive).not.toContain('left: 50%;\n        bottom: calc(var(--mobile-sheet-peek');
     });
 });
 

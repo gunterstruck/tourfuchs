@@ -39,12 +39,21 @@ describe('Umkreis-Zähler und Route-Umschalter über der Karte', () => {
     it('blendet einen kleinen Umschalter über der Karte ein, wenn die Route liegt', () => {
         const html = read('index.html');
         const tourPanel = read('src/ui/tourPanel.js');
-        const css = read('src/styles/components.css');
-        expect(html).toContain('id="route-mode-bar"');
         expect(html).toContain('id="btn-route-mode"');
         expect(tourPanel).toContain("getElementById('btn-route-mode')");
-        expect(tourPanel).toContain('routeModeBar.hidden = !(state.tour.mapFocus && hasRoute)');
-        expect(css).toContain('.route-mode-toggle');
+        expect(tourPanel).toContain('routeModeBtn.hidden = !(state.tour.mapFocus && hasRoute)');
+    });
+
+    it('teilt sich die Knopfzeile mit dem Lasso, statt es zu überdecken', () => {
+        // Beide lagen unten mittig, nur 16 Pixel auseinander – der Umschalter
+        // verschwand hinter „Lasso ziehen", sobald eine Route auf der Karte lag.
+        const html = read('index.html');
+        const row = html.slice(html.indexOf('id="map-fab-row"'), html.indexOf('</div>', html.indexOf('id="btn-lasso"')));
+        expect(row).toContain('id="btn-route-mode"');
+        expect(row).toContain('id="btn-lasso"');
+        expect(html).not.toContain('id="route-mode-bar"');
+        // Gleiches Gewand wie die Nachbarn.
+        expect(html.slice(html.indexOf('id="btn-route-mode"') - 120, html.indexOf('id="btn-route-mode"') + 80)).toContain('map-fab');
     });
 });
 

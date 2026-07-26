@@ -1276,12 +1276,17 @@ function renderStops() {
         ? '🗺️ Route auf Karte anzeigen'
         : (state.tour.routeLineMode === 'road' ? '🗺️ Luftlinie anzeigen' : '🗺️ Straßenroute anzeigen');
     // Umschalter über der Karte spiegeln: nur sichtbar, wenn die Route liegt.
-    const routeModeBar = document.getElementById('route-mode-bar');
+    // Er teilt sich die Knopfzeile mit „Lasso ziehen" – deshalb sitzt das
+    // Wort „anzeigen" in einem eigenen Span, den schmale Schirme ausblenden.
     const routeModeBtn = document.getElementById('btn-route-mode');
-    if (routeModeBar) routeModeBar.hidden = !(state.tour.mapFocus && hasRoute);
-    if (routeModeBtn) routeModeBtn.textContent = state.tour.routeLineMode === 'road'
-        ? '📏 Luftlinie anzeigen'
-        : '🗺️ Straßenroute anzeigen';
+    if (routeModeBtn) {
+        routeModeBtn.hidden = !(state.tour.mapFocus && hasRoute);
+        const road = state.tour.routeLineMode === 'road';
+        const icon = routeModeBtn.querySelector('.mns-icon');
+        const text = routeModeBtn.querySelector('.fab-text');
+        if (icon) icon.textContent = road ? '📏' : '🗺️';
+        if (text) text.textContent = road ? 'Luftlinie' : 'Straßenroute';
+    }
     document.getElementById('btn-gmaps').disabled = !hasRoute;
     document.getElementById('btn-tour-print').disabled = !hasRoute;
     document.getElementById('btn-tour-ics').disabled = !hasRoute;

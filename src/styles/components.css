@@ -869,35 +869,10 @@
     color: var(--color-primary-dark);
 }
 
-/* Kompakter Luftlinie/Straße-Umschalter über der Karte (Desktop + Mobile). */
-.route-mode-bar {
-    position: absolute;
-    z-index: 1030;
-    left: 50%;
-    bottom: 20px;
-    transform: translateX(-50%);
-    pointer-events: none;
-}
-.route-mode-bar[hidden] { display: none; }
-.route-mode-toggle {
-    pointer-events: auto;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    min-height: 0;
-    padding: 8px 14px;
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-pill);
-    background: rgba(255, 255, 255, 0.96);
-    -webkit-backdrop-filter: blur(8px);
-    backdrop-filter: blur(8px);
-    box-shadow: var(--shadow-2);
-    color: var(--color-text);
-    font-weight: 700;
-    font-size: 0.82rem;
-    white-space: nowrap;
-    cursor: pointer;
-}
+/* Der Luftlinie/Straße-Umschalter ist ebenfalls eine Kartenaktion und sitzt
+   deshalb in derselben Zeile und im selben Gewand wie „Lasso ziehen" – vorher
+   lagen beide getrennt am unteren Rand und überdeckten einander. */
+.route-mode-toggle .fab-text { font-weight: 700; }
 .route-mode-toggle:hover { border-color: var(--color-primary); background: #fff; }
 
 .simulation-map-bar {
@@ -2158,14 +2133,24 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
 .map-fab-row {
     position: fixed;
     z-index: 1035;
-    left: calc((100vw + var(--sidebar-width, 0px)) / 2);
+    /* Die Zeile spannt über die Karte und zentriert ihren Inhalt darin. Wichtig:
+       nicht „left: 50% + translateX(-50%)". Ein fixiertes Element ohne rechte
+       Kante bekommt als verfügbare Breite nur den Rest rechts vom Startpunkt –
+       auf einem 390er Telefon also 195px. Die zweite Pille bräche dann um,
+       obwohl beide zusammen bequem ins Bild passen. */
+    left: var(--sidebar-width, 0px);
+    right: 0;
     bottom: 20px;
-    transform: translateX(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
+    /* Umbrechen statt aus dem Bild laufen: Zwei Pillen passen auf jedes
+       Telefon, drei nicht. Regulär schließen sich Fuchs und Routen-Umschalter
+       gegenseitig aus – falls doch einmal drei zusammenkommen, wächst die
+       Zeile nach oben, statt links aus dem Schirm zu ragen. */
+    flex-wrap: wrap;
     gap: 8px;
-    max-width: calc(100vw - 20px);
+    padding: 0 10px;
     pointer-events: none;
 }
 
@@ -2302,6 +2287,12 @@ body.lasso-active .mobile-next-step { display: none; }
     color: #115e59;
     font-size: 0.84rem;
     line-height: 1.4;
+}
+
+/* Auf schmalen Schirmen entfällt das Füllwort: „Straßenroute" sagt dasselbe
+   wie „Straßenroute anzeigen", und beide Pillen bleiben nebeneinander. */
+@media (max-width: 560px) {
+    .fab-suffix { display: none; }
 }
 
 /* Zwei Pillen nebeneinander brauchen auf einem schmalen Telefon weniger
