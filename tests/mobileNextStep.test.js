@@ -26,11 +26,11 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
     });
 
     it('erscheint jetzt auch auf dem Desktop (kein pauschales Ausblenden mehr)', () => {
-        // Der frühere Hard-Hide ab 769px ist entfernt; ab 901px gibt es eine
-        // eigene Desktop-Platzierung (unten mittig über der Karte).
+        // Der frühere Hard-Hide ab 769px ist entfernt; ab 769px gibt es eine
+        // eigene Desktop-/Tablet-Platzierung (unten mittig über der Karte).
         expect(css).not.toContain('@media (min-width: 769px) {\n    .mobile-next-step { display: none !important; }');
-        expect(css).toContain('@media (min-width: 901px)');
-        const desktopBlock = css.slice(css.indexOf('@media (min-width: 901px)'));
+        expect(css).toContain('@media (min-width: 769px)');
+        const desktopBlock = css.slice(css.indexOf('@media (min-width: 769px)'));
         expect(desktopBlock).toContain('.mobile-next-step {');
         expect(desktopBlock).toContain('position: fixed');
     });
@@ -44,8 +44,9 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
 
     it('führt als Kette durch den Flow und mobil nur bei zugeklapptem Blatt', () => {
         expect(sidebar).toContain('function updateMobileNextStep');
-        // Mobil weiterhin nur bei zugeklapptem Blatt, auf dem Desktop immer.
-        expect(sidebar).toContain('isMobileUi() ? !state.ui.sidebarOpen : true');
+        // Bei unten liegendem Blatt (Handy, Tablet hochkant) nur zugeklappt,
+        // bei seitlichem Panel immer.
+        expect(sidebar).toContain('isSheetUi() ? !state.ui.sidebarOpen : true');
         expect(sidebar).toContain("state.ui.mode === 'aussendienst'");
         // Drei Kettenschritte: Nähe → Tour ab hier planen → Route auf die Karte.
         expect(sidebar).toContain('Kunden in meiner Nähe');
