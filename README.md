@@ -98,7 +98,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [Wissensbasis für den Guide-Bot](./docs/guide-ki-wissensbasis.md) – aufgabenorientiert mit dokumentierten Klickpfaden, aktueller Funktionsstand
 - [PDF-Fassung der Guide-Wissensbasis](./TourFuchs_KI-Agent_Wissensbasis.pdf) – gut lesbare Referenz für Review, Schulung und Weitergabe
 - [Kunden- und Gebiets-Briefing](./docs/kundenbriefing.md) – Ablauf, Inhalt der Prompts, Wahl des Assistenten und Prüfschritte
-- [Lasso auf der Karte](./docs/lasso.md) – Zeichenmodus, Auswahlvorschau, Grenzen und Prüfschritte
+- [Lasso auf der Karte](./docs/lasso.md) – Zeichenmodus, Auswahlvorschau, Grenzen, Verhalten am Handy und Prüfschritte
 
 ---
 
@@ -144,6 +144,28 @@ Klick danebengeht.
 
 Die gemessenen Laufzeiten gehören anschließend nach `src/features/stories.js` –
 das Demo-Panel verspricht sie den Nutzern.
+
+### Fingergesten prüfen (`npm run touch-check`)
+
+`demo-check` bedient die App mit der **Maus**. Das genügt für Klickwege, aber
+nicht für alles: Für die Maus gilt `touch-action` nicht. Genau daran ist das
+Lasso beim ersten echten Gerätetest gescheitert – der Prüflauf war grün, auf dem
+Telefon fror die Karte ein und der Finger zeichnete ins Leere, weil der Browser
+die Wischgeste für sich beanspruchte.
+
+Dieses Werkzeug speist Berührungen über das Chrome DevTools Protocol ein, so wie
+ein Gerät sie erzeugt, und prüft, was nur damit sichtbar wird: ob ein
+schwebendes Element den Knopf verdeckt, ob die Zeichenspur dem Finger wirklich
+folgt, ob der Auswahlstreifen antippbar im Bild steht und ob sich die Karte
+danach wieder schieben lässt.
+
+```bash
+npm run build
+npm run touch-check          # Smartphone und Tablet-Hochkant (~2 min)
+```
+
+Gleiche Voraussetzung wie oben; Exit-Code 1 bei jedem Befund. Kurz genug, um ihn
+nach jeder Änderung an Karteninteraktionen laufen zu lassen.
 
 **Stack:** Vite · Leaflet + markercluster · SheetJS (xlsx) · vite-plugin-pwa (Workbox) · Vanilla JS (ES Modules)
 

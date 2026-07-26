@@ -2192,9 +2192,29 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
     color: #fff;
 }
 
-/* Im Zeichenmodus ist die Karte kein Schiebeobjekt mehr. */
+/* Im Zeichenmodus ist die Karte kein Schiebeobjekt mehr.
+ *
+ * ENTSCHEIDEND für Touch: Leaflet setzt auf dem Container
+ * `touch-action: pan-x pan-y`. Damit beansprucht der BROWSER jede Wischgeste
+ * für sich – er schickt `pointercancel` und stellt die Bewegungsereignisse
+ * ein. Leaflets eigenes Ziehen abzuschalten genügt dafür nicht: Auf dem Handy
+ * friert die Karte dann zwar ein, aber es lässt sich trotzdem nichts
+ * zeichnen. Nur `touch-action: none` gibt die Geste an die App zurück. */
+body.lasso-active #map,
+body.lasso-active #map .leaflet-container,
+body.lasso-active #map .leaflet-pane {
+    touch-action: none;
+    -webkit-user-select: none;
+    user-select: none;
+}
 body.lasso-active #map { cursor: crosshair; }
 body.lasso-active #map .leaflet-container { cursor: crosshair; }
+
+/* Der schwebende Fuchs-Knopf teilt sich auf dem Handy die untere Kante mit
+   Werkzeugknopf und Auswahlstreifen und liegt höher. Solange gezeichnet oder
+   ausgewählt wird, tritt er zurück – er verdeckt sonst genau die beiden
+   Bedienelemente, um die es gerade geht. */
+body.lasso-busy .mobile-next-step { display: none; }
 body.lasso-active #map::after {
     content: '';
     position: absolute;

@@ -649,7 +649,11 @@
         top: auto;
         right: auto;
         left: 10px;
-        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 14px);
+        /* Über der Zeile des schwebenden Fuchs-Knopfes und über dem
+           Auswahlstreifen – die untere Kante ist am Handy die begehrteste
+           Fläche der ganzen App. */
+        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 72px);
+        z-index: 1040;
     }
     .lasso-tools[hidden] { display: none; }
     .lasso-toggle { padding: 8px 12px; font-size: 0.82rem; }
