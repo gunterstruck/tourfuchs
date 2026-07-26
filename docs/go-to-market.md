@@ -117,11 +117,16 @@ dass er keinen fertigen Export hat. Genau dann – und nur dann:
 Das ist die beste Sorte Entdeckung: ausgelöst durch echte Not, nicht durch einen
 Hinweis auf Vorrat.
 
-### P4 · Die erste Live-Demo zeigt das Einfügen
+### P4 · Die erste Live-Demo zeigt das Einfügen — ✅ umgesetzt 26.07.2026
 
-Die Demo „Vom Stapel zur Kundenkarte" beginnt heute mit fertigen Daten. Sie
-sollte mit dem Geister-Cursor **das Einfügen vorführen** – 6 Sekunden, und der
-Weg ist für immer bekannt. Vorführen schlägt erklären.
+Die Demo hieß „Vom Stapel zur Kundenkarte" und begann mit fertigen Daten. Sie
+heißt jetzt **„Von der Excel-Liste zur Kundenkarte"** und führt am Schreibtisch
+zuerst den Einfüge-Weg vor: Dialog öffnen, Beispieltabelle erscheint auf einen
+Schlag im Feld, Befund, Dialog zu. Vorführen schlägt erklären.
+
+**Bewusst ohne Import:** Die Vorführung fasst keine echten Daten an und nimmt
+die Berechtigungs-Bestätigung am Ende zurück – auch bei Abbruch. Am Handy
+entfallen die Schritte, dort ist Excel selten offen.
 
 ### P5 · Beispieldaten in der eigenen Region *(größer, später)*
 
@@ -133,7 +138,8 @@ zwischen „nette Demo" und „das ist ja meine Gegend" ist erheblich.
 
 **P1 + P3 + Mobile-Korrektur** in einem Paket (klein, sofort).
 **P2** als eigenes Paket (das ist der Wow-Moment, der die Filmaufnahme trägt).
-**P4** zusammen mit dem Film, damit Demo und Video dieselbe Geschichte erzählen.
+~~P4 zusammen mit dem Film~~ – ✅ umgesetzt. Demo und Film erzählen jetzt
+dieselbe Geschichte: erst das Einfügen, dann die Karte.
 **P5** danach, wenn überhaupt.
 
 **Der Film sollte erst nach P1 und P2 gedreht werden** – sonst zeigt er ein

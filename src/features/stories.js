@@ -22,12 +22,22 @@ export const STORIES = [
     {
         id: 'excel-karte',
         icon: '🗺️',
-        title: 'Vom Stapel zur Kundenkarte',
-        blurb: 'Kundenstapel verstehen und bis zum Detail aufzoomen.',
-        duration: 30,
+        title: 'Von der Excel-Liste zur Kundenkarte',
+        blurb: 'Liste einfügen, Stapel verstehen, bis zum Detail aufzoomen.',
+        duration: 44,
         minRuntimeMs: 15000,
         steps: [
             { t: 'say', text: 'TourFuchs macht aus einer Kundenliste eine verständliche Deutschlandkarte.', sel: '#map', ms: 2400 },
+            // Der schnellste Weg zu eigenen Daten findet sich nicht von selbst –
+            // also wird er vorgeführt. Am Handy übersprungen: Dort ist die
+            // Kundenliste selten in einer Tabellen-App offen.
+            { t: 'say', text: 'Und wie kommen deine Kunden hinein? Meist ist die Liste ohnehin in Excel offen – dann braucht es nicht einmal eine Datei.', ms: 3400, desktopOnly: true },
+            { t: 'run', key: 'openPasteDemo', desktopOnly: true },
+            { t: 'say', text: 'In Excel markieren, Strg+C – und hier einfügen.', sel: '#paste-input', ms: 2600, desktopOnly: true },
+            { t: 'run', key: 'pasteDemoTable', desktopOnly: true },
+            { t: 'say', text: 'TourFuchs sagt sofort, was es erkannt hat. Danach nur noch die Spalten prüfen – fertig.', sel: '#paste-status', ms: 3200, desktopOnly: true },
+            { t: 'run', key: 'closePasteDemo', desktopOnly: true },
+            { t: 'say', text: 'Für diese Vorführung bleiben wir bei Beispielkunden – deine Daten rührt die Demo nicht an.', ms: 2800, desktopOnly: true },
             { t: 'run', key: 'excelToMap' },
             { t: 'say', text: 'Jeder Stapel sagt sofort, wie viele Kunden hier liegen. Antippen bedeutet: eine Ebene näher.', sel: '.customer-stack-card', ms: 3200 },
             { t: 'run', key: 'zoomToCustomerCards' },
@@ -369,6 +379,13 @@ export const CRITICAL_SELECTORS = [
     '.seg[data-view="chancen"]',
     '#customer-briefing-dialog',
     '.tab-button[data-tab="daten"]',
+    // Einfüge-Vorführung (Demo „Von der Excel-Liste zur Kundenkarte")
+    '#own-data-dialog',
+    '#own-data-dialog [data-compliance-optin]',
+    '#btn-paste',
+    '#paste-dialog',
+    '#paste-input',
+    '#paste-status',
     '#vault-controls',
     '#btn-vault-toggle',
     '#vault-dialog',
