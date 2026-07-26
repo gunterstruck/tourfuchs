@@ -106,7 +106,41 @@ npm install
 npm run dev        # http://localhost:3000
 npm run build      # Produktions-Build nach dist/
 npm run preview    # Build lokal testen
+npm test           # Unit-Tests (Vitest)
 ```
+
+### Live-Demos prüfen (`npm run demo-check`)
+
+Die geführten Live-Demos hängen an Selektoren, Layout-Schwellen und
+Zeitverhalten über vier Formate – genau die Sorte Abhängigkeit, die still
+verrottet. Das Werkzeug fährt **jede sichtbare Demo in der echten App** durch
+und misst, was Unit-Tests nicht sehen können: ob die Vorführung durchläuft, ob
+die Zeigerspitze des Geister-Cursors auf dem geklickten Element landet, ob
+dieses Element überhaupt im Bild liegt, und wie lange die Demo wirklich dauert.
+
+```bash
+npm run build
+npm run demo-check                                        # alle Formate, alle Demos (~20 min)
+npm run demo-check -- --format=tablet-hochkant            # ein Format
+npm run demo-check -- --format=desktop --story=handy-qr   # gezielt
+```
+
+Einmalige Einrichtung – **bewusst nicht** in `package.json`, damit ein normales
+`npm install` keinen Browser-Download auslöst:
+
+```bash
+npm i -D playwright && npx playwright install chromium
+```
+
+**Bewusst nicht in der CI:** Ein vollständiger Lauf dauert rund 20 Minuten, und
+zeitbasierte Vorführungen werden dort früher oder später unzuverlässig. Ein
+flackerndes Tor ist schlimmer als keines. Aufgerufen wird das Werkzeug gezielt:
+nach Layout-Änderungen, nach Eingriffen an den Demo-Skripten und vor einem
+Release. Der Lauf endet mit Exit-Code 1, sobald eine Demo abbricht oder ein
+Klick danebengeht.
+
+Die gemessenen Laufzeiten gehören anschließend nach `src/features/stories.js` –
+das Demo-Panel verspricht sie den Nutzern.
 
 **Stack:** Vite · Leaflet + markercluster · SheetJS (xlsx) · vite-plugin-pwa (Workbox) · Vanilla JS (ES Modules)
 
