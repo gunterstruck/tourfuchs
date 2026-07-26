@@ -717,7 +717,18 @@ Die Schritte im Einfügen-Dialog richten sich nach dem Gerät: am Schreibtisch
 Am Handy steht nirgends "Strg".
 
 Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
-bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
+bleiben zusammen. Ebenso gelesen werden **Markdown-Tabellen** (`| Name | PLZ |`
+mit Trennzeile) und **Tabellen mitten im Fließtext** – etwa die Antwort eines
+Chat-Assistenten, die vor und nach der Tabelle noch einen Satz schreibt.
+TourFuchs schneidet den Tabellenblock heraus: Es gewinnt die längste
+zusammenhängende Zeilenfolge mit gleicher Spaltenzahl. Enthält der Text mehrere
+Tabellen, wird die größere genommen.
+
+Der **globale Strg+V-Kurzweg ist bewusst strenger** als der Dialog: Dort hat der
+Nutzer sich entschieden, hier wird ungefragt in eine fremde Absicht eingegriffen.
+Markdown, Tabulatoren und Semikolon gelten als eindeutig; bei Komma-Trennung –
+die auch in Prosa vorkommt („Sehr geehrte Frau Meier, wie besprochen, …") –
+braucht es eine Zeile mehr. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
 Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
 Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
@@ -2208,7 +2219,18 @@ Die Schritte im Einfügen-Dialog richten sich nach dem Gerät: am Schreibtisch
 Am Handy steht nirgends "Strg".
 
 Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
-bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
+bleiben zusammen. Ebenso gelesen werden **Markdown-Tabellen** (`| Name | PLZ |`
+mit Trennzeile) und **Tabellen mitten im Fließtext** – etwa die Antwort eines
+Chat-Assistenten, die vor und nach der Tabelle noch einen Satz schreibt.
+TourFuchs schneidet den Tabellenblock heraus: Es gewinnt die längste
+zusammenhängende Zeilenfolge mit gleicher Spaltenzahl. Enthält der Text mehrere
+Tabellen, wird die größere genommen.
+
+Der **globale Strg+V-Kurzweg ist bewusst strenger** als der Dialog: Dort hat der
+Nutzer sich entschieden, hier wird ungefragt in eine fremde Absicht eingegriffen.
+Markdown, Tabulatoren und Semikolon gelten als eindeutig; bei Komma-Trennung –
+die auch in Prosa vorkommt („Sehr geehrte Frau Meier, wie besprochen, …") –
+braucht es eine Zeile mehr. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
 Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
 Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
