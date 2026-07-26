@@ -20,11 +20,13 @@
  */
 import L from 'leaflet';
 import { state, emit, on, visibleCustomers } from '../core/state.js';
-import { getMap } from '../features/map.js';
+import { getMap, openMapCard } from '../features/map.js';
+import { isOpportunity } from '../features/visits.js';
+import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
-import { customersInLasso, isUsableLasso, lassoSelectionLabel, simplifyPath } from '../features/lasso.js';
+import { customersInLasso, isUsableLasso, lassoSelectionLabel, polygonCentroid, simplifyPath } from '../features/lasso.js';
 import { openAreaBriefing } from './areaBriefing.js';
 
 let active = false;            // Zeichenmodus an?
@@ -32,6 +34,8 @@ let drawing = false;           // Finger/Maus gerade unten?
 let points = [];               // Rohspur in Fensterpixeln
 let overlay = null;            // SVG über der Karte, nur während des Zugs
 let pathEl = null;
+let startDot = null;           // Startpunkt der Spur, damit man ihn wiederfindet
+let card = null;               // Auswahlkarte auf der Karte (Leaflet-Popup)
 let shapeLayer = null;         // gezeichnete Fläche, bleibt nach dem Zug liegen
 let hitLayer = null;           // Leuchtpunkte auf den Treffern
 let selection = [];
@@ -67,9 +71,9 @@ function mapEl() {
     return document.getElementById('map');
 }
 
-function bar() {
-    return document.getElementById('lasso-bar');
-}
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
+));
 
 /** Kartenbedienung während des Zeichnens stilllegen und danach zurückgeben. */
 function setMapInteraction(enabled) {
@@ -92,20 +96,38 @@ function ensureOverlay() {
     overlay.setAttribute('aria-hidden', 'true');
     pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
     pathEl.setAttribute('class', 'lasso-path');
-    overlay.appendChild(pathEl);
+    // Der Startpunkt bleibt während des Zugs sichtbar: Man sieht, wohin man
+    // zurückkommen muss, um die Fläche ungefähr zu schließen.
+    startDot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    startDot.setAttribute('class', 'lasso-start');
+    startDot.setAttribute('r', '7');
+    overlay.append(pathEl, startDot);
     container.appendChild(overlay);
     return overlay;
 }
 
+/**
+ * Die Spur wächst mit jedem Zwischenschritt mit.
+ *
+ * Ab dem dritten Punkt wird sie geschlossen gezeichnet (`Z`) und gefüllt: So
+ * ist schon während des Ziehens zu sehen, welche Fläche entsteht und wer darin
+ * liegt – nicht erst beim Loslassen.
+ */
 function drawTrace() {
     if (!pathEl || points.length === 0) return;
     const d = points.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x} ${p.y}`).join(' ');
     pathEl.setAttribute('d', points.length > 2 ? `${d} Z` : d);
+    if (startDot) {
+        startDot.setAttribute('cx', String(points[0].x));
+        startDot.setAttribute('cy', String(points[0].y));
+        startDot.removeAttribute('hidden');
+    }
 }
 
 function clearTrace() {
     points = [];
     if (pathEl) pathEl.removeAttribute('d');
+    if (startDot) startDot.setAttribute('hidden', '');
 }
 
 /** Alles Gezeichnete entfernen – Fläche, Leuchtpunkte, Streifen. */
@@ -116,13 +138,9 @@ export function clearLassoSelection() {
     shapeLayer = null;
     hitLayer = null;
     selection = [];
-    const el = bar();
-    if (el) el.hidden = true;
-    // Auf schmalen Geräten teilen sich Knopf und Streifen dieselbe Zeile.
-    const tools = document.getElementById('lasso-tools');
-    if (tools) tools.hidden = false;
+    if (card && map) map.closePopup(card);
+    card = null;
     returnMapRoom();
-    syncBusyState();
 }
 
 /**
@@ -146,64 +164,97 @@ function showSelection(polygon, customers) {
     ).addTo(map);
 
     selection = customers;
-    renderBar();
-    syncBusyState();
+    openCard(polygon);
 }
 
 /**
- * Auswahlstreifen aufbauen.
+ * Was steht auf der Auswahlkarte?
  *
- * Bewusst über DOM-Knoten statt innerHTML: Hier stehen Kundenzahlen aus
- * importierten Daten, und der Streifen soll nie zu einem Ort werden, an dem
- * fremder Inhalt zu Markup wird.
+ * Dieselbe Sprache wie im Kunden-Popup: erst wer, dann was daran auffällt,
+ * dann was man tun kann. Angezeigt wird lokales Wissen – Umsatz und
+ * Fälligkeiten sind auf dem eigenen Gerät kein Geheimnis. In den **Prompt**
+ * geht davon nach wie vor nichts.
  */
-function renderBar() {
-    const el = bar();
-    if (!el) return;
-    // Unter zwei echten Kunden führt das Kundenbriefing weiter – dieselbe
-    // Regel wie bei den anderen beiden Einstiegen.
-    const canBrief = selection.filter((customer) => !isDemoCustomer(customer)).length >= 2;
+function cardHtml() {
+    const real = selection.filter((customer) => !isDemoCustomer(customer));
+    const profi = state.ui.depth === 'profi';
+    const due = selection.filter((customer) => isOpportunity(customer)).length;
+    const revenue = selection.reduce((sum, customer) => sum + (customer.umsatz || 0), 0);
+    const places = [...new Set(selection.map((customer) => String(customer.ort ?? '').trim()).filter(Boolean))];
 
-    el.replaceChildren();
-    const count = document.createElement('span');
-    count.className = 'lasso-count';
-    count.textContent = lassoSelectionLabel(selection.length);
-    el.appendChild(count);
-
-    if (canBrief) {
-        const brief = document.createElement('button');
-        brief.type = 'button';
-        brief.className = 'primary';
-        brief.id = 'btn-lasso-brief';
-        brief.textContent = '🧭 Briefing erstellen';
-        brief.addEventListener('click', () => {
-            openAreaBriefing(selection, areaLabelFor({ mode: 'lasso' }));
-        });
-        el.appendChild(brief);
+    const meta = [];
+    if (due > 0) meta.push(`<b>${due}</b> fällig`);
+    if (revenue > 0) meta.push(`${formatRevenueShort(revenue)} Umsatz`);
+    if (places.length) {
+        meta.push(places.length <= 3
+            ? escapeHtml(places.join(' · '))
+            : `${escapeHtml(places.slice(0, 3).join(' · '))} +${places.length - 3}`);
     }
 
-    // Auf 390 Pixel Breite passen drei ausgeschriebene Beschriftungen nicht
-    // nebeneinander. Der wichtige Knopf behält seinen Text, der zweite wird
-    // zum Kreuz – die Bedeutung trägt dann das aria-label.
-    const clear = document.createElement('button');
-    clear.type = 'button';
-    clear.className = 'lasso-clear';
-    clear.setAttribute('aria-label', 'Auswahl aufheben');
-    const longLabel = document.createElement('span');
-    longLabel.className = 'lasso-clear-long';
-    longLabel.textContent = 'Auswahl aufheben';
-    const shortLabel = document.createElement('span');
-    shortLabel.className = 'lasso-clear-short';
-    shortLabel.setAttribute('aria-hidden', 'true');
-    shortLabel.textContent = '✕';
-    clear.append(longLabel, shortLabel);
-    clear.addEventListener('click', clearLassoSelection);
-    el.appendChild(clear);
-    el.hidden = false;
-    // Solange die Auswahl steht, führt der Streifen weiter – der Werkzeugknopf
-    // würde auf einem 390 Pixel breiten Schirm nur darüberliegen.
-    const tools = document.getElementById('lasso-tools');
-    if (tools) tools.hidden = true;
+    // Die ersten Namen machen greifbar, wen man erwischt hat.
+    const preview = selection.slice(0, 5).map((customer) => `<li>${escapeHtml(customer.name)}</li>`).join('');
+    const rest = selection.length - Math.min(5, selection.length);
+
+    const demoNote = real.length < 2
+        ? `<p class="popup-lasso-note">${real.length === 0
+            ? 'Hier liegen nur Beispielkunden – dafür wird bewusst kein Briefing erzeugt.'
+            : 'Für einen einzelnen Kunden führt das Kundenbriefing weiter: einfach seinen Marker antippen.'}</p>`
+        : '';
+
+    return `<div class="popup popup-lasso">
+        <h3>🧭 ${lassoSelectionLabel(selection.length)}</h3>
+        ${meta.length ? `<p class="muted small popup-meta">${meta.join(' · ')}</p>` : ''}
+        <ul class="popup-lasso-list">${preview}</ul>
+        ${rest > 0 ? `<p class="muted small">und ${rest} weitere</p>` : ''}
+        ${demoNote}
+        <div class="popup-actions">
+            ${real.length >= 2
+                ? '<button data-action="lasso-brief" id="btn-lasso-brief" title="Prompt für ein Briefing über diese Kunden vorbereiten">📋 Briefing über alle</button>'
+                : ''}
+            ${profi && real.length >= 2 ? '<button data-action="lasso-tour">🚩 Alle zur Tour</button>' : ''}
+            <button data-action="lasso-clear">✕ Auswahl aufheben</button>
+        </div>
+    </div>`;
+}
+
+/**
+ * Auswahlkarte öffnen – ein Karten-Popup im Gewand der Kundenkarte.
+ *
+ * Bewusst kein eigener Streifen mehr: Der Nutzer kennt diese Karte vom
+ * Kunden-Popup, und die Fortsetzung „📋 Briefing" steht dort, wo er sie
+ * erwartet.
+ */
+function openCard(polygon) {
+    const map = getMap();
+    if (!map || selection.length === 0) return;
+    const centroid = polygonCentroid(polygon);
+    const at = map.containerPointToLatLng([centroid.x, centroid.y]);
+    // `closeOnClick: false` ist hier entscheidend: Direkt nach dem Loslassen
+    // wertet Leaflet die Berührung als Kartenklick und würde die Karte sofort
+    // wieder schließen – die Auswahl wäre weg, bevor man sie gesehen hat.
+    // `autoClose: false` lässt sie stehen, wenn nebenbei ein Kunden-Popup aufgeht.
+    // Drei Optionen, jede gegen einen konkreten Fehler:
+    //  - `closeOnClick: false`: Direkt nach dem Loslassen wertet Leaflet die
+    //    Berührung als Kartenklick und schlösse die Karte sofort wieder.
+    //  - `autoClose: false`: Sie bleibt stehen, wenn nebenbei ein Kunden-Popup
+    //    aufgeht.
+    //  - `autoPan: false`: Das automatische Nachschwenken löste `movestart`
+    //    aus – und damit die eigene Regel „Karte bewegt, Auswahl verwerfen".
+    //    Nötig ist es ohnehin nicht: Die Karte sitzt mitten in der Fläche, die
+    //    der Nutzer gerade gezogen hat.
+    card = openMapCard(at, cardHtml(), 'lasso-popup', { closeOnClick: false, autoClose: false, autoPan: false });
+
+    const root = card?.getElement();
+    root?.querySelector('[data-action="lasso-brief"]')?.addEventListener('click', () => {
+        openAreaBriefing(selection, areaLabelFor({ mode: 'lasso' }));
+    });
+    root?.querySelector('[data-action="lasso-clear"]')?.addEventListener('click', clearLassoSelection);
+    root?.querySelector('[data-action="lasso-tour"]')?.addEventListener('click', () => {
+        const added = selection.filter((customer) => !state.tour.stops.includes(customer.id));
+        for (const customer of added) state.tour.stops.push(customer.id);
+        emit('tour:changed');
+        emit('toast', { type: 'success', text: `${added.length} ${added.length === 1 ? 'Kunde' : 'Kunden'} zur Tour hinzugefügt.` });
+    });
 }
 
 function finishStroke() {
@@ -319,17 +370,6 @@ function returnMapRoom() {
     sheetCollapsed = false;
 }
 
-/**
- * „Beschäftigt": Es wird gezeichnet oder es liegt eine Auswahl.
- *
- * In diesem Zustand tritt der schwebende Fuchs-Knopf zurück. Er sitzt am Handy
- * genau dort, wo Werkzeugknopf und Auswahlstreifen stehen, liegt darüber – und
- * verdeckte damit ausgerechnet „Briefing erstellen".
- */
-function syncBusyState() {
-    document.body.classList.toggle('lasso-busy', active || selection.length > 0);
-}
-
 /** Modus schalten. Getrennt exportiert, damit die Live-Demo ihn führen kann. */
 export function setLassoActive(next) {
     active = Boolean(next);
@@ -338,13 +378,17 @@ export function setLassoActive(next) {
     clearTrace();
     if (active) giveMapRoom();
     else returnMapRoom();
-    syncBusyState();
     document.body.classList.toggle('lasso-active', active);
     const button = document.getElementById('btn-lasso');
     if (button) {
         button.classList.toggle('active', active);
         button.setAttribute('aria-pressed', String(active));
-        button.textContent = active ? '✏️ Fläche ziehen …' : '🖊️ Fläche markieren';
+        // Nur Symbol und Beschriftung tauschen – die Pille selbst bleibt
+        // dieselbe wie beim Nachbarknopf.
+        const icon = button.querySelector('.mns-icon');
+        const label = button.querySelector('.mns-label');
+        if (icon) icon.textContent = active ? '✏️' : '🖊️';
+        if (label) label.textContent = active ? 'Ziehen …' : 'Lasso ziehen';
     }
     if (overlay) overlay.classList.toggle('drawing', active);
     setMapInteraction(!active);
@@ -405,11 +449,18 @@ export function initLasso() {
 
     // Eine Auswahl gilt für den Kartenausschnitt, in dem sie gezogen wurde.
     // Nach Verschieben oder Zoomen zeigt sie auf etwas anderes – also weg.
+    //
+    // Bewusst `dragstart`/`zoomstart` statt `movestart`: `movestart` feuert
+    // auch bei programmatischen Schwenks – etwa dem der eigenen Auswahlkarte.
+    // Die Auswahl löschte sich damit im selben Moment selbst.
     const map = getMap();
-    if (map) map.on('movestart zoomstart', () => { if (!drawing) clearLassoSelection(); });
+    if (map) map.on('dragstart zoomstart', () => { if (!drawing) clearLassoSelection(); });
 
     on('customers:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('filters:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('mode:changed', syncButtonVisibility);
+    // Das Blatt auf- und zuziehen ändert, ob die Karte überhaupt sichtbar ist.
+    on('sheet:changed', syncButtonVisibility);
+    on('tab:changed', syncButtonVisibility);
     syncButtonVisibility();
 }

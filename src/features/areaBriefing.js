@@ -103,22 +103,29 @@ ${sources} Ordne Treffer eindeutig dem jeweiligen Kunden zu – nutze dafür Kun
 
 Zeitraum: die letzten 6 Monate, dazu bereits terminierte Ereignisse.
 
-Deine Aufgabe: Bringe diese Kunden in eine Besuchsreihenfolge und begründe sie.
+Deine Aufgabe hat zwei Teile: **Sag mir, was bei diesen Kunden gerade los ist – und in welcher Reihenfolge ich sie besuchen soll.**
 
 Liefere ausschließlich dieses Format:
-## Zuerst
-- höchstens 3 Kunden, je eine Zeile: Name – der eine Grund, der den Besuch jetzt dringend macht
+## Tourreihenfolge
+1. Name – der eine Grund, der den Besuch jetzt dringend macht
+2. … alle übrigen Kunden mit Rang, je eine kurze Zeile
 
-## Wenn Zeit bleibt
-- die übrigen Kunden mit Rang, je eine kurze Zeile
+## Das solltest du wissen
+- je Kunde mit Fundstellen ein Stichpunkt: Name – offener Vorgang, Eskalation, zugesagte Rückmeldung oder jüngste Kommunikation, mit Datum
+- höchstens ein zweiter Stichpunkt je Kunde, wenn er wirklich etwas ändert
+
+## Mitnehmen / vorbereiten
+- höchstens 3 konkrete Punkte: Unterlage, Angebot, Zusage, offene Frage
 
 ## Nichts gefunden
 - Kunden, zu denen du keine belastbaren internen Informationen hast, als reine Aufzählung
 
 Qualitätsregeln:
-- Das gesamte Briefing hat höchstens 200 Wörter.
-- Beginne direkt mit „## Zuerst". Kein Vorspann, kein Bericht über deine Suche.
-- Entscheidend ist, was ich noch nicht weiß: offene Vorgänge, Eskalationen, zugesagte Rückmeldungen, jüngste Kommunikation. Wie lange der letzte Besuch her ist, steht oben – wiederhole es nicht als Begründung.
+- Das gesamte Briefing hat höchstens 300 Wörter.
+- Beginne direkt mit „## Tourreihenfolge". Kein Vorspann, kein Bericht über deine Suche.
+- Die Reihenfolge muss sich aus den Fundstellen ergeben, nicht aus der Entfernung: Wer etwas Offenes hat, steht vorn.
+- Entscheidend ist, was ich noch nicht weiß. Wie lange der letzte Besuch her ist, steht oben – wiederhole es nicht als Begründung.
+- Nenne bei jeder Aussage Datum und Anlass, damit ich sie einordnen kann.
 - Erfinde nichts. Ordne einen Kunden lieber unter „Nichts gefunden" ein.
 - Nutze keine Websuche und keine allgemeinen Internetinformationen.
 - Schreibe knapp, auf Deutsch, ohne Höflichkeitsfloskeln.`;

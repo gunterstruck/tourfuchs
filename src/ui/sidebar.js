@@ -94,7 +94,7 @@ function isMobileUi() {
  * für Profi-Modus, Gebietsplanung und Cockpit, deshalb bleibt `isMobileUi()`
  * (das Funktionen reduziert) davon unberührt.
  */
-function isSheetUi() {
+export function isSheetUi() {
     return sheetQuery.matches;
 }
 
@@ -434,6 +434,11 @@ function applySidebar() {
     }
     scheduleDesktopNoteAutoHide();
     updateMobileNextStep();
+    // Ob das Blatt offen ist, entscheidet, ob von der Karte etwas zu sehen ist.
+    // Als Body-Klasse, damit schwebende Kartenelemente per CSS ausweichen
+    // können, ohne den Zustand selbst nachzuhalten.
+    document.body.classList.toggle('sheet-open', isSheetUi() && state.ui.sidebarOpen);
+    emit('sheet:changed', state.ui.sidebarOpen);
 }
 
 // ---- Schwebender „nächster Schritt"-Fuchs (Desktop + mobil) ----

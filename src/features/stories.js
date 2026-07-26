@@ -74,7 +74,7 @@ export const STORIES = [
             { t: 'say', text: 'Du bist in einer Gegend unterwegs und siehst deine Kunden auf der Karte.', ms: 2400 },
             { t: 'say', text: 'Statt Regler zu schieben: einfach die Fläche umfahren, die dich interessiert.', sel: '#btn-lasso', ms: 2800 },
             { t: 'run', key: 'drawLasso' },
-            { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – erst sehen, dann entscheiden.', sel: '#lasso-bar', ms: 3000, pos: 'top' },
+            { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – erst sehen, dann entscheiden.', sel: '.popup-lasso', ms: 3000, pos: 'top' },
             { t: 'run', key: 'openLassoBriefing' },
             { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3200 },
             { t: 'say', text: 'Mit deinen echten Kunden entsteht hier ein fertiger Prompt: kopieren, in Copilot einfügen, absenden. Zurück kommt die Reihenfolge – wen zuerst, und warum.', ms: 4200 },
