@@ -116,11 +116,24 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
     const ui = readFileSync(resolve(process.cwd(), 'src/ui/lasso.js'), 'utf8');
     const main = readFileSync(resolve(process.cwd(), 'src/main.js'), 'utf8');
     const css = readFileSync(resolve(process.cwd(), 'src/styles/components.css'), 'utf8');
+    const map = readFileSync(resolve(process.cwd(), 'src/features/map.js'), 'utf8');
 
-    it('hat Knopf, Auswahlstreifen und Anmeldung beim Start', () => {
+    it('hat Knopf, gemeinsame Knopfzeile und Anmeldung beim Start', () => {
         expect(html).toContain('id="btn-lasso"');
-        expect(html).toContain('id="lasso-bar"');
+        expect(html).toContain('id="map-fab-row"');
         expect(main).toContain('initLasso()');
+    });
+
+    it('stellt „Lasso ziehen" gleichrangig neben „Kunden in meiner Nähe"', () => {
+        // Zwei gleichwertige Angebote gehören nebeneinander und sehen gleich
+        // aus – nicht übereinander in zwei verschiedenen Gewändern.
+        const row = html.slice(html.indexOf('id="map-fab-row"'), html.indexOf('</div>', html.indexOf('id="map-fab-row"')) + 6);
+        expect(row).toContain('id="mobile-next-step"');
+        expect(row).toContain('id="btn-lasso"');
+        // Beide Knöpfe tragen dieselbe Pillen-Klasse (die Zeile selbst heißt
+        // `map-fab-row` und zählt hier nicht mit).
+        expect(row.match(/map-fab"/g)).toHaveLength(2);
+        expect(ui).toContain("label.textContent = active ? 'Ziehen …' : 'Lasso ziehen'");
     });
 
     it('friert die Karte im Zeichenmodus ein', () => {
@@ -134,12 +147,33 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
     it('zeigt die Auswahl, bevor es zum Briefing geht', () => {
         // Erst sehen, dann gefragt werden – dieser Beat trägt den Effekt.
         // Entscheidend: Das Loslassen zeichnet und zählt, mehr nicht. Den
-        // Dialog öffnet ausschließlich der Knopf im Auswahlstreifen.
+        // Dialog öffnet ausschließlich der Knopf auf der Auswahlkarte.
         expect(ui).toContain('L.polygon');
         expect(ui).toContain('circleMarker');
         const stroke = ui.slice(ui.indexOf('function finishStroke'), ui.indexOf('function relativePoint'));
         expect(stroke).toContain('showSelection(polygon, found)');
         expect(stroke).not.toContain('openAreaBriefing');
+    });
+
+    it('zeigt die Auswahl als Karte im Gewand der Kundenkarte', () => {
+        // „So wie bei den Kunden": dieselbe Popup-Sprache, derselbe Ort für die
+        // Fortsetzung – und dieselben Optionen, damit es sich nicht anders anfühlt.
+        expect(ui).toContain('openMapCard');
+        expect(ui).toContain('popup popup-lasso');
+        expect(ui).toContain('popup-actions');
+        expect(ui).toContain('📋 Briefing über alle');
+        expect(map).toContain('export function openMapCard');
+        expect(map).toContain('popupOptions(');
+    });
+
+    it('zeichnet die Spur mit und zeigt den Startpunkt', () => {
+        // „dann trifft man ungefähr das Ende": Ohne sichtbaren Startpunkt weiß
+        // niemand, wo die Fläche geschlossen wird.
+        const trace = ui.slice(ui.indexOf('function drawTrace'), ui.indexOf('function clearTrace'));
+        expect(trace).toContain("pathEl.setAttribute('d'");
+        expect(trace).toContain('startDot');
+        expect(ui).toContain("addEventListener('pointermove', onPointerMove, true)");
+        expect(css).toContain('.lasso-start {');
     });
 
     it('baut kein zweites Briefing, sondern nutzt das vorhandene', () => {
@@ -148,8 +182,19 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
     });
 
     it('verwirft die Auswahl, sobald der Kartenausschnitt nicht mehr passt', () => {
-        expect(ui).toContain("map.on('movestart zoomstart'");
+        // Bewusst `dragstart` statt `movestart`: `movestart` feuert auch bei
+        // programmatischen Schwenks – etwa dem der eigenen Auswahlkarte. Die
+        // Auswahl löschte sich damit im selben Moment selbst.
+        expect(ui).toContain("map.on('dragstart zoomstart'");
+        expect(ui).not.toContain("map.on('movestart");
         expect(ui).toContain("on('customers:changed'");
+    });
+
+    it('lässt die Auswahlkarte stehen, statt sie sofort wieder zu schließen', () => {
+        // Leaflet wertet die Berührung direkt nach dem Loslassen als
+        // Kartenklick und schlösse die frisch geöffnete Karte sofort.
+        expect(ui).toContain('closeOnClick: false');
+        expect(ui).toContain('autoPan: false');
     });
 
     it('lässt den Zeichenmodus per Escape verlassen', () => {
@@ -185,19 +230,15 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         expect(cancel).toContain('finishStroke()');
     });
 
-    it('lässt den schwebenden Fuchs-Knopf zurücktreten, solange gezeichnet oder ausgewählt wird', () => {
-        // Er liegt am Handy über Werkzeugknopf und Auswahlstreifen – und
-        // verdeckte damit ausgerechnet „Briefing erstellen".
-        expect(ui).toContain("classList.toggle('lasso-busy', active || selection.length > 0)");
-        expect(css).toContain('body.lasso-busy .mobile-next-step { display: none; }');
+    it('lässt den Fuchs-Knopf zurücktreten, solange gezeichnet wird', () => {
+        // Während des Zugs beantwortet er eine andere Frage und säße im Weg.
+        expect(css).toContain('body.lasso-active .mobile-next-step { display: none; }');
     });
 
-    it('bleibt auf einem schmalen Telefon vollständig lesbar', () => {
-        // Drei ausgeschriebene Beschriftungen passen auf 390 Pixel nicht.
-        expect(ui).toContain("clear.setAttribute('aria-label', 'Auswahl aufheben')");
-        expect(css).toContain('.lasso-clear-short { display: none; }');
+    it('lässt beide Pillen auf ein schmales Telefon passen', () => {
         const narrow = css.slice(css.indexOf('@media (max-width: 520px)'));
-        expect(narrow).toContain('.lasso-clear-long { display: none; }');
+        expect(narrow).toContain('.map-fab-row');
+        expect(narrow).toContain('max-width: 48vw');
     });
 });
 
@@ -206,18 +247,16 @@ describe('Streifen und Knopf am unteren Rand', () => {
 
     it('liegt auf Tablet-Hochkant über dem Blatt, nicht dahinter', () => {
         // Dort gilt die Blatt-Geometrie, aber nicht die Handy-Regeln ab 768px.
-        const portrait = responsive.slice(
-            responsive.indexOf('@media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)'),
-            responsive.indexOf('@media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)') + 3000
-        );
-        expect(portrait).toContain('.lasso-bar');
+        const start = responsive.indexOf('@media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)');
+        const portrait = responsive.slice(start, start + 3000);
+        expect(portrait).toContain('.map-fab-row');
         expect(portrait).toContain('--mobile-sheet-peek');
     });
 
-    it('weicht am Handy den Karten-Umschaltern oben und den Zoomknöpfen unten aus', () => {
-        const mobile = responsive.slice(responsive.indexOf('.lasso-tools {'), responsive.indexOf('.lasso-tools {') + 400);
-        expect(mobile).toContain('left: 10px');
-        expect(mobile).toContain('bottom: calc(var(--mobile-sheet-peek');
+    it('schwebt am Handy über dem eingeklappten Blatt', () => {
+        const start = responsive.indexOf('.map-fab-row {');
+        expect(start).toBeGreaterThan(-1);
+        expect(responsive.slice(start, start + 300)).toContain('bottom: calc(var(--mobile-sheet-peek');
     });
 });
 

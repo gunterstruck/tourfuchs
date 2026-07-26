@@ -1888,6 +1888,26 @@ export function focusMapArea(lat, lng, zoom = 10) {
     map.flyTo([lat, lng], zoom, { duration: 0.9 });
 }
 
+/**
+ * Ein Karten-Popup im selben Gewand wie die Kundenkarte öffnen.
+ *
+ * Bewusst über dieselbe Optionsquelle: Randabstände, Höhenbegrenzung und das
+ * mobile Nachführen sind mühsam erarbeitet – ein zweites Popup, das sich anders
+ * verhält, fiele sofort auf.
+ */
+export function openMapCard(latlng, html, className = '', extra = {}) {
+    if (!map) return null;
+    const popup = L.popup(popupOptions({
+        maxWidth: 320,
+        className: `customer-detail-popup ${className}`.trim(),
+        ...extra
+    }))
+        .setLatLng(latlng)
+        .setContent(html)
+        .openOn(map);
+    return popup;
+}
+
 /** Karte auf einen Punkt (z. B. GPS-Standort) zentrieren */
 export function focusPoint(lat, lng, zoom) {
     if (!map || lat === null || lng === null) return;

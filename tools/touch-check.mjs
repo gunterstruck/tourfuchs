@@ -97,6 +97,7 @@ async function runFormat(browser, format, baseUrl) {
     await page.evaluate(() => document.getElementById('btn-demo-welcome-close')?.click());
     await sleep(1200);
 
+
     const button = await page.evaluate(COVER_PROBE, 'btn-lasso');
     if (!button.da) problems.push('Der Lasso-Knopf fehlt.');
     else if (!button.frei) problems.push(`Der Lasso-Knopf ist verdeckt von: ${button.drueber}`);
@@ -130,10 +131,23 @@ async function runFormat(browser, format, baseUrl) {
         if (drawn < 5) problems.push(`Die Spur folgte dem Finger nicht (${drawn} Punkte).`);
         await sleep(1300);
 
-        const bar = await page.evaluate(COVER_PROBE, 'lasso-bar');
-        if (!bar.da) problems.push('Nach dem Zug ist keine Auswahl entstanden.');
-        else if (!bar.frei) problems.push(`Der Auswahlstreifen ist verdeckt von: ${bar.drueber}`);
-        else if (!bar.imBild) problems.push('Der Auswahlstreifen liegt außerhalb des Bildes.');
+        const card = await page.evaluate(() => {
+            const el = document.querySelector('.popup-lasso');
+            if (!el) return { da: false };
+            const r = el.getBoundingClientRect();
+            const brief = el.querySelector('[data-action="lasso-brief"], [data-action="lasso-clear"]');
+            const br = brief?.getBoundingClientRect();
+            const top = br ? document.elementFromPoint(br.left + br.width / 2, br.top + br.height / 2) : null;
+            return {
+                da: true,
+                imBild: r.top >= 0 && r.bottom <= innerHeight && r.left >= 0 && r.right <= innerWidth,
+                knopfFrei: !!brief && (brief === top || brief.contains(top)),
+                drueber: top ? (top.id || top.className || top.tagName) : null
+            };
+        });
+        if (!card.da) problems.push('Nach dem Zug ist keine Auswahlkarte entstanden.');
+        else if (!card.imBild) problems.push('Die Auswahlkarte liegt nicht vollständig im Bild.');
+        else if (!card.knopfFrei) problems.push(`Der Knopf auf der Auswahlkarte ist verdeckt von: ${card.drueber}`);
 
         // Nach dem Aufheben muss sich die Karte wieder schieben lassen.
         const markerX = () => page.evaluate(() => {
@@ -141,7 +155,7 @@ async function runFormat(browser, format, baseUrl) {
             return marker ? Math.round(marker.getBoundingClientRect().left) : null;
         });
         const before = await markerX();
-        await page.evaluate(() => document.querySelector('#lasso-bar .lasso-clear')?.click());
+        await page.evaluate(() => document.querySelector('.popup-lasso [data-action="lasso-clear"]')?.click());
         await sleep(1200);
         // Dort ansetzen, wo nach dem Aufräumen wirklich Karte liegt – sonst
         // schiebt der Testfinger das wieder hochgefahrene Blatt.
