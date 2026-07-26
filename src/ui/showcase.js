@@ -33,6 +33,24 @@ import { loadDemo } from './importWizard.js';
 
 const ROUTING_CONSENT_KEY = 'gf_routing_consent';
 
+// Beispieltabelle für die Einfüge-Vorführung: bewusst klein, mit
+// Überschriftenzeile und Tabulatoren – genau das, was Excel beim Kopieren in
+// die Zwischenablage legt. Erfundene Firmen, echte Postleitzahlen.
+const PASTE_DEMO_TABLE = [
+    'Kundenname\tPLZ\tOrt\tVertriebsbezirk',
+    'Muster Technik GmbH\t45136\tEssen\tBezirk West',
+    'Beispiel Maschinenbau AG\t44135\tDortmund\tBezirk West',
+    'Demo Handel KG\t50667\tKöln\tBezirk Rheinland'
+].join('\n');
+
+/** Die Berechtigungs-Bestätigung nach der Vorführung zurücknehmen. */
+function restorePasteDemoConsent() {
+    if (pasteDemoConsent === null) return;
+    const consent = document.querySelector('#own-data-dialog [data-compliance-optin]');
+    if (consent) consent.checked = pasteDemoConsent;
+    pasteDemoConsent = null;
+}
+
 const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
@@ -57,6 +75,7 @@ let demoVaultCreated = false; // hat DIESE Demo den Tresor angelegt? (nur dann a
 let priorDepth = null;        // Ansichtstiefe vor der Demo (zum Zurücksetzen)
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
+let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
 
 class AbortError extends Error {}
 
@@ -339,6 +358,45 @@ const HELPERS = {
         await loadDemo({ source: 'showcase', confirmReplacement: true, announce: false });
         await waitForCustomers();
         await sleep(1100);
+    },
+    // ---- Einfügen vorführen ----
+    // Der schnellste Weg zu eigenen Daten ist der, den niemand von selbst
+    // findet. Also wird er gezeigt – aber **ohne echte Daten anzufassen**:
+    // Dialog auf, Beispieltabelle erscheint auf einen Schlag im Feld (so wie
+    // ein echtes Einfügen), TourFuchs meldet den Befund, Dialog zu. Importiert
+    // wird bewusst nichts; der vorhandene Bestand bleibt unberührt.
+    async openPasteDemo() {
+        const ownData = document.getElementById('own-data-dialog');
+        if (!ownData?.showModal) return;
+        if (!ownData.open) ownData.showModal();
+        await sleep(700);
+        // Die Berechtigungs-Bestätigung ist ein echter Riegel und wird deshalb
+        // sichtbar gesetzt – die Demo nimmt sie am Ende wieder zurück.
+        const consent = ownData.querySelector('[data-compliance-optin]');
+        if (consent) {
+            pasteDemoConsent = consent.checked;
+            if (!consent.checked) await clickEl('#own-data-dialog [data-compliance-optin]');
+            await sleep(400);
+        }
+        await clickEl('#btn-paste');
+        await resolveEl('#paste-input', 2500);
+        await sleep(400);
+    },
+    async pasteDemoTable() {
+        const field = await moveToEl('#paste-input');
+        if (!field) return;
+        field.focus();
+        // Einfügen erscheint auf einen Schlag – Zeichen für Zeichen zu tippen
+        // wäre genau die falsche Geste.
+        field.value = PASTE_DEMO_TABLE;
+        field.dispatchEvent(new Event('input', { bubbles: true }));
+        await sleep(900);
+    },
+    async closePasteDemo() {
+        restorePasteDemoConsent();
+        document.getElementById('paste-dialog')?.close();
+        document.getElementById('own-data-dialog')?.close();
+        await sleep(400);
     },
     async excelToMap() {
         if (state.customers.length === 0) {
@@ -780,6 +838,12 @@ function cleanup(story) {
     }
 
     // Weitere Overlays schließen
+    // Einfüge-Vorführung: Feld leeren, Bestätigung zurücknehmen (auch bei Abbruch)
+    restorePasteDemoConsent();
+    const pasteDialog = document.getElementById('paste-dialog');
+    if (pasteDialog?.open) pasteDialog.close();
+    const ownData = document.getElementById('own-data-dialog');
+    if (ownData?.open) ownData.close();
     const qr = document.getElementById('qr-share-dialog');
     if (qr?.open) qr.close();
     const recv = document.getElementById('safe-receive-dialog');
