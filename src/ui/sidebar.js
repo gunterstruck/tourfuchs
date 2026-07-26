@@ -34,6 +34,11 @@ let autoRevealTimer = null;
 let demoSheetSnapshot = null;
 
 const mobileQuery = window.matchMedia('(max-width: 768px)');
+// Blatt-Geometrie: Handy immer, Tablet nur hochkant. Quer hat auch ein Tablet
+// genug Breite für die Seitenleiste neben der Karte.
+const sheetQuery = window.matchMedia(
+    '(max-width: 768px), (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)'
+);
 // Mobil dreht sich alles um die Tour: mit Daten nur Karte + Tour (kein
 // Daten-Tab). Daten kommen über die Tour rein (vom Desktop scannen / gesichert
 // empfangen) oder – nach dem Zurücksetzen – über den Einstiegs-/Onboarding-Blick.
@@ -78,6 +83,19 @@ function hasDataset() {
 
 function isMobileUi() {
     return mobileQuery.matches;
+}
+
+/**
+ * Liegt das Panel als Blatt unten statt seitlich?
+ *
+ * Auf einem hochkanten Tablet frisst eine 340-px-Seitenleiste fast die halbe
+ * Breite, und die Karte wird zum Streifen. Dort gehört das Panel nach unten –
+ * **nur die Geometrie**, nicht der Funktionsumfang: Ein Tablet hat genug Platz
+ * für Profi-Modus, Gebietsplanung und Cockpit, deshalb bleibt `isMobileUi()`
+ * (das Funktionen reduziert) davon unberührt.
+ */
+function isSheetUi() {
+    return sheetQuery.matches;
 }
 
 /**
@@ -168,7 +186,7 @@ function initDesktopSidebarResize() {
 
     let resizing = false;
     handle.addEventListener('pointerdown', (ev) => {
-        if (isMobileUi()) return;
+        if (isSheetUi()) return;
         resizing = true;
         handle.setPointerCapture?.(ev.pointerId);
         document.body.classList.add('sidebar-resizing');
@@ -193,7 +211,7 @@ function initDesktopSidebarResize() {
 /** Sidebar auf-/zuklappen (mobil) gemäß state.ui.sidebarOpen */
 function applySidebarPosition(pos) {
     const sidebar = document.getElementById('sidebar');
-    if (!sidebar || !pos || isMobileUi()) return;
+    if (!sidebar || !pos || isSheetUi()) return;
     const width = sidebar.getBoundingClientRect().width || SIDEBAR_MIN;
     const left = Math.max(8, Math.min(window.innerWidth - width - 12, Math.round(pos.left)));
     const top = Math.max(58, Math.min(window.innerHeight - 220, Math.round(pos.top)));
@@ -216,7 +234,7 @@ function resetSidebarPosition() {
 }
 
 function syncSidebarPositionForViewport() {
-    if (isMobileUi()) {
+    if (isSheetUi()) {
         // Desktop-Koordinaten würden das Bottom-Sheet oben festnageln. Nur die
         // Darstellung lösen; die gespeicherte Desktop-Position bleibt erhalten.
         clearSidebarFloatingStyles();
@@ -406,7 +424,7 @@ function applySidebar() {
     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', String(state.ui.sidebarOpen));
     const grip = document.getElementById('sheet-grip');
     if (grip) {
-        if (isMobileUi()) {
+        if (isSheetUi()) {
             grip.setAttribute('aria-label', 'Panelgröße ändern');
             grip.title = 'Ziehen: Größe · Tippen: ein-/ausklappen';
         } else {
@@ -437,7 +455,7 @@ function updateMobileNextStep() {
     const canShow = state.ui.mode === 'aussendienst'
         && state.customers.length > 0
         && !routeShown
-        && (isMobileUi() ? !state.ui.sidebarOpen : true);
+        && (isSheetUi() ? !state.ui.sidebarOpen : true);
     if (!canShow) {
         btn.classList.remove('show');
         btn.hidden = true;
@@ -540,7 +558,7 @@ function restoreSheetHeight() {
  * Geister-Cursor sie bedient. Die gewählte Höhe wird NICHT gespeichert.
  */
 export function captureSheetForDemo() {
-    if (!isMobileUi()) return;
+    if (!isSheetUi()) return;
     if (!demoSheetSnapshot) {
         const sidebar = document.getElementById('sidebar');
         demoSheetSnapshot = {
@@ -553,7 +571,7 @@ export function captureSheetForDemo() {
 }
 
 export function expandSheetForDemo() {
-    if (!isMobileUi()) return;
+    if (!isSheetUi()) return;
     captureSheetForDemo();
     state.ui.sidebarOpen = true;
     setSheetHeight(Math.round(sheetMaxHeight() * 0.92));
@@ -562,7 +580,7 @@ export function expandSheetForDemo() {
 
 /** Nach einer Demo den vom Nutzer gewählten Blatt-Zustand wiederherstellen. */
 export function restoreSheetAfterDemo() {
-    if (!isMobileUi() || !demoSheetSnapshot) return;
+    if (!isSheetUi() || !demoSheetSnapshot) return;
     const snapshot = demoSheetSnapshot;
     demoSheetSnapshot = null;
     const sidebar = document.getElementById('sidebar');
@@ -585,7 +603,7 @@ export function restoreSheetAfterDemo() {
  * per restoreSheetAfterDemo zurück (die gespeicherte Höhe bleibt unangetastet).
  */
 export function collapseSheetForDemo() {
-    if (!isMobileUi()) return;
+    if (!isSheetUi()) return;
     captureSheetForDemo();
     // Blatt für den Karten-Reveal auf reine Guckhöhe schrumpfen, damit die Karte
     // fast die volle Höhe bekommt. Bewusst über eine kleine, feste Blatt-Höhe
@@ -600,7 +618,7 @@ export function collapseSheetForDemo() {
 
 function toggleSheet() {
     const sidebar = document.getElementById('sidebar');
-    if (isMobileUi()) {
+    if (isSheetUi()) {
         // Klick auf den Griff: ein-/ausklappen (auf „karte" stattdessen Tour öffnen).
         if (state.ui.activeTab === 'karte') { activateTab('tour'); return; }
         state.ui.sidebarOpen = !state.ui.sidebarOpen;
@@ -658,12 +676,12 @@ function initSheetGrip() {
             if (Math.abs(dx) < 4 && Math.abs(dy) < 4) return;
             moved = true;
             // Desktop: überwiegend waagerecht -> verschieben, sonst Größe. Handy: immer Größe.
-            mode = (!isMobileUi() && Math.abs(dx) > Math.abs(dy)) ? 'move' : 'resize';
+            mode = (!isSheetUi() && Math.abs(dx) > Math.abs(dy)) ? 'move' : 'resize';
             document.body.classList.add(mode === 'move' ? 'sidebar-dragging' : 'sheet-resizing');
             // Handy: aus dem geschlossenen Zustand kontinuierlich aufziehen –
             // das Blatt zunächst auf die sichtbare Guckhöhe fixieren, damit es
             // NICHT auf die volle Höhe springt, sondern von dort dem Finger folgt.
-            if (mode === 'resize' && isMobileUi() && !state.ui.sidebarOpen) {
+            if (mode === 'resize' && isSheetUi() && !state.ui.sidebarOpen) {
                 startH = setSheetHeight(peekPx()); // geklammerte Starthöhe merken -> kein Sprung, kein Totgang
                 state.ui.sidebarOpen = true; applySidebar();
             }
@@ -676,11 +694,11 @@ function initSheetGrip() {
         const done = mode; mode = null;
         document.body.classList.remove('sheet-resizing', 'sidebar-dragging');
         // Handy: reiner Tipp macht nichts – das Blatt wird nur durch Ziehen bewegt.
-        if (!moved) { if (!isMobileUi()) toggleSheet(); return; }
+        if (!moved) { if (!isSheetUi()) toggleSheet(); return; }
         if (done === 'resize') {
             // Bis zum Boden gezogen = ganz einklappen (nicht bei der Mindesthöhe
             // hängenbleiben). Das Blatt kehrt sauber zur Guckhöhe zurück.
-            if (isMobileUi() && rawHeight <= SHEET_MIN_HEIGHT) {
+            if (isSheetUi() && rawHeight <= SHEET_MIN_HEIGHT) {
                 collapseSheetFully();
                 return;
             }
@@ -693,7 +711,7 @@ function initSheetGrip() {
     };
     grip.addEventListener('pointerup', finish);
     grip.addEventListener('pointercancel', finish);
-    grip.addEventListener('dblclick', () => { if (!isMobileUi()) resetSidebarPosition(); });
+    grip.addEventListener('dblclick', () => { if (!isSheetUi()) resetSidebarPosition(); });
 }
 
 /**
@@ -799,7 +817,7 @@ function activateTab(tab) {
         p.classList.toggle('active', p.id === `tab-${tab}`));
     emit('tab:changed', tab);
 
-    if (isMobileUi()) {
+    if (isSheetUi()) {
         if (tab === 'karte') state.ui.sidebarOpen = false;
         else state.ui.sidebarOpen = true;
         applySidebar();
@@ -809,22 +827,29 @@ function activateTab(tab) {
 /** Mobil direkt zur Kartenansicht wechseln, z. B. nach "Route anzeigen".
  *  `activateTab('karte')` klappt das Blatt zugleich ganz nach unten ein. */
 export function showMapView(persist = true) {
-    if (!isMobileUi()) return;
-    activateTab('karte');
+    if (!isSheetUi()) return;
+    // Am Handy gibt es dafür einen eigenen Karten-Tab. Auf dem hochkanten
+    // Tablet liegt die Karte hinter dem Blatt – dort genügt Einklappen.
+    if (isMobileUi()) {
+        activateTab('karte');
+    } else {
+        state.ui.sidebarOpen = false;
+        applySidebar();
+    }
     if (persist) persistSettings();
 }
 
 /** Mobil gezielt mit geöffnetem Tour-Sheet starten, optional ohne Persistenz. */
 export function showTourView(persist = false) {
     activateTab('tour');
-    if (isMobileUi()) setSheetHeight(tourSheetHeight(), persist);
+    if (isSheetUi()) setSheetHeight(tourSheetHeight(), persist);
     if (persist) persistSettings();
 }
 
 /** Mobil mit ruhiger Basisansicht und weit geöffnetem Datenblatt starten. */
 export function showDataView(persist = false) {
     activateTab('daten');
-    if (isMobileUi()) setSheetHeight(Math.round(sheetMaxHeight() * 0.88), persist);
+    if (isSheetUi()) setSheetHeight(Math.round(sheetMaxHeight() * 0.88), persist);
     if (persist) persistSettings();
 }
 
@@ -1037,7 +1062,7 @@ export function initSidebar() {
     syncTopnavPlacement();
     applyDataPanelLayout();
     // Bei Wechsel Desktop <-> Handy (Drehen/Resize) Elemente umhängen.
-    mobileQuery.addEventListener('change', () => {
+    const syncViewport = () => {
         if (isMobileUi() && state.ui.mode === 'service') applyMode('aussendienst', false);
         syncSidebarPositionForViewport();
         syncTopnavPlacement();
@@ -1045,7 +1070,11 @@ export function initSidebar() {
         applySidebar();
         syncLevelControl();
         emit('level:control-changed');
-    });
+    };
+    mobileQuery.addEventListener('change', syncViewport);
+    // Tablet gedreht: Die Geometrie wechselt zwischen Blatt und Seitenleiste,
+    // ohne dass sich die Breitenklasse ändert.
+    sheetQuery.addEventListener('change', syncViewport);
 
     // Fokus-Umschalter
     document.querySelectorAll('.mode-btn').forEach((btn) => {
@@ -1069,9 +1098,9 @@ export function initSidebar() {
             handleMapTabRouteToggle(btn.dataset.tab);
             activateTab(btn.dataset.tab);
             // Handy: „Tour" zieht das Blatt ganz auf – volle Planungsfläche.
-            if (isMobileUi() && btn.dataset.tab === 'tour') {
+            if (isSheetUi() && btn.dataset.tab === 'tour') {
                 setSheetHeight(tourSheetHeight(), true);
-            } else if (isMobileUi() && btn.dataset.tab === 'daten') {
+            } else if (isSheetUi() && btn.dataset.tab === 'daten') {
                 // Kundendaten brauchen mehr Lesefläche als die kompakte Tour.
                 // Das Panel bleibt dennoch per Griff frei in der Höhe verstellbar.
                 setSheetHeight(Math.round(sheetMaxHeight() * 0.88), true);

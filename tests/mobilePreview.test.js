@@ -76,7 +76,10 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         expect(html).not.toContain('class="data-section-label"');
         // Nur mobil hängt JS dieselben Knöpfe in Gruppen um.
         expect(sidebar).toContain('export function applyDataPanelLayout');
-        expect(sidebar).toMatch(/mobileQuery\.addEventListener\('change'[\s\S]*applyDataPanelLayout\(\)/);
+        // Beim Wechsel der Viewport-Klasse wird die Gruppierung nachgezogen.
+        const syncViewport = sidebar.slice(sidebar.indexOf('const syncViewport = () => {'), sidebar.indexOf("mobileQuery.addEventListener('change', syncViewport)"));
+        expect(syncViewport).toContain('applyDataPanelLayout();');
+        expect(sidebar).toContain("mobileQuery.addEventListener('change', syncViewport);");
     });
 
     it('zeigt mobil mit Daten nur Karte + Tour; das Onboarding trägt den Dateneinstieg', () => {
@@ -87,7 +90,9 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         expect(sidebar).toContain("const MOBILE_DATA_TABS = new Set(['karte', 'tour'])");
         // Ohne Daten führt der Daten-Blick weiterhin durch das Onboarding.
         expect(sidebar).toContain("const MOBILE_EMPTY_TABS = new Set(['karte', 'daten'])");
-        expect(sidebar).toContain("else if (isMobileUi() && btn.dataset.tab === 'daten')");
+        // Die Blatt-Höhe folgt der Geometrie (Handy und Tablet hochkant),
+        // die Tab-Auswahl oben dagegen weiterhin der Gerätegröße.
+        expect(sidebar).toContain("else if (isSheetUi() && btn.dataset.tab === 'daten')");
         expect(sidebar).toContain('setSheetHeight(Math.round(sheetMaxHeight() * 0.88), true)');
         expect(responsiveCss).toContain('.mobile-topnav .depth-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }');
         // Genau zwei Tabs füllen den Streifen ohne Lücke.

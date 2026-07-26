@@ -85,7 +85,10 @@ export const state = {
         opportunityOnly: false,
         // Im Service-Fokus standardmäßig nur Kunden mit planungsrelevantem Vertrag.
         serviceCustomerScope: 'contracts',
-        sidebarOpen: window.innerWidth > 900
+        // Am Handy startet das Blatt eingeklappt – der erste Blick gehört der
+        // Karte. Ab Tablet-Breite ist das Panel Teil der Arbeitsfläche (unten
+        // als Blatt, am Schreibtisch seitlich) und startet offen.
+        sidebarOpen: window.innerWidth > 768
     }
 };
 

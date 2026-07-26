@@ -229,6 +229,27 @@ TourFuchs:
 
 ## 3. Zielgruppen, Geräte und Funktionsmatrix
 
+### 3.0 Drei Layouts, zwei Funktionsumfänge
+
+Wichtig für Rückfragen: **Layout und Funktionsumfang sind zwei verschiedene
+Dinge.**
+
+| Gerät | Panel | Funktionsumfang |
+|---|---|---|
+| Schreibtisch (ab 1201px oder quer) | seitlich, Breite ziehbar, frei verschiebbar | voll |
+| **Tablet hochkant** (769–1200px) | **unten als Blatt**, Höhe am Griff ziehbar | **voll** – Profi, Gebietsplanung, Cockpit, Simulation |
+| Tablet quer | seitlich wie am Schreibtisch | voll |
+| Handy (bis 768px) | unten als Blatt | bewusst reduziert: Basis-Tiefe, Außendienst-Fokus, Karte + Tour |
+
+Auf einem hochkanten Tablet würde die Seitenleiste fast die halbe Breite
+kosten – deshalb liegt das Panel dort unten. Das ist **keine** Handy-Ansicht:
+Es wird nichts ausgeblendet, nur anders angeordnet. Wer die Seitenleiste
+möchte, dreht das Gerät ins Querformat.
+
+Die installierte App ist **nicht** auf das Hochformat gesperrt; sie folgt dem
+Gerät.
+
+
 ### 3.1 Typische Rollen
 
 | Rolle | Primäres Gerät | Typische Aufgaben |

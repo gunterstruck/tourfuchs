@@ -57,11 +57,12 @@ describe('Entdeck-Hinweise bei Beispieldaten wieder scharf', () => {
     });
 
     it('zeigt den „nächster Schritt"-Fuchs auch auf dem Desktop', () => {
-        // Der Mobil-Sonderfall (nur bei eingeklapptem Blatt) gilt nur noch mobil.
-        expect(sidebar).toContain('isMobileUi() ? !state.ui.sidebarOpen : true');
-        // Desktop-Styling ist bewusst ab 901px definiert, damit Mobil unverändert bleibt.
-        expect(responsive).toContain('@media (min-width: 901px)');
-        const desktopBlock = responsive.slice(responsive.indexOf('@media (min-width: 901px)'));
+        // Der Sonderfall „nur bei eingeklapptem Blatt" gilt überall dort, wo das
+        // Panel unten liegt – also am Handy und auf dem hochkanten Tablet.
+        expect(sidebar).toContain('isSheetUi() ? !state.ui.sidebarOpen : true');
+        // Desktop-Styling ab 769px, damit der Knopf auch auf dem Tablet gestaltet ist.
+        expect(responsive).toContain('@media (min-width: 769px)');
+        const desktopBlock = responsive.slice(responsive.indexOf('@media (min-width: 769px)'));
         expect(desktopBlock).toContain('.mobile-next-step');
     });
 });
