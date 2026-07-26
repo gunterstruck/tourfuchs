@@ -36,6 +36,9 @@ let demoSheetSnapshot = null;
 const mobileQuery = window.matchMedia('(max-width: 768px)');
 // Blatt-Geometrie: Handy immer, Tablet nur hochkant. Quer hat auch ein Tablet
 // genug Breite für die Seitenleiste neben der Karte.
+// Auf schmalen Schirmen teilen sich zwei Pillen die Zeile – dort müssen die
+// Beschriftungen kürzer sein, sonst wird eine davon abgeschnitten.
+const narrowQuery = window.matchMedia('(max-width: 560px)');
 const sheetQuery = window.matchMedia(
     '(max-width: 768px), (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)'
 );
@@ -471,17 +474,27 @@ function updateMobileNextStep() {
     // Route auf die Karte. (Liegt die Route, übernimmt die Route-Leiste.)
     const label = btn.querySelector('.mns-label');
     const icon = btn.querySelector('.mns-icon');
+    // Je Schritt eine ausgeschriebene und eine kurze Fassung: Neben dem
+    // Lasso-Knopf bleibt auf einem 390 Pixel breiten Schirm nicht genug Platz
+    // für „Kunden in meiner Nähe" – abgeschnitten ist schlimmer als kurz.
+    const narrow = narrowQuery.matches;
     let action = 'nearby';
-    let text = 'Kunden in meiner Nähe';
+    let text = narrow ? 'In der Nähe' : 'Kunden in meiner Nähe';
     let glyph = '📍';
     if (!state.tour.start) {
-        action = 'nearby'; text = 'Kunden in meiner Nähe'; glyph = '📍';
+        action = 'nearby';
+        text = narrow ? 'In der Nähe' : 'Kunden in meiner Nähe';
+        glyph = '📍';
     } else if (state.tour.stops.length === 0) {
-        action = 'plan'; text = 'Tour ab hier planen'; glyph = '🚩';
+        action = 'plan';
+        text = narrow ? 'Tour planen' : 'Tour ab hier planen';
+        glyph = '🚩';
     } else {
         // Stopps vorhanden, Route noch nicht auf der Karte (mapFocus-Fall ist
         // oben schon ausgeschlossen) – der nächste Zug ist „Route zeigen".
-        action = 'route'; text = 'Route auf die Karte'; glyph = '🗺️';
+        action = 'route';
+        text = narrow ? 'Route zeigen' : 'Route auf die Karte';
+        glyph = '🗺️';
     }
     btn.dataset.action = action;
     if (label) label.textContent = text;
@@ -1080,6 +1093,8 @@ export function initSidebar() {
     // Tablet gedreht: Die Geometrie wechselt zwischen Blatt und Seitenleiste,
     // ohne dass sich die Breitenklasse ändert.
     sheetQuery.addEventListener('change', syncViewport);
+    // Schwelle für die Kurzfassung der Beschriftungen.
+    narrowQuery.addEventListener('change', syncViewport);
 
     // Fokus-Umschalter
     document.querySelectorAll('.mode-btn').forEach((btn) => {
