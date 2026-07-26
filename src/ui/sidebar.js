@@ -1284,6 +1284,16 @@ function setAussenView(view) {
     updateChancenCount();
 }
 
+/**
+ * Direkt zu den fälligen und überfälligen Kunden – der Weg von einer Zahl im
+ * Befund zu den Kunden, die dahinterstehen.
+ */
+export function showOpportunityView() {
+    setAussenView('chancen');
+    syncAussenView();
+    showTourView();
+}
+
 /** Segment-Umschalter an den aktuellen Zustand anpassen */
 function syncAussenView() {
     const view = currentAussenView();

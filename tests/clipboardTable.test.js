@@ -74,3 +74,42 @@ describe('Zwischenablage-Import', () => {
         expect(html).toContain('id="btn-paste"');
     });
 });
+
+describe('Auffindbarkeit des Einfüge-Wegs', () => {
+    const wizard = readFileSync(resolve(process.cwd(), 'src/ui/importWizard.js'), 'utf8');
+    const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
+
+    it('steht als eigener Weg im Willkommen, nicht nur im Untermenü', () => {
+        expect(html).toContain('id="btn-demo-welcome-paste"');
+        expect(wizard).toContain("getElementById('btn-demo-welcome-paste')");
+    });
+
+    it('führt am Schreibtisch, folgt am Handy', () => {
+        const order = wizard.slice(wizard.indexOf('function applyDataWayOrder'), wizard.indexOf('function renderPasteSteps'));
+        expect(order).toContain('const desktop = !mobileQuery.matches');
+        expect(order).toContain('desktop ? paste : upload');
+        // Beide Knöpfe kommen ohne feste Gewichtung aus dem Markup
+        const ways = html.slice(html.indexOf('own-data-ways'), html.indexOf('own-data-way-hint'));
+        expect(ways).not.toContain('class="primary"');
+    });
+
+    it('sagt am Handy nirgends „Strg"', () => {
+        const steps = wizard.slice(wizard.indexOf('function renderPasteSteps'), wizard.indexOf('function offerPasteAfterCancel'));
+        const mobileBranch = steps.slice(steps.indexOf('mobileQuery.matches'), steps.indexOf(': `<li>'));
+        expect(mobileBranch).not.toMatch(/Strg|⌘/);
+        expect(mobileBranch).toContain('gedrückt halten');
+        // Der Desktop-Zweig darf und soll es sagen
+        expect(steps).toContain('<b>Strg</b> + <b>V</b>');
+    });
+
+    it('bietet den Weg genau dann an, wenn der Datei-Dialog ohne Auswahl endet', () => {
+        const offer = wizard.slice(wizard.indexOf('function offerPasteAfterCancel'), wizard.indexOf('function initPasteImport'));
+        expect(offer).toContain('if (!awaitingFilePick) return;');
+        // nicht am Handy, nicht zweimal, nicht über einen offenen Dialog
+        expect(offer).toContain('pasteHintShown');
+        expect(offer).toContain('mobileQuery.matches');
+        expect(offer).toContain("document.querySelector('dialog[open]')");
+        // Ein erfolgreicher Datei-Import löst ihn nicht aus
+        expect(wizard).toContain('awaitingFilePick = false;\n        if (e.target.files[0]) handleFile');
+    });
+});
