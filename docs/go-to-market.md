@@ -69,7 +69,7 @@ Erlebnis. Es gibt keinen Satz, der sagt, was die App **gesehen** hat.
 
 ## 3. Onboarding – Maßnahmen
 
-### P1 · Der Einfüge-Weg wird der Hauptweg (Desktop)
+### P1 · Der Einfüge-Weg wird der Hauptweg (Desktop) — ✅ umgesetzt 26.07.2026
 
 **Warum:** Auf dem Desktop ist die Liste in 9 von 10 Fällen ohnehin offen. Der
 Datei-Umweg ist reine Gewohnheit aus Zeiten ohne Alternative.
@@ -87,7 +87,7 @@ Datei-Umweg ist reine Gewohnheit aus Zeiten ohne Alternative.
 **Akzeptanz:** Auf dem Desktop ist der Einfüge-Weg ohne Scrollen und ohne
 Aufklappen sichtbar. Am Handy steht nirgends „Strg".
 
-### P2 · Der Befund nach dem Import — *der eigentliche Wow-Moment*
+### P2 · Der Befund nach dem Import — *der eigentliche Wow-Moment* — ✅ umgesetzt 26.07.2026
 
 **Warum:** Das ist der Moment, in dem die App aufhört, eine Landkarte zu sein,
 und anfängt, etwas zu **wissen**.
@@ -106,7 +106,7 @@ Konzept, keine neue Datenquelle – nur ausgesprochen, was ohnehin da ist.
 Satz auf dem Schirm, den der Nutzer vorher nicht wusste. Beim zweiten Import
 erscheint stattdessen der Änderungsbericht (bereits gebaut).
 
-### P3 · Reibung als Auslöser nutzen
+### P3 · Reibung als Auslöser nutzen — ✅ umgesetzt 26.07.2026
 
 Wer den Datei-Dialog öffnet und **ohne Auswahl abbricht**, hat gerade gemerkt,
 dass er keinen fertigen Export hat. Genau dann – und nur dann:
@@ -501,9 +501,10 @@ und bleibt ehrlich. Was nicht geht: die Frage offenlassen und hoffen.
 
 ## 9. Reihenfolge
 
-1. **Onboarding P1 + P3 + Mobile-Korrektur** – klein, sofort.
-2. **Onboarding P2 (Befund nach dem Import)** – der Moment, den der Film braucht.
-3. **Film drehen** – erst jetzt, sonst zeigt er ein Produkt von gestern.
+1. ~~Onboarding P1 + P3 + Mobile-Korrektur~~ – ✅ umgesetzt.
+2. ~~Onboarding P2 (Befund nach dem Import)~~ – ✅ umgesetzt.
+3. **Film drehen** – die Voraussetzungen stehen jetzt. Einstellung 4 der
+   Einstellungsliste (der Befund) ist ab sofort echt und nicht nachgestellt.
 4. **LinkedIn Beitrag 1** (Problem), zwei Tage später **Beitrag 2** (Film), eine
    Woche später **Beitrag 3** (Haltung).
 5. **Reddit** erst nach der Lizenzentscheidung, und mit Zeit für Antworten am

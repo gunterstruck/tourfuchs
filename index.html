@@ -553,6 +553,9 @@
                 <p id="demo-welcome-lead" class="demo-welcome-lead">Sieh dich in Ruhe um – oder leg direkt mit deinen <b>eigenen Daten</b> los. Beides geht jederzeit.</p>
                 <div class="demo-welcome-actions">
                     <button type="button" id="btn-demo-welcome-own" class="primary">📂 Eigene Daten laden</button>
+                    <!-- Der schnellste Weg gehört sichtbar ins Willkommen, nicht in ein
+                         Untermenü. Am Handy ist Excel selten offen – dort ausgeblendet. -->
+                    <button type="button" id="btn-demo-welcome-paste" class="demo-welcome-secondary only-desktop">📋 Liste ist in Excel offen? Direkt einfügen</button>
                     <button type="button" id="btn-demo-welcome-demos" class="demo-welcome-secondary">▶ Kurze Live-Demos ansehen</button>
                 </div>
                 <button type="button" id="btn-demo-welcome-ack" class="demo-welcome-ack">Verstanden – erst umsehen</button>
@@ -591,8 +594,14 @@
                         <input type="checkbox" data-compliance-optin>
                         <span>Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</span>
                     </label>
-                    <button id="btn-upload" class="primary">Excel-/CSV-Datei auswählen</button>
-                    <button id="btn-paste" class="linklike">📋 Liste schon offen? Aus Excel kopieren und hier einfügen</button>
+                    <!-- Reihenfolge und Gewicht setzt der Import-Assistent nach Gerät:
+                         am Schreibtisch ist die Liste meist schon in Excel offen,
+                         am Handy liegt sie als Datei vor. -->
+                    <div class="own-data-ways">
+                        <button id="btn-paste">📋 Liste aus Excel einfügen</button>
+                        <button id="btn-upload">📁 Excel-/CSV-Datei auswählen</button>
+                    </div>
+                    <p id="own-data-way-hint" class="muted small own-data-way-hint"></p>
                     <button id="btn-template" class="linklike">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
                 </section>
                 <section class="own-data-option" aria-labelledby="own-data-safe-title">
@@ -601,6 +610,20 @@
                     <button id="btn-safe-receive-ob" class="primary">Verschlüsselte Datei öffnen</button>
                 </section>
             </div>
+        </dialog>
+
+        <!-- Nach dem ersten eigenen Import: was TourFuchs im Bestand sieht -->
+        <dialog id="import-insight-dialog" class="import-insight-dialog" aria-label="Das sagt Ihre Liste">
+            <header>
+                <h2>🔎 Das sagt Ihre Liste</h2>
+                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+            </header>
+            <div id="import-insight-body"></div>
+            <footer>
+                <button type="button" data-insight-overdue hidden>🎯 Überfällige zeigen</button>
+                <button type="button" id="insight-tour">🧭 Tour planen</button>
+                <button type="button" id="insight-done" class="primary">Weiter</button>
+            </footer>
         </dialog>
 
         <!-- Feierabend: der Tag in Zahlen, als Nachweis kopierbar -->
@@ -635,11 +658,8 @@
                 <h2>📋 Kundenliste einfügen</h2>
                 <button class="dialog-close" aria-label="Schließen">Schließen</button>
             </header>
-            <ol class="paste-steps">
-                <li>In Excel die Liste <b>mit der Überschriftenzeile</b> markieren.</li>
-                <li><b>Strg</b> + <b>C</b> drücken (Mac: <b>⌘</b> + <b>C</b>).</li>
-                <li>Hier ins Feld klicken und <b>Strg</b> + <b>V</b> drücken.</li>
-            </ol>
+            <!-- Inhalt setzt der Import-Assistent nach Gerät: „Strg+V" ist am Handy sinnlos. -->
+            <ol class="paste-steps" id="paste-steps"></ol>
             <textarea id="paste-input" rows="6" spellcheck="false" aria-label="Kundenliste einfügen"
                 placeholder="Kundenname	PLZ	Ort	Vertriebsbezirk&#10;Muster GmbH	45136	Essen	Bezirk West"></textarea>
             <p id="paste-status" class="muted small" role="status"></p>
