@@ -847,8 +847,7 @@ const HELPERS = {
         fire('pointerup', ring[ring.length - 1]);
         await sleep(900);
 
-        const bar = document.getElementById('lasso-bar');
-        if (!bar || bar.hidden) throw new Error('Die Lasso-Auswahl ist nicht zustande gekommen.');
+        if (!document.querySelector('.popup-lasso')) throw new Error('Die Lasso-Auswahl ist nicht zustande gekommen.');
     },
     async openLassoBriefing() {
         // Mit Beispielkunden bietet der Streifen bewusst kein „Briefing

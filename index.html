@@ -509,11 +509,20 @@
         <!-- Schwebender „nächster Schritt": ein kleiner, freundlicher Fuchs-Knopf,
              der ÜBER dem eingeklappten Blatt schwebt (bewusst getrennt vom Sheet)
              und den sinnvollsten nächsten Schritt andeutet. Nur mobil sichtbar. -->
-        <button id="mobile-next-step" class="mobile-next-step" type="button" hidden>
-            <span class="mns-icon" aria-hidden="true"></span>
-            <span class="mns-label"></span>
-            <span class="mns-fox" aria-hidden="true">🦊</span>
-        </button>
+        <!-- Gemeinsame Knopfzeile über der Karte: „Kunden in meiner Nähe" und
+             „Lasso ziehen" sind zwei gleichrangige Angebote und stehen deshalb
+             nebeneinander, im selben Gewand. -->
+        <div id="map-fab-row" class="map-fab-row">
+            <button id="mobile-next-step" class="mobile-next-step map-fab" type="button" hidden>
+                <span class="mns-icon" aria-hidden="true"></span>
+                <span class="mns-label"></span>
+                <span class="mns-fox" aria-hidden="true">🦊</span>
+            </button>
+            <button id="btn-lasso" class="lasso-toggle map-fab" type="button" aria-pressed="false" hidden>
+                <span class="mns-icon" aria-hidden="true">🖊️</span>
+                <span class="mns-label">Lasso ziehen</span>
+            </button>
+        </div>
 
         <main id="map" role="application" aria-label="Deutschlandkarte"></main>
         <!-- Kleiner Umschalter über der Karte: nur sichtbar, wenn eine Route auf
@@ -521,13 +530,7 @@
         <div id="route-mode-bar" class="route-mode-bar" hidden>
             <button id="btn-route-mode" class="route-mode-toggle" type="button">🗺️ Straßenroute anzeigen</button>
         </div>
-        <!-- Lasso: eine Fläche mit der Hand umfahren statt einen Regler zu
-             schieben. Der Knopf schaltet einen Modus, den man sieht; der
-             Streifen erscheint erst, wenn eine Auswahl liegt. -->
-        <div id="lasso-tools" class="lasso-tools">
-            <button id="btn-lasso" class="lasso-toggle" type="button" aria-pressed="false" hidden>🖊️ Fläche markieren</button>
-        </div>
-        <div id="lasso-bar" class="lasso-bar" role="status" hidden></div>
+
         <section id="simulation-map-bar" class="simulation-map-bar" aria-label="Simulationsansicht" hidden>
             <div class="simulation-map-status">
                 <span class="simulation-map-badge">Simulation</span>
