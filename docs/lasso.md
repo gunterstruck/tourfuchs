@@ -24,8 +24,11 @@ Dass zwei Wege zum selben Dialog führen, ist Absicht: **geplant** am Schreibtis
 ## Der Ablauf – drei Schläge, der mittlere zählt
 
 1. **🖊️ Lasso ziehen.** Der Knopf steht in der Karten-Knopfzeile direkt neben
-   „Kunden in meiner Nähe" – zwei gleichrangige Angebote, gleiches Gewand. Die
-   Karte friert ein, der Zeiger wird zum Fadenkreuz, ein Rahmen zeigt den Modus.
+   „Kunden in meiner Nähe" – zwei gleichrangige Angebote, gleiches Gewand.
+   Liegt eine Tour auf der Karte, nimmt dort der Umschalter 🗺️ „Straßenroute" /
+   📏 „Luftlinie" den Platz des Fuchses ein: dieselbe Zeile, dieselbe Pille,
+   nie übereinander. Die Karte friert ein, der Zeiger wird zum Fadenkreuz, ein
+   Rahmen zeigt den Modus.
 2. **Fläche ziehen.** Die Spur wächst **mit dem Finger mit** und ist ab dem
    dritten Punkt gefüllt; ein Punkt markiert den Start, damit man weiß, wohin
    man zurückkommen muss. Beim Loslassen schließt sich die Form, die getroffenen

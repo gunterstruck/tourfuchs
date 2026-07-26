@@ -453,9 +453,10 @@ function applySidebar() {
 function updateMobileNextStep() {
     const btn = document.getElementById('mobile-next-step');
     if (!btn) return;
-    // Liegt die Route auf der Karte, übernimmt die Straßenroute-Leiste denselben
-    // Platz – der Fuchs muss dann weg (sonst überdeckt er sie). Aus dem Zustand
-    // statt aus dem DOM gelesen, damit es kein Render-Wettrennen gibt.
+    // Liegt die Route auf der Karte, tritt der Straßenroute-Umschalter in die
+    // Knopfzeile – und die trägt auf einem Telefon nur zwei Pillen. Der Fuchs
+    // weicht deshalb. Aus dem Zustand statt aus dem DOM gelesen, damit es kein
+    // Render-Wettrennen gibt.
     const routeShown = state.tour.mapFocus && !!state.tour.start;
     // Auf dem Desktop schwebt der Fuchs unten mittig über der Karte (rechts der
     // Sidebar) – unabhängig davon, ob das Panel offen ist. Mobil bleibt er dem
