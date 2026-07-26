@@ -1112,12 +1112,13 @@ Die häufigere Frage im Außendienst ist aber: **"Ich bin hier - wen von diesen
 besuche ich zuerst?"** Entfernung und Fälligkeit weiß TourFuchs selbst; offene
 Vorgänge, Eskalationen und zugesagte Rückmeldungen weiß nur der Assistent.
 
-**Zwei Klickpfade, ein Dialog:**
+**Drei Klickpfade, ein Dialog:**
 
+- `Karte -> "Fläche markieren" -> Fläche umfahren -> "Briefing erstellen"` (Lasso, siehe 9.7)
 - `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"`
 - `Tab "Karte" -> "In der Nähe" -> Kartenmitte oder Standort -> "Wen zuerst? Briefing für diese Umgebung"`
 
-Beide Knöpfe erscheinen **erst ab zwei echten Kunden**. Bei einem einzigen Kunden
+Alle Knöpfe erscheinen **erst ab zwei echten Kunden**. Bei einem einzigen Kunden
 ist das Kundenbriefing der bessere Weg; bei reinen Demo-Kunden wird kein Prompt
 gebaut und kein Assistent geöffnet.
 
@@ -1150,7 +1151,47 @@ nächstgelegenen") und der Dialog weist darauf hin.
 Der Prompt verbietet ausdrücklich, die bereits mitgelieferte Besuchslücke als
 Begründung zu wiederholen: Entscheidend ist, was der Nutzer noch nicht weiß.
 
-### 9.7 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung
+### 9.7 Lasso: eine Fläche auf der Karte umfahren
+
+Der kürzeste Weg von "ich sehe eine Karte" zu "ich weiß, wen ich zuerst
+besuche". Zwei Gründe, warum es das neben dem Umkreis gibt:
+
+1. **Eine Geste statt eines Formulars.** Der Umkreis verlangt vier Handgriffe,
+   bevor etwas passiert. Das Lasso ist eine Bewegung um das, was ohnehin schon
+   auf dem Schirm ist.
+2. **Unrunde Flächen.** Gewerbegebiet, eine Flussseite, ein Autobahnkorridor -
+   nichts davon ist rund. Ein Radius nimmt dort immer zu viel oder zu wenig mit.
+
+**Klickpfad:** `Karte -> "Fläche markieren" -> ziehen -> "Briefing erstellen"`.
+
+Ablauf:
+
+1. Der Knopf schaltet einen sichtbaren Modus: Karte friert ein, Zeiger wird zum
+   Fadenkreuz, ein Rahmen zeigt den Zustand. **Escape** verlässt ihn jederzeit.
+2. Beim Loslassen schließt sich die Form, die getroffenen Kunden leuchten auf,
+   ein Streifen nennt die Zahl. Der Modus schaltet sich selbst wieder ab.
+3. "Briefing erstellen" öffnet das Gebiets-Briefing aus 9.6 - **unverändert**:
+   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt.
+
+Auf Handy und Tablet-Hochkant schiebt sich das Bedienblatt beim Einschalten auf
+Guckhöhe, damit überhaupt Karte zum Zeichnen da ist; es kommt zurück, sobald die
+Auswahl aufgehoben wird.
+
+Verhalten in Randfällen:
+
+| Fall | Antwort |
+|---|---|
+| Tippen statt Ziehen | Nichts ausgewählt, ruhiger Hinweis |
+| Fläche ohne Kunden | Hinweis "Zieh sie etwas größer" |
+| Weniger als zwei echte Kunden | Auswahl sichtbar, aber kein Briefing angeboten |
+| Nur Beispielkunden | Kein Prompt, kein Assistent |
+| Karte verschieben oder zoomen | Auswahl wird verworfen |
+| Sehr große Auswahl | Zahl vollständig, hervorgehoben höchstens 250 Punkte |
+
+Die Live-Demo "Fläche umfahren, Briefing bekommen" führt die Geste in der echten
+App vor - mit echten Zeigerereignissen, nicht als Animation.
+
+### 9.8 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung
 
 Frühere Fassungen boten im Profi-Modus eine optionale automatische Anmeldung an
 Microsoft Entra ID und einen direkten Aufruf der Copilot-Chat-API über Microsoft
@@ -1169,7 +1210,7 @@ werden beim Start gelöscht.
 **Der Guide bietet diesen Weg nicht mehr an** und beschreibt bei Nachfragen den
 manuellen Weg als den vorgesehenen - nicht als Rückfalloption.
 
-### 9.8 Richtige Guide-Antwort bei Datenschutzfragen
+### 9.9 Richtige Guide-Antwort bei Datenschutzfragen
 
 Der Guide sagt nicht pauschal "Es werden keine Daten übertragen". Korrekt ist:
 
@@ -1179,7 +1220,7 @@ Der Guide sagt nicht pauschal "Es werden keine Daten übertragen". Korrekt ist:
   einfügt und absendet. Ab da gelten die Bedingungen des Anbieters.
 - Berechtigungen und Richtlinien der Organisation bleiben wirksam.
 
-### 9.9 Wenn nichts passiert
+### 9.10 Wenn nichts passiert
 
 Öffnet sich kein Fenster, hat meist der Popup-Blocker zugeschlagen. Der Prompt
 liegt trotzdem in der Zwischenablage: Assistent von Hand öffnen und einfügen.

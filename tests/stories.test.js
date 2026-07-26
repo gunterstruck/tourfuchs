@@ -94,18 +94,18 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('die Stories in fester Reihenfolge', () => {
-        expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
+        expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'lasso', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
     });
 
     it('am Desktop entfällt die mobile-only Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor']);
+        expect(ids).toEqual(['excel-karte', 'lasso', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor']);
         expect(ids).not.toContain('empfang');
     });
 
     it('am Smartphone entfallen die desktop-only Stories, dafür kommt die Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: false }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'tour', 'chancen', 'tresor', 'empfang']);
+        expect(ids).toEqual(['excel-karte', 'lasso', 'tour', 'chancen', 'tresor', 'empfang']);
         expect(ids).not.toContain('handy-qr');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');

@@ -29,6 +29,9 @@ import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopu
 import { showMapView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
+import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
+import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
+import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo } from './importWizard.js';
 
 const ROUTING_CONSENT_KEY = 'gf_routing_consent';
@@ -797,6 +800,74 @@ const HELPERS = {
         if (briefing?.open) briefing.close();
         await sleep(400);
     },
+    // ---- Lasso: die Geste vorführen ----
+    // Der Wow-Moment darf nicht nur im Werbefilm existieren. Hier wird er
+    // wirklich gezogen: echte Zeigerereignisse auf dem Kartencontainer, der
+    // Geister-Cursor läuft mit. Was der Zuschauer sieht, ist exakt das, was
+    // sein eigener Finger gleich auslöst.
+    async drawLasso() {
+        showMapView();
+        await sleep(isMobileView() ? 800 : 400);
+        const container = document.getElementById('map');
+        if (!container) throw new Error('Die Karte ist nicht verfügbar.');
+        if (document.getElementById('btn-lasso')?.hidden) {
+            throw new Error('Das Lasso steht ohne verortete Kunden nicht zur Verfügung.');
+        }
+        await clickEl('#btn-lasso');
+        await sleep(600);
+
+        // Die Fläche wird um die Mitte der Karte gezogen – dort liegen nach
+        // „Alle Kunden zeigen" die meisten Marker.
+        const rect = container.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+        const radius = Math.max(70, Math.min(rect.width, rect.height) * 0.28);
+        const ring = [];
+        for (let i = 0; i <= 28; i++) {
+            const angle = (i / 28) * Math.PI * 2 - Math.PI / 2;
+            // Leicht unrunde Form: Ein perfekter Kreis sieht aus wie ein
+            // Werkzeug, eine krumme Schleife wie eine Hand.
+            const wobble = 1 + Math.sin(angle * 3) * 0.12;
+            ring.push({ x: cx + Math.cos(angle) * radius * wobble, y: cy + Math.sin(angle) * radius * wobble * 0.85 });
+        }
+
+        const fire = (type, point) => container.dispatchEvent(new PointerEvent(type, {
+            pointerId: 991, pointerType: 'mouse', isPrimary: true, button: 0, buttons: type === 'pointerup' ? 0 : 1,
+            clientX: point.x, clientY: point.y, bubbles: true, cancelable: true
+        }));
+
+        await moveTo(ring[0].x, ring[0].y);
+        fire('pointerdown', ring[0]);
+        for (const point of ring.slice(1)) {
+            guard();
+            snapCursor(point.x, point.y);
+            fire('pointermove', point);
+            await sleep(prefersReduced ? 8 : 34);
+        }
+        fire('pointerup', ring[ring.length - 1]);
+        await sleep(900);
+
+        const bar = document.getElementById('lasso-bar');
+        if (!bar || bar.hidden) throw new Error('Die Lasso-Auswahl ist nicht zustande gekommen.');
+    },
+    async openLassoBriefing() {
+        // Mit Beispielkunden bietet der Streifen bewusst kein „Briefing
+        // erstellen" an – genau dieselbe Sperre wie beim Kundenbriefing. Die
+        // Vorführung geht den Weg trotzdem zu Ende und zeigt die geschützte
+        // Vorschau, statt vor der Sperre abzubrechen.
+        const opened = await clickEl('#btn-lasso-brief');
+        if (!opened) openAreaBriefingDialog(lassoSelection(), areaLabelFor({ mode: 'lasso' }));
+        const dialog = document.getElementById('area-briefing-dialog');
+        if (!dialog?.open) throw new Error('Das Gebiets-Briefing konnte nicht geöffnet werden.');
+        await sleep(500);
+    },
+    async closeLassoBriefing() {
+        moveOverlaysInto(document.body);
+        const dialog = document.getElementById('area-briefing-dialog');
+        if (dialog?.open) dialog.close();
+        clearLassoSelection();
+        await sleep(400);
+    },
     async checkVisit() {
         const id = state.tour.stops[0];
         const c = id && state.customers.find((x) => x.id === id);
@@ -883,6 +954,12 @@ function cleanup(story) {
     if (recv?.open) recv.close();
     const briefing = document.getElementById('customer-briefing-dialog');
     if (briefing?.open) briefing.close();
+    // Lasso: Auch bei Abbruch mitten im Zug darf weder der Zeichenmodus noch
+    // eine Auswahl zurückbleiben – sonst ist die Karte danach „kaputt".
+    const areaBriefing = document.getElementById('area-briefing-dialog');
+    if (areaBriefing?.open) areaBriefing.close();
+    setLassoActive(false);
+    clearLassoSelection();
     const vd = document.getElementById('vault-dialog');
     if (vd?.open) vd.close();
     const mp = document.getElementById('mobile-preview');
