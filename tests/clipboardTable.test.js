@@ -75,6 +75,101 @@ describe('Zwischenablage-Import', () => {
     });
 });
 
+describe('Tabellen aus Chat, Wiki und Mail', () => {
+    // Ein Assistent gibt selten eine nackte Tabelle aus: Er schreibt einen Satz
+    // davor, formatiert als Markdown und fragt hinterher nach. Genau das kam
+    // vorher mit „nur eine Spalte erkannt" zurück.
+    const chatAntwort = [
+        'Gerne! Hier sind Ihre drei wichtigsten Kunden:',
+        '',
+        '| **Kundenname** | PLZ | Ort | Umsatz |',
+        '|---|---:|:--|---|',
+        '| Muster Technik GmbH | 45136 | Essen | 120000 |',
+        '| Beispiel Maschinenbau AG | 44135 | Dortmund | 98000 |',
+        '',
+        'Möchten Sie die Liste erweitern?'
+    ].join('\n');
+
+    it('liest eine Markdown-Tabelle samt Fließtext drumherum', () => {
+        const { headers, rows, delimiter } = parseClipboardTable(chatAntwort);
+        expect(delimiter).toBe('markdown');
+        expect(headers).toEqual(['Kundenname', 'PLZ', 'Ort', 'Umsatz']);
+        expect(rows).toHaveLength(2);
+        expect(rows[0]).toEqual({
+            Kundenname: 'Muster Technik GmbH', PLZ: '45136', Ort: 'Essen', Umsatz: '120000'
+        });
+        // Der einleitende Satz darf nicht als Zeile auftauchen
+        expect(rows.some((row) => String(row.Kundenname).includes('Gerne'))).toBe(false);
+    });
+
+    it('nimmt Fettschrift und Ausrichtungs-Doppelpunkte aus den Zellen', () => {
+        const { headers } = parseClipboardTable(chatAntwort);
+        expect(headers[0]).toBe('Kundenname');
+        expect(headers.some((h) => h.includes('*') || h.includes(':'))).toBe(false);
+    });
+
+    it('schneidet auch eine CSV-Tabelle aus dem Fließtext heraus', () => {
+        const text = [
+            'Klar, hier die Auswertung:',
+            'Kundenname;PLZ;Ort',
+            'Muster GmbH;45136;Essen',
+            'Beispiel AG;44135;Dortmund',
+            'Soll ich noch etwas ergänzen?'
+        ].join('\n');
+        const { headers, rows } = parseClipboardTable(text);
+        expect(headers).toEqual(['Kundenname', 'PLZ', 'Ort']);
+        expect(rows).toHaveLength(2);
+    });
+
+    it('nimmt die größere Tabelle, wenn der Text mehrere enthält', () => {
+        const text = [
+            'Zusammenfassung:',
+            'Kennzahl;Wert',
+            'Summe;3',
+            '',
+            'Und die Kunden:',
+            'Kundenname;PLZ;Ort',
+            'A GmbH;45136;Essen',
+            'B AG;44135;Dortmund',
+            'C KG;50667;Köln'
+        ].join('\n');
+        const { headers, rows } = parseClipboardTable(text);
+        expect(headers).toEqual(['Kundenname', 'PLZ', 'Ort']);
+        expect(rows).toHaveLength(3);
+    });
+
+    it('lässt die bewährten Wege unverändert', () => {
+        // Excel-Kopie: unverändert Tab-getrennt
+        expect(parseClipboardTable(excelCopy).delimiter).toBe('\t');
+        // Ort mit Komma zerlegt weiterhin nicht die Tabelle
+        const text = 'Name\tOrt\nMuster GmbH\tEssen, Nord\nBeispiel AG\tKöln, Süd';
+        expect(parseClipboardTable(text).rows[0].Ort).toBe('Essen, Nord');
+    });
+});
+
+describe('Das globale Strg+V bleibt streng', () => {
+    // Im Dialog hat der Nutzer sich entschieden – dort darf großzügig gelesen
+    // werden. Das globale Strg+V greift ungefragt in eine fremde Absicht ein.
+    it('erkennt eine Markdown-Tabelle als Tabelle', () => {
+        expect(looksLikeTable('| A | B |\n|---|---|\n| 1 | 2 |')).toBe(true);
+    });
+
+    it('hält Fließtext mit Kommas heraus', () => {
+        const brief = [
+            'Sehr geehrte Frau Meier, wie besprochen,',
+            'melde ich mich, wie vereinbart, morgen.'
+        ].join('\n');
+        expect(looksLikeTable(brief)).toBe(false);
+    });
+
+    it('verlangt bei Komma-Trennung eine Zeile mehr als bei Tab und Semikolon', () => {
+        expect(looksLikeTable('Name,PLZ\nA,45136')).toBe(false);
+        expect(looksLikeTable('Name,PLZ\nA,45136\nB,44135')).toBe(true);
+        // Tabulator ist in Prosa praktisch nie zu finden – zwei Zeilen genügen
+        expect(looksLikeTable('Name\tPLZ\nA\t45136')).toBe(true);
+    });
+});
+
 describe('Auffindbarkeit des Einfüge-Wegs', () => {
     const wizard = readFileSync(resolve(process.cwd(), 'src/ui/importWizard.js'), 'utf8');
     const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');

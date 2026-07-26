@@ -11,6 +11,18 @@
  * werden erkannt. Anführungszeichen nach RFC-4180-Art werden aufgelöst, damit
  * Werte mit Trennzeichen oder Zeilenumbruch heil bleiben.
  *
+ * Zwei weitere Quellen sind inzwischen genauso häufig und sahen anders aus:
+ *
+ *  - **Markdown-Tabellen** (`| Name | PLZ |` mit Trennzeile `|---|---|`), wie sie
+ *    Chat-Assistenten, Wikis und Ticketsysteme ausgeben.
+ *  - **Tabellen mitten im Fließtext** – der Assistent schreibt „Gerne, hier sind
+ *    Ihre Kunden:", dann die Tabelle, dann „Soll ich noch etwas ergänzen?".
+ *
+ * Beides scheiterte vorher mit „nur eine Spalte erkannt". Deshalb wird jetzt
+ * zuerst der Tabellenblock aus der Umgebung herausgeschnitten: die längste
+ * zusammenhängende Zeilenfolge mit gleicher Spaltenzahl gewinnt – dieselbe
+ * Heuristik, mit der auch das Trennzeichen bestimmt wird.
+ *
  * Bewusst ohne DOM und ohne SheetJS: reine Textverarbeitung, unit-testbar.
  */
 
@@ -71,6 +83,90 @@ export function detectDelimiter(text) {
     return best.delimiter;
 }
 
+/** Auszeichnungen aus einer Markdown-Zelle nehmen: **fett**, *kursiv*, `code`. */
+function stripEmphasis(cell) {
+    return String(cell ?? '').trim()
+        .replace(/^\*\*([\s\S]*)\*\*$/, '$1')
+        .replace(/^__([\s\S]*)__$/, '$1')
+        .replace(/^\*([\s\S]*)\*$/, '$1')
+        .replace(/^`([\s\S]*)`$/, '$1')
+        .trim();
+}
+
+/** Eine Markdown-Zeile in Zellen zerlegen (führende/schließende Pipe entfällt). */
+function splitMarkdownRow(line) {
+    let text = line.trim();
+    if (text.startsWith('|')) text = text.slice(1);
+    if (text.endsWith('|')) text = text.slice(0, -1);
+    return text.split('|').map(stripEmphasis);
+}
+
+/** Die Trennzeile einer Markdown-Tabelle: `|---|:--:|` – nur Striche und Doppelpunkte. */
+function isMarkdownSeparator(line) {
+    if (!line.includes('|') && !line.includes('-')) return false;
+    const cells = splitMarkdownRow(line);
+    return cells.length >= 2 && cells.every((cell) => /^:?-{2,}:?$/.test(cell));
+}
+
+/**
+ * Markdown-Tabelle im Text finden. Erkennungsmerkmal ist die Trennzeile: Was
+ * unmittelbar darüber steht, ist die Überschrift; was darunter folgt, sind die
+ * Datenzeilen. Umgebender Fließtext endet die Tabelle, weil er keine Pipe hat.
+ */
+export function extractMarkdownGrid(text) {
+    const lines = String(text ?? '').split(/\r?\n/);
+    const separator = lines.findIndex((line, index) => index > 0 && isMarkdownSeparator(line));
+    if (separator < 1) return null;
+
+    let start = separator - 1;
+    while (start > 0 && lines[start - 1].includes('|')) start--;
+    let end = separator + 1;
+    while (end < lines.length && lines[end].includes('|')) end++;
+
+    const grid = [...lines.slice(start, separator), ...lines.slice(separator + 1, end)]
+        .map(splitMarkdownRow)
+        .filter((cells) => cells.length >= 2);
+    return grid.length >= 2 ? grid : null;
+}
+
+/**
+ * Den Tabellenblock aus umgebendem Fließtext schneiden: die längste
+ * zusammenhängende Folge von Zeilen mit identischer Spaltenzahl (mindestens
+ * zwei Spalten, mindestens zwei Zeilen). Gibt es keine, war es keine Tabelle –
+ * dann bleibt es beim bisherigen Weg samt seiner Fehlermeldungen.
+ */
+export function extractDelimitedGrid(text) {
+    const lines = String(text ?? '').split(/\r?\n/);
+    let best = null;
+
+    for (const delimiter of DELIMITERS) {
+        // Eine Zeile aus lauter Trennzeichen ("\t" oder ";;") ist eine LEERE
+        // ZEILE INNERHALB der Tabelle – sie darf den Block nicht abschneiden.
+        // Nur eine wirklich leere Zeile trennt die Tabelle vom Fließtext.
+        const counts = lines.map((line) => (
+            line.trim() === '' && !line.includes(delimiter) ? 0 : splitRows(line, delimiter)[0].length
+        ));
+        let index = 0;
+        while (index < counts.length) {
+            if (counts[index] < 2) { index++; continue; }
+            let last = index;
+            while (last + 1 < counts.length && counts[last + 1] === counts[index]) last++;
+            const length = last - index + 1;
+            if (length >= 2) {
+                const candidate = { delimiter, start: index, end: last, columns: counts[index], length };
+                const better = !best
+                    || candidate.length > best.length
+                    || (candidate.length === best.length && candidate.columns > best.columns);
+                if (better) best = candidate;
+            }
+            index = last + 1;
+        }
+    }
+    if (!best) return null;
+    const block = lines.slice(best.start, best.end + 1).join('\n');
+    return { grid: splitRows(block, best.delimiter), delimiter: best.delimiter };
+}
+
 /**
  * Eingefügten Text in dieselbe Struktur bringen wie `readWorkbook`:
  * `{ headers, rows }` mit einem Objekt je Datenzeile.
@@ -79,8 +175,14 @@ export function parseClipboardTable(text) {
     const raw = String(text ?? '').replace(/^﻿/, '').replace(/\s+$/, '');
     if (!raw.trim()) throw new Error('Die Zwischenablage ist leer.');
 
-    const delimiter = detectDelimiter(raw);
-    const grid = splitRows(raw, delimiter);
+    // Reihenfolge: Markdown ist eindeutig erkennbar und geht vor. Danach der
+    // Tabellenblock im Fließtext. Zuletzt der bisherige Weg über den ganzen
+    // Text – er trägt die vertrauten Fehlermeldungen.
+    const markdown = extractMarkdownGrid(raw);
+    const delimited = markdown ? null : extractDelimitedGrid(raw);
+    const delimiter = markdown ? 'markdown' : (delimited?.delimiter ?? detectDelimiter(raw));
+    const grid = markdown || delimited?.grid || splitRows(raw, delimiter);
+
     if (grid.length < 2) {
         throw new Error('Es wurde nur eine Zeile gefunden. Bitte die Überschriftenzeile mit markieren.');
     }
@@ -114,12 +216,28 @@ export function parseClipboardTable(text) {
 /**
  * Sieht der eingefügte Text nach einer Tabelle aus? Schützt den globalen
  * Einfügen-Kurzweg davor, jeden beliebigen kopierten Satz als Import zu deuten.
+ *
+ * **Bewusst strenger als der Parser.** Im Einfüge-Dialog hat der Nutzer sich
+ * entschieden – dort darf großzügig gelesen werden. Das globale Strg+V dagegen
+ * greift ungefragt in eine fremde Absicht ein, also müssen die Anzeichen
+ * eindeutig sein:
+ *
+ *  - eine Markdown-Tabelle ist eindeutig,
+ *  - Tabulatoren und Semikolon sind in Fließtext praktisch nie zu finden,
+ *  - **Kommas dagegen schon** – „Sehr geehrte Frau Meier, wie besprochen, …".
+ *    Deshalb reichen dort zwei gleichförmige Zeilen nicht; es müssen
+ *    mindestens drei sein.
  */
 export function looksLikeTable(text) {
     const raw = String(text ?? '').trim();
     if (!raw) return false;
-    const lines = raw.split(/\r?\n/).filter((line) => line.trim() !== '');
-    if (lines.length < 2) return false;
-    const delimiter = detectDelimiter(raw);
-    return lines.slice(0, 5).every((line) => line.split(delimiter).length >= 2);
+    if (raw.split(/\r?\n/).filter((line) => line.trim() !== '').length < 2) return false;
+
+    if (extractMarkdownGrid(raw)) return true;
+
+    const block = extractDelimitedGrid(raw);
+    if (!block) return false;
+    // Komma ist das einzige Trennzeichen, das auch in Prosa vorkommt.
+    const minimumLines = block.delimiter === ',' ? 3 : 2;
+    return block.grid.length >= minimumLines;
 }
