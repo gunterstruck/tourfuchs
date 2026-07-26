@@ -366,6 +366,7 @@
                 </div>
                 <p class="near-stats muted small"></p>
                 <ul class="near-list"></ul>
+                <button type="button" id="btn-near-briefing" class="area-briefing-btn" hidden>🧭 Wen zuerst? Briefing für diese Umgebung</button>
                 <p class="near-empty muted small" hidden>Keine verorteten Kunden in der Nähe.</p>
             </section>
 
@@ -463,6 +464,7 @@
                 <p id="suggest-hint" class="muted small"></p>
                 <label id="tour-sales-priority" class="check-inline"><input type="checkbox" id="overdue-first"> Überfällige zuerst</label>
                 <div id="tour-suggestions" class="scroll-list"></div>
+                <button type="button" id="btn-area-briefing" class="area-briefing-btn" hidden>🧭 Wen zuerst? Briefing für dieses Gebiet</button>
                 </div><!-- /.acc-body -->
                 </div><!-- /.tour-acc suggest -->
 
@@ -907,6 +909,15 @@
             </header>
             <div id="customer-briefing-body"></div>
             <footer id="customer-briefing-footer"></footer>
+        </dialog>
+
+        <dialog id="area-briefing-dialog" class="customer-briefing-dialog" aria-label="Gebiets-Briefing für Ihren KI-Assistenten">
+            <header>
+                <h2>🧭 Gebiets-Briefing</h2>
+                <button type="button" class="dialog-close" data-area-header-close aria-label="Schließen">Schließen</button>
+            </header>
+            <div id="area-briefing-body"></div>
+            <footer id="area-briefing-footer"></footer>
         </dialog>
 
         <dialog id="showcase-dialog" aria-label="Funktionen entdecken"></dialog>
