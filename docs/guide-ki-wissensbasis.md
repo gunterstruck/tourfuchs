@@ -1323,6 +1323,11 @@ wechselt derselbe Button zwischen:
 - **"Straßenroute anzeigen"**
 - **"Luftlinie anzeigen"**
 
+Der Umschalter steht als Pille in der Knopfzeile unten über der Karte — dort,
+wo auch 🖊️ „Lasso ziehen" und der Fuchs-Knopf sitzen. Auf schmalen Schirmen
+kürzt sich die Beschriftung auf „Straßenroute", damit beide Pillen
+nebeneinander bleiben.
+
 Die Straßenroute kommt von OSRM auf Basis von OpenStreetMap. Vor der ersten
 externen Anfrage bittet TourFuchs um Zustimmung. Übertragen werden nur
 Koordinaten von Start und Routenpunkten. Bei Fehler bleibt die Luftlinie
@@ -1541,7 +1546,9 @@ Aussuchen weiterer Kunden lässt „Vorschläge" bewusst offen (kein Sprung zu
 im Außendienst eine kleine helle Pille über der Griff-Leiste und schlägt den
 nächsten sinnvollen Schritt vor: 📍 „Kunden in meiner Nähe" → 🚩 „Tour ab hier
 planen" (öffnet das Tour-Blatt mit gesetztem Start) → 🗺️ „Route auf die Karte".
-Liegt die Route, tritt der Fuchs zurück und die Straßenroute-Leiste übernimmt.
+Liegt die Route, tritt der Fuchs zurück und der Umschalter 🗺️ „Straßenroute" /
+📏 „Luftlinie" nimmt seinen Platz in derselben Knopfzeile ein — gleiche Pille,
+gleiche Höhe, neben 🖊️ „Lasso ziehen".
 
 **„Meine Tour" (mobil):** Die Stopps sind kompakte **Ein-Zeilen-Karten** mit
 durchgehender grüner Tourlinie. Umsortiert wird per **Halten & Ziehen**; ein
