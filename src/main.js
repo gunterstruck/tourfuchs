@@ -37,6 +37,7 @@ import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
 import { initAreaBriefing } from './ui/areaBriefing.js';
+import { initLasso } from './ui/lasso.js';
 import { initContractRadar } from './ui/contractRadar.js';
 import { upgradeDemoServiceContracts } from './features/demoServiceContracts.js';
 import { upgradeDemoServiceVisits } from './features/demoServiceVisits.js';
@@ -197,6 +198,7 @@ async function init() {
     initAreaBriefing();
     initContractRadar();
     initMap('map');
+    initLasso();
     initSidebar();
     initImportWizard();
     initTourPanel();

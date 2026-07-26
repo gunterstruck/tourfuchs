@@ -2148,3 +2148,137 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
 
 @media (max-width: 430px) {
 }
+
+/* ---------------------------------------------------------------------------
+   Lasso: Fläche auf der Karte umfahren
+
+   Der Modus muss sichtbar sein, sonst wirkt jeder Zug wie ein Fehler. Deshalb
+   ändert der aktive Zustand drei Dinge gleichzeitig: Knopffarbe, Zeigerform
+   und ein ruhiger Rahmen um die Karte.
+--------------------------------------------------------------------------- */
+/* Bezugsrahmen ist der Body, nicht die Karte: Ohne den Versatz um die
+   Kopfleiste läge der Knopf hinter der Topbar und wäre nicht anklickbar. */
+.lasso-tools {
+    position: absolute;
+    z-index: 1030;
+    top: calc(var(--topbar-height) + 14px);
+    right: 14px;
+    pointer-events: none;
+}
+
+.lasso-toggle {
+    pointer-events: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    min-height: 0;
+    padding: 9px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.96);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-2);
+    color: var(--color-text);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.lasso-toggle[hidden] { display: none; }
+
+.lasso-toggle.active {
+    border-color: var(--color-primary);
+    background: var(--color-primary);
+    color: #fff;
+}
+
+/* Im Zeichenmodus ist die Karte kein Schiebeobjekt mehr. */
+body.lasso-active #map { cursor: crosshair; }
+body.lasso-active #map .leaflet-container { cursor: crosshair; }
+body.lasso-active #map::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 900;
+    border: 2px solid var(--color-primary);
+    border-radius: 4px;
+    pointer-events: none;
+}
+
+/* Die Spur liegt über der Karte, fängt aber keine Eingaben ab: Gezeichnet
+   wird auf dem Kartencontainer, nicht auf dem SVG. */
+.lasso-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 950;
+    pointer-events: none;
+}
+
+.lasso-path {
+    fill: rgba(20, 184, 166, 0.16);
+    stroke: #0d9488;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+/* Auswahlstreifen: erscheint erst, wenn wirklich etwas ausgewählt ist. */
+.lasso-bar {
+    position: absolute;
+    z-index: 1035;
+    left: 50%;
+    bottom: 20px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: calc(100vw - 28px);
+    padding: 9px 10px 9px 16px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: rgba(255, 255, 255, 0.98);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    box-shadow: var(--shadow-2);
+    animation: lasso-bar-in 180ms ease-out;
+}
+
+.lasso-bar[hidden] { display: none; }
+
+.lasso-bar .lasso-count {
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.lasso-bar button {
+    min-height: 38px;
+    padding: 7px 13px;
+    border-radius: var(--radius-pill);
+    white-space: nowrap;
+}
+
+@keyframes lasso-bar-in {
+    from { opacity: 0; transform: translateX(-50%) translateY(8px); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .lasso-bar { animation: none; }
+}
+
+/* Liegt eine Route auf der Karte, teilen sich zwei Streifen den unteren Rand.
+   Der Auswahlstreifen ist der jüngere Vorgang und rückt nach oben. */
+body:has(#route-mode-bar:not([hidden])) .lasso-bar { bottom: 74px; }
+
+.lasso-tools[hidden] { display: none; }
+
+/* Der Auswahlstreifen muss auch auf einem schmalen Telefon vollständig
+   lesbar bleiben – lieber ein Kreuz als ein abgeschnittenes Wort. */
+.lasso-clear-short { display: none; }
+
+@media (max-width: 520px) {
+    .lasso-bar { gap: 6px; padding-left: 12px; }
+    .lasso-clear-long { display: none; }
+    .lasso-clear-short { display: inline; }
+    .lasso-bar .lasso-count { font-size: 0.8rem; }
+}

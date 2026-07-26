@@ -58,6 +58,31 @@ export const STORIES = [
         ]
     },
     {
+        // Die kürzeste Strecke von „ich sehe eine Karte" zu „ich weiß, wen ich
+        // zuerst besuche". Eine Geste statt eines Formulars – und genau deshalb
+        // steht diese Demo weit vorn.
+        id: 'lasso',
+        icon: '🖊️',
+        title: 'Fläche umfahren, Briefing bekommen',
+        blurb: 'Kunden auf der Karte einkreisen und sofort fragen: Wen zuerst?',
+        duration: 34,
+        durationMobile: 32,
+        needsData: true,
+        steps: [
+            { t: 'run', key: 'ensureDemo' },
+            { t: 'run', key: 'focusDemoTourArea' },
+            { t: 'say', text: 'Du bist in einer Gegend unterwegs und siehst deine Kunden auf der Karte.', ms: 2400 },
+            { t: 'say', text: 'Statt Regler zu schieben: einfach die Fläche umfahren, die dich interessiert.', sel: '#btn-lasso', ms: 2800 },
+            { t: 'run', key: 'drawLasso' },
+            { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – erst sehen, dann entscheiden.', sel: '#lasso-bar', ms: 3000, pos: 'top' },
+            { t: 'run', key: 'openLassoBriefing' },
+            { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3200 },
+            { t: 'say', text: 'Mit deinen echten Kunden entsteht hier ein fertiger Prompt: kopieren, in Copilot einfügen, absenden. Zurück kommt die Reihenfolge – wen zuerst, und warum.', ms: 4200 },
+            { t: 'run', key: 'closeLassoBriefing' },
+            { t: 'say', text: 'Zwei Handgriffe von der Karte zum aktuellen Briefing. Genau da, wo du gerade bist.', ms: 2600 }
+        ]
+    },
+    {
         id: 'tour',
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',

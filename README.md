@@ -34,6 +34,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 | 📲 **QR-Übergabe** | Am Desktop geplante Tour als QR-Code anzeigen, am Handy mit der Kamera scannen und übernehmen – nur die Tour (keine Datenbank), Bildschirm zu Kamera, ohne Netzwerk und ohne Server. Navigation und Kalender-Termine funktionieren direkt aus dem gescannten Code |
 | 📋 **Kundenbriefing** | Ohne Einrichtung nutzbar: TourFuchs baut lokal einen kundenspezifischen Prompt, kopiert ihn und öffnet den Assistenten – abgesendet wird dort bewusst vom Nutzer. **TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-API auf.** Im **Profi**-Modus ist das Ziel wählbar (Microsoft 365 Copilot, Google Gemini, ChatGPT oder eine eigene https-Adresse) |
 | 🧭 **Gebiets-Briefing** | „Wen zuerst?" unter den Tourvorschlägen und unter „In der Nähe": derselbe manuelle Weg für die Kunden eines Gebiets. Der Prompt enthält je Kunde nur Name, Kundennummer, PLZ/Ort, Fälligkeit und letzten Besuch – kein Umsatz, keine Kontaktdaten, keine Straße –, ist auf 12 Kunden begrenzt und verlangt eine Besuchsreihenfolge statt eines weiteren Berichts |
+| 🖊️ **Lasso auf der Karte** | Eine Fläche frei umfahren statt einen Regler zu schieben: Die Karte friert ein, die getroffenen Kunden leuchten auf, ein Streifen nennt die Zahl – und von dort geht es direkt ins Gebiets-Briefing. Trifft auch **unrunde** Gebiete (Gewerbegebiet, Flussseite, Autobahnkorridor), die ein Umkreis prinzipiell verfehlt. Auf Handy und Tablet-Hochkant schiebt sich das Blatt dafür auf Guckhöhe |
 | 🛡️ **Service-Vertragsradar** | Separater Excel-/CSV-Import für Vertragsstände aus SAP, SieSales/Salesforce oder weiteren Quellen. Exakter Kundenabgleich per Kundennummer, Quellenalter, Handlungsfristen, Vertragswert, SLA und Verantwortliche. Der Service-Modus ist ein **optionales Modul** – standardmäßig ausgeblendet und im Profi-Modus unten in der Gebietsplanung per Häkchen einblendbar, damit der Einstieg nicht überfrachtet |
 | 🔊 **Zanobo-Brücke** | Serviceeinsätze mit Anlagen-ID verlinken direkt in die Schwester-App [Zanobo](https://zanobo.vercel.app) – akustischer Maschinen-Check am Smartphone, lokal im Browser, ohne Cloud. Vergleich statt Diagnose; die Anlagen-ID entspricht der Maschinen-ID am Zanobo-NFC-Tag und bleibt im URL-Fragment (wird nie an den Server übertragen). Eigene Zanobo-Instanz im Service-Cockpit einstellbar |
 | 🔍 **Suche** | Kunden nach Name, Ort, PLZ oder Kundennummer finden und anfliegen |
@@ -97,6 +98,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [Wissensbasis für den Guide-Bot](./docs/guide-ki-wissensbasis.md) – aufgabenorientiert mit dokumentierten Klickpfaden, aktueller Funktionsstand
 - [PDF-Fassung der Guide-Wissensbasis](./TourFuchs_KI-Agent_Wissensbasis.pdf) – gut lesbare Referenz für Review, Schulung und Weitergabe
 - [Kunden- und Gebiets-Briefing](./docs/kundenbriefing.md) – Ablauf, Inhalt der Prompts, Wahl des Assistenten und Prüfschritte
+- [Lasso auf der Karte](./docs/lasso.md) – Zeichenmodus, Auswahlvorschau, Grenzen und Prüfschritte
 
 ---
 
