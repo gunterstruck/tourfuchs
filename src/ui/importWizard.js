@@ -37,12 +37,15 @@ import {
 import { confirmDatasetReplacement, hasExistingDataset } from './datasetReplacement.js';
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 import { confirmImportWithDiff } from './importDiff.js';
+import { showImportInsight } from './importInsight.js';
 
 let dialog = null;
 let resultDialog = null;
 let ownDataDialog = null;
 let pasteDialog = null;
 let pendingExternalFile = null;
+let awaitingFilePick = false;
+let pasteHintShown = false;
 let parsed = null; // { headers, rows, fileName }
 let lastErrors = [];
 let lastFileBase = 'TourFuchs';
@@ -50,6 +53,8 @@ let welcomeDemoTimer = null;
 let welcomeDemoUserIntent = false;
 let demoLoadPromise = null;
 const insideMobilePreview = new URLSearchParams(location.search).has('mobilePreview');
+// Dieselbe Schwelle wie in der Sidebar: darunter gilt die Handy-Bedienung.
+const mobileQuery = window.matchMedia('(max-width: 768px)');
 
 // SheetJS (xlsx) ist groß – erst laden, wenn wirklich importiert/exportiert wird
 const excel = () => import('../services/excel.js');
@@ -103,9 +108,20 @@ export function initImportWizard() {
             return;
         }
         if (ownDataDialog?.open) ownDataDialog.close();
+        awaitingFilePick = true;
         fileInput.click();
     };
     document.getElementById('btn-upload').addEventListener('click', openFilePicker);
+    // Wer den Datei-Dialog ohne Auswahl schließt, hat gerade gemerkt, dass er
+    // keinen fertigen Export hat. Genau dann – und nur dann – ist der Hinweis
+    // auf das Einfügen willkommen statt aufdringlich.
+    fileInput.addEventListener('cancel', offerPasteAfterCancel);
+    window.addEventListener('focus', () => {
+        if (!awaitingFilePick) return;
+        // „cancel" kennen nicht alle Browser: Kommt nach der Rückkehr ins Fenster
+        // kein „change", war es ein Abbruch.
+        setTimeout(() => { if (awaitingFilePick) offerPasteAfterCancel(); }, 500);
+    });
     // Bei Beispieldaten führt „Eigene Daten laden" in den geführten Dialog
     // (Excel oder verschlüsselte Datei) statt direkt in den Datei-Picker.
     document.getElementById('btn-upload-more')?.addEventListener('click', () => {
@@ -116,12 +132,15 @@ export function initImportWizard() {
         if (ownDataDialog?.open) ownDataDialog.close();
     });
     fileInput.addEventListener('change', (e) => {
+        awaitingFilePick = false;
         if (e.target.files[0]) handleFile(e.target.files[0]);
         fileInput.value = '';
     });
 
     initPasteImport();
     initPendingExternalFile();
+    applyDataWayOrder();
+    mobileQuery.addEventListener('change', applyDataWayOrder);
 
     const downloadTemplate = async () => (await excel()).downloadTemplate();
     document.getElementById('btn-template').addEventListener('click', downloadTemplate);
@@ -284,9 +303,70 @@ async function handleFile(file) {
 }
 
 /**
+ * Am Schreibtisch ist die Kundenliste meist ohnehin in Excel offen – dort ist
+ * Einfügen der schnellste Weg zu eigenen Daten und deshalb der primäre. Am
+ * Handy liegt die Liste als Datei oder Anhang vor; dort bleibt die Datei vorn.
+ */
+function applyDataWayOrder() {
+    const paste = document.getElementById('btn-paste');
+    const upload = document.getElementById('btn-upload');
+    const hint = document.getElementById('own-data-way-hint');
+    if (!paste || !upload) return;
+
+    const desktop = !mobileQuery.matches;
+    const lead = desktop ? paste : upload;
+    const second = desktop ? upload : paste;
+
+    lead.classList.add('primary');
+    second.classList.remove('primary');
+    lead.style.order = '0';
+    second.style.order = '1';
+    if (hint) {
+        hint.textContent = desktop
+            ? 'Am schnellsten: Liste in Excel markieren, Strg+C – und hier einfügen. Kein Speichern nötig.'
+            : 'Am Handy meist die Datei. Eine kopierte Tabelle lässt sich aber genauso einfügen.';
+    }
+}
+
+/** Geräteschritte für den Einfügen-Dialog: „Strg+V" gibt es am Handy nicht. */
+function renderPasteSteps() {
+    const list = document.getElementById('paste-steps');
+    if (!list) return;
+    list.innerHTML = mobileQuery.matches
+        ? `<li>In der Tabellen-App die Liste <b>mit der Überschriftenzeile</b> markieren.</li>
+           <li>Auf <b>Kopieren</b> tippen.</li>
+           <li>Unten ins Feld tippen, <b>gedrückt halten</b> und <b>Einfügen</b> wählen.</li>`
+        : `<li>In Excel die Liste <b>mit der Überschriftenzeile</b> markieren.</li>
+           <li><b>Strg</b> + <b>C</b> drücken (Mac: <b>⌘</b> + <b>C</b>).</li>
+           <li>Hier ins Feld klicken und <b>Strg</b> + <b>V</b> drücken.</li>`;
+}
+
+/**
+ * Der Hinweis nach dem abgebrochenen Datei-Dialog. Einmal je Sitzung: Wer den
+ * Weg kennt und trotzdem abbricht, hat andere Gründe.
+ */
+function offerPasteAfterCancel() {
+    if (!awaitingFilePick) return;
+    awaitingFilePick = false;
+    if (pasteHintShown || mobileQuery.matches) return;
+    if (document.querySelector('dialog[open]')) return;
+    pasteHintShown = true;
+
+    ownDataDialog?.showModal();
+    const paste = document.getElementById('btn-paste');
+    if (paste) {
+        paste.classList.remove('attention');
+        void paste.offsetWidth; // Animation bei erneutem Anlass neu starten
+        paste.classList.add('attention');
+    }
+    showToast('Kein Export zur Hand? Wenn die Liste in Excel offen ist, genügt Kopieren und Einfügen.', 'info', 7000);
+}
+
+/**
  * Einfügen statt Datei: Wer seine Liste in Excel offen hat, kommt so ohne
- * Zwischenspeichern in den Import. Zwei Wege führen hinein – der sichtbare
- * Knopf im „Eigene Daten laden"-Dialog und ein globales Strg+V in der App.
+ * Zwischenspeichern in den Import. Drei Wege führen hinein – der Knopf im
+ * Willkommen, der Knopf im „Eigene Daten laden"-Dialog und ein globales
+ * Strg+V in der App.
  */
 function initPasteImport() {
     pasteDialog = document.getElementById('paste-dialog');
@@ -328,6 +408,11 @@ function initPasteImport() {
     pasteDialog.addEventListener('close', () => { input.value = ''; review(); });
 
     document.getElementById('btn-paste')?.addEventListener('click', () => openPasteDialog());
+    // Zweiter, gleichwertiger Einstieg direkt aus dem Willkommens-Hinweis.
+    document.getElementById('btn-demo-welcome-paste')?.addEventListener('click', () => {
+        cancelWelcomeDemo();
+        openPasteDialog();
+    });
 
     // Globales Strg+V: nur außerhalb von Eingabefeldern und nur, wenn wirklich
     // eine Tabelle in der Zwischenablage liegt – ein kopierter Satz löst nichts aus.
@@ -354,6 +439,7 @@ function openPasteDialog() {
         return;
     }
     if (ownDataDialog?.open) ownDataDialog.close();
+    renderPasteSteps();
     pasteDialog?.showModal();
     document.getElementById('paste-input')?.focus();
 }
@@ -457,6 +543,11 @@ async function confirmImport() {
     }
 
     const replacedExisting = customers.length > 0 && hasExistingDataset();
+    // Der Befund gilt dem Moment, in dem zum ersten Mal die eigenen Daten auf
+    // der Karte liegen. Bei echtem Reimport hat der Änderungsbericht die Frage
+    // bereits besser beantwortet.
+    const firstOwnData = customers.length > 0
+        && (state.customers.length === 0 || isDemoDataset(state.customers));
     if (customers.length > 0) {
         // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
         // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
@@ -514,10 +605,13 @@ async function confirmImport() {
     lastErrors = errors;
     showImportResult({ customerCount: customers.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
 
-    // Eigene Kundendaten importiert -> zum Verschlüsseln führen (nach dem
-    // Ergebnis-Dialog, falls dieser wegen Fehlern offen ist).
+    // Eigene Kundendaten importiert -> erst den Befund zeigen, dann zum
+    // Verschlüsseln führen. Beides nacheinander, nie übereinander.
     if (customers.length > 0) {
-        const offerVault = () => emit('data:imported', { count: customers.length });
+        const offerVault = async () => {
+            if (firstOwnData) await showImportInsight();
+            emit('data:imported', { count: customers.length });
+        };
         if (resultDialog?.open) resultDialog.addEventListener('close', offerVault, { once: true });
         else offerVault();
     }

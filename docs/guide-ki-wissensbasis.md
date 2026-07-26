@@ -628,17 +628,52 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
 
+#### 7.5.3 Der Befund nach dem ersten eigenen Import
+
+Liegen zum **ersten Mal** die eigenen Kunden auf der Karte, zeigt TourFuchs
+**"🔎 Das sagt Ihre Liste"** – kein Ergebnisprotokoll, sondern das, was in den
+Daten steckt:
+
+- die Kundenzahl auf der Karte und der Gesamtumsatz der Liste,
+- nicht verortete Kunden zuerst (meist fehlt oder stimmt die PLZ),
+- die Zahl der Vertriebsbezirke und – **nur wenn auffällig** – die
+  Ungleichverteilung ("Rheinland betreut 3,1× so viele Kunden wie Nord"),
+- überfällige Kunden; ohne hinterlegten Besuchsrhythmus stattdessen der Hinweis,
+  dass genau dafür der Rhythmus gebraucht wird,
+- Kunden ohne Bezirk unter "Ohne Zuordnung",
+- eingeklappt die Kundenzahl je Bezirk.
+
+Aus dem Befund führen zwei Wege direkt weiter: **"🎯 Überfällige zeigen"** und
+**"🧭 Tour planen"**.
+
+**Regel:** Es wird nur Auffälliges gesagt. Eine gleichmäßige Verteilung ist
+keine Nachricht. Bei sehr kleinen Listen ohne Bezirke und ohne Rhythmus
+erscheint der Befund gar nicht – dort weiß der Nutzer alles schon.
+
+Der Befund erscheint **einmalig beim Wechsel von Beispiel- auf eigene Daten**.
+Beim echten Reimport beantwortet der Änderungsbericht (7.6) dieselbe Frage
+besser. Er kommt **vor** dem Tresor-Angebot, nie darüber.
+
 #### 7.5.1 Einfügen statt Datei (Strg+V)
 
 Wer die Liste ohnehin in Excel offen hat, braucht keinen Export: Bereich
 **inklusive Überschriftenzeile** markieren, **Strg+C**, dann in TourFuchs
 einfügen. Zwei Wege:
 
-- **"Eigene Daten laden" -> "Liste schon offen? Aus Excel kopieren und hier
-  einfügen"** öffnet ein Feld; dort **Strg+V**. TourFuchs meldet sofort, wie
-  viele Zeilen und Spalten erkannt wurden, dann **"Spalten zuordnen"**.
+- **Im Willkommens-Hinweis** steht am Schreibtisch direkt
+  **"Liste ist in Excel offen? Direkt einfügen"**.
+- **"Eigene Daten laden" -> "Liste aus Excel einfügen"** öffnet ein Feld.
+  Am Schreibtisch ist das der **primäre** Knopf, am Handy steht die Datei vorn –
+  dort ist Excel selten offen. TourFuchs meldet sofort, wie viele Zeilen und
+  Spalten erkannt wurden, dann **"Spalten zuordnen"**.
 - **Strg+V irgendwo in der App** (außerhalb von Eingabefeldern) führt direkt in
   die Spaltenzuordnung.
+- Wer den Datei-Dialog **ohne Auswahl abbricht**, bekommt genau dann den
+  Hinweis auf das Einfügen – einmal je Sitzung, nur am Schreibtisch.
+
+Die Schritte im Einfügen-Dialog richten sich nach dem Gerät: am Schreibtisch
+**Strg+C / Strg+V**, am Handy **Kopieren** und **antippen, halten, Einfügen**.
+Am Handy steht nirgends "Strg".
 
 Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
 bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
@@ -2084,17 +2119,52 @@ aktuelle interne Wissen.
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
 
+#### 7.5.3 Der Befund nach dem ersten eigenen Import
+
+Liegen zum **ersten Mal** die eigenen Kunden auf der Karte, zeigt TourFuchs
+**"🔎 Das sagt Ihre Liste"** – kein Ergebnisprotokoll, sondern das, was in den
+Daten steckt:
+
+- die Kundenzahl auf der Karte und der Gesamtumsatz der Liste,
+- nicht verortete Kunden zuerst (meist fehlt oder stimmt die PLZ),
+- die Zahl der Vertriebsbezirke und – **nur wenn auffällig** – die
+  Ungleichverteilung ("Rheinland betreut 3,1× so viele Kunden wie Nord"),
+- überfällige Kunden; ohne hinterlegten Besuchsrhythmus stattdessen der Hinweis,
+  dass genau dafür der Rhythmus gebraucht wird,
+- Kunden ohne Bezirk unter "Ohne Zuordnung",
+- eingeklappt die Kundenzahl je Bezirk.
+
+Aus dem Befund führen zwei Wege direkt weiter: **"🎯 Überfällige zeigen"** und
+**"🧭 Tour planen"**.
+
+**Regel:** Es wird nur Auffälliges gesagt. Eine gleichmäßige Verteilung ist
+keine Nachricht. Bei sehr kleinen Listen ohne Bezirke und ohne Rhythmus
+erscheint der Befund gar nicht – dort weiß der Nutzer alles schon.
+
+Der Befund erscheint **einmalig beim Wechsel von Beispiel- auf eigene Daten**.
+Beim echten Reimport beantwortet der Änderungsbericht (7.6) dieselbe Frage
+besser. Er kommt **vor** dem Tresor-Angebot, nie darüber.
+
 #### 7.5.1 Einfügen statt Datei (Strg+V)
 
 Wer die Liste ohnehin in Excel offen hat, braucht keinen Export: Bereich
 **inklusive Überschriftenzeile** markieren, **Strg+C**, dann in TourFuchs
 einfügen. Zwei Wege:
 
-- **"Eigene Daten laden" -> "Liste schon offen? Aus Excel kopieren und hier
-  einfügen"** öffnet ein Feld; dort **Strg+V**. TourFuchs meldet sofort, wie
-  viele Zeilen und Spalten erkannt wurden, dann **"Spalten zuordnen"**.
+- **Im Willkommens-Hinweis** steht am Schreibtisch direkt
+  **"Liste ist in Excel offen? Direkt einfügen"**.
+- **"Eigene Daten laden" -> "Liste aus Excel einfügen"** öffnet ein Feld.
+  Am Schreibtisch ist das der **primäre** Knopf, am Handy steht die Datei vorn –
+  dort ist Excel selten offen. TourFuchs meldet sofort, wie viele Zeilen und
+  Spalten erkannt wurden, dann **"Spalten zuordnen"**.
 - **Strg+V irgendwo in der App** (außerhalb von Eingabefeldern) führt direkt in
   die Spaltenzuordnung.
+- Wer den Datei-Dialog **ohne Auswahl abbricht**, bekommt genau dann den
+  Hinweis auf das Einfügen – einmal je Sitzung, nur am Schreibtisch.
+
+Die Schritte im Einfügen-Dialog richten sich nach dem Gerät: am Schreibtisch
+**Strg+C / Strg+V**, am Handy **Kopieren** und **antippen, halten, Einfügen**.
+Am Handy steht nirgends "Strg".
 
 Erkannt werden Tab-, Semikolon- und Komma-Trennung; Werte in Anführungszeichen
 bleiben zusammen. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der

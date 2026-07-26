@@ -390,6 +390,73 @@
     line-height: 1.45;
 }
 
+/* Befund nach dem ersten eigenen Import */
+.import-insight-dialog {
+    width: min(560px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+}
+.import-insight-dialog header h2 { font-size: 1.15rem; }
+#import-insight-body {
+    max-height: min(60dvh, 520px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+.insight-headline {
+    margin: 6px 0 2px;
+    font-size: 1.25rem;
+    font-weight: 800;
+}
+.insight-revenue { margin: 0 0 4px; color: var(--color-text-muted); font-size: 0.86rem; }
+.insight-lines { margin: 12px 0 0; padding: 0; list-style: none; }
+.insight-line {
+    padding: 9px 12px;
+    margin-bottom: 6px;
+    border-left: 3px solid var(--color-border);
+    background: var(--color-surface-2);
+    border-radius: 0 8px 8px 0;
+    font-size: 0.92rem;
+    line-height: 1.4;
+}
+.insight-notable {
+    border-left-color: #0d9488;
+    background: #f0fdfa;
+    font-weight: 600;
+}
+.insight-warn { border-left-color: #f59e0b; background: #fffbeb; }
+.insight-hint { color: var(--color-text-muted); font-size: 0.86rem; }
+.insight-districts { margin-top: 14px; border-top: 1px solid var(--color-border); padding-top: 10px; }
+.insight-districts > summary { cursor: pointer; font-size: 0.88rem; font-weight: 700; }
+.insight-district-list { margin: 8px 0 0; padding: 0; list-style: none; }
+.insight-district-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 5px 0;
+    border-bottom: 1px solid var(--color-border);
+    font-size: 0.86rem;
+}
+.import-insight-dialog footer button[hidden] { display: none; }
+
+/* Zwei gleichwertige Wege zu eigenen Daten; die Reihenfolge setzt das Gerät. */
+.own-data-ways {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 4px;
+}
+.own-data-ways button { width: 100%; }
+.own-data-way-hint { margin: 8px 0 0; line-height: 1.4; }
+#btn-paste.attention {
+    animation: paste-attention 1.2s ease;
+}
+@keyframes paste-attention {
+    0%, 100% { box-shadow: none; }
+    30%, 70% { box-shadow: 0 0 0 3px #99f6e4; }
+}
+@media (prefers-reduced-motion: reduce) {
+    #btn-paste.attention { animation: none; box-shadow: 0 0 0 2px #0d9488 inset; }
+}
+
 /* Einfügen statt Datei: Liste direkt aus Excel in den Import übernehmen */
 .paste-dialog {
     width: 560px;
