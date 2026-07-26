@@ -8,7 +8,9 @@ let container = null;
 
 export function initToasts() {
     container = document.getElementById('toasts');
-    on('toast', ({ type = 'info', text }) => showToast(text, type));
+    // `ms` ist optional: Kurzlebige Hinweise sollen nicht ausgerechnet das
+    // verdecken, was sie ankündigen (etwa den Auswahlstreifen des Lassos).
+    on('toast', ({ type = 'info', text, ms }) => showToast(text, type, ms));
 }
 
 export function showToast(text, type = 'info', durationMs = 4000) {
