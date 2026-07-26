@@ -28,6 +28,9 @@ import { serviceVisitWindow } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
 import { showMapView } from './sidebar.js';
 import { showToast } from './toast.js';
+import { isDemoCustomer } from '../core/demoSafety.js';
+import { areaLabelFor } from '../features/areaBriefing.js';
+import { openAreaBriefing } from './areaBriefing.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -1433,9 +1436,25 @@ function updateSuggestModeUi() {
         : 'Kunden im Umkreis des Startpunkts.';
 }
 
+/**
+ * Einstieg ins Gebiets-Briefing unter der Vorschlagsliste.
+ *
+ * Sichtbar erst ab zwei Kunden – bei einem einzigen ist das Kundenbriefing der
+ * bessere Weg. Beispielkunden zählen nicht mit: Für sie wird kein Prompt
+ * gebaut, also darf der Knopf auch nichts versprechen.
+ */
+function updateAreaBriefingButton(suggestions, areaLabel) {
+    const btn = document.getElementById('btn-area-briefing');
+    if (!btn) return;
+    const customers = suggestions.map(({ customer }) => customer);
+    const real = customers.filter((c) => !isDemoCustomer(c));
+    btn.hidden = real.length < 2;
+    btn.onclick = () => openAreaBriefing(customers, areaLabel);
+}
+
 function renderSuggestions() {
     const el = document.getElementById('tour-suggestions');
-    if (!state.tour.start) { el.innerHTML = ''; return; }
+    if (!state.tour.start) { el.innerHTML = ''; updateAreaBriefingButton([], ''); return; }
 
     const exclude = new Set(state.tour.stops);
     if (state.tour.start.customerId) exclude.add(state.tour.start.customerId);
@@ -1449,12 +1468,19 @@ function renderSuggestions() {
         if (key !== suggestionRoadKey) requestSuggestionRoadRoute(routePoints);
         if (suggestionRoadLoading) {
             el.innerHTML = '<p class="muted"><span class="spinner"></span> Straßenroute und passende Kunden werden berechnet…</p>';
+            updateAreaBriefingButton([], '');
             return;
         }
     }
     const suggestions = routeMode
         ? suggestAlongRoute(state.tour.start, effStops(), pool, state.tour.radiusKm, exclude, state.tour.roundTrip, overdueFirst, suggestionRoadPath)
         : suggestNearby(state.tour.start, pool, state.tour.radiusKm, exclude, overdueFirst);
+
+    updateAreaBriefingButton(suggestions, areaLabelFor({
+        mode: routeMode ? 'route' : 'radius',
+        radiusKm: state.tour.radiusKm,
+        startLabel: state.tour.start.label
+    }));
 
     if (suggestions.length === 0) {
         const noRoute = routeMode && effStops().length === 0;

@@ -13,8 +13,13 @@ import { getMap, flyToCustomer } from '../features/map.js';
 import { visitStatus, isOpportunity, STATUS_COLORS } from '../features/visits.js';
 import { formatRevenueShort } from '../core/format.js';
 import { showMapView } from './sidebar.js';
+import { isDemoCustomer } from '../core/demoSafety.js';
+import { areaLabelFor } from '../features/areaBriefing.js';
+import { openAreaBriefing } from './areaBriefing.js';
 
 const MAX_ROWS = 12;
+// Was auf dem Schirm steht, ist auch das, was ins Briefing geht.
+let nearbyCustomers = [];
 let originMode = 'map';     // 'map' | 'gps'
 let gpsPos = null;          // { lat, lng } zuletzt bekannter GPS-Standort
 let gpsError = '';          // Hinweistext, falls GPS nicht verfügbar
@@ -83,6 +88,9 @@ export function renderNearby() {
         .sort((a, b) => (a.km ?? Infinity) - (b.km ?? Infinity))
         .slice(0, MAX_ROWS);
 
+    nearbyCustomers = rows.map(({ c }) => c);
+    updateBriefingButton();
+
     if (rows.length === 0) {
         list.innerHTML = '';
         empty.hidden = false;
@@ -106,6 +114,16 @@ export function renderNearby() {
             <button type="button" class="near-add${inTour ? ' in-tour' : ''}" data-near-add="${escapeHtml(c.id)}" aria-label="${inTour ? 'In der Tour' : 'Zur Tour hinzufügen'}" title="${inTour ? 'In der Tour' : 'Zur Tour'}">${inTour ? '✓' : '➕'}</button>
         </li>`;
     }).join('');
+}
+
+/**
+ * „Wen zuerst?" – erst ab zwei echten Kunden. Bei einem einzigen führt das
+ * Kundenbriefing weiter; mit Beispielkunden wird ohnehin kein Prompt gebaut.
+ */
+function updateBriefingButton() {
+    const btn = document.getElementById('btn-near-briefing');
+    if (!btn) return;
+    btn.hidden = nearbyCustomers.filter((c) => !isDemoCustomer(c)).length < 2;
 }
 
 // Mehrere schnelle Auslöser (Panning) zu einem Frame zusammenfassen.
@@ -147,6 +165,13 @@ export function initNearby() {
     panel.addEventListener('click', (ev) => {
         const originBtn = ev.target.closest('[data-near-origin]');
         if (originBtn) { setOrigin(originBtn.dataset.nearOrigin); return; }
+
+        if (ev.target.closest('#btn-near-briefing')) {
+            openAreaBriefing(nearbyCustomers, areaLabelFor({
+                mode: originMode === 'gps' && gpsPos ? 'gps' : 'map'
+            }));
+            return;
+        }
 
         const addBtn = ev.target.closest('[data-near-add]');
         if (addBtn) {
