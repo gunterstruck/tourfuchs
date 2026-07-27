@@ -121,3 +121,28 @@ export function lassoSelectionLabel(count) {
     if (count === 0) return 'Keine Kunden in dieser Fläche';
     return `${count} ${count === 1 ? 'Kunde' : 'Kunden'} ausgewählt`;
 }
+
+/**
+ * Wer wandert bei „zur Tour" wirklich in die Tour?
+ *
+ * Zwei Regeln, beide erklärbar:
+ *  - **Ohne Häkchen gilt die ganze Auswahl.** Das ist der schnelle Weg und war
+ *    schon immer so; ein leerer Häkchensatz darf nicht plötzlich „niemand"
+ *    heißen.
+ *  - **Wer schon in der Tour steht, kommt nicht ein zweites Mal hinein.** Sonst
+ *    steht derselbe Kunde doppelt in der Liste und die Route fährt ihn zweimal
+ *    an.
+ *
+ * Bewusst hier und nicht in der Oberfläche: Es ist eine Regel, keine Anzeige.
+ */
+export function tourAdditions(selection = [], picked = null, stops = []) {
+    const marks = picked instanceof Set ? picked : new Set(picked || []);
+    const inTour = new Set(stops);
+    const base = marks.size > 0 ? selection.filter((c) => marks.has(c?.id)) : selection;
+    return base.filter((c) => c && !inTour.has(c.id));
+}
+
+/** Aufschrift des Tour-Knopfes: „Alle zur Tour" oder „3 zur Tour". */
+export function tourAdditionLabel(count, hasPicks) {
+    return hasPicks ? `🚩 ${count} zur Tour` : '🚩 Alle zur Tour';
+}

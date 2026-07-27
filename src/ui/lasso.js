@@ -14,19 +14,33 @@
  * Kunden, Datenschutzzusage und Demo-Sperre kommen unverändert aus
  * `areaBriefing`. Neu ist hier ausschließlich die Auswahl.
  *
+ * Dazu der Rückweg: Im Profi-Modus trägt jede Zeile der Auswahlkarte ein
+ * Häkchen. „Alle zur Tour" gab es schon – was fehlte, war **einige**. Ohne
+ * Häkchen bleibt es beim Alten, mit Häkchen meint der Knopf genau die
+ * angehakten. Damit schließt sich der Kreis: umfahren, briefen lassen, und die
+ * drei, die sich lohnen, direkt in die Tour.
+ *
  * Warum das Ziehen die Karte einfriert: „Finger runter und ziehen" heißt auf
  * einer Karte sonst „verschieben". Ohne ausdrücklichen Modus würde jedes
  * Verschieben zur Auswahl – daran sterben solche Werkzeuge.
  */
 import L from 'leaflet';
 import { state, emit, on, visibleCustomers } from '../core/state.js';
-import { getMap, openMapCard } from '../features/map.js';
+import { cardAnchorLatLng, getMap, openMapCard } from '../features/map.js';
 import { isOpportunity } from '../features/visits.js';
 import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
-import { customersInLasso, isUsableLasso, lassoSelectionLabel, polygonCentroid, simplifyPath } from '../features/lasso.js';
+import {
+    customersInLasso,
+    isUsableLasso,
+    lassoSelectionLabel,
+    polygonCentroid,
+    simplifyPath,
+    tourAdditionLabel,
+    tourAdditions
+} from '../features/lasso.js';
 import { openAreaBriefing } from './areaBriefing.js';
 
 let active = false;            // Zeichenmodus an?
@@ -39,6 +53,7 @@ let card = null;               // Auswahlkarte auf der Karte (Leaflet-Popup)
 let shapeLayer = null;         // gezeichnete Fläche, bleibt nach dem Zug liegen
 let hitLayer = null;           // Leuchtpunkte auf den Treffern
 let selection = [];
+let picked = new Set();        // angehakte Kunden auf der Auswahlkarte
 let pointerId = null;
 let sheetCollapsed = false;    // haben WIR das Blatt zusammengeschoben?
 
@@ -49,6 +64,17 @@ let sheetCollapsed = false;    // haben WIR das Blatt zusammengeschoben?
  * vollständig; gedeckelt wird ausschließlich die Darstellung.
  */
 const MAX_HIGHLIGHTS = 250;
+
+/**
+ * So viele Kunden stehen namentlich mit Häkchen auf der Auswahlkarte.
+ *
+ * Die Karte ist ein Popup auf einem Telefon, keine Tabelle. Acht Zeilen sind
+ * das, was ohne Scrollen lesbar bleibt – und sie sind die richtigen acht: Die
+ * Auswahl ist von der Mitte nach außen sortiert, oben steht also, was am
+ * nächsten am Zentrum der gezogenen Fläche liegt. Wer alle will, nimmt „Alle
+ * zur Tour"; das Häkchen ist für „diese drei".
+ */
+const MAX_CARD_ROWS = 8;
 
 const HIT_STYLE = {
     radius: 9,
@@ -138,6 +164,7 @@ export function clearLassoSelection() {
     shapeLayer = null;
     hitLayer = null;
     selection = [];
+    picked = new Set();
     if (card && map) map.closePopup(card);
     card = null;
     returnMapRoom();
@@ -164,7 +191,13 @@ function showSelection(polygon, customers) {
     ).addTo(map);
 
     selection = customers;
+    picked = new Set();
     openCard(polygon);
+}
+
+/** Wen betrifft „zur Tour"? Die Regel steht in `features/lasso.js`. */
+function tourTargets() {
+    return tourAdditions(selection, picked, state.tour.stops);
 }
 
 /**
@@ -191,9 +224,30 @@ function cardHtml() {
             : `${escapeHtml(places.slice(0, 3).join(' · '))} +${places.length - 3}`);
     }
 
-    // Die ersten Namen machen greifbar, wen man erwischt hat.
-    const preview = selection.slice(0, 5).map((customer) => `<li>${escapeHtml(customer.name)}</li>`).join('');
-    const rest = selection.length - Math.min(5, selection.length);
+    // Die ersten Namen machen greifbar, wen man erwischt hat. Im Profi-Modus
+    // sind sie zugleich der Rückweg: anhaken und nur diese in die Tour nehmen.
+    const shown = selection.slice(0, MAX_CARD_ROWS);
+    const rest = selection.length - shown.length;
+    const rows = shown.map((customer) => {
+        const name = escapeHtml(customer.name);
+        const place = customer.ort ? ` <span class="muted">${escapeHtml(customer.ort)}</span>` : '';
+        if (!profi) return `<li>${name}${place}</li>`;
+        // Wer schon in der Tour steht, wird gezeigt, aber nicht noch einmal
+        // angeboten – sonst hakt man ihn an und es passiert nichts.
+        if (state.tour.stops.includes(customer.id)) {
+            // „in Tour" steht als eigene Marke am Zeilenende, nicht im Fließtext:
+            // Sonst liest es sich wie ein Teil des Ortsnamens.
+            return `<li class="popup-pick popup-pick-done"><span class="pick-check" aria-hidden="true">✓</span>
+                <span>${name}${place}</span><span class="pick-badge">in Tour</span></li>`;
+        }
+        return `<li class="popup-pick"><label>
+            <input type="checkbox" data-pick="${escapeHtml(customer.id)}"${picked.has(customer.id) ? ' checked' : ''}>
+            <span>${name}${place}</span>
+        </label></li>`;
+    }).join('');
+
+    const targets = tourTargets();
+    const tourLabel = tourAdditionLabel(targets.length, picked.size > 0);
 
     const demoNote = real.length < 2
         ? `<p class="popup-lasso-note">${real.length === 0
@@ -204,15 +258,19 @@ function cardHtml() {
     return `<div class="popup popup-lasso">
         <h3>🧭 ${lassoSelectionLabel(selection.length)}</h3>
         ${meta.length ? `<p class="muted small popup-meta">${meta.join(' · ')}</p>` : ''}
-        <ul class="popup-lasso-list">${preview}</ul>
-        ${rest > 0 ? `<p class="muted small">und ${rest} weitere</p>` : ''}
+        <ul class="popup-lasso-list${profi ? ' popup-lasso-picks' : ''}">${rows}</ul>
+        ${rest > 0
+            ? `<p class="muted small">und ${rest} weitere${profi ? ' – für die gibt es „Alle zur Tour"' : ''}</p>`
+            : ''}
         ${demoNote}
         <div class="popup-actions">
             ${real.length >= 2
-                ? '<button data-action="lasso-brief" id="btn-lasso-brief" title="Prompt für ein Briefing über diese Kunden vorbereiten">📋 Briefing über alle</button>'
+                ? '<button data-lasso="brief" id="btn-lasso-brief" title="Prompt für ein Briefing über diese Kunden vorbereiten">📋 Briefing über alle</button>'
                 : ''}
-            ${profi && real.length >= 2 ? '<button data-action="lasso-tour">🚩 Alle zur Tour</button>' : ''}
-            <button data-action="lasso-clear">✕ Auswahl aufheben</button>
+            ${profi && targets.length > 0
+                ? `<button data-lasso="tour" title="${picked.size > 0 ? 'Nur die angehakten Kunden in die Tour übernehmen' : 'Alle Kunden dieser Auswahl in die Tour übernehmen'}">${tourLabel}</button>`
+                : ''}
+            <button data-lasso="clear">✕ Auswahl aufheben</button>
         </div>
     </div>`;
 }
@@ -228,33 +286,94 @@ function openCard(polygon) {
     const map = getMap();
     if (!map || selection.length === 0) return;
     const centroid = polygonCentroid(polygon);
-    const at = map.containerPointToLatLng([centroid.x, centroid.y]);
-    // `closeOnClick: false` ist hier entscheidend: Direkt nach dem Loslassen
-    // wertet Leaflet die Berührung als Kartenklick und würde die Karte sofort
-    // wieder schließen – die Auswahl wäre weg, bevor man sie gesehen hat.
-    // `autoClose: false` lässt sie stehen, wenn nebenbei ein Kunden-Popup aufgeht.
-    // Drei Optionen, jede gegen einen konkreten Fehler:
+    // Nicht stur der Flächenmittelpunkt: Die Karte klappt nach oben auf, und
+    // über einem Punkt in der oberen Kartenhälfte ist am Handy kein Platz dafür.
+    // `cardAnchorLatLng` schiebt den Anker so weit nach unten, dass die ganze
+    // Karte im freien Bereich steht – siehe die Begründung dort.
+    const at = cardAnchorLatLng(centroid) ?? map.containerPointToLatLng([centroid.x, centroid.y]);
+    // Zwei Optionen, jede gegen einen konkreten Fehler:
     //  - `closeOnClick: false`: Direkt nach dem Loslassen wertet Leaflet die
     //    Berührung als Kartenklick und schlösse die Karte sofort wieder.
     //  - `autoClose: false`: Sie bleibt stehen, wenn nebenbei ein Kunden-Popup
     //    aufgeht.
-    //  - `autoPan: false`: Das automatische Nachschwenken löste `movestart`
-    //    aus – und damit die eigene Regel „Karte bewegt, Auswahl verwerfen".
-    //    Nötig ist es ohnehin nicht: Die Karte sitzt mitten in der Fläche, die
-    //    der Nutzer gerade gezogen hat.
-    card = openMapCard(at, cardHtml(), 'lasso-popup', { closeOnClick: false, autoClose: false, autoPan: false });
+    //
+    // `autoPan` bleibt bewusst AN (Voreinstellung aus `popupOptions`, samt
+    // Polstern für Topbar und Blatt). Eine Weile stand hier `autoPan: false`,
+    // weil das Nachschwenken `movestart` auslöste und damit die eigene Regel
+    // „Karte bewegt, Auswahl verwerfen". Die Regel hört inzwischen auf
+    // `dragstart`/`zoomstart`, also nur noch auf echte Nutzerabsicht – und ohne
+    // Nachschwenken hing eine hohe Auswahlkarte am Handy über den oberen
+    // Fensterrand hinaus: Die erste Zeile lag hinter der Tab-Leiste und ließ
+    // sich nicht antippen.
+    card = openMapCard(at, cardHtml(), 'lasso-popup', { closeOnClick: false, autoClose: false });
+    wireCard();
+}
 
+/**
+ * Karte neu schreiben, ohne sie zu schließen.
+ *
+ * Nötig, weil ein Häkchen die Aufschrift des Tour-Knopfes ändert („Alle zur
+ * Tour" → „3 zur Tour") und weil übernommene Kunden sofort als „in Tour"
+ * dastehen sollen. `setContent` tauscht den Inhalt aus – die Ereignisse müssen
+ * danach neu gesetzt werden.
+ */
+function refreshCard() {
+    if (!card) return;
+    card.setContent(cardHtml());
+    wireCard();
+}
+
+/**
+ * Warum die Knöpfe hier `data-lasso` heißen und nicht `data-action`:
+ *
+ * Die Karte hängt bei `popupopen` einen eigenen Zuhörer an **jeden**
+ * `[data-action]`-Knopf in **jedem** Popup – und schließt das Popup danach,
+ * wenn die Aktion unbekannt ist. Für die Kundenkarte ist das richtig; für die
+ * Auswahlkarte war es tödlich: „zur Tour" übernahm die Kunden und riss die
+ * Auswahl im selben Moment weg. Ein eigener Attributname hält die beiden
+ * Verdrahtungen auseinander.
+ */
+function wireCard() {
     const root = card?.getElement();
-    root?.querySelector('[data-action="lasso-brief"]')?.addEventListener('click', () => {
+    if (!root) return;
+
+    root.querySelector('[data-lasso="brief"]')?.addEventListener('click', () => {
         openAreaBriefing(selection, areaLabelFor({ mode: 'lasso' }));
     });
-    root?.querySelector('[data-action="lasso-clear"]')?.addEventListener('click', clearLassoSelection);
-    root?.querySelector('[data-action="lasso-tour"]')?.addEventListener('click', () => {
-        const added = selection.filter((customer) => !state.tour.stops.includes(customer.id));
+    root.querySelector('[data-lasso="clear"]')?.addEventListener('click', clearLassoSelection);
+    root.querySelector('[data-lasso="tour"]')?.addEventListener('click', () => {
+        const added = tourTargets();
+        if (added.length === 0) return;
         for (const customer of added) state.tour.stops.push(customer.id);
+        picked = new Set();
         emit('tour:changed');
         emit('toast', { type: 'success', text: `${added.length} ${added.length === 1 ? 'Kunde' : 'Kunden'} zur Tour hinzugefügt.` });
+        // Die Auswahl bleibt liegen: Man hakt oft zweimal an – erst die drei im
+        // Gewerbegebiet, dann die zwei an der Ausfallstraße.
+        refreshCard();
     });
+
+    // Ein Häkchen ändert nur, wen der Knopf meint. Bewusst kein Neuaufbau der
+    // Karte: Wer drei Häkchen setzt, würde sonst dreimal die Liste unter dem
+    // Finger verlieren – und die Tastaturbedienung jedes Mal den Fokus.
+    for (const box of root.querySelectorAll('[data-pick]')) {
+        box.addEventListener('change', () => {
+            if (box.checked) picked.add(box.dataset.pick);
+            else picked.delete(box.dataset.pick);
+            updateTourButton();
+        });
+    }
+}
+
+/** Nur die Aufschrift des Tour-Knopfes nachziehen, sonst nichts anfassen. */
+function updateTourButton() {
+    const button = card?.getElement()?.querySelector('[data-lasso="tour"]');
+    if (!button) return;
+    const targets = tourTargets();
+    button.textContent = tourAdditionLabel(targets.length, picked.size > 0);
+    button.title = picked.size > 0
+        ? 'Nur die angehakten Kunden in die Tour übernehmen'
+        : 'Alle Kunden dieser Auswahl in die Tour übernehmen';
 }
 
 function finishStroke() {

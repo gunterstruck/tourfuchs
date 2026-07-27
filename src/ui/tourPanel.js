@@ -988,6 +988,10 @@ function tourAccSummaries() {
             sumMytour.textContent = 'noch leer';
         } else if (state.tour.mapFocus) {
             sumMytour.textContent = `${n} Stopp${n === 1 ? '' : 's'} · auf Karte`;
+        } else if (!state.tour.start) {
+            // Ohne Startpunkt gibt es keine Strecke, die etwas aussagt – dann
+            // lieber nur zählen, als eine Zahl zu erfinden.
+            sumMytour.textContent = `${n} Stopp${n === 1 ? '' : 's'} · Start fehlt`;
         } else {
             const { roadKmEstimate } = routeDistance(state.tour.start, effStops(), state.tour.roundTrip);
             sumMytour.textContent = `${n} Stopp${n === 1 ? '' : 's'} · ~${Math.round(roadKmEstimate)} km`;

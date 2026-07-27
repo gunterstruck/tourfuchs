@@ -1,0 +1,72 @@
+TourFuchs Vertrieb
+Copyright (c) 2025-2026 Günter Struck
+
+Der Quellcode steht unter der MIT-Lizenz (siehe LICENSE). Diese Datei haelt
+fest, was die Lizenz nicht regelt: was dieses Projekt ist, was es nicht ist,
+und welche fremden Lizenzen unabhaengig davon fortgelten.
+
+
+1. WAS DAS HIER IST
+
+TourFuchs ist ein privates Projekt. Es entsteht unentgeltlich in der Freizeit,
+wird nicht verkauft, und es steht kein Unternehmen dahinter.
+
+Daraus folgt:
+- Es gibt keinen Support, keine zugesagte Reaktionszeit und keine Zusage,
+  dass eine Funktion erhalten bleibt oder ein Fehler behoben wird.
+- Es gibt keinen Vertrag, kein Auftragsverarbeitungsverhaeltnis und keine
+  Abnahme. Wer TourFuchs betrieblich einsetzt, tut das in eigener
+  Verantwortung und klaert das intern selbst.
+- Namensnennung ist erwuenscht und von der MIT-Lizenz ohnehin verlangt: Der
+  Copyright-Hinweis gehoert in jede Kopie und in jede abgeleitete Fassung.
+
+Die MIT-Lizenz erlaubt ausdruecklich auch die kommerzielle Nutzung. Das ist
+gewollt: Die Anwendung soll in Unternehmen weitergegeben werden koennen, ohne
+dass jemand erst eine Rechtsabteilung fragen muss.
+
+
+2. KEINE GEWAEHR, KEINE HAFTUNG
+
+Die MIT-Lizenz schliesst Gewaehrleistung und Haftung bereits aus. Zur
+Klarstellung, weil es hier um Daten geht, mit denen gearbeitet wird:
+
+Es wird - soweit gesetzlich zulaessig - keine Haftung uebernommen, insbesondere
+nicht fuer
+
+- die Richtigkeit, Vollstaendigkeit oder Aktualitaet der dargestellten Daten
+  (u. a. Gebietsgrenzen, Postleitzahlen, Geokoordinaten sowie Entfernungs- und
+  Routenschaetzungen),
+- Entscheidungen, die auf Grundlage der Anwendung getroffen werden,
+- Schaeden, Datenverluste oder Ausfaelle, die aus der Nutzung oder
+  Nichtverfuegbarkeit der Anwendung entstehen.
+
+Fuer die Rechtmaessigkeit der lokal verarbeiteten Daten ist die nutzende Person
+selbst verantwortlich. TourFuchs verarbeitet Kundendaten ausschliesslich im
+Browser des Geraets; Einzelheiten stehen in der Datenschutzerklaerung
+(public/datenschutz.html).
+
+
+3. DRITTKOMPONENTEN
+
+Diese Lizenzen gelten unabhaengig von der MIT-Lizenz dieses Projekts fort.
+
+Software:
+- Leaflet .................. BSD-2-Clause .... (c) Vladimir Agafonkin, CloudMade
+- Leaflet.markercluster .... MIT ............. (c) Dave Leaver
+- SheetJS (xlsx) ........... Apache-2.0 ...... (c) SheetJS LLC
+- Workbox (vite-plugin-pwa)  MIT ............. (c) Google LLC
+
+Daten und Karten:
+- Verwaltungsgrenzen (VG250): (c) GeoBasis-DE / BKG 2024, dl-de/by-2-0
+  https://www.govdata.de/dl-de/by-2-0
+- PLZ-Gebiete: (c) OpenStreetMap-Mitwirkende (ODbL), via Esri Deutschland Open Data
+- PLZ-Koordinaten: (c) OpenStreetMap-Mitwirkende (ODbL), WZB plz_geocoord
+- PLZ-Ortsnamen: (c) GeoNames, CC BY 4.0
+  https://creativecommons.org/licenses/by/4.0/
+- Kartendarstellung: (c) OpenStreetMap-Mitwirkende (ODbL), CARTO und Esri
+- Adress-Geocodierung (optional): Nominatim / OpenStreetMap Foundation
+  https://operations.osmfoundation.org/policies/nominatim/
+
+Wichtig fuer Weitergabe und Fork: ODbL, dl-de/by-2-0 und CC BY 4.0 verlangen
+Namensnennung und wirken auch auf abgeleitete Datenbestaende. Die MIT-Lizenz
+des Quellcodes hebt das nicht auf.
