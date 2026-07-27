@@ -9,7 +9,9 @@ import {
     pointInPolygon,
     polygonArea,
     polygonCentroid,
-    simplifyPath
+    simplifyPath,
+    tourAdditionLabel,
+    tourAdditions
 } from '../src/features/lasso.js';
 
 /** Quadrat 0,0 – 100,100 */
@@ -111,6 +113,45 @@ describe('Beschriftung des Auswahlstreifens', () => {
     });
 });
 
+describe('Von der Auswahl zurück in die Tour', () => {
+    const auswahl = [
+        { id: 'a', name: 'Alpha' },
+        { id: 'b', name: 'Beta' },
+        { id: 'c', name: 'Gamma' },
+        { id: 'd', name: 'Delta' }
+    ];
+
+    it('nimmt ohne Häkchen die ganze Auswahl', () => {
+        // Der schnelle Weg war schon immer „alle" – ein leerer Häkchensatz
+        // darf nicht plötzlich „niemand" bedeuten.
+        expect(tourAdditions(auswahl, new Set(), []).map((c) => c.id)).toEqual(['a', 'b', 'c', 'd']);
+        expect(tourAdditions(auswahl, null, []).map((c) => c.id)).toEqual(['a', 'b', 'c', 'd']);
+    });
+
+    it('nimmt mit Häkchen genau die angehakten', () => {
+        const drei = new Set(['a', 'c']);
+        expect(tourAdditions(auswahl, drei, []).map((c) => c.id)).toEqual(['a', 'c']);
+    });
+
+    it('nimmt niemanden ein zweites Mal in die Tour', () => {
+        // Sonst steht derselbe Kunde doppelt in der Liste und die Route fährt
+        // ihn zweimal an.
+        expect(tourAdditions(auswahl, new Set(), ['b']).map((c) => c.id)).toEqual(['a', 'c', 'd']);
+        expect(tourAdditions(auswahl, new Set(['a', 'b']), ['b']).map((c) => c.id)).toEqual(['a']);
+    });
+
+    it('kommt mit leerer Auswahl klar', () => {
+        expect(tourAdditions([], new Set(['a']), [])).toEqual([]);
+        expect(tourAdditions()).toEqual([]);
+    });
+
+    it('beschriftet den Knopf nach dem, was er tut', () => {
+        expect(tourAdditionLabel(4, false)).toBe('🚩 Alle zur Tour');
+        expect(tourAdditionLabel(3, true)).toBe('🚩 3 zur Tour');
+        expect(tourAdditionLabel(1, true)).toBe('🚩 1 zur Tour');
+    });
+});
+
 describe('Verdrahtung des Lasso-Werkzeugs', () => {
     const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
     const ui = readFileSync(resolve(process.cwd(), 'src/ui/lasso.js'), 'utf8');
@@ -169,6 +210,41 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         expect(map).toContain('popupOptions(');
     });
 
+    it('macht aus der Namensliste im Profi-Modus den Rückweg', () => {
+        // „Alle zur Tour" gab es schon – was fehlte, war „diese drei".
+        expect(ui).toContain('data-pick="');
+        expect(ui).toContain('type="checkbox"');
+        expect(ui).toContain('popup-lasso-picks');
+        expect(ui).toContain('tourAdditions');
+        expect(css).toContain('.popup-pick label {');
+        // Der Häkchensatz gehört zur Auswahl: neue Fläche, neue Häkchen.
+        const show = ui.slice(ui.indexOf('function showSelection'), ui.indexOf('function tourTargets'));
+        expect(show).toContain('picked = new Set()');
+        expect(ui.slice(ui.indexOf('export function clearLassoSelection'))).toContain('picked = new Set()');
+    });
+
+    it('zeigt bereits eingeplante Kunden, bietet sie aber nicht noch einmal an', () => {
+        // Ein Häkchen, bei dem nichts passiert, ist schlimmer als kein Häkchen.
+        expect(ui).toContain('popup-pick-done');
+        expect(ui).toContain('in Tour');
+    });
+
+    it('baut die Karte beim Anhaken nicht neu auf', () => {
+        // Wer drei Häkchen setzt, verlöre sonst dreimal die Liste unter dem
+        // Finger – und die Tastaturbedienung jedes Mal den Fokus.
+        const wire = ui.slice(ui.indexOf('for (const box of root.querySelectorAll'), ui.indexOf('/** Nur die Aufschrift'));
+        expect(wire).toContain('updateTourButton()');
+        expect(wire).not.toContain('refreshCard()');
+    });
+
+    it('lässt die Auswahl nach dem Übernehmen stehen', () => {
+        // Man hakt oft zweimal an: erst die drei im Gewerbegebiet, dann die
+        // zwei an der Ausfallstraße.
+        const tour = ui.slice(ui.indexOf("root.querySelector('[data-lasso=\"tour\"]')"), ui.indexOf('// Ein Häkchen ändert'));
+        expect(tour).toContain('refreshCard()');
+        expect(tour).not.toContain('clearLassoSelection');
+    });
+
     it('zeichnet die Spur mit und zeigt den Startpunkt', () => {
         // „dann trifft man ungefähr das Ende": Ohne sichtbaren Startpunkt weiß
         // niemand, wo die Fläche geschlossen wird.
@@ -196,8 +272,38 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
     it('lässt die Auswahlkarte stehen, statt sie sofort wieder zu schließen', () => {
         // Leaflet wertet die Berührung direkt nach dem Loslassen als
         // Kartenklick und schlösse die frisch geöffnete Karte sofort.
-        expect(ui).toContain('closeOnClick: false');
-        expect(ui).toContain('autoPan: false');
+        const auf = ui.slice(ui.indexOf('card = openMapCard('), ui.indexOf('wireCard();'));
+        expect(auf).toContain('closeOnClick: false');
+        expect(auf).toContain('autoClose: false');
+        // Und ausdrücklich NICHT `autoPan: false`: Ohne Nachschwenken hing die
+        // Karte am Handy über dem oberen Fensterrand. Am Aufruf geprüft, nicht
+        // an der Datei – im Kommentar darüber steht die Zeichenkette weiterhin.
+        expect(auf).not.toContain('autoPan');
+    });
+
+    it('setzt den Anker so, dass die Karte nicht über den Rand hinausragt', () => {
+        // Ein Popup wächst nach oben. Über dem Flächenmittelpunkt ist am Handy
+        // oft kein Platz dafür, und nachschwenken kann Leaflet nicht, wenn die
+        // Landkarte schon an ihrer Grenze steht.
+        expect(ui).toContain('cardAnchorLatLng');
+        expect(map).toContain('export function cardAnchorLatLng');
+        const anker = map.slice(map.indexOf('export function cardAnchorLatLng'), map.indexOf('export function openMapCard'));
+        expect(anker).toContain('mobilePopupSafeArea()');
+        expect(anker).toContain('Math.min(Math.max(y, minY), maxY)');
+    });
+
+    it('hält die Knöpfe der Auswahlkarte sichtbar, auch wenn der Inhalt rollt', () => {
+        const block = css.slice(css.indexOf('.popup-lasso .popup-actions {'), css.indexOf('}', css.indexOf('.popup-lasso .popup-actions {')));
+        expect(block).toContain('position: sticky');
+        expect(block).toContain('bottom: 0');
+    });
+
+    it('reitet nicht auf der Popup-Verdrahtung der Karte mit', () => {
+        // `map.on('popupopen')` hängt an JEDEN `[data-action]`-Knopf einen
+        // Zuhörer, der das Popup danach schließt. Für „zur Tour" hieße das:
+        // übernehmen und die Auswahl im selben Moment verlieren.
+        expect(ui).not.toContain('data-action="lasso');
+        expect(ui).toContain('data-lasso="tour"');
     });
 
     it('lässt den Zeichenmodus per Escape verlassen', () => {

@@ -78,3 +78,25 @@ describe('Mobile „Meine Tour": kompakte Ein-Zeilen-Stopps mit grüner Tourlini
         expect(components).toContain('.stop-reorder-hint { display: none; }'); // Desktop: aus
     });
 });
+
+describe('Strecke ohne Startpunkt', () => {
+    it('rechnet die Kette zwischen den Stopps, statt abzustürzen', async () => {
+        // Kunden landen in der Tour, bevor ein Start gesetzt ist – aus der
+        // Kundenkarte oder aus einer Lasso-Auswahl heraus. `distanceKm` griff
+        // dann auf `null.lat` zu und riss die ganze Oberfläche mit.
+        const { routeDistance } = await import('../src/features/tour.js');
+        const stops = [
+            { lat: 51.5, lng: 7.0 },
+            { lat: 51.6, lng: 7.2 }
+        ];
+        expect(() => routeDistance(null, stops)).not.toThrow();
+        expect(routeDistance(null, stops).airKm).toBeGreaterThan(0);
+        expect(() => routeDistance(null, stops, true)).not.toThrow();
+        expect(routeDistance(null, [])).toEqual({ airKm: 0, roadKmEstimate: 0 });
+    });
+
+    it('nennt im Kurzstand „Start fehlt" statt einer erfundenen Zahl', () => {
+        const panel = read('src/ui/tourPanel.js');
+        expect(panel).toContain('Start fehlt');
+    });
+});

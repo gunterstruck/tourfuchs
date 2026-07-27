@@ -1895,6 +1895,40 @@ export function focusMapArea(lat, lng, zoom = 10) {
  * mobile Nachführen sind mühsam erarbeitet – ein zweites Popup, das sich anders
  * verhält, fiele sofort auf.
  */
+/**
+ * Ankerpunkt für eine Karte, die nach oben aufklappt.
+ *
+ * Ein Leaflet-Popup wächst vom Anker nach oben. Über einem Punkt in der oberen
+ * Kartenhälfte ist auf einem Telefon dafür kein Platz: Die Karte hinge über der
+ * Kopfsteuerung, und ihre erste Zeile ließe sich nicht antippen.
+ *
+ * Leaflet würde in so einem Fall die Landkarte nachschwenken – nur kann es das
+ * nicht, wenn die Karte ohnehin schon an ihrer Grenze steht (weit
+ * herausgezoomt auf Deutschland ist das die Regel, nicht die Ausnahme). Dann
+ * bleibt das Popup halb außerhalb stehen.
+ *
+ * Deshalb wandert hier der **Anker** nach unten, statt die Landkarte zu
+ * verschieben: Der Nutzer behält den Ausschnitt, den er sich gerade selbst
+ * gezogen hat, und die Karte steht vollständig im freien Bereich.
+ *
+ * @param {{x:number,y:number}} containerPoint Wunschanker in Kartenpixeln
+ * @param {number} estimatedHeight Höhe der Karte samt Rahmen und Zipfel
+ */
+export function cardAnchorLatLng(containerPoint, estimatedHeight = 420) {
+    if (!map || !containerPoint) return null;
+    const rect = map.getContainer().getBoundingClientRect();
+    const safe = isMobileMap() ? mobilePopupSafeArea() : null;
+    let y = containerPoint.y;
+    if (safe && safe.bottom > safe.top) {
+        const minY = (safe.top - rect.top) + estimatedHeight;
+        const maxY = safe.bottom - rect.top;
+        // Passt die Karte selbst im freien Bereich nicht, bringt Schieben
+        // nichts – dann bleibt der Wunschanker, und der Inhalt rollt.
+        if (minY <= maxY) y = Math.min(Math.max(y, minY), maxY);
+    }
+    return map.containerPointToLatLng([containerPoint.x, y]);
+}
+
 export function openMapCard(latlng, html, className = '', extra = {}) {
     if (!map) return null;
     const popup = L.popup(popupOptions({

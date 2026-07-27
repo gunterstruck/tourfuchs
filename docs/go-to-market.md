@@ -377,9 +377,9 @@ halte ich das für den besseren Tausch.
    Reddit gewinnt, wer eine *Entscheidung* erklärt, nicht wer ein Werkzeug
    anpreist.
 3. **Von Anfang an offenlegen:** „Ich habe das gebaut."
-4. **Nicht in `r/opensource` oder `r/selfhosted` posten**, solange die Lizenz
-   „Alle Rechte vorbehalten" lautet – siehe Abschnitt 8. Dort wird das binnen
-   Minuten aufgegriffen, und dann geht es nur noch darum.
+4. **`r/opensource` und `r/selfhosted` sind offen**, seit die Lizenz MIT lautet
+   (siehe Abschnitt 8.1). Vorher wäre „Alle Rechte vorbehalten" dort binnen
+   Minuten aufgegriffen worden, und es wäre nur noch darum gegangen.
 5. Vor dem Posten die Regeln des jeweiligen Subreddits lesen. Jedes hat eigene
    Vorgaben zu Eigenwerbung.
 
@@ -469,22 +469,32 @@ uninstall/reinstall dance?
 
 ## 8. Risiken und offene Entscheidungen
 
-### 8.1 Die Lizenzfrage – vor dem ersten Reddit-Post klären
+### 8.1 Die Lizenzfrage – entschieden: MIT
 
-Das Repository ist **öffentlich**, die Lizenz lautet **„Alle Rechte
-vorbehalten"**. Für ein technisches Publikum ist das ein Widerspruch, der
-verlässlich zur ersten Frage wird – und die Diskussion dann bestimmt.
+**Erledigt.** Der Quellcode steht seit dem Lizenzwechsel unter **MIT**, dazu eine
+`NOTICE`, die festhält: privates Projekt, unentgeltlich, kein Support, ohne
+Gewähr.
 
-Drei saubere Wege:
+Warum MIT und nicht das ursprünglich erwogene „Schaufenster" (alle Rechte
+vorbehalten):
 
-| Weg | Bedeutung | Passt, wenn |
-|---|---|---|
-| **Schaufenster** | Lizenz bleibt, im Post ausdrücklich sagen: „Quelltext einsehbar, keine Nutzungsrechte" | Es soll Referenz und Gesprächsanlass sein |
-| **Offen** | Echte Lizenz (z. B. MIT, AGPL) | Mitwirkung und Verbreitung erwünscht |
-| **Nur Produkt** | Repository privat, nur die Adresse teilen | Es geht um Nutzer, nicht um Code |
+- **Die Zielgruppe sitzt in Konzernen.** MIT verlangt Namensnennung in jeder
+  Kopie und macht sonst keine Prüfprobleme – niemand muss vor dem Ausprobieren
+  eine Rechtsabteilung fragen. „Alle Rechte vorbehalten" an einem öffentlichen
+  Repository ist genau der Widerspruch, an dem ein technisches Publikum
+  hängenbleibt.
+- **AGPL würde kommerzielle Übernahmen verhindern** – aber eben auch die interne
+  Verbreitung ausbremsen, auf die alles hier setzt. Der Schutz, den sie bietet,
+  kostet genau das, was erreicht werden soll.
+- **Geld ist ausdrücklich nicht das Ziel.** Was zählt, ist Verbreitung und
+  soziales Kapital. Dazu passt die Lizenz, die am wenigsten im Weg steht.
 
-**Meine Empfehlung: Schaufenster.** Ein Satz im Post nimmt der Frage die Schärfe
-und bleibt ehrlich. Was nicht geht: die Frage offenlassen und hoffen.
+Was MIT **nicht** deckt: die mitgelieferten Geodaten. ODbL, dl-de/by-2-0 und
+CC BY 4.0 gelten unabhängig fort und wirken auch auf abgeleitete Datenbestände.
+Steht in `NOTICE` und in „Lizenz & Rechtliches" in der App.
+
+Für den Post heißt das: Die Lizenzfrage ist keine Gefahr mehr, sondern eine
+Antwort. Ein Halbsatz genügt – „MIT, privates Projekt, ohne Gewähr".
 
 ### 8.2 Weitere Punkte
 
@@ -513,5 +523,5 @@ und bleibt ehrlich. Was nicht geht: die Frage offenlassen und hoffen.
    Einstellungsliste (der Befund) ist ab sofort echt und nicht nachgestellt.
 4. **LinkedIn Beitrag 1** (Problem), zwei Tage später **Beitrag 2** (Film), eine
    Woche später **Beitrag 3** (Haltung).
-5. **Reddit** erst nach der Lizenzentscheidung, und mit Zeit für Antworten am
-   Tag des Postens.
+5. **Reddit** – die Lizenzentscheidung steht (MIT), damit ist der Weg frei.
+   Trotzdem nur mit Zeit für Antworten am Tag des Postens.

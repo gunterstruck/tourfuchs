@@ -17,6 +17,9 @@
  *    ersten Millimeter ab?
  *  - Steht der Auswahlstreifen im Bild und ist er antippbar?
  *  - Lässt sich die Karte danach wieder schieben?
+ *  - Trifft ein Daumen die 17 Pixel großen Häkchen der Auswahlkarte, meint der
+ *    Knopf danach wirklich die angehakten Kunden, und bleibt die Auswahl nach
+ *    dem Übernehmen stehen?
  *
  * Aufruf:
  *   npm run touch-check
@@ -90,6 +93,23 @@ async function runFormat(browser, format, baseUrl) {
         type,
         touchPoints: type === 'touchEnd' ? [] : [{ x: point.x, y: point.y, radiusX: 12, radiusY: 12, force: 1 }]
     });
+
+    /** Eine Fläche mit dem Finger ziehen – wie ein Nutzer, ohne Messungen. */
+    const zieheFlaeche = async () => {
+        const box = await page.locator('#map').boundingBox();
+        const cx = box.x + box.width / 2;
+        const cy = box.y + box.height * 0.42;
+        const r = Math.min(box.width, box.height) * 0.26;
+        const ring = [];
+        for (let i = 0; i <= 24; i++) {
+            const angle = (i / 24) * Math.PI * 2 - Math.PI / 2;
+            ring.push({ x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r * 0.9 });
+        }
+        await touch('touchStart', ring[0]);
+        for (const point of ring.slice(1)) { await touch('touchMove', point); await sleep(12); }
+        await touch('touchEnd', ring[ring.length - 1]);
+        await sleep(1400);
+    };
 
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#map', { timeout: 20000 });
@@ -169,7 +189,7 @@ async function runFormat(browser, format, baseUrl) {
             const el = document.querySelector('.popup-lasso');
             if (!el) return { da: false };
             const r = el.getBoundingClientRect();
-            const brief = el.querySelector('[data-action="lasso-brief"], [data-action="lasso-clear"]');
+            const brief = el.querySelector('[data-lasso="brief"], [data-lasso="clear"]');
             const br = brief?.getBoundingClientRect();
             const top = br ? document.elementFromPoint(br.left + br.width / 2, br.top + br.height / 2) : null;
             return {
@@ -189,7 +209,7 @@ async function runFormat(browser, format, baseUrl) {
             return marker ? Math.round(marker.getBoundingClientRect().left) : null;
         });
         const before = await markerX();
-        await page.evaluate(() => document.querySelector('.popup-lasso [data-action="lasso-clear"]')?.click());
+        await page.evaluate(() => document.querySelector('.popup-lasso [data-lasso="clear"]')?.click());
         await sleep(1200);
         // Dort ansetzen, wo nach dem Aufräumen wirklich Karte liegt – sonst
         // schiebt der Testfinger das wieder hochgefahrene Blatt.
@@ -210,6 +230,60 @@ async function runFormat(browser, format, baseUrl) {
             if (await markerX() === before) problems.push('Die Karte lässt sich nach dem Lasso nicht mehr schieben.');
         } else {
             problems.push('Nach dem Aufheben ist keine freie Kartenfläche mehr erreichbar.');
+        }
+
+        // --- Der Rückweg: „diese drei zur Tour" ---
+        //
+        // Ein Häkchen ist 17 Pixel groß. Ob man es mit dem Daumen trifft und ob
+        // der Knopf danach wirklich die angehakten meint, zeigt nur ein echter
+        // Finger – am Bildschirm, nicht im Zustandsobjekt.
+        await page.evaluate(() => document.querySelector('[data-depth="profi"]')?.click());
+        await sleep(1500);
+        await page.locator('#btn-lasso').tap({ timeout: 8000 }).catch(() => problems.push('Der Lasso-Knopf ließ sich im Profi-Modus nicht antippen.'));
+        await sleep(700);
+        await zieheFlaeche();
+
+        const vorher = await page.evaluate(() => ({
+            haken: document.querySelectorAll('.popup-lasso [data-pick]').length,
+            knopf: document.querySelector('.popup-lasso [data-lasso="tour"]')?.textContent?.trim() || null
+        }));
+        if (vorher.haken === 0) {
+            problems.push('Die Auswahlkarte trägt im Profi-Modus keine Häkchen.');
+        } else if (vorher.knopf !== '🚩 Alle zur Tour') {
+            problems.push(`Ohne Häkchen heißt der Tour-Knopf „${vorher.knopf}" statt „🚩 Alle zur Tour".`);
+        } else {
+            // Zwei Zeilen antippen – auf das Etikett, nicht auf das Kästchen:
+            // So trifft ein Daumen, und genau dafür ist die Trefferfläche da.
+            const zuTippen = Math.min(2, vorher.haken);
+            for (let i = 0; i < zuTippen; i++) {
+                await page.locator('.popup-lasso .popup-pick label').nth(i)
+                    .tap({ timeout: 5000 })
+                    .catch(() => problems.push(`Zeile ${i + 1} der Auswahlkarte ließ sich nicht antippen.`));
+                await sleep(350);
+            }
+            const nachHaken = await page.evaluate(() => ({
+                gesetzt: document.querySelectorAll('.popup-lasso [data-pick]:checked').length,
+                knopf: document.querySelector('.popup-lasso [data-lasso="tour"]')?.textContent?.trim() || null
+            }));
+            if (nachHaken.gesetzt !== zuTippen) {
+                problems.push(`Nach ${zuTippen} Tippern sind ${nachHaken.gesetzt} Häkchen gesetzt – die Trefferfläche stimmt nicht.`);
+            }
+            if (nachHaken.knopf !== `🚩 ${zuTippen} zur Tour`) {
+                problems.push(`Mit ${zuTippen} Häkchen heißt der Knopf „${nachHaken.knopf}" statt „🚩 ${zuTippen} zur Tour".`);
+            }
+
+            await page.locator('.popup-lasso [data-lasso="tour"]').tap({ timeout: 5000 })
+                .catch(() => problems.push('Der Tour-Knopf auf der Auswahlkarte ließ sich nicht antippen.'));
+            await sleep(900);
+            const danach = await page.evaluate(() => ({
+                karteDa: !!document.querySelector('.popup-lasso'),
+                inTour: document.querySelectorAll('.popup-lasso .popup-pick-done').length,
+                knopf: document.querySelector('.popup-lasso [data-lasso="tour"]')?.textContent?.trim() || null,
+                stopps: document.querySelectorAll('#tour-stops li, #tour-stops .stop-card').length
+            }));
+            if (!danach.karteDa) problems.push('Nach „zur Tour" ist die Auswahl verschwunden – man kann nicht zweimal anhaken.');
+            if (danach.inTour < zuTippen) problems.push(`Übernommene Kunden stehen nicht als „in Tour" in der Liste (${danach.inTour} von ${zuTippen}).`);
+            if (danach.knopf !== '🚩 Alle zur Tour') problems.push(`Nach der Übernahme heißt der Knopf „${danach.knopf}" – die Häkchen wurden nicht zurückgesetzt.`);
         }
     }
 

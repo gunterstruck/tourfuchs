@@ -150,11 +150,15 @@ export function optimizeOrder(start, stops, endPoint = null) {
 export function routeDistance(start, stops, roundTrip = false) {
     let air = 0;
     let current = start;
+    // Ohne Startpunkt ist die Strecke die Kette zwischen den Stopps – kein
+    // Absturz. Kunden landen in der Tour, bevor ein Start gesetzt ist (etwa aus
+    // der Kundenkarte oder aus einer Lasso-Auswahl heraus); `distanceKm` würde
+    // dann auf `null.lat` zugreifen und die ganze Oberfläche mitreißen.
     for (const stop of stops) {
-        air += distanceKm(current, stop);
-        current = stop;
+        if (current && stop) air += distanceKm(current, stop);
+        current = stop || current;
     }
-    if (roundTrip && stops.length) air += distanceKm(current, start);
+    if (roundTrip && stops.length && current && start) air += distanceKm(current, start);
     return { airKm: air, roadKmEstimate: air * CONFIG.tour.roadFactor };
 }
 
