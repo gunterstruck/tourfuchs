@@ -41,7 +41,32 @@ Dass zwei Wege zum selben Dialog führen, ist Absicht: **geplant** am Schreibtis
 Schritt 2 ist der eigentliche Moment: **erst sehen, dann gefragt werden.** Das
 Ziehen allein wählt nur aus – es öffnet nie von selbst einen Dialog.
 
-Im Profi-Modus bietet die Auswahlkarte zusätzlich **🚩 Alle zur Tour**.
+## Der Rückweg: „diese drei zur Tour"
+
+Ein Briefing ist kein Selbstzweck. Wenn der Assistent geantwortet hat, will man
+zwei oder drei der genannten Kunden auch tatsächlich anfahren – und die Auswahl
+liegt beim Zurückkommen noch auf der Karte.
+
+Deshalb trägt im **Profi-Modus** jede Zeile der Auswahlkarte ein Häkchen:
+
+- **Ohne Häkchen** heißt der Knopf **🚩 Alle zur Tour** und tut genau das – der
+  schnelle Weg, den es vorher schon gab.
+- **Mit Häkchen** heißt er **🚩 3 zur Tour** und meint genau die angehakten.
+
+Zwei Regeln, die man nicht erklären muss, sondern sieht:
+
+- Wer schon in der Tour steht, erscheint mit ✓ und **in Tour** – ohne Kästchen.
+  Ein Häkchen, bei dem nichts passiert, ist schlimmer als kein Häkchen.
+- Nach dem Übernehmen **bleibt die Auswahl liegen**. Man hakt oft zweimal an:
+  erst die drei im Gewerbegebiet, dann die zwei an der Ausfallstraße.
+
+Namentlich stehen die ersten **acht** Kunden auf der Karte – sie ist ein Popup
+auf einem Telefon, keine Tabelle. Es sind die richtigen acht: Die Auswahl ist
+vom Flächenmittelpunkt nach außen sortiert. Für alles darüber hinaus gibt es
+„Alle zur Tour".
+
+Im Einsteiger-Modus bleibt die Liste eine reine Namensliste – dort ist die
+Tourplanung ohnehin nicht der Weg.
 
 ## Warum die Karte einfriert
 
@@ -78,12 +103,31 @@ verschwindet sie ganz, statt halb verdeckt hineinzuragen. Auf **Tablet-Hochkant*
 steht das Blatt meist offen und nimmt die untere Hälfte ein – dort wandert die
 Zeile an den **oberen** Kartenrand, wo das Blatt nie hinkommt.
 
-**Zwei Fallen beim Popup.** Leaflet wertet die Berührung direkt nach dem
-Loslassen als Kartenklick und schlösse die frisch geöffnete Auswahlkarte sofort
-(`closeOnClick: false`). Und das automatische Nachschwenken eines Popups löst
-`movestart` aus – womit die Regel „Karte bewegt, Auswahl verwerfen" die eigene
-Auswahl im selben Moment löschte. Deshalb `autoPan: false` und Aufräumen erst
-bei `dragstart`/`zoomstart`.
+**Drei Fallen beim Popup**, alle erst am Gerät sichtbar geworden:
+
+1. **Es schloss sich sofort.** Leaflet wertet die Berührung direkt nach dem
+   Loslassen als Kartenklick (`closeOnClick: false`).
+2. **Es löschte sich selbst.** Das automatische Nachschwenken löst `movestart`
+   aus – womit die Regel „Karte bewegt, Auswahl verwerfen" griff. Aufgeräumt
+   wird deshalb erst bei `dragstart`/`zoomstart`, also nur bei echter
+   Nutzerabsicht. Damit ist das Nachschwenken wieder erlaubt.
+3. **Es hing über dem oberen Rand.** Ein Popup wächst vom Anker nach oben; über
+   dem Flächenmittelpunkt ist dafür auf einem Telefon kein Platz, und
+   nachschwenken kann Leaflet nicht, wenn die Landkarte ohnehin an ihrer Grenze
+   steht (weit herausgezoomt auf Deutschland ist das die Regel). Die erste
+   Zeile lag hinter der Tab-Leiste und ließ sich nicht antippen. Deshalb wandert
+   der **Anker** nach unten statt der Landkarte (`cardAnchorLatLng`) – der
+   Nutzer behält den Ausschnitt, den er sich gerade gezogen hat.
+
+Dazu: Die Knöpfe der Auswahlkarte kleben am unteren Rand des Popups
+(`position: sticky`). Sonst schob eine lange Namensliste „Briefing über alle"
+und „Auswahl aufheben" aus dem sichtbaren Bereich heraus – man sah die Auswahl
+und kam nicht weiter.
+
+Und die Knöpfe der Auswahlkarte heißen `data-lasso`, nicht `data-action`: Die
+Karte hängt an jeden `[data-action]`-Knopf in jedem Popup einen eigenen Zuhörer,
+der das Popup danach schließt. „Zur Tour" hätte die Kunden übernommen und die
+Auswahl im selben Moment weggerissen.
 
 **Prüfen lässt sich das nur mit echten Touch-Ereignissen.** Ein
 Playwright-Lauf mit `page.mouse` läuft grün durch, weil `touch-action` für die
@@ -128,6 +172,9 @@ Werbung; wenn ihn jeder Besucher selbst auslösen kann, ist er das Produkt.
    Modus ist wieder aus.
 4. **📋 Briefing über alle** → Gebiets-Briefing mit „die von mir auf der Karte
    markierte Fläche" als Gebiet.
-5. Karte verschieben → Auswahl verschwindet.
+5. Profi-Modus: zwei Zeilen anhaken → der Knopf heißt **🚩 2 zur Tour**;
+   drücken → die zwei stehen in der Tour, in der Liste mit ✓ **in Tour**, die
+   Auswahl bleibt liegen, der Knopf heißt wieder **🚩 Alle zur Tour**.
+6. Karte verschieben → Auswahl verschwindet.
 6. Modus ein, nur tippen → nichts wird ausgewählt.
 7. **Escape** im Modus → Modus aus, Karte wieder verschiebbar.

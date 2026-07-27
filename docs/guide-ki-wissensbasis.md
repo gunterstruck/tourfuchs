@@ -1173,8 +1173,18 @@ Ablauf:
    eine Auswahlkarte im Gewand der Kundenkarte: Anzahl, fällige Kunden, Umsatz,
    Orte, die ersten Namen. Der Modus schaltet sich selbst wieder ab.
 3. "Briefing über alle" öffnet das Gebiets-Briefing aus 9.6 - **unverändert**:
-   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt. Im Profi-Modus
-   bietet die Karte zusätzlich "Alle zur Tour".
+   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt.
+
+**Der Rückweg (Profi-Modus):** Jede Zeile der Auswahlkarte trägt ein Häkchen.
+Ohne Häkchen heißt der Knopf "Alle zur Tour" und tut das auch; mit Häkchen heißt
+er "3 zur Tour" und meint genau die angehakten. Kunden, die schon in der Tour
+stehen, erscheinen mit einem Haken und "in Tour", aber ohne Kästchen. Nach dem
+Übernehmen bleibt die Auswahl liegen - man hakt oft zweimal an. Namentlich
+stehen die ersten acht Kunden auf der Karte, sortiert vom Flächenmittelpunkt
+nach außen; für alles darüber hinaus gibt es "Alle zur Tour".
+
+Damit schließt sich der Kreis: umfahren, briefen lassen, und die zwei oder drei,
+die sich lohnen, direkt in die Tour - ohne die Auswahl zu verlieren.
 
 Auf Handy und Tablet-Hochkant schiebt sich das Bedienblatt beim Einschalten auf
 Guckhöhe, damit überhaupt Karte zum Zeichnen da ist; es kommt zurück, sobald die

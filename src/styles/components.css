@@ -2279,6 +2279,77 @@ body.lasso-active .mobile-next-step { display: none; }
     line-height: 1.5;
 }
 
+/* Die Knöpfe bleiben stehen, während der Rest rollt.
+   Ohne das schob eine lange Namensliste „Briefing über alle" und „Auswahl
+   aufheben" aus dem sichtbaren Bereich des Popups heraus – man sah die Auswahl
+   und kam nicht weiter. Bewusst klebend statt einer zweiten Rollfläche in der
+   Liste: Zwei ineinander liegende Rollflächen sind auf einem Telefon eine
+   Zumutung. */
+.popup-lasso .popup-actions {
+    position: sticky;
+    bottom: 0;
+    margin-bottom: 0;
+    padding-top: 10px;
+    border-top: 1px solid var(--color-border, #e2e8f0);
+    background: #fff;
+}
+
+/* Mit Häkchen wird aus der Namensliste der Rückweg: „diese drei zur Tour".
+   Dann trägt die Zeile das Kästchen und braucht keinen Aufzählungspunkt.
+   Der Rahmen ist kein Schmuck: Er macht aus der angeschnittenen letzten Zeile
+   eine erkennbare Rollfläche statt eines Darstellungsfehlers. */
+.popup-lasso-picks {
+    padding: 3px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 10px;
+    background: #fff;
+    list-style: none;
+}
+.popup-pick { margin: 2px 0; }
+.popup-pick label {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    /* Der ganze Text ist Trefferfläche – auf einem Telefon trifft niemand
+       zuverlässig ein 13px-Kästchen. */
+    padding: 5px 6px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.popup-pick label:hover { background: #f1f5f9; }
+.popup-pick input[type="checkbox"] {
+    flex: none;
+    width: 17px;
+    height: 17px;
+    margin: 0;
+    accent-color: #0d9488;
+    cursor: pointer;
+}
+.popup-pick-done {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    padding: 5px 6px;
+}
+.popup-pick-done .pick-check {
+    flex: none;
+    width: 17px;
+    color: #0f766e;
+    font-weight: 700;
+    text-align: center;
+}
+.popup-pick-done .pick-badge {
+    flex: none;
+    margin-left: auto;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #ccfbf1;
+    color: #0f766e;
+    font-size: 0.72rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
 .popup-lasso-note {
     margin-top: 10px;
     padding: 8px 10px;

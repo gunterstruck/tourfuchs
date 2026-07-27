@@ -4,7 +4,7 @@
 
 > Installierbare Web-App (PWA) · Lokal nutzbar · Briefing-Prompts für Ihren KI-Assistenten – ohne Anmeldung, ohne API-Aufruf
 
-> ⚠️ **Privates, nicht-kommerzielles Projekt.** Nutzung auf eigene Gefahr, ohne Gewähr und ohne Haftung jeglicher Art. Siehe [LICENSE](./LICENSE).
+> ⚠️ **Privates Projekt, unentgeltlich, ohne Gewähr.** Quellcode unter [MIT](./LICENSE) – Weitergabe und Anpassung ausdrücklich erlaubt, Namensnennung vorausgesetzt. Kein Support, keine Haftung. Was das genau heißt, steht in [NOTICE](./NOTICE).
 
 ---
 
@@ -34,7 +34,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 | 📲 **QR-Übergabe** | Am Desktop geplante Tour als QR-Code anzeigen, am Handy mit der Kamera scannen und übernehmen – nur die Tour (keine Datenbank), Bildschirm zu Kamera, ohne Netzwerk und ohne Server. Navigation und Kalender-Termine funktionieren direkt aus dem gescannten Code |
 | 📋 **Kundenbriefing** | Ohne Einrichtung nutzbar: TourFuchs baut lokal einen kundenspezifischen Prompt, kopiert ihn und öffnet den Assistenten – abgesendet wird dort bewusst vom Nutzer. **TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-API auf.** Im **Profi**-Modus ist das Ziel wählbar (Microsoft 365 Copilot, Google Gemini, ChatGPT oder eine eigene https-Adresse) |
 | 🧭 **Gebiets-Briefing** | „Wen zuerst?" unter den Tourvorschlägen und unter „In der Nähe": derselbe manuelle Weg für die Kunden eines Gebiets. Der Prompt enthält je Kunde nur Name, Kundennummer, PLZ/Ort, Fälligkeit und letzten Besuch – kein Umsatz, keine Kontaktdaten, keine Straße –, ist auf 12 Kunden begrenzt und verlangt eine Besuchsreihenfolge statt eines weiteren Berichts |
-| 🖊️ **Lasso auf der Karte** | Eine Fläche frei umfahren statt einen Regler zu schieben – der Knopf steht gleichrangig neben „Kunden in meiner Nähe“. Die Karte friert ein, die Spur wächst mit dem Finger mit, die Treffer leuchten auf, und eine **Auswahlkarte im Gewand der Kundenkarte** nennt Anzahl, fällige Kunden, Umsatz und Orte – von dort direkt ins Gebiets-Briefing. Trifft auch **unrunde** Gebiete (Gewerbegebiet, Flussseite, Autobahnkorridor), die ein Umkreis prinzipiell verfehlt. Auf Handy und Tablet-Hochkant schiebt sich das Blatt dafür auf Guckhöhe |
+| 🖊️ **Lasso auf der Karte** | Eine Fläche frei umfahren statt einen Regler zu schieben – der Knopf steht gleichrangig neben „Kunden in meiner Nähe“. Die Karte friert ein, die Spur wächst mit dem Finger mit, die Treffer leuchten auf, und eine **Auswahlkarte im Gewand der Kundenkarte** nennt Anzahl, fällige Kunden, Umsatz und Orte – von dort direkt ins Gebiets-Briefing. Im **Profi**-Modus trägt jede Zeile ein **Häkchen**: „Alle zur Tour" gab es schon, mit Häkchen heißt der Knopf „🚩 3 zur Tour" und übernimmt genau die – die Auswahl bleibt dabei liegen. Trifft auch **unrunde** Gebiete (Gewerbegebiet, Flussseite, Autobahnkorridor), die ein Umkreis prinzipiell verfehlt. Auf Handy und Tablet-Hochkant schiebt sich das Blatt dafür auf Guckhöhe |
 | 🛡️ **Service-Vertragsradar** | Separater Excel-/CSV-Import für Vertragsstände aus SAP, SieSales/Salesforce oder weiteren Quellen. Exakter Kundenabgleich per Kundennummer, Quellenalter, Handlungsfristen, Vertragswert, SLA und Verantwortliche. Der Service-Modus ist ein **optionales Modul** – standardmäßig ausgeblendet und im Profi-Modus unten in der Gebietsplanung per Häkchen einblendbar, damit der Einstieg nicht überfrachtet |
 | 🔊 **Zanobo-Brücke** | Serviceeinsätze mit Anlagen-ID verlinken direkt in die Schwester-App [Zanobo](https://zanobo.vercel.app) – akustischer Maschinen-Check am Smartphone, lokal im Browser, ohne Cloud. Vergleich statt Diagnose; die Anlagen-ID entspricht der Maschinen-ID am Zanobo-NFC-Tag und bleibt im URL-Fragment (wird nie an den Server übertragen). Eigene Zanobo-Instanz im Service-Cockpit einstellbar |
 | 🔍 **Suche** | Kunden nach Name, Ort, PLZ oder Kundennummer finden und anfliegen |
@@ -157,7 +157,9 @@ Dieses Werkzeug speist Berührungen über das Chrome DevTools Protocol ein, so w
 ein Gerät sie erzeugt, und prüft, was nur damit sichtbar wird: ob ein
 schwebendes Element den Knopf verdeckt, ob die Zeichenspur dem Finger wirklich
 folgt, ob der Auswahlstreifen antippbar im Bild steht und ob sich die Karte
-danach wieder schieben lässt.
+danach wieder schieben lässt. Dazu der Rückweg im Profi-Modus: ob ein Daumen die
+Häkchen der Auswahlkarte trifft, ob der Tour-Knopf danach wirklich die
+angehakten Kunden meint und ob die Auswahl nach dem Übernehmen stehen bleibt.
 
 ```bash
 npm run build
@@ -225,13 +227,23 @@ Alternativ per CLI: `npx vercel`
 | Kartendarstellung „Satellit" (nur bei bewusster Wahl) | © [Esri](https://www.esri.com/), Maxar, Earthstar Geographics | Esri-Nutzungsbedingungen |
 | Geocoding (optional) | [Nominatim](https://nominatim.org/) | [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/) |
 
-Verwendete Software-Bibliotheken (mit Lizenz) sind in der App unter **Lizenz & Rechtliches** sowie in der [LICENSE](./LICENSE)-Datei aufgeführt.
+Verwendete Software-Bibliotheken (mit Lizenz) sind in der App unter **Lizenz & Rechtliches** sowie in der [NOTICE](./NOTICE)-Datei aufgeführt.
 
 ## Lizenz & Haftung
 
-Privates, nicht-kommerzielles Projekt. **Alle Rechte vorbehalten** – keine Nutzung, Weitergabe oder
-kommerzielle Verwertung ohne Zustimmung des Urhebers. Bereitstellung ohne jegliche Gewährleistung,
-Nutzung auf eigene Gefahr, **keine Haftung jeglicher Art**. Vollständiger Text: [LICENSE](./LICENSE).
+**Quellcode: [MIT](./LICENSE).** Kopieren, ändern, weitergeben, intern ausrollen – erlaubt, auch
+kommerziell. Bedingung ist einzig, dass Copyright-Hinweis und Lizenztext in jeder Kopie mitgehen.
+MIT ist bewusst gewählt: Die App soll in Unternehmen weitergereicht werden können, ohne dass vorher
+jemand eine Rechtsabteilung fragen muss.
+
+**Privates Projekt, unentgeltlich.** Kein Support, keine zugesagte Reaktionszeit, keine Zusage auf
+Fortbestand einer Funktion. Bereitstellung ohne jegliche Gewährleistung, Nutzung auf eigene Gefahr,
+**keine Haftung jeglicher Art** – insbesondere nicht für die Richtigkeit der dargestellten Daten
+oder für Entscheidungen, die darauf aufbauen.
+
+**Achtung bei Weitergabe und Fork:** Die MIT-Lizenz deckt nur den Quellcode. Die mitgelieferten
+Geodaten stehen unter ODbL, dl-de/by-2-0 bzw. CC BY 4.0 – diese verlangen Namensnennung und wirken
+auch auf abgeleitete Datenbestände fort. Einzelheiten: [NOTICE](./NOTICE).
 
 ## Kontakt & Impressum
 
