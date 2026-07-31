@@ -221,7 +221,7 @@ Nach dem Import zeigt TourFuchs:
 - importierte Flächenzeilen
 - übersprungene oder fehlerhafte Zeilen
 
-Wenn Fehler erkannt werden, können diese als Fehlerliste heruntergeladen und in Excel korrigiert werden.
+Ein Dialog öffnet sich nur, wenn Zeilen **nicht** importiert wurden – dann lassen sie sich als Fehlerliste herunterladen und in Excel korrigieren. Reine Hinweise (alle Zeilen sind drin, etwa fehlende Vertriebsbezirke) erscheinen als kurze Meldung; die Liste bleibt unter **Daten → „Hinweise zum letzten Import"** erreichbar.
 
 ## 8. Demo-Daten nutzen
 

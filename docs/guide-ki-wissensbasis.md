@@ -676,8 +676,10 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
    erkannten). Beim Import werden alle Felder gelesen – auch die eingeklappten.
 5. **"Importieren"**. Ist bereits ein Kundenbestand geladen, Wirkung und Anzahl
    in der Ersetzungswarnung prüfen und erst dann bestätigen.
-6. Erfolgsmeldung beziehungsweise Dialog **"Import abgeschlossen"** prüfen.
-7. Bei Problemen **"Fehlerliste (.xlsx)"** herunterladen.
+6. Kurzmeldung lesen. Ein **Dialog** erscheint nur, wenn Zeilen **nicht**
+   importiert wurden; reine Hinweise nennt die Kurzmeldung mit Anzahl.
+7. Liste bei Bedarf herunterladen – im Dialog oder jederzeit unter
+   **Daten → "Hinweise/Fehlerliste zum letzten Import (.xlsx)"**.
 8. Nach eigenen Kundendaten weist ein Kurzhinweis darauf hin, dass die Daten
    unverschlüsselt auf diesem Gerät liegen. Er hält **nicht** auf; wer will,
    richtet den Tresor über das hervorgehobene Schloss oben ein (14.1).
@@ -1967,7 +1969,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Zanobo-Instanz ändern | `Service -> Einsätze -> Datenquelle -> Feld "Zanobo-Instanz"` |
 | Eigene Liste laden | `Daten -> "Eigene Daten laden" -> "Excel- oder CSV-Liste" -> Berechtigung -> "Excel-/CSV-Datei auswählen"` |
 | Spalten prüfen | `"Spalten zuordnen" -> Zuordnungen und Beispiele prüfen -> "Importieren"` |
-| Fehlerliste | `"Import abgeschlossen" -> "Fehlerliste (.xlsx)"` |
+| Fehlerliste | `Daten -> "Fehlerliste zum letzten Import (.xlsx)"` (bei nicht importierten Zeilen auch direkt im Dialog) |
 | Excel-Vorlage | `Daten -> "Excel-Vorlage herunterladen"` |
 | Kundenbestand ersetzen | `Daten -> "Andere Excel- oder CSV-Liste laden" -> Datei prüfen -> "Importieren" -> Ersetzungswarnung bestätigen` |
 | Exakte Adressen | `Daten -> "Adressen exakt verorten"` |
@@ -2302,7 +2304,7 @@ aktuelle interne Wissen.
 4. Datei öffnen.
 5. Spaltenzuordnung prüfen.
 6. importieren.
-7. Ergebnis und Fehlerliste lesen.
+7. Kurzmeldung lesen; Dialog kommt nur bei nicht importierten Zeilen.
 8. Tresor-Hinweis und hervorgehobenes Schloss erklären (keine Pflicht-PIN).
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
@@ -2862,6 +2864,11 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neue Live-Demo "Dein Service-Tag in 20 Sekunden" (Desktop) ergänzt; nach
   jeder Live-Demo kehren Ansichtstiefe und Arbeitsfokus zum vorherigen Stand
   zurück.
+- **Import-Ergebnis nur noch bei echten Fehlern als Dialog:** Reine Hinweise
+  (alle Zeilen importiert, z. B. "12 Kunden ohne Vertriebsbezirk") melden sich
+  als Kurzmeldung mit Anzahl. Die Liste bleibt dauerhaft unter
+  **Daten → "Hinweise/Fehlerliste zum letzten Import"** herunterladbar. Damit
+  bekommt die einfachste Liste (Name + PLZ) keinen Dialog vor den Befund gesetzt.
 - Tablet hochkant bekommt den mobilen Einstieg (Außendienst, Tour, Basis) –
   auch breite Tablets (12,9" hochkant = 1024 px), die bisher durch die
   900-px-Schwelle fielen. Gesperrt wird nichts; Drehen ändert nur die Geometrie.

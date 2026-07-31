@@ -81,6 +81,8 @@ Neben Kundenzeilen kann die Liste **Flächenzeilen** enthalten: eine Zeile **ohn
 
 Beim Import werden die Zeilen geprüft. **Gültige Zeilen werden importiert**, problematische landen in einer **herunterladbaren Fehlerliste (Excel)** statt in einer unübersichtlichen Fehleranzeige. Erkannt werden u. a.: Dubletten (gleiche Kundennummer bzw. Name + PLZ), fehlender Vertriebsbezirk, widersprüchliche Gebietszuordnungen (ein Gebiet zwei verschiedenen Bezirken zugewiesen), unbekannte Landkreise/PLZ-Gebiete sowie nicht auffindbare Kunden-PLZ (Hinweis).
 
+Ein **Dialog erscheint nur, wenn Zeilen nicht importiert wurden** – das hat eine Folge und eine Aufgabe. Reine **Hinweise** (alle Zeilen sind drin, z. B. „12 Kunden ohne Vertriebsbezirk") melden sich als kurze Meldung; die Liste bleibt unter **Daten → „Hinweise zum letzten Import"** herunterladbar. So bekommt gerade die einfachste Liste (Name + PLZ) keinen Dialog vor den Befund gesetzt.
+
 Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sind bereits Daten geladen, nennt TourFuchs vor dem Import die Wirkung und verlangt eine Bestätigung. Erst danach werden alte Kunden, Tour und Gebietszuordnungen ersetzt. Reine Kontakt- oder Gebietsdateien bleiben ergänzend, weil sie sich ausdrücklich auf den vorhandenen Kundenbestand beziehen.
 
 ### Datenschutz
