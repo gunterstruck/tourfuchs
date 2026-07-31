@@ -9,6 +9,7 @@
  */
 
 import { isDemoCustomer } from '../core/demoSafety.js';
+import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
 
 const DEFAULT_SOURCE_INSTRUCTION = 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
 
@@ -59,11 +60,20 @@ function tourLines(context) {
     return lines;
 }
 
-export function buildCustomerBriefingPrompt(customer, context = {}, assistant = null) {
+/**
+ * @param {object} customer
+ * @param {object} context    TourFuchs-Kontext (Tour, geplanter Tag, letzter Besuch)
+ * @param {object} assistant  liefert die Quellenzeile des Ziels
+ * @param {object[]} sources  eigene Nachschlagequellen des Nutzers (optional)
+ */
+export function buildCustomerBriefingPrompt(customer, context = {}, assistant = null, sources = []) {
     if (isDemoCustomer(customer)) {
         throw new Error('Für Demo-Kunden wird kein externer Assistenten-Prompt erzeugt.');
     }
     const sourceInstruction = value(assistant?.promptSources) || DEFAULT_SOURCE_INSTRUCTION;
+    // Hinterlegte eigene Ablagen gehen der allgemeinen Suche voran: Der Nutzer
+    // weiß besser als der Assistent, wo das Aktuelle liegt.
+    const ownSources = briefingSourcesPromptBlock(sources);
     const identifiers = identityLines(customer);
     const plan = tourLines(context);
     const localContext = plan.length
@@ -75,7 +85,7 @@ export function buildCustomerBriefingPrompt(customer, context = {}, assistant = 
 Kunde zur eindeutigen Zuordnung:
 ${identifiers.join('\n')}
 ${localContext}
-${sourceInstruction} Ordne Treffer nur diesem Kunden zu. Nutze dafür gemeinsam Kundenname, Kundennummer, Ort und Ansprechpartner. Vermische keine ähnlich benannten Kunden.
+${ownSources}${sourceInstruction} Ordne Treffer nur diesem Kunden zu. Nutze dafür gemeinsam Kundenname, Kundennummer, Ort und Ansprechpartner. Vermische keine ähnlich benannten Kunden.
 
 Zeitraum:
 - letzte 12 Monate, mit Schwerpunkt auf den letzten 90 Tagen

@@ -52,6 +52,47 @@ Die Wahl wird lokal gemerkt und passt zwei Dinge an: die geöffnete Adresse **un
 Quellenzeile im Prompt. Für eigene Adressen ist ausschließlich `https` zulässig; eine
 unvollständige Eingabe fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
 
+## Eigene Nachschlagequellen – „schau hier nach" statt „such mal"
+
+Der häufigste Grund für ein enttäuschendes Briefing ist kein schlechter Prompt,
+sondern ein zu großer Suchraum: Der Assistent durchsucht **alles**, worauf der
+Nutzer Zugriff hat, und findet dabei oft Älteres – während der aktuellste Stand
+in einer einzigen, selbst gepflegten Liste steht.
+
+Deshalb lassen sich im Briefing-Dialog (in **beiden** Ansichtstiefen, eingeklappt
+unter „Wo soll der Assistent zuerst nachsehen?") bis zu **drei eigene Quellen**
+hinterlegen. Je Quelle zwei Felder:
+
+| Feld | Zweck | Beispiel |
+|---|---|---|
+| **Was steckt drin?** | Sagt dem Assistenten, **wie** er die Ablage mit dem Kunden verknüpft. Das ist der eigentliche Hebel – ein nackter Link ohne diese Angabe hilft kaum. | „Bezirksliste Rheinland – Konditionen und Kontakte, Zuordnung über die Kundennummer" |
+| **Link oder Pfad** | Die Ortsangabe. Bewusst Freitext: SharePoint-Adresse, Teams-Kanal, Laufwerkspfad oder schlicht ein Ordnername. | `https://firma.sharepoint.com/sites/vertrieb/Bezirke` |
+
+Im Prompt erscheinen sie **vor** der allgemeinen Suchanweisung als
+Vorrang-Hinweis:
+
+> Vorrangige Quellen – sieh zuerst hier nach:
+> - Bezirksliste Rheinland – … : https://…
+> Diese Ablagen pflege ich selbst; sie sind für mich der aktuellste Stand. Steht
+> dort etwas zu einem der genannten Kunden, hat es Vorrang vor älteren
+> Fundstellen – ordne die Einträge über die Kundennummer zu. …
+
+Drei bewusste Grenzen:
+
+1. **Vorrang, kein Filter.** Formuliert ist „sieh zuerst hier nach", nicht „nur
+   hier". Wer die Bezirksliste hinterlegt, will nicht, dass die Mail von gestern
+   unter den Tisch fällt.
+2. **Höchstens drei.** Mehr Quellen ergeben keinen besseren Prompt, nur einen
+   neuen Heuhaufen.
+3. **Nur Prompt-Text.** TourFuchs öffnet die Quelle nicht, ruft sie nicht ab und
+   sendet nichts. Die Angabe liegt lokal im Browser und steht sichtbar im
+   angezeigten Prompt, bevor der Nutzer ihn selbst absendet. Für Beispielkunden
+   entsteht wie bisher gar kein Prompt.
+
+Die Einträge gelten für **beide** Briefings; geändert werden sie in dem Dialog,
+in dem sie gerade auffallen. Die Wirkung ist sofort im angezeigten Prompt
+sichtbar – man muss sie nicht im Assistenten nachprüfen.
+
 ## Gebiets-Briefing: „Wen zuerst?"
 
 Die häufigere Frage im Außendienst ist nicht „erzähl mir alles über einen Kunden",
