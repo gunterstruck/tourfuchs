@@ -23,8 +23,9 @@
 // Ohne diese zweite Zahl versprach das Panel dem Handy die Desktop-Laufzeit –
 // bei „Von der Excel-Liste zur Kundenkarte" waren das 44 s für 31 s Vorführung.
 //
-// Zuletzt gemessen am 26.07.2026 (Chromium, Produktions-Build) in vier
+// Zuletzt gemessen am 31.07.2026 (Chromium, Produktions-Build) in vier
 // Formaten: Desktop 1440×900, Tablet 834×1112 und 1112×834, Handy 390×844.
+// Lauf: 30 Durchläufe, 30 ok, 0 Abbrüche, 0 Klickmängel.
 // Die Messung beginnt beim Klick auf die Kachel und endet mit dem
 // Ergebnis-Dialog; der Dialog-Vorlauf von rund einer Sekunde ist abgezogen.
 export const STORIES = [
@@ -33,8 +34,8 @@ export const STORIES = [
         icon: '🗺️',
         title: 'Von der Excel-Liste zur Kundenkarte',
         blurb: 'Liste einfügen, Stapel verstehen, bis zum Detail aufzoomen.',
-        duration: 48,
-        durationMobile: 31,   // am Handy entfallen die Einfüge-Schritte
+        duration: 50,
+        durationMobile: 32,   // am Handy entfallen die Einfüge-Schritte
         minRuntimeMs: 15000,
         steps: [
             { t: 'say', text: 'TourFuchs macht aus einer Kundenliste eine verständliche Deutschlandkarte.', sel: '#map', ms: 2400 },
@@ -66,7 +67,7 @@ export const STORIES = [
         title: 'Fläche umfahren, Briefing bekommen',
         blurb: 'Kunden auf der Karte einkreisen und sofort fragen: Wen zuerst?',
         duration: 34,
-        durationMobile: 32,
+        durationMobile: 35,
         needsData: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
@@ -87,8 +88,8 @@ export const STORIES = [
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',
         blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 61,
-        durationMobile: 55,
+        duration: 60,
+        durationMobile: 54,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -123,13 +124,13 @@ export const STORIES = [
         icon: '📲',
         title: 'Aufs Handy – ohne Kabel, ohne Cloud',
         blurb: 'Tour per QR-Code an dein Smartphone.',
-        duration: 54,
+        duration: 53,
         desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
         needsData: true,
         mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
-            { t: 'say', text: 'Im Schnelldurchlauf entsteht erst eine kleine Tour – Bezirk, Start, zwei Stopps. Wie in der Tour-Demo.', ms: 2800 },
+            { t: 'say', text: 'Im Schnelldurchlauf entsteht erst eine kleine Tour – Startpunkt und zwei Stopps. Wie in der Tour-Demo.', ms: 2800 },
             { t: 'run', key: 'gotoTour' },
             { t: 'run', key: 'pickBezirkAll' },
             { t: 'run', key: 'pickStart' },
@@ -153,7 +154,7 @@ export const STORIES = [
         icon: '🧪',
         title: 'Was wäre wenn? Gebiete umbauen – ohne Risiko',
         blurb: 'Testweise umverteilen, Wirkung sofort sehen.',
-        duration: 41,
+        duration: 42,
         desktopOnly: true,   // Gebietsplanung/Cockpit gibt es nur auf dem Desktop
         needsData: true,
         patchConfirm: true,   // „Verwerfen" bestätigt sich in der Vorführung automatisch
@@ -177,7 +178,7 @@ export const STORIES = [
         icon: '🛠️',
         title: 'Dein Service-Tag, verständlich geplant',
         blurb: 'Einsätze rein – erklärbarer Tagesplan raus.',
-        duration: 52,
+        duration: 51,
         desktopOnly: true,   // Service-Fokus (Profi) gibt es nur auf dem Desktop
         needsData: true,
         mutatesTour: true,
@@ -187,7 +188,7 @@ export const STORIES = [
             { t: 'run', key: 'gotoService' },
             { t: 'say', text: 'Im Service-Fokus zählen nur Vertragskunden und offene Einsätze – die Zähler zeigen den Handlungsbedarf.', sel: '#service-customer-scope', ms: 3000 },
             { t: 'run', key: 'gotoServiceTour' },
-            { t: 'say', text: 'Bezirk und Startpunkt – schnell gesetzt …', ms: 1800 },
+            { t: 'say', text: 'Startpunkt – schnell gesetzt …', ms: 1800 },
             { t: 'run', key: 'pickBezirkAll' },
             { t: 'run', key: 'pickServiceStart' },
             { t: 'say', text: 'Startpunkt steht. Jetzt plant TourFuchs den Tag – lokal auf deinem Gerät, ohne Cloud.', sel: '#btn-service-day-preview', ms: 2600 },
@@ -203,8 +204,8 @@ export const STORIES = [
         icon: '🎯',
         title: 'Spontaner Termin? Sofort gebrieft',
         blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
-        duration: 48,
-        durationMobile: 37,
+        duration: 45,
+        durationMobile: 36,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -217,7 +218,7 @@ export const STORIES = [
             { t: 'say', text: '„Chancen" zeigt dir dafür nur fällige und überfällige Kunden.', sel: '.seg[data-view="chancen"]', ms: 2400, desktopOnly: true },
             { t: 'run', key: 'chancenOn', desktopOnly: true },
             { t: 'wait', ms: 1400 },
-            { t: 'say', text: 'Bezirk und Startpunkt sind schnell gesetzt …', ms: 1800 },
+            { t: 'say', text: 'Der Startpunkt ist schnell gesetzt …', ms: 1800 },
             { t: 'run', key: 'pickBezirkAll' },
             { t: 'run', key: 'pickStart' },
             { t: 'run', key: 'addOneSuggestion' },
@@ -234,7 +235,7 @@ export const STORIES = [
         icon: '🔐',
         title: 'Deine Daten im Tresor',
         blurb: 'Verschlüsselt, PIN-geschützt, sicher aufs Handy.',
-        duration: 29,
+        duration: 30,
         needsData: true,
         mutatesVault: true,   // Demo legt einen Tresor an – cleanup baut ihn wieder ab
         steps: [
@@ -256,7 +257,7 @@ export const STORIES = [
         icon: '📥',
         title: 'Verschlüsselte Daten aufs Handy holen',
         blurb: 'Datei wählen, Schlüssel scannen, fertig.',
-        duration: 28,
+        duration: 29,
         mobileOnly: true,     // Gegenstück zur Desktop-QR-Story; nur am Handy sinnvoll
         needsData: true,
         steps: [
