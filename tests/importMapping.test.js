@@ -32,3 +32,29 @@ describe('Import-Assistent: wichtige Felder zuerst, optionale auf Abruf (Konzept
         expect(wiz).not.toContain("document.querySelectorAll('#mapping-rows select')");
     });
 });
+
+describe('CSV-Trennzeichen zählt nur außerhalb von Anführungszeichen', () => {
+    // Externer Prüfbericht, P2: Gezählt wurde über den ganzen Kopf. Ein gültiger
+    // Semikolon-CSV mit einem Feldnamen wie "Gebiet, Kreis, Region" brachte mehr
+    // Kommas als Semikolons mit – das Komma gewann, die Datei wurde falsch gelesen.
+    const excel = readFileSync(resolve(process.cwd(), 'src/services/excel.js'), 'utf8');
+    const zaehler = new Function(`${excel.slice(excel.indexOf('function countOutsideQuotes'), excel.indexOf('export async function readWorkbook'))}; return countOutsideQuotes;`)();
+    const trennzeichen = (zeile) => [';', ',', '\t'].reduce(
+        (best, c) => (zaehler(zeile, c) > zaehler(zeile, best) ? c : best), ';'
+    );
+
+    it('lässt sich von Kommas in zitierten Feldnamen nicht täuschen', () => {
+        expect(trennzeichen('Kunde;"Gebiet, Kreis, Region, Zone"')).toBe(';');
+        expect(trennzeichen('Kunde;"Ort, Kreis";PLZ')).toBe(';');
+    });
+
+    it('erkennt die einfachen Fälle unverändert', () => {
+        expect(trennzeichen('Kunde;PLZ;Ort')).toBe(';');
+        expect(trennzeichen('Kunde,PLZ,Ort')).toBe(',');
+        expect(trennzeichen('Kunde\tPLZ\tOrt')).toBe('\t');
+    });
+
+    it('behandelt verdoppelte Anführungszeichen als Text', () => {
+        expect(zaehler('a;"b""c";d', ';')).toBe(2);
+    });
+});

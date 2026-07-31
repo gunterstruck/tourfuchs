@@ -182,12 +182,24 @@ function onLocked() {
     renderControls();
     showLockScreen();
 }
+/**
+ * Automatische Löschung nach zu vielen Fehlversuchen.
+ *
+ * Sie meldet „Der Tresor und die lokalen Daten wurden gelöscht" – dann muss sie
+ * auch alles mitnehmen, was am bewussten Löschen hängt. Bisher feuerte hier nur
+ * das vault-eigene `wiped`, nicht aber `dataset:cleared`; Briefing-Quellen mit
+ * internen Ablagepfaden, Erste-Schritte-Fortschritt, Demo-Quittung und die
+ * Hinweisliste des letzten Imports überlebten die Löschung. Ein Gerät, das
+ * gerade wegen zu vieler Fehlversuche geleert wurde, ist der letzte Ort, an dem
+ * so etwas stehenbleiben darf.
+ */
 function onWiped() {
     state.territories = {};
     clearServiceContracts({ dirty: false });
     clearServiceVisits({ dirty: false });
     setCustomers([]);
     emit('customers:changed');
+    emit('dataset:cleared');
     hideLockScreen();
     renderControls();
     showToast('Der Tresor und die lokalen Daten wurden gelöscht.', 'error', 7000);

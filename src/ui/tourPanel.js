@@ -18,7 +18,7 @@ import { initTourQr, openShareDialog } from './tourQr.js';
 import { noteTourSharedToPhone } from './firstSteps.js';
 import { zanoboMachineUrl } from '../services/zanobo.js';
 import { copyText, tourText } from '../features/handoff.js';
-import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText } from '../features/visits.js';
+import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
 import { loadTours, saveTours } from '../services/storage.js';
 import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } from '../services/routing.js';
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
@@ -1146,7 +1146,7 @@ function renderStops() {
             </ol>
         </div>`;
     } else {
-        const today = new Date().toISOString().slice(0, 10);
+        const today = todayIso();   // lokaler Tag, nicht UTC
         // Mobiler Hinweis auf das Umsortieren (Desktop blendet ihn per CSS aus).
         const reorderHint = stops.length >= 2
             ? '<p class="stop-reorder-hint muted small">↕ Zum Umsortieren einen Stopp halten und ziehen</p>'

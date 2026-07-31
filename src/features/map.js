@@ -24,6 +24,7 @@ import {
 import { suggestNearby, suggestAlongRoute } from './tour.js';
 import { popupSafeRect, popupPanOffset, popupContentHeightLimit } from './popupViewport.js';
 import { visitStatus, isOpportunity, lastVisit, agoText, formatDateDe, markVisitedToday, STATUS_COLORS, STATUS_LABELS } from './visits.js';
+import { planningNow } from './dayPlanner.js';
 import { automaticLevelActive, automaticLevelForZoom } from './mapLevel.js';
 import { isPlanningRelevantServiceContract, normalizeCustomerNumber } from './serviceContracts.js';
 import { serviceVisitsForCustomer, isOpenServiceVisit, serviceVisitWindow } from './serviceVisits.js';
@@ -1676,7 +1677,7 @@ export function customersOnMap() {
         customer
         && customer.lat !== null && customer.lng !== null
         // Chancen-Fokus: nur fällige/überfällige Kunden zeigen
-        && !(state.ui.opportunityOnly && !isOpportunity(customer))
+        && !(state.ui.opportunityOnly && !isOpportunity(customer, planningNow()))
     ));
 }
 
