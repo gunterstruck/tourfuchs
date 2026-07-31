@@ -15,8 +15,9 @@
 import { state, on } from '../core/state.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import {
+    installOfferMode,
     readLaunchIntent,
-    shouldOfferInstall,
+    supportsManualInstall,
     takeSharedFile,
     urlWithoutLaunchParams
 } from '../services/pwaLaunch.js';
@@ -86,15 +87,33 @@ function dismissInstallOffer(banner, remember) {
     setTimeout(() => banner.remove(), 180);
 }
 
-function showInstallOffer() {
-    if (offerShown || !installEvent) return;
+/**
+ * Ein Banner, zwei Modi.
+ *
+ * `manual` ist der iOS-Fall: Dort gibt es kein `beforeinstallprompt`, also auch
+ * keinen Knopf, der installiert – nur den Weg über das Teilen-Menü. Statt gar
+ * nichts anzubieten, wird er benannt. Das ist der Moment, in dem es zählt: Die
+ * Tour ist gerade per QR im Handy-Browser gelandet, und ohne diesen Hinweis
+ * bliebe sie ein Browser-Tab.
+ */
+function showInstallOffer(mode) {
+    if (offerShown) return;
+    if (mode === 'prompt' && !installEvent) return;
     offerShown = true;
 
     const banner = document.createElement('div');
     banner.className = 'install-offer';
     banner.setAttribute('role', 'status');
-    banner.innerHTML = `
-        <div class="install-offer-copy">
+    banner.innerHTML = mode === 'manual'
+        ? `<div class="install-offer-copy">
+            <strong>TourFuchs auf den Startbildschirm?</strong>
+            <span>Tippe unten auf <b>Teilen</b> und dann auf <b>„Zum Home-Bildschirm"</b>. Danach startet die Tour ohne Browserleiste und auch ohne Empfang.</span>
+        </div>
+        <div class="install-offer-actions">
+            <button type="button" class="install-offer-later">Nicht jetzt</button>
+            <button type="button" class="install-offer-ok primary">Verstanden</button>
+        </div>`
+        : `<div class="install-offer-copy">
             <strong>TourFuchs installieren?</strong>
             <span>Startet ohne Browserleiste, funktioniert offline und liegt als Symbol auf dem Startbildschirm.</span>
         </div>
@@ -104,7 +123,10 @@ function showInstallOffer() {
         </div>`;
 
     banner.querySelector('.install-offer-later').addEventListener('click', () => dismissInstallOffer(banner, true));
-    banner.querySelector('.install-offer-now').addEventListener('click', async () => {
+    // „Verstanden" ist keine Ablehnung: Wer den Weg gelesen hat, geht ihn evtl.
+    // gleich – das Angebot soll ihm dabei nicht noch einmal dazwischenfunken.
+    banner.querySelector('.install-offer-ok')?.addEventListener('click', () => dismissInstallOffer(banner, true));
+    banner.querySelector('.install-offer-now')?.addEventListener('click', async () => {
         const event = installEvent;
         installEvent = null;
         dismissInstallOffer(banner, false);
@@ -124,15 +146,20 @@ function showInstallOffer() {
 }
 
 function maybeOfferInstall() {
-    const ok = shouldOfferInstall({
+    const mode = installOfferMode({
         promptAvailable: Boolean(installEvent),
+        manualInstallAvailable: supportsManualInstall({
+            userAgent: navigator.userAgent,
+            maxTouchPoints: navigator.maxTouchPoints,
+            standalone: isInstalled()
+        }),
         installed: isInstalled(),
         dismissed: store()?.getItem(DISMISS_KEY) === '1',
         hasOwnData: state.customers.length > 0 && !isDemoDataset(state.customers),
         tourStopCount: state.tour?.stops?.length || 0,
         insideMobilePreview
     });
-    if (ok) showInstallOffer();
+    if (mode !== 'none') showInstallOffer(mode);
 }
 
 export function initPwaLaunch() {
