@@ -2002,17 +2002,40 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
     font-size: 0.85rem;
 }
 
-/* ---- Compliance-Checkbox: sanfter Hinweis-Puls statt nur Toast ---- */
-.compliance-optin.attention {
-    animation: compliance-attention 1.2s ease;
-    border-radius: 8px;
+/* ---- Berechtigungs-Zusicherung ----
+   Früher stand hier ein Aufmerksamkeits-Puls für die Checkbox: Der Nutzer
+   klickte einen Import-Weg, es passierte nichts, und die Checkbox wackelte.
+   Der Fehlschlag ist weg – die Zusicherung kommt jetzt als eigener, einmaliger
+   Schritt im Fluss der gewollten Aktion. */
+.consent-dialog {
+    border: none;
+    padding: 0;
+    border-radius: var(--radius-l);
+    background: var(--color-surface);
+    color: var(--color-text);
+    box-shadow: var(--shadow-2);
+    width: min(420px, calc(100vw - 24px));
 }
-@keyframes compliance-attention {
-    0%, 100% { background: transparent; }
-    25%, 60% { background: #fef3c7; box-shadow: 0 0 0 2px #f59e0b inset; }
+.consent-dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
+.consent-body { padding: 20px 22px 18px; }
+.consent-icon { font-size: 1.9rem; line-height: 1; margin-bottom: 6px; }
+.consent-body h2 { margin: 0 0 8px; font-size: 1.1rem; }
+.consent-body p { margin: 0 0 10px; }
+.consent-claim {
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface-2);
+    font-weight: 600;
+    font-size: 0.88rem;
+    line-height: 1.4;
 }
-@media (prefers-reduced-motion: reduce) {
-    .compliance-optin.attention { animation: none; box-shadow: 0 0 0 2px #f59e0b inset; }
+.consent-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 14px;
+    flex-wrap: wrap;
 }
 
 /* ---- Erste-Schritte-Checkliste ---- */

@@ -203,10 +203,30 @@ describe('Onboarding-Trichter: ein Einstieg, sichtbare nächste Schritte', () =>
         expect(mapSrc).not.toContain('tf_customer_marker_hint_seen');
     });
 
-    it('hebt die Compliance-Checkbox am Ort hervor, wenn sie fehlt', () => {
+    it('lässt die Berechtigung nicht mehr im Fehlschlag enden', () => {
         const wizard = source('src/ui/importWizard.js');
         const css = source('src/styles/components.css');
-        expect(wizard).toContain("classList.add('attention')");
-        expect(css).toContain('.compliance-optin.attention');
+        const html = source('index.html');
+
+        // Vorher: Klick auf einen Import-Weg tat nichts, ein Toast erklärte
+        // warum, und die Checkbox wackelte. Jetzt führt der Klick über einen
+        // einmaligen Bestätigungsschritt direkt ans Ziel.
+        expect(wizard).not.toContain('showComplianceToast');
+        expect(wizard).not.toContain(".compliance-optin').forEach");
+        expect(css).not.toContain('.compliance-optin.attention');
+        // Der Puls auf „Liste einfügen" bleibt: Der ist ein Angebot nach einem
+        // abgebrochenen Datei-Dialog, kein Hinweis auf einen Fehlschlag.
+        expect(wizard).toContain("paste.classList.add('attention')");
+        expect(html).toContain('id="consent-dialog"');
+        expect(wizard).toContain('function withDataConsent(action)');
+        expect(wizard).toContain('if (hasComplianceOptIn()) { action(); return; }');
+    });
+
+    it('merkt sich die Berechtigung, statt sie jedes Mal neu zu verlangen', () => {
+        const wizard = source('src/ui/importWizard.js');
+        expect(wizard).toContain("const CONSENT_KEY = 'tf_data_consent'");
+        expect(wizard).toContain('function consentGivenAt()');
+        // Widerruf bleibt möglich – sonst wäre die Bestätigung eine Falle.
+        expect(wizard).toContain('else globalThis.localStorage?.removeItem(CONSENT_KEY)');
     });
 });
