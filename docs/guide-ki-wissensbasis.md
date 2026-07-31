@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.5 · Stand: 25.07.2026 · App-Version: 3.0.0**
+**Version 2.6 · Stand: 31.07.2026 · App-Version: 3.0.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -469,8 +469,8 @@ Die Karte kennt **drei Zustände**:
 - **Eingeklappt:** schmale Fortschrittszeile **"🦊 Erste Schritte 2/4 ▸"**;
   Klick klappt wieder auf. Die Karte klappt **von selbst** ein, sobald der
   Nutzer erkennbar etwas anderes tut – ein weiterer Schritt ist erledigt, die
-  Tour hat Stopps, ein Vertriebsbezirk wird gewählt, ein Kunde geöffnet oder die
-  Karte angetippt (als hätte er "Später" gedrückt: kein Interesse, kein Platz).
+  Tour hat Stopps, der Tour-Bezirk wird eingeschränkt, ein Kunde geöffnet oder
+  die Karte angetippt (als hätte er "Später" gedrückt: kein Interesse, kein Platz).
   Ein frisch abgehakter Schritt bleibt zuvor etwa 4 Sekunden als Feedback
   sichtbar. Auf dem Smartphone startet die Karte direkt eingeklappt, wird aber
   beim allerersten automatischen Reveal einmal ausgeklappt gezeigt, damit die
@@ -667,7 +667,9 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
    in der Ersetzungswarnung prüfen und erst dann bestätigen.
 6. Erfolgsmeldung beziehungsweise Dialog **"Import abgeschlossen"** prüfen.
 7. Bei Problemen **"Fehlerliste (.xlsx)"** herunterladen.
-8. Nach eigenen Kundendaten dem geführten Tresor-Angebot folgen.
+8. Nach eigenen Kundendaten weist ein Kurzhinweis darauf hin, dass die Daten
+   unverschlüsselt auf diesem Gerät liegen. Er hält **nicht** auf; wer will,
+   richtet den Tresor über das hervorgehobene Schloss oben ein (14.1).
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
 
@@ -695,7 +697,8 @@ erscheint der Befund gar nicht – dort weiß der Nutzer alles schon.
 
 Der Befund erscheint **einmalig beim Wechsel von Beispiel- auf eigene Daten**.
 Beim echten Reimport beantwortet der Änderungsbericht (7.6) dieselbe Frage
-besser. Er kommt **vor** dem Tresor-Angebot, nie darüber.
+besser. Er ist der **letzte Dialog** des Imports; danach folgt kein
+Tresor-Dialog mehr, nur noch der Kurzhinweis (14.1).
 
 #### 7.5.1 Einfügen statt Datei (Strg+V)
 
@@ -1249,8 +1252,11 @@ Weitere Details: `docs/kundenbriefing.md`.
 
 **Klickpfad:** `"Außendienst" -> Tab "Tour"`.
 
-1. Unter **"Für welchen Bezirk planst du?"** einen Vertriebsbezirk oder
-   **"Alle Bezirke"** wählen.
+1. Nichts. Geplant wird über **alle Vertriebsbezirke**. Wer einschränken will,
+   tippt auf die Zeile **"🗺️ Bezirk: Alle Bezirke · N Kunden · ändern ▸"** und
+   wählt unter **"Auf welchen Bezirk einschränken?"**; über **"Alle Bezirke"**
+   geht es genauso zurück. Enthalten die Daten nur einen Bezirk, fehlt die
+   Zeile ganz.
 2. **"Mein Standort"** nutzen oder im Feld
    **"...oder Kunde als Start wählen"** einen Kunden suchen.
 3. Datum, Startzeit und **"Besuch (Min.)"** einstellen.
@@ -1291,8 +1297,8 @@ Auf dem Smartphone können Profi-Abschnitte seitlich weggewischt werden.
 Die Funktion nutzt den GPS-Standort als Start und zeigt passende Kunden im
 Umkreis. Eine Standortberechtigung kann erforderlich sein.
 
-Ist noch **kein Vertriebsbezirk** ausgewählt, sucht die Funktion automatisch über
-**alle Bezirke** (statt einer leeren Ergebnisliste). Findet sie im aktuellen
+Der Tour-Scope steht ab Werk auf **alle Bezirke**; eine bewusste Einschränkung
+bleibt dabei bestehen. Findet die Funktion im aktuellen
 Radius keinen Kunden, **weitet sie den Umkreis schrittweise** aus, bis der erste
 Treffer erscheint, und meldet das gefundene Ergebnis per Kurzhinweis. Auf dem
 Handy schlägt der schwebende Fuchs-Knopf danach den nächsten Schritt vor
@@ -1745,8 +1751,16 @@ Klickpfade:
   (PIN)"**. Der Block zeigt eingeklappt den Status (Tresor aus/aktiv/gesperrt)
   und macht so der eigentlichen Datenarbeit Platz.
 
-Nach dem Import eigener Kundendaten bietet TourFuchs die Einrichtung geführt an.
-Demo-Daten verlangen keine PIN.
+Nach dem Import eigener Kundendaten **unterbricht TourFuchs nicht mehr**. Die
+Daten sind gespeichert; ein einmaliger Kurzhinweis sagt, dass sie
+unverschlüsselt auf diesem Gerät liegen, und nennt den Weg. Solange eigene
+Daten ohne Tresor hier liegen, bleibt das **offene Schloss in der Kopfzeile
+hervorgehoben** – der Zustand ist dauerhaft sichtbar, ohne aufzuhalten.
+Verschlüsselt wird, wenn der Nutzer sich dafür entscheidet.
+
+Ausnahme: Beim **sicheren Umzug** (14.4) bleibt das Tresor-Setup erzwungen –
+wer Daten verschlüsselt von einem anderen Gerät empfängt, hat sich für Schutz
+bereits entschieden. Demo-Daten verlangen nie eine PIN.
 
 Der Nutzer vergibt eine PIN mit mindestens vier Zeichen. Danach zeigt TourFuchs
 einen **Wiederherstellungscode**, der nur einmal sichtbar ist. Er muss getrennt und
@@ -1986,7 +2000,7 @@ In dieser Reihenfolge prüfen:
 1. Sind unter **"Daten"** Kunden geladen?
 2. Wie viele sind als verortet sichtbar?
 3. Ist im Tab **"Filter"** etwas ausgeblendet?
-4. Ist im Tourmodus der richtige Vertriebsbezirk gewählt?
+4. Ist der Tour-Scope auf einen Bezirk eingeschränkt (Zeile über dem Planer)?
 5. Ist ein Tour-Kartenfokus aktiv?
 6. Ist die Karte weit verschoben oder zu stark gezoomt?
 7. Hat der Kunde PLZ oder Koordinaten?
@@ -2029,7 +2043,7 @@ Prüfen:
 
 ### 18.5 Keine Tourvorschläge
 
-1. Vertriebsbezirk gewählt?
+1. Tour-Scope zu eng eingeschränkt (Zeile über dem Planer)?
 2. Startpunkt gesetzt?
 3. Radius/Korridor groß genug?
 4. bei **"Entlang der Tour"** mindestens zwei Routenpunkte vorhanden?
@@ -2243,12 +2257,12 @@ altem Namen alte PWA entfernen und neu installieren.
 
 1. Demo-Daten laden.
 2. **"Außendienst"** wählen.
-3. **"Tour"** öffnen.
-4. Vertriebsbezirk wählen.
-5. Startpunkt setzen.
-6. zwei Kunden hinzufügen.
-7. Reihenfolge optimieren.
-8. Route anzeigen.
+3. **"Tour"** öffnen. (Geplant wird über alle Vertriebsbezirke – vorab ist
+   nichts zu wählen.)
+4. Startpunkt setzen.
+5. zwei Kunden hinzufügen.
+6. Reihenfolge optimieren.
+7. Route anzeigen.
 
 **Abschlussfrage:** Wo wechselst du zwischen Luftlinie und Straßenroute?
 
@@ -2278,7 +2292,7 @@ aktuelle interne Wissen.
 5. Spaltenzuordnung prüfen.
 6. importieren.
 7. Ergebnis und Fehlerliste lesen.
-8. Tresor-Angebot erklären.
+8. Tresor-Hinweis und hervorgehobenes Schloss erklären (keine Pflicht-PIN).
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
 
@@ -2306,7 +2320,8 @@ erscheint der Befund gar nicht – dort weiß der Nutzer alles schon.
 
 Der Befund erscheint **einmalig beim Wechsel von Beispiel- auf eigene Daten**.
 Beim echten Reimport beantwortet der Änderungsbericht (7.6) dieselbe Frage
-besser. Er kommt **vor** dem Tresor-Angebot, nie darüber.
+besser. Er ist der **letzte Dialog** des Imports; danach folgt kein
+Tresor-Dialog mehr, nur noch der Kurzhinweis (14.1).
 
 #### 7.5.1 Einfügen statt Datei (Strg+V)
 
@@ -2402,12 +2417,11 @@ wieder; die Installation bleibt über das Browsermenü möglich.
 
 1. PWA im Hochformat öffnen.
 2. **"Tour"** wählen und Sheet hochziehen.
-3. Vertriebsbezirk wählen.
-4. GPS-Start setzen.
-5. Kunden im Umkreis anzeigen.
-6. Kunden öffnen und Briefing zeigen.
-7. Stopps hinzufügen.
-8. Google Maps öffnen.
+3. GPS-Start setzen.
+4. Kunden im Umkreis anzeigen.
+5. Kunden öffnen und Briefing zeigen.
+6. Stopps hinzufügen.
+7. Google Maps öffnen.
 
 ### 20.7 Datenschutz in 5 Minuten
 
@@ -2794,10 +2808,14 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   hier planen" (öffnet das Tour-Blatt mit gesetztem Start) → 🗺️ „Route auf die
   Karte". Liegt die Route, tritt der Fuchs zurück und die Straßenroute-Leiste
   übernimmt.
-- **„Was ist in meiner Nähe?" ohne Bezirkswahl repariert:** Ohne gewählten
-  Bezirk galt zuvor ein leerer Tour-Scope – die Suche fand nichts, obwohl die
-  Karte Kunden zeigte. Jetzt gilt automatisch „Alle Bezirke"; liegt nichts im
+- **„Alle Bezirke" ist der Standard:** Der Tour-Scope startet über allen
+  Vertriebsbezirken – planen beginnt ohne Vorabfrage. Eine schmale Zeile zeigt
+  den Stand und schränkt auf Wunsch ein; bei nur einem Bezirk entfällt sie.
+  „Was ist in meiner Nähe?" findet damit immer Kunden; liegt nichts im
   Umkreis, wird er bis zum nächsten Kunden geweitet (Regler zieht mit).
+- **Tresor: Angebot statt Pflicht:** Nach eigenem Import öffnet sich kein
+  PIN-Dialog mehr. Stattdessen ein einmaliger Kurzhinweis und ein dauerhaft
+  hervorgehobenes Schloss in der Kopfzeile (14.1).
 - **Onboarding-Feinschliff:** „Erste Schritte" klappt zusätzlich bei erkennbarer
   Aktivität ein (Bezirk wählen, Kunde öffnen, Karte antippen). Nach „Daten
   zurücksetzen" erscheint auf dem Handy ein kompakter Neustart (kurze Begrüßung

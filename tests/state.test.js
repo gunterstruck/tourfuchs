@@ -45,7 +45,9 @@ describe('replaceCustomers', () => {
         expect(state.fileName).toBe('neu.xlsx');
         expect(state.territories).toEqual({ 'plz2:20': { bezirk: 'Nord' } });
         expect(state.tour).toMatchObject({
-            bezirk: null,
+            // Ein neuer Bestand setzt den Bezirks-Scope auf den Standard zurück,
+            // nicht auf „noch nichts gewählt": Planen beginnt ohne Vorabfrage.
+            bezirk: '__all__',
             start: null,
             destination: null,
             stops: [],
