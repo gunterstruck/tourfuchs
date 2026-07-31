@@ -337,3 +337,49 @@
     }
 
 }
+
+/* ---- Eigene Nachschlagequellen ----
+   Gleiche Bauform wie die Zielwahl (eingeklappt, sprechende Zeile), aber in
+   beiden Ansichtstiefen sichtbar: Die Zielwahl ist Konfiguration, die Quelle
+   verbessert genau das Ergebnis, für das der Dialog geöffnet wurde. */
+.briefing-sources {
+    margin-top: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+}
+
+.briefing-sources > summary {
+    padding: 10px 12px;
+    cursor: pointer;
+    color: var(--color-text);
+}
+
+.briefing-sources > summary b,
+.briefing-sources > summary span {
+    display: block;
+    margin-left: 6px;
+}
+
+.briefing-sources > summary span {
+    margin-top: 2px;
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 400;
+}
+
+.briefing-sources-content {
+    padding: 8px 12px 12px;
+    border-top: 1px solid var(--color-border);
+}
+
+.briefing-source-row {
+    margin: 10px 0;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: 8px;
+    background: var(--color-surface-2);
+}
+
+.briefing-source-row .briefing-field { margin: 0 0 8px; }
+.briefing-source-row .briefing-field:last-child { margin-bottom: 0; }
+.briefing-source-row input { width: 100%; }

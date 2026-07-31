@@ -17,6 +17,8 @@ import {
     customerBriefingFlow
 } from '../features/customerBriefing.js';
 import { copyText } from '../features/handoff.js';
+import { loadBriefingSources } from '../services/briefingSources.js';
+import { briefingSourcesHtml, wireBriefingSources } from './briefingSources.js';
 import {
     ASSISTANTS,
     assistantForDepth,
@@ -74,7 +76,8 @@ function rebuildPrompt() {
     currentPrompt = buildCustomerBriefingPrompt(
         currentCustomer,
         customerBriefingContext(currentCustomer, state.tour, plannedDate()),
-        currentAssistant
+        currentAssistant,
+        loadBriefingSources()
     );
 }
 
@@ -152,10 +155,14 @@ function renderBriefing({ withChooser = false } = {}) {
             <p>TourFuchs hat aus dem ausgewählten Kunden und dem aktuellen Tourkontext einen Prompt erstellt. Mit dem nächsten Schritt wird er kopiert und ${escapeHtml(currentAssistant.label)} geöffnet.</p>
             <p class="briefing-manual-note"><b>Im Assistenten:</b> Prompt einfügen und selbst absenden. Erst dann werden die enthaltenen Daten übertragen.</p>
             ${withChooser ? assistantChooserHtml() : ''}
+            ${briefingSourcesHtml()}
             ${visiblePrompt()}
         </div>`;
     fillVisiblePrompt();
     if (withChooser) wireAssistantChooser();
+    // Der Prompt wird sofort neu gebaut und angezeigt: Der Nutzer soll die
+    // Wirkung seiner Quelle hier sehen, nicht erst im Assistenten.
+    wireBriefingSources(body, () => { rebuildPrompt(); fillVisiblePrompt(); });
     actionFooter();
 }
 
