@@ -531,9 +531,14 @@ const HELPERS = {
         await sleep(1200);
     },
     async pickBezirkAll() {
-        const ok = await selectValue('#tour-bezirk', '__all__');
-        if (!ok) { state.tour.bezirk = '__all__'; emit('tour:scope-changed'); emit('tour:changed'); }
-        await sleep(500);
+        // „Alle Bezirke" ist der Standard – die Demo führt ihn nicht mehr vor,
+        // sie stellt ihn nur her, falls der Nutzer vorher eingeschränkt hatte.
+        if (state.tour.bezirk !== '__all__') {
+            state.tour.bezirk = '__all__';
+            emit('tour:scope-changed');
+            emit('tour:changed');
+        }
+        await sleep(200);
     },
     async pickStart() {
         const planned = showcaseTourPlan?.start;

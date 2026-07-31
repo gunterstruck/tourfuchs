@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 25.07.2026
+Stand: 31.07.2026
 
 ## 1. Ziel der Schulung
 
@@ -23,7 +23,6 @@ TourFuchs ist bewusst als lokale PWA gebaut: keine Anmeldung, keine Cloud-Datenb
 Der Außendienst nutzt TourFuchs vor allem mobil:
 
 - Kundenkarte öffnen
-- Bezirk auswählen
 - Kunden in der Nähe finden
 - Tagesroute planen
 - Route an Google Maps übergeben
@@ -418,15 +417,17 @@ Nutzen:
 
 Der Tourplaner öffnet – auf Handy wie Desktop – zuerst als Übersicht mit den drei Schritten eingeklappt (1. Startpunkt · 2. Vorschläge · 3. Meine Tour, je mit Zusammenfassung). Ein Tipp auf einen Schritt zoomt in ihn hinein (volle Fläche); „☰ Übersicht" klappt wieder alle ein. Die Karten-Einfärbung (Kunden/Status/Chancen) gibt es dabei nur auf dem Desktop.
 
-### Bezirk wählen
+### Bezirk (nur wenn eingeschränkt werden soll)
 
-Im Tour-Tab wird ein Vertriebsbezirk gewählt. TourFuchs schlägt dann nur Kunden aus diesem Bezirk vor.
+Geplant wird ab Werk über **alle Vertriebsbezirke** – es muss vorab nichts gewählt werden. Der Stand steht als schmale Zeile über dem Planer: „🗺️ Bezirk: Alle Bezirke · N Kunden · ändern ▸". Ein Tipp darauf öffnet die Auswahl; danach schlägt TourFuchs nur noch Kunden aus dem gewählten Bezirk vor. Gibt es in den Daten nur einen Bezirk, entfällt die Zeile ganz.
 
-Vorteile:
+Wann das Einschränken sinnvoll ist:
 
 - keine fremden Kunden in der Vorschlagsliste
 - klare Verantwortung
 - weniger Suchaufwand
+
+Der Weg zurück ist derselbe: „ändern ▸" → „Alle Bezirke".
 
 ### Startpunkt
 
@@ -630,12 +631,12 @@ Inhalte:
 - Suche
 - Kartenstil
 - Filter
-- Bezirksauswahl
+- Bezirksauswahl (optional; Standard sind alle Bezirke)
 
 Übung:
 
 - Kunden suchen
-- Bezirk auswählen
+- Bezirk einschränken und wieder auf „Alle Bezirke" zurück
 - Karte zoomen
 - Kartenstil wechseln
 
@@ -679,7 +680,7 @@ Inhalte:
 
 Inhalte:
 
-- Bezirk wählen
+- Standard „Alle Bezirke" und das optionale Einschränken
 - Startpunkt
 - Vorschläge
 - Tour zusammenstellen
@@ -758,7 +759,6 @@ Wähle ein Gebiet aus und weise es testweise einem anderen Bezirk zu:
 
 Plane eine Tour:
 
-- Bezirk wählen
 - Startpunkt setzen
 - Kunden im Umkreis finden
 - mindestens drei Kunden hinzufügen

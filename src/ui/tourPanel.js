@@ -230,17 +230,24 @@ export function initTourPanel() {
     renderPanel();
 }
 
-/** Bezirks-Auswahl aufbauen; nach Wahl auf eine schmale Zeile eingeklappt */
+/**
+ * Bezirks-Auswahl aufbauen. Der Planer startet mit „Alle Bezirke": Wer eine Tour
+ * plant, soll sofort loslegen können statt zuerst eine Auswahl treffen zu müssen.
+ * Sichtbar bleibt der Scope als schmale Zeile („ändern ▸") – einschränken ist
+ * damit ein bewusster Schritt, kein Eintrittsgeld.
+ */
 function renderTourScope() {
     const scope = document.getElementById('tour-scope');
     if (!scope) return;
+    // „Noch nicht gewählt" gibt es nicht mehr; Altzustände werden eingefangen.
+    if (!state.tour.bezirk || state.tour.bezirk === '__none__') state.tour.bezirk = '__all__';
     const availableCustomers = modeVisibleCustomers();
     const contractScope = state.ui.mode === 'service' && state.ui.serviceCustomerScope !== 'all';
     const customerLabel = contractScope ? 'Vertragskunden' : 'Kunden';
     const dim = state.dims.bezirk;
     if (state.customers.length === 0) {
         scope.hidden = true;
-        state.tour.bezirk = null;
+        state.tour.bezirk = '__all__';
         updatePlannerVisibility();
         return;
     }
@@ -262,11 +269,9 @@ function renderTourScope() {
         updatePlannerVisibility();
         return;
     }
-    scope.hidden = false;
-
     const allBezirke = [...dim.values.keys()];
-    if (state.tour.bezirk && state.tour.bezirk !== '__all__' && !allBezirke.includes(state.tour.bezirk)) state.tour.bezirk = null;
-    const chosen = state.tour.bezirk && state.tour.bezirk !== '__none__';
+    // Bezirk aus einem früheren Datenbestand: zurück auf den Standard.
+    if (state.tour.bezirk !== '__all__' && !allBezirke.includes(state.tour.bezirk)) state.tour.bezirk = '__all__';
 
     const counts = new Map();
     for (const customer of availableCustomers) {
@@ -277,7 +282,17 @@ function renderTourScope() {
         .filter((bezirk) => (counts.get(bezirk) ?? 0) > 0 || bezirk === state.tour.bezirk)
         .sort((a, b) => a.localeCompare(b, 'de'));
 
-    if (chosen && !scopeExpanded) {
+    // Ein einziger Bezirk ist keine Wahl: Die Zeile würde nur Platz und
+    // Aufmerksamkeit kosten, ohne dass es etwas zu entscheiden gäbe.
+    if (bezirke.length <= 1) {
+        scope.hidden = true;
+        state.tour.bezirk = '__all__';
+        updatePlannerVisibility();
+        return;
+    }
+    scope.hidden = false;
+
+    if (!scopeExpanded) {
         // Eingeklappt: schmale Zeile
         const label = state.tour.bezirk === '__all__' ? 'Alle Bezirke' : state.tour.bezirk;
         const count = state.tour.bezirk === '__all__'
@@ -288,14 +303,14 @@ function renderTourScope() {
         return;
     }
 
-    // Aufgeklappt: voller Picker + Erklärung
-    const opts = ['<option value="__none__">– Bezirk wählen –</option>',
-        `<option value="__all__">Alle Bezirke (${availableCustomers.length})</option>`]
+    // Aufgeklappt: voller Picker + Erklärung. Kein Leer-Eintrag mehr – „Alle
+    // Bezirke" ist der Standard und zugleich der Weg zurück.
+    const opts = [`<option value="__all__">Alle Bezirke (${availableCustomers.length})</option>`]
         .concat(bezirke.map((b) => `<option value="${escapeHtml(b)}">${escapeHtml(b)} (${counts.get(b) ?? 0})</option>`)).join('');
-    scope.innerHTML = `<label class="field-label" for="tour-bezirk">Für welchen Bezirk planst du?</label>
+    scope.innerHTML = `<label class="field-label" for="tour-bezirk">Auf welchen Bezirk einschränken?</label>
         <select id="tour-bezirk">${opts}</select>
-        <p class="muted small">Wähle deinen Bezirk – TourFuchs schlägt dann nur ${contractScope ? '<b>Vertragskunden</b>' : 'Kunden'} aus diesem Gebiet für deine Tour vor. Start, Ziel und Route legst du danach fest. („Alle Bezirke" zeigt ${contractScope ? 'alle planbaren Vertragskunden' : 'sämtliche sichtbaren Kunden'}.)</p>`;
-    document.getElementById('tour-bezirk').value = chosen ? state.tour.bezirk : '__none__';
+        <p class="muted small">Standard sind <b>alle Bezirke</b> – du kannst sofort planen. Wählst du einen Bezirk, schlägt TourFuchs nur noch ${contractScope ? '<b>Vertragskunden</b>' : 'Kunden'} aus diesem Gebiet vor. Start, Ziel und Route legst du danach fest.</p>`;
+    document.getElementById('tour-bezirk').value = state.tour.bezirk;
     updatePlannerVisibility();
 }
 
@@ -576,9 +591,13 @@ function focusServiceDayPlanner() {
     }, 0);
 }
 
+/**
+ * Der Planer hing früher an der Bezirkswahl. Seit „Alle Bezirke" der Standard
+ * ist, hängt er nur noch daran, ob überhaupt Kunden da sind.
+ */
 function updatePlannerVisibility() {
     const planner = document.getElementById('tour-planner');
-    if (planner) planner.hidden = !(state.tour.bezirk && state.tour.bezirk !== '__none__');
+    if (planner) planner.hidden = state.customers.length === 0;
 }
 
 /**
@@ -802,15 +821,9 @@ function findNearby() {
             const here = { lat: pos.coords.latitude, lng: pos.coords.longitude, label: 'Mein Standort', here: true };
             state.tour.start = here;
             state.tour.suggestMode = 'radius';
-            // „Was ist in meiner Nähe?" meint ALLE Kunden um mich herum. Ohne
-            // vorher gewählten Bezirk (z. B. vom schwebenden Fuchs auf der Karte)
-            // filterte der Tour-Scope sonst alles weg – die Karte zeigte Stapel,
-            // die Suche fand aber nichts. Fehlt der Bezirk, gilt „Alle Bezirke".
-            if (!state.tour.bezirk || state.tour.bezirk === '__none__') {
-                state.tour.bezirk = '__all__';
-                emit('tour:scope-changed');
-                renderTourScope();
-            }
+            // Früher musste hier ein fehlender Bezirk nachgeholt werden, sonst
+            // filterte der Tour-Scope alles weg. Seit „Alle Bezirke" der
+            // Standard ist, gilt eine engere Wahl als bewusst – sie bleibt.
             const salesPriority = state.ui.mode !== 'service';
             overdueFirst = salesPriority;
             const cb = document.getElementById('overdue-first');

@@ -7,9 +7,9 @@ Der kürzeste Weg von „ich sehe eine Karte" zu „ich weiß, wen ich zuerst be
 Zwei Gründe – der zweite ist der wichtigere für den Alltag, der erste für den
 ersten Eindruck.
 
-**1. Eine Geste statt eines Formulars.** Der Umkreis im Tourplaner verlangt vier
-Handgriffe, bevor etwas passiert: Bezirk wählen, Startpunkt setzen, Regler
-schieben, Knopf drücken. Das Lasso ist eine einzige Bewegung um das, was man
+**1. Eine Geste statt eines Formulars.** Der Umkreis im Tourplaner verlangt drei
+Handgriffe, bevor etwas passiert: Startpunkt setzen, Regler schieben, Knopf
+drücken. Das Lasso ist eine einzige Bewegung um das, was man
 ohnehin gerade ansieht. Wer TourFuchs zum ersten Mal sieht, versteht in zehn
 Sekunden, worum es geht.
 
