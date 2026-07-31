@@ -34,7 +34,7 @@ import {
     createDemoServiceVisits,
     createDemoServiceVisitSourceMeta
 } from '../features/demoServiceVisits.js';
-import { confirmDatasetReplacement, hasExistingDataset } from './datasetReplacement.js';
+import { confirmDatasetReplacement, hasExistingDataset, onlyDemoDataPresent } from './datasetReplacement.js';
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 import { confirmImportWithDiff } from './importDiff.js';
 import { showImportInsight } from './importInsight.js';
@@ -592,13 +592,19 @@ async function confirmImport() {
         return;
     }
 
-    const replacedExisting = customers.length > 0 && hasExistingDataset();
+    // „Die bisherige Kundenliste wurde ersetzt" stimmt nur, wenn es eine gab.
+    const replacedExisting = customers.length > 0 && hasExistingDataset() && !onlyDemoDataPresent();
     // Der Befund gilt dem Moment, in dem zum ersten Mal die eigenen Daten auf
     // der Karte liegen. Bei echtem Reimport hat der Änderungsbericht die Frage
     // bereits besser beantwortet.
     const firstOwnData = customers.length > 0
         && (state.customers.length === 0 || isDemoDataset(state.customers));
-    if (customers.length > 0) {
+    // Beispieldaten sind kein Bestand, den man schützen müsste. Wer sie durch
+    // die eigene Liste ersetzt, tut genau das, wofür sie da waren – ein
+    // Änderungsbericht mit „2250 entfallen" wäre dort eine Schreckmeldung
+    // ohne Gegenstand, direkt vor dem ersten eigenen Erfolgserlebnis.
+    const replacingDemoOnly = onlyDemoDataPresent();
+    if (customers.length > 0 && !replacingDemoOnly) {
         // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
         // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
         // Ohne Vorbestand gibt es nichts zu vergleichen: kurze Standardabfrage.

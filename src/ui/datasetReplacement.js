@@ -1,4 +1,26 @@
 import { state } from '../core/state.js';
+import { isDemoDataset } from '../core/demoSafety.js';
+
+/**
+ * Ist der aktuelle Bestand reine Beispiel-Kulisse?
+ *
+ * Dann gibt es nichts zu schützen. Der Schutz vor versehentlichem Überschreiben
+ * ist richtig – aber gegen Beispieldaten läuft er ins Leere und richtet Schaden
+ * an: Der Änderungsbericht meldete beim ersten eigenen Import
+ * „3 neu · 2250 entfallen · Umsatz 315.318 T€ → 0 € (−315.318 T€)". Eine
+ * Verlustmeldung über eine Kulisse, die nie echt war – und das ausgerechnet in
+ * dem Moment, in dem der Nutzer zum ersten Mal seine eigenen Kunden sehen will.
+ *
+ * Was der Nutzer **selbst** angelegt hat, zählt dagegen: eigene
+ * Gebietszuordnungen und eigene Vertrags-/Einsatzquellen machen den Bestand
+ * schützenswert, auch wenn die Kunden noch Beispielkunden sind.
+ */
+export function onlyDemoDataPresent() {
+    if (!isDemoDataset(state.customers)) return false;
+    if (Object.keys(state.territories || {}).length > 0) return false;
+    const eigene = (rows) => (rows || []).some((row) => row && row.sourceSystem !== 'DEMO');
+    return !eigene(state.serviceContracts) && !eigene(state.serviceVisits);
+}
 
 export function hasExistingDataset() {
     return state.customers.length > 0
@@ -58,5 +80,8 @@ export function datasetReplacementMessage({
 
 export function confirmDatasetReplacement(options = {}) {
     if (!hasExistingDataset() && !options.disablesVault) return true;
+    // Eine Kulisse zu ersetzen ist kein Vorgang, der eine Rückfrage verdient.
+    // Ein noch aktiver Tresor schon – der wird dabei deaktiviert.
+    if (onlyDemoDataPresent() && !options.disablesVault) return true;
     return globalThis.confirm(datasetReplacementMessage(options));
 }
