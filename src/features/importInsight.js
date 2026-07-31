@@ -109,8 +109,13 @@ export function insightStatements(insight) {
             tone: 'notable',
             text: Number.isFinite(factor)
                 ? `„${top.name}" betreut ${factor.toLocaleString('de-DE', { maximumFractionDigits: 1 })}× so viele Kunden wie „${bottom.name}".`
-                : `„${top.name}" betreut ${plural(top.count, 'Kunden', 'Kunden')}, „${bottom.name}" keinen einzigen.`,
-            action: 'cockpit'
+                : `„${top.name}" betreut ${plural(top.count, 'Kunden', 'Kunden')}, „${bottom.name}" keinen einzigen.`
+            // Bewusst ohne `action`: Der Drill-down wäre das Gebiets-Cockpit,
+            // und das gibt es nur am Schreibtisch im Profi-Modus. Ein Knopf,
+            // der auf dem Handy oder in Basis ins Leere führt, wäre schlimmer
+            // als keiner – und ein dritter Knopf im allerersten Befund-Dialog
+            // widerspräche dessen Zweck. Die Zeile sagt, was zu sehen ist;
+            // gehandelt wird im Gebiets-Tab.
         });
     }
 

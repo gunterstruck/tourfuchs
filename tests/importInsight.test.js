@@ -135,3 +135,30 @@ describe('Einbindung des Befunds', () => {
         expect(ui).toContain('showOpportunityView()');
     });
 });
+
+describe('Keine angekündigte Handlung ohne Ziel', () => {
+    // Externer Prüfbericht, P2: Die Ungleichverteilungs-Zeile trug
+    // `action: 'cockpit'`, die Oberfläche wertet aber nur 'overdue' aus.
+    // Entschieden gegen das Verdrahten: Das Cockpit gibt es nur am
+    // Schreibtisch im Profi-Modus, und ein dritter Knopf im allerersten
+    // Befund-Dialog widerspräche dessen Zweck.
+    it('trägt kein Handlungsziel, das die Oberfläche nicht kennt', () => {
+        const feature = readFileSync(resolve(process.cwd(), 'src/features/importInsight.js'), 'utf8');
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/importInsight.js'), 'utf8');
+        expect(feature).not.toContain("action: 'cockpit'");
+        const aktionen = [...feature.matchAll(/action: '([a-z-]+)'/g)].map((m) => m[1]);
+        for (const aktion of aktionen) {
+            expect(ui, `Die Oberfläche wertet action '${aktion}' nicht aus`).toContain(`action === '${aktion}'`);
+        }
+    });
+});
+
+describe('Zeilenenden im Repository', () => {
+    it('nagelt LF fest, damit Windows-Checkouts keine Scheinfehler erzeugen', () => {
+        // Externer Prüfbericht: Vier Tests scheiterten dort allein an CRLF,
+        // weil core.autocrlf=true beim Auschecken umgeschrieben hat.
+        const attrs = readFileSync(resolve(process.cwd(), '.gitattributes'), 'utf8');
+        expect(attrs).toContain('* text=auto eol=lf');
+        expect(attrs).toContain('*.pdf binary');
+    });
+});

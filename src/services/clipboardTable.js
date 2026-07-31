@@ -28,8 +28,13 @@
 
 const DELIMITERS = ['\t', ';', ','];
 
-/** Zeilen in Felder zerlegen; Trennzeichen und Umbrüche in "..." bleiben Text. */
-function splitRows(text, delimiter) {
+/**
+ * Zeilen in Felder zerlegen; Trennzeichen und Umbrüche in "..." bleiben Text.
+ *
+ * `keepBlank` behält wirklich leere Zeilen als `['']`. Die Blockerkennung
+ * braucht sie: Nur eine leere Zeile trennt die Tabelle vom Fließtext.
+ */
+function splitRows(text, delimiter, { keepBlank = false } = {}) {
     const rows = [];
     let row = [];
     let field = '';
@@ -57,6 +62,7 @@ function splitRows(text, delimiter) {
 
     row.push(field);
     rows.push(row);
+    if (keepBlank) return rows;
     // abschließender Zeilenumbruch erzeugt eine leere Restzeile
     return rows.filter((entry) => entry.length > 1 || entry[0].trim() !== '');
 }
@@ -136,15 +142,25 @@ export function extractMarkdownGrid(text) {
  * dann bleibt es beim bisherigen Weg samt seiner Fehlermeldungen.
  */
 export function extractDelimitedGrid(text) {
-    const lines = String(text ?? '').split(/\r?\n/);
+    const raw = String(text ?? '');
     let best = null;
 
     for (const delimiter of DELIMITERS) {
+        // Erst die Anführungszeichen auswerten, dann den Block suchen.
+        //
+        // Vorher wurde hier physisch an jedem Zeilenumbruch zerlegt – also
+        // BEVOR bekannt war, welche Umbrüche innerhalb einer Zelle liegen.
+        // Eine aus Excel kopierte Zelle mit Zeilenumbruch ("Notiz Zeile 1 /
+        // Zeile 2") zerfiel dadurch in zwei Zeilen mit falscher Spaltenzahl,
+        // der Block brach genau dort ab, und alle folgenden Kundenzeilen
+        // gingen **lautlos** verloren – ohne Fehler, ohne Fehlerliste, mit
+        // einer Erfolgsmeldung über zu wenige Kunden.
+        const rows = splitRows(raw, delimiter, { keepBlank: true });
         // Eine Zeile aus lauter Trennzeichen ("\t" oder ";;") ist eine LEERE
         // ZEILE INNERHALB der Tabelle – sie darf den Block nicht abschneiden.
         // Nur eine wirklich leere Zeile trennt die Tabelle vom Fließtext.
-        const counts = lines.map((line) => (
-            line.trim() === '' && !line.includes(delimiter) ? 0 : splitRows(line, delimiter)[0].length
+        const counts = rows.map((cells) => (
+            cells.length === 1 && cells[0].trim() === '' ? 0 : cells.length
         ));
         let index = 0;
         while (index < counts.length) {
@@ -163,8 +179,8 @@ export function extractDelimitedGrid(text) {
         }
     }
     if (!best) return null;
-    const block = lines.slice(best.start, best.end + 1).join('\n');
-    return { grid: splitRows(block, best.delimiter), delimiter: best.delimiter };
+    const rows = splitRows(raw, best.delimiter, { keepBlank: true });
+    return { grid: rows.slice(best.start, best.end + 1), delimiter: best.delimiter };
 }
 
 /**

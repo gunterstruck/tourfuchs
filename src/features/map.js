@@ -1657,16 +1657,34 @@ function tourFocusCustomers() {
     return [...ids].map(getCustomer).filter((c) => c && c.lat !== null);
 }
 
+/**
+ * Genau die Kunden, die gerade als Marker auf der Karte liegen.
+ *
+ * Es gibt zwei Kundenmengen, und sie sind nicht dieselbe: `visibleCustomers()`
+ * kennt nur die Filter der Vertriebshierarchie, die Karte legt darüber noch
+ * Tour-Fokus, Bezirks- bzw. Service-Umfang und den Chancen-Filter. Wer das
+ * verwechselt, verspricht dem Nutzer etwas, das er nicht sieht – beim Lasso
+ * („umfahre, was du siehst") wären das Kunden, die gar nicht gezeichnet sind.
+ *
+ * Deshalb gibt es diese eine Quelle, und `renderMarkers` zeichnet aus ihr.
+ * So können die beiden Mengen nicht wieder auseinanderlaufen.
+ */
+export function customersOnMap() {
+    // In der Flächenansicht (Bezirke/Gruppen) werden Kunden ausgeblendet.
+    if (!currentView.markers) return [];
+    return markerCustomers().filter((customer) => (
+        customer
+        && customer.lat !== null && customer.lng !== null
+        // Chancen-Fokus: nur fällige/überfällige Kunden zeigen
+        && !(state.ui.opportunityOnly && !isOpportunity(customer))
+    ));
+}
+
 function renderMarkers() {
     clusterGroup.clearLayers();
     customerMarkers = [];
-    // In der Flächenansicht (Bezirke/Gruppen) werden Kunden ausgeblendet.
-    if (!currentView.markers) return;
     const markers = [];
-    for (const customer of markerCustomers()) {
-        if (customer.lat === null || customer.lng === null) continue;
-        // Chancen-Fokus: nur fällige/überfällige Kunden zeigen
-        if (state.ui.opportunityOnly && !isOpportunity(customer)) continue;
+    for (const customer of customersOnMap()) {
         const marker = L.marker([customer.lat, customer.lng], {
             icon: customerIcon(customer),
             customerId: customer.id,
@@ -1684,6 +1702,10 @@ function renderMarkers() {
     clusterGroup.addLayers(markers);
     scheduleCustomerMarkerHint();
     scheduleCustomerClusterHint();
+    // Wer an der gezeichneten Menge hängt (Lasso), muss nachziehen. Sie ändert
+    // sich nicht nur mit den Filtern, sondern auch beim Zoomen: In der
+    // Flächenansicht liegt kein einziger Marker auf der Karte.
+    emit('map:markers-rendered');
 }
 
 // ---- Tour-Anzeige ----

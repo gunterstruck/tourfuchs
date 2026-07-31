@@ -1,1 +1,9 @@
+# Zeilenenden im Repository immer LF – unabhängig von core.autocrlf des
+# Arbeitsplatzes. Ohne diese Zeile schlugen auf Windows-Checkouts vier Tests
+# fehl, die auf "\n" prüfen: Git hatte beim Auschecken CRLF daraus gemacht.
+* text=auto eol=lf
+
 *.pdf binary
+*.png binary
+*.xlsx binary
+*.ico binary

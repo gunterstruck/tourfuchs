@@ -13,6 +13,7 @@ import { resolve } from 'node:path';
 import {
     BRIEFING_SOURCES_LIMIT,
     briefingSourcesPromptBlock,
+    clearBriefingSources,
     loadBriefingSources,
     normalizeBriefingSources,
     saveBriefingSources
@@ -57,6 +58,24 @@ describe('Nachschlagequellen: speichern und normalisieren', () => {
         saveBriefingSources([QUELLE], store);
         expect(saveBriefingSources([{ label: '', location: '' }], store)).toEqual([]);
         expect(loadBriefingSources(store)).toEqual([]);
+    });
+
+    it('geht beim bewussten „Daten löschen" mit', () => {
+        // Externer Prüfbericht, P2: Der Eintrag nennt einen internen Ablageort –
+        // oft mit Bezirks- oder Projektnamen – und überlebte „Alle Daten
+        // löschen" sowie das Löschen des Tresors. Jedes andere Modul räumt an
+        // dieser Stelle auf; dieses fehlte.
+        saveBriefingSources([QUELLE], store);
+        clearBriefingSources(store);
+        expect(loadBriefingSources(store)).toEqual([]);
+        expect(store.getItem('tourfuchs:briefing-sources:v1')).toBeNull();
+    });
+
+    it('hängt am selben Ereignis wie alle anderen Aufräumer', () => {
+        const ui = source('src/ui/briefingSources.js');
+        const main = source('src/main.js');
+        expect(ui).toContain("on('dataset:cleared', () => clearBriefingSources());");
+        expect(main).toContain('initBriefingSources();');
     });
 
     it('übersteht kaputten Speicherinhalt', () => {
