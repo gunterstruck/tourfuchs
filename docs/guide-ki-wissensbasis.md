@@ -234,17 +234,26 @@ TourFuchs:
 Wichtig für Rückfragen: **Layout und Funktionsumfang sind zwei verschiedene
 Dinge.**
 
-| Gerät | Panel | Funktionsumfang |
-|---|---|---|
-| Schreibtisch (ab 1201px oder quer) | seitlich, Breite ziehbar, frei verschiebbar | voll |
-| **Tablet hochkant** (769–1200px) | **unten als Blatt**, Höhe am Griff ziehbar | **voll** – Profi, Gebietsplanung, Cockpit, Simulation |
-| Tablet quer | seitlich wie am Schreibtisch | voll |
-| Handy (bis 768px) | unten als Blatt | bewusst reduziert: Basis-Tiefe, Außendienst-Fokus, Karte + Tour |
+| Gerät | Panel | Einstieg | Funktionsumfang |
+|---|---|---|---|
+| Schreibtisch (ab 1201px oder quer) | seitlich, Breite ziehbar, frei verschiebbar | gespeicherter Modus/Tab | voll |
+| **Tablet hochkant** (769–1200px) | **unten als Blatt**, Höhe am Griff ziehbar | **wie am Handy**: Außendienst, Tab Tour, Basis | **voll** – Profi, Gebietsplanung, Cockpit, Simulation |
+| Tablet quer | seitlich wie am Schreibtisch | gespeicherter Modus/Tab | voll |
+| Handy (bis 768px) | unten als Blatt | Außendienst, Karte, Basis | bewusst reduziert: Basis-Tiefe, Außendienst-Fokus, Karte + Tour |
 
 Auf einem hochkanten Tablet würde die Seitenleiste fast die halbe Breite
-kosten – deshalb liegt das Panel dort unten. Das ist **keine** Handy-Ansicht:
-Es wird nichts ausgeblendet, nur anders angeordnet. Wer die Seitenleiste
-möchte, dreht das Gerät ins Querformat.
+kosten – deshalb liegt das Panel dort unten, und der Einstieg ist derselbe wie
+am Handy: Wer das Gerät hochkant in die Hand nimmt, will eine Tour, nicht das
+Cockpit. Mit Daten öffnet sich deshalb direkt der Tour-Tab (die Karte liegt
+ohnehin über dem Blatt, beides bleibt gleichzeitig sichtbar).
+
+**Gesperrt wird dabei nichts.** Ein 11-Zoll-Tablet hat hochkant mehr nutzbare
+Panelbreite als die Seitenleiste am Schreibtisch; Gebietsplanung, Cockpit und
+Profi bleiben einen Tipp entfernt. Das ist auch der Grund gegen die Sperre:
+Ein Tablet wird ständig gedreht – würde das Hochformat Funktionen entziehen,
+verwürfe jede Drehung die laufende Arbeit (etwa eine unbestätigte
+Gebietssimulation). **Drehen ändert nur die Geometrie**, nie Modus, Tab oder
+Funktionsumfang. Wer die Seitenleiste möchte, dreht ins Querformat.
 
 Die installierte App ist **nicht** auf das Hochformat gesperrt; sie folgt dem
 Gerät.
@@ -276,11 +285,13 @@ Gerät.
 
 **Tablets:** Es gibt bewusst keine eigene Tablet-Ansicht und keine
 Tablet-Vorschau am Desktop. Tablets nutzen die vorhandenen responsiven
-Layouts: Ab etwa 800 Pixel Fensterbreite (praktisch alle Tablets, hochkant wie
-quer) erscheint das **vollständige Desktop-Layout** inklusive Gebietsplanung
-und Service-Fokus; nur sehr schmale Ansichten (768 Pixel und weniger, z. B.
-Smartphones oder geteilte Bildschirme) verhalten sich wie das Smartphone mit
-Karte, Tour und Bottom Sheet.
+Layouts – der **Funktionsumfang** ist ab 769 Pixel Fensterbreite immer der
+volle, inklusive Gebietsplanung und Service-Fokus. Verschieden ist nur, wie es
+sich anfühlt: **quer** die Seitenleiste und der gespeicherte Modus/Tab,
+**hochkant** das Blatt unten und der mobile Einstieg (Außendienst, Tour,
+Basis). Nur sehr schmale Ansichten (768 Pixel und weniger, z. B. Smartphones
+oder geteilte Bildschirme) verhalten sich wirklich wie das Smartphone – dort
+ist der Umfang auf Karte, Tour und Bottom Sheet reduziert.
 
 ### 3.3 Basis gegen Profi
 
@@ -2851,6 +2862,9 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neue Live-Demo "Dein Service-Tag in 20 Sekunden" (Desktop) ergänzt; nach
   jeder Live-Demo kehren Ansichtstiefe und Arbeitsfokus zum vorherigen Stand
   zurück.
+- Tablet hochkant bekommt den mobilen Einstieg (Außendienst, Tour, Basis) –
+  auch breite Tablets (12,9" hochkant = 1024 px), die bisher durch die
+  900-px-Schwelle fielen. Gesperrt wird nichts; Drehen ändert nur die Geometrie.
 - Tablet-Verhalten als bewusste Entscheidung dokumentiert: keine eigene
   Tablet-Ansicht, ab ca. 800 px volles Desktop-Layout, darunter
   Smartphone-Verhalten.
@@ -2927,6 +2941,6 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 | Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten zur Zeile ein; Abwahl über Info umkehrbar |
 | Service-Fokus | Profi; Verträge + Einsätze getrennt, Join nur über Kundennummer; erklärbarer Tagesvorschlag |
 | Zanobo | Link-out je Anlagen-ID (`#/m/<id>`, Fragment bleibt lokal); Vergleich statt Diagnose; Standard zanobo.vercel.app |
-| Tablet | keine eigene Ansicht: ab ca. 800 px volles Desktop-Layout, darunter Smartphone-Verhalten |
+| Tablet | hochkant Blatt-Geometrie + mobiler Einstieg (Außendienst/Tour/Basis), Funktionsumfang bleibt voll; quer Seitenleiste. Drehen ändert nur die Geometrie |
 | Update | App-Dateien neu, lokale Daten bleiben erhalten |
 | Vor Löschen | Export empfehlen |

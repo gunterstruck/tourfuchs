@@ -102,6 +102,26 @@ export function isSheetUi() {
 }
 
 /**
+ * Hochkantes Tablet – Blatt-Geometrie, aber kein Handy.
+ *
+ * Hier gilt der **mobile Einstieg**: Wer das Tablet hochkant in die Hand nimmt,
+ * will in aller Regel eine Tour, nicht das Cockpit. Deshalb landet er dort, wo
+ * er am Handy auch landen würde.
+ *
+ * Gesperrt wird dabei **nichts**. Ein 11-Zoll-Tablet hat hochkant mehr nutzbare
+ * Panelbreite als die 340-px-Seitenleiste am Schreibtisch – Gebietsplanung,
+ * Cockpit und Profi funktionieren dort nachweislich. Sie wegzunehmen, weil das
+ * Gerät gerade hochkant gehalten wird, nähme Können weg, das da ist. Und weil
+ * ein Tablet ständig gedreht wird, würde jede Drehung sonst laufende Arbeit
+ * (etwa eine unbestätigte Gebietssimulation) verwerfen.
+ *
+ * Kurz: Das Hochformat gibt die **Vorgabe** vor, nicht den Funktionsumfang.
+ */
+function isPortraitTabletUi() {
+    return sheetQuery.matches && !mobileQuery.matches;
+}
+
+/**
  * Auf dem Handy die Ansichtstiefe (Basis/Profi) und die Tab-Leiste aus dem
  * Bottom-Sheet in den fixen Kopf-Streifen heben – so bleiben sie immer sichtbar
  * „oben aufgehängt". Auf dem Desktop wandern beide an ihre ursprüngliche Stelle
@@ -974,7 +994,9 @@ function initDepth() {
     }
     // Das Smartphone ist der schnelle Außendienst-Einstieg: bei jedem neuen
     // Öffnen bewusst ruhig in Basis starten. Profi bleibt danach anwählbar.
-    if (isMobileUi()) depth = 'basis';
+    // Das hochkante Tablet startet genauso ruhig – aus demselben Grund und mit
+    // derselben Umkehrbarkeit (ein Tipp auf „Profi").
+    if (isMobileUi() || isPortraitTabletUi()) depth = 'basis';
     applyDepth(depth, false);
     document.querySelectorAll('#depth-switch .seg').forEach((btn) =>
         btn.addEventListener('click', () => applyDepth(btn.dataset.depth)));

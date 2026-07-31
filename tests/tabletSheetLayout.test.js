@@ -32,14 +32,44 @@ describe('Tablet hochkant: Panel unten', () => {
     });
 
     it('behält auf dem Tablet die Desktop-Funktionen', () => {
-        // Diese drei Stellen reduzieren den Funktionsumfang und müssen dem
-        // Handy vorbehalten bleiben – sonst verliert das Tablet Profi,
-        // Service-Fokus und die vollen Tabs.
-        expect(sidebar).toContain('if (isMobileUi()) depth = ');
+        // Diese beiden Stellen sperren Funktionen und müssen dem Handy
+        // vorbehalten bleiben – sonst verliert das Tablet Gebietsplanung,
+        // Service-Fokus und die vollen Tabs. Eine Drehung würde sonst
+        // laufende Arbeit (etwa eine Gebietssimulation) verwerfen.
         expect(sidebar).toContain("if (isMobileUi() || (mode === 'service' && state.ui.depth !== 'profi')) mode = 'aussendienst';");
         const tabInMode = sidebar.slice(sidebar.indexOf('function tabInMode'), sidebar.indexOf('function tabInMode') + 320);
         expect(tabInMode).toContain('if (isMobileUi())');
         expect(tabInMode).not.toContain('isSheetUi()');
+    });
+
+    it('gibt hochkant nur den Einstieg vor, nicht den Funktionsumfang', () => {
+        // Basis-Tiefe ist eine Startvorgabe wie am Handy – „Profi" bleibt ein
+        // Tipp entfernt, weil applyDepth davon unberührt bleibt.
+        expect(sidebar).toContain("if (isMobileUi() || isPortraitTabletUi()) depth = 'basis'");
+        expect(sidebar).toContain('function isPortraitTabletUi()');
+        const applyDepth = sidebar.slice(sidebar.indexOf('export function applyDepth'), sidebar.indexOf('export function applyDepth') + 400);
+        expect(applyDepth).not.toContain('isPortraitTabletUi');
+        expect(applyDepth).not.toContain('isSheetUi');
+    });
+
+    it('startet hochkant in der Tour statt im gespeicherten Desktop-Tab', () => {
+        const main = read('src/main.js');
+        expect(main).toContain('const portraitTabletStartup = isSheetUi() && !phoneStartup;');
+        expect(main).toContain("state.ui.activeTab = portraitTabletStartup ? 'tour' : 'karte'");
+        expect(main).toContain('else if (portraitTabletStartup) showTourView(false)');
+        // Auch breite Tablets (12,9" hochkant = 1024 px) sind erfasst; die alte
+        // 900-px-Schwelle bleibt nur noch für gedrehte Handys stehen.
+        expect(main).toContain("const phoneStartup = window.matchMedia('(max-width: 768px)').matches;");
+        expect(main).toContain("const compactStartup = window.matchMedia('(max-width: 900px)').matches;");
+    });
+
+    it('lässt eine Drehung den Modus und die laufende Arbeit nicht anfassen', () => {
+        // syncViewport greift nur unterhalb der Handy-Schwelle in den Modus ein.
+        // Auf dem Tablet wechselt beim Drehen ausschließlich die Geometrie.
+        expect(sidebar).toContain("if (isMobileUi() && state.ui.mode === 'service') applyMode('aussendienst', false);");
+        const sync = sidebar.slice(sidebar.indexOf('const syncViewport = () =>'), sidebar.indexOf('const syncViewport = () =>') + 420);
+        expect(sync).not.toContain('isPortraitTabletUi');
+        expect(sync).not.toContain('activateTab');
     });
 
     it('bedient den Griff auf dem Tablet wie am Handy: ziehen ändert die Höhe', () => {
