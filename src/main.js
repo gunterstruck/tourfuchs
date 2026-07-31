@@ -13,7 +13,7 @@ import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './serv
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
 import { enrichPlacesByPlz, geocodeByPlz } from './services/geocode.js';
 import { initMap } from './features/map.js';
-import { initSidebar, applyMode, autoRevealIfEmpty, showDataView, showMapView } from './ui/sidebar.js';
+import { initSidebar, applyMode, autoRevealIfEmpty, isSheetUi, showDataView, showMapView, showTourView } from './ui/sidebar.js';
 import { initImportWizard } from './ui/importWizard.js';
 import { initTourPanel } from './ui/tourPanel.js';
 import { openReceivedFromUrl } from './ui/tourQr.js';
@@ -156,22 +156,38 @@ async function restorePersistedState() {
     }
 
     // Fokus-Modus wiederherstellen (Farbmodus wurde bereits oben gesetzt -> nicht überschreiben)
-    const mobileStartup = window.matchMedia('(max-width: 900px)').matches;
-    if (!mobileStartup && typeof settings?.activeTab === 'string') state.ui.activeTab = settings.activeTab;
-    if (!mobileStartup && ['aussendienst', 'gebietsplanung', 'service'].includes(settings?.mode)) {
+    // Ein hochkantes Tablet bekommt denselben Einstieg wie das Handy: Wer das
+    // Gerät hochkant in die Hand nimmt, will eine Tour, nicht das Cockpit.
+    // Das gilt jetzt auch für breite Tablets (12,9" hochkant = 1024 px), die
+    // bisher durch die 900-px-Schwelle fielen und mit dem Desktop-Tab starteten.
+    // Gesperrt wird dabei nichts – der Funktionsumfang bleibt voll (siehe
+    // isSheetUi in sidebar.js); vorgegeben wird nur der Einstieg.
+    const phoneStartup = window.matchMedia('(max-width: 768px)').matches;
+    const portraitTabletStartup = isSheetUi() && !phoneStartup;
+    // Schmale Querformate (Handy gedreht) behalten den kompakten Einstieg von
+    // früher, obwohl sie keine Blatt-Geometrie haben.
+    const compactStartup = window.matchMedia('(max-width: 900px)').matches;
+    const sheetStartup = phoneStartup || portraitTabletStartup || compactStartup;
+
+    if (!sheetStartup && typeof settings?.activeTab === 'string') state.ui.activeTab = settings.activeTab;
+    if (!sheetStartup && ['aussendienst', 'gebietsplanung', 'service'].includes(settings?.mode)) {
         state.ui.mode = settings.mode;
     }
-    if (mobileStartup) {
+    if (sheetStartup) {
         state.ui.mode = 'aussendienst';
         // Mit Daten startet das Handy direkt auf der Karte (Blatt eingeklappt),
-        // damit die Kunden sofort sichtbar sind. Nur ohne Daten öffnet sich das
-        // Datenblatt als geführter Einstieg.
-        state.ui.activeTab = state.customers.length > 0 ? 'karte' : 'daten';
+        // damit die Kunden sofort sichtbar sind. Auf dem hochkanten Tablet liegt
+        // die Karte ohnehin über dem Blatt – dort ist die Tour der bessere
+        // Einstieg, weil Karte und Planer gleichzeitig sichtbar bleiben.
+        // Ohne Daten öffnet sich in beiden Fällen das Datenblatt (Onboarding).
+        if (state.customers.length === 0) state.ui.activeTab = 'daten';
+        else state.ui.activeTab = portraitTabletStartup ? 'tour' : 'karte';
     }
     applyMode(state.ui.mode, false);
-    if (mobileStartup) {
-        if (state.customers.length > 0) showMapView(false);
-        else showDataView(false);
+    if (sheetStartup) {
+        if (state.customers.length === 0) showDataView(false);
+        else if (portraitTabletStartup) showTourView(false);
+        else showMapView(false);
     }
 }
 
