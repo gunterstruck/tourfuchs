@@ -795,6 +795,11 @@ den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
 mindestens einem Stopp geplant. Einmal mit **"Später"** abgelehnt, kommt es nicht
 wieder; die Installation bleibt über das Browsermenü möglich.
 
+Auf **iPhone und iPad** gibt es keinen Knopf, der installiert – Safari kennt das
+dafür nötige Ereignis nicht. Dort zeigt dasselbe Angebot deshalb den einzigen
+Weg, den es gibt: **Teilen → "Zum Home-Bildschirm"**. Das trifft besonders den
+Fall, in dem die Tour gerade per QR-Scan im Handy-Browser gelandet ist.
+
 ### 7.6 Erneuter Import und vollständige Ersetzung
 
 Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
@@ -1861,7 +1866,9 @@ Falscher Schlüssel und beschädigte Datei werden erkannt.
 **Android Chrome:** Menü -> **"App installieren"** oder
 **"Zum Startbildschirm hinzufügen"**.
 
-**iPhone Safari:** Teilen -> **"Zum Home-Bildschirm"**.
+**iPhone Safari:** Teilen -> **"Zum Home-Bildschirm"**. Einen automatischen
+Installations-Knopf gibt es dort nicht; TourFuchs blendet nach der ersten
+geplanten Tour stattdessen genau diese Anleitung ein.
 
 ### 15.2 Offline-Verhalten
 
@@ -2871,6 +2878,10 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neue Live-Demo "Dein Service-Tag in 20 Sekunden" (Desktop) ergänzt; nach
   jeder Live-Demo kehren Ansichtstiefe und Arbeitsfokus zum vorherigen Stand
   zurück.
+- **Installations-Angebot auch auf iOS:** Auf iPhone/iPad feuert
+  `beforeinstallprompt` nie, das Angebot erschien dort bisher also nie. Jetzt
+  zeigt dasselbe Banner die Anleitung "Teilen -> Zum Home-Bildschirm" – wichtig,
+  wenn die Tour gerade per QR-Scan im Handy-Browser gelandet ist.
 - **Eigene Nachschlagequellen im Briefing:** Bis zu drei selbst gepflegte
   Ablagen (Link/Pfad plus "was steckt drin") lassen sich hinterlegen; beide
   Briefings stellen sie dem Prompt als Vorrang-Hinweis voran. Reiner
