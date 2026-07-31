@@ -149,9 +149,13 @@ export function initImportWizard() {
     resultDialog = document.getElementById('import-result-dialog');
     resultDialog.querySelector('.dialog-close').addEventListener('click', () => resultDialog.close());
     document.getElementById('import-result-ok').addEventListener('click', () => resultDialog.close());
-    document.getElementById('import-error-download').addEventListener('click', async () => {
+    const downloadErrorList = async () => {
         if (lastErrors.length) (await excel()).exportErrors(lastErrors, lastFileBase);
-    });
+    };
+    document.getElementById('import-error-download').addEventListener('click', downloadErrorList);
+    document.getElementById('btn-import-notes')?.addEventListener('click', downloadErrorList);
+    on('dataset:cleared', () => { lastErrors = []; syncImportNotesButton(); });
+    syncImportNotesButton();
 
     // Drag & Drop auf die gesamte App
     const appEl = document.body;
@@ -669,17 +673,54 @@ async function resolveAreas(areaRows, errors) {
     return count;
 }
 
+/** Zugang zur Hinweis-/Fehlerliste im Daten-Tab an den letzten Import anpassen. */
+function syncImportNotesButton() {
+    const btn = document.getElementById('btn-import-notes');
+    if (!btn) return;
+    btn.hidden = lastErrors.length === 0;
+    const nurHinweise = lastErrors.every((e) => e.Typ === 'Hinweis');
+    btn.textContent = nurHinweise
+        ? '⬇ Hinweise zum letzten Import (.xlsx)'
+        : '⬇ Fehlerliste zum letzten Import (.xlsx)';
+}
+
+/**
+ * Ergebnis des Imports melden.
+ *
+ * Ein Modal ist die teuerste Art, etwas zu sagen – es hält an. Deshalb hebt es
+ * sich hier für den einzigen Fall auf, der wirklich anhält: **Zeilen, die nicht
+ * importiert wurden.** Die haben eine Folge (die Liste ist unvollständig) und
+ * eine Aufgabe (korrigieren, neu laden).
+ *
+ * Reine **Hinweise** haben beides nicht: Jede Zeile ist drin. Der häufigste ist
+ * „N Kunden ohne Vertriebsbezirk" – und genau der trifft die einfachste,
+ * ausdrücklich unterstützte Liste (Name + PLZ), also den schnellsten Einstieg.
+ * Dafür einen Dialog aufzuziehen, bestraft den einfachen Weg für etwas, das
+ * kein Problem ist. Hinweise kommen deshalb als Toast; die Liste bleibt im
+ * Daten-Tab herunterladbar, und der Befund („Das sagt Ihre Liste") sagt
+ * dasselbe ohnehin besser.
+ */
 function showImportResult({ customerCount, contactCount = 0, areaCount, skipped, errors, replacedExisting = false }) {
     const fehler = errors.filter((e) => e.Typ === 'Fehler').length;
     const hinweise = errors.filter((e) => e.Typ === 'Hinweis').length;
+    syncImportNotesButton();
 
-    if (errors.length === 0) {
+    if (fehler === 0) {
         const parts = [];
         if (customerCount) parts.push(`${customerCount} Kunden`);
         if (contactCount) parts.push(`${contactCount} Kontakte`);
         if (areaCount) parts.push(`${areaCount} Gebiete`);
+        // Ohne Fehler und ohne übernommene Zeile wäre „importiert" gelogen.
+        if (parts.length === 0) {
+            showToast('Keine gültigen Zeilen im Import gefunden.', 'error', 6000);
+            return;
+        }
         const replacement = replacedExisting ? ' Die bisherige Kundenliste wurde vollständig ersetzt.' : '';
-        showToast(`${parts.join(', ') || 'Daten'} importiert.${replacement}`, 'success', 6000);
+        // Hinweise gehen nicht verloren: Anzahl nennen und sagen, wo die Liste liegt.
+        const notes = hinweise
+            ? ` ${hinweise} Hinweis${hinweise === 1 ? '' : 'e'} – Liste unter „Daten“.`
+            : '';
+        showToast(`${parts.join(', ')} importiert.${replacement}${notes}`, 'success', notes ? 8000 : 6000);
         return;
     }
     document.getElementById('import-result-body').innerHTML = `
@@ -690,7 +731,7 @@ function showImportResult({ customerCount, contactCount = 0, areaCount, skipped,
             <div class="stat"><b>${fehler}</b><span>Fehler</span></div>
             <div class="stat"><b>${hinweise}</b><span>Hinweise</span></div>
         </div>
-        <p class="muted small">Gültige Zeilen wurden importiert. ${replacedExisting ? 'Die bisherige Kundenliste wurde vollständig ersetzt. ' : ''}${fehler ? `${fehler} Zeile(n) mit Fehlern wurden nicht übernommen. ` : ''}${hinweise ? `${hinweise} Hinweis(e) (z. B. unbekannte PLZ). ` : ''}Laden Sie die Liste herunter, um die Zeilen zu prüfen und zu korrigieren.</p>
+        <p class="muted small"><b>${fehler} Zeile${fehler === 1 ? '' : 'n'} wurde${fehler === 1 ? '' : 'n'} nicht übernommen</b> – alle übrigen sind importiert. ${replacedExisting ? 'Die bisherige Kundenliste wurde vollständig ersetzt. ' : ''}${hinweise ? `Dazu ${hinweise} Hinweis(e) (z. B. unbekannte PLZ) zu importierten Zeilen. ` : ''}Lade die Liste herunter, korrigiere die Zeilen und lade sie erneut. Der Zugang bleibt unter „Daten“ erhalten.</p>
     `;
     resultDialog.showModal();
 }
