@@ -802,6 +802,14 @@ Fall, in dem die Tour gerade per QR-Scan im Handy-Browser gelandet ist.
 
 ### 7.6 Erneuter Import und vollständige Ersetzung
 
+**Ausnahme Beispieldaten:** Liegen nur Beispielkunden vor – keine eigenen
+Gebietszuordnungen, keine eigenen Vertrags-/Einsatzquellen –, entfällt sowohl
+der Änderungsbericht als auch die kurze Rückfrage. Dort ist nichts zu schützen,
+und der Bericht meldete sonst „2250 entfallen · −315.318 T€" über eine Kulisse,
+die nie echt war. Sobald ein einziger echter Kunde, eine eigene
+Gebietszuordnung oder eine eigene Vertragsquelle dabei ist, greift der Schutz
+wieder vollständig.
+
 Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
 kein Delta und kein Upsert. TourFuchs liest und prüft die Datei zuerst. Sind
 bereits Kunden vorhanden, erscheint vor jeder Änderung der **Änderungsbericht**
@@ -2878,6 +2886,10 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neue Live-Demo "Dein Service-Tag in 20 Sekunden" (Desktop) ergänzt; nach
   jeder Live-Demo kehren Ansichtstiefe und Arbeitsfokus zum vorherigen Stand
   zurück.
+- **Kein Änderungsbericht gegen Beispieldaten:** Der erste eigene Import zeigte
+  bisher „3 neu · 2250 entfallen · −315.318 T€" – eine Verlustmeldung über eine
+  Kulisse. Gegen reine Beispieldaten entfällt die Rückfrage; bei echtem Bestand
+  bleibt sie unverändert.
 - **Installations-Angebot auch auf iOS:** Auf iPhone/iPad feuert
   `beforeinstallprompt` nie, das Angebot erschien dort bisher also nie. Jetzt
   zeigt dasselbe Banner die Anleitung "Teilen -> Zum Home-Bildschirm" – wichtig,

@@ -107,7 +107,10 @@ describe('Versprochene Laufzeiten', () => {
 
     it('hält die gemessenen Werte fest, damit sie nachvollziehbar bleiben', () => {
         const stories = read('src/features/stories.js');
-        expect(stories).toContain('Zuletzt gemessen am 26.07.2026');
+        // Datum und Ergebnis des Laufs stehen im Kopf der Datei: Wer die Zahlen
+        // anzweifelt, soll sehen, wann und womit sie entstanden sind.
+        expect(stories).toContain('Zuletzt gemessen am 31.07.2026');
+        expect(stories).toContain('30 Durchläufe, 30 ok, 0 Abbrüche, 0 Klickmängel');
         // Keine Story ohne Laufzeitangabe
         for (const story of STORIES) expect(story.duration).toBeGreaterThan(0);
     });
