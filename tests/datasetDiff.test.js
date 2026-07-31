@@ -32,7 +32,11 @@ describe('Änderungsbericht beim Reimport', () => {
         expect(diff.removed.map((c) => c.nummer)).toEqual(['3']);
         expect(diff.moved).toHaveLength(1);
         expect(diff.moved[0]).toMatchObject({ nummer: '2', from: 'Nord', to: 'Süd' });
-        expect(diff.keptCount).toBe(2);
+        // „Unverändert" heißt seit dem Feldvergleich wirklich unverändert:
+        // Nr. 2 wechselt den Bezirk und zählt deshalb nicht mehr mit. Vorher
+        // erschien derselbe Kunde in beiden Kacheln – als gewechselt UND als
+        // unverändert.
+        expect(diff.keptCount).toBe(1);
         expect(diff.hasChanges).toBe(true);
     });
 
@@ -107,5 +111,51 @@ describe('Änderungsbericht beim Reimport', () => {
         expect(wizard.indexOf('confirmImportWithDiff')).toBeLessThan(wizard.indexOf('replaceCustomers(customers'));
         expect(html).toContain('id="import-diff-dialog"');
         expect(html).toContain('data-diff-confirm');
+    });
+});
+
+describe('Feldänderungen bei gleicher Kundennummer', () => {
+    // Externer Prüfbericht, P1: Verglichen wurde nur der Vertriebsbezirk. Ein
+    // Kunde, bei dem Name, Anschrift, Kontakt, Rhythmus und Umsatz wechselten,
+    // galt als unverändert – und der Bericht meldete „Keine Unterschiede zum
+    // bisherigen Bestand", unmittelbar bevor der Bestand ersetzt wurde.
+    const alt = { id: 'a', nummer: '4711', name: 'Alt GmbH', plz: '44135', ort: 'Dortmund', bezirk: 'West', umsatz: 100000, rhythmusWochen: 4, telefon: '0231 111' };
+
+    it('erkennt geänderte Angaben und meldet sie', () => {
+        const neu = { ...alt, id: 'b', name: 'Neu AG', plz: '50667', ort: 'Köln', umsatz: 250000, rhythmusWochen: 12, telefon: '0221 999' };
+        const diff = diffCustomerDatasets([alt], [neu]);
+
+        expect(diff.hasChanges).toBe(true);
+        expect(diffHeadline(diff)).not.toBe('Keine Unterschiede zum bisherigen Bestand.');
+        expect(diff.changed).toHaveLength(1);
+        expect(diff.changed[0].fields.map((f) => f.key).sort())
+            .toEqual(['name', 'ort', 'plz', 'rhythmusWochen', 'telefon', 'umsatz']);
+        expect(diff.keptCount).toBe(0);
+    });
+
+    it('nennt alten und neuen Wert je Feld', () => {
+        const diff = diffCustomerDatasets([alt], [{ ...alt, umsatz: 250000 }]);
+        const feld = diff.changed[0].fields.find((f) => f.key === 'umsatz');
+        expect(feld).toMatchObject({ from: 100000, to: 250000, label: 'Umsatz' });
+    });
+
+    it('hält einen wirklich unveränderten Bestand weiterhin für unverändert', () => {
+        const diff = diffCustomerDatasets([alt], [{ ...alt }]);
+        expect(diff.hasChanges).toBe(false);
+        expect(diff.changed).toEqual([]);
+        expect(diff.keptCount).toBe(1);
+    });
+
+    it('stört sich nicht an belanglosen Schreibweisen', () => {
+        // Führende/abschließende Leerzeichen und Zahl-als-Text sind dieselbe Angabe.
+        const diff = diffCustomerDatasets([alt], [{ ...alt, name: '  Alt GmbH  ', umsatz: '100000' }]);
+        expect(diff.changed).toEqual([]);
+        expect(diff.hasChanges).toBe(false);
+    });
+
+    it('zeigt die Änderungen auch im Dialog', () => {
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/importDiff.js'), 'utf8');
+        expect(ui).toContain("statTile('geänderte Angaben'");
+        expect(ui).toContain("listSection('Geänderte Angaben'");
     });
 });

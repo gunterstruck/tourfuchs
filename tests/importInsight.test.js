@@ -162,3 +162,18 @@ describe('Zeilenenden im Repository', () => {
         expect(attrs).toContain('*.pdf binary');
     });
 });
+
+describe('Die Überschrift behauptet nichts Falsches', () => {
+    // Externer Prüfbericht, P2: „10 Kunden auf der Karte" stand über der Zeile
+    // „1 konnte nicht verortet werden". Auf der Karte liegen nur die verorteten.
+    it('nennt nur die wirklich verorteten Kunden', () => {
+        expect(insightHeadline({ total: 10, unlocated: 0 })).toBe('10 Kunden auf der Karte.');
+        expect(insightHeadline({ total: 10, unlocated: 1 }))
+            .toBe('9 Kunden auf der Karte, 1 von 10 Kunden noch nicht verortet.');
+    });
+
+    it('sagt es auch, wenn gar keiner verortet werden konnte', () => {
+        expect(insightHeadline({ total: 1, unlocated: 1 })).toBe('1 Kunde importiert – noch keiner auf der Karte.');
+        expect(insightHeadline({ total: 0, unlocated: 0 })).toBe('Keine Kunden importiert.');
+    });
+});

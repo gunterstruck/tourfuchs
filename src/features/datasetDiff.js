@@ -46,6 +46,44 @@ function summarize(customer) {
     };
 }
 
+/**
+ * Felder, deren Änderung der Nutzer vor dem Ersetzen sehen muss.
+ *
+ * Verglichen wurde bisher nur der Vertriebsbezirk. Ein Kunde, bei dem sich
+ * Name, Anschrift, Kontakt, Rhythmus und Umsatz änderten, galt als
+ * „unverändert" – und der Bericht meldete „Keine Unterschiede zum bisherigen
+ * Bestand", unmittelbar bevor der Bestand vollständig ersetzt wurde. Genau die
+ * Rückfrage, die schützen soll, gab Entwarnung.
+ *
+ * Der Bezirk bleibt bewusst außen vor: Er hat mit `moved` seine eigene,
+ * prominentere Kategorie.
+ */
+const COMPARED_FIELDS = [
+    { key: 'name', label: 'Name' },
+    { key: 'strasse', label: 'Straße' },
+    { key: 'plz', label: 'PLZ' },
+    { key: 'ort', label: 'Ort' },
+    { key: 'gruppe', label: 'Vertriebsgruppe' },
+    { key: 'ansprechpartner', label: 'Ansprechpartner' },
+    { key: 'telefon', label: 'Telefon' },
+    { key: 'email', label: 'E-Mail' },
+    { key: 'rhythmusWochen', label: 'Besuchsrhythmus' },
+    { key: 'umsatz', label: 'Umsatz' }
+];
+
+const NUMERIC_FIELDS = new Set(['umsatz', 'rhythmusWochen']);
+
+/** Welche der verglichenen Felder unterscheiden sich? */
+function changedFields(before, after) {
+    const fields = [];
+    for (const { key, label } of COMPARED_FIELDS) {
+        const a = NUMERIC_FIELDS.has(key) ? amount(before?.[key]) : text(before?.[key]);
+        const b = NUMERIC_FIELDS.has(key) ? amount(after?.[key]) : text(after?.[key]);
+        if (a !== b) fields.push({ key, label, from: a, to: b });
+    }
+    return fields;
+}
+
 function districtTotals(customers) {
     const totals = new Map();
     for (const customer of customers) {
@@ -75,6 +113,7 @@ export function diffCustomerDatasets(previous = [], incoming = []) {
 
     const added = [];
     const moved = [];
+    const changed = [];
     const seen = new Set();
     let keptCount = 0;
 
@@ -86,12 +125,17 @@ export function diffCustomerDatasets(previous = [], incoming = []) {
             continue;
         }
         seen.add(key);
-        keptCount++;
         const from = districtOf(match);
         const to = districtOf(customer);
         if (from !== to) {
             moved.push({ ...summarize(customer), from, to });
         }
+        const fields = changedFields(match, customer);
+        if (fields.length) {
+            changed.push({ ...summarize(customer), fields });
+        }
+        // „Unverändert" heißt jetzt wirklich unverändert – Bezirk wie Felder.
+        if (from === to && fields.length === 0) keptCount++;
     }
 
     const removed = [...before.entries()]
@@ -132,10 +176,11 @@ export function diffCustomerDatasets(previous = [], incoming = []) {
         added,
         removed,
         moved,
+        changed,
         keptCount,
         districts,
         totals,
-        hasChanges: added.length > 0 || removed.length > 0 || moved.length > 0
+        hasChanges: added.length > 0 || removed.length > 0 || moved.length > 0 || changed.length > 0
     };
 }
 
@@ -145,6 +190,7 @@ export function diffHeadline(diff) {
     if (diff.added.length) parts.push(`${diff.added.length} neu`);
     if (diff.removed.length) parts.push(`${diff.removed.length} ${diff.removed.length === 1 ? 'entfällt' : 'entfallen'}`);
     if (diff.moved.length) parts.push(`${diff.moved.length} ${diff.moved.length === 1 ? 'Bezirkswechsel' : 'Bezirkswechsel'}`);
+    if (diff.changed?.length) parts.push(`${diff.changed.length} geändert`);
     if (!parts.length) return 'Keine Unterschiede zum bisherigen Bestand.';
     return parts.join(' · ');
 }

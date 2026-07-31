@@ -63,6 +63,31 @@ function normalizeHeader(h) {
 /**
  * Datei einlesen -> { headers, rows } (rows als Objekte je Header)
  */
+/**
+ * Trennzeichen zählen – aber nur außerhalb von Anführungszeichen.
+ *
+ * Gezählt wurde bisher über den ganzen Kopf. Ein gültiger Semikolon-CSV mit
+ * einem Feldnamen wie `"Gebiet, Kreis, Region"` bringt darin mehr Kommas als
+ * Semikolons mit; das Komma gewann, und die Datei wurde vollständig falsch
+ * eingelesen. Ein Zeichen innerhalb eines zitierten Feldes ist Text, kein
+ * Trennzeichen.
+ */
+function countOutsideQuotes(line, delimiter) {
+    let count = 0;
+    let quoted = false;
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+            // Verdoppeltes "" innerhalb eines Feldes ist ein Anführungszeichen.
+            if (quoted && line[i + 1] === '"') { i++; continue; }
+            quoted = !quoted;
+            continue;
+        }
+        if (!quoted && char === delimiter) count++;
+    }
+    return count;
+}
+
 export async function readWorkbook(file) {
     const buffer = await file.arrayBuffer();
     const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv';
@@ -78,7 +103,7 @@ export async function readWorkbook(file) {
         const firstLine = text.split(/\r?\n/, 1)[0] ?? '';
         const delimiters = [';', ',', '\t'];
         const separator = delimiters.reduce((best, candidate) => (
-            firstLine.split(candidate).length > firstLine.split(best).length ? candidate : best
+            countOutsideQuotes(firstLine, candidate) > countOutsideQuotes(firstLine, best) ? candidate : best
         ), ';');
         // CSV-Werte als Text bewahren: SheetJS würde ISO-Daten sonst anhand der
         // System-Locale z. B. zu "7/16/26" umformatieren und IDs als Zahlen
@@ -277,6 +302,25 @@ function syncPrimaryContact(customer) {
     return customer;
 }
 
+/**
+ * Gibt es diesen Kalendertag wirklich?
+ *
+ * Ohne diese Prüfung wanderten „31.02.2026" (rollt still auf den 03.03.) und
+ * „2026-13-40" (gar kein Datum) in den Bestand. Das zweite ist das
+ * gefährlichere: `new Date()` liefert dafür NaN, beide Fälligkeitsvergleiche
+ * schlagen fehl, und der Kunde erscheint als **unkritisch** statt überfällig.
+ * Eine unbrauchbare Angabe soll in der Fehlerliste landen, nicht in einer
+ * stillen Fehleinschätzung.
+ */
+function isRealCalendarDate(iso) {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    if (!m) return false;
+    const [, y, mo, d] = m.map(Number);
+    if (mo < 1 || mo > 12 || d < 1 || d > 31) return false;
+    const probe = new Date(Date.UTC(y, mo - 1, d));
+    return probe.getUTCFullYear() === y && probe.getUTCMonth() === mo - 1 && probe.getUTCDate() === d;
+}
+
 /** Datum robust nach ISO (YYYY-MM-DD) parsen; unterstützt dd.mm.yyyy, ISO, Excel-Seriennummer */
 function parseDateIso(value) {
     if (value === null || value === undefined || value === '') return null;
@@ -293,13 +337,15 @@ function parseDateIso(value) {
     if (m) {
         let [, d, mo, y] = m;
         if (y.length === 2) y = `20${y}`;
-        return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        const iso = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        return isRealCalendarDate(iso) ? iso : null;
     }
     // yyyy-mm-dd (evtl. mit Zeitanteil)
     m = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
     if (m) {
         const [, y, mo, d] = m;
-        return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        const iso = `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`;
+        return isRealCalendarDate(iso) ? iso : null;
     }
     return null;
 }
