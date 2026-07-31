@@ -39,6 +39,25 @@ function formatLocalDate(isoDate) {
 }
 
 /**
+ * Der Tag, auf den sich das Briefing bezieht: der eingestellte Planungstag,
+ * sonst heute. `label` liefert die passende Anrede, damit der Prompt nicht
+ * „heute" sagt, wenn ein anderer Tag gemeint ist.
+ */
+function referenceDate(context = {}) {
+    if (context.now instanceof Date) return { date: context.now, label: 'heute' };
+    const iso = value(context.plannedDate);
+    const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+    if (!match) return { date: new Date(), label: 'heute' };
+    const planned = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12, 0, 0);
+    if (Number.isNaN(planned.getTime())) return { date: new Date(), label: 'heute' };
+    const today = new Date();
+    const sameDay = planned.getFullYear() === today.getFullYear()
+        && planned.getMonth() === today.getMonth()
+        && planned.getDate() === today.getDate();
+    return { date: planned, label: sameDay ? 'heute' : `am ${formatLocalDate(iso)}` };
+}
+
+/**
  * Wer kommt in den Prompt? Beispielkunden fliegen raus, der Rest wird gedeckelt.
  * Die Reihenfolge der Eingabe bleibt erhalten – sie ist bereits sinnvoll
  * sortiert (Entfernung bzw. „Überfällige zuerst").
@@ -82,20 +101,28 @@ export function buildAreaBriefingPrompt(customers = [], context = {}, assistant 
         throw new Error('Für Beispielkunden wird kein Gebiets-Briefing erzeugt.');
     }
 
-    const now = context.now instanceof Date ? context.now : new Date();
+    // Fälligkeit und Anrede müssen sich auf **denselben** Tag beziehen.
+    //
+    // Vorher stand im Prompt „Ich bin heute unterwegs" samt „Geplanter
+    // Besuchstag: 05.08.", während „überfällig" gegen die echte Uhr gerechnet
+    // wurde. Bei einem Planungstag in der Zukunft kann ein Kunde am Reisetag
+    // fällig sein, heute aber noch nicht – der Assistent bekam dann zwei
+    // widersprüchliche Zeitbezüge und sortierte nach dem falschen.
+    const reference = referenceDate(context);
+    const now = reference.date;
     const sourceInstruction = value(assistant?.promptSources)
         || 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
 
     const ownSources = briefingSourcesPromptBlock(sources);
     const areaLabel = value(context.areaLabel) || 'mein aktuelles Gebiet';
     const planned = value(context.plannedDate)
-        ? `Geplanter Besuchstag: ${formatLocalDate(context.plannedDate)}.\n`
+        ? `Geplanter Besuchstag: ${formatLocalDate(context.plannedDate)}. Fälligkeiten unten beziehen sich auf diesen Tag.\n`
         : '';
     const truncated = Number(context.total) > list.length
         ? `Es sind ${context.total} Kunden im Gebiet; hier stehen die ${list.length} nächstgelegenen.\n`
         : '';
 
-    return `Du bist meine Vertriebsassistenz. Ich bin heute in diesem Gebiet unterwegs und möchte wissen, wen ich zuerst besuchen sollte.
+    return `Du bist meine Vertriebsassistenz. Ich bin ${reference.label} in diesem Gebiet unterwegs und möchte wissen, wen ich zuerst besuchen sollte.
 
 Gebiet: ${areaLabel}.
 ${planned}${truncated}

@@ -12,11 +12,22 @@
  * Ergebnis, für das der Nutzer den Dialog überhaupt geöffnet hat.
  */
 
+import { on } from '../core/state.js';
 import {
     BRIEFING_SOURCES_LIMIT,
+    clearBriefingSources,
     loadBriefingSources,
     saveBriefingSources
 } from '../services/briefingSources.js';
+
+/**
+ * Beim bewussten „Daten löschen" gehen auch die hinterlegten Quellen mit.
+ * Sie nennen einen internen Ablageort und sind damit selbst eine Angabe, die
+ * ein geleerter Browser nicht behalten soll.
+ */
+export function initBriefingSources() {
+    on('dataset:cleared', () => clearBriefingSources());
+}
 
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]

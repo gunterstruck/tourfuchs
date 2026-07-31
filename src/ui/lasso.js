@@ -25,8 +25,8 @@
  * Verschieben zur Auswahl – daran sterben solche Werkzeuge.
  */
 import L from 'leaflet';
-import { state, emit, on, visibleCustomers } from '../core/state.js';
-import { cardAnchorLatLng, getMap, openMapCard } from '../features/map.js';
+import { state, emit, on } from '../core/state.js';
+import { cardAnchorLatLng, customersOnMap, getMap, openMapCard } from '../features/map.js';
 import { isOpportunity } from '../features/visits.js';
 import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
@@ -101,16 +101,46 @@ const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => 
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
 ));
 
+/**
+ * Alles, was die Karte unter der Spur verschieben oder skalieren könnte.
+ *
+ * `touchZoom` gehört ausdrücklich dazu: Ein zweiter Finger mitten im Zug
+ * zoomte die Karte, während die schon gezeichnete Spur in Bildschirm-
+ * koordinaten stehen blieb – die Auswahl hätte danach eine andere Fläche
+ * gemeint als die sichtbare Linie. Am Handy ist das der wahrscheinlichste
+ * Fehlgriff überhaupt.
+ */
+const MAP_HANDLERS = ['dragging', 'doubleClickZoom', 'boxZoom', 'keyboard', 'scrollWheelZoom', 'touchZoom'];
+
+let mapHandlerState = null;
+
 /** Kartenbedienung während des Zeichnens stilllegen und danach zurückgeben. */
 function setMapInteraction(enabled) {
     const map = getMap();
     if (!map) return;
-    for (const handler of ['dragging', 'doubleClickZoom', 'boxZoom', 'keyboard']) {
-        if (map[handler]) enabled ? map[handler].enable() : map[handler].disable();
+
+    if (!enabled) {
+        // Den vorherigen Zustand merken, statt hinterher pauschal alles
+        // einzuschalten: Sonst gäbe das Lasso Kartenfunktionen zurück, die
+        // jemand anders bewusst abgeschaltet hatte.
+        mapHandlerState = {};
+        for (const name of MAP_HANDLERS) {
+            const handler = map[name];
+            if (!handler) continue;
+            mapHandlerState[name] = handler.enabled();
+            handler.disable();
+        }
+        return;
     }
-    // Scrollzoom bleibt bewusst aus: ein Zoom mitten im Zug verschiebt alles,
-    // was schon gezeichnet ist, gegenüber der Karte darunter.
-    if (map.scrollWheelZoom) enabled ? map.scrollWheelZoom.enable() : map.scrollWheelZoom.disable();
+
+    for (const name of MAP_HANDLERS) {
+        const handler = map[name];
+        if (!handler) continue;
+        // Ohne gemerkten Zustand (Freigeben ohne vorheriges Stilllegen) gilt
+        // der bisherige Standard: einschalten.
+        if (mapHandlerState ? mapHandlerState[name] : true) handler.enable();
+    }
+    mapHandlerState = null;
 }
 
 function ensureOverlay() {
@@ -386,7 +416,11 @@ function finishStroke() {
     }
     const map = getMap();
     if (!map) return;
-    const found = customersInLasso(visibleCustomers(), polygon, (customer) => {
+    // Genau die Kunden, die auch gezeichnet sind – nicht die global
+    // sichtbaren. Sonst gerieten bei Tour-Fokus, Service-Umfang oder
+    // Chancen-Filter Kunden in Auswahl, Tour und Gebiets-Briefing, die auf
+    // der Karte gar nicht liegen. Das Lasso verspricht: was du siehst.
+    const found = customersInLasso(customersOnMap(), polygon, (customer) => {
         const point = map.latLngToContainerPoint([customer.lat, customer.lng]);
         return { x: point.x, y: point.y };
     });
@@ -544,7 +578,7 @@ export function lassoSelection() {
 function syncButtonVisibility() {
     const button = document.getElementById('btn-lasso');
     if (!button) return;
-    const located = visibleCustomers().filter((c) => c.lat !== null && c.lng !== null);
+    const located = customersOnMap();
     const show = located.length >= 2 && state.ui.mode !== 'simulation';
     button.hidden = !show;
     if (!show && active) setLassoActive(false);
@@ -575,6 +609,10 @@ export function initLasso() {
     const map = getMap();
     if (map) map.on('dragstart zoomstart', () => { if (!drawing) clearLassoSelection(); });
 
+    // Die gezeichnete Menge hängt seit dem Gleichzug mit der Karte auch am
+    // Zoom (Flächenansicht = keine Marker) und am Chancen-Filter. Ohne dieses
+    // Ereignis bliebe der Knopf stehen, wo er nichts mehr treffen kann.
+    on('map:markers-rendered', syncButtonVisibility);
     on('customers:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('filters:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('mode:changed', syncButtonVisibility);

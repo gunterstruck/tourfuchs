@@ -36,6 +36,7 @@ import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
+import { initBriefingSources } from './ui/briefingSources.js';
 import { initAreaBriefing } from './ui/areaBriefing.js';
 import { initLasso } from './ui/lasso.js';
 import { initContractRadar } from './ui/contractRadar.js';
@@ -212,6 +213,7 @@ async function init() {
     initToasts();
     initCustomerBriefing();
     initAreaBriefing();
+    initBriefingSources();
     initContractRadar();
     initMap('map');
     initLasso();
