@@ -64,19 +64,50 @@ export async function takeSharedFile(cacheStorage = globalThis.caches) {
 }
 
 /**
- * Wann darf die Installation angeboten werden? Nicht beim ersten Blick auf
- * Beispieldaten – erst wenn erkennbar mit eigenen Daten gearbeitet wird und
+ * Kann hier von Hand installiert werden, obwohl der Browser kein
+ * `beforeinstallprompt` liefert?
+ *
+ * iOS kennt dieses Ereignis nicht – dort führt der Weg ausschließlich über
+ * „Teilen → Zum Home-Bildschirm". Ohne diesen Zweig bekäme ein iPhone das
+ * Angebot **nie** zu sehen: Die Bedingung `promptAvailable` ist dort dauerhaft
+ * falsch. Genau das trifft den häufigsten Fall im Außendienst – die Tour landet
+ * per QR-Scan im Handy-Browser, und niemand sagt, wie sie dort bleibt.
+ *
+ * @param {{userAgent?: string, maxTouchPoints?: number, standalone?: boolean}} env
+ */
+export function supportsManualInstall({ userAgent = '', maxTouchPoints = 0, standalone = false } = {}) {
+    if (standalone) return false;
+    const ua = String(userAgent);
+    // iPadOS meldet sich seit 13 als „Macintosh"; die Touchpunkte verraten es.
+    const iPadDesktopUa = /Macintosh/.test(ua) && Number(maxTouchPoints) > 1;
+    return /iPad|iPhone|iPod/.test(ua) || iPadDesktopUa;
+}
+
+/**
+ * Wann und wie darf die Installation angeboten werden? Nicht beim ersten Blick
+ * auf Beispieldaten – erst wenn erkennbar mit eigenen Daten gearbeitet wird und
  * das Angebot einen Nutzen hat („jetzt aufs Handy holen"). Einmal abgelehnt
  * heißt abgelehnt.
+ *
+ * @returns {'prompt'|'manual'|'none'} `prompt` = der Browser installiert selbst,
+ *   `manual` = nur eine Anleitung ist möglich (iOS), `none` = kein Angebot.
  */
-export function shouldOfferInstall({
+export function installOfferMode({
     promptAvailable = false,
+    manualInstallAvailable = false,
     installed = false,
     dismissed = false,
     hasOwnData = false,
     tourStopCount = 0,
     insideMobilePreview = false
 } = {}) {
-    if (!promptAvailable || installed || dismissed || insideMobilePreview) return false;
-    return hasOwnData && tourStopCount > 0;
+    if (installed || dismissed || insideMobilePreview) return 'none';
+    if (!hasOwnData || tourStopCount === 0) return 'none';
+    if (promptAvailable) return 'prompt';
+    return manualInstallAvailable ? 'manual' : 'none';
+}
+
+/** Gibt es überhaupt ein Angebot? */
+export function shouldOfferInstall(input = {}) {
+    return installOfferMode(input) !== 'none';
 }

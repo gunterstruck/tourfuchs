@@ -4,8 +4,10 @@ import { resolve } from 'node:path';
 import {
     SHARE_CACHE,
     SHARE_ENTRY,
+    installOfferMode,
     readLaunchIntent,
     shouldOfferInstall,
+    supportsManualInstall,
     takeSharedFile,
     urlWithoutLaunchParams
 } from '../src/services/pwaLaunch.js';
@@ -88,6 +90,47 @@ describe('Installations-Angebot', () => {
         expect(shouldOfferInstall({ ...working, dismissed: true })).toBe(false);
         expect(shouldOfferInstall({ ...working, insideMobilePreview: true })).toBe(false);
         expect(shouldOfferInstall()).toBe(false);
+    });
+});
+
+describe('Installations-Angebot auf iOS', () => {
+    const arbeitend = { hasOwnData: true, tourStopCount: 2 };
+
+    it('erkennt Geräte, die nur von Hand installieren können', () => {
+        const iPhone = 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15';
+        expect(supportsManualInstall({ userAgent: iPhone })).toBe(true);
+        // iPadOS gibt sich seit 13 als Macintosh aus – erkennbar an den Touchpunkten.
+        const iPad = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15';
+        expect(supportsManualInstall({ userAgent: iPad, maxTouchPoints: 5 })).toBe(true);
+        expect(supportsManualInstall({ userAgent: iPad, maxTouchPoints: 0 })).toBe(false);
+        // Wer schon installiert hat, braucht keine Anleitung.
+        expect(supportsManualInstall({ userAgent: iPhone, standalone: true })).toBe(false);
+    });
+
+    it('bietet dort eine Anleitung an, statt gar nichts', () => {
+        // Der Kern: Auf iOS feuert `beforeinstallprompt` nie. Ohne diesen Zweig
+        // bekäme ein iPhone das Angebot niemals zu sehen – ausgerechnet im
+        // häufigsten Fall, wenn die Tour per QR im Handy-Browser landet.
+        expect(installOfferMode({ ...arbeitend, promptAvailable: true })).toBe('prompt');
+        expect(installOfferMode({ ...arbeitend, manualInstallAvailable: true })).toBe('manual');
+        expect(installOfferMode(arbeitend)).toBe('none');
+    });
+
+    it('hält sich auch mit der Anleitung an dieselben Grenzen', () => {
+        const ios = { ...arbeitend, manualInstallAvailable: true };
+        expect(installOfferMode({ ...ios, installed: true })).toBe('none');
+        expect(installOfferMode({ ...ios, dismissed: true })).toBe('none');
+        expect(installOfferMode({ ...ios, insideMobilePreview: true })).toBe('none');
+        expect(installOfferMode({ ...ios, hasOwnData: false })).toBe('none');
+        expect(installOfferMode({ ...ios, tourStopCount: 0 })).toBe('none');
+    });
+
+    it('nennt im Banner den einzigen Weg, den iOS anbietet', () => {
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/pwaLaunch.js'), 'utf8');
+        expect(ui).toContain('Zum Home-Bildschirm');
+        expect(ui).toContain('install-offer-ok');
+        // Der Prompt-Zweig darf ohne Ereignis nicht öffnen.
+        expect(ui).toContain("if (mode === 'prompt' && !installEvent) return;");
     });
 });
 
