@@ -25,8 +25,8 @@
  * Verschieben zur Auswahl – daran sterben solche Werkzeuge.
  */
 import L from 'leaflet';
-import { state, emit, on, visibleCustomers } from '../core/state.js';
-import { cardAnchorLatLng, getMap, openMapCard } from '../features/map.js';
+import { state, emit, on } from '../core/state.js';
+import { cardAnchorLatLng, customersOnMap, getMap, openMapCard } from '../features/map.js';
 import { isOpportunity } from '../features/visits.js';
 import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
@@ -386,7 +386,11 @@ function finishStroke() {
     }
     const map = getMap();
     if (!map) return;
-    const found = customersInLasso(visibleCustomers(), polygon, (customer) => {
+    // Genau die Kunden, die auch gezeichnet sind – nicht die global
+    // sichtbaren. Sonst gerieten bei Tour-Fokus, Service-Umfang oder
+    // Chancen-Filter Kunden in Auswahl, Tour und Gebiets-Briefing, die auf
+    // der Karte gar nicht liegen. Das Lasso verspricht: was du siehst.
+    const found = customersInLasso(customersOnMap(), polygon, (customer) => {
         const point = map.latLngToContainerPoint([customer.lat, customer.lng]);
         return { x: point.x, y: point.y };
     });
@@ -544,7 +548,7 @@ export function lassoSelection() {
 function syncButtonVisibility() {
     const button = document.getElementById('btn-lasso');
     if (!button) return;
-    const located = visibleCustomers().filter((c) => c.lat !== null && c.lng !== null);
+    const located = customersOnMap();
     const show = located.length >= 2 && state.ui.mode !== 'simulation';
     button.hidden = !show;
     if (!show && active) setLassoActive(false);
@@ -575,6 +579,10 @@ export function initLasso() {
     const map = getMap();
     if (map) map.on('dragstart zoomstart', () => { if (!drawing) clearLassoSelection(); });
 
+    // Die gezeichnete Menge hängt seit dem Gleichzug mit der Karte auch am
+    // Zoom (Flächenansicht = keine Marker) und am Chancen-Filter. Ohne dieses
+    // Ereignis bliebe der Knopf stehen, wo er nichts mehr treffen kann.
+    on('map:markers-rendered', syncButtonVisibility);
     on('customers:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('filters:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('mode:changed', syncButtonVisibility);

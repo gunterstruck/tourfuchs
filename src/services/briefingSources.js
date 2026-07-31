@@ -68,6 +68,16 @@ export function loadBriefingSources(provided) {
     }
 }
 
+/**
+ * Alles vergessen. Gehört zum bewussten „Daten löschen": Der Eintrag nennt
+ * einen internen Ablageort – oft mit Bezirks- oder Projektnamen – und darf
+ * einen geleerten Browser nicht überleben. Jedes andere Modul räumt an dieser
+ * Stelle auf; dieses fehlte.
+ */
+export function clearBriefingSources(provided) {
+    try { store(provided)?.removeItem(KEY); } catch { /* Speicherung ist optional */ }
+}
+
 export function saveBriefingSources(list, provided) {
     const normalized = normalizeBriefingSources(list);
     try {

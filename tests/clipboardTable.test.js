@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { detectDelimiter, looksLikeTable, parseClipboardTable } from '../src/services/clipboardTable.js';
+import { detectDelimiter, extractDelimitedGrid, looksLikeTable, parseClipboardTable } from '../src/services/clipboardTable.js';
 
 const excelCopy = [
     'Kundenname\tPLZ\tOrt\tVertriebsbezirk',
@@ -208,5 +208,63 @@ describe('Auffindbarkeit des Einfüge-Wegs', () => {
         expect(offer).toContain("document.querySelector('dialog[open]')");
         // Ein erfolgreicher Datei-Import löst ihn nicht aus
         expect(wizard).toContain('awaitingFilePick = false;\n        if (e.target.files[0]) handleFile');
+    });
+});
+
+describe('Zellen mit Zeilenumbruch (aus Excel kopiert)', () => {
+    // Externer Prüfbericht, P1: Die Blockerkennung zerlegte den Text physisch
+    // an jedem Zeilenumbruch – also BEVOR bekannt war, welche Umbrüche in einer
+    // Zelle liegen. Aus drei Kundenzeilen überlebte eine; zwei Kunden gingen
+    // LAUTLOS verloren, mit einer Erfolgsmeldung über zu wenige Kunden.
+    const MIT_UMBRUCH = [
+        'Kundenname\tPLZ\tNotiz',
+        'Alpha GmbH\t45127\t"Zeile eins',
+        'Zeile zwei"',
+        'Beta AG\t50667\tkurz',
+        'Gamma KG\t40213\tauch kurz'
+    ].join('\n');
+
+    it('verliert keine Zeile hinter einer mehrzeiligen Zelle', () => {
+        const { headers, rows } = parseClipboardTable(MIT_UMBRUCH);
+        expect(headers).toEqual(['Kundenname', 'PLZ', 'Notiz']);
+        expect(rows).toHaveLength(3);
+        expect(rows.map((r) => r.Kundenname)).toEqual(['Alpha GmbH', 'Beta AG', 'Gamma KG']);
+    });
+
+    it('behält den Umbruch im Zellinhalt, statt ihn abzuschneiden', () => {
+        const { rows } = parseClipboardTable(MIT_UMBRUCH);
+        expect(rows[0].Notiz).toBe('Zeile eins\nZeile zwei');
+    });
+
+    it('erkennt den Block auf logischen Zeilen, nicht auf physischen', () => {
+        const grid = extractDelimitedGrid(MIT_UMBRUCH);
+        expect(grid.delimiter).toBe('\t');
+        expect(grid.grid).toHaveLength(4);   // Kopfzeile + drei Kunden
+    });
+
+    it('trennt weiterhin am Fließtext – eine echte Leerzeile schneidet', () => {
+        const { rows } = parseClipboardTable([
+            'Gerne, hier sind Ihre Kunden:',
+            '',
+            'Kundenname\tPLZ\tNotiz',
+            'Alpha GmbH\t45127\t"mehr',
+            'als eine Zeile"',
+            'Beta AG\t50667\tkurz',
+            '',
+            'Soll ich noch etwas ergänzen?'
+        ].join('\n'));
+        expect(rows).toHaveLength(2);
+        expect(rows[0].Notiz).toBe('mehr\nals eine Zeile');
+    });
+
+    it('lässt eine Trennzeichen-Leerzeile INNERHALB der Tabelle stehen', () => {
+        // "\t" ist optisch leer, gehört aber zur Tabelle – sie darf nicht schneiden.
+        const { rows } = parseClipboardTable([
+            'Kundenname\tPLZ',
+            'Alpha GmbH\t45127',
+            '\t',
+            'Beta AG\t50667'
+        ].join('\n'));
+        expect(rows.map((r) => r.Kundenname).filter(Boolean)).toEqual(['Alpha GmbH', 'Beta AG']);
     });
 });

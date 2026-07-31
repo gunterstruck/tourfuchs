@@ -427,3 +427,42 @@ describe('Lasso-Demo', () => {
         for (const key of keys) expect(showcase).toContain(`async ${key}(`);
     });
 });
+
+describe('Lasso und Karte sehen dieselbe Menge', () => {
+    // Externer Prüfbericht, P1: Das Lasso prüfte global `visibleCustomers()`,
+    // die Karte zeichnete `markerCustomers()` plus Chancen-Filter. Bei
+    // Tour-Fokus, Bezirks-/Service-Umfang oder Chancen-Ansicht konnten dadurch
+    // Kunden in Auswahl, Tour und Gebiets-Briefing geraten, die gar nicht auf
+    // der Karte lagen – gegen die Zusage „umfahre, was du siehst".
+    const lasso = readFileSync(resolve(process.cwd(), 'src/ui/lasso.js'), 'utf8');
+    const map = readFileSync(resolve(process.cwd(), 'src/features/map.js'), 'utf8');
+
+    it('nimmt fürs Auswählen die tatsächlich gezeichneten Kunden', () => {
+        expect(lasso).toContain('customersInLasso(customersOnMap(), polygon');
+        expect(lasso).not.toContain('visibleCustomers');
+    });
+
+    it('zeigt den Knopf nach derselben Menge', () => {
+        expect(lasso).toContain('const located = customersOnMap();');
+    });
+
+    it('zieht nach, wenn sich die gezeichnete Menge ändert', () => {
+        // Beim Gegencheck im Browser aufgefallen: Der Knopf hing an Ereignissen,
+        // die den Zoom nicht kennen. Seit die Sichtbarkeit an der gezeichneten
+        // Menge hängt (Flächenansicht = keine Marker, Chancen-Filter = weniger),
+        // muss das Zeichnen selbst das Signal geben. Vorher blieb der Knopf
+        // stehen, wo er nichts mehr treffen konnte – und fehlte, wo er gepasst hätte.
+        expect(map).toContain("emit('map:markers-rendered');");
+        expect(lasso).toContain("on('map:markers-rendered', syncButtonVisibility);");
+    });
+
+    it('hat genau eine Quelle, aus der auch gezeichnet wird', () => {
+        // Sonst laufen die beiden Mengen beim nächsten Umbau wieder auseinander.
+        expect(map).toContain('export function customersOnMap()');
+        expect(map).toContain('for (const customer of customersOnMap()) {');
+        const quelle = map.slice(map.indexOf('export function customersOnMap()'), map.indexOf('function renderMarkers()'));
+        expect(quelle).toContain('markerCustomers()');
+        expect(quelle).toContain('state.ui.opportunityOnly');
+        expect(quelle).toContain('currentView.markers');
+    });
+});
