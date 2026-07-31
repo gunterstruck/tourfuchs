@@ -125,7 +125,7 @@ zuerst den Einfüge-Weg vor: Dialog öffnen, Beispieltabelle erscheint auf einen
 Schlag im Feld, Befund, Dialog zu. Vorführen schlägt erklären.
 
 **Bewusst ohne Import:** Die Vorführung fasst keine echten Daten an und nimmt
-die Berechtigungs-Bestätigung am Ende zurück – auch bei Abbruch. Am Handy
+die Berechtigungs-Zusicherung am Ende zurück – auch bei Abbruch. Am Handy
 entfallen die Schritte, dort ist Excel selten offen.
 
 ### P5 · Beispieldaten in der eigenen Region *(größer, später)*

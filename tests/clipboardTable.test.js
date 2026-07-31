@@ -66,9 +66,11 @@ describe('Zwischenablage-Import', () => {
         const wizard = readFileSync(resolve(process.cwd(), 'src/ui/importWizard.js'), 'utf8');
         const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
         expect(wizard).toContain('parseClipboardTable');
-        // Globales Strg+V nur mit vorheriger Berechtigungs-Bestätigung
+        // Globales Strg+V nur mit Berechtigungs-Zusicherung – die aber den
+        // eingefügten Inhalt danach selbst übernimmt, statt ihn zu verwerfen.
         const pasteHandler = wizard.slice(wizard.indexOf("addEventListener('paste'"), wizard.indexOf('function openPasteDialog'));
-        expect(pasteHandler).toContain('hasComplianceOptIn()');
+        expect(pasteHandler).toContain('withDataConsent(');
+        expect(pasteHandler).toContain('usePastedTable(text)');
         expect(pasteHandler).toContain('looksLikeTable');
         expect(html).toContain('id="paste-dialog"');
         expect(html).toContain('id="btn-paste"');

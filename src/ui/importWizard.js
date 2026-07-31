@@ -43,7 +43,6 @@ let dialog = null;
 let resultDialog = null;
 let ownDataDialog = null;
 let pasteDialog = null;
-let pendingExternalFile = null;
 let awaitingFilePick = false;
 let pasteHintShown = false;
 let parsed = null; // { headers, rows, fileName }
@@ -102,15 +101,11 @@ export function initImportWizard() {
     ownDataDialog?.querySelector('.dialog-close')?.addEventListener('click', () => ownDataDialog.close());
 
     const fileInput = document.getElementById('file-input');
-    const openFilePicker = () => {
-        if (!hasComplianceOptIn()) {
-            showComplianceToast();
-            return;
-        }
+    const openFilePicker = () => withDataConsent(() => {
         if (ownDataDialog?.open) ownDataDialog.close();
         awaitingFilePick = true;
         fileInput.click();
-    };
+    });
     document.getElementById('btn-upload').addEventListener('click', openFilePicker);
     // Wer den Datei-Dialog ohne Auswahl schließt, hat gerade gemerkt, dass er
     // keinen fertigen Export hat. Genau dann – und nur dann – ist der Hinweis
@@ -138,7 +133,7 @@ export function initImportWizard() {
     });
 
     initPasteImport();
-    initPendingExternalFile();
+    initConsent();
     applyDataWayOrder();
     mobileQuery.addEventListener('change', applyDataWayOrder);
 
@@ -179,11 +174,7 @@ export function initImportWizard() {
         document.getElementById('dropzone').classList.remove('active');
         const file = e.dataTransfer?.files?.[0];
         if (!file) return;
-        if (!hasComplianceOptIn()) {
-            showComplianceToast();
-            return;
-        }
-        handleFile(file);
+        withDataConsent(() => handleFile(file));
     });
 
     dialog.querySelector('.dialog-close').addEventListener('click', () => dialog.close());
@@ -238,19 +229,97 @@ async function restoreDemoAfterClear() {
     }
 }
 
+// ---- Berechtigungs-Zusicherung ----
+//
+// Die Zusicherung „Ich bin berechtigt" bleibt – sie schafft Bewusstsein und ist
+// dem Betreiber wichtig. Wie sie eingeholt wurde, war aber das Problem:
+//
+//  1. Sie galt nur für die laufende Sitzung. Wer täglich eine Liste lädt,
+//     hakte sie jedes Mal neu an – eine Bestätigung, die zur Formalie
+//     verkommt, bestätigt nichts mehr.
+//  2. Sie meldete sich erst, *nachdem* der Nutzer „Datei auswählen" gedrückt
+//     hatte: Toast, Wackelanimation, Klick ins Leere. Ein Fehlschlag ist ein
+//     schlechtes Lehrmittel – und ausgerechnet der erste eigene Import
+//     begann damit.
+//
+// Jetzt: **einmal bewusst geben, dann gilt sie** (persistiert mit Datum,
+// jederzeit widerrufbar), und sie kommt **im Fluss der gewollten Aktion** –
+// wer bestätigt, landet ohne zweiten Anlauf dort, wo er hinwollte. Der
+// Zeitpunkt bleibt derselbe wie vorher: vor dem Einlesen der Datei.
+
+const CONSENT_KEY = 'tf_data_consent';
+let pendingConsentAction = null;
+
+/** ISO-Datum der Zusicherung oder null. */
+function consentGivenAt() {
+    try { return globalThis.localStorage?.getItem(CONSENT_KEY) || null; } catch { return null; }
+}
 function hasComplianceOptIn() {
-    return [...document.querySelectorAll('[data-compliance-optin]')].some((input) => input.checked);
+    return Boolean(consentGivenAt());
+}
+function setConsent(given) {
+    try {
+        if (given) globalThis.localStorage?.setItem(CONSENT_KEY, new Date().toISOString());
+        else globalThis.localStorage?.removeItem(CONSENT_KEY);
+    } catch { /* Speicherung ist optional – dann gilt sie für diese Sitzung */ }
+    syncConsentUi();
 }
 
-function showComplianceToast() {
-    if (state.customers.length === 0 && ownDataDialog && !ownDataDialog.open) ownDataDialog.showModal();
-    // Die Checkbox zusätzlich direkt am Ort hervorheben, statt nur per Toast.
-    document.querySelectorAll('.compliance-optin').forEach((el) => {
-        el.classList.remove('attention');
-        void el.offsetWidth; // Animation bei erneutem Klick neu starten
-        el.classList.add('attention');
+/** Checkboxen und Beschriftung an den gespeicherten Stand angleichen. */
+function syncConsentUi() {
+    const at = consentGivenAt();
+    const date = at ? new Date(at) : null;
+    const stamp = date && !Number.isNaN(date.getTime())
+        ? date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        : null;
+    document.querySelectorAll('[data-compliance-optin]').forEach((input) => {
+        input.checked = Boolean(at);
+        const text = input.parentElement?.querySelector('span');
+        if (!text) return;
+        text.textContent = at
+            ? `Berechtigung bestätigt${stamp ? ` am ${stamp}` : ''}. Zum Zurücknehmen abwählen.`
+            : 'Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.';
     });
-    showToast('Bitte bestätigen Sie zuerst, dass Sie zur Verarbeitung der Daten berechtigt sind.', 'info', 6000);
+}
+
+/**
+ * Import-Aktion ausführen – bei fehlender Zusicherung erst nach einer
+ * einmaligen Bestätigung, die den angestoßenen Weg selbst fortsetzt.
+ * @param {Function} action  läuft synchron weiter, damit ein Datei-Dialog
+ *                           innerhalb der Nutzergeste geöffnet werden kann.
+ */
+function withDataConsent(action) {
+    if (hasComplianceOptIn()) { action(); return; }
+    pendingConsentAction = action;
+    const dlg = document.getElementById('consent-dialog');
+    if (!dlg?.showModal) { action(); return; }   // ohne Dialog nicht blockieren
+    if (ownDataDialog?.open) ownDataDialog.close();
+    dlg.showModal();
+}
+
+function initConsent() {
+    syncConsentUi();
+    document.querySelectorAll('[data-compliance-optin]').forEach((input) => {
+        input.addEventListener('change', () => {
+            setConsent(input.checked);
+            showToast(input.checked
+                ? 'Berechtigung bestätigt – du wirst beim Import nicht mehr gefragt.'
+                : 'Berechtigung zurückgenommen. Beim nächsten Import wird wieder gefragt.', 'info', 5000);
+        });
+    });
+    const dlg = document.getElementById('consent-dialog');
+    document.getElementById('consent-cancel')?.addEventListener('click', () => {
+        pendingConsentAction = null;
+        dlg?.close();
+    });
+    document.getElementById('consent-confirm')?.addEventListener('click', () => {
+        setConsent(true);
+        dlg?.close();
+        const action = pendingConsentAction;
+        pendingConsentAction = null;
+        action?.();
+    });
+    dlg?.addEventListener('close', () => { pendingConsentAction = null; });
 }
 
 /** Von außen geöffnete Datei (Shortcut „Import", Teilen-Ziel, Datei-Handler). */
@@ -261,33 +330,14 @@ export function openOwnDataDialog() {
 
 /**
  * Kundenliste, die das Betriebssystem übergibt (geteilt oder „Öffnen mit").
- * Die Berechtigungs-Bestätigung bleibt Pflicht: Ohne Häkchen wartet die Datei
- * sichtbar im „Eigene Daten laden"-Dialog und wird übernommen, sobald bestätigt.
+ * Die Berechtigungs-Zusicherung bleibt Pflicht – sie kommt jetzt aber als
+ * Bestätigungsschritt, der die Datei danach selbst übernimmt, statt sie im
+ * „Eigene Daten laden"-Dialog auf ein Häkchen warten zu lassen.
  */
 export function importExternalFile(file) {
     if (!file) return;
     cancelWelcomeDemo();
-    if (hasComplianceOptIn()) {
-        handleFile(file);
-        return;
-    }
-    pendingExternalFile = file;
-    ownDataDialog?.showModal();
-    showComplianceToast();
-    showToast(`„${file.name}" wartet – bitte zuerst die Berechtigung bestätigen.`, 'info', 7000);
-}
-
-/** Sobald die Berechtigung bestätigt ist, die wartende Datei übernehmen. */
-function initPendingExternalFile() {
-    for (const input of document.querySelectorAll('[data-compliance-optin]')) {
-        input.addEventListener('change', () => {
-            if (!input.checked || !pendingExternalFile) return;
-            const file = pendingExternalFile;
-            pendingExternalFile = null;
-            ownDataDialog?.close();
-            handleFile(file);
-        });
-    }
+    withDataConsent(() => handleFile(file));
 }
 
 async function handleFile(file) {
@@ -428,24 +478,20 @@ function initPasteImport() {
         const text = event.clipboardData?.getData('text/plain') || '';
         if (!looksLikeTable(text)) return;
         event.preventDefault();
-        if (!hasComplianceOptIn()) {
-            showComplianceToast();
-            return;
-        }
-        ownDataDialog?.close();
-        usePastedTable(text);
+        withDataConsent(() => {
+            ownDataDialog?.close();
+            usePastedTable(text);
+        });
     });
 }
 
 function openPasteDialog() {
-    if (!hasComplianceOptIn()) {
-        showComplianceToast();
-        return;
-    }
-    if (ownDataDialog?.open) ownDataDialog.close();
-    renderPasteSteps();
-    pasteDialog?.showModal();
-    document.getElementById('paste-input')?.focus();
+    withDataConsent(() => {
+        if (ownDataDialog?.open) ownDataDialog.close();
+        renderPasteSteps();
+        pasteDialog?.showModal();
+        document.getElementById('paste-input')?.focus();
+    });
 }
 
 async function usePastedTable(text) {
