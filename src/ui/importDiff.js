@@ -91,6 +91,7 @@ function render(body, diff, warning) {
             ${statTile('neue Kunden', diff.added.length.toLocaleString('de-DE'), 'diff-stat-up')}
             ${statTile('entfallen', diff.removed.length.toLocaleString('de-DE'), 'diff-stat-down')}
             ${statTile('Bezirkswechsel', diff.moved.length.toLocaleString('de-DE'))}
+            ${statTile('geänderte Angaben', (diff.changed?.length || 0).toLocaleString('de-DE'))}
             ${statTile('unverändert', diff.keptCount.toLocaleString('de-DE'))}
         </div>
         <p class="diff-totals">
@@ -104,6 +105,7 @@ function render(body, diff, warning) {
         ${listSection('Neue Kunden', diff.added, (entry) => entry.bezirk)}
         ${listSection('Nicht mehr in der Liste', diff.removed, (entry) => entry.bezirk)}
         ${listSection('Bezirkswechsel', diff.moved, (entry) => `${entry.from} → ${entry.to}`)}
+        ${listSection('Geänderte Angaben', diff.changed || [], (entry) => entry.fields.map((f) => f.label).join(', '))}
         <p class="diff-warning">${escapeHtml(warning)}</p>`;
 }
 

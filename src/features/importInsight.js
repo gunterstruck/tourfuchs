@@ -148,8 +148,13 @@ export function insightStatements(insight) {
 /** Die eine Zeile, die immer stimmt. */
 export function insightHeadline(insight) {
     if (insight.total === 0) return 'Keine Kunden importiert.';
-    const kunden = `${insight.total.toLocaleString('de-DE')} ${insight.total === 1 ? 'Kunde' : 'Kunden'}`;
-    return `${kunden} auf der Karte.`;
+    // „10 Kunden auf der Karte" und darunter „1 konnte nicht verortet werden"
+    // widersprachen sich. Auf der Karte liegen nur die verorteten.
+    const located = Math.max(insight.total - (insight.unlocated || 0), 0);
+    const kunden = (count) => `${count.toLocaleString('de-DE')} ${count === 1 ? 'Kunde' : 'Kunden'}`;
+    if (!insight.unlocated) return `${kunden(insight.total)} auf der Karte.`;
+    if (located === 0) return `${kunden(insight.total)} importiert – noch keiner auf der Karte.`;
+    return `${kunden(located)} auf der Karte, ${insight.unlocated.toLocaleString('de-DE')} von ${kunden(insight.total)} noch nicht verortet.`;
 }
 
 /**

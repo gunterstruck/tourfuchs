@@ -28,6 +28,7 @@ import L from 'leaflet';
 import { state, emit, on } from '../core/state.js';
 import { cardAnchorLatLng, customersOnMap, getMap, openMapCard } from '../features/map.js';
 import { isOpportunity } from '../features/visits.js';
+import { planningNow } from '../features/dayPlanner.js';
 import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
@@ -201,6 +202,26 @@ export function clearLassoSelection() {
 }
 
 /**
+ * Eine Auswahl aufgeben, die nicht mehr zur Karte passt.
+ *
+ * Externer Prüfbericht, P2: Wer nach dem Ziehen den Modus wechselte oder den
+ * Chancen-Filter einschaltete, behielt eine Auswahl mit Kunden, die auf der
+ * Karte gar nicht mehr lagen – und konnte sie von dort in Tour und Briefing
+ * weiterreichen.
+ *
+ * Bewusst **nicht** pauschal bei jedem Neuzeichnen geräumt: Nach „🚩 3 zur
+ * Tour" wird ebenfalls neu gezeichnet, und dass die Auswahl dabei stehen
+ * bleibt, ist zugesagtes Verhalten. Geräumt wird nur, wenn wirklich ein
+ * ausgewählter Kunde von der Karte verschwunden ist.
+ */
+function dropSelectionIfStale() {
+    if (!selection.length) return;
+    const drawn = new Set(customersOnMap().map((customer) => customer.id));
+    if (selection.every((customer) => drawn.has(customer.id))) return;
+    clearLassoSelection();
+}
+
+/**
  * Auswahl sichtbar machen.
  *
  * Die Leuchtpunkte liegen auf einer eigenen Ebene über den Clustern: Ein
@@ -241,7 +262,7 @@ function tourTargets() {
 function cardHtml() {
     const real = selection.filter((customer) => !isDemoCustomer(customer));
     const profi = state.ui.depth === 'profi';
-    const due = selection.filter((customer) => isOpportunity(customer)).length;
+    const due = selection.filter((customer) => isOpportunity(customer, planningNow())).length;
     const revenue = selection.reduce((sum, customer) => sum + (customer.umsatz || 0), 0);
     const places = [...new Set(selection.map((customer) => String(customer.ort ?? '').trim()).filter(Boolean))];
 
@@ -612,7 +633,7 @@ export function initLasso() {
     // Die gezeichnete Menge hängt seit dem Gleichzug mit der Karte auch am
     // Zoom (Flächenansicht = keine Marker) und am Chancen-Filter. Ohne dieses
     // Ereignis bliebe der Knopf stehen, wo er nichts mehr treffen kann.
-    on('map:markers-rendered', syncButtonVisibility);
+    on('map:markers-rendered', () => { dropSelectionIfStale(); syncButtonVisibility(); });
     on('customers:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('filters:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('mode:changed', syncButtonVisibility);

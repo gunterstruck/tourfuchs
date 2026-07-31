@@ -453,7 +453,7 @@ describe('Lasso und Karte sehen dieselbe Menge', () => {
         // muss das Zeichnen selbst das Signal geben. Vorher blieb der Knopf
         // stehen, wo er nichts mehr treffen konnte – und fehlte, wo er gepasst hätte.
         expect(map).toContain("emit('map:markers-rendered');");
-        expect(lasso).toContain("on('map:markers-rendered', syncButtonVisibility);");
+        expect(lasso).toContain("on('map:markers-rendered', () => { dropSelectionIfStale(); syncButtonVisibility(); });");
     });
 
     it('hat genau eine Quelle, aus der auch gezeichnet wird', () => {
@@ -485,5 +485,36 @@ describe('Lasso legt die Karte vollständig still', () => {
     it('gibt genau den Zustand zurück, den es vorgefunden hat', () => {
         expect(lasso).toContain('mapHandlerState[name] = handler.enabled();');
         expect(lasso).toContain('if (mapHandlerState ? mapHandlerState[name] : true) handler.enable();');
+    });
+});
+
+describe('Keine Auswahl, die nicht mehr zur Karte passt', () => {
+    // Externer Prüfbericht, P2: Nach einem Moduswechsel oder mit eingeschaltetem
+    // Chancen-Filter blieb eine gezogene Auswahl liegen – mit Kunden, die auf
+    // der Karte nicht mehr lagen und von dort in Tour und Briefing gerieten.
+    const lasso = readFileSync(resolve(process.cwd(), 'src/ui/lasso.js'), 'utf8');
+
+    it('gibt die Auswahl auf, sobald ein gewählter Kunde verschwindet', () => {
+        expect(lasso).toContain('function dropSelectionIfStale()');
+        const fn = lasso.slice(lasso.indexOf('function dropSelectionIfStale()'), lasso.indexOf('* Auswahl sichtbar machen'));
+        expect(fn).toContain('customersOnMap()');
+        expect(fn).toContain('clearLassoSelection();');
+    });
+
+    it('räumt aber nicht bei jedem Neuzeichnen', () => {
+        // Nach „🚩 3 zur Tour" wird ebenfalls neu gezeichnet – dass die Auswahl
+        // dabei stehen bleibt, ist zugesagtes Verhalten und von touch-check geprüft.
+        const fn = lasso.slice(lasso.indexOf('function dropSelectionIfStale()'), lasso.indexOf('* Auswahl sichtbar machen'));
+        expect(fn).toContain('if (selection.every((customer) => drawn.has(customer.id))) return;');
+    });
+});
+
+describe('„In der Nähe" sieht dieselbe Menge wie die Karte', () => {
+    // Dasselbe Versäumnis wie beim Lasso, nur im Geschwister-Modul.
+    const nearby = readFileSync(resolve(process.cwd(), 'src/ui/nearby.js'), 'utf8');
+
+    it('nimmt die gezeichneten Kunden, nicht die global sichtbaren', () => {
+        expect(nearby).toContain('const pool = customersOnMap();');
+        expect(nearby).not.toContain('visibleCustomers');
     });
 });

@@ -10,6 +10,7 @@ import { isDemoDataset, isDemoCustomer } from '../core/demoSafety.js';
 import { saveDataset, clearDataset, saveSettings } from '../services/storage.js';
 import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
 import { STATUS_COLORS, STATUS_LABELS, isOpportunity } from '../features/visits.js';
+import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
@@ -1389,7 +1390,7 @@ function updateChancenCount() {
         && state.tour.bezirk
         && state.tour.bezirk !== '__none__';
     const shown = tourScoped ? modeTourCustomers() : modeVisibleCustomers();
-    const chancen = shown.filter((c) => isOpportunity(c)).length;
+    const chancen = shown.filter((c) => isOpportunity(c, planningNow())).length;
     if (currentAussenView() === 'chancen') {
         el.textContent = chancen === 0
             ? 'Aktuell keine fälligen oder überfälligen Kunden (bei den sichtbaren).'

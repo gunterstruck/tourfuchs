@@ -230,3 +230,20 @@ describe('Onboarding-Trichter: ein Einstieg, sichtbare nächste Schritte', () =>
         expect(wizard).toContain('else globalThis.localStorage?.removeItem(CONSENT_KEY)');
     });
 });
+
+describe('Ein Tag für die ganze Planung', () => {
+    // Externer Prüfbericht, P2: Seit das Gebiets-Briefing den eingestellten
+    // Besuchstag berücksichtigt, rechneten Karte, Lasso, „In der Nähe" und die
+    // Zähler weiter gegen die echte Uhr – zwei Wahrheiten zu denselben Kunden.
+    it('hat eine gemeinsame Quelle für den Bezugstag', () => {
+        expect(source('src/features/dayPlanner.js')).toContain('export function planningNow(');
+    });
+
+    it('nutzt sie überall dort, wo Fälligkeit sichtbar wird', () => {
+        for (const datei of ['src/features/map.js', 'src/ui/lasso.js', 'src/ui/nearby.js', 'src/ui/sidebar.js']) {
+            const code = source(datei);
+            expect(code, `${datei} importiert planningNow nicht`).toContain('import { planningNow }');
+            expect(code, `${datei} rechnet noch gegen die echte Uhr`).toContain('planningNow()');
+        }
+    });
+});

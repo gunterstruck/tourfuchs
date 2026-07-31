@@ -23,6 +23,7 @@ import {
 import { normalizeCustomerNumber, isPlanningRelevantServiceContract } from '../features/serviceContracts.js';
 import { ZANOBO_DEFAULT_BASE, setZanoboBaseUrl, zanoboBaseUrl, zanoboMachineUrl } from '../services/zanobo.js';
 import { flyToCustomer } from '../features/map.js';
+import { todayIso } from '../features/visits.js';
 
 const el = (id) => document.getElementById(id);
 const visits = () => Array.isArray(state.serviceVisits) ? state.serviceVisits : [];
@@ -151,7 +152,7 @@ function priorityClass(priority) {
 
 function urgency(visit) {
     if (serviceVisitWindow(visit, 'now')) {
-        const overdue = String(visit.dueDate || '') < new Date().toISOString().slice(0, 10);
+        const overdue = String(visit.dueDate || '') < todayIso();   // lokaler Tag, nicht UTC
         return { label: overdue ? 'Überfällig' : visit.priority === 'KRITISCH' ? 'Kritisch' : 'Heute', className: overdue ? 'danger' : 'warn' };
     }
     if (serviceVisitWindow(visit, 'week')) return { label: 'Diese Woche', className: 'warn' };

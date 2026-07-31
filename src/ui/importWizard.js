@@ -655,11 +655,17 @@ async function confirmImport() {
             emit('customers:changed');
         }
     }
-    await saveDataset(datasetSnapshot());
+    const persisted = await persistDataset();
     markShowcaseImportCompleted();
 
     lastErrors = errors;
-    showImportResult({ customerCount: customers.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
+    // Ohne dauerhafte Speicherung wäre „importiert" eine halbe Wahrheit – die
+    // Erfolgsmeldung entfällt dann, der Grund steht bereits als Fehler da.
+    if (persisted) {
+        showImportResult({ customerCount: customers.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
+    } else if (errors.some((e) => e.Typ === 'Fehler')) {
+        showImportResult({ customerCount: customers.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
+    }
 
     // Eigene Kundendaten importiert -> erst den Befund zeigen, dann zum
     // Verschlüsseln führen. Beides nacheinander, nie übereinander.
@@ -726,6 +732,30 @@ async function resolveAreas(areaRows, errors) {
 }
 
 /** Zugang zur Hinweis-/Fehlerliste im Daten-Tab an den letzten Import anpassen. */
+/**
+ * Speichern – und beim Fehlschlag Klartext reden.
+ *
+ * `saveDataset()` liefert `false`, wenn der Tresor gesperrt ist, IndexedDB
+ * blockiert oder der Speicher voll ist. Der Rückgabewert wurde hier an drei
+ * Stellen verworfen: Der Import meldete Erfolg, zeigte Ergebnis und Befund –
+ * und nach dem nächsten Neuladen fehlten die Daten oder der alte Stand war
+ * zurück. Ein Import, der nur im Arbeitsspeicher gelandet ist, darf sich nicht
+ * wie ein abgeschlossener anfühlen.
+ *
+ * Die Service-Importe prüften das längst; hier fehlte es.
+ *
+ * @returns {Promise<boolean>} true, wenn dauerhaft gespeichert wurde
+ */
+async function persistDataset() {
+    const saved = await saveDataset(datasetSnapshot());
+    if (saved) return true;
+    showToast(vaultEnabled()
+        ? 'Die Daten liegen auf der Karte, konnten aber nicht gespeichert werden: Der Tresor ist gesperrt. Entsperre ihn und lade die Liste erneut – sonst sind sie nach dem Neuladen weg.'
+        : 'Die Daten liegen auf der Karte, konnten aber nicht dauerhaft gespeichert werden (Browser-Speicher voll oder blockiert). Nach dem Neuladen sind sie weg.',
+    'error', 12000);
+    return false;
+}
+
 function syncImportNotesButton() {
     const btn = document.getElementById('btn-import-notes');
     if (!btn) return;
@@ -902,7 +932,7 @@ async function performDemoLoad({ confirmReplacement, announce }) {
     setServiceVisits(serviceVisits, {
         DEMO: createDemoServiceVisitSourceMeta(serviceVisits, demoNow)
     });
-    await saveDataset(datasetSnapshot());
+    await persistDataset();
     markWelcomeDemoHandled();
     emit('demo:loaded');
     if (announce) {
@@ -934,12 +964,14 @@ function removeDemoServiceVisits() {
 async function applyCustomers(customers, fileName) {
     const { located, missing } = await geocodeByPlz(customers);
     replaceCustomers(customers, { fileName });
-    await saveDataset(datasetSnapshot());
+    const persisted = await persistDataset();
     fitToCustomers();
-    emit('toast', {
-        type: 'success',
-        text: `${customers.length} Kunden importiert, ${located + customers.filter((c) => c.geo === 'exakt').length} auf der Karte verortet.`
-    });
+    if (persisted) {
+        emit('toast', {
+            type: 'success',
+            text: `${customers.length} Kunden importiert, ${located + customers.filter((c) => c.geo === 'exakt').length} auf der Karte verortet.`
+        });
+    }
     if (missing.length > 0) {
         showToast(`Unbekannte PLZ: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}`, 'error', 7000);
     }

@@ -36,6 +36,11 @@ export function visitStatus(customer, now = new Date()) {
     if (!last) return 'ueberfaellig';
 
     const lastMs = new Date(`${last}T12:00:00`).getTime();
+    // Ein unbrauchbares Datum (etwa "2026-13-40" aus einem älteren Bestand)
+    // ergibt NaN. Beide Vergleiche unten wären dann falsch, und der Kunde
+    // erschiene als unkritisch – ausgerechnet der Fall, in dem niemand weiß,
+    // wann er zuletzt besucht wurde. Er zählt wie „nie besucht".
+    if (Number.isNaN(lastMs)) return 'ueberfaellig';
     const intervalMs = customer.rhythmusWochen * 7 * DAY_MS;
     const dueMs = lastMs + intervalMs;
     // "bald fällig": letzte Woche vor Fälligkeit (mind. 3 Tage, max. 25 % des Intervalls)
@@ -58,9 +63,18 @@ export function isOpportunity(customer, now = new Date()) {
     return s === 'ueberfaellig' || s === 'faellig';
 }
 
+/** Der heutige Tag in ORTSZEIT als ISO-Datum. */
+export function todayIso(now = new Date()) {
+    // `toISOString()` rechnet nach UTC: In Berlin stünde zwischen Mitternacht
+    // und 2 Uhr noch der Vortag – ein Besuch, den jemand spätabends abhakt,
+    // landete auf dem falschen Tag und verschöbe die nächste Fälligkeit.
+    const pad = (value) => String(value).padStart(2, '0');
+    return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 /** Besuch (heute) eintragen; gleicher Tag wird nicht doppelt gespeichert */
 export function markVisitedToday(customer) {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = todayIso();
     if (!Array.isArray(customer.besuche)) customer.besuche = [];
     if (customer.besuche[customer.besuche.length - 1] !== today) {
         customer.besuche.push(today);

@@ -8,9 +8,10 @@
  * Basis:  Name · Ort · Entfernung · Umsatz (aufgeräumt).
  * Profi:  zusätzlich Status-Punkt (fällig/überfällig) und „davon X fällig".
  */
-import { state, on, emit, visibleCustomers } from '../core/state.js';
-import { getMap, flyToCustomer } from '../features/map.js';
+import { state, on, emit } from '../core/state.js';
+import { customersOnMap, getMap, flyToCustomer } from '../features/map.js';
 import { visitStatus, isOpportunity, STATUS_COLORS } from '../features/visits.js';
+import { planningNow } from '../features/dayPlanner.js';
 import { formatRevenueShort } from '../core/format.js';
 import { showMapView } from './sidebar.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
@@ -70,12 +71,17 @@ export function renderNearby() {
     if (!isActive()) return;
 
     const profi = state.ui.depth === 'profi';
-    const pool = visibleCustomers().filter((c) => c.lat !== null && c.lng !== null);
+    // Dieselbe Menge, die auch auf der Karte liegt – nicht die global
+    // sichtbare. „In der Nähe" ist das Geschwister des Lassos und hatte
+    // denselben Fehler: Bei Tour-Fokus, Service-Umfang oder Chancen-Filter
+    // wurden Kunden vorgeschlagen und zur Tour hinzugefügt, die gar nicht
+    // gezeichnet sind.
+    const pool = customersOnMap();
     const origin = originLatLng();
 
     // Kopf-Kennzahlen des aktuell sichtbaren Bestands.
     const revSum = pool.reduce((s, c) => s + (c.umsatz || 0), 0);
-    const dueCount = pool.filter((c) => isOpportunity(c)).length;
+    const dueCount = pool.filter((c) => isOpportunity(c, planningNow())).length;
     const statParts = [`<b>${pool.length}</b> sichtbar`];
     if (profi && dueCount > 0) statParts.push(`<b>${dueCount}</b> fällig`);
     if (revSum > 0) statParts.push(`${formatRevenueShort(revSum)} Umsatz`);
