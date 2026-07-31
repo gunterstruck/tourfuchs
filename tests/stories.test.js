@@ -70,7 +70,10 @@ describe('Showcase-Stories: Guardrail', () => {
         const pasteBlock = showcaseSource.slice(showcaseSource.indexOf('async openPasteDemo()'), showcaseSource.indexOf('async excelToMap()'));
         expect(pasteBlock).not.toContain('confirmImport');
         expect(pasteBlock).not.toContain('replaceCustomers');
-        expect(pasteBlock).toContain('pasteDemoConsent = consent.checked;');
+        expect(pasteBlock).toContain('pasteDemoConsent = document.querySelector');
+        // Die Demo zeigt denselben Weg wie der echte Nutzer: Weg wählen,
+        // dann den Bestätigungsschritt quittieren.
+        expect(pasteBlock).toContain("clickEl('#consent-confirm')");
         expect(pasteBlock).toContain('restorePasteDemoConsent();');
         // Auch ein Abbruch darf nichts offen oder bestätigt zurücklassen
         const cleanup = showcaseSource.slice(showcaseSource.indexOf('// Weitere Overlays schließen'));

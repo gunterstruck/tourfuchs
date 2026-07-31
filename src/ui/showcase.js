@@ -46,11 +46,20 @@ const PASTE_DEMO_TABLE = [
     'Demo Handel KG\t50667\tKöln\tBezirk Rheinland'
 ].join('\n');
 
-/** Die Berechtigungs-Bestätigung nach der Vorführung zurücknehmen. */
+/**
+ * Die Berechtigungs-Zusicherung nach der Vorführung zurücknehmen.
+ *
+ * Sie wird seit der Persistenz gespeichert – eine Vorführung darf sie deshalb
+ * nicht heimlich stehen lassen. Der Klick auf die Checkbox löst dieselbe
+ * Speicherung aus wie beim echten Nutzer, also wird das Ereignis hier gefeuert.
+ */
 function restorePasteDemoConsent() {
     if (pasteDemoConsent === null) return;
-    const consent = document.querySelector('#own-data-dialog [data-compliance-optin]');
-    if (consent) consent.checked = pasteDemoConsent;
+    const consent = document.querySelector('[data-compliance-optin]');
+    if (consent && consent.checked !== pasteDemoConsent) {
+        consent.checked = pasteDemoConsent;
+        consent.dispatchEvent(new Event('change', { bubbles: true }));
+    }
     pasteDemoConsent = null;
 }
 
@@ -394,15 +403,18 @@ const HELPERS = {
         if (!ownData?.showModal) return;
         if (!ownData.open) ownData.showModal();
         await sleep(700);
-        // Die Berechtigungs-Bestätigung ist ein echter Riegel und wird deshalb
-        // sichtbar gesetzt – die Demo nimmt sie am Ende wieder zurück.
-        const consent = ownData.querySelector('[data-compliance-optin]');
-        if (consent) {
-            pasteDemoConsent = consent.checked;
-            if (!consent.checked) await clickEl('#own-data-dialog [data-compliance-optin]');
-            await sleep(400);
-        }
+        // Die Berechtigungs-Zusicherung ist ein echter Riegel. Sie wird nicht
+        // mehr vorab angehakt, sondern taucht – wie beim echten Nutzer – als
+        // Bestätigungsschritt auf, sobald der Weg gewählt ist. Was die Demo
+        // dabei setzt, nimmt sie am Ende wieder zurück.
+        pasteDemoConsent = document.querySelector('[data-compliance-optin]')?.checked ?? false;
         await clickEl('#btn-paste');
+        const consentDialog = document.getElementById('consent-dialog');
+        if (consentDialog?.open) {
+            await sleep(900);
+            await clickEl('#consent-confirm');
+            await sleep(300);
+        }
         await resolveEl('#paste-input', 2500);
         await sleep(400);
     },

@@ -203,7 +203,9 @@ Beispiele:
 
 ### Compliance-Hinweis
 
-Beim Upload muss bestätigt werden, dass die Daten verarbeitet werden dürfen. Das ist wichtig, weil TourFuchs lokal mit realen Kundendaten arbeitet.
+Beim ersten eigenen Import muss einmal bestätigt werden, dass die Daten verarbeitet werden dürfen. Das ist wichtig, weil TourFuchs lokal mit realen Kundendaten arbeitet.
+
+Der Schritt **„Einmal kurz bestätigen"** erscheint genau dann, wenn ein Import-Weg gewählt wurde – **„Bestätigen und weiter"** setzt diesen Weg direkt fort. Die Zusicherung wird auf dem Gerät gespeichert und danach nicht mehr abgefragt; zurücknehmen lässt sie sich jederzeit im Tab **Daten** über das Häkchen „Berechtigung bestätigt am …".
 
 ## 7. Daten importieren
 

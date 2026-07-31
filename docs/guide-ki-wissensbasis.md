@@ -584,8 +584,10 @@ entfernt.
 
 Danach wählt der Nutzer zwischen:
 
-1. **"Excel- oder CSV-Liste"** -> Berechtigung bestätigen ->
-   **"Excel-/CSV-Datei auswählen"**.
+1. **"Excel- oder CSV-Liste"** -> **"Excel-/CSV-Datei auswählen"**.
+   Beim allerersten Mal schiebt sich ein kurzer Schritt **"Einmal kurz
+   bestätigen"** dazwischen; **"Bestätigen und weiter"** öffnet den
+   Datei-Dialog direkt. Danach wird nicht mehr gefragt.
 2. **"Verschlüsselte TourFuchs-Datei"** ->
    **"Verschlüsselte Datei öffnen"**.
 
@@ -664,11 +666,12 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 ### 7.5 Import-Schrittfolge
 
 1. **"Eigene Daten laden"** öffnen.
-2. Im Bereich **"Excel- oder CSV-Liste"** bestätigen:
-   **"Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu
-   verwenden."**
-3. **"Excel-/CSV-Datei auswählen"**, Datei per Drag & Drop auf die Karte ziehen
-   **oder die Liste direkt einfügen** (siehe 7.5.1).
+2. **"Excel-/CSV-Datei auswählen"**, Datei per Drag & Drop auf die Karte ziehen
+   **oder die Liste direkt einfügen** (siehe 7.5.1). Wurde die Berechtigung noch
+   nie zugesichert, kommt jetzt der Schritt **"Einmal kurz bestätigen"**
+   (**"Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu
+   verwenden."**). **"Bestätigen und weiter"** setzt genau den Weg fort, der
+   angestoßen wurde – Datei-Dialog, Einfügen oder gezogene Datei.
 4. Im Dialog **"Spalten zuordnen"** automatische Zuordnung und Beispielwerte
    prüfen. Oben stehen die **wichtigen Felder** (Kundenname, PLZ, Straße, Ort,
    Vertriebsbezirk, Vertriebsgruppe, Umsatz); die übrigen **optionalen Felder**
@@ -747,8 +750,9 @@ Nutzer sich entschieden, hier wird ungefragt in eine fremde Absicht eingegriffen
 Markdown, Tabulatoren und Semikolon gelten als eindeutig; bei Komma-Trennung –
 die auch in Prosa vorkommt („Sehr geehrte Frau Meier, wie besprochen, …") –
 braucht es eine Zeile mehr. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
-Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
-Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
+Zwischenablage liegt. Fehlt die Berechtigungs-Zusicherung, geht der eingefügte
+Inhalt nicht verloren: Der Bestätigungsschritt übernimmt ihn danach selbst. Ab
+der Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
 #### 7.5.2 Wege der installierten App
 
@@ -764,9 +768,9 @@ direkt in die Aufgabe:
 - **Icon-Kurzbefehle:** Long-Press auf das App-Icon -> **"Meine Tour"**,
   **"Kunden in der Nähe"** oder **"Liste importieren"**.
 
-In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noch
-nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
-wird übernommen, sobald bestätigt wurde.
+In allen drei Fällen bleibt die Berechtigungs-Zusicherung Pflicht: Ist sie noch
+nicht gegeben, erscheint der Schritt **"Einmal kurz bestätigen"**, und die Datei
+wird unmittelbar danach übernommen.
 
 **Wichtig zum Teilen-Ziel:** Android trägt TourFuchs beim **Installieren** in die
 Teilen-Liste ein, nicht beim Aufrufen der Website. Erscheint TourFuchs nicht im
@@ -1967,7 +1971,8 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Service-Tagesvorschlag | `Service -> Tour -> Bezirk + Start -> Tagesvorschlag prüfen -> "Übernehmen"` |
 | Maschine anhören (Zanobo) | `Service -> Einsätze -> Einsatzkarte -> "Maschine anhören (Zanobo)"` (bei Anlagen-ID) |
 | Zanobo-Instanz ändern | `Service -> Einsätze -> Datenquelle -> Feld "Zanobo-Instanz"` |
-| Eigene Liste laden | `Daten -> "Eigene Daten laden" -> "Excel- oder CSV-Liste" -> Berechtigung -> "Excel-/CSV-Datei auswählen"` |
+| Eigene Liste laden | `Daten -> "Eigene Daten laden" -> "Excel-/CSV-Datei auswählen"` (beim ersten Mal einmalig "Bestätigen und weiter") |
+| Berechtigung zurücknehmen | `Daten -> Häkchen "Berechtigung bestätigt am ..." abwählen` |
 | Spalten prüfen | `"Spalten zuordnen" -> Zuordnungen und Beispiele prüfen -> "Importieren"` |
 | Fehlerliste | `Daten -> "Fehlerliste zum letzten Import (.xlsx)"` (bei nicht importierten Zeilen auch direkt im Dialog) |
 | Excel-Vorlage | `Daten -> "Excel-Vorlage herunterladen"` |
@@ -2370,8 +2375,9 @@ Nutzer sich entschieden, hier wird ungefragt in eine fremde Absicht eingegriffen
 Markdown, Tabulatoren und Semikolon gelten als eindeutig; bei Komma-Trennung –
 die auch in Prosa vorkommt („Sehr geehrte Frau Meier, wie besprochen, …") –
 braucht es eine Zeile mehr. Der Kurzweg wirkt nur, wenn wirklich eine Tabelle in der
-Zwischenablage liegt, und erst nach der Berechtigungs-Bestätigung. Ab der
-Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
+Zwischenablage liegt. Fehlt die Berechtigungs-Zusicherung, geht der eingefügte
+Inhalt nicht verloren: Der Bestätigungsschritt übernimmt ihn danach selbst. Ab
+der Spaltenzuordnung ist der Ablauf identisch mit dem Datei-Import.
 
 #### 7.5.2 Wege der installierten App
 
@@ -2387,9 +2393,9 @@ direkt in die Aufgabe:
 - **Icon-Kurzbefehle:** Long-Press auf das App-Icon -> **"Meine Tour"**,
   **"Kunden in der Nähe"** oder **"Liste importieren"**.
 
-In allen drei Fällen bleibt die Berechtigungs-Bestätigung Pflicht: Ist sie noch
-nicht gesetzt, wartet die Datei sichtbar im Dialog **"Eigene Daten laden"** und
-wird übernommen, sobald bestätigt wurde.
+In allen drei Fällen bleibt die Berechtigungs-Zusicherung Pflicht: Ist sie noch
+nicht gegeben, erscheint der Schritt **"Einmal kurz bestätigen"**, und die Datei
+wird unmittelbar danach übernommen.
 
 Das **Installations-Angebot** erscheint nicht sofort. TourFuchs hebt es sich für
 den Moment auf, in dem es etwas bringt: eigene Daten geladen und eine Tour mit
@@ -2864,6 +2870,10 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neue Live-Demo "Dein Service-Tag in 20 Sekunden" (Desktop) ergänzt; nach
   jeder Live-Demo kehren Ansichtstiefe und Arbeitsfokus zum vorherigen Stand
   zurück.
+- **Berechtigungs-Zusicherung einmalig statt je Sitzung:** Sie wird gespeichert
+  (mit Datum, im Daten-Tab abwählbar) und kommt als Schritt **im Fluss** der
+  gewollten Aktion – wer bestätigt, landet ohne zweiten Anlauf am Ziel. Vorher
+  galt sie nur für die Sitzung und meldete sich erst nach einem Klick ins Leere.
 - **Import-Ergebnis nur noch bei echten Fehlern als Dialog:** Reine Hinweise
   (alle Zeilen importiert, z. B. "12 Kunden ohne Vertriebsbezirk") melden sich
   als Kurzmeldung mit Anzahl. Die Liste bleibt dauerhaft unter

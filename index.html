@@ -902,6 +902,23 @@
             </footer>
         </dialog>
 
+        <!-- Berechtigung: einmalige Zusicherung, direkt im Fluss der gewollten
+             Aktion. Wer bestätigt, landet ohne Umweg dort, wo er hinwollte –
+             und wird danach nicht mehr gefragt (siehe withDataConsent). -->
+        <dialog id="consent-dialog" class="consent-dialog" aria-labelledby="consent-title">
+            <div class="consent-body">
+                <div class="consent-icon" aria-hidden="true">🦊📋</div>
+                <h2 id="consent-title">Einmal kurz bestätigen</h2>
+                <p class="muted small">Deine Liste bleibt <b>auf diesem Gerät</b> – TourFuchs überträgt keine Kundendaten an einen Server und meldet sich an keinem Dienst an.</p>
+                <p class="consent-claim">Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</p>
+                <p class="muted small">Danach wird nicht mehr gefragt. Zurücknehmen kannst du das jederzeit unter <b>Daten</b>.</p>
+                <div class="consent-actions">
+                    <button type="button" id="consent-cancel">Abbrechen</button>
+                    <button type="button" id="consent-confirm" class="primary">Bestätigen und weiter</button>
+                </div>
+            </div>
+        </dialog>
+
         <!-- Import-Ergebnis. Öffnet sich nur noch, wenn Zeilen NICHT importiert
              wurden – reine Hinweise melden sich als Toast (siehe showImportResult). -->
         <dialog id="import-result-dialog">
