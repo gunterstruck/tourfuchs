@@ -408,12 +408,16 @@ export function applyDataPanelLayout() {
         safeReceive: el('btn-safe-receive')
     };
     if (Object.values(nodes).some((n) => !n)) return;
+    // Zugang zur Hinweis-/Fehlerliste des letzten Imports. Bewusst außerhalb der
+    // Pflichtprüfung oben: fehlt der Knopf, soll die Gruppierung trotzdem laufen.
+    const importNotes = el('btn-import-notes');
 
     if (target === 'mobile') {
         const g = ensureDataPanelGroups();
         g.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive);
         g.save.col.append(nodes.exportBtn, nodes.safeExport);
         g.tools.col.append(nodes.template, nodes.geocode, nodes.progress);
+        if (importNotes) g.tools.col.append(importNotes);
         nodes.safeNote.classList.add('data-group-note');
         dataActions.append(g.load.wrap, g.save.wrap, nodes.safeNote, g.tools.wrap);
         nodes.safeTitle.hidden = true;
@@ -428,8 +432,9 @@ export function applyDataPanelLayout() {
             dataPanelGroups.danger.remove();
         }
         primary.hidden = false;
-        primary.append(nodes.upload, nodes.compliance, nodes.template, nodes.geocode,
-            nodes.progress, nodes.exportBtn, nodes.clear);
+        primary.append(nodes.upload, nodes.compliance, nodes.template,
+            ...(importNotes ? [importNotes] : []),
+            nodes.geocode, nodes.progress, nodes.exportBtn, nodes.clear);
         nodes.safeNote.classList.remove('data-group-note');
         nodes.safeTitle.hidden = false;
         // In den einklappbaren Tresor-/Umzug-Block einhängen (Konzept „aufzoomen"),

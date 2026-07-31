@@ -166,6 +166,9 @@
                                 <span>Ich bin berechtigt, diese Daten zu verarbeiten.</span>
                             </label>
                             <button id="btn-template-2">📋 Excel-Vorlage herunterladen</button>
+                            <!-- Bleibt nach dem Import erreichbar, damit reine
+                                 Hinweise kein Modal mehr brauchen. -->
+                            <button id="btn-import-notes" type="button" hidden>⬇ Hinweise zum letzten Import (.xlsx)</button>
                             <button id="btn-geocode">🎯 Adressen exakt verorten</button>
                             <div id="geocode-progress" class="muted small" style="display:none"></div>
                             <button id="btn-export">💾 Als Excel exportieren</button>
@@ -899,10 +902,11 @@
             </footer>
         </dialog>
 
-        <!-- Import-Ergebnis (Plausibilitätsprüfung) -->
+        <!-- Import-Ergebnis. Öffnet sich nur noch, wenn Zeilen NICHT importiert
+             wurden – reine Hinweise melden sich als Toast (siehe showImportResult). -->
         <dialog id="import-result-dialog">
             <header>
-                <h2>Import abgeschlossen</h2>
+                <h2>Nicht alle Zeilen konnten importiert werden</h2>
                 <button class="dialog-close" aria-label="Schließen">Schließen</button>
             </header>
             <div id="import-result-body"></div>
