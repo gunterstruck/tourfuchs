@@ -713,13 +713,15 @@ body.sc-running .mobile-next-step { display: none !important; }
 }
 
 /* ---------------------------------------------------------------------------
-   Tablet hochkant: Panel unten, Funktionsumfang wie am Schreibtisch.
+   Tablet hochkant: Panel unten, mobiler Einstieg, voller Funktionsumfang.
 
    Auf einem hochkanten Tablet frisst die Seitenleiste (min(88vw, 340px)) fast
    die halbe Breite – die Karte wird zum Streifen. Deshalb liegt das Panel hier
-   unten wie am Handy. Bewusst NUR die Geometrie: Profi-Modus, Gebietsplanung,
-   Cockpit und Simulation bleiben erreichbar, denn Platz dafür ist da. Die
-   Funktionsreduktion des Handys (ab 768px) bleibt diesem vorbehalten.
+   unten wie am Handy, und der Einstieg ist derselbe: Außendienst, Tour, Basis.
+   Bewusst NICHT übernommen wird die Funktionsreduktion des Handys (ab 768px):
+   Profi-Modus, Gebietsplanung, Cockpit und Simulation bleiben erreichbar, denn
+   Platz dafür ist da – hochkant sogar mehr Panelbreite als am Schreibtisch.
+   So verwirft eine Drehung nie laufende Arbeit; sie ändert nur die Geometrie.
 
    Quer greift die Regel nicht: Dort hat auch ein Tablet Breite für beides.
 --------------------------------------------------------------------------- */
