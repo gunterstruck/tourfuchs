@@ -17,6 +17,8 @@ import {
 } from '../features/areaBriefing.js';
 import { assistantForDepth } from '../services/assistant.js';
 import { copyText } from '../features/handoff.js';
+import { loadBriefingSources } from '../services/briefingSources.js';
+import { briefingSourcesHtml, wireBriefingSources } from './briefingSources.js';
 
 let dialog = null;
 let body = null;
@@ -64,13 +66,28 @@ function render(selection, areaLabel) {
                 <ul class="area-customer-list">${included.map(customerItem).join('')}</ul>
             </details>
             <p class="briefing-manual-note"><b>Nicht enthalten:</b> Umsatz, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn Sie den Prompt absenden.</p>
+            ${briefingSourcesHtml()}
             <div class="briefing-prompt-visible">
                 <span>Vorbereiteter Prompt</span>
                 <pre></pre>
             </div>
         </div>`;
-    const pre = body.querySelector('.briefing-prompt-visible pre');
-    if (pre) pre.textContent = currentPrompt;
+    const fillPrompt = () => {
+        const pre = body.querySelector('.briefing-prompt-visible pre');
+        if (pre) pre.textContent = currentPrompt;
+    };
+    fillPrompt();
+    // Dasselbe Fragment wie im Kundenbriefing, derselbe gespeicherte Zustand –
+    // geändert wird er dort, wo er gerade auffällt.
+    wireBriefingSources(body, () => {
+        currentPrompt = buildAreaBriefingPrompt(
+            included,
+            { areaLabel, plannedDate: plannedDate(), total },
+            currentAssistant,
+            loadBriefingSources()
+        );
+        fillPrompt();
+    });
 
     footer.innerHTML = `<button type="button" class="primary" data-area-open>Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`;
     footer.querySelector('[data-area-open]')?.addEventListener('click', openAssistant);
@@ -123,7 +140,8 @@ export function openAreaBriefing(customers, areaLabel) {
     currentPrompt = buildAreaBriefingPrompt(
         selection.included,
         { areaLabel, plannedDate: plannedDate(), total: selection.total },
-        currentAssistant
+        currentAssistant,
+        loadBriefingSources()
     );
     render(selection, areaLabel);
 }

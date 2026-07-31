@@ -24,6 +24,7 @@
 
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { lastVisit, visitStatus } from './visits.js';
+import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
 
 /** Mehr Kunden ergeben kein besseres Briefing, nur einen längeren Prompt. */
 export const AREA_BRIEFING_LIMIT = 12;
@@ -73,17 +74,19 @@ function customerLine(customer, index, now) {
  * @param {object[]} customers  bereits ausgewählte Kunden (siehe areaBriefingSelection)
  * @param {object} context      { areaLabel, plannedDate, total }
  * @param {object} assistant    optional, liefert die Quellenzeile
+ * @param {object[]} sources    eigene Nachschlagequellen des Nutzers (optional)
  */
-export function buildAreaBriefingPrompt(customers = [], context = {}, assistant = null) {
+export function buildAreaBriefingPrompt(customers = [], context = {}, assistant = null, sources = []) {
     const list = customers.filter((customer) => customer && !isDemoCustomer(customer));
     if (list.length === 0) {
         throw new Error('Für Beispielkunden wird kein Gebiets-Briefing erzeugt.');
     }
 
     const now = context.now instanceof Date ? context.now : new Date();
-    const sources = value(assistant?.promptSources)
+    const sourceInstruction = value(assistant?.promptSources)
         || 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
 
+    const ownSources = briefingSourcesPromptBlock(sources);
     const areaLabel = value(context.areaLabel) || 'mein aktuelles Gebiet';
     const planned = value(context.plannedDate)
         ? `Geplanter Besuchstag: ${formatLocalDate(context.plannedDate)}.\n`
@@ -99,7 +102,7 @@ ${planned}${truncated}
 Diese Kunden stehen zur Auswahl:
 ${list.map((customer, index) => customerLine(customer, index, now)).join('\n')}
 
-${sources} Ordne Treffer eindeutig dem jeweiligen Kunden zu – nutze dafür Kundenname, Kundennummer und Ort gemeinsam. Vermische keine ähnlich benannten Kunden.
+${ownSources}${sourceInstruction} Ordne Treffer eindeutig dem jeweiligen Kunden zu – nutze dafür Kundenname, Kundennummer und Ort gemeinsam. Vermische keine ähnlich benannten Kunden.
 
 Zeitraum: die letzten 6 Monate, dazu bereits terminierte Ereignisse.
 

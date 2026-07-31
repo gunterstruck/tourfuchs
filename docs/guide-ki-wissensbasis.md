@@ -1974,6 +1974,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Eigene Liste laden | `Daten -> "Eigene Daten laden" -> "Excel-/CSV-Datei auswählen"` (beim ersten Mal einmalig "Bestätigen und weiter") |
 | Berechtigung zurücknehmen | `Daten -> Häkchen "Berechtigung bestätigt am ..." abwählen` |
 | Spalten prüfen | `"Spalten zuordnen" -> Zuordnungen und Beispiele prüfen -> "Importieren"` |
+| Eigene Nachschlagequelle | `Briefing-Dialog -> "Wo soll der Assistent zuerst nachsehen?"` |
 | Fehlerliste | `Daten -> "Fehlerliste zum letzten Import (.xlsx)"` (bei nicht importierten Zeilen auch direkt im Dialog) |
 | Excel-Vorlage | `Daten -> "Excel-Vorlage herunterladen"` |
 | Kundenbestand ersetzen | `Daten -> "Andere Excel- oder CSV-Liste laden" -> Datei prüfen -> "Importieren" -> Ersetzungswarnung bestätigen` |
@@ -2870,6 +2871,11 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - neue Live-Demo "Dein Service-Tag in 20 Sekunden" (Desktop) ergänzt; nach
   jeder Live-Demo kehren Ansichtstiefe und Arbeitsfokus zum vorherigen Stand
   zurück.
+- **Eigene Nachschlagequellen im Briefing:** Bis zu drei selbst gepflegte
+  Ablagen (Link/Pfad plus "was steckt drin") lassen sich hinterlegen; beide
+  Briefings stellen sie dem Prompt als Vorrang-Hinweis voran. Reiner
+  Prompt-Text – TourFuchs öffnet nichts und sendet nichts. Eingeklappt im
+  Briefing-Dialog, in beiden Ansichtstiefen.
 - **Berechtigungs-Zusicherung einmalig statt je Sitzung:** Sie wird gespeichert
   (mit Datum, im Daten-Tab abwählbar) und kommt als Schritt **im Fluss** der
   gewollten Aktion – wer bestätigt, landet ohne zweiten Anlauf am Ziel. Vorher
