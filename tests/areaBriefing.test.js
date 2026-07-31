@@ -184,3 +184,33 @@ describe('Gebiets-Briefing: Verdrahtung', () => {
         expect(ui).toContain('pre.textContent = currentPrompt');
     });
 });
+
+describe('Ein Tag, auf den sich alles bezieht', () => {
+    // Externer Prüfbericht, P2: Der Prompt sagte „Ich bin heute unterwegs" und
+    // nannte zugleich einen anderen geplanten Besuchstag – während „überfällig"
+    // gegen die echte Uhr gerechnet wurde. Zwei Zeitbezüge in einem Prompt.
+    const KUNDE = { id: 'k1', name: 'Alpha GmbH', nummer: '4711', plz: '45127', ort: 'Essen' };
+
+    it('sagt „heute", wenn kein Tag eingestellt ist', () => {
+        const prompt = buildAreaBriefingPrompt([KUNDE], { areaLabel: 'Umkreis' });
+        expect(prompt).toContain('Ich bin heute in diesem Gebiet unterwegs');
+    });
+
+    it('nennt den geplanten Tag, wenn er nicht heute ist', () => {
+        const prompt = buildAreaBriefingPrompt([KUNDE], { areaLabel: 'Umkreis', plannedDate: '2026-09-15' });
+        expect(prompt).toContain('Ich bin am 15.09.2026 in diesem Gebiet unterwegs');
+        expect(prompt).not.toContain('Ich bin heute');
+        // …und sagt ausdrücklich, worauf sich die Fälligkeiten beziehen.
+        expect(prompt).toContain('Fälligkeiten unten beziehen sich auf diesen Tag');
+    });
+
+    it('rechnet die Fälligkeit gegen den geplanten Tag, nicht gegen die Uhr', () => {
+        // Rhythmus 4 Wochen, letzter Besuch 01.07.: am 05.07. noch nicht fällig,
+        // am 15.09. längst überfällig. Der Prompt muss den Reisetag meinen.
+        const kunde = { ...KUNDE, rhythmusWochen: 4, besuche: ['2026-07-01'] };
+        const frueh = buildAreaBriefingPrompt([kunde], { areaLabel: 'U', plannedDate: '2026-07-05' });
+        const spaet = buildAreaBriefingPrompt([kunde], { areaLabel: 'U', plannedDate: '2026-09-15' });
+        expect(frueh).not.toContain('überfällig');
+        expect(spaet).toContain('überfällig');
+    });
+});

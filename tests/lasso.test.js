@@ -466,3 +466,24 @@ describe('Lasso und Karte sehen dieselbe Menge', () => {
         expect(quelle).toContain('currentView.markers');
     });
 });
+
+describe('Lasso legt die Karte vollständig still', () => {
+    // Externer Prüfbericht, P2: touchZoom blieb an – ein zweiter Finger mitten
+    // im Zug zoomte die Karte, während die Spur in Bildschirmkoordinaten stehen
+    // blieb. Und die Handler wurden hinterher pauschal eingeschaltet, statt auf
+    // ihren vorherigen Stand zurückgesetzt.
+    const lasso = readFileSync(resolve(process.cwd(), 'src/ui/lasso.js'), 'utf8');
+
+    it('nimmt den Pinch-Zoom mit aus', () => {
+        expect(lasso).toContain("'touchZoom'");
+        const liste = lasso.slice(lasso.indexOf('const MAP_HANDLERS'), lasso.indexOf('let mapHandlerState'));
+        for (const name of ['dragging', 'doubleClickZoom', 'boxZoom', 'keyboard', 'scrollWheelZoom', 'touchZoom']) {
+            expect(liste, `${name} fehlt in MAP_HANDLERS`).toContain(name);
+        }
+    });
+
+    it('gibt genau den Zustand zurück, den es vorgefunden hat', () => {
+        expect(lasso).toContain('mapHandlerState[name] = handler.enabled();');
+        expect(lasso).toContain('if (mapHandlerState ? mapHandlerState[name] : true) handler.enable();');
+    });
+});

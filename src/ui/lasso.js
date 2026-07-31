@@ -101,16 +101,46 @@ const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => 
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
 ));
 
+/**
+ * Alles, was die Karte unter der Spur verschieben oder skalieren könnte.
+ *
+ * `touchZoom` gehört ausdrücklich dazu: Ein zweiter Finger mitten im Zug
+ * zoomte die Karte, während die schon gezeichnete Spur in Bildschirm-
+ * koordinaten stehen blieb – die Auswahl hätte danach eine andere Fläche
+ * gemeint als die sichtbare Linie. Am Handy ist das der wahrscheinlichste
+ * Fehlgriff überhaupt.
+ */
+const MAP_HANDLERS = ['dragging', 'doubleClickZoom', 'boxZoom', 'keyboard', 'scrollWheelZoom', 'touchZoom'];
+
+let mapHandlerState = null;
+
 /** Kartenbedienung während des Zeichnens stilllegen und danach zurückgeben. */
 function setMapInteraction(enabled) {
     const map = getMap();
     if (!map) return;
-    for (const handler of ['dragging', 'doubleClickZoom', 'boxZoom', 'keyboard']) {
-        if (map[handler]) enabled ? map[handler].enable() : map[handler].disable();
+
+    if (!enabled) {
+        // Den vorherigen Zustand merken, statt hinterher pauschal alles
+        // einzuschalten: Sonst gäbe das Lasso Kartenfunktionen zurück, die
+        // jemand anders bewusst abgeschaltet hatte.
+        mapHandlerState = {};
+        for (const name of MAP_HANDLERS) {
+            const handler = map[name];
+            if (!handler) continue;
+            mapHandlerState[name] = handler.enabled();
+            handler.disable();
+        }
+        return;
     }
-    // Scrollzoom bleibt bewusst aus: ein Zoom mitten im Zug verschiebt alles,
-    // was schon gezeichnet ist, gegenüber der Karte darunter.
-    if (map.scrollWheelZoom) enabled ? map.scrollWheelZoom.enable() : map.scrollWheelZoom.disable();
+
+    for (const name of MAP_HANDLERS) {
+        const handler = map[name];
+        if (!handler) continue;
+        // Ohne gemerkten Zustand (Freigeben ohne vorheriges Stilllegen) gilt
+        // der bisherige Standard: einschalten.
+        if (mapHandlerState ? mapHandlerState[name] : true) handler.enable();
+    }
+    mapHandlerState = null;
 }
 
 function ensureOverlay() {
