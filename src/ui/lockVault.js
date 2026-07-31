@@ -11,6 +11,7 @@ import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot
 } from '../core/state.js';
 import { saveDataset } from '../services/storage.js';
+import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
 
@@ -22,6 +23,20 @@ let bootData = null;      // Nachladefunktion (Daten laden) nach dem Entsperren
 let lockEl = null;
 let dialog = null;
 let bioAvailable = false; // Plattform-Authenticator (Face/Touch ID) vorhanden?
+
+// Der einmalige Hinweis „deine Daten liegen unverschlüsselt hier" gehört zum
+// ersten eigenen Import. Danach trägt das offene Schloss in der Kopfzeile die
+// Information dauerhaft – ohne den Nutzer je wieder zu unterbrechen.
+const VAULT_OFFER_KEY = 'tf_vault_offer_seen';
+function vaultOfferSeen() {
+    try { return globalThis.localStorage?.getItem(VAULT_OFFER_KEY) === '1'; } catch { return false; }
+}
+function markVaultOfferSeen(seen = true) {
+    try {
+        if (seen) globalThis.localStorage?.setItem(VAULT_OFFER_KEY, '1');
+        else globalThis.localStorage?.removeItem(VAULT_OFFER_KEY);
+    } catch { /* Speicherung ist optional */ }
+}
 
 export function initVault(options = {}) {
     bootData = options.bootData || (async () => {});
@@ -38,8 +53,11 @@ export function initVault(options = {}) {
 
     // Topbar-Schloss soll erscheinen, sobald Daten da sind (Einrichten anbieten).
     on('customers:changed', renderControls);
-    // Eigene Daten importiert -> zum Verschlüsseln führen (Demo nicht).
+    // Eigene Daten importiert -> den Tresor anbieten (Demo nicht).
     on('data:imported', onDataImported);
+    // Bewusstes „Daten löschen" ist ein Neustart: Der einmalige Hinweis darf
+    // beim nächsten eigenen Import wieder kommen.
+    on('dataset:cleared', () => { markVaultOfferSeen(false); renderControls(); });
 
     renderControls();
 
@@ -202,6 +220,18 @@ function dataPresent() {
         || Object.keys(state.territories || {}).length > 0;
 }
 
+/**
+ * Echte Kundendaten (keine reine Beispiel-Kulisse). Nur dafür lohnt der
+ * sichtbare „ungeschützt"-Hinweis am Kopfzeilen-Schloss – bei Demo-Kunden wäre
+ * er eine Warnung ohne Gegenstand.
+ */
+function ownDataPresent() {
+    const customers = state.customers || [];
+    if (customers.length > 0 && !isDemoDataset(customers)) return true;
+    const own = (rows) => (rows || []).some((row) => row?.sourceSystem !== 'DEMO');
+    return own(state.serviceContracts) || own(state.serviceVisits);
+}
+
 function renderControls() {
     const enabled = vault.isEnabled();
     const unlocked = vault.isUnlocked();
@@ -224,6 +254,10 @@ function renderControls() {
     if (toggle) {
         const showToggle = (enabled && unlocked) || (!enabled && dataPresent());
         toggle.hidden = !showToggle;
+        // Statt eines Pflicht-Dialogs nach dem Import trägt das Schloss den
+        // Zustand: Liegen echte Kundendaten ungeschützt hier, hebt es sich
+        // dauerhaft ab – sichtbar, aber ohne den Nutzer aufzuhalten.
+        toggle.classList.toggle('unprotected', !enabled && ownDataPresent());
         if (!enabled) {
             toggle.textContent = '🔓';
             toggle.title = 'Daten sind unverschlüsselt – tippen, um den Tresor mit PIN einzurichten';
@@ -255,26 +289,40 @@ function renderControls() {
     }
 }
 
-// Nach einem Import EIGENER Daten (nicht Demo): zum Verschlüsseln führen.
+/**
+ * Nach einem Import EIGENER Daten (nicht Demo).
+ *
+ * Früher stand hier ein PIN-Dialog ohne Abbrechen – ausgerechnet in dem
+ * Moment, in dem die eigenen Kunden zum ersten Mal auf der Karte liegen. Der
+ * Nutzer musste eine Sicherheitsentscheidung treffen, bevor er sein Ergebnis
+ * überhaupt gesehen hatte, und für viele war das der Punkt zum Abbrechen.
+ *
+ * Der Tresor bleibt wichtig, wird aber angeboten statt verlangt: Die Daten
+ * sind vom Importweg bereits gespeichert, ein einmaliger Toast benennt den
+ * Zustand ehrlich und zeigt den Weg, und das offene Schloss in der Kopfzeile
+ * bleibt hervorgehoben, bis der Nutzer sich entscheidet. Verschlüsselt wird
+ * dann, wenn er selbst darauf kommt – nicht, weil ein Dialog ihn festhält.
+ */
 function onDataImported(payload) {
     if (vault.isEnabled()) return;            // schon ein Tresor -> Daten werden bereits verschlüsselt gespeichert
     if (!dataPresent()) return;
+    renderControls();                         // Schloss-Zustand nachziehen
+    if (vaultOfferSeen()) return;             // einmal sagen genügt; das Schloss trägt es weiter
+    markVaultOfferSeen();
+
     const count = payload?.count;
     const isContracts = payload?.type === 'service-contracts';
     const isVisits = payload?.type === 'service-visits';
     const importedLabel = isContracts
-        ? 'Servicevertragsdaten'
-        : isVisits ? 'Serviceeinsatzdaten' : 'Kundendaten';
-    openSetupDialog({
-        forced: true,
-        title: 'Eigene Daten schützen',
-        intro: `Du hast${count ? ` ${count}` : ''} eigene ${importedLabel} geladen. Lege jetzt eine PIN fest, damit sie <b>AES-256-verschlüsselt</b> auf diesem Gerät gespeichert und beim Öffnen der App entsperrt werden.`,
-        onDone: () => showToast('Deine Daten sind jetzt im Tresor – verschlüsselt gespeichert.', 'success', 6000),
-        onDismiss: async () => {
-            await saveDataset(datasetSnapshot());
-            showToast('Ohne Tresor bleiben die Daten unverschlüsselt. Du kannst ihn jederzeit über das 🔓-Symbol oben einrichten.', 'info', 8000);
-        }
-    });
+        ? 'Serviceverträge'
+        : isVisits ? 'Serviceeinsätze' : 'Kunden';
+    const subject = count ? `Deine ${count} ${importedLabel}` : `Deine ${importedLabel}`;
+    showToast(
+        `${subject} liegen jetzt nur auf diesem Gerät – noch unverschlüsselt. `
+        + 'Mit dem 🔓 oben richtest du jederzeit den Tresor ein (PIN, AES-256).',
+        'info',
+        9000
+    );
 }
 
 // ---- Biometrie (Face/Touch ID) ----

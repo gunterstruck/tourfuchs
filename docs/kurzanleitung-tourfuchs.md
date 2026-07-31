@@ -65,12 +65,12 @@ Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
 
 1. Modus Außendienst wählen.
 2. Tab Tour öffnen.
-3. Vertriebsbezirk auswählen.
-4. Startpunkt setzen.
-5. Kunden im Umkreis oder entlang der Tour anzeigen.
-6. Kunden zur Tour hinzufügen.
-7. Reihenfolge optimieren.
-8. Route anzeigen oder an Google Maps übergeben.
+3. Startpunkt setzen. (Geplant wird über **alle Vertriebsbezirke** – nur wer
+   einschränken will, tippt auf die Zeile „🗺️ Bezirk: Alle Bezirke · ändern ▸".)
+4. Kunden im Umkreis oder entlang der Tour anzeigen.
+5. Kunden zur Tour hinzufügen.
+6. Reihenfolge optimieren.
+7. Route anzeigen oder an Google Maps übergeben.
 
 ## 7. Mobile Nutzung
 

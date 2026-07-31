@@ -59,7 +59,11 @@ export const state = {
     territories: {},
 
     tour: {
-        bezirk: null,       // '__all__' | Bezirksname | null/'__none__' = noch nicht gewaehlt
+        // Standard ist bewusst „alle Bezirke": Planen soll ohne Vorab-Entscheidung
+        // beginnen. Wer einschraenken will, tut das jederzeit ueber die schmale
+        // Bezirkszeile. ('__none__' ist nur noch ein Altzustand und wird beim
+        // Rendern auf '__all__' normalisiert.)
+        bezirk: '__all__',  // '__all__' | Bezirksname
         start: null,        // { lat, lng, label, customerId? }
         destination: null,  // optionaler Zielpunkt { lat, lng, label, customerId? } – bleibt am Streckenende
         stops: [],          // Array von Kunden-IDs (Zwischenstopps in Besuchsreihenfolge)
@@ -390,7 +394,7 @@ export function setCustomers(customers, meta = {}) {
 export function replaceCustomers(customers, meta = {}) {
     state.territories = { ...(meta.territories || {}) };
     Object.assign(state.tour, {
-        bezirk: null,
+        bezirk: '__all__',
         start: null,
         destination: null,
         stops: [],

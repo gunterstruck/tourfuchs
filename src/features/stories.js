@@ -87,8 +87,8 @@ export const STORIES = [
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',
         blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 64,
-        durationMobile: 58,
+        duration: 61,
+        durationMobile: 55,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -96,7 +96,8 @@ export const STORIES = [
             { t: 'run', key: 'focusDemoTourArea' },
             { t: 'say', text: 'Wir starten im Ruhrgebiet: Hier liegen genug Kunden für eine sichtbare, sinnvolle Tagestour.', ms: 2400, pos: 'bottom' },
             { t: 'run', key: 'gotoTour' },
-            { t: 'say', text: 'Zuerst den Vertriebsbezirk wählen – dann kommen nur passende Kunden.', sel: '#tour-scope', ms: 2200 },
+            // Kein Bezirks-Schritt mehr: Geplant wird ab Werk über alle Bezirke.
+            // Der Lauf stellt den Standard nur still sicher.
             { t: 'run', key: 'pickBezirkAll' },
             { t: 'say', text: 'Jetzt einen Startpunkt setzen …', sel: '#start-search', ms: 1500 },
             { t: 'run', key: 'pickStart' },
