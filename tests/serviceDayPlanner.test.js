@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { proposeServiceDay } from '../src/features/serviceDayPlanner.js';
+import { proposeServiceDay, tradeoffLine } from '../src/features/serviceDayPlanner.js';
 
 const ORIGIN = { lat: 0, lng: 0 };
 
@@ -290,5 +290,42 @@ describe('proposeServiceDay', () => {
         expect(result.unscheduled.every((entry) =>
             reasonCodes(entry).includes('invalid-start-coordinates'))).toBe(true);
         expect(result.metrics.unscheduledCount).toBe(2);
+    });
+});
+
+describe('Verzichtszeile', () => {
+    it('nennt Gewinn und Preis in einem Satz', () => {
+        const line = tradeoffLine(8, [
+            'dringendere Einsätze haben Vorrang',
+            'dringendere Einsätze haben Vorrang',
+            'Qualifikation fehlt'
+        ]);
+        expect(line).toContain('8 Stopps');
+        expect(line).toContain('bleiben 3 Einsätze liegen');
+        expect(line).toContain('2× dringendere Einsätze haben Vorrang');
+        expect(line).toContain('1× Qualifikation fehlt');
+    });
+
+    it('verschweigt nicht, wenn nichts liegen bleibt', () => {
+        expect(tradeoffLine(4, [])).toBe('Dringlichkeit zuerst, dann kurzer Weg: 4 Stopps – nichts bleibt liegen.');
+    });
+
+    it('zeigt die zwei häufigsten Gründe und verweist auf den Rest', () => {
+        const line = tradeoffLine(2, ['A', 'A', 'B', 'B', 'C']);
+        expect(line).toContain('2× A');
+        expect(line).toContain('2× B');
+        expect(line).not.toContain('1× C');
+        expect(line).toContain('weitere Gründe unten');
+    });
+
+    it('bleibt im Singular korrekt', () => {
+        const line = tradeoffLine(1, ['Zeitfenster nicht erreichbar']);
+        expect(line).toContain('1 Stopp –');
+        expect(line).toContain('bleibt 1 Einsatz liegen');
+    });
+
+    it('übersteht leere und unsinnige Eingaben', () => {
+        expect(tradeoffLine(0, [])).toContain('0 Stopps');
+        expect(tradeoffLine(undefined, ['  ', null, 'echter Grund'])).toContain('1× echter Grund');
     });
 });

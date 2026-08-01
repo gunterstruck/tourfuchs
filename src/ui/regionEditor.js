@@ -28,7 +28,8 @@ let selected = new Set();    // ausgewählte Kunden-IDs
 let search = '';
 let assignAttr = 'bezirk';   // 'bezirk' | 'gruppe'; Channel bleibt reine optionale Filterdimension
 let territorySelected = false; // „Ganze Fläche" (Gebietszuordnung) mit zuweisen
-const undoStack = [];        // [{ label, changes:[{id,attr,old}], territory }]
+const undoStack = [];        // [{ label, changes:[{id,attr,old,neu}], territory }]
+const redoStack = [];        // zurückgenommene Einträge, bis etwas Neues zugewiesen wird
 const mobilePlanningQuery = mobilePlanningMediaQuery();
 
 function closeUnavailableEditor() {
@@ -46,6 +47,7 @@ export function initRegionEditor() {
     document.getElementById('re-select-all').addEventListener('change', toggleSelectAll);
     document.getElementById('re-apply').addEventListener('click', applyAssign);
     document.getElementById('re-undo').addEventListener('click', undo);
+    document.getElementById('re-redo').addEventListener('click', redo);
     mobilePlanningQuery.addEventListener('change', (event) => {
         if (event.matches) closeUnavailableEditor();
     });
@@ -127,6 +129,9 @@ function render() {
     document.getElementById('re-undo').disabled = undoStack.length === 0;
     document.getElementById('re-undo').textContent = undoStack.length
         ? `↩ Rückgängig (${undoStack.length})` : '↩ Rückgängig';
+    document.getElementById('re-redo').disabled = redoStack.length === 0;
+    document.getElementById('re-redo').textContent = redoStack.length
+        ? `↪ Wieder vor (${redoStack.length})` : '↪ Wieder vor';
 }
 
 /** Feste Zeile ganz oben: die ganze Fläche zuordnen (auch ohne Kunden) */
@@ -218,7 +223,7 @@ function applyAssign() {
         const c = getCustomer(id);
         if (!c) continue;
         if ((String(c[attr] ?? '').trim() || UNASSIGNED) !== target) {
-            changes.push({ id, attr, old: c[attr] ?? '' });
+            changes.push({ id, attr, old: c[attr] ?? '', neu: target });
             c[attr] = target;
         }
     }
@@ -227,7 +232,7 @@ function applyAssign() {
     if (territorySelected) {
         const old = getTerritory(ctx.level, ctx.key)?.[attr] ?? '';
         if (old !== target) {
-            territory = { level: ctx.level, key: ctx.key, attr, old };
+            territory = { level: ctx.level, key: ctx.key, attr, old, neu: target };
             setTerritory(ctx.level, ctx.key, attr, target, ctx.name);
         }
     }
@@ -238,20 +243,48 @@ function applyAssign() {
     }
 
     undoStack.push({ label: `${changes.length} → ${target}`, changes, territory });
+    // Eine neue Zuweisung macht die zurückgenommene Zukunft ungültig.
+    redoStack.length = 0;
     persistAndRefresh();
     render();
     showToast(`${changes.length} Kunde(n)${territory ? ' + ganze Fläche' : ''} → ${target}`, 'success');
 }
 
-function undo() {
-    const e = undoStack.pop();
-    if (!e) return;
-    for (const ch of e.changes) {
-        const c = getCustomer(ch.id);
-        if (c) c[ch.attr] = ch.old;
+/**
+ * Einen Eintrag in eine der beiden Richtungen anwenden.
+ * `direction` ist das Feld, das gewinnt: 'old' beim Zurücknehmen, 'neu' beim
+ * Wiederherstellen. Beide Wege sind derselbe Vorgang mit vertauschten Werten.
+ */
+function applyEntry(entry, direction) {
+    for (const change of entry.changes) {
+        const customer = getCustomer(change.id);
+        if (customer) customer[change.attr] = change[direction];
     }
-    if (e.territory) setTerritory(e.territory.level, e.territory.key, e.territory.attr, e.territory.old, ctx?.name);
+    if (entry.territory) {
+        const { level, key, attr } = entry.territory;
+        setTerritory(level, key, attr, entry.territory[direction], ctx?.name);
+    }
     persistAndRefresh();
     render();
+}
+
+function undo() {
+    const entry = undoStack.pop();
+    if (!entry) return;
+    redoStack.push(entry);
+    applyEntry(entry, 'old');
     showToast('Änderung rückgängig gemacht.', 'success');
+}
+
+/**
+ * Der Weg nach vorn. Wer eine Zuweisung zurücknimmt, um zu sehen, wie es ohne
+ * sie aussieht, soll sie nicht von Hand nachbauen müssen – sonst ist das
+ * Zurücknehmen teuer und wird gemieden, und genau damit auch das Ausprobieren.
+ */
+function redo() {
+    const entry = redoStack.pop();
+    if (!entry) return;
+    undoStack.push(entry);
+    applyEntry(entry, 'neu');
+    showToast('Änderung wiederhergestellt.', 'success');
 }

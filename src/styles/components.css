@@ -703,6 +703,17 @@
     color: var(--color-text);
 }
 .cockpit-kpi-card .kpi-subline { color: var(--color-text-muted); line-height: 1.25; }
+/* Die Grenze, ab der „ungleich verteilt" steht, ist eine Setzung – sie wird
+   leiser als die Kennzahl gezeigt, aber sie wird gezeigt. */
+.cockpit-kpi-card .kpi-convention {
+    margin-top: 4px;
+    padding-top: 4px;
+    border-top: 1px dashed var(--color-border);
+    color: var(--color-text-muted);
+    font-size: 0.72rem;
+    line-height: 1.25;
+    cursor: help;
+}
 .cockpit-kpi-scroll { max-height: 188px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-l); }
 
 .cockpit-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }

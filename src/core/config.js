@@ -118,6 +118,19 @@ export const CONFIG = {
         timeout: 10000
     },
 
+    // Gebietszuschnitt. `balancedMaxRatio` ist der Faktor zwischen größter und
+    // kleinster Einheit, bis zu dem eine Verteilung als ausgewogen gilt.
+    //
+    // Die Zahl ist eine **Konvention, keine Messung**: 1,5 ist der Zielwert des
+    // Ausgewogenheits-Assistenten (Roadmap 3.2), und darunter ist eine
+    // Ungleichverteilung im Vertrieb normal. Sie stand bis Version 3.1 an zwei
+    // Stellen unabhängig im Code (Cockpit-Fairness und Import-Hinweis) – zwei
+    // Quellen für dieselbe Norm, die früher oder später auseinanderlaufen,
+    // ohne dass es jemandem auffällt, weil beide für sich stimmen.
+    territory: {
+        balancedMaxRatio: 1.5
+    },
+
     tour: {
         defaultRadiusKm: 25,
         // Genug Vorschläge, damit ein größerer Umkreis auch spürbar mehr (und
