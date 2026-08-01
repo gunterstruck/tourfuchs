@@ -17,3 +17,40 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm test
+
+  # Warum diese eine Prüfstrecke in der CI läuft und die drei anderen nicht:
+  #
+  # `demo-check` und `touch-check` fahren zeitbasierte Vorführungen und Gesten
+  # durch. Auf einem geteilten Runner werden solche Läufe früher oder später
+  # unzuverlässig, und ein flackerndes Tor ist schlimmer als keines – deshalb
+  # bleiben sie ein gezielter Aufruf vor dem Release.
+  #
+  # `attention-check` zählt dagegen einen Zustand: Was steht im Bild? Die
+  # Antwort hängt nicht daran, wie schnell die Maschine ist, und der Lauf dauert
+  # rund eine Minute. Vor allem aber ist es die einzige der vier Strecken, deren
+  # Gegner **schleichendes** Anwachsen ist. Ein Tor, das nur vor einem Release
+  # gezogen wird, kommt dafür zu spät: Bis dahin sind die Ansichten längst voll,
+  # und niemand weiß mehr, welcher der zwanzig PRs sie gefüllt hat.
+  attention:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      # Playwright steht bewusst nicht in package.json – ein normales
+      # `npm install` soll keinen Browser-Download auslösen. Hier wird es
+      # deshalb zusätzlich und mit fester Version geholt: Ein stiller Sprung auf
+      # eine neue Hauptversion würde das Tor verändern, ohne dass es jemand
+      # entschieden hat.
+      - run: npm i --no-save playwright@1.62.1
+      # Browser zwischenspeichern; ohne Treffer holt der nächste Schritt ihn.
+      - uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.62.1
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run attention-check
