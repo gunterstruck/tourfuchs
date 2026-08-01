@@ -44,6 +44,7 @@ let groupScope = '';           // Vertriebsgruppe-Fokus im Cockpit
 let simulationMapActive = false;
 let simulationMapMode = 'changes';
 let undoStack = [];
+let redoStack = [];
 let simulationLevel = 'kreise';
 let membershipLoadSequence = 0;
 let membershipLoading = false;
@@ -125,6 +126,7 @@ function resetSimulationState() {
     pendingTerr = new Map();
     opsLog = [];
     undoStack = [];
+    redoStack = [];
     selected = new Set();
     const selectAll = document.getElementById('sim-select-all');
     if (selectAll) selectAll.checked = false;
@@ -141,16 +143,36 @@ function snapshotSimulation() {
     };
 }
 
-function undoSimulationStep() {
-    const previous = undoStack.pop();
-    if (!previous) return;
-    overrides = previous.overrides;
-    pendingTerr = previous.pendingTerr;
-    opsLog = previous.opsLog;
+function restoreSimulation(snapshot) {
+    overrides = snapshot.overrides;
+    pendingTerr = snapshot.pendingTerr;
+    opsLog = snapshot.opsLog;
     selected = new Set();
     document.getElementById('sim-select-all').checked = false;
     renderAll();
+}
+
+function undoSimulationStep() {
+    const previous = undoStack.pop();
+    if (!previous) return;
+    redoStack.push(snapshotSimulation());
+    restoreSimulation(previous);
     showToast('Letzten Simulationsschritt zurückgenommen.', 'info');
+}
+
+/**
+ * Der Weg nach vorn. Ein Werkzeug, das zum Ausprobieren einlädt, aber nur
+ * zurückgehen kann, bestraft genau das Verhalten, das es fördern will: Wer
+ * einen Schritt zurücknimmt und merkt, dass er doch richtig war, muss ihn von
+ * Hand nachbauen. Der Stapel hält nur, solange nichts Neues zugewiesen wird –
+ * ein neuer Schritt macht die zurückgenommene Zukunft ungültig.
+ */
+function redoSimulationStep() {
+    const next = redoStack.pop();
+    if (!next) return;
+    undoStack.push(snapshotSimulation());
+    restoreSimulation(next);
+    showToast('Simulationsschritt wiederhergestellt.', 'info');
 }
 
 function simulationTotals() {
@@ -242,6 +264,7 @@ export function initCockpit() {
     });
     document.getElementById('sim-apply').addEventListener('click', assignSelected);
     document.getElementById('sim-undo').addEventListener('click', undoSimulationStep);
+    document.getElementById('sim-redo').addEventListener('click', redoSimulationStep);
     document.getElementById('sim-reset').addEventListener('click', resetSimulation);
     document.getElementById('sim-commit').addEventListener('click', commitSimulation);
     document.getElementById('simulation-map-edit').addEventListener('click', editSimulation);
@@ -581,7 +604,13 @@ function renderTable() {
 /**
  * Fairness-Kennzahl: wie ausgewogen sind Kunden und Umsatz über die Einheiten
  * (Vertriebsbezirk bzw. Gruppe) verteilt? Zeigt jeweils größte/kleinste Einheit und
- * den Faktor dazwischen; „ausgewogen" bis Faktor 1,5.
+ * den Faktor dazwischen.
+ *
+ * Die Grenze kommt aus `CONFIG.territory.balancedMaxRatio` und wird im UI
+ * ausdrücklich als **Setzung** ausgewiesen. Ohne diesen Satz liest sich
+ * „Ungleich verteilt" wie ein Messergebnis – dabei ist es eine Konvention, die
+ * jemand gewählt hat und über die man streiten darf. Wer die Herkunft der
+ * Grenze kennt, kann ihr widersprechen; wer sie für eine Messung hält, nicht.
  */
 function renderFairness(sim, allKeys) {
     const summaryEl = document.getElementById('cockpit-summary');
@@ -593,7 +622,14 @@ function renderFairness(sim, allKeys) {
     const byCount = [...units].sort((a, b) => a.count - b.count);
     const cMin = byCount[0], cMax = byCount[byCount.length - 1];
     const cRatio = cMax.count / Math.max(1, cMin.count);
-    const balanced = cRatio <= 1.5;
+    const maxRatio = CONFIG.territory.balancedMaxRatio;
+    const balanced = cRatio <= maxRatio;
+    const ratioText = String(maxRatio).replace('.', ',');
+    const conventionNote = `Ausgewogen bis Faktor ${ratioText} – gesetzte Konvention, keine Messung.`;
+    const conventionTitle = `Die Grenze von ${ratioText} ist der Zielwert des Ausgewogenheits-Assistenten `
+        + 'und keine branchenübliche Kennzahl. Darunter gilt eine Ungleichverteilung als normal. '
+        + 'Wer anders zuschneidet, darf die Grenze anders setzen: sie steht an einer Stelle '
+        + 'im Code (core/config.js) und gilt zugleich für den Hinweis nach dem Import.';
 
     let top = cMax;
     let weak = cMin;
@@ -615,6 +651,7 @@ function renderFairness(sim, allKeys) {
             <span class="kpi-label">Status</span>
             <b class="kpi-value">${balanced ? 'Ausgewogen' : 'Ungleich verteilt'}</b>
             <small class="kpi-subline">Kunden-Faktor ${cRatio.toFixed(1)}× über ${units.length} ${escapeHtml(attrLabel(assignAttr))}</small>
+            <small class="kpi-convention" title="${escapeHtml(conventionTitle)}">${escapeHtml(conventionNote)}</small>
         </div>
         <div class="cockpit-kpi-card">
             <span class="kpi-icon">↑</span>
@@ -751,6 +788,8 @@ function assignSelected() {
 
     undoStack.push(snapshotSimulation());
     if (undoStack.length > 30) undoStack.shift();
+    // Ein neuer Schritt macht die zurückgenommene Zukunft ungültig.
+    redoStack = [];
 
     let moved = 0;
     let movedRevenue = 0;
@@ -809,6 +848,7 @@ function resetSimulation() {
     pendingTerr = new Map();
     opsLog = [];
     undoStack = [];
+    redoStack = [];
     selected = new Set();
     document.getElementById('sim-select-all').checked = false;
     renderAll();
@@ -819,6 +859,7 @@ function renderChanges() {
     const nothing = overrides.size === 0 && pendingTerr.size === 0;
     document.getElementById('sim-commit').disabled = nothing;
     document.getElementById('sim-undo').disabled = undoStack.length === 0;
+    document.getElementById('sim-redo').disabled = redoStack.length === 0;
     const mapButton = document.getElementById('cockpit-to-map');
     mapButton.textContent = nothing ? 'Zur Karte' : 'Simulation auf Karte prüfen';
     mapButton.classList.toggle('simulation-ready', !nothing);

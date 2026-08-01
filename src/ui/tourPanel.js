@@ -23,7 +23,7 @@ import { loadTours, saveTours } from '../services/storage.js';
 import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } from '../services/routing.js';
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
-import { proposeServiceDay } from '../features/serviceDayPlanner.js';
+import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.js';
 import { serviceVisitWindow } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
 import { showMapView } from './sidebar.js';
@@ -494,6 +494,7 @@ function renderServiceDayPreview() {
     ];
     target.innerHTML = `<div class="service-day-preview-card">
         <div class="service-day-preview-summary"><b>${entries.length} Stopps · ca. ${Math.round(result.metrics.totalKm)} km</b><span>Rückkehr ${escapeHtml(formatPlanTime(result.metrics.finishAt))} · ${Math.round(result.metrics.utilizationPct || 0)} % Auslastung</span></div>
+        <p class="service-day-tradeoff">${escapeHtml(tradeoffLine(entries.length, omittedRows.map((item) => item.reason)))}</p>
         <div class="service-day-preview-list">${rows}</div>
         ${omitted ? `<details class="service-day-unscheduled"><summary>${omitted} Einsatz${omitted === 1 ? '' : 'sätze'} nicht eingeplant · Gründe anzeigen</summary><ul>${omittedRows.slice(0, 12).map((item) => `<li><b>${escapeHtml(item.label)}:</b> ${escapeHtml(item.reason)}</li>`).join('')}</ul></details>` : ''}
         <button type="button" id="btn-service-day-accept" class="primary">Vorschlag als Tour übernehmen</button>
