@@ -13,11 +13,13 @@
  * keine Nachricht. Wer alles meldet, meldet nichts.
  */
 
+import { CONFIG } from '../core/config.js';
 import { visitStatus } from './visits.js';
 
 // Unterhalb dieses Faktors ist eine Ungleichverteilung normal und keine Meldung
-// wert. 1,5 ist zugleich der Zielwert des Ausgewogenheits-Assistenten.
-const IMBALANCE_THRESHOLD = 1.5;
+// wert. Dieselbe Schwelle wie die Fairness-Karte im Gebiets-Cockpit – eine
+// Norm, eine Quelle (core/config.js).
+const IMBALANCE_THRESHOLD = CONFIG.territory.balancedMaxRatio;
 
 function text(value) {
     return String(value ?? '').trim();

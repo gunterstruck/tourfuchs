@@ -111,6 +111,89 @@ Website mit Offline-Cache, nicht eine App, die im System verankert ist.
 | 5.6 | **Feierabend-Rückblick** | ✅ umgesetzt | Der Tag in Zahlen: Besuche, geschätzte Strecke, abgearbeitete Überfällige, offen Gebliebenes – als Text kopierbar. Schließt die eigentliche Lücke hinter 2.4: Erfasst wurde schon, zurückgemeldet nichts. |
 | 5.5 | **Änderungsbericht beim Reimport** | ✅ umgesetzt | „Was ändert sich?" mit neu/entfallen/Bezirkswechsel, Summen und Wirkung je Bezirk – und übernimmt zugleich die Bestätigung. Macht aus der monatlichen Pflichtübung den Grund, die App regelmäßig zu öffnen. |
 
+### Release 6 – „Defekte und Messgeräte" *(01.08.2026 umgesetzt, App 3.1.0)*
+
+Anlass war eine externe Produktanalyse. Vier ihrer sechs Vorschläge waren
+richtig, einer war **bereits gebaut** (nur in der Wissensbasis falsch
+beschrieben), einer unterschätzte den Ist-Stand. Dieses Release enthält
+ausdrücklich **kein neues Produktversprechen** – es beseitigt Defekte und baut
+ein Messgerät.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 6.1 | **Wissensbasis 5.5 richtiggestellt** | ✅ umgesetzt | Kapitel 5.5 beschrieb „Erste Schritte" Punkt 1 und 4 falsch. Der Guide erteilte damit nachweislich falsche Auskunft an echte Nutzer. Kein Produkteingriff. |
+| 6.2 | **Eine Quelle für die Fairness-Schwelle** | ✅ umgesetzt | 1,5 stand doppelt hartcodiert (`cockpit.js`, `importInsight.js`) und steht jetzt in `CONFIG.territory.balancedMaxRatio`. |
+| 6.3 | **Fairness-Schwelle als Setzung ausgewiesen** | ✅ umgesetzt | Die Status-Karte nennt Grenze und Herkunft: „Ausgewogen bis Faktor 1,5 – gesetzte Konvention, keine Messung." Wer weiß, dass jemand die Grenze gewählt hat, kann ihr widersprechen. |
+| 6.4 | **„Wieder vor" (Redo)** | ✅ umgesetzt | Simulation und Gebiets-Editor hatten 30 Schritte zurück und keinen nach vorn. Eine neue Zuweisung verwirft die zurückgenommene Zukunft. |
+| 6.5 | **Verzichtszeile im Service-Tagesvorschlag** | ✅ umgesetzt | Der Vorschlag nennt in einem Satz, was er maximiert und was er dafür liegen lässt. Kein neuer Rechenweg – die Gründe liefert der Planer ohnehin; neu ist, dass der Preis **neben** dem Gewinn steht statt eingeklappt darunter. |
+| 6.6 | **Tageslog** | ✅ umgesetzt | Sechs Zahlen je Tag, **keine Kunden-IDs**, `localStorage`. Aufgezeichnet wird bei jeder Tour-/Besuchsänderung, nicht beim Öffnen des Rückblicks – sonst entstünde genau die Stichprobe, die hinterher jede Behauptung bestätigt. |
+| 6.7 | **Doku-Tor im Test** | ✅ umgesetzt | `tests/docsConsistency.test.js`: sichtbare Beschriftungen und normative Konstanten müssen wörtlich in der Wissensbasis stehen. Schließt die Lücke, durch die 6.1 überhaupt entstehen konnte – `demo-check` und `touch-check` lesen keinen Text. |
+
+#### Das Tor für „drei Tage zur Wahl" (B3)
+
+Der einzige Vorschlag der Analyse mit echtem Produktrisiko: morgens drei
+Tagesvarianten mit unterschiedlicher Zielfunktion statt einer Tour, die man
+baut. Er ist **nicht gebaut und nicht im Backlog** – er steht an einem Tor.
+
+Der Grund für die Härte: B3 will genau die Funktion wiederbeleben, die als
+**Item 2.1 am 10.07.2026 nach Nutzerfeedback gestrichen** wurde. Ein
+zurückkehrender Vorschlag braucht ein Kriterium, an dem er ein zweites Mal
+scheitern kann – sonst ist „zurückgestellt" nur ein längeres Wort für
+„unsterblich".
+
+Beide Abbruchbedingungen sind **vor** der Auswertung festgeschrieben (Details
+und Kennzahlen in Kapitel 26.3 der Wissensbasis):
+
+1. **Zu wenig Signal:** weniger als 15 Tage mit Besuch bis zum **15.09.2026**
+   → tot, ohne Auswertung.
+2. **Die Tage gleichen einander:** kaum Streuung in `ueberfaelligAnteil` und
+   `kmProStopp` → tot.
+
+Ehrliche Einordnung: Bei einem Nutzer ist n = 1, daraus folgt nichts
+Signifikantes. Der Wert des Kriteriums liegt in der **Selbstbindung gegen
+nachträgliches Rechthaben** – ohne vorher notierte Zahl wird jede Datenlage
+hinterher so gelesen, dass sie die Lieblingsvariante stützt.
+
+Stirbt B3 am Tor, gehört es auf die Liste „Was wir weggelassen haben" (6.9).
+
+#### Basislinie `state.ui.depth` (Stand 01.08.2026)
+
+Basis/Profi ist die teuerste Verzweigung im Produkt: Sie multipliziert UI-Pfade
+und nimmt vorweg, wer der Nutzer ist. Sie wird **nicht entfernt** – das wäre ein
+Quartalsprojekt mit Regressionsrisiko, nach dem niemand gefragt hat. Sie wird
+eingefroren:
+
+> **Regel ab sofort:** Kein neues Feature führt eine weitere `depth`-Verzweigung
+> ein. Wer eine braucht, begründet sie im PR.
+
+Damit die Regel überprüfbar ist statt geglaubt, hier der Ausgangswert:
+
+| Maß | Wert am 01.08.2026 |
+|---|---|
+| Verzweigungen (Vergleich gegen `'profi'`/`'basis'`) | **24** |
+| Lesezugriffe auf `state.ui.depth` | **27** |
+| Dateien mit `depth`-Bezug | **12** |
+
+Reproduzierbar mit:
+`grep -rn "depth[^a-zA-Z]*===\s*'\(profi\|basis\)'\|depth[^a-zA-Z]*!==\s*'\(profi\|basis\)'" src/ --include=*.js | wc -l`
+
+Nächste Zählung: 01.02.2027. Eine Regel, die nichts verbietet, das man später
+nachweisen könnte, hat Fitness null.
+
+### Sprint 2 – festgelegt, noch nicht gebaut
+
+| # | Item | Warum genau so |
+|---|---|---|
+| 6.8 | **Benannte Simulations-Szenarien** (= 3.3) | `snapshotSimulation()` erzeugt das Szenario-Tripel bereits 30-mal pro Sitzung für den Undo-Stack und wirft es weg. Ein benanntes Szenario ist ein Snapshot mit Namen. Der Objektstore ist schemalos – keine Migration. |
+| 6.9 | **„Was wir weggelassen haben"** | Statische Seite aus vorhandenem Material. **Bedingung: Item 2.1 muss darin stehen.** Eine Liste, die nur die Tode zeigt, auf die man stolz ist, ist Marketing. Stirbt B3 am Tor, kommt B3 dazu. |
+| 6.10 | **Channel-Legacy-Pfad entfernen** | Eine Hilfshypothese: existiert nur, um Altbestände zu halten, verteuert jede Änderung an `assignableDims`/`targetValues`/`attrLabel`. **Nicht nebenbei:** einziger Punkt der Liste, der Nutzerdaten irreversibel anfasst – erst Export-Empfehlung, dann Migration, dann Eintrag in Kapitel 26. Die App-eigene Regel gilt auch für uns. |
+
+**Sprint 3, bedingt:** Briefing-Zuschnitte **und** Rückkanal – als Paket oder gar
+nicht. Zwei Prompt-Varianten ohne Rückmeldesignal sind kein Experiment, sondern
+ein Einstellungsschalter; erst beides zusammen ist eine vollständige Schleife.
+Bedingt, weil keine zweite Lernschleife startet, bevor 6.6 gezeigt hat, dass aus
+lokalen Signalen etwas Lesbares wird.
+
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
@@ -153,6 +236,13 @@ Ab Release 1 gilt für jeden PR:
 3. Jede neue externe Netzwerkverbindung wird im selben PR in `datenschutz.html`
    und README offengelegt – sonst kein Merge.
 4. Mobile-Check (schmaler Viewport) gehört zur Prüfung jedes UI-PRs.
+5. **Sichtbare Beschriftungen und normative Konstanten stehen in der
+   Wissensbasis** – abgesichert durch `tests/docsConsistency.test.js`. Wer ein
+   Label oder eine Schwelle ändert, zieht `docs/guide-ki-wissensbasis.md` im
+   selben PR nach. Anlass: Kapitel 5.5 war über mehrere Releases still falsch,
+   und keine der beiden Playwright-Strecken liest Text.
+6. **Keine neue `depth`-Verzweigung** ohne Begründung im PR (siehe Basislinie
+   in Release 6).
 
 ---
 

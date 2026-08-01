@@ -136,6 +136,18 @@
 .service-day-preview-card { display: grid; gap: 8px; margin-top: 8px; padding-top: 9px; border-top: 1px solid #ccfbf1; }
 .service-day-preview-summary { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
 .service-day-preview-summary span { color: var(--color-text-muted); font-size: 0.7rem; }
+/* Gewinn und Preis stehen nebeneinander: die Zeile bleibt ungefaltet und wird
+   nicht kleiner gesetzt als die Kennzahlen darüber. */
+.service-day-tradeoff {
+    margin: 6px 0 0;
+    padding: 6px 8px;
+    border-left: 3px solid var(--color-border);
+    background: var(--color-surface-muted, rgba(148, 163, 184, 0.12));
+    border-radius: 0 var(--radius-s, 6px) var(--radius-s, 6px) 0;
+    color: var(--color-text);
+    font-size: 0.78rem;
+    line-height: 1.35;
+}
 .service-day-preview-list { display: grid; gap: 6px; }
 .service-day-preview-stop { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; padding: 7px; border-radius: var(--radius-m); background: #fff; }
 .service-day-preview-stop > b { color: var(--color-primary-dark); font-variant-numeric: tabular-nums; }

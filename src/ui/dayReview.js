@@ -10,6 +10,7 @@
  */
 import { state, on } from '../core/state.js';
 import { dayReview, dayReviewHeadline, dayReviewText } from '../features/dayReview.js';
+import { clearDayLog, recordDayReview } from '../features/dayLog.js';
 import { formatDateDe, agoText } from '../features/visits.js';
 import { formatRevenueFull, formatRevenueShort } from '../core/format.js';
 import { copyText } from '../features/handoff.js';
@@ -99,6 +100,11 @@ function syncButton() {
     const button = document.getElementById('btn-day-review');
     if (!button) return;
     const review = dayReview({ customers: state.customers, tour: state.tour });
+    // Hier festhalten, nicht erst beim Öffnen des Rückblicks: Wer den Rückblick
+    // nur an guten Tagen aufmacht, hinterlässt sonst genau die Stichprobe, die
+    // hinterher jede Behauptung bestätigt. Aufgezeichnet wird der Tag, nicht
+    // das Interesse an ihm.
+    recordDayReview(review);
     button.hidden = !review.hasAnything;
     button.textContent = review.visitedCount
         ? `🌙 Feierabend (${review.visitedCount})`
@@ -124,4 +130,7 @@ export function initDayReview() {
     on('tour:changed', syncButton);
     on('customers:changed', syncButton);
     on('visits:changed', syncButton);
+    // „Daten löschen" ist ein Neustart – wie beim Erste-Schritte-Fortschritt
+    // gehört auch die Tageshistorie zum Bestand, der dabei verschwindet.
+    on('dataset:cleared', clearDayLog);
 }
