@@ -235,20 +235,53 @@ async function startPreview(port) {
     throw new Error('Vorschau-Server ist nicht gestartet. Vorher `npm run build` ausführen?');
 }
 
-/** Auf einen sichtbaren Schalter klicken; fehlt er, war der Zustand nicht erreichbar. */
-async function klicke(page, selektor) {
-    const treffer = page.locator(selektor).first();
-    if (await treffer.count() === 0) return false;
-    if (!await treffer.isVisible()) return false;
+/**
+ * Auf einen sichtbaren Schalter klicken; fehlt er, war der Zustand nicht
+ * erreichbar.
+ *
+ * Zwei Anläufe, weil ein Wechsel von Tiefe oder Modus die Reiterleiste neu
+ * aufbaut: Wer in genau diesem Moment klickt, trifft ein Element, das gerade
+ * ersetzt wird. Das ist kein Befund über die Oberfläche, sondern ein Rennen mit
+ * ihr – und es hat genau einmal zugeschlagen, als es zufällig auffiel.
+ */
+async function klicke(page, selektor, anlaeufe = 2) {
+    for (let versuch = 1; versuch <= anlaeufe; versuch += 1) {
+        const treffer = page.locator(selektor).first();
+        if (await treffer.count() === 0) return false;
+        if (await treffer.isVisible()) {
+            try {
+                // Kurzer Anlauf statt der 30-Sekunden-Vorgabe: Verdeckt ein
+                // Overlay den Schalter, ist das ein Befund und keine Wartezeit.
+                await treffer.click({ timeout: 4000 });
+                await sleep(350);
+                return true;
+            } catch { /* gleich noch einmal */ }
+        }
+        if (versuch < anlaeufe) await sleep(500);
+    }
+    return false;
+}
+
+/**
+ * Einen Reiter öffnen und das **Ergebnis** abwarten, nicht den Klick.
+ *
+ * „Geklickt" ist die schwächere Aussage: Der Klick kann durchgehen, während die
+ * Leiste noch umbaut, und gemessen würde dann der vorige Reiter – oder gar
+ * keiner. Erst „dieses Panel ist aktiv" ist der Zustand, den die Messung
+ * braucht.
+ */
+async function oeffneReiter(page, reiter) {
+    if (!await klicke(page, `.tab-button[data-tab="${reiter}"]`)) return false;
     try {
-        // Kurzer Anlauf statt der 30-Sekunden-Vorgabe: Verdeckt ein Overlay den
-        // Schalter, ist das ein Befund und keine Wartezeit.
-        await treffer.click({ timeout: 4000 });
+        await page.waitForFunction(
+            (id) => document.querySelector('#sidebar .tab-panel.active')?.id === `tab-${id}`,
+            reiter,
+            { timeout: 5000 }
+        );
+        return true;
     } catch {
         return false;
     }
-    await sleep(350);
-    return true;
 }
 
 async function offeneReiter(page) {
@@ -318,7 +351,7 @@ async function inspect(browser, format, baseUrl) {
         for (const modus of modi) {
             if (modus && !await klicke(page, `.mode-btn[data-mode="${modus}"]`)) continue;
             for (const reiter of await offeneReiter(page)) {
-                if (!await klicke(page, `.tab-button[data-tab="${reiter}"]`)) continue;
+                if (!await oeffneReiter(page, reiter)) continue;
                 const wert = await page.evaluate(PROBE);
                 if (rahmen === null) rahmen = wert.rahmen;
                 messungen.push({ tiefe, modus, ...wert });
@@ -331,7 +364,7 @@ async function inspect(browser, format, baseUrl) {
     let vertiefung = null;
     await klicke(page, '[data-depth="basis"]');
     if (!format.touch) await klicke(page, '.mode-btn[data-mode="aussendienst"]');
-    if (await klicke(page, '.tab-button[data-tab="tour"]')) {
+    if (await oeffneReiter(page, 'tour')) {
         const uebersicht = await page.evaluate(PROBE);
         const getippt = await klicke(page, '#tab-tour .tour-acc[data-acc="start"] .acc-head');
         const fokus = getippt ? await page.evaluate(PROBE) : null;
