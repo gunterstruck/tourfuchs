@@ -59,7 +59,6 @@ function render(selection, areaLabel) {
         <div class="briefing-state briefing-manual">
             <span class="briefing-kicker">Direkt nutzbar</span>
             <h3>Wen zuerst besuchen?</h3>
-            <p>TourFuchs hat aus den Kunden in diesem Gebiet einen Prompt erstellt. Mit dem nächsten Schritt wird er kopiert und ${escapeHtml(currentAssistant.label)} geöffnet – dort einfügen und selbst absenden.</p>
             ${truncated ? `<p class="area-truncated">Der Prompt enthält die ${AREA_BRIEFING_LIMIT} nächstgelegenen Kunden. Eine längere Liste macht das Briefing nicht besser, nur unschärfer.</p>` : ''}
             <details class="area-customers">
                 <summary>Diese Kunden stehen im Prompt <span class="muted small">(${included.length})</span></summary>
@@ -67,14 +66,20 @@ function render(selection, areaLabel) {
             </details>
             <p class="briefing-manual-note"><b>Nicht enthalten:</b> Umsatz, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn Sie den Prompt absenden.</p>
             ${briefingSourcesHtml()}
-            <div class="briefing-prompt-visible">
-                <span>Vorbereiteter Prompt</span>
+            <details class="briefing-prompt-visible">
+                <summary><b>🔍 Vollständigen Prompt ansehen</b><span></span></summary>
                 <pre></pre>
-            </div>
+            </details>
         </div>`;
     const fillPrompt = () => {
-        const pre = body.querySelector('.briefing-prompt-visible pre');
+        const block = body.querySelector('.briefing-prompt-visible');
+        const pre = block?.querySelector('pre');
         if (pre) pre.textContent = currentPrompt;
+        const note = block?.querySelector('summary span');
+        if (note) {
+            const lines = String(currentPrompt || '').split('\n').length;
+            note.textContent = `${lines} Zeilen · geht erst raus, wenn Sie ihn im Assistenten absenden`;
+        }
     };
     fillPrompt();
     // Dasselbe Fragment wie im Kundenbriefing, derselbe gespeicherte Zustand –
