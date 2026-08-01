@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.7 · Stand: 01.08.2026 · App-Version: 3.0.0**
+**Version 2.8 · Stand: 01.08.2026 · App-Version: 3.1.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -505,13 +505,27 @@ erreichbar.
 Nach dem ersten Datenbestand (Demo oder eigene Liste) erscheint oben in der
 Sidebar die Karte **"Erste Schritte"** mit vier Punkten:
 
-1. **Kunden auf der Karte sehen** (durch das Laden bereits erledigt)
-2. **Erste Tour planen**
-3. **Tour aufs Handy holen** (QR-Übergabe)
-4. **Eigene Excel-Liste laden** (hakt sich nur bei Nicht-Demo-Daten ab)
+1. **Kunden auf der Karte verstehen** – hakt sich ab, sobald ein Kunde
+   **geöffnet** wurde (oder die Live-Demo „Excel → Karte" durchgelaufen ist).
+   Ausdrücklich **nicht** durch das bloße Laden der Daten.
+2. **Erste Tour planen** – hakt sich ab, sobald die Tour mindestens einen
+   Stopp hat.
+3. **Tour aufs Handy holen** (QR-Übergabe) – auf dem Smartphone stattdessen
+   **Daten aufs Handy holen** (Empfang per Datei + Schlüssel-QR).
+4. **Daten im Tresor sichern**
+
+Jeder Punkt startet zugleich die passende Live-Demo; eine durchgelaufene Demo
+hakt ihren Punkt ebenfalls ab.
 
 Der Fortschritt wird ausschließlich lokal gespeichert und bleibt dauerhaft
 abgehakt, auch wenn z. B. die Tour später wieder geleert wird.
+
+> **Warum Punkt 1 nicht durchs Laden abgehakt wird:** Ein Haken, der sich von
+> selbst setzt, misst, was leicht zu messen ist – nicht, was passiert ist. „Die
+> Karte hat geladen" ist kein Schritt des Nutzers. Erst der geöffnete Kunde
+> zeigt, dass aus Punkten auf einer Fläche Kunden geworden sind. Bis
+> Version 3.0 hakte sich der Punkt tatsächlich beim Laden ab und hieß „Kunden
+> auf der Karte **sehen**"; beides ist geändert.
 
 Die Karte kennt **drei Zustände**:
 
@@ -1768,6 +1782,22 @@ aufzoomen).
 **Fairness:** bis zu einem Kunden-Faktor von 1,5 gilt die Verteilung als
 ausgewogen; darüber als ungleich verteilt.
 
+Die Status-Karte weist diese Grenze seit Version 3.1 ausdrücklich als
+**Setzung** aus: *„Ausgewogen bis Faktor 1,5 – gesetzte Konvention, keine
+Messung."* Der Tooltip nennt die Herkunft (Zielwert des
+Ausgewogenheits-Assistenten, Roadmap 3.2) und den Ort, an dem sie steht.
+
+Das ist kein Schmuck. Ohne diesen Satz liest sich „Ungleich verteilt" wie ein
+Messergebnis, dem man nur zustimmen kann. Wer weiß, dass jemand die Grenze
+gewählt hat, kann ihr widersprechen. **Antwortregel:** Wird nach der Herkunft
+der 1,5 gefragt, ist die richtige Antwort „eine gewählte Konvention", nicht
+„ein Branchenwert".
+
+Die Schwelle steht an **einer** Stelle (`CONFIG.territory.balancedMaxRatio` in
+`src/core/config.js`) und gilt zugleich für den Ausgewogenheits-Hinweis nach
+dem Import (Kapitel 11). Bis Version 3.0 war sie an beiden Stellen unabhängig
+hartcodiert – zwei Quellen für dieselbe Norm.
+
 ### 13.5 Was-wäre-wenn-Simulation
 
 **Klickpfad:** Cockpit -> Abschnitt **"Was-wäre-wenn: Gebiete zuweisen"**
@@ -2792,7 +2822,65 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 2.7
+### 26.3 Änderungen in Version 2.8
+
+- **"Erste Schritte", Punkt 1 richtiggestellt (Dokumentationsfehler).** Der Punkt
+  heißt im Code seit Längerem **"Kunden auf der Karte verstehen"** und hakt sich
+  erst ab, wenn ein Kunde **geöffnet** wurde. Punkt 4 ist **"Daten im Tresor
+  sichern"**, nicht "Eigene Excel-Liste laden". Kapitel 5.5 beschrieb bis
+  Version 2.7 beides falsch – der Guide erteilte also nachweislich falsche
+  Auskunft. Am Produkt wurde dafür nichts geändert.
+- **Die Fairness-Schwelle hat eine Quelle und einen sichtbaren Ursprung.** 1,5
+  stand an zwei Stellen unabhängig im Code; sie steht jetzt in
+  `CONFIG.territory.balancedMaxRatio`. Die Status-Karte im Cockpit weist sie als
+  **Konvention, keine Messung** aus (siehe 13.4).
+- **"Wieder vor" (Redo)** in der Was-wäre-wenn-Simulation und im Gebiets-Editor.
+  Es gab 30 Schritte zurück und keinen nach vorn. Ein Werkzeug, das zum
+  Ausprobieren einlädt, machte das Zurücknehmen teuer – und damit auch das
+  Ausprobieren. Eine neue Zuweisung verwirft die zurückgenommene Zukunft.
+- **Verzichtszeile im Service-Tagesvorschlag.** Der Vorschlag nennt jetzt in
+  einem Satz, was er maximiert und was er dafür liegen lässt
+  (*„Dringlichkeit zuerst, dann kurzer Weg: 8 Stopps – dafür bleiben 3 Einsätze
+  liegen (2× dringendere Einsätze haben Vorrang, 1× Qualifikation fehlt)."*).
+  Kein neuer Rechenweg: Die Gründe liefert der Planer ohnehin je Einsatz. Neu
+  ist nur, dass der Preis **neben** dem Gewinn steht statt eingeklappt darunter.
+- **Tageslog (`tf_tageslog`).** Der Feierabend-Rückblick rechnet den Tag bereits
+  aus und vergaß ihn um Mitternacht. Er wird jetzt festgehalten: sechs Zahlen je
+  Tag (Datum, Besuche, geplant, spontan, Überfällige, km), **keine Kunden-IDs**.
+  Er wird bei jeder Tour- oder Besuchsänderung geschrieben, nicht erst beim
+  Öffnen des Rückblicks – wer den Rückblick nur an guten Tagen aufmacht, hätte
+  sonst genau die Stichprobe hinterlassen, die hinterher jede Behauptung
+  bestätigt. **"Daten löschen"** leert ihn mit.
+
+#### Das Tor für den Vorschlag "drei Tage zur Wahl" (B3)
+
+Ein Vorschlag aus der Produktdiskussion: Statt einer Tour, die man baut, morgens
+drei vollständige Tagesvarianten mit unterschiedlicher Zielfunktion, unter denen
+man wählt. Er ist **nicht gebaut** und steht **nicht im Backlog** – er steht an
+einem Tor mit zwei Abbruchbedingungen, beide vor der Auswertung festgeschrieben:
+
+1. **Zu wenig Signal.** Liegen am **15.09.2026** weniger als **15 Tage** mit
+   mindestens einem Besuch im Tageslog vor, ist B3 tot – ohne Auswertung.
+   Begründung für diesen Abschnitt: *„Kein Nutzungssignal, an dem der Vorschlag
+   hätte scheitern können."*
+2. **Die Tage gleichen einander.** Streuen `ueberfaelligAnteil` und
+   `kmProStopp` über die aufgezeichneten Tage kaum, dann hat jeder Tag denselben
+   Zuschnitt, drei Varianten wären Rauschen, und B3 ist tot.
+
+B3 lebt nur, wenn die Tage zwischen Archetypen springen – dann existiert die
+Wahl bereits im Kopf des Nutzers und wird nur nirgends angeboten. Die Zahlen
+liefert `dayLogStats()` in `src/features/dayLog.js`.
+
+**Warum das hier steht und nicht in einem Ticket:** B3 will genau die Funktion
+wiederbeleben, die als Roadmap-Item 2.1 am 10.07.2026 nach Nutzerfeedback
+**gestrichen** wurde ("die Tour plant der Nutzer manuell"). Ein zurückkehrender
+Vorschlag braucht ein Kriterium, an dem er ein zweites Mal scheitern kann –
+sonst ist "zurückgestellt" nur ein längeres Wort für "unsterblich".
+Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
+
+**Wenn das Tor B3 tötet, gehört B3 auf die Liste "Was wir weggelassen haben".**
+
+### 26.4 Änderungen in Version 2.7
 
 - **Briefing-Prompt startet zugeklappt.** In beiden Briefing-Dialogen (Kunde und
   Gebiet) steht der vollständige Prompt hinter „🔍 Vollständigen Prompt ansehen"
@@ -2814,7 +2902,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   veralteten Datenstand („Datenstand prüfen"), nicht nur Umfang und
   Zuordnungslücken.
 
-### 26.4 Änderungen in Version 2.5
+### 26.5 Änderungen in Version 2.5
 
 - **Durchgängiges Muster „Überblick → aufzoomen":** Grobe, mehrstufige Bereiche
   zeigen zuerst den Prozess/Überblick, Details kommen auf Abruf – wie das Zoomen
@@ -2851,7 +2939,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   sie neben der sichtbaren Karte. Die „Chancen"-Live-Demo überspringt die
   Einfärb-Schritte auf dem Handy.
 
-### 26.5 Änderungen in Version 2.4
+### 26.6 Änderungen in Version 2.4
 
 - **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
   Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
@@ -2890,7 +2978,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
   danach sauber wieder her.
 
-### 26.6 Änderungen in Version 2.3
+### 26.7 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -2934,7 +3022,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.7 Änderungen in Version 2.2
+### 26.8 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -2990,7 +3078,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.8 Änderungen in Version 2.1
+### 26.9 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -3003,7 +3091,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.9 Änderungen in Version 2.0
+### 26.10 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.

@@ -355,6 +355,43 @@ function reasonForJob(job, entry, context) {
  * Zeitfenster bedeuten: fruehester Arbeitsbeginn und spaetestes Arbeitsende.
  * Das SLA beeinflusst die Reihenfolge, ist aber keine harte Schranke.
  */
+/**
+ * Was dieser Tag maximiert – und was er dafür liegen lässt, in einem Satz.
+ *
+ * Der Planer ordnet nach Dringlichkeit, dann nach kurzem Weg
+ * (`businessUrgencyKey` vor Fahrzeit, siehe Scoring in `proposeServiceDay`).
+ * Das ist **eine** Zielfunktion unter mehreren denkbaren, und sie hat einen
+ * Preis: Einsätze, die nicht mehr in die Schicht passen.
+ *
+ * Bisher stand beides im Vorschlag, aber ungleich gewichtet – der Nutzen fett
+ * in der Kopfzeile, der Preis eingeklappt hinter „Gründe anzeigen". Ein
+ * Vorschlag, der seinen Gewinn zeigt und seinen Verzicht faltet, ist keine
+ * Entscheidungsgrundlage, sondern eine Empfehlung. Diese Zeile stellt beides
+ * nebeneinander.
+ *
+ * Kein neuer Rechenweg: Sie zählt nur die Gründe, die der Planer ohnehin je
+ * nicht eingeplantem Einsatz mitliefert.
+ *
+ * @param {number} scheduledCount  eingeplante Stopps
+ * @param {string[]} omittedReasons  ein lesbarer Grund je liegengebliebenem Einsatz
+ */
+export function tradeoffLine(scheduledCount, omittedReasons = []) {
+    const stops = Math.max(0, Math.round(Number(scheduledCount) || 0));
+    const gain = `Dringlichkeit zuerst, dann kurzer Weg: ${stops} Stopp${stops === 1 ? '' : 's'}`;
+    const reasons = omittedReasons.map((reason) => normalizeText(reason)).filter(Boolean);
+    if (!reasons.length) return `${gain} – nichts bleibt liegen.`;
+
+    const byReason = new Map();
+    for (const reason of reasons) byReason.set(reason, (byReason.get(reason) ?? 0) + 1);
+    const top = [...byReason.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'de'))
+        .slice(0, 2)
+        .map(([reason, count]) => `${count}× ${reason}`);
+    const rest = byReason.size > 2 ? ', weitere Gründe unten' : '';
+    const left = reasons.length === 1 ? 'bleibt 1 Einsatz' : `bleiben ${reasons.length} Einsätze`;
+    return `${gain} – dafür ${left} liegen (${top.join(', ')}${rest}).`;
+}
+
 export function proposeServiceDay({
     jobs = [],
     start,
