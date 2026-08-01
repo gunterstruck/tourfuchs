@@ -30,9 +30,11 @@ describe('Schwebender „nächster Schritt"-Fuchs (Desktop + mobil)', () => {
     it('erscheint jetzt auch auf dem Desktop (kein pauschales Ausblenden mehr)', () => {
         // Der frühere Hard-Hide ab 769px ist entfernt; die Platzierung unten
         // mittig über der Karte liefert die gemeinsame Knopfzeile.
-        expect(css).not.toContain('@media (min-width: 769px) {\n    .mobile-next-step { display: none !important; }');
-        expect(css).toContain('@media (min-width: 769px)');
-        const desktopBlock = css.slice(css.indexOf('@media (min-width: 769px)'));
+        // Nur der pauschale Hard-Hide ist weg – die Demo-Ausnahme
+        // (body.sc-running) blendet weiterhin aus und muss bleiben.
+        expect(css).not.toContain('\n    .mobile-next-step { display: none !important; }');
+        expect(css).toContain('(min-width: 769px) and (orientation: landscape)');
+        const desktopBlock = css.slice(css.indexOf('@media (min-width: 1201px)'));
         expect(desktopBlock).toContain('.mobile-next-step {');
         expect(components).toContain('.map-fab-row {');
         expect(components).toContain('position: fixed');

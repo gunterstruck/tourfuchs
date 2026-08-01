@@ -5,6 +5,7 @@
 
 import { state, on } from '../core/state.js';
 import { showDataView } from './sidebar.js';
+import { phoneFaceQuery } from '../core/viewport.js';
 
 const PARAM = 'mobilePreview';
 const FOCUS_PARAM = 'mobileFocus';
@@ -68,7 +69,16 @@ export function initMobilePreview() {
     const hint = document.getElementById('mobile-preview-hint');
     if (!btn || !overlay || !iframe || !hint) return;
 
-    const desktopQuery = window.matchMedia('(min-width: 901px)');
+    // Die Handy-Vorschau ist ein Schreibtisch-Werkzeug: Sie zeigt, wie die App
+    // auf dem Handy aussieht. Im Touransicht-Gesicht ist sie sinnlos.
+    const phoneFace = phoneFaceQuery();
+    // Negiert wird über `.matches`, nicht über die Zeichenkette: `not all and A, B`
+    // parst als Liste, und die Negation griffe nur auf den ersten Teil.
+    const desktopQuery = {
+        get matches() { return !phoneFace.matches; },
+        addEventListener: (type, fn) => phoneFace.addEventListener(type, fn),
+        removeEventListener: (type, fn) => phoneFace.removeEventListener(type, fn)
+    };
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     let appReady = false;
     let autoTimer = null;

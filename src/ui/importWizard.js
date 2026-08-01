@@ -25,6 +25,7 @@ import {
 import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { showToast } from './toast.js';
+import { isPhoneUi, phoneFaceQuery } from '../core/viewport.js';
 import { fitToCustomers } from '../features/map.js';
 import {
     createDemoServiceContracts,
@@ -53,7 +54,7 @@ let welcomeDemoUserIntent = false;
 let demoLoadPromise = null;
 const insideMobilePreview = new URLSearchParams(location.search).has('mobilePreview');
 // Dieselbe Schwelle wie in der Sidebar: darunter gilt die Handy-Bedienung.
-const mobileQuery = window.matchMedia('(max-width: 768px)');
+const mobileQuery = phoneFaceQuery();
 
 // SheetJS (xlsx) ist groß – erst laden, wenn wirklich importiert/exportiert wird
 const excel = () => import('../services/excel.js');
@@ -895,7 +896,7 @@ function scheduleWelcomeDemo() {
         } finally {
             setTimeout(() => document.body.classList.remove('demo-data-arriving'), 1800);
         }
-    }, welcomeDemoDelayMs({ mobile: window.matchMedia('(max-width: 768px)').matches }));
+    }, welcomeDemoDelayMs({ mobile: isPhoneUi() }));
 }
 
 /** Lädt sichere Beispieldaten für Einstieg oder Live-Demo. */

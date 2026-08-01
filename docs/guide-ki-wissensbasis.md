@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.8 · Stand: 01.08.2026 · App-Version: 3.1.0**
+**Version 2.9 · Stand: 01.08.2026 · App-Version: 3.2.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -229,34 +229,54 @@ TourFuchs:
 
 ## 3. Zielgruppen, Geräte und Funktionsmatrix
 
-### 3.0 Drei Layouts, zwei Funktionsumfänge
+### 3.0 Zwei Gesichter – mehr gibt es nicht
 
-Wichtig für Rückfragen: **Layout und Funktionsumfang sind zwei verschiedene
-Dinge.**
+TourFuchs kennt **genau zwei Ansichten**, und ein Tablet ist keine dritte. Es
+ist beides, je nachdem, wie man es hält:
 
-| Gerät | Panel | Einstieg | Funktionsumfang |
-|---|---|---|---|
-| Schreibtisch (ab 1201px oder quer) | seitlich, Breite ziehbar, frei verschiebbar | gespeicherter Modus/Tab | voll |
-| **Tablet hochkant** (769–1200px) | **unten als Blatt**, Höhe am Griff ziehbar | **wie am Handy**: Außendienst, Tab Tour, Basis | **voll** – Profi, Gebietsplanung, Cockpit, Simulation |
-| Tablet quer | seitlich wie am Schreibtisch | gespeicherter Modus/Tab | voll |
-| Handy (bis 768px) | unten als Blatt | Außendienst, Karte, Basis | bewusst reduziert: Basis-Tiefe, Außendienst-Fokus, Karte + Tour |
+| Gerät / Haltung | Ansicht | Panel | Einstieg | Funktionsumfang |
+|---|---|---|---|---|
+| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte, Basis | Basis-Tiefe, Außendienst, Karte + Tour |
+| **Tablet hochkant** (bis 1200px) | **Touransicht** | unten als Blatt | **exakt wie Handy** | **exakt wie Handy** |
+| Tablet quer | **Schreibtisch** | seitlich | gespeicherter Modus/Tab | voll |
+| Schreibtisch (ab 1201px oder quer) | **Schreibtisch** | seitlich, ziehbar | gespeicherter Modus/Tab | voll |
 
-Auf einem hochkanten Tablet würde die Seitenleiste fast die halbe Breite
-kosten – deshalb liegt das Panel dort unten, und der Einstieg ist derselbe wie
-am Handy: Wer das Gerät hochkant in die Hand nimmt, will eine Tour, nicht das
-Cockpit. Mit Daten öffnet sich deshalb direkt der Tour-Tab (die Karte liegt
-ohnehin über dem Blatt, beides bleibt gleichzeitig sichtbar).
+**Merksatz für Antworten:** *Quer ist Schreibtisch, hochkant ist unterwegs.*
+Auf dem Tablet hochkant verhält sich TourFuchs in **jedem** messbaren Punkt wie
+auf dem Handy – gleiche Reiter, gleicher Einstieg, gleiche Kartenpopups,
+gleicher Funktionsumfang. Wer Gebietsplanung, Cockpit oder Simulation braucht,
+**dreht das Gerät**.
 
-**Gesperrt wird dabei nichts.** Ein 11-Zoll-Tablet hat hochkant mehr nutzbare
-Panelbreite als die Seitenleiste am Schreibtisch; Gebietsplanung, Cockpit und
-Profi bleiben einen Tipp entfernt. Das ist auch der Grund gegen die Sperre:
-Ein Tablet wird ständig gedreht – würde das Hochformat Funktionen entziehen,
-verwürfe jede Drehung die laufende Arbeit (etwa eine unbestätigte
-Gebietssimulation). **Drehen ändert nur die Geometrie**, nie Modus, Tab oder
-Funktionsumfang. Wer die Seitenleiste möchte, dreht ins Querformat.
+Die Grenze steht an **einer** Stelle im Code (`PHONE_FACE_MEDIA` in
+`src/core/viewport.js`) und gilt wortgleich für CSS und JavaScript.
+
+**Warum die Haltung entscheidet und nicht die Pixelbreite:** Bis Version 3.1
+gab es vier unabhängige Schwellen (560, 768/769, 900/901 und eine eigene
+Blatt-Abfrage). Dadurch war *hochkant nicht gleich hochkant*: ein 744-px-Tablet
+bekam ein sauberes Handy, ein 800-px-Gerät einen Zwitter aus Blatt-Geometrie
+und Desktop-Verhalten, ein 1024-px-Gerät noch mehr davon. Dieselbe Haltung,
+drei Produkte. Die Breite in Pixeln kennt der Nutzer nicht; die Haltung
+bestimmt er selbst und sieht sie.
+
+**Ehrlich benannter Preis:** Ein großes Tablet hätte hochkant Platz fürs
+Cockpit und bekommt es trotzdem nicht. Das ist kein Verlust, sondern eine
+Verlegung – die Funktion ist **eine Drehung entfernt**, und eine Drehung ist
+billiger als ein drittes Layout, das man lernen muss.
+
+**Drehen setzt die Darstellung zurück, nicht die Arbeit.** Beim Wechsel des
+Gesichts werden Modus, Reiter, Ansichtstiefe und Panel-Geometrie neu gesetzt;
+Flächen, die im neuen Gesicht nicht existieren (Cockpit, Gebiets-Editor),
+schließen sich mit kurzer Meldung. **Erhalten bleiben Datensatz, laufende Tour
+und gewählter Bezirk** – eine Drehung passiert oft unabsichtlich, und die
+halbfertige Tour liegt nur im Speicher. Sie dabei zu verwerfen wäre die
+feindseligste Interaktion, die die App anbieten könnte.
 
 Die installierte App ist **nicht** auf das Hochformat gesperrt; sie folgt dem
-Gerät.
+Gerät. Wurde sie **vor dem 26.07.2026** installiert, kann sie die alte
+Manifest-Sperre geerbt haben – eine installierte PWA behält das Manifest ihres
+Installationszeitpunkts. TourFuchs löst diese Sperre seit Version 3.2 beim
+Start selbst (`screen.orientation.unlock()`). **Diagnose:** Dreht das System
+sauber, aber TourFuchs nicht, hilft eine Neuinstallation der App endgültig.
 
 
 ### 3.1 Typische Rollen
@@ -283,15 +303,13 @@ Gerät.
 | Mobile Außendienst & Tour als Vorschau | Ja, mit einmaligem ruhigem Hinweis | Nein |
 | Verschlüsselte Daten empfangen | Ja | Ja, mobil besonders sinnvoll |
 
-**Tablets:** Es gibt bewusst keine eigene Tablet-Ansicht und keine
-Tablet-Vorschau am Desktop. Tablets nutzen die vorhandenen responsiven
-Layouts – der **Funktionsumfang** ist ab 769 Pixel Fensterbreite immer der
-volle, inklusive Gebietsplanung und Service-Fokus. Verschieden ist nur, wie es
-sich anfühlt: **quer** die Seitenleiste und der gespeicherte Modus/Tab,
-**hochkant** das Blatt unten und der mobile Einstieg (Außendienst, Tour,
-Basis). Nur sehr schmale Ansichten (768 Pixel und weniger, z. B. Smartphones
-oder geteilte Bildschirme) verhalten sich wirklich wie das Smartphone – dort
-ist der Umfang auf Karte, Tour und Bottom Sheet reduziert.
+**Tablets:** Es gibt bewusst **keine eigene Tablet-Ansicht**. Ein Tablet nutzt
+die beiden vorhandenen Gesichter, und die **Haltung** entscheidet, welches:
+**quer** den Schreibtisch (Seitenleiste, gespeicherter Modus/Tab, voller
+Umfang), **hochkant** die Touransicht – dann verhält es sich in jedem Punkt wie
+ein Smartphone, einschließlich des reduzierten Umfangs (Basis-Tiefe,
+Außendienst, Karte + Tour). Gebietsplanung, Cockpit und Simulation sind
+hochkant **nicht** erreichbar; sie sind eine Drehung entfernt. Siehe 3.0.
 
 ### 3.3 Basis gegen Profi
 
@@ -2822,7 +2840,43 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 2.8
+### 26.3 Änderungen in Version 2.9
+
+- **Zwei Gesichter statt vier Schwellen.** „Mobil" hatte keine Definition,
+  sondern vier unabhängig gewachsene Grenzen (560, 768/769, 900/901 und eine
+  eigene Blatt-Abfrage). Auf einem **Galaxy Tab S6 Lite hochkant (~800 px)**
+  entstand daraus ein Zwitter: Blatt-Geometrie und Handy-Checkliste, aber
+  Desktop-Kartenpopups, Desktop-Tourpanel und offenes Cockpit. Und *hochkant
+  war nicht gleich hochkant* – 744 px ergab ein sauberes Handy, 800 px den
+  Zwitter, 1024 px noch mehr davon. Es gibt jetzt genau zwei Gesichter, die
+  Grenze steht an einer Stelle (`PHONE_FACE_MEDIA`, `src/core/viewport.js`) und
+  gilt wortgleich für CSS und JavaScript. Siehe 3.0.
+- **Hochkant = Touransicht, quer = Schreibtisch.** Damit ist die Entscheidung
+  vom 31.07.2026 („hochkant voller Funktionsumfang, gesperrt wird nichts")
+  **zurückgenommen**. Grund: Sie war am Schreibtisch getroffen; am Gerät war
+  der Zwitter spürbar. Die damalige Begründung lautete „Platz ist da" – das
+  Kriterium ist aber nicht Platz, sondern **Wiedererkennbarkeit**. Nachgemessen
+  im Browser: Tablet hochkant (800×1333) und Handy (390×844) liefern in allen
+  geprüften Punkten dieselben Antworten.
+- **Kein eigener Tablet-Einstieg mehr.** Hochkant startete bisher im Reiter
+  „Tour" statt „Karte" – ein drittes Verhalten neben Handy und Schreibtisch.
+  Jetzt startet die Touransicht überall gleich.
+- **Drehen setzt die Darstellung zurück, nicht die Arbeit.** Modus, Reiter,
+  Tiefe und Geometrie werden neu gesetzt; Datensatz, laufende Tour und Bezirk
+  bleiben. Ein harter Sitzungs-Neustart wurde ausdrücklich **verworfen**: Eine
+  Drehung passiert oft unabsichtlich, und die halbfertige Tour liegt nur im
+  Speicher.
+- **Geerbte Orientierungssperre wird beim Start gelöst.** Bis zum 26.07.2026
+  stand `orientation: 'portrait'` im Manifest; installierte PWAs behalten das
+  Manifest ihres Installationszeitpunkts und hingen deshalb weiter im
+  Hochformat fest – nachgewiesen an einem Gerät, auf dem das System sauber
+  drehte und nur TourFuchs nicht. `screen.orientation.unlock()` beim Start
+  behebt das; eine Neuinstallation ebenfalls und endgültig.
+- **Tor gegen eine fünfte Definition.** `tests/viewport.test.js` prüft zehn
+  Quelldateien darauf, dass keine eigene Breitenschwelle zurückkehrt, und
+  bindet das CSS wortgleich an die exportierte Zeichenkette.
+
+### 26.4 Änderungen in Version 2.8
 
 - **"Erste Schritte", Punkt 1 richtiggestellt (Dokumentationsfehler).** Der Punkt
   heißt im Code seit Längerem **"Kunden auf der Karte verstehen"** und hakt sich
@@ -2880,7 +2934,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 **Wenn das Tor B3 tötet, gehört B3 auf die Liste "Was wir weggelassen haben".**
 
-### 26.4 Änderungen in Version 2.7
+### 26.5 Änderungen in Version 2.7
 
 - **Briefing-Prompt startet zugeklappt.** In beiden Briefing-Dialogen (Kunde und
   Gebiet) steht der vollständige Prompt hinter „🔍 Vollständigen Prompt ansehen"
@@ -2902,7 +2956,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   veralteten Datenstand („Datenstand prüfen"), nicht nur Umfang und
   Zuordnungslücken.
 
-### 26.5 Änderungen in Version 2.5
+### 26.6 Änderungen in Version 2.5
 
 - **Durchgängiges Muster „Überblick → aufzoomen":** Grobe, mehrstufige Bereiche
   zeigen zuerst den Prozess/Überblick, Details kommen auf Abruf – wie das Zoomen
@@ -2939,7 +2993,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   sie neben der sichtbaren Karte. Die „Chancen"-Live-Demo überspringt die
   Einfärb-Schritte auf dem Handy.
 
-### 26.6 Änderungen in Version 2.4
+### 26.7 Änderungen in Version 2.4
 
 - **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
   Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
@@ -2978,7 +3032,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
   danach sauber wieder her.
 
-### 26.7 Änderungen in Version 2.3
+### 26.8 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -3022,7 +3076,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.8 Änderungen in Version 2.2
+### 26.9 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -3078,7 +3132,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.9 Änderungen in Version 2.1
+### 26.10 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -3091,7 +3145,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.10 Änderungen in Version 2.0
+### 26.11 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.
@@ -3119,6 +3173,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Vergleichsrahmen | Vertriebsgruppe |
 | Desktop | Daten, Karte, Tour, Gebiete, Cockpit, Simulation, QR-Senden |
 | Smartphone | Karte, Kunden, Briefing, Tour, Navigation, QR-Empfang |
+| Tablet | zwei Gesichter, die Haltung entscheidet: **quer = Schreibtisch, hochkant = Touransicht wie Smartphone**. Keine eigene Tablet-Ansicht. Drehen setzt die Darstellung zurück, nie die Arbeit |
 | Desktop-Handyvorschau | "Mobile Außendienst & Tour"; startet tourfokussiert, zeigt aber den vollständigen mobilen Außendienstweg |
 | Basis | ruhiger Kernweg, Briefing inklusive |
 | Profi | Ziel, Chancen, Exporte, Simulation und Wahl des Zielassistenten |
@@ -3141,6 +3196,5 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Ruhige Oberfläche | zwei Muster: Langes startet zugeklappt und nennt in der Kopfzeile, was drin ist; beim Scrollen in den Inhalt treten Kartenstil, Beispieldaten-Streifen und Checkliste zurück. Nur wenn dabei etwas zu gewinnen ist – sonst bleibt alles stehen |
 | Service-Fokus | Profi; Verträge + Einsätze getrennt, Join nur über Kundennummer; erklärbarer Tagesvorschlag |
 | Zanobo | Link-out je Anlagen-ID (`#/m/<id>`, Fragment bleibt lokal); Vergleich statt Diagnose; Standard zanobo.vercel.app |
-| Tablet | hochkant Blatt-Geometrie + mobiler Einstieg (Außendienst/Tour/Basis), Funktionsumfang bleibt voll; quer Seitenleiste. Drehen ändert nur die Geometrie |
 | Update | App-Dateien neu, lokale Daten bleiben erhalten |
 | Vor Löschen | Export empfehlen |
