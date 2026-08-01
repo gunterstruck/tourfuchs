@@ -53,10 +53,10 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
 
         // Das Handy startet weiterhin auf der Karte; das hochkante Tablet zweigt
         // bewusst auf die Tour ab (dort liegt die Karte ohnehin über dem Blatt).
-        expect(main).toContain("state.ui.activeTab = portraitTabletStartup ? 'tour' : 'karte'");
+        expect(main).toContain("state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'karte'");
         expect(main).toContain("if (state.customers.length === 0) showDataView(false)");
         expect(main).toContain('else showMapView(false)');
-        expect(sidebar).toContain("if (isMobileUi() || isPortraitTabletUi()) depth = 'basis'");
+        expect(sidebar).toContain("if (isMobileUi()) depth = 'basis'");
     });
 
     it('zeigt nach dem Laden von Beispieldaten mobil die Karte mit eingeklapptem Blatt', () => {
@@ -81,7 +81,7 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         // Beim Wechsel der Viewport-Klasse wird die Gruppierung nachgezogen.
         const syncViewport = sidebar.slice(sidebar.indexOf('const syncViewport = () => {'), sidebar.indexOf("mobileQuery.addEventListener('change', syncViewport)"));
         expect(syncViewport).toContain('applyDataPanelLayout();');
-        expect(sidebar).toContain("mobileQuery.addEventListener('change', syncViewport);");
+        expect(sidebar).toContain("onFaceChange((face) => {");
     });
 
     it('zeigt mobil mit Daten nur Karte + Tour; das Onboarding trägt den Dateneinstieg', () => {

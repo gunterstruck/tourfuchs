@@ -1,5 +1,7 @@
-/* Mobile Anpassungen */
-@media (max-width: 900px) {
+/* Touransicht – dieselbe Grenze wie unten und wie viewport.js. */
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
     :root { --sidebar-width: min(88vw, 340px); }
 
     .brand-name { display: none; }
@@ -13,7 +15,8 @@
    dort, wo die mobilen Regeln nicht mehr greifen – zwischen 769 und 900px blieb
    der Knopf sonst ganz ohne Gestaltung. Auf dem hochkanten Tablet setzt der
    Blatt-Block --sidebar-width auf 0, damit die Zentrierung stimmt. */
-@media (min-width: 769px) {
+@media (min-width: 1201px),
+       (min-width: 769px) and (orientation: landscape) {
     /* Aussehen und Platzierung kommen aus .map-fab / .map-fab-row – hier bleibt
        nur, was den Fuchs vom Lasso-Knopf unterscheidet: das Ein- und
        Ausblenden. */
@@ -203,7 +206,17 @@
 /* Der Info-Punkt im Kopf soll das Auf-/Zuklappen nicht auslösen. */
 .tour-acc .acc-head .help-dot { pointer-events: auto; }
 
-@media (max-width: 768px) {
+/* ===========================================================================
+   TOURANSICHT – Handy immer, Tablet hochkant.
+
+   Diese Grenze ist wortgleich zu `PHONE_FACE_MEDIA` in src/core/viewport.js.
+   Laufen CSS und JavaScript hier auseinander, entsteht genau der Zwitter, den
+   Version 3.1 beseitigt hat: Blatt-Geometrie mit Desktop-Verhalten.
+   Wer eine der beiden Stellen ändert, ändert beide (tests/viewport.test.js).
+   =========================================================================== */
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
     /* Ganz aufgezogenes Tour-Blatt: Die drei Akkordeon-Köpfe sollen sichtbar
        bleiben. Die offene Gruppe wird gedeckelt und scrollt INTERN, statt die
        eingeklappten Köpfe (v. a. „Meine Tour") aus dem Bild zu schieben. */
@@ -725,6 +738,9 @@ body.sc-running .mobile-next-step { display: none !important; }
 
    Quer greift die Regel nicht: Dort hat auch ein Tablet Breite für beides.
 --------------------------------------------------------------------------- */
+/* Aufsatz für das hochkante Tablet: Der Touransicht-Block oben gilt hier
+   bereits vollständig – hier stehen nur die Maße, die eine größere Fläche
+   braucht (Blatt-Höhen, Griff, ausgeblendete Seitenleisten-Bedienung). */
 @media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait) {
     :root {
         --safe-bottom: env(safe-area-inset-bottom, 0px);

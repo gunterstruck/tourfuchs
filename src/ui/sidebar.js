@@ -14,6 +14,7 @@ import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
+import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -34,15 +35,11 @@ let geocodeHandle = null;
 let autoRevealTimer = null;
 let demoSheetSnapshot = null;
 
-const mobileQuery = window.matchMedia('(max-width: 768px)');
-// Blatt-Geometrie: Handy immer, Tablet nur hochkant. Quer hat auch ein Tablet
-// genug Breite für die Seitenleiste neben der Karte.
 // Auf schmalen Schirmen teilen sich zwei Pillen die Zeile – dort müssen die
-// Beschriftungen kürzer sein, sonst wird eine davon abgeschnitten.
+// Beschriftungen kürzer sein, sonst wird eine davon abgeschnitten. Das ist
+// **kein drittes Gesicht**, sondern eine Beschriftungslänge innerhalb der
+// Touransicht: Sie schaltet nichts frei und nichts ab.
 const narrowQuery = window.matchMedia('(max-width: 560px)');
-const sheetQuery = window.matchMedia(
-    '(max-width: 768px), (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)'
-);
 // Mobil dreht sich alles um die Tour: mit Daten nur Karte + Tour (kein
 // Daten-Tab). Daten kommen über die Tour rein (vom Desktop scannen / gesichert
 // empfangen) oder – nach dem Zurücksetzen – über den Einstiegs-/Onboarding-Blick.
@@ -85,41 +82,27 @@ function hasDataset() {
     return state.customers.length > 0 || Object.keys(state.territories).length > 0;
 }
 
+/**
+ * Touransicht – Handy immer, Tablet hochkant.
+ *
+ * Bis Version 3.1 waren das **zwei** Begriffe: `isMobileUi()` (Funktionen, ab
+ * 768 px) und `isSheetUi()` (Geometrie, hochkant bis 1200 px). Dazwischen lag
+ * das hochkante Tablet – Blatt unten, aber Desktop-Karte, Desktop-Tourpanel
+ * und offenes Cockpit. Auf einem Galaxy Tab S6 Lite (~800 px hochkant) war
+ * das kein Grenzfall, sondern der Normalfall.
+ *
+ * Jetzt sind Geometrie und Funktionsumfang **derselbe Begriff**. Beide Namen
+ * bleiben als Synonyme erhalten, damit die rund fünfzig Aufrufstellen lesbar
+ * bleiben: `isSheetUi()` dort, wo es um die Form geht, `isMobileUi()` dort, wo
+ * es um den Umfang geht. Sie können nicht mehr auseinanderlaufen.
+ */
 function isMobileUi() {
-    return mobileQuery.matches;
+    return isPhoneUi();
 }
 
-/**
- * Liegt das Panel als Blatt unten statt seitlich?
- *
- * Auf einem hochkanten Tablet frisst eine 340-px-Seitenleiste fast die halbe
- * Breite, und die Karte wird zum Streifen. Dort gehört das Panel nach unten –
- * **nur die Geometrie**, nicht der Funktionsumfang: Ein Tablet hat genug Platz
- * für Profi-Modus, Gebietsplanung und Cockpit, deshalb bleibt `isMobileUi()`
- * (das Funktionen reduziert) davon unberührt.
- */
+/** Liegt das Panel als Blatt unten statt seitlich? Gleichbedeutend mit `isMobileUi()`. */
 export function isSheetUi() {
-    return sheetQuery.matches;
-}
-
-/**
- * Hochkantes Tablet – Blatt-Geometrie, aber kein Handy.
- *
- * Hier gilt der **mobile Einstieg**: Wer das Tablet hochkant in die Hand nimmt,
- * will in aller Regel eine Tour, nicht das Cockpit. Deshalb landet er dort, wo
- * er am Handy auch landen würde.
- *
- * Gesperrt wird dabei **nichts**. Ein 11-Zoll-Tablet hat hochkant mehr nutzbare
- * Panelbreite als die 340-px-Seitenleiste am Schreibtisch – Gebietsplanung,
- * Cockpit und Profi funktionieren dort nachweislich. Sie wegzunehmen, weil das
- * Gerät gerade hochkant gehalten wird, nähme Können weg, das da ist. Und weil
- * ein Tablet ständig gedreht wird, würde jede Drehung sonst laufende Arbeit
- * (etwa eine unbestätigte Gebietssimulation) verwerfen.
- *
- * Kurz: Das Hochformat gibt die **Vorgabe** vor, nicht den Funktionsumfang.
- */
-function isPortraitTabletUi() {
-    return sheetQuery.matches && !mobileQuery.matches;
+    return isPhoneUi();
 }
 
 /**
@@ -1002,7 +985,7 @@ function initDepth() {
     // Öffnen bewusst ruhig in Basis starten. Profi bleibt danach anwählbar.
     // Das hochkante Tablet startet genauso ruhig – aus demselben Grund und mit
     // derselben Umkehrbarkeit (ein Tipp auf „Profi").
-    if (isMobileUi() || isPortraitTabletUi()) depth = 'basis';
+    if (isMobileUi()) depth = 'basis';
     applyDepth(depth, false);
     document.querySelectorAll('#depth-switch .seg').forEach((btn) =>
         btn.addEventListener('click', () => applyDepth(btn.dataset.depth)));
@@ -1118,11 +1101,30 @@ export function initSidebar() {
         syncLevelControl();
         emit('level:control-changed');
     };
-    mobileQuery.addEventListener('change', syncViewport);
-    // Tablet gedreht: Die Geometrie wechselt zwischen Blatt und Seitenleiste,
-    // ohne dass sich die Breitenklasse ändert.
-    sheetQuery.addEventListener('change', syncViewport);
-    // Schwelle für die Kurzfassung der Beschriftungen.
+    // Ein Wechsel des Gesichts – am Tablet also eine Drehung – setzt die
+    // **Darstellung** zurück, nicht die Arbeit.
+    //
+    // Zurückgesetzt werden Modus, Tab, Ansichtstiefe und Panel-Geometrie: genau
+    // die Dinge, aus denen sonst der Zwitter entsteht (quer in der
+    // Gebietsplanung, drehen, und hochkant steht ein Desktop-Modus im Blatt).
+    // `applyMode` und `applyDepth` erzwingen die Grenzen der Touransicht von
+    // selbst, sobald `isMobileUi()` gilt.
+    //
+    // Erhalten bleiben Datensatz, laufende Tour und gewählter Bezirk. Eine
+    // Drehung passiert oft unabsichtlich – Tablet ablegen, weiterreichen –, und
+    // die halbfertige Tour liegt nur im Speicher (`persistSettings` sichert sie
+    // nicht). Sie dabei zu verwerfen wäre die feindseligste Interaktion, die
+    // diese App anbieten könnte.
+    onFaceChange((face) => {
+        // In die Touransicht gedreht: derselbe ruhige Einstieg wie beim Öffnen
+        // am Handy (Basis, Außendienst, Karte/Tour). Ein Tipp auf „Profi" holt
+        // die Tiefe zurück. In den Schreibtisch gedreht wird nichts erzwungen –
+        // dort ist alles erlaubt, was hochkant erlaubt war.
+        if (face === 'phone') applyDepth('basis', false);
+        applyMode(state.ui.mode, false, false);
+        syncViewport();
+    });
+    // Schwelle für die Kurzfassung der Beschriftungen – kein Gesichtswechsel.
     narrowQuery.addEventListener('change', syncViewport);
 
     // Fokus-Umschalter
@@ -1175,7 +1177,7 @@ export function initSidebar() {
     applySidebar();
 
 
-    mobileQuery.addEventListener('change', () => {
+    onFaceChange(() => {
         applyMode(state.ui.mode, false, false);
         applySidebar();
     });

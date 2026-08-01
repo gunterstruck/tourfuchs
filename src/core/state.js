@@ -12,6 +12,7 @@
 
 import { CONFIG } from './config.js';
 import { normalizeDemoCustomers } from './demoSafety.js';
+import { isPhoneUi } from './viewport.js';
 
 /**
  * Planungsrelevante Gebietsebenen. Der Vertriebsbezirk ist die führende Ebene,
@@ -92,7 +93,7 @@ export const state = {
         // Am Handy startet das Blatt eingeklappt – der erste Blick gehört der
         // Karte. Ab Tablet-Breite ist das Panel Teil der Arbeitsfläche (unten
         // als Blatt, am Schreibtisch seitlich) und startet offen.
-        sidebarOpen: window.innerWidth > 768
+        sidebarOpen: !isPhoneUi()
     }
 };
 

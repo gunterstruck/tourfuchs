@@ -24,6 +24,7 @@ import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } fr
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
 import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.js';
+import { isPhoneUi } from '../core/viewport.js';
 import { serviceVisitWindow } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
 import { showMapView } from './sidebar.js';
@@ -680,7 +681,7 @@ function initExpertSwipeControls() {
 }
 
 function canSwipeExpertSection() {
-    return tourExpert && window.matchMedia('(max-width: 768px)').matches;
+    return tourExpert && isPhoneUi();
 }
 
 function hideExpertSection(key) {
@@ -945,7 +946,7 @@ function renderPanel() {
 let tourAccPinned = false;
 
 function isMobileTour() {
-    return window.matchMedia('(max-width: 768px)').matches;
+    return isPhoneUi();
 }
 
 function currentTourStep() {
@@ -1640,7 +1641,7 @@ function showRouteOnMap() {
             : 'Route konnte noch nicht angezeigt werden.',
             ok ? 'success' : 'info', 3000);
         emit('tour:changed');
-    }, window.innerWidth <= 768 ? 140 : 0);
+    }, isPhoneUi() ? 140 : 0);
 }
 
 // ---- Gespeicherte Touren ----

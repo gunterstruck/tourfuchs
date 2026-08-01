@@ -30,6 +30,7 @@ import {
 } from '../features/firstSteps.js';
 import { showToast } from './toast.js';
 import { startShowcaseStory } from './showcase.js';
+import { isPhoneUi } from '../core/viewport.js';
 
 const COLLAPSE_FEEDBACK_MS = 4000;
 
@@ -37,7 +38,7 @@ let container = null;
 let celebrated = false;
 let collapseTimer = null;
 
-const isMobileUi = () => window.matchMedia('(max-width: 900px)').matches;
+const isMobileUi = () => isPhoneUi();
 
 /** Ableitbare Schritte festschreiben; liefert Fortschritt + frisch Erledigtes. */
 function persistedProgress() {
@@ -94,7 +95,7 @@ function render() {
     const done = new Set(progress.done);
     // Gerätegerechte Liste (Desktop-Schwelle wie in der Showcase-Engine: 769px),
     // damit die angebotene Demo genau die ist, die hier auch startet.
-    const steps = firstStepsFor({ isDesktop: window.matchMedia('(min-width: 769px)').matches });
+    const steps = firstStepsFor({ isDesktop: !isPhoneUi() });
     const doneCount = steps.filter((step) => done.has(step.id)).length;
 
     if (effectiveCollapsed(progress)) {

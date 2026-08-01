@@ -8,6 +8,7 @@
  */
 
 import '../styles/contracts.css';
+import { isPhoneUi } from '../core/viewport.js';
 
 import {
     state,
@@ -579,7 +580,7 @@ export function openContractRadar(payload = {}) {
         emit('toast', { type: 'info', text: 'Das Vertragsradar steht im Profi-Modus zur Verfügung.' });
         return false;
     }
-    if (mobileQuery?.matches || window.innerWidth <= 768) {
+    if (isPhoneUi()) {
         emit('toast', { type: 'info', text: 'Das vollständige Vertragsradar steht auf dem Desktop zur Verfügung.' });
         return false;
     }

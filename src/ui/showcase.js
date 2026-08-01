@@ -24,6 +24,7 @@ import {
     seenShowcaseIds
 } from '../services/showcaseOnboarding.js';
 import { distanceKm } from '../services/geocode.js';
+import { isPhoneUi } from '../core/viewport.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups } from '../features/map.js';
 import { showMapView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
@@ -63,7 +64,7 @@ function restorePasteDemoConsent() {
     pasteDemoConsent = null;
 }
 
-const isMobileView = () => window.matchMedia('(max-width: 768px)').matches;
+const isMobileView = () => isPhoneUi();
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
 ));
@@ -1064,7 +1065,7 @@ async function play(story) {
     resetView();
     const startedAt = Date.now();
     try {
-        const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+        const isDesktop = !isPhoneUi();
         const steps = visibleStorySteps(story, { isDesktop });
         for (let i = 0; i < steps.length; i++) {
             guard();
@@ -1100,7 +1101,7 @@ async function play(story) {
 }
 
 function currentVisibleStories() {
-    const isDesktop = window.matchMedia('(min-width: 769px)').matches;
+    const isDesktop = !isPhoneUi();
     return visibleStories({ isDesktop });
 }
 
@@ -1183,7 +1184,7 @@ function buildPanel() {
     const tiles = currentVisibleStories().map((s) => `
         <button type="button" class="sc-tile" data-story="${s.id}">
             <span class="sc-tile-icon">${s.icon}</span>
-            <span class="sc-tile-body"><b>${s.title}</b><span>${s.blurb}</span><small>ca. ${storyDuration(s, { isDesktop: window.matchMedia('(min-width: 769px)').matches })} Sek.</small></span>
+            <span class="sc-tile-body"><b>${s.title}</b><span>${s.blurb}</span><small>ca. ${storyDuration(s, { isDesktop: !isPhoneUi() })} Sek.</small></span>
             ${seen.has(s.id) ? '<span class="sc-tile-seen" title="schon gesehen">✓</span>' : '<span class="sc-tile-play">▶</span>'}
         </button>`).join('');
     dialog.dataset.view = 'intro';

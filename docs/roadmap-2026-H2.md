@@ -194,6 +194,39 @@ ein Einstellungsschalter; erst beides zusammen ist eine vollständige Schleife.
 Bedingt, weil keine zweite Lernschleife startet, bevor 6.6 gezeigt hat, dass aus
 lokalen Signalen etwas Lesbares wird.
 
+### Release 7 – „Zwei Gesichter" *(01.08.2026 umgesetzt, App 3.2.0)*
+
+Anlass: erste echte Tablet-Nutzung (Galaxy Tab S6 Lite). Zwei Befunde, einer
+davon ein Defekt, den keine Überlegung am Schreibtisch gefunden hätte.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 7.1 | **Eine Definition von „mobil"** | ✅ umgesetzt | `src/core/viewport.js` als einzige Quelle. Vorher vier unabhängige Schwellen (560, 768/769, 900/901, eigene Blatt-Abfrage). Das CSS ist wortgleich an dieselbe Zeichenkette gebunden. |
+| 7.2 | **Hochkant = Touransicht, quer = Schreibtisch** | ✅ umgesetzt | Nimmt Item aus #193 vom 31.07. zurück (siehe unten). Im Browser nachgemessen: Tablet hochkant (800×1333) und Handy (390×844) antworten in allen geprüften Punkten gleich. |
+| 7.3 | **Kein eigener Tablet-Einstieg** | ✅ umgesetzt | Hochkant startete im Reiter „Tour" statt „Karte" – ein drittes Verhalten. Weg. |
+| 7.4 | **Drehen setzt die Darstellung zurück, nicht die Arbeit** | ✅ umgesetzt | Modus, Reiter, Tiefe, Geometrie werden neu gesetzt; Datensatz, Tour und Bezirk bleiben. |
+| 7.5 | **Geerbte Orientierungssperre lösen** | ✅ umgesetzt | `screen.orientation.unlock()` beim Start befreit vor dem 26.07. installierte PWAs. |
+| 7.6 | **Tor gegen eine fünfte Definition** | ✅ umgesetzt | `tests/viewport.test.js` prüft zehn Quelldateien plus die CSS/JS-Deckung. |
+
+#### Zurückgenommen: „hochkant voller Funktionsumfang" (#193, 31.07.2026)
+
+Die Entscheidung von gestern lautete: *„Gesperrt wird bewusst nichts …
+Drehen ändert nur die Geometrie."* Sie wird hiermit umgedreht, und der Grund
+gehört ins Protokoll: **Sie wurde am Schreibtisch getroffen, und am Gerät hielt
+sie nicht.** Die Begründung damals war „Platz ist da". Das Kriterium ist aber
+nicht Platz, sondern Wiedererkennbarkeit – ein Gerät, das hochkant etwas
+anderes zeigt als ein Handy und etwas anderes als quer, verlangt drei Layouts
+im Kopf statt zwei.
+
+Behalten wird aus #193 die Sorge, die richtig war: dass eine Drehung keine
+Arbeit verwerfen darf. Deshalb 7.4 statt des vom Nutzer zunächst gewünschten
+harten Sitzungs-Neustarts – eine Drehung passiert oft unabsichtlich, und die
+halbfertige Tour liegt nur im Speicher.
+
+Ergänzung zur Arbeitsweise: Diese Klasse Fehler findet **kein** Unit-Test und
+keine Überlegung, sondern nur ein echtes Gerät. Der Zwitter war seit Tagen im
+Produkt und niemandem aufgefallen.
+
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
