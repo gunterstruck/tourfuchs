@@ -1782,6 +1782,14 @@ Am Desktop kann der Nutzer:
 - einzelne Kunden filtern, markieren und neu zuweisen
 - die letzte Editor-Aktion rückgängig machen
 
+Der Editor **liegt seit dem 01.08.2026 neben der Karte, nicht darüber**: Er
+öffnet ohne abdunkelnden Vorhang am rechten Rand, die Karte bleibt sichtbar und
+schiebbar. Das ist keine Kosmetik – die Frage „welchem Bezirk gebe ich diese
+Kunden?" beantwortet man an der Nachbarschaft auf der Karte, und die lag vorher
+unter dem Dialog. **Ein Klick auf ein anderes Gebiet füllt den offenen Editor
+neu**, statt an ihm abzuprallen; **Escape** schließt ihn wie jeden anderen
+Dialog.
+
 Mobil ist die Gebietsplanung nur lesend beziehungsweise ausgeblendet; Änderungen
 werden am Desktop durchgeführt.
 
