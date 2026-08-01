@@ -14,6 +14,7 @@ import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
+import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
@@ -1283,6 +1284,8 @@ export function initSidebar() {
         applyMode(state.ui.mode, false, false);
     });
     on('filters:changed', renderDataStatus);
+    // Die Willkommenskarte entscheidet mit, ob der Streifen sein Angebot zeigt.
+    on('demo-welcome:changed', renderDataStatus);
     renderDataStatus();
     renderTeamFilters();
 }
@@ -1450,6 +1453,13 @@ function renderDataStatus() {
     const demoBanner = document.getElementById('demo-banner');
     const demoActive = !empty && isDemoDataset(state.customers);
     if (demoBanner) demoBanner.hidden = !demoActive;
+    // Der Hinweis „das sind Demo-Kunden" bleibt immer stehen – er ist die
+    // Ehrlichkeit des Streifens. Sein Knopf dagegen trägt dieselbe Beschriftung
+    // wie der Hauptknopf der Willkommenskarte; zweimal dasselbe Angebot im
+    // selben Bild ist keine Wahl, sondern Rauschen. Solange die Karte steht,
+    // gehört das Angebot ihr.
+    const demoCta = document.getElementById('btn-demo-own-data');
+    if (demoCta) demoCta.hidden = demoActive && isDemoWelcomeOpen();
     // Solange Beispieldaten laufen, darf der eingeklappte mobile Peek etwas höher
     // stehen, damit der Beispieldaten-/Upload-Streifen vollständig sichtbar ist
     // (statt nur als Ansatz am unteren Rand). Steuert per CSS die Peek-Höhe.
