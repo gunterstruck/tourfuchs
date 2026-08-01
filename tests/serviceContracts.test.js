@@ -9,6 +9,7 @@ import {
     normalizeCustomerNumber,
     parseServiceContractRows,
     serviceContractActionDays,
+    serviceSourceHealthText,
     servicePlanningCustomerIds,
     serviceContractReplacementRisks,
     summarizeServiceContracts
@@ -475,5 +476,49 @@ describe('serviceContractReplacementRisks', () => {
             { SAP: { dataAsOf: '2026-07-01' } },
             { SAP: { dataAsOf: '2026-07-17' } }
         )).toEqual([]);
+    });
+});
+
+describe('Die zugeklappte Datenquelle verschweigt keine Warnung', () => {
+    const frisch = { dataAsOf: '2026-07-30', ageDays: 2 };
+    const alt = { dataAsOf: '2026-01-05', ageDays: 208 };
+    const ohneStand = { dataAsOf: null, ageDays: null };
+
+    it('nennt bei gesunden Quellen nur Umfang und Anzahl', () => {
+        expect(serviceSourceHealthText({ total: 412, sources: [frisch, frisch] }))
+            .toBe('412 Verträge · 2 Quellen');
+    });
+
+    it('sagt Einzahl bei einer Quelle', () => {
+        expect(serviceSourceHealthText({ total: 12, sources: [frisch] }))
+            .toBe('12 Verträge · 1 Quelle');
+    });
+
+    it('nennt einen veralteten Datenstand, obwohl die Karten zugeklappt sind', () => {
+        expect(serviceSourceHealthText({ total: 412, sources: [alt] }))
+            .toContain('Datenstand prüfen');
+    });
+
+    it('nennt einen fehlenden Datenstand genauso', () => {
+        expect(serviceSourceHealthText({ total: 9, sources: [ohneStand] }))
+            .toContain('Datenstand prüfen');
+    });
+
+    it('sagt bei gemischten Quellen, wie viele betroffen sind', () => {
+        expect(serviceSourceHealthText({ total: 412, sources: [frisch, alt, ohneStand] }))
+            .toBe('412 Verträge · 3 Quellen · 2 × Datenstand prüfen');
+    });
+
+    it('verdrängt die Zuordnungslücke nicht durch die Standwarnung', () => {
+        expect(serviceSourceHealthText({ total: 412, sources: [alt], unmatched: 7 }))
+            .toBe('412 Verträge · 7 nicht zugeordnet · Datenstand prüfen');
+    });
+
+    it('richtet sich nach der übergebenen Schwelle', () => {
+        const knapp = { dataAsOf: '2026-07-01', ageDays: 31 };
+        expect(serviceSourceHealthText({ total: 1, sources: [knapp], staleAfterDays: 30 }))
+            .toContain('Datenstand prüfen');
+        expect(serviceSourceHealthText({ total: 1, sources: [knapp], staleAfterDays: 60 }))
+            .not.toContain('Datenstand prüfen');
     });
 });

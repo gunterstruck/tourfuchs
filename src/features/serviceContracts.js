@@ -830,3 +830,25 @@ export function mergeServiceContractSources(existing, incoming, sourceMeta = {})
     }
     return [...kept, ...uniqueIncoming.values()];
 }
+
+/**
+ * Zusammenfassungszeile der zugeklappten Datenquelle.
+ *
+ * Muster „Überblick → aufzoomen": Zugeklappt wird nur, was man gerade nicht
+ * braucht – ein Problem gehört nicht dazu. Die Karten drinnen markieren einen
+ * fehlenden oder veralteten Datenstand; zugeklappt sieht man davon nichts. Die
+ * Zeile muss das also selbst sagen, sonst versteckt das Einklappen eine Warnung.
+ */
+export function serviceSourceHealthText({ total, sources = [], unmatched = 0, staleAfterDays = 30 }) {
+    const count = sources.length;
+    const stale = sources.filter((meta) => {
+        if (!meta?.dataAsOf) return true;
+        const age = Number(meta.ageDays);
+        return Number.isFinite(age) && age > staleAfterDays;
+    }).length;
+    const parts = [`${total} Verträge`];
+    if (unmatched) parts.push(`${unmatched} nicht zugeordnet`);
+    else parts.push(`${count} Quelle${count === 1 ? '' : 'n'}`);
+    if (stale) parts.push(stale === count ? 'Datenstand prüfen' : `${stale} × Datenstand prüfen`);
+    return parts.join(' · ');
+}

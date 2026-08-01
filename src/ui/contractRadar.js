@@ -26,7 +26,8 @@ import {
     parseServiceContractRows,
     normalizeCustomerNumber,
     serviceContractActionDays,
-    serviceContractReplacementRisks
+    serviceContractReplacementRisks,
+    serviceSourceHealthText
 } from '../features/serviceContracts.js';
 import { flyToCustomer } from '../features/map.js';
 import { applyMode } from './sidebar.js';
@@ -313,9 +314,16 @@ function renderSources() {
     const unmatchedTotal = contracts().filter((contract) => !customerForContract(contract, index)).length;
     if (details) details.open = false;
     if (health) {
-        health.textContent = unmatchedTotal
-            ? `${total} Verträge · ${unmatchedTotal} nicht zugeordnet`
-            : `${total} Verträge · ${entries.length} Quelle${entries.length === 1 ? '' : 'n'}`;
+        // Zugeklappt heißt nicht stillschweigend: Was die Karten drinnen an
+        // Warnungen zeigen (fehlender oder alter Datenstand), muss die
+        // Zusammenfassung benennen – sonst versteckt das Einklappen ein Problem.
+        // Der Einsatzplaner macht es an derselben Stelle genauso.
+        health.textContent = serviceSourceHealthText({
+            total,
+            unmatched: unmatchedTotal,
+            staleAfterDays: STALE_SOURCE_DAYS,
+            sources: entries.map(([, meta]) => ({ dataAsOf: meta?.dataAsOf, ageDays: daysSince(meta?.dataAsOf) }))
+        });
     }
 }
 
