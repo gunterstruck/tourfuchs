@@ -197,6 +197,17 @@ ist, machen aber jedes weitere Anwachsen sichtbar. Wer eines hebt, trifft eine
 bewusste Produktentscheidung. Gleiche Voraussetzung wie oben; Exit-Code 1 bei
 jedem Befund.
 
+**Als einzige der vier Strecken läuft diese in der CI** (eigener Job
+`attention`, rund eine Minute). `demo-check` und `touch-check` fahren
+zeitbasierte Vorführungen und Gesten durch – auf einem geteilten Runner werden
+solche Läufe unzuverlässig, und ein flackerndes Tor ist schlimmer als keines.
+`attention-check` zählt dagegen einen Zustand, und ihr Gegner ist
+**schleichendes** Anwachsen: Ein Tor, das nur vor dem Release gezogen wird,
+kommt dafür zu spät – bis dahin weiß niemand mehr, welcher der zwanzig PRs die
+Ansicht gefüllt hat. Damit ein grüner Lauf auch etwas heißt, prüft die Strecke
+zuerst, ob sie überhaupt gemessen hat: Wer nichts misst, überschreitet auch kein
+Budget.
+
 **Stack:** Vite · Leaflet + markercluster · SheetJS (xlsx) · vite-plugin-pwa (Workbox) · Vanilla JS (ES Modules)
 
 ### Projektstruktur
