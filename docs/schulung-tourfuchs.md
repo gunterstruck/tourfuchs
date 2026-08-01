@@ -136,6 +136,30 @@ Typische Tabs:
 
 Der Gebietsplanung-Modus ist für Analyse, Flächen, Cockpit und Simulation gedacht.
 
+### Die Oberfläche räumt mit
+
+Ein Punkt, der in Schulungen regelmäßig als Fehler gemeldet wird und keiner ist:
+TourFuchs hält die Arbeitsfläche frei. Zwei Muster stecken dahinter.
+
+**Langes startet zugeklappt.** Der vollständige Briefing-Prompt, „Weitere Felder"
+in der Spaltenzuordnung, der Datentresor, die Datenquellen im Service-Modul: Die
+Kopfzeile nennt, was drinsteckt, ein Klick öffnet es. Nichts ist verschwunden.
+
+Wichtig für die Vermittlung: **Zugeklappt heißt nicht stillschweigend.** Wenn in
+einem zugeklappten Bereich etwas zu tun ist, sagt es die Kopfzeile — der
+Vertragsradar meldet „Datenstand prüfen", der Einsatzplaner bleibt bei
+„Einsatzstand prüfen" sogar offen.
+
+**Angebote treten beim Arbeiten zurück.** Sobald man im Panel nach unten scrollt,
+weichen Kartenstil-Wähler und Beispieldaten-Streifen; die „Erste
+Schritte"-Checkliste schrumpft auf eine Zeile. Wieder hochscrollen holt die
+ersten beiden zurück, ein Tab- oder Moduswechsel setzt alles zurück. Die
+Checkliste kommt mit einem Klick auf ihre Zeile wieder.
+
+Auf Tabs mit wenig Inhalt passiert bewusst gar nichts — dort wäre kein Platz zu
+gewinnen. Wer also auf dem Tour-Tab scrollt und nichts verschwinden sieht, hat
+alles richtig gemacht.
+
 ## 5. Installation als PWA
 
 ### Desktop

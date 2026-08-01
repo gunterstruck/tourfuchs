@@ -93,14 +93,30 @@ Gebietsplanung per Häkchen einblendbar.
 
 Komplexe Gebietsplanung bitte am Desktop durchführen.
 
-## 8. Datenschutz
+## 8. Warum die Oberfläche „aufräumt"
+
+TourFuchs hält die Arbeitsfläche bewusst frei. Zwei Dinge, die auffallen und
+kein Fehler sind:
+
+- **Langes startet zugeklappt.** Der vollständige Briefing-Prompt, „Weitere
+  Felder" bei der Spaltenzuordnung, der Datentresor: Die Kopfzeile sagt, was
+  drinsteckt, ein Klick zoomt hinein. Nichts ist weg – nur einen Klick entfernt.
+- **Angebote treten beim Arbeiten zurück.** Sobald Sie im Panel nach unten
+  scrollen, weichen Kartenstil-Wähler und Beispieldaten-Streifen, und die
+  „Erste Schritte"-Checkliste schrumpft auf eine Zeile. Wieder hochscrollen holt
+  sie zurück, ein Tab- oder Moduswechsel ebenfalls; die Checkliste kommt mit
+  einem Klick auf die Zeile zurück.
+
+Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
+
+## 9. Datenschutz
 
 - Kundendaten bleiben lokal im Browser.
 - OSM-Geocoding sendet nur Adresse, PLZ und Ort.
 - Google Maps erhält Daten erst bei bewusster Übergabe.
 - Vor Daten löschen bei Bedarf Excel-Export erstellen.
 
-## 9. Häufige Probleme
+## 10. Häufige Probleme
 
 ### Keine Kunden sichtbar
 
