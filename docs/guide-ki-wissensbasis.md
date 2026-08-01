@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.6 · Stand: 31.07.2026 · App-Version: 3.0.0**
+**Version 2.7 · Stand: 01.08.2026 · App-Version: 3.0.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -379,7 +379,46 @@ wird ausschließlich mit **Plus/Minus** unten rechts eingestellt.
 - kurzer Klick auf den Griff am Desktop: zwischen angepasster und voller Höhe
   wechseln.
 
-### 4.5 Karte bedienen
+### 4.5 Ruhige Oberfläche: zwei Muster
+
+TourFuchs hält die Arbeitsfläche mit zwei durchgängigen Mustern frei. Wer eine
+Frage dazu beantwortet ("Warum ist die Checkliste weg?", "Wo ist der
+Kartenstil-Wähler hin?"), sollte beide kennen.
+
+**Muster 1 – Aufziehen, was interessiert.** Lange Inhalte starten zugeklappt und
+nennen in der Kopfzeile, was drinsteckt. Ein Klick zoomt hinein. Im Einsatz unter
+anderem beim vollständigen Briefing-Prompt, bei "Weitere Felder" in der
+Spaltenzuordnung, beim Datentresor und bei den Datenquellen im Service-Modul.
+
+Regel dahinter: **Zugeklappt heißt nicht stillschweigend.** Die Kopfzeile muss
+benennen, was drin ist – auch und gerade Warnungen. Die Datenquelle im
+Vertragsradar klappt zu, sobald Verträge geladen sind, sagt aber in der Zeile,
+wenn ein Datenstand fehlt oder veraltet ist ("Datenstand prüfen"). Der
+Einsatzplaner bleibt bei "Einsatzstand prüfen" sogar aufgeklappt.
+
+**Muster 2 – Zurücktreten bei Aktivität.** Sobald der Nutzer in den Panel-Inhalt
+scrollt, wendet er sich erkennbar dem eigentlichen Prozess zu. Dann treten
+zurück:
+
+- der **Kartenstil-Wähler**,
+- der **Beispieldaten-Streifen**,
+- die **"Erste Schritte"-Checkliste** – sie klappt zur schmalen Zeile ein.
+
+Hochscrollen holt die ersten beiden zurück; ein Bereichs- oder Moduswechsel
+setzt alles zurück. Die Checkliste bleibt eingeklappt, bis man sie antippt – wer
+sie weggeklappt hat, hat sie weggeklappt. **Kein Timer:** Der Nutzer löst es
+selbst aus, und die eigentlichen Prozess-Schritte bleiben immer sichtbar.
+
+**Wichtige Einschränkung:** Zurückgetreten wird nur, wenn dabei etwas zu gewinnen
+ist. Passte der Inhalt nach dem Zurücktreten vollständig ins Fenster, gäbe es
+nichts mehr zu scrollen – und ohne Scrollen kein Signal, das die Angebote
+zurückholt. Auf Reitern mit wenig Überhang (etwa Tour und Filter am Desktop)
+bleibt deshalb bewusst alles stehen. Das ist kein Fehler, sondern die Regel.
+
+Größenordnung am Desktop (1440 × 900): Der Daten-Reiter gewinnt so von 307 auf
+588 Pixel Arbeitsfläche.
+
+### 4.6 Karte bedienen
 
 - Mausrad über der Karte zoomt die Karte weich in Viertelstufen.
 - Am Desktop zoomt Plus/Minus unten rechts auf der Karte ebenfalls.
@@ -480,8 +519,10 @@ Die Karte kennt **drei Zustände**:
 - **Eingeklappt:** schmale Fortschrittszeile **"🦊 Erste Schritte 2/4 ▸"**;
   Klick klappt wieder auf. Die Karte klappt **von selbst** ein, sobald der
   Nutzer erkennbar etwas anderes tut – ein weiterer Schritt ist erledigt, die
-  Tour hat Stopps, der Tour-Bezirk wird eingeschränkt, ein Kunde geöffnet oder
-  die Karte angetippt (als hätte er "Später" gedrückt: kein Interesse, kein Platz).
+  Tour hat Stopps, der Tour-Bezirk wird eingeschränkt, ein Kunde geöffnet, die
+  Karte angetippt **oder in den Panel-Inhalt gescrollt** (als hätte er "Später"
+  gedrückt: kein Interesse, kein Platz). Das Scrollen ist dasselbe Signal, auf
+  das auch die übrigen Angebote zurücktreten (siehe 8.4).
   Ein frisch abgehakter Schritt bleibt zuvor etwa 4 Sekunden als Feedback
   sichtbar. Auf dem Smartphone startet die Karte direkt eingeklappt, wird aber
   beim allerersten automatischen Reveal einmal ausgeklappt gezeigt, damit die
@@ -1977,7 +2018,9 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 |---|---|
 | Demo-Daten laden | `Daten -> "App in 60 Sekunden erleben"` |
 | Live-Demos manuell | `Willkommens-Panel -> "Lieber zuschauen?"` oder `Info & Impressum -> "Funktionen entdecken (Live-Demos)"` |
-| Erste Schritte einklappen | `Erste-Schritte-Karte -> "Später"` (Zeile bleibt; Klick klappt wieder auf) |
+| Erste Schritte einklappen | `Erste-Schritte-Karte -> "Später"` (Zeile bleibt; Klick klappt wieder auf). Klappt auch von selbst ein, sobald man in den Panel-Inhalt scrollt |
+| Angebote zurückholen | im Panel wieder ganz nach oben scrollen – oder Bereich/Modus wechseln |
+| Vollständigen Briefing-Prompt lesen | `Briefing-Dialog -> "🔍 Vollständigen Prompt ansehen"` |
 | Erste Schritte abwählen | `Erste-Schritte-Karte -> "Nicht mehr zeigen"` |
 | Erste Schritte zurückholen | `Info & Impressum -> "Erste Schritte anzeigen"` |
 | Service-Fokus öffnen | `Profi -> Fokus "Service"` |
@@ -2749,7 +2792,29 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 2.5
+### 26.3 Änderungen in Version 2.7
+
+- **Briefing-Prompt startet zugeklappt.** In beiden Briefing-Dialogen (Kunde und
+  Gebiet) steht der vollständige Prompt hinter „🔍 Vollständigen Prompt ansehen"
+  samt Zeilenzahl und dem Hinweis, dass nichts rausgeht, bevor man ihn im
+  Assistenten absendet. Der Text liegt weiterhin **vollständig im Dialog** – nur
+  eben einen Klick entfernt. Gemessen: Dialoghöhe 774 → 582 Pixel.
+- **Zurücktreten bei Aktivität greift weiter und verlässlicher** (siehe 4.5):
+  - Die **"Erste Schritte"-Checkliste** klappt jetzt auch beim Scrollen in den
+    Panel-Inhalt zur schmalen Zeile ein. Bisher wichen nur Kartenstil-Wähler und
+    Beispieldaten-Streifen, obwohl die Checkliste das größte Angebot war.
+  - **Zurückgetreten wird nur, wenn etwas zu gewinnen ist.** Vorher konnte der
+    Fall eintreten, dass die Angebote mehr Platz freigaben, als der Inhalt an
+    Überhang hatte – dann passte alles ins Fenster, es gab nichts mehr zu
+    scrollen, und die Angebote kamen bis zum Bereichswechsel nicht zurück. Auf
+    Reitern mit wenig Überhang (Tour, Filter) bleibt jetzt bewusst alles stehen.
+  - Gemessen am Daten-Reiter (Desktop 1440 × 900): Arbeitsfläche 307 → 588 Pixel.
+- **Der Vertragsradar verschweigt nichts mehr, wenn er zuklappt.** Die
+  Zusammenfassungszeile der Datenquelle nennt jetzt auch einen fehlenden oder
+  veralteten Datenstand („Datenstand prüfen"), nicht nur Umfang und
+  Zuordnungslücken.
+
+### 26.4 Änderungen in Version 2.5
 
 - **Durchgängiges Muster „Überblick → aufzoomen":** Grobe, mehrstufige Bereiche
   zeigen zuerst den Prozess/Überblick, Details kommen auf Abruf – wie das Zoomen
@@ -2786,7 +2851,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   sie neben der sichtbaren Karte. Die „Chancen"-Live-Demo überspringt die
   Einfärb-Schritte auf dem Handy.
 
-### 26.4 Änderungen in Version 2.4
+### 26.5 Änderungen in Version 2.4
 
 - **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
   Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
@@ -2825,7 +2890,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
   danach sauber wieder her.
 
-### 26.5 Änderungen in Version 2.3
+### 26.6 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -2869,7 +2934,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.6 Änderungen in Version 2.2
+### 26.7 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -2925,7 +2990,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.7 Änderungen in Version 2.1
+### 26.8 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -2938,7 +3003,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.8 Änderungen in Version 2.0
+### 26.9 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.
@@ -2984,7 +3049,8 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 | Tresor | AES-256, PIN, Recovery, optional Face/Touch ID |
 | Sicherer Umzug | `.tfsafe` + getrennter Schlüssel-QR |
 | Live-Demos | nur auf Klick: Willkommens-Panel "Lieber zuschauen?" oder Info |
-| Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten zur Zeile ein; Abwahl über Info umkehrbar |
+| Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten – auch beim Scrollen – zur Zeile ein; Abwahl über Info umkehrbar |
+| Ruhige Oberfläche | zwei Muster: Langes startet zugeklappt und nennt in der Kopfzeile, was drin ist; beim Scrollen in den Inhalt treten Kartenstil, Beispieldaten-Streifen und Checkliste zurück. Nur wenn dabei etwas zu gewinnen ist – sonst bleibt alles stehen |
 | Service-Fokus | Profi; Verträge + Einsätze getrennt, Join nur über Kundennummer; erklärbarer Tagesvorschlag |
 | Zanobo | Link-out je Anlagen-ID (`#/m/<id>`, Fragment bleibt lokal); Vergleich statt Diagnose; Standard zanobo.vercel.app |
 | Tablet | hochkant Blatt-Geometrie + mobiler Einstieg (Außendienst/Tour/Basis), Funktionsumfang bleibt voll; quer Seitenleiste. Drehen ändert nur die Geometrie |
