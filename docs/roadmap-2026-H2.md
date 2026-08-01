@@ -264,6 +264,7 @@ Dieses Release gibt ihr einen Namen, ein Messgerät und drei Grenzen. Es enthäl
 | 9.1 | **Gestaltprinzip schriftlich** | ✅ umgesetzt | `docs/gestaltprinzip-aufmerksamkeit.md`: vier Prüffragen für die Definition of Done, drei ausdrückliche Grenzen. Prüfregel, kein Umbauauftrag. |
 | 9.2 | **`npm run attention-check`** | ✅ umgesetzt | Vierte Prüfstrecke. Zählt sichtbare Bedienelemente in der gebauten App: Erstbild, Rahmen, je Reiter nach Tiefe und Modus. Prüft zwei Regeln: Die Übersicht zeigt den Prozess, nicht die Inhalte – und Verdrängung lässt den Rückweg stehen. Budgets = Ist-Stand plus Luft, als Sperrklinke. |
 | 9.3 | **Eine Frage zur Zeit im Erstbild** | ✅ umgesetzt | Erster Befund des neuen Werkzeugs (siehe unten). Erstbild Schreibtisch 39 → 33 Bedienelemente, Panel 24 → 18. |
+| 9.4 | **Lasso-Knopf auf dem Tablet erreichbar** | ✅ umgesetzt | Offener `touch-check`-Befund, älter als dieses Release: Hochkant lag der Lasso-Knopf hinter der Basis/Profi-Pille. Dieselbe Ursache wie 9.3 – zwei richtige Entscheidungen, ein Platz (siehe unten). |
 
 #### Der Befund, und warum ihn niemand sehen konnte
 
@@ -292,6 +293,34 @@ Die Analyse, die zu diesem Release führte, nannte den Tour-Reiter überladen:
 sagt **5 bis 9**. Der Befund war falsch, die Frage richtig – und bis dahin
 unbeantwortbar. Dieselbe Lehre wie bei `face-check`: Quelltext lesen ist keine
 Messung.
+
+#### Derselbe Fehler, zweimal: der Lasso-Knopf (9.4)
+
+`touch-check` meldete seit längerem, dass der Lasso-Knopf auf dem hochkanten
+Tablet verdeckt und nicht antippbar ist – ein offener Befund, der nicht zu
+diesem Release gehörte. Beim Nachsehen war es **dieselbe Ursache wie 9.3**.
+
+Zwei Entscheidungen hatten unabhängig voneinander denselben Platz beansprucht:
+
+- Der schwebende **Kopf-Streifen** (Basis/Profi, Reiter) wurde nach oben
+  gezogen, damit Tiefe und Bereich immer sichtbar bleiben.
+- Die **Karten-Knopfzeile** wurde hochkant nach oben gezogen, weil unten das
+  Blatt steht und sie dort verschwände.
+
+„Oben ist frei" stimmte für beide – aber nur einzeln. Die Knopfzeile rechnete
+gegen `--topbar-height` und landete damit genau hinter der Basis/Profi-Pille.
+
+Behoben, indem die Unterkante des Streifens **gemessen** statt geschätzt wird
+(`syncTopnavMetrics()` in `src/ui/sidebar.js`, veröffentlicht als
+`--mobile-topnav-bottom`; ein `ResizeObserver` hält den Wert nach). Eine feste
+Zahl im CSS wäre nur so lange richtig gewesen, bis jemand eine Zeile ergänzt –
+der Streifen ist mal ein-, mal zweizeilig und im Onboarding gar nicht da. Das
+Blatt rechnet in `tourSheetHeight()` längst genauso.
+
+**Die Lehre, die über beide Befunde hinausgeht:** Diese Sorte Fehler entsteht
+nicht durch eine falsche Entscheidung, sondern durch zwei richtige, die
+niemand nebeneinandergelegt hat. Ein Review findet sie nicht, weil jeder Teil
+für sich begründet ist. Nur eine Messung am fertigen Bild findet sie.
 
 #### Drei Grenzen (nicht verhandelbar)
 

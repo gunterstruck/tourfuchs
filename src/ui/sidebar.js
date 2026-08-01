@@ -132,6 +132,29 @@ function syncTopnavPlacement() {
     }
 }
 
+/**
+ * Die Unterkante des schwebenden Kopf-Streifens als CSS-Größe veröffentlichen.
+ *
+ * Anlass ist ein Befund von `npm run touch-check` auf dem hochkanten Tablet:
+ * Der Lasso-Knopf lag unter der Basis/Profi-Pille und war nicht antippbar.
+ * Zwei Entscheidungen, jede für sich richtig, waren unabhängig voneinander an
+ * denselben Platz gezogen – der Kopf-Streifen, weil Tiefe und Reiter immer
+ * sichtbar bleiben sollen, und die Karten-Knopfzeile, weil unten das Blatt
+ * steht und sie dort verschwände. „Oben ist frei" stimmte für beide, aber nur
+ * einzeln.
+ *
+ * Der Streifen ist mal ein-, mal zweizeilig und im Onboarding gar nicht da;
+ * eine feste Zahl im CSS wäre wieder nur so lange richtig, bis jemand eine
+ * Zeile ergänzt. Gemessen wird deshalb, was tatsächlich dasteht – wie es
+ * `tourSheetHeight()` für das aufgezogene Blatt längst tut.
+ */
+function syncTopnavMetrics() {
+    const nav = document.getElementById('mobile-topnav');
+    const sichtbar = nav && nav.offsetParent !== null && nav.getBoundingClientRect().height > 0;
+    const unterkante = sichtbar ? Math.round(nav.getBoundingClientRect().bottom) : topbarPx();
+    document.documentElement.style.setProperty('--mobile-topnav-bottom', `${unterkante}px`);
+}
+
 function clampSidebarWidth(width) {
     return Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Math.round(width)));
 }
@@ -1091,12 +1114,22 @@ export function initSidebar() {
     initServiceOptIn();
     initDepth();
     syncTopnavPlacement();
+    syncTopnavMetrics();
+    // Der Streifen wächst und schrumpft mit seinem Inhalt (eine oder zwei
+    // Reihen, im Onboarding gar keine) und mit jeder Drehung. Statt jede
+    // einzelne Stelle zu suchen, die ihn ändert, wird er beobachtet – wer eine
+    // Reihe ergänzt, muss dann an nichts weiter denken.
+    const topnav = document.getElementById('mobile-topnav');
+    if (topnav && typeof ResizeObserver === 'function') {
+        new ResizeObserver(syncTopnavMetrics).observe(topnav);
+    }
     applyDataPanelLayout();
     // Bei Wechsel Desktop <-> Handy (Drehen/Resize) Elemente umhängen.
     const syncViewport = () => {
         if (isMobileUi() && state.ui.mode === 'service') applyMode('aussendienst', false);
         syncSidebarPositionForViewport();
         syncTopnavPlacement();
+        syncTopnavMetrics();
         applyDataPanelLayout();
         applySidebar();
         syncLevelControl();

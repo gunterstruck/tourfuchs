@@ -150,6 +150,26 @@ geprüft in `tests/firstSteps.test.js`.
 **Wirkung:** Erstbild am Schreibtisch von 39 auf 33 Bedienelemente, Panel von 24
 auf 18.
 
+### Derselbe Fehler an anderer Stelle: der Lasso-Knopf
+
+`touch-check` meldete unabhängig davon, dass der Lasso-Knopf auf dem hochkanten
+Tablet verdeckt und nicht antippbar ist. Beim Nachsehen: dieselbe Ursache.
+
+Der schwebende Kopf-Streifen (Basis/Profi, Reiter) wurde nach oben gezogen,
+damit Tiefe und Bereich immer sichtbar bleiben. Die Karten-Knopfzeile wurde
+hochkant nach oben gezogen, weil unten das Blatt steht und sie dort
+verschwände. **„Oben ist frei" stimmte für beide – aber nur einzeln.**
+
+Behoben, indem die Unterkante des Streifens gemessen statt geschätzt wird
+(`syncTopnavMetrics()`, veröffentlicht als `--mobile-topnav-bottom`). Eine feste
+Zahl im CSS wäre nur so lange richtig gewesen, bis jemand eine Zeile ergänzt.
+
+**Die Lehre über beide Befunde hinweg:** Diese Sorte Fehler entsteht nicht durch
+eine falsche Entscheidung, sondern durch **zwei richtige, die niemand
+nebeneinandergelegt hat**. Ein Review findet sie nicht, weil jeder Teil für sich
+begründet ist. Nur eine Messung am fertigen Bild findet sie. Deshalb ist
+Prüffrage 2.4 keine Formalie.
+
 ---
 
 ## 5. Was ausdrücklich nicht gilt
