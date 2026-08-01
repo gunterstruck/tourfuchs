@@ -142,7 +142,7 @@ describe('Showcase-Onboarding', () => {
         const appReadyIndex = mainSource.indexOf("emit('app:ready');");
 
         // Ab Tablet-Breite startet das Panel offen, am Handy eingeklappt.
-        expect(stateSource).toContain('sidebarOpen: window.innerWidth > 768');
+        expect(stateSource).toContain('sidebarOpen: !isPhoneUi()');
         expect(welcomeIndex).toBeGreaterThan(-1);
         expect(appReadyIndex).toBeGreaterThan(welcomeIndex);
         // Ein Trichter: keine konkurrierenden Auto-Dialoge über dem Willkommens-Panel.

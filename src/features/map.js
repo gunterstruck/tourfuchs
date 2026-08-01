@@ -8,6 +8,7 @@ import L from 'leaflet';
 import 'leaflet.markercluster';
 
 import { CONFIG } from '../core/config.js';
+import { isPhoneUi } from '../core/viewport.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, UNASSIGNED } from '../core/state.js';
@@ -108,7 +109,7 @@ const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
 ));
 
 function isMobileMap() {
-    return window.innerWidth <= 768;
+    return isPhoneUi();
 }
 
 function discoveryJourneyDone() {

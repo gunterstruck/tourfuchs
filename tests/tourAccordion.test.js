@@ -50,7 +50,7 @@ describe('Mobiles Tour-Akkordeon (Startpunkt · Vorschläge · Meine Tour)', () 
         expect(panel).toContain('tourAccPinned = true');
         expect(panel).toContain('tourAccPinned = false');
         // Nur auf dem Handy aktiv.
-        expect(panel).toContain("matchMedia('(max-width: 768px)')");
+        expect(panel).toContain('isPhoneUi()');
     });
 
     it('füllt sprechende Zusammenfassungen (Start, Umkreis, Stopps)', () => {

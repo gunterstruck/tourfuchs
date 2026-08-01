@@ -13,7 +13,8 @@ import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './serv
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
 import { enrichPlacesByPlz, geocodeByPlz } from './services/geocode.js';
 import { initMap } from './features/map.js';
-import { initSidebar, applyMode, autoRevealIfEmpty, isSheetUi, showDataView, showMapView, showTourView } from './ui/sidebar.js';
+import { initSidebar, applyMode, autoRevealIfEmpty, showDataView, showMapView } from './ui/sidebar.js';
+import { isPhoneUi, releaseInheritedOrientationLock } from './core/viewport.js';
 import { initImportWizard } from './ui/importWizard.js';
 import { initTourPanel } from './ui/tourPanel.js';
 import { openReceivedFromUrl } from './ui/tourQr.js';
@@ -156,38 +157,33 @@ async function restorePersistedState() {
         emit('customers:changed');
     }
 
-    // Fokus-Modus wiederherstellen (Farbmodus wurde bereits oben gesetzt -> nicht überschreiben)
-    // Ein hochkantes Tablet bekommt denselben Einstieg wie das Handy: Wer das
-    // Gerät hochkant in die Hand nimmt, will eine Tour, nicht das Cockpit.
-    // Das gilt jetzt auch für breite Tablets (12,9" hochkant = 1024 px), die
-    // bisher durch die 900-px-Schwelle fielen und mit dem Desktop-Tab starteten.
-    // Gesperrt wird dabei nichts – der Funktionsumfang bleibt voll (siehe
-    // isSheetUi in sidebar.js); vorgegeben wird nur der Einstieg.
-    const phoneStartup = window.matchMedia('(max-width: 768px)').matches;
-    const portraitTabletStartup = isSheetUi() && !phoneStartup;
-    // Schmale Querformate (Handy gedreht) behalten den kompakten Einstieg von
-    // früher, obwohl sie keine Blatt-Geometrie haben.
-    const compactStartup = window.matchMedia('(max-width: 900px)').matches;
-    const sheetStartup = phoneStartup || portraitTabletStartup || compactStartup;
+    // Fokus-Modus wiederherstellen (Farbmodus wurde bereits oben gesetzt -> nicht
+    // überschreiben).
+    //
+    // Bis Version 3.1 standen hier DREI Startweichen nebeneinander: 768 px fürs
+    // Handy, die Blatt-Abfrage fürs hochkante Tablet und zusätzlich 900 px für
+    // schmale Querformate. Ein hochkantes Tablet bekam davon einen eigenen
+    // Einstieg (Reiter „Tour" statt „Karte") – also ein drittes Verhalten neben
+    // Handy und Schreibtisch.
+    //
+    // Jetzt entscheidet ein Gesicht: In der Touransicht startet jedes Gerät
+    // gleich, ob Handy oder Tablet hochkant. „Kein Unterschied" ist der ganze
+    // Zweck – wer dreht, soll nichts Neues lernen müssen.
+    const tourFace = isPhoneUi();
 
-    if (!sheetStartup && typeof settings?.activeTab === 'string') state.ui.activeTab = settings.activeTab;
-    if (!sheetStartup && ['aussendienst', 'gebietsplanung', 'service'].includes(settings?.mode)) {
+    if (!tourFace && typeof settings?.activeTab === 'string') state.ui.activeTab = settings.activeTab;
+    if (!tourFace && ['aussendienst', 'gebietsplanung', 'service'].includes(settings?.mode)) {
         state.ui.mode = settings.mode;
     }
-    if (sheetStartup) {
+    if (tourFace) {
         state.ui.mode = 'aussendienst';
-        // Mit Daten startet das Handy direkt auf der Karte (Blatt eingeklappt),
-        // damit die Kunden sofort sichtbar sind. Auf dem hochkanten Tablet liegt
-        // die Karte ohnehin über dem Blatt – dort ist die Tour der bessere
-        // Einstieg, weil Karte und Planer gleichzeitig sichtbar bleiben.
-        // Ohne Daten öffnet sich in beiden Fällen das Datenblatt (Onboarding).
-        if (state.customers.length === 0) state.ui.activeTab = 'daten';
-        else state.ui.activeTab = portraitTabletStartup ? 'tour' : 'karte';
+        // Mit Daten direkt auf die Karte (Blatt eingeklappt), damit die Kunden
+        // sofort sichtbar sind. Ohne Daten öffnet das Datenblatt (Onboarding).
+        state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'karte';
     }
     applyMode(state.ui.mode, false);
-    if (sheetStartup) {
+    if (tourFace) {
         if (state.customers.length === 0) showDataView(false);
-        else if (portraitTabletStartup) showTourView(false);
         else showMapView(false);
     }
 }
@@ -210,6 +206,8 @@ function handleSharedTourFromUrl() {
 }
 
 async function init() {
+    // Zuerst: Geräte befreien, die noch die alte Manifest-Sperre tragen.
+    releaseInheritedOrientationLock();
     initToasts();
     initCustomerBriefing();
     initAreaBriefing();

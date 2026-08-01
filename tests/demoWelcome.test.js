@@ -61,8 +61,8 @@ describe('Entdeck-Hinweise bei Beispieldaten wieder scharf', () => {
         // Panel unten liegt – also am Handy und auf dem hochkanten Tablet.
         expect(sidebar).toContain('isSheetUi() ? !state.ui.sidebarOpen : true');
         // Desktop-Styling ab 769px, damit der Knopf auch auf dem Tablet gestaltet ist.
-        expect(responsive).toContain('@media (min-width: 769px)');
-        const desktopBlock = responsive.slice(responsive.indexOf('@media (min-width: 769px)'));
+        expect(responsive).toContain('(min-width: 769px) and (orientation: landscape)');
+        const desktopBlock = responsive.slice(responsive.indexOf('@media (min-width: 1201px)'));
         expect(desktopBlock).toContain('.mobile-next-step');
     });
 });
