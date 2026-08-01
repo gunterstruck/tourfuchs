@@ -777,6 +777,34 @@
                     <a href="https://github.com/gunterstruck/tourfuchs/issues" target="_blank" rel="noopener">Auf GitHub melden</a> ·
                     <a href="mailto:tourfuchs@online.de?subject=TourFuchs%20Feedback">E-Mail schreiben</a></p>
                 <p><b>Datenschutz:</b> Kundendaten werden lokal in Ihrem Browser gespeichert. Optional lassen sie sich mit einem PIN- bzw. Face-/Touch-ID-geschützten <b>Datentresor AES-256-verschlüsseln</b>. Das Kundenbriefing erzeugt einen Prompt ausschließlich lokal, kopiert ihn auf Ihren Klick und öffnet Ihren Assistenten – TourFuchs meldet sich nirgends an und sendet nichts; abgeschickt wird der Prompt erst von Ihnen. Die optionale exakte Adress-Verortung sendet nur die jeweilige Adresse an OpenStreetMap (Nominatim).</p>
+                <details class="info-omitted">
+                    <summary><b>🪦 Was wir weggelassen haben</b></summary>
+                    <p class="muted small">Jedes Produkt zeigt, was es kann. Hier steht, was es <b>bewusst nicht</b> kann – und warum. Streichungen sind Entscheidungen, keine Versäumnisse, und sie gehören genauso offengelegt wie die Funktionen.</p>
+                    <dl class="omitted-list">
+                        <dt>Automatischer Tourvorschlag <span class="omitted-date">10.07.2026</span></dt>
+                        <dd><b>Gestrichen nach Nutzerfeedback.</b> „Plane meinen Tag" war als Kernfunktion geplant und vollständig entworfen: überfällige Kunden gewichtet nach Fälligkeit, Umsatz und Fahrstrecke, fertig optimiert ab GPS-Standort. Die Rückmeldung war eindeutig – die Tour plant der Mensch. Automatik hilft nur dort, wo sie nichts vorwegnimmt: bei Zeiten, Terminen und der Übergabe aufs Handy.</dd>
+
+                        <dt>Anmeldung mit dem Arbeitskonto <span class="omitted-date">25.07.2026</span></dt>
+                        <dd><b>Entfernt.</b> Der Weg über Entra/Graph hätte das Kundenbriefing automatisch beantwortet, verlangte aber IT-Freigaben, band an einen einzigen Anbieter und stand quer zum Versprechen, dass nichts das Gerät verlässt. Geblieben ist: TourFuchs baut den Prompt lokal, Sie senden ihn selbst.</dd>
+
+                        <dt>KI im Produkt <span class="omitted-date">Grundsatz</span></dt>
+                        <dd><b>Nie eingebaut.</b> TourFuchs bindet keine KI an – weder per Schnittstelle noch per Anmeldung. Es bereitet einen Prompt vor, mehr nicht. Wohin er geht und ob überhaupt, entscheiden Sie.</dd>
+
+                        <dt>PIN-Pflicht nach dem Import <span class="omitted-date">31.07.2026</span></dt>
+                        <dd><b>Zum Angebot herabgestuft.</b> Der Tresor war Pflicht, bevor man die eigenen Daten sehen durfte. Eine Sicherheitsmaßnahme, die den ersten Blick blockiert, wird weggeklickt statt verstanden. Jetzt ist sie ein Angebot – und wird häufiger angenommen.</dd>
+
+                        <dt>Fünf-Sekunden-Automatik in den Live-Demos <span class="omitted-date">Version 2.6</span></dt>
+                        <dd><b>Abgeschafft.</b> Angebote traten nach einem Zeitgeber zurück. Ein Timer entscheidet über Aufmerksamkeit, ohne den Menschen zu fragen. Heute löst ausschließlich er selbst aus – durch Scrollen, Tippen, Weiterarbeiten.</dd>
+
+                        <dt>Eigene Navigation, Live-Verkehr, fremde Orte <span class="omitted-date">Grundsatz</span></dt>
+                        <dd><b>Nicht nachgebaut.</b> Was Google Maps besser kann, übergeben wir per Klick, statt es schlechter zu kopieren. TourFuchs kennt Ihre Kunden; die Welt kennt Google.</dd>
+
+                        <dt>Eine eigene Tablet-Ansicht <span class="omitted-date">01.08.2026</span></dt>
+                        <dd><b>Zurückgenommen, einen Tag nach dem Einbau.</b> Ein Tablet bekam hochkant eine dritte Oberfläche – zwischen Handy und Schreibtisch. Am echten Gerät fiel auf, dass drei Layouts zwei zu viele sind. Jetzt entscheidet die Haltung: quer Schreibtisch, hochkant wie das Handy.</dd>
+                    </dl>
+                    <p class="muted small">Diese Liste wächst. Wenn eine Funktion verschwindet, steht hier warum – auch dann, wenn die Entscheidung uns nicht schmeichelt.</p>
+                </details>
+
                 <h3>Impressum</h3>
                 <p>Verantwortlich gemäß § 5 TMG:<br>
                 Günter Struck · Lönsberg 8 · 45136 Essen<br>
@@ -863,6 +891,18 @@
                     <button id="sim-apply" class="secondary">Auswahl zuweisen</button>
                 </div>
                 <div id="sim-changes"></div>
+                <details id="sim-scenarios" class="sim-scenarios">
+                    <summary>💾 Szenarien <span id="sim-scenario-count" class="muted small"></span></summary>
+                    <p class="muted small">Eine Simulation unter einem Namen ablegen, um sie später wieder aufzurufen – etwa „Variante Nord" gegen „Variante Süd". Gespeichert werden nur Zuordnungen, keine Kundendaten.</p>
+                    <div class="sim-scenario-save">
+                        <label class="sim-field">Name
+                            <input id="sim-scenario-name" type="text" maxlength="40" placeholder="z. B. Variante Nord" autocomplete="off">
+                        </label>
+                        <button id="sim-scenario-store" type="button" class="secondary">Als Szenario sichern</button>
+                    </div>
+                    <div id="sim-scenario-list" class="sim-scenario-list"></div>
+                    <div id="sim-scenario-compare" class="sim-scenario-compare" hidden></div>
+                </details>
                 <footer>
                     <div class="simulation-history-actions">
                         <button id="sim-undo" type="button" disabled>↶ Ein Schritt zurück</button>

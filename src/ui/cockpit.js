@@ -18,6 +18,16 @@ import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, emit, on, attrColor, setCustomers, setTerritory, getTerritory, getCustomer, DIMENSIONS, UNASSIGNED } from '../core/state.js';
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
 import { regionMembership } from '../features/territory.js';
+import {
+    compareScenarios,
+    removeScenario,
+    scenarioFit,
+    scenarioFromSnapshot,
+    scenarioSummary,
+    snapshotFromScenario,
+    upsertScenario
+} from '../features/simulationScenarios.js';
+import { loadScenarios, saveScenarios } from '../services/storage.js';
 import { showToast } from './toast.js';
 import { desktopPlanningAvailable, mobilePlanningMediaQuery } from './planningViewport.js';
 
@@ -265,6 +275,14 @@ export function initCockpit() {
     document.getElementById('sim-apply').addEventListener('click', assignSelected);
     document.getElementById('sim-undo').addEventListener('click', undoSimulationStep);
     document.getElementById('sim-redo').addEventListener('click', redoSimulationStep);
+    document.getElementById('sim-scenario-store')?.addEventListener('click', storeScenario);
+    document.getElementById('sim-scenario-name')?.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') { event.preventDefault(); storeScenario(); }
+    });
+    loadScenarios().then((stored) => {
+        scenarios = Array.isArray(stored) ? stored : [];
+        renderScenarios();
+    });
     document.getElementById('sim-reset').addEventListener('click', resetSimulation);
     document.getElementById('sim-commit').addEventListener('click', commitSimulation);
     document.getElementById('simulation-map-edit').addEventListener('click', editSimulation);
@@ -525,6 +543,142 @@ function renderAll() {
     renderTargetSelect();
     renderRegionList();
     renderChanges();
+    renderScenarios();
+}
+
+// ---- Benannte Szenarien -----------------------------------------------------
+//
+// „Variante Nord gegen Variante Süd" ist keine neue Mechanik: Ein Szenario ist
+// der Schnappschuss, den der Rückgängig-Stapel ohnehin dreißigmal je Sitzung
+// erzeugt – nur mit einem Namen und in IndexedDB statt im Arbeitsspeicher.
+
+let scenarios = [];
+let compareWith = null;   // id des zweiten Szenarios im Vergleich
+
+async function persistScenarios(next) {
+    scenarios = next;
+    const ok = await saveScenarios(scenarios);
+    if (!ok) showToast('Szenario konnte nicht dauerhaft gespeichert werden.', 'error');
+    renderScenarios();
+}
+
+async function storeScenario() {
+    const input = document.getElementById('sim-scenario-name');
+    let scenario;
+    try {
+        scenario = scenarioFromSnapshot(input.value, snapshotSimulation(), {
+            assignAttr,
+            level: simulationLevel,
+            fileName: state.fileName,
+            importedAt: state.importedAt
+        });
+    } catch (error) {
+        showToast(error.message, 'info');
+        return;
+    }
+    const { scenarios: next, replaced, dropped } = upsertScenario(scenarios, scenario);
+    input.value = '';
+    await persistScenarios(next);
+    const hint = dropped ? ` „${dropped.name}" ist dafür entfallen (Platz erschöpft).` : '';
+    showToast(`Szenario „${scenario.name}" ${replaced ? 'ersetzt' : 'gesichert'}.${hint}`, 'success');
+}
+
+function loadScenario(id) {
+    const scenario = scenarios.find((item) => item.id === id);
+    if (!scenario) return;
+    // `getCustomer` ist der Index; für die Passungsprüfung reicht eine Menge
+    // der bekannten IDs, ohne den Index nach außen zu geben.
+    const fit = scenarioFit(scenario, new Set(state.customers.map((customer) => customer.id)));
+    if (!fit.complete && !window.confirm(
+        `„${scenario.name}" wurde gegen einen anderen Datenbestand gespeichert.\n\n`
+        + `${fit.missing} von ${fit.total} Kunden gibt es nicht mehr; ${fit.applicable} lassen sich übernehmen.\n\n`
+        + 'Trotzdem laden?'
+    )) return;
+
+    // Der aktuelle Stand ist eine Zuweisung wie jede andere: Er landet im
+    // Rückgängig-Stapel, damit das Laden umkehrbar bleibt.
+    if (overrides.size || pendingTerr.size) {
+        undoStack.push(snapshotSimulation());
+        if (undoStack.length > 30) undoStack.shift();
+    }
+    redoStack = [];
+    const snapshot = snapshotFromScenario(scenario);
+    // Kunden, die es nicht mehr gibt, werden nicht mitgeschleppt.
+    for (const id of [...snapshot.overrides.keys()]) {
+        if (!getCustomer(id)) snapshot.overrides.delete(id);
+    }
+    assignAttr = scenario.assignAttr || assignAttr;
+    restoreSimulation(snapshot);
+    showToast(`Szenario „${scenario.name}" geladen${fit.complete ? '' : ` (${fit.applicable} von ${fit.total} Kunden)`}.`, 'success');
+}
+
+async function deleteScenario(id) {
+    const scenario = scenarios.find((item) => item.id === id);
+    if (!scenario) return;
+    if (!window.confirm(`Szenario „${scenario.name}" löschen?`)) return;
+    if (compareWith === id) compareWith = null;
+    await persistScenarios(removeScenario(scenarios, id));
+    showToast(`Szenario „${scenario.name}" gelöscht.`, 'info');
+}
+
+/** Das laufende Overlay als Pseudo-Szenario – damit „gegen jetzt" vergleichbar ist. */
+function liveAsScenario() {
+    return { name: 'aktuelle Simulation', overrides: [...overrides], pendingTerr: [...pendingTerr] };
+}
+
+function renderCompare() {
+    const box = document.getElementById('sim-scenario-compare');
+    if (!box) return;
+    const other = scenarios.find((item) => item.id === compareWith);
+    if (!other) { box.hidden = true; box.innerHTML = ''; return; }
+
+    const diff = compareScenarios(liveAsScenario(), other);
+    box.hidden = false;
+    box.innerHTML = `
+        <b>Aktuelle Simulation gegen „${escapeHtml(other.name)}"</b>
+        <ul class="sim-compare-list">
+            <li><b>${diff.same}</b> Kunden gleich zugewiesen</li>
+            <li><b>${diff.conflicting.length}</b> Kunden <span class="sim-compare-conflict">widersprüchlich</span></li>
+            <li><b>${diff.onlyA}</b> nur jetzt · <b>${diff.onlyB}</b> nur im Szenario</li>
+        </ul>
+        <button type="button" class="linklike" data-scenario-compare="">Vergleich schließen</button>`;
+}
+
+function renderScenarios() {
+    const list = document.getElementById('sim-scenario-list');
+    if (!list) return;
+    const countEl = document.getElementById('sim-scenario-count');
+    if (countEl) countEl.textContent = scenarios.length ? `(${scenarios.length})` : '';
+
+    const storeButton = document.getElementById('sim-scenario-store');
+    if (storeButton) storeButton.disabled = overrides.size === 0 && pendingTerr.size === 0;
+
+    list.innerHTML = scenarios.length
+        ? scenarios.map((scenario) => `
+            <div class="sim-scenario-row">
+                <div class="sim-scenario-text">
+                    <b>${escapeHtml(scenario.name)}</b>
+                    <small>${escapeHtml(scenarioSummary(scenario, attrLabel))}</small>
+                </div>
+                <button type="button" class="secondary" data-scenario-load="${escapeHtml(scenario.id)}">Laden</button>
+                <button type="button" data-scenario-compare="${escapeHtml(scenario.id)}"${compareWith === scenario.id ? ' class="active"' : ''}>Vergleichen</button>
+                <button type="button" class="linklike" data-scenario-delete="${escapeHtml(scenario.id)}" aria-label="${escapeHtml(scenario.name)} löschen">Löschen</button>
+            </div>`).join('')
+        : '<p class="muted small">Noch kein Szenario gesichert.</p>';
+
+    list.querySelectorAll('[data-scenario-load]').forEach((btn) =>
+        btn.addEventListener('click', () => loadScenario(btn.dataset.scenarioLoad)));
+    list.querySelectorAll('[data-scenario-delete]').forEach((btn) =>
+        btn.addEventListener('click', () => deleteScenario(btn.dataset.scenarioDelete)));
+    list.querySelectorAll('[data-scenario-compare]').forEach((btn) =>
+        btn.addEventListener('click', () => {
+            compareWith = compareWith === btn.dataset.scenarioCompare ? null : btn.dataset.scenarioCompare;
+            renderScenarios();
+        }));
+    renderCompare();
+    document.getElementById('sim-scenario-compare')
+        ?.querySelector('[data-scenario-compare]')
+        ?.addEventListener('click', () => { compareWith = null; renderScenarios(); });
 }
 
 function renderTable() {

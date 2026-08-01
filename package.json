@@ -1,6 +1,6 @@
 {
   "name": "tourfuchs",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "TourFuchs – Kundenlisten aus Excel auf der Deutschlandkarte: Vertriebsgebiete, Besuchsplanung und Servicevertrags-Radar. PWA, alle Daten bleiben im Browser.",
   "type": "module",
   "scripts": {
@@ -11,7 +11,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "demo-check": "node tools/demo-check.mjs",
-    "touch-check": "node tools/touch-check.mjs"
+    "touch-check": "node tools/touch-check.mjs",
+    "face-check": "node tools/face-check.mjs"
   },
   "dependencies": {
     "jsqr": "^1.4.0",

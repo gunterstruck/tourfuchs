@@ -84,3 +84,36 @@ describe('Wissensbasis bildet den Code ab', () => {
         expect(doc).toContain('Kein Nutzungssignal');
     });
 });
+
+describe('„Was wir weggelassen haben" ist ehrlich', () => {
+    const html = readProjectFile('index.html');
+    const block = html.slice(html.indexOf('info-omitted'), html.indexOf('<h3>Impressum</h3>'));
+
+    it('existiert überhaupt', () => {
+        expect(html).toContain('Was wir weggelassen haben');
+        expect(block.length).toBeGreaterThan(500);
+    });
+
+    it('nennt den gestrichenen Tourvorschlag', () => {
+        // Die Bedingung, unter der diese Seite überhaupt gebaut wurde: Eine
+        // Liste, die nur die Tode zeigt, auf die man stolz ist, ist Marketing.
+        // Roadmap-Item 2.1 ist der Tote, der wehtut - jemand wollte das Feature,
+        // es war fertig entworfen, und Nutzerfeedback hat es erledigt.
+        expect(block).toContain('Automatischer Tourvorschlag');
+        expect(block).toContain('10.07.2026');
+    });
+
+    it('nennt auch die Rücknahme von gestern', () => {
+        // Zweiter unbequemer Eintrag: eine eigene Entscheidung, die einen Tag
+        // später am echten Gerät gescheitert ist.
+        expect(block).toContain('Tablet-Ansicht');
+        expect(block).toContain('01.08.2026');
+    });
+
+    it('begründet jeden Eintrag statt ihn nur aufzuzählen', () => {
+        const eintraege = block.match(/<dt>/g) || [];
+        const gruende = block.match(/<dd>/g) || [];
+        expect(eintraege.length).toBeGreaterThanOrEqual(5);
+        expect(gruende).toHaveLength(eintraege.length);
+    });
+});

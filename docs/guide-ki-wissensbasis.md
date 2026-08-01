@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 2.9 · Stand: 01.08.2026 · App-Version: 3.2.0**
+**Version 3.0 · Stand: 01.08.2026 · App-Version: 3.3.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -2840,7 +2840,45 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 2.9
+### 26.3 Änderungen in Version 3.0
+
+- **Benannte Simulations-Szenarien** (Roadmap 3.3). Im Was-wäre-wenn-Bereich
+  lässt sich eine laufende Simulation unter einem Namen sichern, wieder laden
+  und gegen den aktuellen Stand vergleichen („Variante Nord" gegen „Variante
+  Süd"). **Gespeichert werden ausschließlich Zuordnungen** – Kunden-ID und
+  Zielwert –, keine Namen, Adressen oder Umsätze; das Szenario ist damit kein
+  zweites Register der Kundendaten und braucht den Tresor nicht.
+  - Ein Szenario mit gleichem Namen **ersetzt** das vorhandene. Höchstens zwölf
+    Stück; darüber weicht das älteste, nie das gerade gespeicherte.
+  - Das **Laden ist umkehrbar**: Der bisherige Stand wandert vorher in den
+    Rückgängig-Stapel.
+  - Wurde ein Szenario gegen einen **anderen Datenbestand** gespeichert (etwa
+    vor dem Monatsimport), nennt eine Rückfrage vor dem Laden, wie viele Kunden
+    fehlen und wie viele übernommen werden können. Nicht mehr vorhandene Kunden
+    werden verworfen statt stillschweigend mitgeschleppt.
+  - **Antwortregel:** Szenarien ändern nichts an den echten Daten. Erst
+    „Zuweisung übernehmen" schreibt – wie bisher.
+- **„Was wir weggelassen haben"** im Info-Dialog. Eine eingeklappte Liste der
+  bewussten Streichungen mit Datum und je einem Satz Begründung: der
+  gestrichene automatische Tourvorschlag, die entfernte Anmeldung mit dem
+  Arbeitskonto, der Grundsatz gegen KI im Produkt, die herabgestufte
+  PIN-Pflicht, die abgeschaffte Fünf-Sekunden-Automatik, der Verzicht auf
+  eigene Navigation und die zurückgenommene Tablet-Ansicht.
+  - **Die Bedingung, unter der diese Liste gebaut wurde:** Der gestrichene
+    Tourvorschlag (10.07.2026) **muss** darin stehen. Eine Liste, die nur die
+    Tode zeigt, auf die man stolz ist, ist Marketing. `tests/docsConsistency`
+    prüft das.
+  - **Antwortregel:** Auf Fragen nach fehlenden Funktionen ist diese Liste die
+    erste Quelle. Sie ist keine Roadmap – was hier steht, kommt nicht wieder,
+    solange kein neuer Grund vorliegt.
+- **`npm run face-check`** als dritte Prüfstrecke neben `demo-check` und
+  `touch-check`. Sie fährt sechs echte Gerätemaße im Browser ab, prüft je das
+  erwartete Gesicht und vergleicht jedes Touransicht-Format Punkt für Punkt
+  gegen das Smartphone. Anlass: Der Tablet-Zwitter aus Version 2.9 war tagelang
+  im Produkt, weil keine der beiden vorhandenen Strecken **liest**, welches
+  Gesicht die App zeigt.
+
+### 26.4 Änderungen in Version 2.9
 
 - **Zwei Gesichter statt vier Schwellen.** „Mobil" hatte keine Definition,
   sondern vier unabhängig gewachsene Grenzen (560, 768/769, 900/901 und eine
@@ -2876,7 +2914,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Quelldateien darauf, dass keine eigene Breitenschwelle zurückkehrt, und
   bindet das CSS wortgleich an die exportierte Zeichenkette.
 
-### 26.4 Änderungen in Version 2.8
+### 26.5 Änderungen in Version 2.8
 
 - **"Erste Schritte", Punkt 1 richtiggestellt (Dokumentationsfehler).** Der Punkt
   heißt im Code seit Längerem **"Kunden auf der Karte verstehen"** und hakt sich
@@ -2934,7 +2972,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 **Wenn das Tor B3 tötet, gehört B3 auf die Liste "Was wir weggelassen haben".**
 
-### 26.5 Änderungen in Version 2.7
+### 26.6 Änderungen in Version 2.7
 
 - **Briefing-Prompt startet zugeklappt.** In beiden Briefing-Dialogen (Kunde und
   Gebiet) steht der vollständige Prompt hinter „🔍 Vollständigen Prompt ansehen"
@@ -2956,7 +2994,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   veralteten Datenstand („Datenstand prüfen"), nicht nur Umfang und
   Zuordnungslücken.
 
-### 26.6 Änderungen in Version 2.5
+### 26.7 Änderungen in Version 2.5
 
 - **Durchgängiges Muster „Überblick → aufzoomen":** Grobe, mehrstufige Bereiche
   zeigen zuerst den Prozess/Überblick, Details kommen auf Abruf – wie das Zoomen
@@ -2993,7 +3031,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   sie neben der sichtbaren Karte. Die „Chancen"-Live-Demo überspringt die
   Einfärb-Schritte auf dem Handy.
 
-### 26.7 Änderungen in Version 2.4
+### 26.8 Änderungen in Version 2.4
 
 - **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
   Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
@@ -3032,7 +3070,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
   danach sauber wieder her.
 
-### 26.8 Änderungen in Version 2.3
+### 26.9 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -3076,7 +3114,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.9 Änderungen in Version 2.2
+### 26.10 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -3132,7 +3170,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.10 Änderungen in Version 2.1
+### 26.11 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -3145,7 +3183,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.11 Änderungen in Version 2.0
+### 26.12 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.
