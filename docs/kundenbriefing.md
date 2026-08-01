@@ -52,6 +52,18 @@ Die Wahl wird lokal gemerkt und passt zwei Dinge an: die geöffnete Adresse **un
 Quellenzeile im Prompt. Für eigene Adressen ist ausschließlich `https` zulässig; eine
 unvollständige Eingabe fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
 
+## Der Prompt: einsehbar, aber nicht im Weg
+
+Der vollständige Prompt steht im Dialog unter **„🔍 Vollständigen Prompt ansehen"**
+– mit Zeilenzahl und dem Hinweis, dass er erst beim Absenden im Assistenten das
+Gerät verlässt. Aufklappen geht **vor** dem Kopieren; nichts wird übertragen,
+bevor der Nutzer es lesen konnte.
+
+Ausgeklappt belegte er zuvor 41 % eines Dialogs, dessen ganze Aufgabe ein Knopf
+ist. Die Zusage lautet „vollständig verfügbar", nicht „muss ungefragt den halben
+Bildschirm belegen" – eingeklappt mit sprechender Zeile steht sie sogar
+deutlicher da als vorher im grauen Kasten.
+
 ## Eigene Nachschlagequellen – „schau hier nach" statt „such mal"
 
 Der häufigste Grund für ein enttäuschendes Briefing ist kein schlechter Prompt,

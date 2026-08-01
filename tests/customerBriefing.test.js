@@ -156,3 +156,49 @@ describe('Keine automatische KI-Anbindung mehr', () => {
         expect(Object.keys(pkg.dependencies)).not.toContain('@azure/msal-browser');
     });
 });
+
+describe('Der Prompt ist einsehbar, aber nicht im Weg', () => {
+    // Gemessen: Ausgeklappt belegte der Prompt 319 von 774 px Dialoghöhe (41 %) –
+    // in einem Dialog, dessen ganze Aufgabe ein Knopf ist. Eingeklappt sind es
+    // 72 px, der Dialog schrumpft auf 582 px. Die Zusage bleibt: vollständig
+    // einsehbar, und zwar VOR dem Kopieren.
+    const kunde = readFileSync(resolve(process.cwd(), 'src/ui/customerBriefing.js'), 'utf8');
+    const gebiet = readFileSync(resolve(process.cwd(), 'src/ui/areaBriefing.js'), 'utf8');
+
+    it('klappt den Prompt in beiden Dialogen ein', () => {
+        for (const ui of [kunde, gebiet]) {
+            expect(ui).toContain('<details class="briefing-prompt-visible">');
+            expect(ui).toContain('🔍 Vollständigen Prompt ansehen');
+        }
+    });
+
+    it('nennt Umfang und den Zeitpunkt der Übertragung in der Zeile', () => {
+        for (const ui of [kunde, gebiet]) {
+            expect(ui).toContain("split('\\n').length");
+            expect(ui).toMatch(/Zeilen · geht erst raus/);
+        }
+    });
+
+    it('hält den vollständigen Wortlaut weiterhin im Dialog', () => {
+        // Nicht nachladen, nicht kürzen: Der Text steht komplett im pre-Element.
+        expect(kunde).toContain("pre.textContent = currentPrompt");
+        expect(gebiet).toContain('pre.textContent = currentPrompt');
+    });
+
+    it('lässt den erklärenden Doppel-Absatz weg', () => {
+        // Kicker und Überschrift sagten dasselbe bereits.
+        expect(kunde).not.toContain('TourFuchs hat aus dem ausgewählten Kunden');
+        expect(gebiet).not.toContain('TourFuchs hat aus den Kunden in diesem Gebiet');
+        // Die Anleitung bleibt – sie ist der eigentliche Inhalt.
+        expect(kunde).toContain('Prompt einfügen und selbst absenden');
+    });
+
+    it('hält Zusage und Verhalten deckungsgleich', () => {
+        const readme = readFileSync(resolve(process.cwd(), 'README.md'), 'utf8');
+        const datenschutz = readFileSync(resolve(process.cwd(), 'public/datenschutz.html'), 'utf8');
+        expect(readme).toContain('Vollständigen Prompt ansehen');
+        expect(datenschutz).toContain('Vollständigen Prompt ansehen');
+        // Die alte Formulierung würde jetzt mehr versprechen, als der Dialog zeigt.
+        expect(readme).not.toContain('wird vollständig angezeigt und nur in die Zwischenablage');
+    });
+});

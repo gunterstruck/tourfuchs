@@ -51,16 +51,34 @@ function identityHtml(customer) {
     </div>`;
 }
 
+/**
+ * Der vollständige Prompt – aufziehbar statt ausgebreitet.
+ *
+ * Ihn zu zeigen ist eine Zusage: Nichts geht raus, was der Nutzer nicht vorher
+ * lesen konnte. Die Zusage lautet aber „vollständig **verfügbar**", nicht
+ * „muss ungefragt den halben Bildschirm belegen" – ausgeklappt füllte er 41 %
+ * eines Dialogs, dessen ganze Aufgabe ein Knopf ist.
+ *
+ * Eingeklappt mit sprechender Zeile sagt er sogar **deutlicher**, worum es
+ * geht: Zeilenzahl und der Hinweis, dass erst das Absenden etwas überträgt.
+ * Aufgeklappt wird er vor dem Kopieren, nicht danach.
+ */
 function visiblePrompt() {
-    return `<div class="briefing-prompt-visible">
-        <span>Vorbereiteter Prompt</span>
+    return `<details class="briefing-prompt-visible">
+        <summary><b>🔍 Vollständigen Prompt ansehen</b><span></span></summary>
         <pre></pre>
-    </div>`;
+    </details>`;
 }
 
 function fillVisiblePrompt() {
-    const pre = body?.querySelector('.briefing-prompt-visible pre');
+    const block = body?.querySelector('.briefing-prompt-visible');
+    const pre = block?.querySelector('pre');
     if (pre) pre.textContent = currentPrompt;
+    const note = block?.querySelector('summary span');
+    if (note) {
+        const lines = String(currentPrompt || '').split('\n').length;
+        note.textContent = `${lines} Zeilen · geht erst raus, wenn du ihn im Assistenten absendest`;
+    }
 }
 
 function setFooter(html) {
@@ -152,7 +170,6 @@ function renderBriefing({ withChooser = false } = {}) {
         <div class="briefing-state briefing-manual">
             <span class="briefing-kicker">Direkt nutzbar</span>
             <h3>Ihr Kundenbriefing ist vorbereitet</h3>
-            <p>TourFuchs hat aus dem ausgewählten Kunden und dem aktuellen Tourkontext einen Prompt erstellt. Mit dem nächsten Schritt wird er kopiert und ${escapeHtml(currentAssistant.label)} geöffnet.</p>
             <p class="briefing-manual-note"><b>Im Assistenten:</b> Prompt einfügen und selbst absenden. Erst dann werden die enthaltenen Daten übertragen.</p>
             ${withChooser ? assistantChooserHtml() : ''}
             ${briefingSourcesHtml()}
