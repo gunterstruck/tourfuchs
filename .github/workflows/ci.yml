@@ -5,12 +5,19 @@ on:
     branches: [main]
   pull_request:
 
+# Die Actions laufen auf ihren aktuellen Hauptversionen (checkout v7,
+# setup-node v7, cache v6). Anlass war eine Warnung des Runners: Die v4-Stände
+# zielen auf Node 20, das GitHub nicht mehr bereitstellt – sie wurden bereits
+# zwangsweise auf Node 24 ausgeführt. Ab setup-node v5 bzw. checkout v5 ist
+# node24 die erklärte Laufzeit; die Sprünge auf v6/v7 sind ESM-Umstellung und
+# Abhängigkeiten und berühren keinen der hier benutzten Eingänge
+# (`node-version`, `cache`, `path`, `key`).
 jobs:
   build-and-test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -34,8 +41,8 @@ jobs:
   attention:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: 20
           cache: npm
@@ -47,7 +54,7 @@ jobs:
       # entschieden hat.
       - run: npm i --no-save playwright@1.62.1
       # Browser zwischenspeichern; ohne Treffer holt der nächste Schritt ihn.
-      - uses: actions/cache@v4
+      - uses: actions/cache@v6
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-1.62.1
