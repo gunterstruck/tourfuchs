@@ -761,9 +761,17 @@ body.sc-running .mobile-next-step { display: none !important; }
 
     /* Hier steht das Blatt oft offen und nimmt die untere Hälfte ein. Die
        Knopfzeile wandert deshalb an den oberen Kartenrand – dorthin, wo das
-       Blatt nie hinkommt, und bleibt damit immer erreichbar. */
+       Blatt nie hinkommt, und bleibt damit immer erreichbar.
+
+       Sie beginnt dabei **unter** dem schwebenden Kopf-Streifen, nicht unter
+       der Topbar: Dort liegen Basis/Profi und die Reiter, und die waren aus
+       demselben Grund nach oben gezogen worden. Gegen `--topbar-height`
+       gerechnet landete der Lasso-Knopf genau hinter der Basis/Profi-Pille und
+       ließ sich nicht antippen (Befund `npm run touch-check`, Tablet hochkant).
+       Die Unterkante misst `syncTopnavMetrics()` in ui/sidebar.js; der
+       Ersatzwert gilt, solange der Streifen fehlt (Onboarding). */
     .map-fab-row {
-        top: calc(var(--topbar-height) + 12px);
+        top: calc(var(--mobile-topnav-bottom, var(--topbar-height)) + 12px);
         bottom: auto;
         /* Auch hier liegt das Panel unten, die Karte nimmt die volle Breite –
            unabhängig von einer gespeicherten Leistenbreite. */

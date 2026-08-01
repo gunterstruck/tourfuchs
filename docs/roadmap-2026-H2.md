@@ -247,6 +247,104 @@ Reihenfolge dort: Export-Empfehlung anzeigen → Migration „Channel wird zu
 Gruppe" → Eintrag in Kapitel 26 → erst dann den Legacy-Pfad aus
 `assignableDims`, `targetValues` und `attrLabel` entfernen.
 
+### Release 9 – „Aufmerksamkeit" *(01.08.2026 umgesetzt)*
+
+Anlass war ein eingereichtes Gestaltungsmanifest („Die App als Spiegel der
+Aufmerksamkeit"). Die Prüfung ergab: Es beschreibt **kein neues Produkt**,
+sondern die Regel, nach der TourFuchs an seinen besten Stellen längst gebaut
+ist – Zoom-Automatik der Karte, eingeklapptes Tour-Akkordeon, Zurücktreten der
+Angebote. Ohne Namen ließ sie sich nicht prüfen und beim nächsten Feature nicht
+verteidigen.
+
+Dieses Release gibt ihr einen Namen, ein Messgerät und drei Grenzen. Es enthält
+**kein neues Produktversprechen**.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 9.1 | **Gestaltprinzip schriftlich** | ✅ umgesetzt | `docs/gestaltprinzip-aufmerksamkeit.md`: vier Prüffragen für die Definition of Done, drei ausdrückliche Grenzen. Prüfregel, kein Umbauauftrag. |
+| 9.2 | **`npm run attention-check`** | ✅ umgesetzt | Vierte Prüfstrecke. Zählt sichtbare Bedienelemente in der gebauten App: Erstbild, Rahmen, je Reiter nach Tiefe und Modus. Prüft zwei Regeln: Die Übersicht zeigt den Prozess, nicht die Inhalte – und Verdrängung lässt den Rückweg stehen. Budgets = Ist-Stand plus Luft, als Sperrklinke. |
+| 9.3 | **Eine Frage zur Zeit im Erstbild** | ✅ umgesetzt | Erster Befund des neuen Werkzeugs (siehe unten). Erstbild Schreibtisch 39 → 33 Bedienelemente, Panel 24 → 18. |
+| 9.4 | **Lasso-Knopf auf dem Tablet erreichbar** | ✅ umgesetzt | Offener `touch-check`-Befund, älter als dieses Release: Hochkant lag der Lasso-Knopf hinter der Basis/Profi-Pille. Dieselbe Ursache wie 9.3 – zwei richtige Entscheidungen, ein Platz (siehe unten). |
+
+#### Der Befund, und warum ihn niemand sehen konnte
+
+Am Schreibtisch standen im allerersten Bild **drei Angebote gleichzeitig**:
+Willkommenskarte, Beispieldaten-Streifen und ausgeklappte Erste-Schritte-
+Checkliste. Alle drei beantworteten dieselbe Frage – *was ist das hier, und wie
+komme ich an meine Daten?* – und zwei davon mit **demselben Knopf** („📂 Eigene
+Daten laden").
+
+Keines war ein Fehler. Jedes ist einzeln entstanden, jedes mit gutem Grund; die
+Checkliste klappte sich beim automatischen Erscheinen der Beispielkunden sogar
+ausdrücklich auf, weil es die Willkommenskarte damals noch nicht gab. **Erst
+zusammen wurden sie zum Stapel** – und genau diese Sorte Überfrachtung findet
+kein Review, weil jeder Teil für sich begründet ist. Sie wird nur sichtbar, wenn
+jemand das fertige Bild zählt.
+
+Aus dem Stapel wurde eine Reihenfolge: erst die Karte, die den Zustand erklärt;
+nach dem Quittieren die Checkliste, die den nächsten Schritt anbietet. Der
+Hinweis „das sind Demo-Kunden" bleibt stehen – er ist die Ehrlichkeit des
+Streifens, nur sein doppeltes Angebot tritt zurück.
+
+#### Was das Werkzeug zuerst widerlegt hat
+
+Die Analyse, die zu diesem Release führte, nannte den Tour-Reiter überladen:
+105 Knöpfe. Gezählt war Markup in `index.html`, nicht Oberfläche. Die Messung
+sagt **5 bis 9**. Der Befund war falsch, die Frage richtig – und bis dahin
+unbeantwortbar. Dieselbe Lehre wie bei `face-check`: Quelltext lesen ist keine
+Messung.
+
+#### Derselbe Fehler, zweimal: der Lasso-Knopf (9.4)
+
+`touch-check` meldete seit längerem, dass der Lasso-Knopf auf dem hochkanten
+Tablet verdeckt und nicht antippbar ist – ein offener Befund, der nicht zu
+diesem Release gehörte. Beim Nachsehen war es **dieselbe Ursache wie 9.3**.
+
+Zwei Entscheidungen hatten unabhängig voneinander denselben Platz beansprucht:
+
+- Der schwebende **Kopf-Streifen** (Basis/Profi, Reiter) wurde nach oben
+  gezogen, damit Tiefe und Bereich immer sichtbar bleiben.
+- Die **Karten-Knopfzeile** wurde hochkant nach oben gezogen, weil unten das
+  Blatt steht und sie dort verschwände.
+
+„Oben ist frei" stimmte für beide – aber nur einzeln. Die Knopfzeile rechnete
+gegen `--topbar-height` und landete damit genau hinter der Basis/Profi-Pille.
+
+Behoben, indem die Unterkante des Streifens **gemessen** statt geschätzt wird
+(`syncTopnavMetrics()` in `src/ui/sidebar.js`, veröffentlicht als
+`--mobile-topnav-bottom`; ein `ResizeObserver` hält den Wert nach). Eine feste
+Zahl im CSS wäre nur so lange richtig gewesen, bis jemand eine Zeile ergänzt –
+der Streifen ist mal ein-, mal zweizeilig und im Onboarding gar nicht da. Das
+Blatt rechnet in `tourSheetHeight()` längst genauso.
+
+**Die Lehre, die über beide Befunde hinausgeht:** Diese Sorte Fehler entsteht
+nicht durch eine falsche Entscheidung, sondern durch zwei richtige, die
+niemand nebeneinandergelegt hat. Ein Review findet sie nicht, weil jeder Teil
+für sich begründet ist. Nur eine Messung am fertigen Bild findet sie.
+
+#### Drei Grenzen (nicht verhandelbar)
+
+Das Manifest schlägt eine KI vor, die „Architekt der Aufmerksamkeit" wird und
+die Oberfläche an den Denkprozess anpasst. Das wird **nicht gebaut**:
+
+1. **Keine Oberfläche, die sich selbst umbaut.** Moment A („07:30, in 30
+   Sekunden zum Tagesplan") funktioniert, weil der Knopf jeden Morgen an
+   derselben Stelle liegt. Die Zoom-Automatik ist kein Gegenbeispiel, sondern
+   der Beleg: Sie ist deterministisch, nutzerausgelöst und umkehrbar.
+2. **Kein KI-Aufmerksamkeitsmodell.** Es bräuchte Telemetrie oder einen
+   API-Aufruf. Release 5.1 hat die Copilot-Anbindung ausdrücklich ausgebaut.
+   Lokal-first ist die härteste Leitplanke, und hier gäbe es keine zulässige
+   Datengrundlage. Dazu liegt ein Nutzervotum vor: Item 2.1, gestrichen am
+   10.07.2026 – „Automatik unterstützt nur dort, wo sie nichts vorwegnimmt."
+   Für die Oberfläche gilt derselbe Satz.
+3. **Zoom ist nicht die einzige Denkbewegung.** Moment B ist Vergleich –
+   Nebeneinander, nicht Tiefe. Wer alles auf Zoom reduziert, hat für die
+   Gebietssimulation keine Geste mehr.
+
+Sollte Punkt 1 oder 2 je wiederkommen, gilt dasselbe wie beim B3-Tor: Ein
+zurückkehrender Vorschlag braucht ein Kriterium, an dem er ein zweites Mal
+scheitern kann.
+
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.

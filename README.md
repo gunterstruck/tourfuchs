@@ -21,7 +21,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 
 | Bereich | Funktion |
 |---|---|
-| 🎬 **Onboarding & Live-Demos** | Ruhiger Erststart: leere Deutschlandkarte, die Beispielkunden erscheinen von selbst mit „Klick-mich-an"-Hinweis. Solange Beispieldaten laufen, liegt eine ruhige, nicht-blockierende Hinweiskarte mittig über der Karte („Das sind Beispieldaten" · eigene Daten laden · Live-Demos · Quittung „Verstanden"). Mehrere geführte **Live-Demos** (Geister-Cursor bedient die echte App, je ~30–60 s); die erste führt am Schreibtisch gleich den schnellsten Weg zu eigenen Daten vor – Liste aus Excel einfügen, ohne dabei echte Daten anzufassen und eine mitlaufende **„Erste Schritte"-Checkliste**, die einklappt, sobald der Nutzer erkennbar arbeitet |
+| 🎬 **Onboarding & Live-Demos** | Ruhiger Erststart: leere Deutschlandkarte, die Beispielkunden erscheinen von selbst mit „Klick-mich-an"-Hinweis. Solange Beispieldaten laufen, liegt eine ruhige, nicht-blockierende Hinweiskarte mittig über der Karte („Das sind Beispieldaten" · eigene Daten laden · Live-Demos · Quittung „Verstanden"). Mehrere geführte **Live-Demos** (Geister-Cursor bedient die echte App, je ~30–60 s); die erste führt am Schreibtisch gleich den schnellsten Weg zu eigenen Daten vor – Liste aus Excel einfügen, ohne dabei echte Daten anzufassen und eine mitlaufende **„Erste Schritte"-Checkliste**, die einklappt, sobald der Nutzer erkennbar arbeitet. Die drei Angebote treten dabei **nacheinander** auf, nicht übereinander: Solange die Hinweiskarte im Bild steht, wartet die Checkliste als schmaler Chip und der Beispieldaten-Streifen zeigt nur seinen Hinweis, nicht noch einmal denselben Knopf – ist die Karte quittiert, klappt die Checkliste auf |
 | 📄 **Daten** | Excel-/CSV-Import per Klick, Drag & Drop oder **direktes Einfügen** (Strg+C in Excel, Strg+V in TourFuchs – ohne Datei zu speichern; am Schreibtisch der vorgeschlagene Weg). Eingefügt werden können auch **Markdown-Tabellen und Tabellen mitten im Fließtext** – etwa aus einem Chat-Assistenten, einem Wiki oder einer Mail; TourFuchs schneidet den Tabellenblock selbst heraus. Nach dem ersten eigenen Import sagt TourFuchs, **was in der Liste steckt** (Bezirke, Ungleichverteilung, überfällige Kunden, nicht verortete Zeilen); automatische Spaltenerkennung mit Prüf-Dialog; eine neue Kundenliste ersetzt den bisherigen Bestand erst nach einem **Änderungsbericht** (neu · entfallen · Bezirkswechsel, Wirkung je Bezirk mit Umsatzdelta) und Bestätigung, reine Kontakt-/Gebietsdateien ergänzen ihn gezielt. **Gegen bloße Beispieldaten entfällt der Bericht** – dort gibt es nichts zu schützen, und eine Verlustmeldung über eine Kulisse stünde ausgerechnet vor dem ersten eigenen Erfolgserlebnis |
 | 🛡️ **Sichere Demo** | Eindeutig markierte Beispielkunden, reservierte Drama-Rufnummern und `example.com`-Adressen; Telefon, E-Mail und Briefing werden lokal simuliert, Exporte als Demo gekennzeichnet |
 | 📍 **Verortung** | Sofort über PLZ-Koordinaten (offline, ohne API-Schlüssel); optional adressgenau über OpenStreetMap/Nominatim |
@@ -42,7 +42,7 @@ TourFuchs beantwortet die zwei Kernfragen im Vertriebsalltag:
 | 📱 **PWA** | Auf Smartphone/Tablet/Desktop installierbar (die Installation wird aktiv angeboten, sobald mit eigenen Daten eine Tour steht – **auf iPhone/iPad mit der Anleitung „Teilen → Zum Home-Bildschirm"**, weil Safari kein automatisches Installieren anbietet), App-Shell und Gebietsdaten offline verfügbar, zuletzt gesehene Kartenausschnitte werden gecacht; mobil wird die Karte ruhig per Zwei-Finger-Geste statt zusätzlicher Zoomtasten bedient. Das Bottom-Sheet und die schwebenden Bedienelemente respektieren die untere **System-Navigationsleiste** (Android/iOS), sodass Hinweise dort nicht verdeckt werden |
 | 🧩 **Ins System eingehängt** | **Excel-Liste per Doppelklick** in TourFuchs öffnen (Datei-Handler), **Excel-Anhang teilen** an TourFuchs (Android; die Datei wird lokal im Service Worker entgegengenommen und verlässt das Gerät nicht – der Teilen-Eintrag entsteht beim **Installieren aus Chrome**, eine ältere Installation muss dafür einmal neu installiert werden) und **Icon-Kurzbefehle** (Long-Press): Meine Tour · Kunden in der Nähe · Liste importieren |
 | 📐 **Drei Layouts, ein Funktionsumfang** | Am **Schreibtisch** liegt das Panel seitlich, am **Handy** unten als Blatt. Ein **hochkantes Tablet** bekommt die Blatt-Geometrie (eine Seitenleiste würde dort die halbe Breite fressen) und denselben **mobilen Einstieg** wie das Handy – Außendienst, Tab Tour, Basis –, aber **den vollen Funktionsumfang**: Profi-Modus, Gebietsplanung, Cockpit und Simulation bleiben einen Tipp entfernt. Das Hochformat gibt also die Vorgabe vor, nicht das Können; **Drehen ändert nur die Geometrie** und verwirft nie laufende Arbeit. Quer kehrt die Seitenleiste zurück. Die installierte App ist **nicht mehr aufs Hochformat gesperrt** |
-| 🤫 **Ruhige Oberfläche** | Zwei Muster halten die Fläche frei. **Aufziehen, was interessiert:** Lange Inhalte starten zugeklappt und nennen in der Kopfzeile, was drinsteckt – der vollständige Briefing-Prompt, „Weitere Felder" im Import-Mapping, der Datentresor. **Zurücktreten bei Aktivität:** Sobald man in den Inhalt scrollt, weichen Kartenstil-Wähler, Beispieldaten-Streifen und die Erste-Schritte-Checkliste (zur schmalen Zeile) – Hochscrollen oder ein Bereichswechsel holt sie zurück, ohne Timer. Zurückgetreten wird nur, wenn es sich lohnt: Passte der Inhalt danach ganz ins Fenster, gäbe es nichts mehr zu scrollen und damit keinen Weg zurück – dann bleibt alles stehen. Gemessen am Daten-Reiter: Arbeitsfläche 307 → 588 px |
+| 🤫 **Ruhige Oberfläche** | Zwei Muster halten die Fläche frei. **Aufziehen, was interessiert:** Lange Inhalte starten zugeklappt und nennen in der Kopfzeile, was drinsteckt – der vollständige Briefing-Prompt, „Weitere Felder" im Import-Mapping, der Datentresor. **Zurücktreten bei Aktivität:** Sobald man in den Inhalt scrollt, weichen Kartenstil-Wähler, Beispieldaten-Streifen und die Erste-Schritte-Checkliste (zur schmalen Zeile) – Hochscrollen oder ein Bereichswechsel holt sie zurück, ohne Timer. Zurückgetreten wird nur, wenn es sich lohnt: Passte der Inhalt danach ganz ins Fenster, gäbe es nichts mehr zu scrollen und damit keinen Weg zurück – dann bleibt alles stehen. Gemessen am Daten-Reiter: Arbeitsfläche 307 → 588 px. **Eine Frage zur Zeit:** Zwei Angebote, die dasselbe beantworten, treten nacheinander auf – wieviel eine Ansicht wirklich verlangt, misst `npm run attention-check` an der gebauten App (Erstbild Handy 16, Schreibtisch 33 Bedienelemente). Das Prinzip dahinter steht in [Gestaltprinzip: Aufmerksamkeit](./docs/gestaltprinzip-aufmerksamkeit.md) |
 | 🖥️ **Mobile-Vorschau** | Zeigt am Desktop dieselben Kunden-, Briefing- und Tourabläufe im Smartphone-Format. Nach dem ersten Datenbestand weist ein einmaliger, ruhiger Kurzlauf auf den Einstieg hin und öffnet gezielt den mobilen Tour-Bereich |
 | 🔐 **Datentresor** | **Angebot statt Pflicht:** Nach einem eigenen Import hält kein PIN-Dialog mehr auf – die Daten sind gespeichert, ein einmaliger Hinweis benennt den Zustand, und das **offene Schloss in der Kopfzeile bleibt hervorgehoben**, solange eigene Daten unverschlüsselt hier liegen. Verschlüsselt wird, wenn der Nutzer es will (Schloss oben oder **Daten → Datentresor**); beim **sicheren Umzug** bleibt das Setup erzwungen, weil dort Schutz die Absicht ist. Kundendaten werden dann **AES-256-verschlüsselt** lokal gespeichert (Schlüssel aus PIN via PBKDF2, nie gespeichert). Sperrbildschirm bei App-Start/Inaktivität, **optional Face/Touch ID** (WebAuthn-PRF als zusätzliche Tür), **einstellbare Auto-Lock-Zeit**, Wiederherstellungscode, Auto-Löschung nach zu vielen Fehlversuchen – alles ausschließlich mit der Web-Crypto-API, ohne Server |
 | 🧳 **Sicherer Umzug** | Kundendaten verschlüsselt auf ein anderes Gerät übertragen: **verschlüsselte Datei** (`.tfsafe`, AES-256-GCM mit Zufallsschlüssel) + **Schlüssel als QR-Code**. Datei und Schlüssel reisen **getrennt** (Kanaltrennung) – ohne Schlüssel ist die Datei wertlos; der Schlüssel geht nur per Bildschirm→Kamera, nie übers Netz. Am Zielgerät folgt direkt das erzwungene Tresor-Setup |
@@ -103,6 +103,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [PDF-Fassung der Guide-Wissensbasis](./TourFuchs_KI-Agent_Wissensbasis.pdf) – gut lesbare Referenz für Review, Schulung und Weitergabe
 - [Kunden- und Gebiets-Briefing](./docs/kundenbriefing.md) – Ablauf, Inhalt der Prompts, Wahl des Assistenten und Prüfschritte
 - [Lasso auf der Karte](./docs/lasso.md) – Zeichenmodus, Auswahlvorschau, Grenzen, Verhalten am Handy und Prüfschritte
+- [Gestaltprinzip: Aufmerksamkeit](./docs/gestaltprinzip-aufmerksamkeit.md) – die Regel hinter Zoom-Automatik, Akkordeon und Zurücktreten, ihre vier Prüffragen, das Messgerät und die drei Grenzen (kein selbstumbauendes UI, kein KI-Aufmerksamkeitsmodell, Zoom ist nicht alles)
 
 ---
 
@@ -172,6 +173,29 @@ npm run touch-check          # Smartphone und Tablet-Hochkant (~2 min)
 
 Gleiche Voraussetzung wie oben; Exit-Code 1 bei jedem Befund. Kurz genug, um ihn
 nach jeder Änderung an Karteninteraktionen laufen zu lassen.
+
+### Aufmerksamkeit prüfen (`npm run attention-check`)
+
+Die drei Werkzeuge oben prüfen, ob die App **funktioniert**. Keines prüft, wie
+viel sie im selben Moment **verlangt**. Dieses zählt in der gebauten App die
+sichtbaren Bedienelemente – im allerersten Bild, im Rahmen (Modus · Tiefe ·
+Reiter) und je Reiter, getrennt nach Basis und Profi – und prüft zwei Regeln aus
+[Gestaltprinzip: Aufmerksamkeit](./docs/gestaltprinzip-aufmerksamkeit.md): Die
+Übersicht zeigt den Prozess, nicht die Inhalte. Und wo die App Chrome wegnimmt,
+steht der Rückweg im selben Bild.
+
+```bash
+npm run build
+npm run attention-check                    # Handy und Schreibtisch (~1 min)
+npm run attention-check -- --frei          # nur messen, keine Budgets prüfen
+```
+
+Kunden und Bündel auf der Karte werden nicht mitgezählt: Sie sind die
+Landschaft, nicht die Bedienung. Die Budgets sind der gemessene Ist-Stand plus
+wenig Luft und wirken als **Sperrklinke** – sie verbieten nichts, was heute da
+ist, machen aber jedes weitere Anwachsen sichtbar. Wer eines hebt, trifft eine
+bewusste Produktentscheidung. Gleiche Voraussetzung wie oben; Exit-Code 1 bei
+jedem Befund.
 
 **Stack:** Vite · Leaflet + markercluster · SheetJS (xlsx) · vite-plugin-pwa (Workbox) · Vanilla JS (ES Modules)
 

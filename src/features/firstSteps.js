@@ -124,3 +124,22 @@ export function shouldAutoCollapseFirstSteps({ doneIds = [], tourStopCount = 0 }
     const beyondData = FIRST_STEPS.filter((step) => step.id !== 'daten' && done.has(step.id)).length;
     return beyondData > 0 || tourStopCount > 0;
 }
+
+/**
+ * Darf sich die Checkliste beim automatischen Erscheinen der Beispielkunden
+ * aufklappen?
+ *
+ * Anlass ist eine Messung (`npm run attention-check`): Am Schreibtisch standen
+ * im allerersten Bild **drei** Angebote gleichzeitig – die Willkommenskarte über
+ * der Karte, der Beispieldaten-Streifen und die ausgeklappte Checkliste. Alle
+ * drei beantworten dieselbe Frage („Was ist das hier, und wie komme ich an meine
+ * Daten?"), zwei davon sogar mit demselben Knopf („📂 Eigene Daten laden").
+ *
+ * Beide Angebote waren für sich richtig und sind unabhängig voneinander
+ * entstanden; erst zusammen wurden sie zum Stapel. Sie werden deshalb zu einer
+ * Reihenfolge: erst die Karte, die den Zustand erklärt – und wenn sie quittiert
+ * ist, die Checkliste, die den nächsten Schritt anbietet.
+ */
+export function shouldRevealFirstStepsOnDemo({ dismissed = false, welcomeOpen = false } = {}) {
+    return !dismissed && !welcomeOpen;
+}

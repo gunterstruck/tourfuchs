@@ -25,11 +25,13 @@ import {
     resetFirstSteps,
     setFirstStepsCollapsed,
     shouldAutoCollapseFirstSteps,
+    shouldRevealFirstStepsOnDemo,
     shouldShowFirstSteps,
     unhideFirstSteps
 } from '../features/firstSteps.js';
 import { showToast } from './toast.js';
 import { startShowcaseStory } from './showcase.js';
+import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi } from '../core/viewport.js';
 
 const COLLAPSE_FEEDBACK_MS = 4000;
@@ -56,6 +58,9 @@ function persistedProgress() {
 /** Eingeklappt? Gespeicherte Wahl gewinnt; sonst Gerät + Arbeitskontext. */
 function effectiveCollapsed(progress) {
     if (typeof progress.collapsed === 'boolean') return progress.collapsed;
+    // Ohne eigene Wahl tritt die Checkliste hinter die Willkommenskarte zurück:
+    // Solange die im Bild steht, ist sie der aktuelle Gedanke, nicht diese Liste.
+    if (isDemoWelcomeOpen()) return true;
     return isMobileUi() || shouldAutoCollapseFirstSteps({
         doneIds: progress.done,
         tourStopCount: state.tour.stops.length
@@ -186,11 +191,21 @@ export function initFirstSteps() {
     // ist der Moment, die geführten Live-Demos zu zeigen: Checkliste einmal
     // ausgeklappt – auf dem Handy sonst nur ein Chip. Die Einklapp-bei-Aktivität-
     // Logik räumt sie beim ersten echten Tap wieder weg.
-    on('demo:auto-loaded', () => {
-        if (firstStepsProgress().dismissed) return;
+    // … es sei denn, die Willkommenskarte steht noch im Bild. Dann wartet die
+    // Checkliste, bis der Nutzer sie quittiert hat – zwei Angebote zur selben
+    // Frage sind eines zu viel (features/firstSteps.js).
+    const revealOnDemo = () => {
+        if (!shouldRevealFirstStepsOnDemo({
+            dismissed: firstStepsProgress().dismissed,
+            welcomeOpen: isDemoWelcomeOpen()
+        })) return;
         setFirstStepsCollapsed(false);
         render();
-    });
+    };
+    on('demo:auto-loaded', revealOnDemo);
+    // Quittiert heißt: Die Frage ist beantwortet, jetzt darf der nächste Schritt
+    // dran sein. Das ist die Übergabe, nicht bloß ein Nachziehen.
+    on('demo-welcome:changed', (offen) => { if (!offen) revealOnDemo(); });
     on('customer:detail-opened', () => completeFirstStep('daten'));
     on('showcase:story-completed', (storyId) => {
         const stepByStory = { 'excel-karte': 'daten', tour: 'tour', 'handy-qr': 'handy', empfang: 'handy', tresor: 'sicher' };
