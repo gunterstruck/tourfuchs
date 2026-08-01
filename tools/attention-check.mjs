@@ -52,6 +52,10 @@
  * damit ein normales `npm install` schlank bleibt):
  *   npm i -D playwright && npx playwright install chromium
  *
+ * Als einzige der vier Strecken läuft diese **in der CI** (Job `attention` in
+ * .github/workflows/ci.yml). Der Grund steht dort: Ihr Gegner ist schleichendes
+ * Anwachsen, und dagegen hilft kein Tor, das erst vor dem Release gezogen wird.
+ *
  * In Umgebungen mit vorhandenem Browser:
  *   PLAYWRIGHT_CHROMIUM_PATH=/pfad/zu/chrome npm run attention-check
  */
@@ -64,8 +68,22 @@ import { createServer } from 'node:net';
  * teuersten, weil sie jeden Nutzer trifft, bevor er irgendetwas gelernt hat.
  */
 const FORMATS = [
-    { name: 'smartphone', viewport: { width: 390, height: 844 }, touch: true, erstbildBudget: 20 },
-    { name: 'desktop', viewport: { width: 1440, height: 900 }, touch: false, erstbildBudget: 36 }
+    {
+        name: 'smartphone',
+        viewport: { width: 390, height: 844 },
+        touch: true,
+        erstbildBudget: 20,
+        // Karte + Tour, je Tiefe.
+        erwarteteMessungen: 4
+    },
+    {
+        name: 'desktop',
+        viewport: { width: 1440, height: 900 },
+        touch: false,
+        erstbildBudget: 36,
+        // Daten, Filter und Tour bzw. Gebiete, je Modus und Tiefe.
+        erwarteteMessungen: 12
+    }
 ];
 
 /**
@@ -383,6 +401,18 @@ for (const r of ergebnisse) {
     }
 
     if (!frei) {
+        // Zuerst: Hat die Strecke überhaupt gemessen?
+        //
+        // Ein Klick, der ins Leere geht (verdeckender Hinweis, langsamer
+        // Runner), lässt eine Ansicht schlicht aus – und wer nichts misst,
+        // überschreitet auch kein Budget. Grün hieße dann „nichts gefunden",
+        // nicht „nichts zu finden". Genau dieser Unterschied entscheidet, ob
+        // ein Tor in der CI etwas wert ist.
+        if (r.messungen.length < r.erwarteteMessungen) {
+            console.log(`\n✗ ${r.name}: nur ${r.messungen.length} von ${r.erwarteteMessungen} `
+                + 'erwarteten Ansichten gemessen – die Strecke ist nicht durchgelaufen.');
+            befunde++;
+        }
         if (r.erstbild.bedienelemente > r.erstbildBudget) {
             console.log(`\n✗ ${r.name}: Das Erstbild verlangt ${r.erstbild.bedienelemente} `
                 + `Bedienelemente, Budget ${r.erstbildBudget}.`);

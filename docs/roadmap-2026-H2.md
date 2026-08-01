@@ -265,6 +265,7 @@ Dieses Release gibt ihr einen Namen, ein Messgerät und drei Grenzen. Es enthäl
 | 9.2 | **`npm run attention-check`** | ✅ umgesetzt | Vierte Prüfstrecke. Zählt sichtbare Bedienelemente in der gebauten App: Erstbild, Rahmen, je Reiter nach Tiefe und Modus. Prüft zwei Regeln: Die Übersicht zeigt den Prozess, nicht die Inhalte – und Verdrängung lässt den Rückweg stehen. Budgets = Ist-Stand plus Luft, als Sperrklinke. |
 | 9.3 | **Eine Frage zur Zeit im Erstbild** | ✅ umgesetzt | Erster Befund des neuen Werkzeugs (siehe unten). Erstbild Schreibtisch 39 → 33 Bedienelemente, Panel 24 → 18. |
 | 9.4 | **Lasso-Knopf auf dem Tablet erreichbar** | ✅ umgesetzt | Offener `touch-check`-Befund, älter als dieses Release: Hochkant lag der Lasso-Knopf hinter der Basis/Profi-Pille. Dieselbe Ursache wie 9.3 – zwei richtige Entscheidungen, ein Platz (siehe unten). |
+| 9.5 | **`attention-check` in die CI** | ✅ umgesetzt | Eigener Job, rund eine Minute. Die einzige der vier Strecken, die dorthin gehört: Ihr Gegner ist **schleichendes** Anwachsen, und dagegen hilft kein Tor, das erst vor dem Release gezogen wird – bis dahin weiß niemand mehr, welcher der zwanzig PRs die Ansicht gefüllt hat. Zeitbasierte Strecken (`demo-check`, `touch-check`) bleiben draußen; ein flackerndes Tor ist schlimmer als keines. Ergänzt um eine Vollständigkeitsprüfung: Wer nichts misst, überschreitet auch kein Budget – ein solcher Lauf ist jetzt rot statt grün. |
 
 #### Der Befund, und warum ihn niemand sehen konnte
 
