@@ -9,7 +9,7 @@
  * jederzeit erreichbar. Nach bewusstem Löschen der Daten (echter Neustart)
  * erscheint er wieder.
  */
-import { state, on } from '../core/state.js';
+import { state, on, emit } from '../core/state.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 
 const ACK_KEY = 'tf_demo_welcome_ack';
@@ -41,9 +41,21 @@ function shouldShow() {
     return isDemoDataset(state.customers);
 }
 
+/**
+ * Steht die Karte gerade im Bild? Andere Angebote fragen danach, weil sie
+ * dieselbe Frage beantworten wie sie („Was ist das hier – und wie komme ich an
+ * meine Daten?") und deshalb solange zurücktreten.
+ */
+export function isDemoWelcomeOpen() {
+    return !!root && !root.hidden;
+}
+
 function render() {
     if (!root) return;
+    const vorher = !root.hidden;
     root.hidden = !shouldShow();
+    // Nur bei echtem Wechsel melden: Wer darauf hört, klappt Angebote auf und zu.
+    if (vorher !== !root.hidden) emit('demo-welcome:changed', !root.hidden);
 }
 
 /** Quittieren: merken und ausblenden. */

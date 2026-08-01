@@ -124,4 +124,20 @@ describe('Zwei Gesichter: Touransicht und Schreibtisch', () => {
     it('startet im Schreibtisch mit offenem Panel, in der Touransicht geschlossen', () => {
         expect(read('src/core/state.js')).toContain('sidebarOpen: !isPhoneUi()');
     });
+
+    it('hängt die Karten-Knopfzeile unter den Kopf-Streifen, nicht unter die Topbar', () => {
+        // Der Befund (touch-check, 01.08.2026): Auf dem hochkanten Tablet wandert
+        // die Knopfzeile an den oberen Kartenrand, weil unten das Blatt steht.
+        // Dort lag aber schon der schwebende Kopf-Streifen mit Basis/Profi und
+        // den Reitern – aus genau demselben Grund. Gegen `--topbar-height`
+        // gerechnet landete der Lasso-Knopf hinter der Basis/Profi-Pille und
+        // ließ sich nicht mehr antippen. Zwei richtige Entscheidungen, ein Platz.
+        const block = tabletBlock();
+        const regel = block.slice(block.indexOf('.map-fab-row'));
+        expect(regel).toContain('var(--mobile-topnav-bottom, var(--topbar-height))');
+        // Die Unterkante wird gemessen, nicht geschätzt: Der Streifen ist mal
+        // ein-, mal zweizeilig und im Onboarding gar nicht da.
+        expect(sidebar).toContain("style.setProperty('--mobile-topnav-bottom'");
+        expect(sidebar).toContain('new ResizeObserver(syncTopnavMetrics)');
+    });
 });

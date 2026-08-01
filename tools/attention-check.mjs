@@ -1,0 +1,450 @@
+/**
+ * Prüfstrecke für die Aufmerksamkeit.
+ *
+ * Warum es dieses Werkzeug zusätzlich zu `demo-check`, `touch-check` und
+ * `face-check` gibt: Alle drei prüfen, ob die App **funktioniert** – Abläufe
+ * laufen durch, Gesten wirken, das richtige Gesicht erscheint. Keines prüft,
+ * wie viel die App im selben Moment **verlangt**.
+ *
+ * Der Anlass ist ein Produkt-Review, das den Tour-Reiter als überladen
+ * bezeichnete – gestützt auf 105 Knöpfe im Quelltext von `index.html`. Gezählt
+ * war damit Markup, nicht Oberfläche: Der Tourplaner klappt seine drei Schritte
+ * ein, das meiste davon ist im Erst-Zustand gar nicht da. Der Befund war falsch,
+ * aber die Frage war richtig – und sie war schlicht unbeantwortbar, weil niemand
+ * die sichtbare Last je gemessen hat.
+ *
+ * Genau das tut dieses Werkzeug. Es befragt die **gebaute App im echten
+ * Browser** an echten Gerätemaßen und zählt, was ein Mensch tatsächlich vor
+ * sich hat:
+ *
+ *   **Wie viele Bedienelemente verlangt eine Ansicht im Erst-Zustand?**
+ *
+ * Die teuerste Zahl ist dabei das **Erstbild** – was ohne einen einzigen Klick
+ * im Fenster steht. Sie trifft jeden Nutzer, bevor er irgendetwas gelernt hat,
+ * und sie hat den ersten echten Befund geliefert: Am Schreibtisch standen dort
+ * drei Angebote gleichzeitig, die dieselbe Frage beantworteten – zwei davon mit
+ * demselben Knopf („📂 Eigene Daten laden"). Jedes für sich war richtig, erst
+ * zusammen wurden sie zum Stapel. Aus dem Stapel ist eine Reihenfolge geworden.
+ *
+ * Dazu zwei Regeln aus `docs/gestaltprinzip-aufmerksamkeit.md`, die ohne
+ * Messung reine Behauptung bleiben:
+ *
+ *   **Die Übersicht zeigt den Prozess, nicht die Inhalte.**  Im Tour-Reiter
+ *   darf im Erst-Zustand kein Schritt-Inhalt offen liegen – nur die drei Köpfe.
+ *
+ *   **Verdrängung ist umkehrbar.**  Wo die App Chrome wegnimmt (Fokus-Modus),
+ *   muss der sichtbare Rückweg im selben Bild stehen.
+ *
+ * Die Budgets unten sind keine Wunschzahlen, sondern der gemessene Ist-Stand
+ * plus Luft. Sie sind ein **Sperrklinken-Werkzeug**: Sie verbieten nichts, was
+ * heute da ist, aber sie machen jedes weitere Anwachsen sichtbar, statt es über
+ * Monate unbemerkt geschehen zu lassen. Wer ein Budget hebt, trifft damit eine
+ * bewusste Produktentscheidung – und genau darum geht es.
+ *
+ * Ausgeführt wird gegen `dist/` – also vorher `npm run build`.
+ *
+ * Aufruf:
+ *   npm run attention-check
+ *   npm run attention-check -- --format=desktop
+ *   npm run attention-check -- --frei     (nur messen, keine Budgets prüfen)
+ *
+ * Voraussetzung wie bei den anderen Strecken (bewusst nicht in package.json,
+ * damit ein normales `npm install` schlank bleibt):
+ *   npm i -D playwright && npx playwright install chromium
+ *
+ * In Umgebungen mit vorhandenem Browser:
+ *   PLAYWRIGHT_CHROMIUM_PATH=/pfad/zu/chrome npm run attention-check
+ */
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:net';
+
+/**
+ * Zwei Maße genügen: das Blatt (Handy) und die Seitenleiste (Schreibtisch).
+ * `erstbild` ist das Budget für das allererste Bild – dort ist die Zahl am
+ * teuersten, weil sie jeden Nutzer trifft, bevor er irgendetwas gelernt hat.
+ */
+const FORMATS = [
+    { name: 'smartphone', viewport: { width: 390, height: 844 }, touch: true, erstbildBudget: 20 },
+    { name: 'desktop', viewport: { width: 1440, height: 900 }, touch: false, erstbildBudget: 36 }
+];
+
+/**
+ * Budgets für sichtbare Bedienelemente im Erst-Zustand eines Reiters.
+ *
+ * Gelesen als: „So viel darf diese Ansicht verlangen, bevor jemand hinsehen
+ * muss." Getrennt nach Tiefe, weil Profi ausdrücklich mehr zeigen darf – aber
+ * eben auch nicht beliebig viel mehr.
+ *
+ * Die Zahlen sind der gemessene Stand vom 01.08.2026 plus wenig Luft, nicht ein
+ * Wunsch. „Service" (Verträge, Einsätze) ist bisher unvermessen: Der Modus
+ * verlangt Profi **und** ein Häkchen, das diese Strecke bewusst nicht setzt.
+ * Die Budgets stehen trotzdem, damit die Reiter am Tag ihrer Erreichbarkeit
+ * nicht ohne Maß dastehen.
+ */
+const BUDGET = {
+    basis: { daten: 12, team: 14, gebiete: 8, tour: 10, karte: 4, vertraege: 16, einsaetze: 16 },
+    profi: { daten: 12, team: 14, gebiete: 8, tour: 12, karte: 4, vertraege: 20, einsaetze: 20 }
+};
+
+/** Der Rahmen (Modus, Tiefe, Reiter, Kopfzeile) steht immer – auch er kostet. */
+const BUDGET_RAHMEN = 12;
+
+/**
+ * Gezählt wird „was kann ich anfassen", nicht „wie viel Text steht da": Ein
+ * erklärender Satz ist Orientierung, ein Knopf ist eine Entscheidung.
+ *
+ * Dafür zwei Maße, absichtlich verschieden:
+ *
+ * `sichtbar` – das Element ist da (nicht eingeklappt, nicht ausgeblendet).
+ *   Damit wird gezählt, was ein Reiter **anbietet**. Bewusst ohne Fensterschnitt,
+ *   sonst würde ein hoher Bildschirm dasselbe Panel besser aussehen lassen.
+ *
+ * `imFenster` – zusätzlich: liegt gerade im Bild. Nur fürs Erstbild, wo genau
+ *   das die Frage ist: Was sieht ein Mensch, bevor er irgendetwas tut?
+ */
+const BEDIENBAR_JS = `
+    const BEDIENBAR = 'button, a[href], input:not([type=hidden]), select, textarea, [role="button"], [role="tab"], [role="checkbox"]';
+
+    // Kunden, Bündel und Gebiete auf der Karte sind **Inhalt**, nicht Bedienung.
+    // Sie mitzuzählen hieße, der App die Landschaft als Last anzurechnen – und
+    // ausgerechnet die soll ja da sein. Gezählt wird, was um sie herum steht.
+    const INHALT = '.leaflet-pane';
+
+    const sichtbar = (el) => {
+        if (el.closest(INHALT)) return false;
+        if (el.hidden || el.disabled) return false;
+        const cs = getComputedStyle(el);
+        if (cs.display === 'none' || cs.visibility === 'hidden') return false;
+        if (Number(cs.opacity) === 0) return false;
+        const r = el.getBoundingClientRect();
+        return r.width > 0 && r.height > 0;
+    };
+
+    const imFenster = (el) => {
+        if (!sichtbar(el)) return false;
+        const r = el.getBoundingClientRect();
+        return r.top < window.innerHeight && r.bottom > 0
+            && r.left < window.innerWidth && r.right > 0;
+    };
+`;
+
+/**
+ * Das Erstbild: alles, was ohne einen einzigen Klick im Fenster steht – samt
+ * Herkunft. Die nackte Zahl sagt „zu viel", erst die Herkunft sagt „woher".
+ */
+const ERSTBILD_PROBE = `(() => {
+    ${BEDIENBAR_JS}
+
+    // Grobe, sprechende Zuordnung statt DOM-Pfade: Wer den Bericht liest, will
+    // wissen, welcher Produktteil gerade Aufmerksamkeit verlangt.
+    const BEREICHE = [
+        ['Karte', '#map'],
+        ['Panel', '#sidebar'],
+        ['Erste Schritte', '#first-steps'],
+        ['Beispieldaten-Hinweis', '.demo-banner, #demo-banner, .demo-note'],
+        ['Führung/Showcase', '.showcase, #showcase, .story-layer'],
+        ['Kopfzeile', 'header, .app-header']
+    ];
+
+    const herkunft = {};
+    for (const el of [...document.querySelectorAll(BEDIENBAR)].filter(imFenster)) {
+        const treffer = BEREICHE.find(([, sel]) => el.closest(sel));
+        const name = treffer ? treffer[0] : 'Sonstiges';
+        herkunft[name] = (herkunft[name] || 0) + 1;
+    }
+
+    return {
+        bedienelemente: [...document.querySelectorAll(BEDIENBAR)].filter(imFenster).length,
+        herkunft,
+        blattOffen: document.body.classList.contains('sheet-open')
+    };
+})()`;
+
+const PROBE = `(() => {
+    ${BEDIENBAR_JS}
+
+    const zaehle = (wurzel) => {
+        if (!wurzel) return 0;
+        return [...wurzel.querySelectorAll(BEDIENBAR)].filter(sichtbar).length;
+    };
+
+    const panel = document.querySelector('#sidebar .tab-panel.active');
+    const rahmen = ['.mode-switch', '.depth-switch', '.tab-bar', '.app-header', 'header']
+        .map((sel) => document.querySelector(sel))
+        .filter((el, i, all) => el && all.indexOf(el) === i);
+
+    return {
+        reiter: panel ? panel.id.replace(/^tab-/, '') : null,
+        bedienelemente: zaehle(panel),
+        // Der Rahmen wird einmal gezählt, nicht je Reiter – er wechselt nicht mit.
+        rahmen: rahmen.reduce((sum, el) => sum + zaehle(el), 0),
+        // Übersicht heißt: die Köpfe stehen, die Inhalte nicht.
+        offeneSchrittInhalte: [...document.querySelectorAll('#tab-tour .tour-acc .acc-body')]
+            .filter(sichtbar).length,
+        schrittKoepfe: [...document.querySelectorAll('#tab-tour .tour-acc .acc-head')]
+            .filter(sichtbar).length,
+        fokus: document.body.classList.contains('tour-focus'),
+        rueckweg: [...document.querySelectorAll('#tour-stepper .tour-focus-exit')]
+            .filter(sichtbar).length > 0
+    };
+})()`;
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function freePort() {
+    return new Promise((resolve, reject) => {
+        const server = createServer();
+        server.on('error', reject);
+        server.listen(0, () => {
+            const { port } = server.address();
+            server.close(() => resolve(port));
+        });
+    });
+}
+
+async function startPreview(port) {
+    const child = spawn('npx', ['vite', 'preview', '--port', String(port), '--strictPort'], {
+        stdio: ['ignore', 'pipe', 'pipe']
+    });
+    for (let attempt = 0; attempt < 40; attempt++) {
+        await sleep(500);
+        try {
+            const res = await fetch(`http://localhost:${port}/`);
+            if (res.ok) return child;
+        } catch { /* noch nicht bereit */ }
+    }
+    child.kill();
+    throw new Error('Vorschau-Server ist nicht gestartet. Vorher `npm run build` ausführen?');
+}
+
+/** Auf einen sichtbaren Schalter klicken; fehlt er, war der Zustand nicht erreichbar. */
+async function klicke(page, selektor) {
+    const treffer = page.locator(selektor).first();
+    if (await treffer.count() === 0) return false;
+    if (!await treffer.isVisible()) return false;
+    try {
+        // Kurzer Anlauf statt der 30-Sekunden-Vorgabe: Verdeckt ein Overlay den
+        // Schalter, ist das ein Befund und keine Wartezeit.
+        await treffer.click({ timeout: 4000 });
+    } catch {
+        return false;
+    }
+    await sleep(350);
+    return true;
+}
+
+async function offeneReiter(page) {
+    return page.evaluate(() => [...document.querySelectorAll('.tab-button')]
+        .filter((b) => {
+            if (b.hidden) return false;
+            const cs = getComputedStyle(b);
+            return cs.display !== 'none' && cs.visibility !== 'hidden';
+        })
+        .map((b) => b.dataset.tab));
+}
+
+async function inspect(browser, format, baseUrl) {
+    const context = await browser.newContext({
+        viewport: format.viewport,
+        hasTouch: format.touch,
+        deviceScaleFactor: 1
+    });
+    const page = await context.newPage();
+    const fehler = [];
+    page.on('pageerror', (error) => fehler.push(String(error)));
+
+    // `networkidle` wird nie erreicht: Die Karte lädt fortlaufend Kacheln.
+    await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    await page.waitForSelector('#sidebar', { timeout: 30000 });
+    // Nicht auf eine Frist warten, sondern auf den Zustand: Der Erststart lässt
+    // die Beispielkunden einfliegen und gibt die Bedienung erst danach frei.
+    // Eine feste Wartezeit maß genau diesen Zwischenzustand – und zählte null.
+    // Der Erststart hält die Bedienung zurück, bis die Beispielkunden stehen
+    // (`body.app-onboarding`). Wer stattdessen eine feste Frist abwartet, misst
+    // je nach Maschine den Zwischenzustand – und zählt dann null.
+    await page.waitForFunction(
+        () => !document.body.classList.contains('app-onboarding'),
+        null,
+        { timeout: 30000 }
+    );
+    // Der Moduswahl-Schalter ist Schreibtisch-Sache; das Blatt-Griffchen gibt es
+    // auf beiden Gesichtern – deshalb hängt die Bereitschaft an ihm.
+    await page.waitForSelector('#sidebar-toggle', { state: 'visible', timeout: 30000 });
+    await sleep(1000);
+
+    // Das Erstbild: was die App im allerersten Moment verlangt, ohne einen
+    // einzigen Klick. Am Handy ist das die Karte mit geschlossenem Blatt – der
+    // ruhigste Zustand, den die App kennt, und der einzige, den jeder Nutzer
+    // garantiert sieht.
+    const erstbild = await page.evaluate(ERSTBILD_PROBE);
+
+    // Ab hier wird die App im Alltagszustand vermessen: Die Willkommenskarte ist
+    // ein einmaliger Hinweis, sie gehört ins Erstbild (oben) und nicht in die
+    // Reiter-Messung. Sie liegt am Handy zudem über dem Blatt und fängt Klicks ab.
+    await klicke(page, '#btn-demo-welcome-ack');
+
+    // Am Handy liegt das Blatt zu; ohne Aufziehen gibt es keine Reiter zu messen.
+    if (!await page.locator('.tab-button[data-tab="daten"]').first().isVisible()) {
+        await klicke(page, '#sidebar-toggle');
+        await sleep(600);
+    }
+
+    const messungen = [];
+    let rahmen = null;
+
+    for (const tiefe of ['basis', 'profi']) {
+        await klicke(page, `[data-depth="${tiefe}"]`);
+        // Modi sind am Handy nicht wählbar – dort zählt schlicht, was offen ist.
+        const modi = format.touch ? [null] : ['aussendienst', 'gebietsplanung', 'service'];
+
+        for (const modus of modi) {
+            if (modus && !await klicke(page, `.mode-btn[data-mode="${modus}"]`)) continue;
+            for (const reiter of await offeneReiter(page)) {
+                if (!await klicke(page, `.tab-button[data-tab="${reiter}"]`)) continue;
+                const wert = await page.evaluate(PROBE);
+                if (rahmen === null) rahmen = wert.rahmen;
+                messungen.push({ tiefe, modus, ...wert });
+            }
+        }
+    }
+
+    // Zweite Frage: Kostet die Vertiefung den Rückweg? Dazu in den Tour-Reiter,
+    // dort in Schritt 1 tippen (= Fokus) und nachsehen, ob „☰ Übersicht" steht.
+    let vertiefung = null;
+    await klicke(page, '[data-depth="basis"]');
+    if (!format.touch) await klicke(page, '.mode-btn[data-mode="aussendienst"]');
+    if (await klicke(page, '.tab-button[data-tab="tour"]')) {
+        const uebersicht = await page.evaluate(PROBE);
+        const getippt = await klicke(page, '#tab-tour .tour-acc[data-acc="start"] .acc-head');
+        const fokus = getippt ? await page.evaluate(PROBE) : null;
+        vertiefung = { uebersicht, fokus };
+    }
+
+    await context.close();
+    return { ...format, erstbild, rahmen, messungen, vertiefung, fehler };
+}
+
+function parseArgs(argv) {
+    const wanted = [];
+    let frei = false;
+    for (const arg of argv) {
+        const [key, value] = arg.replace(/^--/, '').split('=');
+        if (key === 'format' && value) wanted.push(value);
+        if (key === 'frei') frei = true;
+    }
+    return { formats: wanted.length ? FORMATS.filter((f) => wanted.includes(f.name)) : FORMATS, frei };
+}
+
+const { formats, frei } = parseArgs(process.argv.slice(2));
+const { chromium } = await import('playwright');
+const port = await freePort();
+const server = await startPreview(port);
+const baseUrl = `http://localhost:${port}/`;
+const executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH || undefined;
+const browser = await chromium.launch(executablePath ? { executablePath } : {});
+
+const ergebnisse = [];
+try {
+    for (const format of formats) {
+        const result = await inspect(browser, format, baseUrl);
+        ergebnisse.push(result);
+        const { width, height } = format.viewport;
+        console.log(`\n── ${format.name} (${width}x${height}) ──`);
+        const herkunft = Object.entries(result.erstbild.herkunft)
+            .sort((a, b) => b[1] - a[1])
+            .map(([name, n]) => `${name} ${n}`)
+            .join(' · ');
+        console.log(`  Erstbild (ohne einen Klick): ${result.erstbild.bedienelemente} Bedienelemente`
+            + `${result.erstbild.blattOffen ? '' : ', Blatt zu'}`);
+        console.log(`    davon: ${herkunft}`);
+        console.log(`  Rahmen (Modus · Tiefe · Reiter): ${result.rahmen} Bedienelemente`);
+        for (const m of result.messungen) {
+            const budget = BUDGET[m.tiefe]?.[m.reiter];
+            const marke = frei || budget === undefined ? ' ' : (m.bedienelemente <= budget ? '✓' : '✗');
+            const grenze = budget === undefined ? '–' : String(budget);
+            const wo = `${m.tiefe}${m.modus ? '/' + m.modus : ''}`;
+            console.log(`  ${marke} ${wo.padEnd(24)} ${String(m.reiter).padEnd(11)} ${String(m.bedienelemente).padStart(3)} / ${grenze}`);
+        }
+    }
+} finally {
+    await browser.close();
+    server.kill();
+}
+
+// ---- Auswertung ----
+
+let befunde = 0;
+
+for (const r of ergebnisse) {
+    if (r.fehler.length) {
+        console.log(`\n✗ ${r.name}: ${r.fehler.length} JavaScript-Fehler`);
+        r.fehler.slice(0, 3).forEach((e) => console.log(`      ${e}`));
+        befunde++;
+    }
+
+    if (!frei) {
+        if (r.erstbild.bedienelemente > r.erstbildBudget) {
+            console.log(`\n✗ ${r.name}: Das Erstbild verlangt ${r.erstbild.bedienelemente} `
+                + `Bedienelemente, Budget ${r.erstbildBudget}.`);
+            befunde++;
+        }
+        for (const m of r.messungen) {
+            const budget = BUDGET[m.tiefe]?.[m.reiter];
+            if (budget === undefined) {
+                console.log(`\n✗ ${r.name}: Reiter „${m.reiter}" (${m.tiefe}) hat kein Budget.`);
+                befunde++;
+            } else if (m.bedienelemente > budget) {
+                console.log(`\n✗ ${r.name} · ${m.reiter} (${m.tiefe}${m.modus ? '/' + m.modus : ''}): `
+                    + `${m.bedienelemente} Bedienelemente, Budget ${budget}.`);
+                befunde++;
+            }
+        }
+        if (r.rahmen !== null && r.rahmen > BUDGET_RAHMEN) {
+            console.log(`\n✗ ${r.name}: Rahmen verlangt ${r.rahmen} Bedienelemente, Budget ${BUDGET_RAHMEN}.`);
+            befunde++;
+        }
+    }
+
+    // Regel 1: Die Übersicht zeigt den Prozess, nicht die Inhalte.
+    const v = r.vertiefung;
+    if (!v) {
+        console.log(`\n✗ ${r.name}: Tour-Reiter war nicht erreichbar – die zwei Regeln bleiben ungeprüft.`);
+        befunde++;
+        continue;
+    }
+    if (v.uebersicht.offeneSchrittInhalte > 0) {
+        console.log(`\n✗ ${r.name}: Der Tour-Reiter öffnet mit ${v.uebersicht.offeneSchrittInhalte} `
+            + 'offenen Schritt-Inhalten. Die Übersicht soll den Prozess zeigen, nicht die Inhalte.');
+        befunde++;
+    } else if (v.uebersicht.schrittKoepfe === 3) {
+        console.log(`\n✓ ${r.name}: Übersicht zeigt 3 Schritte, 0 Inhalte.`);
+    } else {
+        console.log(`\n✗ ${r.name}: Übersicht zeigt ${v.uebersicht.schrittKoepfe} Schritt-Köpfe statt 3.`);
+        befunde++;
+    }
+
+    // Regel 2: Verdrängung ist umkehrbar.
+    if (!v.fokus) {
+        console.log(`\n✗ ${r.name}: Ein Schritt ließ sich nicht öffnen – Vertiefung ungeprüft.`);
+        befunde++;
+    } else if (!v.fokus.fokus) {
+        console.log(`\n✗ ${r.name}: Antippen eines Schritts führt nicht in den Fokus-Modus.`);
+        befunde++;
+    } else if (!v.fokus.rueckweg) {
+        console.log(`\n✗ ${r.name}: Der Fokus-Modus nimmt Chrome weg, ohne sichtbaren Rückweg.`);
+        befunde++;
+    } else {
+        console.log(`✓ ${r.name}: Vertiefung öffnet genau einen Schritt (${v.fokus.offeneSchrittInhalte}) `
+            + 'und lässt den Rückweg stehen.');
+    }
+}
+
+if (frei) {
+    console.log('\n(--frei: nur gemessen, keine Budgets geprüft.)');
+    process.exit(0);
+}
+
+console.log(befunde === 0
+    ? '\nJede Ansicht bleibt in ihrem Aufmerksamkeits-Budget.'
+    : `\n${befunde} Befund(e).`);
+process.exit(befunde === 0 ? 0 : 1);

@@ -484,6 +484,16 @@ umsehen"**). Die Karte dahinter bleibt bedienbar. Ein dezenter Streifen im Panel
 („🧪 Beispieldaten – Eigene Daten laden") bietet den geführten Upload jederzeit
 an, solange die Demo läuft.
 
+**Eine Frage zur Zeit.** Solange die Hinweiskarte im Bild steht, tritt zurück,
+was dieselbe Frage beantwortet: Die **"Erste Schritte"-Checkliste** wartet als
+schmale Zeile, und der Streifen zeigt nur seinen Hinweis („🧪 Beispieldaten"),
+nicht zusätzlich seinen Knopf – der trüge dieselbe Beschriftung wie der
+Hauptknopf der Karte. Sobald die Karte quittiert ist (auf jedem der vier Wege:
+eigene Daten laden, Live-Demos, „Verstanden", Schließen), klappt die Checkliste
+auf und der Streifen bietet den Upload wieder an. Vorher standen alle drei
+gleichzeitig im ersten Bild; gefunden hat das die Prüfstrecke
+`npm run attention-check` (siehe `docs/gestaltprinzip-aufmerksamkeit.md`).
+
 ### 5.2 Live-Demo-Auswahl nur auf Klick
 
 Die Demo-Auswahl öffnet ausschließlich über zwei bewusste Einstiege:
@@ -558,7 +568,9 @@ Die Karte kennt **drei Zustände**:
   Ein frisch abgehakter Schritt bleibt zuvor etwa 4 Sekunden als Feedback
   sichtbar. Auf dem Smartphone startet die Karte direkt eingeklappt, wird aber
   beim allerersten automatischen Reveal einmal ausgeklappt gezeigt, damit die
-  vier Live-Demos gleich sichtbar sind. **"Später"** klappt manuell ein.
+  vier Live-Demos gleich sichtbar sind – **es sei denn, die Beispieldaten-
+  Hinweiskarte steht noch im Bild** (siehe 5.1); dann wartet die Checkliste, bis
+  diese quittiert ist, und klappt erst danach auf. **"Später"** klappt manuell ein.
 - **Abgewählt:** nur über den ausdrücklichen Link **"Nicht mehr zeigen"**.
   Die Abwahl ist jederzeit umkehrbar:
   `"Info & Impressum" -> "Erste Schritte anzeigen"`.
@@ -2863,7 +2875,8 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   gestrichene automatische Tourvorschlag, die entfernte Anmeldung mit dem
   Arbeitskonto, der Grundsatz gegen KI im Produkt, die herabgestufte
   PIN-Pflicht, die abgeschaffte Fünf-Sekunden-Automatik, der Verzicht auf
-  eigene Navigation und die zurückgenommene Tablet-Ansicht.
+  eigene Navigation, die zurückgenommene Tablet-Ansicht und die abgelehnte
+  Oberfläche, die sich selbst umbaut.
   - **Die Bedingung, unter der diese Liste gebaut wurde:** Der gestrichene
     Tourvorschlag (10.07.2026) **muss** darin stehen. Eine Liste, die nur die
     Tode zeigt, auf die man stolz ist, ist Marketing. `tests/docsConsistency`

@@ -10,6 +10,7 @@ import {
     resetFirstSteps,
     setFirstStepsCollapsed,
     shouldAutoCollapseFirstSteps,
+    shouldRevealFirstStepsOnDemo,
     shouldShowFirstSteps,
     unhideFirstSteps
 } from '../src/features/firstSteps.js';
@@ -94,6 +95,19 @@ describe('Erste-Schritte-Checkliste (Logik)', () => {
         expect(shouldAutoCollapseFirstSteps({ doneIds: ['daten', 'tour'] })).toBe(true);
         expect(shouldAutoCollapseFirstSteps({ doneIds: ['daten'], tourStopCount: 1 })).toBe(true);
         expect(shouldAutoCollapseFirstSteps({})).toBe(false);
+    });
+
+    it('wartet mit dem Aufklappen, solange die Willkommenskarte im Bild steht', () => {
+        // Der Anlass ist eine Messung: Willkommenskarte, Beispieldaten-Streifen
+        // und ausgeklappte Checkliste standen gleichzeitig im ersten Bild und
+        // beantworteten dieselbe Frage – zwei davon mit demselben Knopf.
+        expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: true })).toBe(false);
+        // Quittiert: Jetzt ist die Checkliste der nächste Gedanke.
+        expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: false })).toBe(true);
+        // Eine bewusste Abwahl bleibt eine Abwahl – auch ohne Karte.
+        expect(shouldRevealFirstStepsOnDemo({ dismissed: true, welcomeOpen: false })).toBe(false);
+        // Ohne Angaben (kein Demo-Kontext) gilt der bisherige Weg: aufklappen.
+        expect(shouldRevealFirstStepsOnDemo()).toBe(true);
     });
 
     it('übersteht kaputte Persistenz ohne Fehler', () => {

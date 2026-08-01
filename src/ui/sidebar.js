@@ -14,6 +14,7 @@ import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
+import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
@@ -129,6 +130,29 @@ function syncTopnavPlacement() {
         if (depth.parentElement !== sidebar && modeSwitch) sidebar.insertBefore(depth, modeSwitch);
         if (tabs.parentElement !== sidebar && firstPanel) sidebar.insertBefore(tabs, firstPanel);
     }
+}
+
+/**
+ * Die Unterkante des schwebenden Kopf-Streifens als CSS-Größe veröffentlichen.
+ *
+ * Anlass ist ein Befund von `npm run touch-check` auf dem hochkanten Tablet:
+ * Der Lasso-Knopf lag unter der Basis/Profi-Pille und war nicht antippbar.
+ * Zwei Entscheidungen, jede für sich richtig, waren unabhängig voneinander an
+ * denselben Platz gezogen – der Kopf-Streifen, weil Tiefe und Reiter immer
+ * sichtbar bleiben sollen, und die Karten-Knopfzeile, weil unten das Blatt
+ * steht und sie dort verschwände. „Oben ist frei" stimmte für beide, aber nur
+ * einzeln.
+ *
+ * Der Streifen ist mal ein-, mal zweizeilig und im Onboarding gar nicht da;
+ * eine feste Zahl im CSS wäre wieder nur so lange richtig, bis jemand eine
+ * Zeile ergänzt. Gemessen wird deshalb, was tatsächlich dasteht – wie es
+ * `tourSheetHeight()` für das aufgezogene Blatt längst tut.
+ */
+function syncTopnavMetrics() {
+    const nav = document.getElementById('mobile-topnav');
+    const sichtbar = nav && nav.offsetParent !== null && nav.getBoundingClientRect().height > 0;
+    const unterkante = sichtbar ? Math.round(nav.getBoundingClientRect().bottom) : topbarPx();
+    document.documentElement.style.setProperty('--mobile-topnav-bottom', `${unterkante}px`);
 }
 
 function clampSidebarWidth(width) {
@@ -1090,12 +1114,22 @@ export function initSidebar() {
     initServiceOptIn();
     initDepth();
     syncTopnavPlacement();
+    syncTopnavMetrics();
+    // Der Streifen wächst und schrumpft mit seinem Inhalt (eine oder zwei
+    // Reihen, im Onboarding gar keine) und mit jeder Drehung. Statt jede
+    // einzelne Stelle zu suchen, die ihn ändert, wird er beobachtet – wer eine
+    // Reihe ergänzt, muss dann an nichts weiter denken.
+    const topnav = document.getElementById('mobile-topnav');
+    if (topnav && typeof ResizeObserver === 'function') {
+        new ResizeObserver(syncTopnavMetrics).observe(topnav);
+    }
     applyDataPanelLayout();
     // Bei Wechsel Desktop <-> Handy (Drehen/Resize) Elemente umhängen.
     const syncViewport = () => {
         if (isMobileUi() && state.ui.mode === 'service') applyMode('aussendienst', false);
         syncSidebarPositionForViewport();
         syncTopnavPlacement();
+        syncTopnavMetrics();
         applyDataPanelLayout();
         applySidebar();
         syncLevelControl();
@@ -1283,6 +1317,8 @@ export function initSidebar() {
         applyMode(state.ui.mode, false, false);
     });
     on('filters:changed', renderDataStatus);
+    // Die Willkommenskarte entscheidet mit, ob der Streifen sein Angebot zeigt.
+    on('demo-welcome:changed', renderDataStatus);
     renderDataStatus();
     renderTeamFilters();
 }
@@ -1450,6 +1486,13 @@ function renderDataStatus() {
     const demoBanner = document.getElementById('demo-banner');
     const demoActive = !empty && isDemoDataset(state.customers);
     if (demoBanner) demoBanner.hidden = !demoActive;
+    // Der Hinweis „das sind Demo-Kunden" bleibt immer stehen – er ist die
+    // Ehrlichkeit des Streifens. Sein Knopf dagegen trägt dieselbe Beschriftung
+    // wie der Hauptknopf der Willkommenskarte; zweimal dasselbe Angebot im
+    // selben Bild ist keine Wahl, sondern Rauschen. Solange die Karte steht,
+    // gehört das Angebot ihr.
+    const demoCta = document.getElementById('btn-demo-own-data');
+    if (demoCta) demoCta.hidden = demoActive && isDemoWelcomeOpen();
     // Solange Beispieldaten laufen, darf der eingeklappte mobile Peek etwas höher
     // stehen, damit der Beispieldaten-/Upload-Streifen vollständig sichtbar ist
     // (statt nur als Ansatz am unteren Rand). Steuert per CSS die Peek-Höhe.
