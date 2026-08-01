@@ -227,6 +227,26 @@ Ergänzung zur Arbeitsweise: Diese Klasse Fehler findet **kein** Unit-Test und
 keine Überlegung, sondern nur ein echtes Gerät. Der Zwitter war seit Tagen im
 Produkt und niemandem aufgefallen.
 
+### Release 8 – „Sprint 2" *(01.08.2026 umgesetzt, App 3.3.0)*
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 6.8 | **Benannte Simulations-Szenarien** (= 3.3) | ✅ umgesetzt | Speichern, Laden, Vergleichen. Nur Zuordnungen, keine Kundendaten. Laden ist über den Rückgängig-Stapel umkehrbar; ein Szenario aus einem anderen Datenbestand fragt vorher nach und nennt die Zahlen. |
+| 6.9 | **„Was wir weggelassen haben"** | ✅ umgesetzt | Sieben Einträge mit Datum und Begründung im Info-Dialog. **Bedingung erfüllt:** Item 2.1 steht drin, und die Rücknahme der Tablet-Ansicht vom 01.08. auch. Ein Test erzwingt beides. |
+| 7.7 | **`npm run face-check`** | ✅ umgesetzt | Dritte Prüfstrecke: sechs Gerätemaße, erwartetes Gesicht je Format, und der Punkt-für-Punkt-Vergleich jedes Touransicht-Formats gegen das Smartphone. |
+| 6.10 | Channel-Legacy entfernen | ⏳ offen | Bewusst **nicht** in diesem Release – siehe unten. |
+
+#### Warum 6.10 nicht mitgeht
+
+Es ist der einzige Punkt der Liste, der **Nutzerdaten irreversibel anfasst**.
+Die App verlangt vor jeder Datensatz-Ersetzung eine Export-Empfehlung und eine
+Bestätigung; dieselbe Regel gilt für uns. 6.10 gehört in einen eigenen PR mit
+eigener Prüfung, nicht als vierter Punkt in einen risikofreien Sprint.
+
+Reihenfolge dort: Export-Empfehlung anzeigen → Migration „Channel wird zu
+Gruppe" → Eintrag in Kapitel 26 → erst dann den Legacy-Pfad aus
+`assignableDims`, `targetValues` und `attrLabel` entfernen.
+
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.

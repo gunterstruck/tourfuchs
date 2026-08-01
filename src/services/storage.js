@@ -13,7 +13,8 @@ const KEYS = {
     dataset: 'kundendaten',
     geocodeCache: 'geocode-cache',
     settings: 'einstellungen',
-    tours: 'gespeicherte-touren'
+    tours: 'gespeicherte-touren',
+    scenarios: 'simulations-szenarien'
 };
 
 function openDatabase() {
@@ -156,5 +157,30 @@ export async function saveTours(tours) {
         await saveToCache(KEYS.tours, tours);
     } catch (error) {
         console.warn('Touren konnten nicht gespeichert werden:', error);
+    }
+}
+
+// ---- Simulations-Szenarien ----
+//
+// Ein Szenario ist ein benannter Schnappschuss einer laufenden Was-wäre-wenn-
+// Simulation. Es enthält ausschließlich Zuordnungen (Kunden-ID -> Zielwert),
+// keine Kundendaten – daher braucht es weder den Tresor noch eine Migration:
+// Der Objektstore ist schemalos, ein neuer Schlüssel kostet nichts.
+
+export async function loadScenarios() {
+    try {
+        return (await loadFromCache(KEYS.scenarios)) ?? [];
+    } catch {
+        return [];
+    }
+}
+
+export async function saveScenarios(scenarios) {
+    try {
+        await saveToCache(KEYS.scenarios, scenarios);
+        return true;
+    } catch (error) {
+        console.warn('Szenarien konnten nicht gespeichert werden:', error);
+        return false;
     }
 }
