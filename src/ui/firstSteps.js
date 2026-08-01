@@ -10,6 +10,8 @@
  * Die Karte klappt von selbst ein, sobald der Nutzer erkennbar arbeitet:
  * Ein frisch abgehakter Schritt bleibt kurz als Feedback sichtbar (~4 s),
  * danach reicht die Zeile. Auf dem Handy startet sie direkt eingeklappt.
+ * Als Aktivität zählt auch das Scrollen in den Inhalt – dasselbe Signal, auf
+ * das die übrigen Angebote zurücktreten (ui/offerAutoHide.js).
  */
 
 import { state, on } from '../core/state.js';
@@ -205,6 +207,11 @@ export function initFirstSteps() {
     };
     ['tour:scope-changed', 'customer:detail-opened', 'service-customer-scope:changed']
         .forEach((evt) => on(evt, collapseOnActivity));
+    // In den Inhalt scrollen ist dasselbe Signal: Der Nutzer wendet sich dem
+    // Prozess zu. Bisher traten dabei nur die kleinen Angebote zurück (Kartenstil,
+    // Beispieldaten-Streifen) – die Checkliste ist mit Abstand das größte und
+    // blieb als einzige stehen. Sie klappt jetzt mit ein, zur Zeile, umkehrbar.
+    on('offers:receded', (receded) => { if (receded) collapseOnActivity(); });
     // Tour-Aktivität zählt erst, sobald wirklich geplant wird (Start/Stopps).
     on('tour:changed', () => { if (state.tour.start || state.tour.stops.length) collapseOnActivity(); });
     // Echtes Antippen der Karte (kein programmatisches Ereignis) ist Aktivität.
