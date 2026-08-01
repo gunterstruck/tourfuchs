@@ -232,7 +232,10 @@ function applyAssign() {
     if (territorySelected) {
         const old = getTerritory(ctx.level, ctx.key)?.[attr] ?? '';
         if (old !== target) {
-            territory = { level: ctx.level, key: ctx.key, attr, old, neu: target };
+            // Der Gebietsname gehört zum Eintrag, nicht zum gerade offenen
+            // Dialog: Der Stapel überlebt den Wechsel in ein anderes Gebiet,
+            // und `setTerritory` würde sonst den falschen Namen schreiben.
+            territory = { level: ctx.level, key: ctx.key, attr, old, neu: target, name: ctx.name };
             setTerritory(ctx.level, ctx.key, attr, target, ctx.name);
         }
     }
@@ -261,8 +264,8 @@ function applyEntry(entry, direction) {
         if (customer) customer[change.attr] = change[direction];
     }
     if (entry.territory) {
-        const { level, key, attr } = entry.territory;
-        setTerritory(level, key, attr, entry.territory[direction], ctx?.name);
+        const { level, key, attr, name } = entry.territory;
+        setTerritory(level, key, attr, entry.territory[direction], name ?? ctx?.name);
     }
     persistAndRefresh();
     render();
