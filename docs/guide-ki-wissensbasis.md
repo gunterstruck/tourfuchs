@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.0 · Stand: 01.08.2026 · App-Version: 3.3.0**
+**Version 3.1 · Stand: 02.08.2026 · App-Version: 3.3.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -2860,7 +2860,69 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
-### 26.3 Änderungen in Version 3.0
+### 26.3 Änderungen in Version 3.1
+
+- **„Route auf Karte anzeigen" verlässt den Tour-Reiter nicht mehr.** Bis
+  Version 3.0 wechselte `"Außendienst" -> Tab "Tour" -> "Route auf Karte
+  anzeigen"` auf dem Handy in den Reiter „Karte". Wer seine Tour ansehen wollte,
+  fand danach „In der Nähe" im Blatt statt der eigenen Stopps – eine
+  Ortsveränderung, wo eine Sicht gemeint war. Jetzt schließt sich nur das Blatt;
+  der Reiter bleibt „Tour".
+  - Nötig war der Wechsel nie: Die Karte wird frei, weil das Blatt schließt,
+    nicht weil der Reiter wechselt. Das hochkante Tablet machte es immer schon
+    so; das Handy war der Sonderfall.
+  - **Der Rückweg steht dreifach im selben Bild:** der Griff am Blattrand, „☰"
+    in der Kopfzeile und der Reiter „Tour" im Kopf-Streifen, der aktiv bleibt.
+  - **Antwortregel:** Auf „wie sehe ich meine Route?" bleibt die Antwort
+    „Route auf Karte anzeigen". Der Guide darf **nicht** mehr sagen, man lande
+    dabei im Karten-Reiter.
+- **Gestrichen: der unsichtbare Linienart-Umschalter.** Ein zweiter Tipp auf den
+  Karten-Reiter wechselte zwischen Luftlinie und Straßenroute. Dafür gibt es den
+  beschrifteten Knopf über der Karte (`#btn-route-mode`). Steht in „Was wir
+  weggelassen haben". Ein Tipp auf „Karte" **legt** die geplante Route weiterhin
+  auf die Karte – nur umgeschaltet wird dort nichts mehr.
+
+#### Verworfene Vorschläge dieser Runde
+
+Beide stehen auch in „Was wir weggelassen haben" im Info-Dialog. Hier stehen die
+Zahlen, die zur Entscheidung geführt haben – damit die Vorschläge nicht in sechs
+Monaten unbelastet wiederkommen.
+
+- **Basis/Profi umbenennen in „Unterwegs/Planen" – verworfen am 02.08.2026.**
+  Der Einwand war berechtigt: Die Wörter stufen den Menschen ein, statt die
+  Aufgabe zu benennen. Dagegen stand die Messung (`npm run attention-check`,
+  02.08.2026): Auf dem Handy unterscheiden sich Basis und Profi im Erst-Zustand
+  um **ein** Bedienelement (Tour-Reiter 7 gegen 8, Karten-Reiter 0 gegen 0). Die
+  Umbenennung hätte 16 Testdateien, eine Migration des gespeicherten Werts
+  (`gf_app_depth` mit `basis`/`profi`), Schulungsunterlagen und diese
+  Wissensbasis berührt. **Offen geblieben** ist die Frage dahinter – ob es den
+  Schalter auf dem Handy überhaupt braucht; sie ist nicht entschieden, nur
+  vertagt.
+- **„TourFuchs Light" als eigenständige App – verworfen am 02.08.2026.** Die
+  Handy-Ansicht ist dieses Produkt bereits: Gebietsplanung, Cockpit,
+  Gebiets-Editor und Vertrags-Radar hängen am Viewport, nicht an der Tiefe, und
+  sind dort unerreichbar. Eine zweite Codebasis hätte nur die Pflege verdoppelt.
+
+#### Basiswert für die Tiefen-Verzweigung (Stand 02.08.2026)
+
+Festgehalten, damit sich später überhaupt sagen lässt, ob eine Maßnahme gewirkt
+hat:
+
+| Maß | Wert |
+|---|---|
+| Lesestellen von `state.ui.depth` und abgeleiteten Helfern in `src/**/*.js` | 35 |
+| `on('depth:changed')`-Abonnenten | 7 |
+| `.expert-only`/`.profi-only`-Marker im Markup | 18, gesteuert von **einer** CSS-Regel |
+| Testdateien, die Tiefe/Basis/Profi berühren | 16 von 78 |
+
+**Annahme, keine Messung:** Der Entwurf ging davon aus, dass die häufigste
+Sitzung auf dem Handy stattfindet und ein Außendienstmitarbeiter selten mehr als
+zwei Kunden am Tag besucht. Das ist Marktkenntnis, kein erhobener Wert –
+TourFuchs misst es nicht. `dayLog.js` hält zwar die Form gefahrener Tage fest,
+aber `km` stammt aus der **geplanten** Route; Tage ohne Plan liefern dort
+nichts. Wer künftig auf dieser Annahme aufbaut, muss wissen, dass sie eine ist.
+
+### 26.4 Änderungen in Version 3.0
 
 - **Benannte Simulations-Szenarien** (Roadmap 3.3). Im Was-wäre-wenn-Bereich
   lässt sich eine laufende Simulation unter einem Namen sichern, wieder laden
@@ -2899,7 +2961,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   im Produkt, weil keine der beiden vorhandenen Strecken **liest**, welches
   Gesicht die App zeigt.
 
-### 26.4 Änderungen in Version 2.9
+### 26.5 Änderungen in Version 2.9
 
 - **Zwei Gesichter statt vier Schwellen.** „Mobil" hatte keine Definition,
   sondern vier unabhängig gewachsene Grenzen (560, 768/769, 900/901 und eine
@@ -2935,7 +2997,7 @@ Abschlussfrage an. Antworte auf Deutsch, wenn die Frage auf Deutsch gestellt wir
   Quelldateien darauf, dass keine eigene Breitenschwelle zurückkehrt, und
   bindet das CSS wortgleich an die exportierte Zeichenkette.
 
-### 26.5 Änderungen in Version 2.8
+### 26.6 Änderungen in Version 2.8
 
 - **"Erste Schritte", Punkt 1 richtiggestellt (Dokumentationsfehler).** Der Punkt
   heißt im Code seit Längerem **"Kunden auf der Karte verstehen"** und hakt sich
@@ -2993,7 +3055,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 **Wenn das Tor B3 tötet, gehört B3 auf die Liste "Was wir weggelassen haben".**
 
-### 26.6 Änderungen in Version 2.7
+### 26.7 Änderungen in Version 2.7
 
 - **Briefing-Prompt startet zugeklappt.** In beiden Briefing-Dialogen (Kunde und
   Gebiet) steht der vollständige Prompt hinter „🔍 Vollständigen Prompt ansehen"
@@ -3015,7 +3077,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   veralteten Datenstand („Datenstand prüfen"), nicht nur Umfang und
   Zuordnungslücken.
 
-### 26.7 Änderungen in Version 2.5
+### 26.8 Änderungen in Version 2.5
 
 - **Durchgängiges Muster „Überblick → aufzoomen":** Grobe, mehrstufige Bereiche
   zeigen zuerst den Prozess/Überblick, Details kommen auf Abruf – wie das Zoomen
@@ -3052,7 +3114,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   sie neben der sichtbaren Karte. Die „Chancen"-Live-Demo überspringt die
   Einfärb-Schritte auf dem Handy.
 
-### 26.8 Änderungen in Version 2.4
+### 26.9 Änderungen in Version 2.4
 
 - **System-Navigationsleiste verdeckt das Blatt nicht mehr (Handy):** Im
   Edge-to-Edge-Modus rechnet die App jetzt die untere „sichere Zone"
@@ -3091,7 +3153,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Route-Reveal wirklich auf Guckhöhe ein und stellt Kopfleiste und Blattposition
   danach sauber wieder her.
 
-### 26.9 Änderungen in Version 2.3
+### 26.10 Änderungen in Version 2.3
 
 - **Service-Modus ist jetzt ein optionales Modul.** Standardmäßig ausgeblendet;
   im Profi-Modus per Häkchen **unten in der Gebietsplanung** ("🛡️ Service-Modul
@@ -3135,7 +3197,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Kontakt **tourfuchs@online.de**; teilbare Link-Vorschau (OG-Bild) und
   Feedback-Kanal (GitHub Issues) ergänzt.
 
-### 26.10 Änderungen in Version 2.2
+### 26.11 Änderungen in Version 2.2
 
 - Vertriebsbezirk beim Import von Pflicht auf "empfohlen" umgestellt; Verhalten
   "Ohne Zuordnung" und Hinweis im Importergebnis dokumentiert.
@@ -3191,7 +3253,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - interne Korrektur der Umsatz-Einheitenerkennung (t€/k€ nur noch als
   eigenständige Einheit) - Nutzerhinweis: Gesamtsumme im Importergebnis prüfen.
 
-### 26.11 Änderungen in Version 2.1
+### 26.12 Änderungen in Version 2.1
 
 - Desktop-Einstieg **"Mobile Außendienst & Tour"** als Produktnutzen benannt.
 - einmaligen, ruhigen Vorschau-Teaser nach vorhandenem Kundenbestand dokumentiert.
@@ -3204,7 +3266,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - gemeinsamen lokalen Datenbestand von Desktop und eingebetteter Vorschau
   klargestellt.
 
-### 26.12 Änderungen in Version 2.0
+### 26.13 Änderungen in Version 2.0
 
 - vollständige Zusammenführung der früheren PDF- und Markdown-Wissensbasis.
 - neues Product-Owner-Kapitel mit priorisierten Wow-Effekten.

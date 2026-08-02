@@ -27,7 +27,7 @@ import { distanceKm } from '../services/geocode.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups } from '../features/map.js';
-import { showMapView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
+import { showMapView, showRouteView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
 import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
@@ -605,7 +605,7 @@ const HELPERS = {
         }
     },
     async focusTourRoute() {
-        showMapView();
+        showRouteView();
         // Handy: das (für die Bedienung aufgezogene) Blatt zurückziehen, damit die
         // Route die volle Kartenhöhe bekommt und nicht nach oben gequetscht wird.
         collapseSheetForDemo();
