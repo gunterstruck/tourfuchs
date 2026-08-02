@@ -27,7 +27,7 @@ import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.j
 import { isPhoneUi } from '../core/viewport.js';
 import { serviceVisitWindow } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
-import { showMapView } from './sidebar.js';
+import { showRouteView } from './sidebar.js';
 import { showToast } from './toast.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
@@ -1624,7 +1624,7 @@ function showRouteOnMap() {
     }
     if (state.tour.mapFocus) {
         const mode = toggleRouteLineMode();
-        showMapView();
+        showRouteView();
         showToast(mode === 'road'
             ? 'Straßenroute wird auf der Karte angezeigt.'
             : 'Luftlinienroute wird auf der Karte angezeigt.',
@@ -1633,7 +1633,7 @@ function showRouteOnMap() {
     }
     state.tour.mapFocus = true;
     state.tour.routeLineMode = 'air';
-    showMapView();
+    showRouteView();
     window.setTimeout(() => {
         const ok = fitTourRoute();
         showToast(ok

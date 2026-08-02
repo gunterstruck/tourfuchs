@@ -876,7 +876,7 @@ function activateTab(tab) {
     }
 }
 
-/** Mobil direkt zur Kartenansicht wechseln, z. B. nach "Route anzeigen".
+/** Mobil direkt zur Kartenansicht wechseln – dorthin, wo „In der Nähe" liegt.
  *  `activateTab('karte')` klappt das Blatt zugleich ganz nach unten ein. */
 export function showMapView(persist = true) {
     if (!isSheetUi()) return;
@@ -888,6 +888,29 @@ export function showMapView(persist = true) {
         state.ui.sidebarOpen = false;
         applySidebar();
     }
+    if (persist) persistSettings();
+}
+
+/**
+ * Die geplante Route freilegen, **ohne** den Reiter zu wechseln.
+ *
+ * „Route auf Karte anzeigen" ging bisher über `showMapView()` und landete damit
+ * auf dem Handy im Karten-Reiter. Das ist eine Ortsveränderung, wo eine Sicht
+ * gemeint war: Man verlässt die Tour, um sie anzusehen, und findet danach im
+ * Blatt „In der Nähe" statt der eigenen Stopps.
+ *
+ * Nötig war der Wechsel nie. Die Karte wird frei, weil `activateTab('karte')`
+ * nebenbei `sidebarOpen = false` setzt – nicht weil der Reiter wechselt. Der
+ * Reiterwechsel war der Beifang, nicht das Mittel. Auf dem hochkanten Tablet
+ * tut `showMapView()` längst genau das, was hier für alle gilt.
+ *
+ * Der Rückweg steht im selben Bild, gleich dreifach: der Griff am Blatt, „☰"
+ * in der Kopfzeile und der Tour-Reiter im Kopf-Streifen, der aktiv bleibt.
+ */
+export function showRouteView(persist = true) {
+    if (!isSheetUi()) return;
+    state.ui.sidebarOpen = false;
+    applySidebar();
     if (persist) persistSettings();
 }
 
@@ -911,14 +934,21 @@ function hasTourRouteForMap() {
         && (state.tour.stops.length > 0 || !!state.tour.destination);
 }
 
-function handleMapTabRouteToggle(tab) {
+/**
+ * Wer mit geplanter Tour auf den Karten-Reiter tippt, will sie sehen.
+ *
+ * Früher schaltete ein zweiter Tipp auf denselben Reiter zusätzlich zwischen
+ * Luftlinie und Straßenroute um. Diese Geste ist ersatzlos gestrichen: Sie tat
+ * dasselbe wie `#btn-route-mode`, der als Knopf über der Karte steht,
+ * beschriftet ist und nicht erraten werden muss. Ein unsichtbarer Griff, der
+ * einen sichtbaren verdoppelt, ist kein Komfort, sondern ein Fund für die
+ * nächste Fehlersuche.
+ */
+function handleMapTabRouteReveal(tab) {
     if (!isMobileUi() || tab !== 'karte' || !hasTourRouteForMap()) return;
-    if (state.tour.mapFocus && state.ui.activeTab === 'karte') {
-        state.tour.routeLineMode = state.tour.routeLineMode === 'road' ? 'air' : 'road';
-    } else if (!state.tour.mapFocus) {
-        state.tour.mapFocus = true;
-        state.tour.routeLineMode ||= 'air';
-    }
+    if (state.tour.mapFocus) return;
+    state.tour.mapFocus = true;
+    state.tour.routeLineMode ||= 'air';
     emit('tour:changed');
 }
 
@@ -1180,7 +1210,7 @@ export function initSidebar() {
     // Tabs
     document.querySelectorAll('.tab-button').forEach((btn) => {
         btn.addEventListener('click', () => {
-            handleMapTabRouteToggle(btn.dataset.tab);
+            handleMapTabRouteReveal(btn.dataset.tab);
             activateTab(btn.dataset.tab);
             // Handy: „Tour" zieht das Blatt ganz auf – volle Planungsfläche.
             if (isSheetUi() && btn.dataset.tab === 'tour') {
