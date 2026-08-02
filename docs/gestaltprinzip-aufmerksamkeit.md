@@ -172,6 +172,57 @@ Prüffrage 2.4 keine Formalie.
 
 ---
 
+## 4a. Die Modal-Inventur (01.08.2026)
+
+Prüffrage 2.2 lautet: *Was verdrängt es – und wie kommt der Nutzer zurück?* Ein
+Modal ist die stärkste Form von Verdrängung, die eine Web-App hat: Es verdeckt
+alles und macht es zusätzlich unbedienbar. Also wurden alle 22 Dialoge einzeln
+befragt.
+
+**Das Ergebnis: 18 von 22 sind zu Recht modal.** Die Inventur hat kein
+Aufräumprojekt gefunden, sondern einen einzigen Defekt – und das ist ein
+brauchbares Ergebnis, kein enttäuschendes.
+
+| Gruppe | Anzahl | Urteil |
+|---|---|---|
+| **Eine Entscheidung hält alles an** – Einwilligung, „Bestand ersetzen", Import-Ergebnis, verschlüsselter Export/Empfang, Tresor-Sperrbildschirm | 6 | Blockieren ist der Zweck |
+| **Eigenes Ziel, Kontext irrelevant** – Import-Strecke (5), Info, Live-Demos, QR-Übergabe (2), Feierabend-Rückblick | 10 | Der Dialog *ist* der Gedanke |
+| **Eigene Arbeitsfläche** – Cockpit, Vertragsradar | 2 | Vollbild ist richtig; das Cockpit hat sogar „Zur Karte" |
+| **Vertiefung eines Kartenobjekts** – Gebiets-Editor, Kunden-Briefing, Gebiets-Briefing, „Das sagt Ihre Liste" | 4 | genauer angesehen |
+
+### Der eine Defekt: der Gebiets-Editor
+
+Er beantwortet die Frage *„welchem Bezirk gebe ich diese Kunden?"*. Die
+Information, die man dafür braucht – welches Gebiet liegt daneben, wo ist die
+Lücke, wer grenzt an –, steht auf der Karte. Das Modal legte sich genau darüber
+und machte sie zusätzlich unbedienbar. Ein Editor über dem Ding, das er
+bearbeitet.
+
+Er ist deshalb **angedockt statt daraufgelegt**: `show()` statt `showModal()`,
+am rechten Rand, in gedeckelter Breite. Die Karte bleibt sichtbar und schiebbar
+– und ein Klick auf das nächste Gebiet füllt den Editor neu, statt an ihm
+abzuprallen. Das Weiterklicken ist der eigentliche Gewinn; das Modal hatte es
+unmöglich gemacht.
+
+Erfunden werden musste dafür nichts: `#demo-welcome` schwebt seit jeher als
+nicht-modale Karte über der Landkarte und lässt sie bedienbar.
+
+### Die drei, die bleiben, wie sie sind
+
+**Kunden- und Gebiets-Briefing** sind Textblöcke zum Lesen und Kopieren. Der
+Kunde ist im Dialog benannt; die Karte dahinter trägt nichts zu der Entscheidung
+bei, die dort ansteht („kopieren oder nicht"). Mittlerer Aufwand, kaum Gewinn.
+
+**„Das sagt Ihre Liste"** verdeckt zwar die gerade erschienenen Kunden, ist aber
+die Antwort auf eine eben abgeschlossene Handlung und bietet die Wege zurück
+selbst an („Überfällige zeigen", „Tour").
+
+> Eine Inventur, die am Ende alles ändern will, hat nicht geprüft, sondern eine
+> These bestätigt. Der Wert lag hier im Gegenteil: Sie hat drei Verdächtige
+> entlastet – darunter den, der vorab als Kandidat Nummer eins benannt war.
+
+---
+
 ## 5. Was ausdrücklich nicht gilt
 
 Das Prinzip endet dort, wo es dem Produktversprechen widerspricht. Drei Grenzen,

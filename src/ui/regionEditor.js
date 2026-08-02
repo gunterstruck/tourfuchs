@@ -48,6 +48,14 @@ export function initRegionEditor() {
     document.getElementById('re-apply').addEventListener('click', applyAssign);
     document.getElementById('re-undo').addEventListener('click', undo);
     document.getElementById('re-redo').addEventListener('click', redo);
+    // Ein nicht-modaler Dialog schließt von sich aus **nicht** mit Escape – das
+    // erledigt der Browser nur für `showModal()`. Ohne diese Zeile verlöre der
+    // Editor genau die Fluchttaste, die jeder andere Dialog der App hat.
+    dialog.addEventListener('keydown', (ev) => {
+        if (ev.key !== 'Escape') return;
+        ev.preventDefault();
+        dialog.close();
+    });
     mobilePlanningQuery.addEventListener('change', (event) => {
         if (event.matches) closeUnavailableEditor();
     });
@@ -90,7 +98,17 @@ export function openRegionEditor(context) {
     document.getElementById('re-search').value = '';
     renderAttrSelect();
     render();
-    dialog.showModal();
+    // Bewusst `show()` statt `showModal()`: Der Editor beantwortet die Frage
+    // „welchem Bezirk gebe ich diese Kunden?", und die Antwort steht auf der
+    // Karte – welches Gebiet liegt daneben, wo ist die Lücke, wer grenzt an.
+    // Ein Modal legt einen Vorhang genau über die Entscheidungsgrundlage und
+    // macht sie zusätzlich unbedienbar. Ohne Vorhang bleibt die Karte sichtbar
+    // und schiebbar, der Editor liegt daneben statt darüber.
+    //
+    // Ein bereits offener Editor wird nur neu gefüllt: So folgt er einem Klick
+    // auf das nächste Gebiet, statt ihn zu blockieren – genau der Gewinn, den
+    // das Modal vorher verhindert hat.
+    if (!dialog.open) dialog.show();
 }
 
 function attrLabel(attr) {
