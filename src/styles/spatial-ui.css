@@ -1,0 +1,155 @@
+/* ---- Experiment: räumliche Oberfläche ------------------------------------
+ *
+ * Eigener Stylebereich, damit das Experiment keine bestehende Datei anfasst.
+ * Er wird vom Modul selbst importiert (`src/experiments/spatialUi.js`), nicht
+ * über `main.css` – so bleibt auch der Stylesheet-Einstieg unverändert.
+ *
+ * Der Layer entsteht erst beim Freischalten und ist bis dahin gar nicht im
+ * Dokument. `attention-check` und `face-check` zählen sichtbare Bedienelemente;
+ * ein Experiment, das im Normalzustand nicht existiert, verschiebt deshalb
+ * keine Budgets – und soll es auch nicht.
+ */
+
+/* Fünf schnelle Tipper auf das Markenzeichen sind der Schalter. Ohne diese
+   Zeile beansprucht der Browser die Folge als Doppeltipp-Zoom und die Geste
+   ist auf dem Handy nicht auslösbar. Einziger Eingriff in bestehendes Markup. */
+.brand {
+    touch-action: manipulation;
+}
+
+.sx-root {
+    position: fixed;
+    inset: 0;
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg, #f8fafc);
+    color: var(--color-text, #0f172a);
+}
+
+.sx-root[hidden] { display: none; }
+
+/* Die klassische Oberfläche bleibt stehen, sie tritt nur zurück. */
+body.sx-on > *:not(.sx-root) {
+    visibility: hidden;
+}
+
+.sx-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--color-border, #e2e8f0);
+    background: var(--color-surface, #fff);
+}
+
+.sx-crumb {
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.sx-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.sx-bar button {
+    border: 1px solid var(--color-border, #e2e8f0);
+    background: var(--color-surface, #fff);
+    color: inherit;
+    border-radius: var(--radius-pill, 999px);
+    padding: 7px 14px;
+    font: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    min-height: 38px;
+}
+
+.sx-bar button:disabled { opacity: 0.45; cursor: default; }
+.sx-bar .sx-leave { border-color: var(--color-primary, #16a34a); }
+
+.sx-stage {
+    position: relative;
+    flex: 1;
+    overflow: hidden;
+    /* Ein Zeiger zieht die Fläche, zwei Finger wechseln die Ebene – beides
+       gehört der App, nicht dem Browser. */
+    touch-action: none;
+    cursor: grab;
+}
+
+.sx-stage:active { cursor: grabbing; }
+
+.sx-plane {
+    position: absolute;
+    left: 48px;
+    top: 40px;
+    will-change: transform;
+}
+
+.sx-tile {
+    position: absolute;
+    width: 180px;
+    height: 120px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 6px;
+    padding: 12px 14px;
+    text-align: left;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 16px;
+    background: var(--color-surface, #fff);
+    color: inherit;
+    font: inherit;
+    box-shadow: var(--shadow-1, 0 1px 3px rgba(15, 23, 42, 0.08));
+    cursor: default;
+    transition: transform 0.14s ease, border-color 0.14s ease;
+}
+
+.sx-tile.sx-zoomable { cursor: zoom-in; }
+.sx-tile.sx-zoomable:hover { transform: scale(1.03); border-color: var(--color-primary, #16a34a); }
+
+.sx-tile:focus-visible {
+    outline: 3px solid var(--color-primary, #16a34a);
+    outline-offset: 2px;
+}
+
+.sx-stage:focus-visible {
+    outline: 3px solid var(--color-primary, #16a34a);
+    outline-offset: -3px;
+}
+
+.sx-tile-title {
+    font-weight: 600;
+    font-size: 0.98rem;
+    overflow-wrap: anywhere;
+}
+
+.sx-tile-sub {
+    font-size: 0.82rem;
+    opacity: 0.7;
+}
+
+.sx-empty {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0.7;
+}
+
+.sx-note {
+    margin: 0;
+    padding: 8px 14px;
+    font-size: 0.78rem;
+    opacity: 0.65;
+    border-top: 1px solid var(--color-border, #e2e8f0);
+    background: var(--color-surface, #fff);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sx-tile { transition: none; }
+    .sx-tile.sx-zoomable:hover { transform: none; }
+}

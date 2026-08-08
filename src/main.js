@@ -19,6 +19,7 @@ import { initImportWizard } from './ui/importWizard.js';
 import { initTourPanel } from './ui/tourPanel.js';
 import { openReceivedFromUrl } from './ui/tourQr.js';
 import { initSafeTransfer } from './ui/safeTransfer.js';
+import { initSpatialUi } from './experiments/spatialUi.js';
 import { decodeTourPayload, TOUR_HASH_KEY } from './features/tourShare.js';
 import { initCockpit } from './ui/cockpit.js';
 import { initRegionEditor } from './ui/regionEditor.js';
@@ -233,6 +234,15 @@ async function init() {
     initOfferAutoHide();
     initDemoWelcome();
     initSafeTransfer();
+
+    // Experiment: räumliche Oberfläche hinter einem versteckten Schalter
+    // (fünf schnelle Tipper auf das Markenzeichen). Bewusst in try/catch: Ein
+    // Experiment darf die Anwendung nicht mitreißen, wenn es selbst scheitert.
+    try {
+        initSpatialUi();
+    } catch (error) {
+        console.warn('Spatial-UI-Experiment nicht verfügbar:', error);
+    }
 
     // Die operative Serviceplanung ist eine Profi-Funktion. Code, Styles und
     // Excel-Import werden erst beim Wechsel in den Service-Fokus geladen, damit
