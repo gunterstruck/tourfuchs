@@ -4,6 +4,12 @@
 **Status:** Konzept / Experiment, ausdrücklich kein Umbauauftrag  
 **Bezug:** `docs/gestaltprinzip-aufmerksamkeit.md`
 
+**Prüfvermerk:** Die Abschnitte 2.1, 9.1, 10.1 und 11.1 sind als Blockzitat
+gekennzeichnete Ergänzungen aus einer Product-Owner-Prüfung vom 08.08.2026. Der
+ursprüngliche Text ist unverändert. Wer wissen will, was Konzept war und was
+Prüfung, erkennt es an der Nummerierung: Ganze Abschnitte sind vom Autor, die
+Unterabschnitte mit `> **Prüfung**` sind es nicht.
+
 ---
 
 ## 1. Ausgangspunkt
@@ -41,6 +47,25 @@ Damit gilt:
 - **Pinch-in:** Rückkehr zur Eltern-Ebene.
 
 Tap und Pinch dürfen keine konkurrierenden Navigationsmodelle erzeugen. Sie sind alternative Eingaben für dieselbe semantische Hierarchie.
+
+### 2.1 Pinch ist in der klassischen UI bereits belegt
+
+> **Prüfung (Product Owner, 08.08.2026).** Dieses Dokument entstand wenige Stunden vor dem Merge von #214. Seither gilt in der klassischen Oberfläche:
+
+| Fläche | Geste | Bedeutung |
+|---|---|---|
+| Bedienpanel, klassische UI (#214) | Zwei-Finger-Pinch | **Vergrößern** (`--panel-zoom`, 0,8 bis 1,5) |
+| Bedienpanel, Spatial-UI (dieses Papier) | Zwei-Finger-Pinch | **Semantische Tiefe wechseln** |
+
+Dieselbe Geste, dieselbe Fläche, zwei Bedeutungen. Solange die experimentelle Oberfläche hinter dem Schalter aus Abschnitt 8 liegt, sind es getrennte Welten und nichts kollidiert.
+
+Abschnitt 10 nennt jedoch ausdrücklich als mögliches Ergebnis, dass Pinch-to-enter die **klassische** UI verbessern könnte. Genau dort träfen beide Bedeutungen aufeinander. Deshalb gilt ab sofort:
+
+1. In der klassischen UI bedeutet Pinch auf dem Bedienpanel **Vergrößern**. Diese Bedeutung ist im Produkt und wird nicht stillschweigend umgedeutet.
+2. Wandert Pinch-to-enter aus dem Experiment in die klassische UI, ist das eine **Ersetzung**, keine Ergänzung. Sie verlangt eine eigene Entscheidung mit der Frage, was aus der Vergrößerung wird — und einen Eintrag in „Was wir weggelassen haben“, falls sie stirbt.
+3. Eine Fläche, auf der Pinch je nach Kontext mal vergrößert und mal die Ebene wechselt, ist ausgeschlossen. Das wäre der Widerspruch, den Abschnitt 2 selbst verbietet.
+
+Der Anlass für diese Regel ist Befund 2 aus Commit #208: Die teuerste Sorte Fehler entsteht nicht durch eine falsche Entscheidung, sondern durch zwei richtige, die niemand nebeneinandergelegt hat.
 
 ---
 
@@ -196,6 +221,26 @@ Ein sinnvoller Minimalumfang wäre:
 
 Nicht Bestandteil des ersten Prototyps sind vollständige Feature-Parität, aufwendige Animationen, eine physikalisch korrekte Globusdarstellung oder ein Umbau bestehender TourFuchs-Komponenten.
 
+### 9.1 Ein kleinerer erster Schnitt
+
+> **Prüfung (Product Owner, 08.08.2026).** Abschnitt 3 setzt voraus, mobile Oberflächen wüchsen vertikal, und stellt das infrage. Für Listen stimmt das. Für TourFuchs nicht: Die Hauptfläche ist eine **Karte**.
+
+Die Karte ist längst eine zweidimensionale Landschaft mit beiden Bewegungsarten aus Abschnitt 3 — Reisen durch Schieben, semantische Tiefe durch Zoom, mit echten Bedeutungsebenen in `src/features/mapLevel.js`: Vertriebsgruppen als Flächen, darunter Bezirke, darunter einzelne Kunden. Der Detailgrad wächst dort bereits mit dem Interesse, nicht mit dem Menü.
+
+**Die räumliche UI existiert also schon. Sie heißt Karte, und sie ist die beste Fläche des Produkts.** Damit wird die eigentliche Frage kleiner und schärfer:
+
+> **Soll sich das Bedienpanel verhalten wie die Karte?**
+
+So gestellt braucht der erste Versuch keine neue Welt, keine fünf bis sieben Bereiche und keine randlose Fläche, sondern:
+
+- **eine** bestehende Ebene des Panels — etwa Touren → Tour → Stopps,
+- Pinch-out vertieft, Pinch-in kehrt zurück,
+- sonst nichts.
+
+Trägt das, trägt vermutlich auch mehr. Trägt es nicht, hat die Erkenntnis Tage gekostet statt Monate — und man weiß, woran es lag, weil nur eine Sache anders war.
+
+**Nebenwirkung auf Abschnitt 4:** Die Karte hat Ränder, und niemand verirrt sich auf ihr. Die geschlossene Welt ohne Kanten ist damit die Idee mit dem schlechtesten Verhältnis von Reiz zu Nutzen im ganzen Papier: Sie nimmt die stärkste Orientierungshilfe weg, die es gibt — „hier ist Schluss“ —, und Abschnitt 6 versucht anschließend, den Verlust mit einer Pfadanzeige zu reparieren. Für den ersten Schnitt sollte Orientierung vor Nahtlosigkeit gehen.
+
 ---
 
 ## 10. Was der Versuch beantworten soll
@@ -214,6 +259,21 @@ Zu prüfen sind insbesondere:
 
 Ein mögliches Ergebnis kann deshalb auch lauten: Die vollständige World-UI ist ungeeignet, aber Pinch-to-enter, räumliche Nachbarschaft oder eine bestimmte Form der Tiefennavigation verbessert die klassische UI.
 
+### 10.1 Abbruchbedingungen
+
+> **Prüfung (Product Owner, 08.08.2026).** Sieben Fragen, aber keine Bedingung, unter der das Experiment stirbt. Ohne diesen Satz endet es nicht, es verblasst — und ein Zweig, der weder lebt noch stirbt, ist teurer als beides.
+
+Das Vorbild steht bereits im Repo: `src/features/dayLog.js` ist als Messgerät mit **einer** Frage gebaut, und beide Bedingungen, unter denen Vorschlag B3 zu Recht stirbt, stehen ausgeschrieben im Änderungsprotokoll der Wissensbasis. Dasselbe gilt hier.
+
+**Stichtag: 30.11.2026.** Bis dahin entscheidet sich am Prototyp:
+
+1. **Pinch-to-enter stirbt**, wenn Nutzer die Geste ohne vorherige Erklärung nicht als Vertiefung deuten — konkret: wenn sie beim ersten Kontakt überwiegend versuchen, damit zu vergrößern statt einzutreten. Dann ist die Geste besetzt, und zwar nicht durch dieses Papier, sondern durch die Gewohnheit.
+2. **Die geschlossene Welt stirbt**, wenn die Pfadanzeige aus Abschnitt 6 nötig ist, um sich zurechtzufinden. Eine Landschaft, die eine Beschriftung braucht, damit man weiß, wo man ist, hat ihre eigene Behauptung widerlegt — dann sind Ränder die bessere Orientierung.
+
+Beide Bedingungen sind so formuliert, dass sie eintreten **können**. Eine Bedingung, die das nicht kann, ist keine.
+
+> *Zahlen und Stichtag sind ein Vorschlag des Prüfenden und stehen unter dem Vorbehalt des Autors. Die Form — Bedingung plus Datum, ausgeschrieben vor dem Bauen — steht nicht zur Wahl; sie ist Hausstandard.*
+
 ---
 
 ## 11. Verhältnis zum Gestaltprinzip Aufmerksamkeit
@@ -230,6 +290,19 @@ Insbesondere:
 - Was wird verdrängt?
 - Wo ist der Rückweg?
 - Gibt es bereits eine einfachere Oberfläche, die dieselbe Frage beantwortet?
+
+### 11.1 Das Messgerät kann diesen Anspruch heute nicht einlösen
+
+> **Prüfung (Product Owner, 08.08.2026).** Der Satz „muss sich an denselben Fragen messen lassen“ ist als Bedingung formuliert, aber nicht einlösbar.
+
+`tools/attention-check.mjs` zählt sichtbare Bedienelemente **je Reiter, Tiefe und Modus**. Eine räumliche Welt hat weder Reiter noch ein Erstbild in diesem Sinn. Das Experiment wäre damit die erste Fläche im Produkt ohne Messgerät — ausgerechnet in einem Repo, dessen Lehrsatz lautet, dass Quelltext lesen keine Messung ist.
+
+Entschieden wird das so:
+
+- **Solange das Experiment hinter dem Schalter aus Abschnitt 8 liegt, ist Abschnitt 11 eine Absicht, keine Bedingung.** Ein verstecktes Experiment ohne Nutzer braucht keine Sperrklinke; es kostet niemanden Aufmerksamkeit außer den Bauenden.
+- **In dem Moment, in dem irgendein Teil davon die klassische UI erreicht, wird daraus wieder eine Bedingung** — und dann muss das Werkzeug es messen können. Nötig wäre eine Zählung je **Welt und Tiefe** analog zu „je Reiter und Tiefe“, samt Budget.
+
+Diese Erweiterung ist ausdrücklich **nicht** Teil des ersten Prototyps. Sie ist die Eintrittskarte aus dem Experiment heraus, nicht hinein.
 
 ---
 
