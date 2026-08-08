@@ -27,7 +27,7 @@ import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.j
 import { isPhoneUi } from '../core/viewport.js';
 import { serviceVisitWindow } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
-import { showRouteView } from './sidebar.js';
+import { showRouteView, isPanelPinching } from './sidebar.js';
 import { showToast } from './toast.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
@@ -642,6 +642,15 @@ function initExpertSwipeControls() {
         let swiping = false;
 
         el.addEventListener('pointerdown', (ev) => {
+            // Zweiter Finger auf demselben Abschnitt: Das ist kein Wischen, das
+            // ist der Panel-Zoom. Ohne diesen Abbruch würde ein Aufziehen als
+            // Wischen enden und den Abschnitt ausblenden.
+            if (swiping) {
+                swiping = false;
+                el.classList.remove('swiping');
+                el.style.removeProperty('--swipe-x');
+                return;
+            }
             const nestedInteractive = ev.target.closest('input, select, textarea, a') ||
                 (ev.target.closest('button') && ev.target.closest('[data-expert-section]') !== el);
             if (!canSwipeExpertSection() || nestedInteractive) return;
@@ -666,6 +675,10 @@ function initExpertSwipeControls() {
             swiping = false;
             el.classList.remove('swiping');
             el.style.removeProperty('--swipe-x');
+            // Zweiter Finger kam erst unterwegs dazu: Beim Zusammenziehen wandert
+            // der erste Finger nach links wie bei einem Wischer. Ausblenden ist
+            // die destruktive Möglichkeit von beiden – im Zweifel gilt der Zoom.
+            if (isPanelPinching()) return;
             if (dx < -SWIPE_HIDE_PX && Math.abs(dx) > dy * 1.15) hideExpertSection(el.dataset.expertSection);
         };
         el.addEventListener('pointerup', finish);
@@ -681,7 +694,7 @@ function initExpertSwipeControls() {
 }
 
 function canSwipeExpertSection() {
-    return tourExpert && isPhoneUi();
+    return tourExpert && isPhoneUi() && !isPanelPinching();
 }
 
 function hideExpertSection(key) {

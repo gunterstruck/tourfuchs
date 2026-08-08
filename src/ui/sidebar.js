@@ -167,6 +167,18 @@ function setSidebarWidth(width, persist = false) {
     }
 }
 
+/**
+ * Gemeinsamer Zustand von Zieh-Scrollen und Zwei-Finger-Zoom.
+ *
+ * Auf dem Blatt liegen bereits drei Ein-Finger-Gesten (Scrollen, Höhe ziehen,
+ * Experten-Abschnitt wegwischen). Der Zoom ist die einzige, die zwei Finger
+ * verlangt – und genau deshalb muss der zweite Finger die anderen stilllegen,
+ * statt neben ihnen zu laufen. `stopDragScroll` reicht dafür die Abbruchfunktion
+ * des Zieh-Scrollens heraus, ohne dessen Zustand nach außen zu öffnen.
+ */
+let panelPinchActive = false;
+const stopDragScroll = { fn: null };
+
 function setPanelZoom(value, persist = false) {
     const next = Math.max(PANEL_ZOOM_MIN, Math.min(PANEL_ZOOM_MAX, Number(value) || 1));
     document.documentElement.style.setProperty('--panel-zoom', next.toFixed(2));
@@ -206,6 +218,103 @@ function initPanelZoom() {
     document.getElementById('panel-zoom-in')?.addEventListener('click', () => setPanelZoom(currentPanelZoom() + PANEL_ZOOM_STEP, true));
     // Doppelklick/-tipp auf die Prozentanzeige setzt auf 100 % zurück
     document.getElementById('panel-zoom-label')?.addEventListener('dblclick', () => setPanelZoom(1, true));
+    initPanelPinchZoom();
+}
+
+/**
+ * Zwei Finger auf dem Bedienpanel vergrößern seinen Inhalt.
+ *
+ * Die Funktion gab es längst – nur ihre Knöpfe nicht: `.panel-zoom` ist mobil
+ * ausgeblendet, mit der Begründung, dass schwebende Bedienelemente der Karte
+ * Platz und Ruhe nehmen. Das ist ein Argument gegen **Knöpfe**, nicht gegen die
+ * Sache. Eine Geste kostet keinen Platz, und die Not ist unterwegs am größten:
+ * kleine Schrift, Kundenliste, Sonne aufs Display.
+ *
+ * Nebenbei schließt das einen Defekt: `--panel-zoom` wird beim Start aus dem
+ * Speicher angewendet, auch im Hochformat. Wer am Schreibtisch 140 % gewählt
+ * hat und das Tablet dreht, saß bisher damit fest – die Knöpfe sind dort weg.
+ *
+ * Nur auf dem Blatt (`isSheetUi()`), denn nur dort hält `touch-action: pan-y`
+ * den Browser von seiner eigenen Lupe ab. Am Schreibtisch bleibt die
+ * System-Vergrößerung unangetastet, dort stehen ohnehin die Knöpfe.
+ *
+ * Absichtlich **keine** neue Grenze: Es gilt weiter 0,8 bis 1,5 aus
+ * `setPanelZoom()`. Wer weiter aufzieht, zerlegt die Umbrüche.
+ *
+ * **Warum `TouchEvent` und nicht `PointerEvent`:** Der erste Finger startet das
+ * Zieh-Scrollen, und das belegt das Panel per `setPointerCapture`. Der zweite
+ * Finger erzeugt dann zwar ein `pointerdown` am Dokument, es erreicht `#sidebar`
+ * aber nicht mehr – eine Pointer-Fassung sah zwei Finger nie gleichzeitig und
+ * wirkte nur zufällig. `ev.touches` liefert immer alle Berührungen, unabhängig
+ * davon, wer gerade was gefangen hat.
+ *
+ * **Warum `touchmove` und nicht `touchstart`:** Beide Befunde stammen aus einer
+ * Handprüfung am echten Browser, keiner davon aus dem Quelltext. Von drei
+ * Zwei-Finger-Gesten kam nur eine an: Ein Touch-Ereignis trägt das Element des
+ * ersten Fingers mit sich, und wo der auf einen Akkordeon-Kopf traf, zeichnete
+ * dessen Klick ihn neu – das Ziel hing nicht mehr im Dokument, das Ereignis war
+ * weg. In der Hand hätte sich das als „zoomt manchmal" angefühlt.
+ */
+function initPanelPinchZoom() {
+    const sidebar = document.getElementById('sidebar');
+    if (!sidebar) return;
+
+    let startDistance = 0;
+    let startZoom = 1;
+
+    const spread = (touches) => Math.hypot(
+        touches[0].clientX - touches[1].clientX,
+        touches[0].clientY - touches[1].clientY
+    );
+
+    // Über die Lage, nicht über das Ziel: Ein Touch-Ereignis trägt das Element
+    // des ERSTEN Fingers mit sich. Landet der auf einem Akkordeon-Kopf, zeichnet
+    // dessen Klick ihn neu, das Ziel hängt nicht mehr im Dokument – und das
+    // Ereignis findet den Weg hierher nicht mehr. Die Rechtecksprüfung überlebt
+    // jedes Neuzeichnen.
+    const overActivePanel = (touches) => {
+        const panel = document.querySelector('.tab-panel.active');
+        if (!panel) return false;
+        const rect = panel.getBoundingClientRect();
+        const inside = (t) => t.clientX >= rect.left && t.clientX <= rect.right
+            && t.clientY >= rect.top && t.clientY <= rect.bottom;
+        return inside(touches[0]) && inside(touches[1]);
+    };
+
+    // Erst bei der Bewegung greifen, nicht beim Aufsetzen: `touchstart` mit zwei
+    // Fingern geht je nach getroffenem Element verloren, `touchmove` kommt
+    // zuverlässig an. Der erste Zug legt nur den Bezug fest (Faktor 1), gezoomt
+    // wird ab dem zweiten – das nimmt der Geste zugleich das Zittern.
+    sidebar.addEventListener('touchmove', (ev) => {
+        if (!isSheetUi() || ev.touches.length !== 2) return;
+        if (!panelPinchActive) {
+            if (!overActivePanel(ev.touches)) return;
+            panelPinchActive = true;
+            stopDragScroll.fn?.();
+            startDistance = spread(ev.touches);
+            startZoom = currentPanelZoom();
+        }
+        if (startDistance <= 0) return;
+        ev.preventDefault();
+        setPanelZoom(startZoom * (spread(ev.touches) / startDistance));
+    }, { passive: false });
+
+    const release = (ev) => {
+        if (!panelPinchActive || ev.touches.length >= 2) return;
+        panelPinchActive = false;
+        startDistance = 0;
+        // Erst am Ende sichern: Während des Ziehens wäre jeder Zwischenwert ein
+        // Schreibvorgang, und keiner davon ist der gemeinte.
+        setPanelZoom(currentPanelZoom(), true);
+    };
+
+    sidebar.addEventListener('touchend', release);
+    sidebar.addEventListener('touchcancel', release);
+}
+
+/** Liegen gerade zwei Finger auf dem Panel? Ein-Finger-Gesten ruhen dann. */
+export function isPanelPinching() {
+    return panelPinchActive;
 }
 
 function initDesktopSidebarResize() {
@@ -312,6 +421,9 @@ function initSidebarContentDragScroll() {
         scroller = null;
         pointerId = null;
     };
+    // Der Zwei-Finger-Zoom braucht einen Weg, das Zieh-Scrollen abzubrechen,
+    // ohne dessen Zustand zu kennen.
+    stopDragScroll.fn = stopScroll;
 
     const isOnScrollbar = (panel, ev) => {
         const scrollbarWidth = panel.offsetWidth - panel.clientWidth;
@@ -327,6 +439,7 @@ function initSidebarContentDragScroll() {
         // Rückgabe, moved bliebe true und der Capture-Click-Handler würde den
         // ersten Klick schlucken – man müsste zweimal tippen.
         moved = false;
+        if (panelPinchActive) return;
         if (ev.button !== 0 || ev.target.closest(SIDEBAR_DRAG_SCROLL_IGNORE)) return;
         const panel = ev.target.closest('.tab-panel.active');
         if (!panel || panel.scrollHeight <= panel.clientHeight) return;
@@ -344,6 +457,7 @@ function initSidebarContentDragScroll() {
 
     sidebar.addEventListener('pointermove', (ev) => {
         if (!scroller || ev.pointerId !== pointerId) return;
+        if (panelPinchActive) return;
         const dy = ev.clientY - startY;
         if (Math.abs(dy) > 3) moved = true;
         scroller.scrollTop = startScrollTop - dy;
