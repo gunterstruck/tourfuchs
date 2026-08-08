@@ -8,11 +8,11 @@
  * Messung ist. Ersetzt ist er durch die prüfbare Fassung: Eine Änderung am
  * gemeinsamen State schlägt in der geöffneten Oberfläche durch.
  */
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import {
     spread, midpoint, pinchIntent, tapBurstReached, tileLayout,
     buildAreas, customersOfArea,
-    PINCH_ENTER, PINCH_EXIT, TAP_COUNT, TAP_WINDOW_MS
+    PINCH_ENTER, PINCH_EXIT, TAP_COUNT, TAP_WINDOW_MS, GESTURE_GAP_MS
 } from '../src/experiments/spatialUi.js';
 import { state, emit, UNASSIGNED } from '../src/core/state.js';
 
@@ -183,6 +183,48 @@ describe('Spatial-UI – Oberfläche', () => {
         expect(document.querySelector('.sx-back')).not.toBeNull();
         expect(document.querySelector('.sx-leave')).not.toBeNull();
         expect(document.querySelector('.sx-back').disabled).toBe(false);
+    });
+
+    it('beginnt nach einer Pause eine neue Geste, auch wenn das Ende verlorenging', () => {
+        // Der Fehler, den erst die Handprüfung am echten Browser zeigte:
+        // Ein Ebenenwechsel ersetzt den Inhalt der Fläche, die Kachel unter dem
+        // Finger hängt danach nicht mehr im Dokument – und die folgenden
+        // `touchend` erreichen die Bühne nie. Ohne Wachhund bliebe der
+        // Gestenzustand für immer stehen: Aufziehen ginge einmal,
+        // Zusammenziehen nie. Am Ereignis ist das nicht heilbar, an der Zeit
+        // schon.
+        spatial.open();
+        const stage = document.querySelector('.sx-stage');
+        let jetzt = 1_000_000;
+        const uhr = vi.spyOn(Date, 'now').mockImplementation(() => jetzt);
+
+        const zweiFinger = (abstand) => {
+            const ev = new Event('touchmove', { bubbles: true, cancelable: true });
+            Object.defineProperty(ev, 'touches', {
+                value: [{ clientX: 200 - abstand / 2, clientY: 300 }, { clientX: 200 + abstand / 2, clientY: 300 }]
+            });
+            stage.dispatchEvent(ev);
+        };
+
+        // Erste Geste: aufziehen. Sie gilt danach als verbraucht.
+        zweiFinger(100);
+        jetzt += 16;
+        zweiFinger(100 * PINCH_ENTER + 5);
+        const nachErster = document.querySelector('.sx-crumb').textContent;
+
+        // Ohne Pause bleibt dieselbe Geste verbraucht – kein zweiter Wechsel.
+        jetzt += 16;
+        zweiFinger(20);
+        expect(document.querySelector('.sx-crumb').textContent).toBe(nachErster);
+
+        // Nach der Pause zählt es als neue Geste und wirkt wieder.
+        jetzt += GESTURE_GAP_MS + 50;
+        zweiFinger(200);
+        jetzt += 16;
+        zweiFinger(200 * PINCH_EXIT - 5);
+        expect(document.querySelector('.sx-crumb').textContent).toBe('TourFuchs');
+
+        uhr.mockRestore();
     });
 
     it('lässt sich mit fünf schnellen Tippern auf das Markenzeichen öffnen', () => {

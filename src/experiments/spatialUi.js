@@ -54,6 +54,14 @@ export const TAP_WINDOW_MS = 2500;
 export const PINCH_ENTER = 1.35;
 export const PINCH_EXIT = 0.74;
 
+/**
+ * Pause, nach der zwei Finger als **neue** Geste gelten.
+ *
+ * Deutlich über dem Abstand zweier Bewegungsereignisse (~16 ms) und deutlich
+ * unter dem, was ein Mensch zwischen zwei gemeinten Gesten braucht.
+ */
+export const GESTURE_GAP_MS = 300;
+
 /** Abstand zweier Punkte `{x, y}`. */
 export function spread(a, b) {
     return Math.hypot(a.x - b.x, a.y - b.y);
@@ -295,10 +303,30 @@ function wire(el) {
     // #214, dort am echten Browser gemessen.
     let startSpread = 0;
     let usedThisGesture = false;
+    let lastPinchMove = 0;
     stage.addEventListener('touchmove', (ev) => {
         if (ev.touches.length !== 2) return;
         const a = { x: ev.touches[0].clientX, y: ev.touches[0].clientY };
         const b = { x: ev.touches[1].clientX, y: ev.touches[1].clientY };
+
+        // Wachhund gegen verlorene Gestenenden.
+        //
+        // Ein Ebenenwechsel ersetzt den Inhalt der Fläche – die Kachel unter dem
+        // Finger hängt danach nicht mehr im Dokument, und die folgenden
+        // `touchend` erreichen die Bühne nie mehr. Ohne diesen Schnitt bliebe
+        // `usedThisGesture` für immer stehen und die **nächste** Geste würde
+        // stumm verworfen: Aufziehen ginge einmal, Zusammenziehen nie.
+        //
+        // Am Ereignis lässt sich das nicht heilen (ein abgelöster Knoten meldet
+        // sich nirgends mehr), an der Zeit schon: Wer nach einer Pause wieder
+        // zwei Finger aufsetzt, beginnt eine neue Geste.
+        const now = Date.now();
+        if (now - lastPinchMove > GESTURE_GAP_MS) {
+            startSpread = 0;
+            usedThisGesture = false;
+        }
+        lastPinchMove = now;
+
         if (!startSpread) {
             startSpread = spread(a, b);
             pinching = true;
