@@ -13,7 +13,11 @@
     "demo-check": "node tools/demo-check.mjs",
     "touch-check": "node tools/touch-check.mjs",
     "face-check": "node tools/face-check.mjs",
-    "attention-check": "node tools/attention-check.mjs"
+    "attention-check": "node tools/attention-check.mjs",
+    "docs:screenshots": "node tools/docs-screenshots.mjs",
+    "docs:pdf": "node tools/build-knowledge-pdf.mjs",
+    "docs:gpt-upload": "node tools/prepare-custom-gpt-upload.mjs",
+    "docs:check": "node tools/docs-assets-check.mjs"
   },
   "dependencies": {
     "jsqr": "^1.4.0",

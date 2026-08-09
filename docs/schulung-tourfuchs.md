@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 31.07.2026
+Stand: 09.08.2026 · App-Version 3.3.0
 
 ## 1. Ziel der Schulung
 
@@ -11,6 +11,8 @@ Diese Schulung befähigt Anwenderinnen und Anwender, TourFuchs Vertrieb sicher i
 - Vertriebsbezirke und Vertriebsgruppen interpretieren können
 - das Gebiets-Cockpit für Analyse und Was-wäre-wenn-Simulation nutzen können
 - Besuchstouren auf Desktop und Smartphone planen können
+- mit dem Lasso mehrere Kunden auswählen und daraus bewusst ein Gebiets-Briefing vorbereiten können
+- Kunden- und Gebiets-Briefing sowie Basis-/Profi-Unterschiede sicher erklären können
 - Datenschutz, lokale Speicherung und PWA-Verhalten verstehen
 - typische Fehler selbst erkennen und beheben können
 
@@ -136,6 +138,21 @@ Typische Tabs:
 
 Der Gebietsplanung-Modus ist für Analyse, Flächen, Cockpit und Simulation gedacht.
 
+### Basis und Profi
+
+**Basis** zeigt den ruhigen Kernweg. Beim Briefing ist Microsoft 365 Copilot das
+feste Ziel. **Profi** ergänzt unter anderem Ziel, Exporte, Analysewerkzeuge und
+die Wahl des Zielassistenten. Das Briefing selbst ist in beiden Tiefen
+verfügbar.
+
+![Profi-Kundenbriefing mit sichtbarer Zielzeile](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
+
+*BILD-LASSO-07 - Nur Profi zeigt „Ziel: … · Anderen Assistenten wählen"; der Nutzer sendet den Prompt trotzdem immer selbst ab.*
+
+![Aufgeklappte Wahl zwischen Microsoft 365 Copilot, Google Gemini, ChatGPT und eigenem Assistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
+
+*BILD-LASSO-08 - Die Zielwahl ändert Öffnungsadresse und Quellenzeile im Prompt, nicht TourFuchs zu einem KI-Dienst.*
+
 ### Die Oberfläche räumt mit
 
 Ein Punkt, der in Schulungen regelmäßig als Fehler gemeldet wird und keiner ist:
@@ -194,8 +211,11 @@ Hinweis: Wenn nach einer Umbenennung noch ein alter App-Name angezeigt wird, die
 Für eine sinnvolle Karte werden mindestens benötigt:
 
 - Kundenname
-- PLZ
-- Vertriebsbezirk
+- PLZ oder vorhandene Koordinaten
+
+Der Vertriebsbezirk ist fachlich sehr empfohlen, aber keine Importpflicht.
+Kunden ohne Bezirk erscheinen unter „Ohne Zuordnung" und können später ergänzt
+werden.
 
 Empfohlen sind zusätzlich:
 
@@ -213,6 +233,10 @@ Empfohlen sind zusätzlich:
 ### Spaltenlogik
 
 TourFuchs erkennt viele Spaltennamen automatisch. Trotzdem sollten die Zuordnungen im Importdialog geprüft werden.
+
+![Spaltenzuordnung mit synthetischen Schulungsdaten](../public/docs/screenshots/BILD-IMPORT-03-spalten-zuordnen.png)
+
+*BILD-IMPORT-03 - Die automatische Erkennung muss vor „Importieren" fachlich geprüft werden.*
 
 Beispiele:
 
@@ -278,6 +302,10 @@ Klick auf einen Kunden zeigt:
 - Besuchsstatus
 - Aktionen wie zur Tour hinzufügen
 
+![Kunden-Popup mit der Aktion Briefing](../public/docs/screenshots/BILD-KUNDE-01-marker-mit-briefing.png)
+
+*BILD-KUNDE-01 - Für einen einzelnen Kunden ist „Briefing" in dessen Kundenkarte der passende Weg.*
+
 ### Gebietsflächen
 
 In der Gebietsplanung können Flächen eingeblendet werden:
@@ -300,13 +328,59 @@ Der Kartenstil kann gewechselt werden:
 
 Hell ist am besten für Datenanalyse. Standard und Satellit helfen bei realer Orientierung.
 
+### Zentraler Workflow: Lasso -> Auswahl -> Gebiets-Briefing
+
+> Eine Geste um eine reale Region wird zur Auswahl mehrerer Kunden; TourFuchs
+> erstellt daraus ein strukturiertes Gebiets-Briefing für den internen
+> KI-Assistenten des Nutzers.
+
+![Kartenansicht mit dem Bedienelement Lasso ziehen](../public/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png)
+
+*BILD-LASSO-01 - Der Workflow beginnt auf der Karte mit „Lasso ziehen".*
+
+Der Ablauf wird in der Schulung bewusst in zwei fachliche Stufen getrennt:
+
+1. **Auswählen:** `Karte -> „Lasso ziehen" -> Fläche umfahren`. Die Spur folgt
+   Finger oder Maus. Beim Loslassen schließt sich die Fläche; Treffer werden
+   hervorgehoben und in einer Auswahlkarte zusammengefasst. Das Lasso erzeugt
+   **noch keinen Prompt**.
+2. **Briefing vorbereiten:** Auswahl prüfen und **„Briefing über alle"** wählen.
+   Erst jetzt öffnet TourFuchs das Gebiets-Briefing, baut den Prompt lokal und
+   zeigt ihn zur Prüfung.
+3. **Bewusst übergeben:** „Prompt kopieren & Microsoft 365 Copilot öffnen" in
+   Basis beziehungsweise das gewählte Ziel in Profi. Der Nutzer fügt den Prompt
+   im Assistenten ein, prüft ihn und sendet ihn selbst ab.
+
+![Auswahlkarte nach dem geschlossenen Lasso](../public/docs/screenshots/BILD-LASSO-04-auswahlkarte.png)
+
+*BILD-LASSO-04 - Anzahl, Kennzahlen und Namen zuerst prüfen; „Briefing über alle" ist der bewusste Übergang zur Prompt-Vorbereitung.*
+
+![Gebiets-Briefing mit aufgeklapptem vollständigem Prompt](../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png)
+
+*BILD-LASSO-05 - Der Prompt entsteht im Briefing und ist vor dem Kopieren vollständig einsehbar.*
+
+Verbindliche Grenzen:
+
+- „Briefing über alle" erscheint erst ab mindestens zwei echten Kunden.
+- Bei einem Kunden führt dessen Kundenkarte mit „Briefing" weiter.
+- Für reine Demo-Kunden erzeugt TourFuchs keinen echten Prompt und öffnet
+  keinen Assistenten.
+- Ein Popup-Blocker kann das Öffnen verhindern; der Prompt kann trotzdem bereits
+  in der Zwischenablage liegen und bleibt im Dialog sichtbar.
+- Der Schulungsablauf endet in TourFuchs. Keine externe Assistentensitzung wird
+  fotografiert oder für die Vorführung benötigt.
+
+![Mobile Auswahlkarte mit Briefing über alle und Auswahl aufheben](../public/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png)
+
+*BILD-LASSO-MOBIL-03 - Auf dem Smartphone bleibt derselbe Ablauf in der Kartenansicht bedienbar.*
+
 ## 10. Filter und Ebenen
 
 TourFuchs arbeitet mit einer Gebietshierarchie:
 
 - Vertriebschannel optional
 - Vertriebsgruppe empfohlen
-- Vertriebsbezirk Pflicht
+- Vertriebsbezirk empfohlen; ohne Wert gilt „Ohne Zuordnung"
 
 Für den Alltag ist besonders wichtig:
 
@@ -443,6 +517,10 @@ Nutzen:
 
 Der Tourplaner öffnet – auf Handy wie Desktop – zuerst als Übersicht mit den drei Schritten eingeklappt (1. Startpunkt · 2. Vorschläge · 3. Meine Tour, je mit Zusammenfassung). Ein Tipp auf einen Schritt zoomt in ihn hinein (volle Fläche); „☰ Übersicht" klappt wieder alle ein. Die Karten-Einfärbung (Kunden/Status/Chancen) gibt es dabei nur auf dem Desktop.
 
+![Tour-Reiter mit Startpunkt, Vorschlägen und Meine Tour](../public/docs/screenshots/BILD-TOUR-01-tourplanung.png)
+
+*BILD-TOUR-01 - Die drei Planungsstufen liegen sichtbar neben der Karte; TourFuchs plant nichts ungefragt.*
+
 ### Bezirk (nur wenn eingeschränkt werden soll)
 
 Geplant wird ab Werk über **alle Vertriebsbezirke** – es muss vorab nichts gewählt werden. Der Stand steht als schmale Zeile über dem Planer: „🗺️ Bezirk: Alle Bezirke · N Kunden · ändern ▸". Ein Tipp darauf öffnet die Auswahl; danach schlägt TourFuchs nur noch Kunden aus dem gewählten Bezirk vor. Gibt es in den Daten nur einen Bezirk, entfällt die Zeile ganz.
@@ -559,7 +637,18 @@ Nicht gesendet werden:
 
 Bei Übergabe an Google Maps verlassen Routendaten die App. Ab diesem Moment gelten die Datenschutzbedingungen von Google.
 
+### Kunden- und Gebiets-Briefing
+
+TourFuchs erzeugt den Prompt lokal, zeigt ihn und kopiert ihn auf bewussten
+Klick. TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-API auf.
+Erst wenn der Nutzer den Prompt im gewählten Assistenten einfügt und selbst
+absendet, werden die darin sichtbaren Daten an diesen Anbieter übertragen.
+
 ## 21. Daten löschen und neu beginnen
+
+![Daten-Reiter mit „Als Excel exportieren" vor Ersatz oder Löschen](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
+
+*BILD-DATEN-01 - Vor vollständigem Ersatz oder Löschen bei Bedarf zuerst den aktuellen Bestand sichern.*
 
 Wenn neu gestartet werden soll:
 
@@ -830,4 +919,3 @@ Plane eine Tour:
 - Nicht jede Analyse gehört aufs Handy.
 - Eine Simulation ist erst dann echt, wenn sie übernommen wird.
 - Datenschutz beginnt beim sauberen Import und endet beim bewussten Export oder Löschen.
-
