@@ -2789,10 +2789,10 @@ Nicht sagen:
 Die kanonische, direkt in den Custom-GPT-Builder zu übernehmende Fassung liegt in
 [`docs/custom-gpt-systemprompt.txt`](./custom-gpt-systemprompt.txt). Sie enthält
 zusätzlich die Regeln für Lasso und Gebiets-Briefing, das einmalige Angebot der
-Bildanleitung, ausschließlich vorhandene Bild-IDs, die direkte Einbettung der
-veröffentlichten Bild-URLs und einen Originalgrößen-Link für Smartphones.
+Bildanleitung, ausschließlich vorhandene Bild-IDs, mobile WebP-Vorschauen und
+einen Originalgrößen-Link zum hochauflösenden PNG.
 
-**Geprüfte Länge am 09.08.2026:** 6.932 Unicode-Codepunkte und 6.933
+**Geprüfte Länge am 09.08.2026:** 6.944 Unicode-Codepunkte und 6.945
 UTF-16-Codeeinheiten. Damit bleibt der vollständige Prompt unter dem Grenzwert
 von 7.900 Zeichen. Diese Zahl muss nach jeder Änderung erneut geprüft werden.
 
