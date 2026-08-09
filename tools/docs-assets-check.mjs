@@ -147,6 +147,8 @@ requireCondition(codePointLength <= 7900, `Systemprompt hat ${codePointLength} C
 requireCondition(prompt.includes('immer vollständig als Text'), 'Systemprompt: Text-vor-Bild-Regel fehlt');
 requireCondition(prompt.includes('BILD-LASSO-'), 'Systemprompt: echte Lasso-Bild-IDs fehlen');
 requireCondition(prompt.includes('Vorschau-URL'), 'Systemprompt: WebP-Vorschauregel fehlt');
+requireCondition(prompt.includes('pro Antwort **genau eine**'), 'Systemprompt: mobile Ein-Bild-Regel fehlt');
+requireCondition(prompt.includes('Vorschau separat öffnen'), 'Systemprompt: separater Vorschau-Link fehlt');
 
 if (failures.length) {
   console.error(`Dokumentationspruefung fehlgeschlagen (${failures.length}):`);
