@@ -37,3 +37,6 @@ lerna-debug.log*
 
 # Berichte der Demo-Prüfstrecke (npm run demo-check)
 tmp/
+
+# Temporäre Arbeitsdateien der Dokumentationserzeugung
+work/
