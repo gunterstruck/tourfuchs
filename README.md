@@ -101,6 +101,8 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [Kurzanleitung für Anwender](./docs/kurzanleitung-tourfuchs.md)
 - [Wissensbasis für den Guide-Bot](./docs/guide-ki-wissensbasis.md) – aufgabenorientiert mit dokumentierten Klickpfaden, aktueller Funktionsstand
 - [PDF-Fassung der Guide-Wissensbasis](./TourFuchs_KI-Agent_Wissensbasis.pdf) – gut lesbare Referenz für Review, Schulung und Weitergabe
+- [Bildanleitung und Screenshot-Katalog](./docs/bildanleitung-tourfuchs.md) – Bild-IDs, Klickpfade, Alternativtexte und vorbereitete HTTPS-Adressen
+- [Systemprompt für den Custom GPT](./docs/custom-gpt-systemprompt.txt) – verbindliche Antwort-, Datenschutz- und Bildregeln
 - [Kunden- und Gebiets-Briefing](./docs/kundenbriefing.md) – Ablauf, Inhalt der Prompts, Wahl des Assistenten und Prüfschritte
 - [Lasso auf der Karte](./docs/lasso.md) – Zeichenmodus, Auswahlvorschau, Grenzen, Verhalten am Handy und Prüfschritte
 - [Gestaltprinzip: Aufmerksamkeit](./docs/gestaltprinzip-aufmerksamkeit.md) – die Regel hinter Zoom-Automatik, Akkordeon und Zurücktreten, ihre vier Prüffragen, das Messgerät und die drei Grenzen (kein selbstumbauendes UI, kein KI-Aufmerksamkeitsmodell, Zoom ist nicht alles)
@@ -116,6 +118,26 @@ npm run build      # Produktions-Build nach dist/
 npm run preview    # Build lokal testen
 npm test           # Unit-Tests (Vitest)
 ```
+
+### Visuelle Wissensbasis reproduzieren
+
+Die Dokumentationsbilder stammen aus der laufenden echten App. Das Skript lädt
+eine ausschließlich synthetische Schulungsliste über die sichtbare
+Importoberfläche, bedient Lasso und Briefing wie ein Nutzer und öffnet keinen
+externen KI-Assistenten. Für den Lauf muss Playwright mit Chromium oder Chrome
+verfügbar sein.
+
+```bash
+npm run docs:screenshots   # 17 Desktop-/Mobil-Aufnahmen neu erstellen
+npm run docs:pdf           # Markdown und Bilder in die PDF übernehmen
+npm run docs:check         # Dateien, Maße, Links, Begriffe und Promptlänge prüfen
+npm run docs:gpt-upload    # abgeleitete Uploadkopien in custom-gpt-upload/ erneuern
+```
+
+Die vollständigen Bild-URLs im Katalog werden über die reguläre TourFuchs-PWA
+ausgeliefert und können vom TourFuchs Guide direkt eingebettet werden. Die
+maßgeblichen Quellen bleiben unter `docs/`; der Uploadordner wird stets neu
+daraus erzeugt.
 
 ### Live-Demos prüfen (`npm run demo-check`)
 

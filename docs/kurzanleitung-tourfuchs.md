@@ -1,5 +1,7 @@
 # TourFuchs Vertrieb - Kurzanleitung
 
+Stand: 09.08.2026 · App-Version 3.3.0
+
 ## 1. App starten
 
 TourFuchs im Browser oder als installierte PWA öffnen.
@@ -20,8 +22,13 @@ Wichtig:
 Pflichtfelder:
 
 - Kundenname
-- PLZ
-- Vertriebsbezirk
+- PLZ oder vorhandene Koordinaten
+
+Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuordnung".
+
+![Spaltenzuordnung mit synthetischen Beispieldaten](../public/docs/screenshots/BILD-IMPORT-03-spalten-zuordnen.png)
+
+*BILD-IMPORT-03 - Zuordnungen und Beispielwerte prüfen, dann „Importieren".*
 
 ## 3. Karte nutzen
 
@@ -30,7 +37,48 @@ Pflichtfelder:
 - Kartenstil wechseln: Hell, Standard oder Satellit.
 - Im Gebietsmodus Flächen nach Vertriebsbezirk oder Vertriebsgruppe einfärben.
 
-## 4. Gebiets-Cockpit
+## 4. Lasso und Gebiets-Briefing
+
+> Eine Geste um eine reale Region wird zur Auswahl mehrerer Kunden; TourFuchs
+> erstellt daraus ein strukturiertes Gebiets-Briefing für den internen
+> KI-Assistenten des Nutzers.
+
+![Karte mit dem Bedienelement Lasso ziehen](../public/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png)
+
+*BILD-LASSO-01 - Auf der Karte „Lasso ziehen" wählen.*
+
+1. `Karte -> „Lasso ziehen"`.
+2. Fläche mit Finger oder Maus umfahren und loslassen.
+3. Treffer in der Auswahlkarte prüfen.
+4. **„Briefing über alle"** wählen.
+5. Im Gebiets-Briefing den vollständigen Prompt prüfen.
+6. Prompt kopieren und Assistent öffnen; dort selbst einfügen, prüfen und senden.
+
+![Auswahlkarte mit Briefing über alle](../public/docs/screenshots/BILD-LASSO-04-auswahlkarte.png)
+
+*BILD-LASSO-04 - Das Lasso erzeugt nur die Auswahl; erst dieser Knopf öffnet die Prompt-Vorbereitung.*
+
+![Gebiets-Briefing mit sichtbarer Prompt-Vorschau](../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png)
+
+*BILD-LASSO-05 - Der Prompt entsteht lokal im Briefing und ist vor dem Kopieren lesbar.*
+
+Wichtig:
+
+- „Briefing über alle" erscheint ab mindestens zwei echten Kunden.
+- Bei einem Kunden dessen Marker öffnen und „Briefing" wählen.
+- Für reine Demo-Kunden gibt es keinen echten Prompt und keinen Assistenten-Start.
+- Ein Popup-Blocker kann das Öffnen verhindern; der Prompt kann trotzdem in der Zwischenablage liegen.
+
+## 4a. Basis und Profi beim Briefing
+
+- **Basis:** festes Ziel Microsoft 365 Copilot.
+- **Profi:** „Ziel: … · Anderen Assistenten wählen" im Kundenbriefing; die Wahl gilt auch für das Gebiets-Briefing.
+
+![Profi-Briefing mit aufgeklappter Assistentenauswahl](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
+
+*BILD-LASSO-08 - Copilot, Gemini, ChatGPT oder eigener HTTPS-Assistent; TourFuchs sendet nichts selbst.*
+
+## 5. Gebiets-Cockpit
 
 1. Modus Gebietsplanung wählen.
 2. Tab Gebiete öffnen.
@@ -44,7 +92,7 @@ Pflichtfelder:
    - Balken: relative Stärke zum stärksten sichtbaren Wert
    - Alle anzeigen: vollständige Liste
 
-## 5. Was-wäre-wenn-Simulation
+## 6. Was-wäre-wenn-Simulation
 
 1. Ebene wählen, zum Beispiel Landkreise.
 2. Gebiet suchen oder auswählen.
@@ -57,7 +105,7 @@ Merksatz:
 
 > Erst Zuweisung übernehmen schreibt dauerhaft.
 
-## 6. Tour planen
+## 7. Tour planen
 
 Der Tourplaner öffnet zuerst als Übersicht: die drei Schritte **Startpunkt ·
 Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
@@ -72,7 +120,11 @@ Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
 6. Reihenfolge optimieren.
 7. Route anzeigen oder an Google Maps übergeben.
 
-## 7. Mobile Nutzung
+![Tour-Reiter mit Startpunkt, Vorschlägen und Meine Tour](../public/docs/screenshots/BILD-TOUR-01-tourplanung.png)
+
+*BILD-TOUR-01 - Tourplanung erfolgt bewusst in drei Schritten.*
+
+## 8. Mobile Nutzung
 
 Auf dem Smartphone stehen Karte und Tour im Mittelpunkt.
 
@@ -93,7 +145,11 @@ Gebietsplanung per Häkchen einblendbar.
 
 Komplexe Gebietsplanung bitte am Desktop durchführen.
 
-## 8. Warum die Oberfläche „aufräumt"
+![Mobile Lasso-Auswahl mit vollständig sichtbaren Abschlussaktionen](../public/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png)
+
+*BILD-LASSO-MOBIL-03 - Lasso und „Briefing über alle" funktionieren auch in der Smartphone-Kartenansicht.*
+
+## 9. Warum die Oberfläche „aufräumt"
 
 TourFuchs hält die Arbeitsfläche bewusst frei. Zwei Dinge, die auffallen und
 kein Fehler sind:
@@ -109,14 +165,20 @@ kein Fehler sind:
 
 Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 
-## 9. Datenschutz
+## 10. Datenschutz
 
 - Kundendaten bleiben lokal im Browser.
 - OSM-Geocoding sendet nur Adresse, PLZ und Ort.
 - Google Maps erhält Daten erst bei bewusster Übergabe.
+- Beim Briefing erzeugt und kopiert TourFuchs den Prompt lokal. Übertragen wird
+  er erst, wenn der Nutzer ihn im Assistenten selbst einfügt und absendet.
 - Vor Daten löschen bei Bedarf Excel-Export erstellen.
 
-## 10. Häufige Probleme
+![Daten-Reiter mit Export und vollständigem Ersatzweg](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
+
+*BILD-DATEN-01 - Vor „Andere Excel- oder CSV-Liste laden" oder „Daten löschen" bei Bedarf „Als Excel exportieren".*
+
+## 11. Häufige Probleme
 
 ### Keine Kunden sichtbar
 
@@ -136,4 +198,3 @@ Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 - Alte PWA entfernen.
 - Seite neu laden.
 - App neu installieren.
-
