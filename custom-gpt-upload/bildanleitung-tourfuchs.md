@@ -8,7 +8,7 @@
 
 ## Bereitstellung und Verwendung
 
-Die kanonischen PNG-Dateien und ihre kompakten WebP-Vorschauen liegen unter `public/docs/screenshots/` und werden über die bestehende TourFuchs-Anwendung öffentlich ausgeliefert. Der TourFuchs Guide bettet für eine schnelle mobile Anzeige ausschließlich die jeweilige **Vorschau-URL** ein. Damit die ChatGPT-Handy-App die laufende Antwort zuverlässig neu zeichnet, zeigt der Guide pro Antwort genau eine Vorschau und führt eine Bildfolge mit „Nächstes Bild“ fort. Direkt darunter verlinkt er dieselbe Vorschau separat sowie die **Original-URL** mit „Bild in Originalgröße öffnen“. Jeder Ablauf bleibt zusätzlich vollständig als Text erklärt.
+Die kanonischen PNG-Dateien und ihre kompakten WebP-Vorschauen liegen unter `public/docs/screenshots/` und werden über die bestehende TourFuchs-Anwendung öffentlich ausgeliefert. Für die zuverlässige Anzeige in der ChatGPT-Handy-App entnimmt der TourFuchs Guide den gewünschten Screenshot vorrangig der lokalen Wissensdatei `TourFuchs_KI-Agent_Wissensbasis.pdf` und gibt ihn über den Code-Interpreter mit `display(image)` als ChatGPT-eigenes Inline-Bild aus. Pro Antwort erscheint genau ein Bild; „Nächstes Bild“ führt die Folge fort. Nur wenn die native Ausgabe fehlschlägt, verwendet der Guide die öffentliche WebP-Vorschau mit separatem Vorschau- und Original-Link. Jeder Ablauf bleibt zusätzlich vollständig als Text erklärt.
 
 ## Zentraler Zusammenhang: Auswahl ist nicht Prompt
 
