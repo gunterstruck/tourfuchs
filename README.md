@@ -129,15 +129,18 @@ verfügbar sein.
 
 ```bash
 npm run docs:screenshots   # 17 Desktop-/Mobil-Aufnahmen neu erstellen
+npm run docs:previews      # leichte WebP-Vorschauen für den mobilen Guide erzeugen
 npm run docs:pdf           # Markdown und Bilder in die PDF übernehmen
 npm run docs:check         # Dateien, Maße, Links, Begriffe und Promptlänge prüfen
 npm run docs:gpt-upload    # abgeleitete Uploadkopien in custom-gpt-upload/ erneuern
 ```
 
 Die vollständigen Bild-URLs im Katalog werden über die reguläre TourFuchs-PWA
-ausgeliefert und können vom TourFuchs Guide direkt eingebettet werden. Die
-maßgeblichen Quellen bleiben unter `docs/`; der Uploadordner wird stets neu
-daraus erzeugt.
+ausgeliefert. Der TourFuchs Guide bettet die kleinen WebP-Vorschauen ein und
+verlinkt darunter das jeweilige hochauflösende PNG-Original. Für die Erzeugung
+der Vorschauen muss `cwebp` im `PATH` liegen oder über `CWEBP_PATH` angegeben
+werden. Die maßgeblichen Quellen bleiben unter `docs/`; der Uploadordner wird
+stets neu daraus erzeugt.
 
 ### Live-Demos prüfen (`npm run demo-check`)
 

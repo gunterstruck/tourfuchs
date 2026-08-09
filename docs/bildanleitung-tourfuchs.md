@@ -8,7 +8,7 @@
 
 ## Bereitstellung und Verwendung
 
-Die kanonischen PNG-Dateien liegen unter `public/docs/screenshots/` und werden über die bestehende TourFuchs-Anwendung öffentlich ausgeliefert. Die vollständigen, stabilen HTTPS-URLs sind unten dokumentiert. Der TourFuchs Guide darf diese Adressen verwenden, um ein passendes Bild direkt per Markdown einzubetten. Jeder Ablauf bleibt zusätzlich vollständig als Text erklärt.
+Die kanonischen PNG-Dateien und ihre kompakten WebP-Vorschauen liegen unter `public/docs/screenshots/` und werden über die bestehende TourFuchs-Anwendung öffentlich ausgeliefert. Der TourFuchs Guide bettet für eine schnelle mobile Anzeige ausschließlich die jeweilige **Vorschau-URL** ein. Direkt darunter verlinkt er die **Original-URL** mit „Bild in Originalgröße öffnen“. Jeder Ablauf bleibt zusätzlich vollständig als Text erklärt.
 
 ## Zentraler Zusammenhang: Auswahl ist nicht Prompt
 
@@ -23,7 +23,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-IMPORT-01-eigene-daten-laden.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis/Profi-unabhängig
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-01-eigene-daten-laden.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-01-eigene-daten-laden-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-01-eigene-daten-laden.png`
 - **Sichtbarer Bereich:** Modal „Eigene Daten laden" über der Kundenkarte, mit Excel-/CSV- und verschlüsseltem Dateiweg.
 - **Zweck:** Zeigt den geführten Einstieg für eine eigene Liste und den sicheren Geräteumzug.
 - **Relevante Schaltflächen:** „Liste aus Excel einfügen", „Excel-/CSV-Datei auswählen", „Verschlüsselte Datei öffnen".
@@ -38,7 +39,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-IMPORT-02-berechtigung-bestaetigen.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis/Profi-unabhängig
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-02-berechtigung-bestaetigen.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-02-berechtigung-bestaetigen-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-02-berechtigung-bestaetigen.png`
 - **Sichtbarer Bereich:** Modal „Einmal kurz bestätigen" mit Lokal-first-Hinweis.
 - **Zweck:** Erklärt die einmalige Zusicherung vor dem ersten eigenen Import.
 - **Relevante Schaltflächen:** „Abbrechen", „Bestätigen und weiter".
@@ -53,7 +55,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-IMPORT-03-spalten-zuordnen.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis/Profi-unabhängig
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-03-spalten-zuordnen.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-03-spalten-zuordnen-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-IMPORT-03-spalten-zuordnen.png`
 - **Sichtbarer Bereich:** Importdialog mit automatisch erkannten Feldern, Beispielen und eingeklappten weiteren Feldern.
 - **Zweck:** Zeigt, wo automatische Zuordnungen vor dem Import kontrolliert werden.
 - **Relevante Schaltflächen:** Auswahllisten je Feld, „Weitere Felder", „Importieren".
@@ -68,7 +71,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png`
 - **Sichtbarer Bereich:** Kundenkarte Köln mit fünf synthetischen Kunden und Karten-Knopfzeile.
 - **Zweck:** Zeigt den Startpunkt des zentralen Lasso-Workflows.
 - **Relevante Schaltflächen:** „Kunden in meiner Nähe", „Lasso ziehen".
@@ -83,7 +87,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-02-aktiver-zeichenmodus.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-02-aktiver-zeichenmodus.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-02-aktiver-zeichenmodus-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-02-aktiver-zeichenmodus.png`
 - **Sichtbarer Bereich:** Karte während der echten Zeigergeste mit türkisfarbener Spur, Füllung und aktivem Rahmen.
 - **Zweck:** Macht den Zustand „Fläche umfahren" eindeutig erkennbar.
 - **Relevante Schaltflächen:** aktives „Ziehen …" beziehungsweise der aktive Lasso-Zustand; Escape beendet ihn ebenfalls.
@@ -98,7 +103,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-03-geschlossene-flaeche.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-03-geschlossene-flaeche.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-03-geschlossene-flaeche-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-03-geschlossene-flaeche.png`
 - **Sichtbarer Bereich:** Geschlossenes Polygon, hervorgehobene Kundentreffer und geöffnete Auswahlkarte.
 - **Zweck:** Zeigt das unmittelbare Ergebnis der Geste: eine Auswahl, noch keinen Prompt.
 - **Relevante Schaltflächen:** „Briefing über alle", „Auswahl aufheben".
@@ -113,7 +119,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-04-auswahlkarte.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-04-auswahlkarte.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-04-auswahlkarte-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-04-auswahlkarte.png`
 - **Sichtbarer Bereich:** Auswahlkarte mit Anzahl, Fälligkeit, Umsatz, Ort und fünf Namen.
 - **Zweck:** Zeigt den Prüfschritt zwischen Lasso-Auswahl und Gebiets-Briefing.
 - **Relevante Schaltflächen:** „Briefing über alle", „Auswahl aufheben", „Schließen".
@@ -128,7 +135,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png`
 - **Sichtbarer Bereich:** Geöffnetes „Gebiets-Briefing" mit Gebiet, Datenschutzhinweis und aufgeklapptem vollständigem Prompt.
 - **Zweck:** Belegt, dass der Prompt erst im Briefing-Ablauf entsteht und vor dem Kopieren lesbar ist.
 - **Relevante Schaltflächen:** „Vollständigen Prompt ansehen", „Prompt kopieren & Microsoft 365 Copilot öffnen", „Schließen".
@@ -143,7 +151,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-06-basis-copilot.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-06-basis-copilot.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-06-basis-copilot-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-06-basis-copilot.png`
 - **Sichtbarer Bereich:** Kompaktes Gebiets-Briefing mit eingeklappter Prompt-Zeile und festem Microsoft-365-Copilot-Knopf.
 - **Zweck:** Zeigt den Basis-Weg ohne Assistentenauswahl.
 - **Relevante Schaltflächen:** „Vollständigen Prompt ansehen", „Prompt kopieren & Microsoft 365 Copilot öffnen".
@@ -158,7 +167,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Profi
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-07-profi-zielassistent-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png`
 - **Sichtbarer Bereich:** Kundenbriefing im Profi-Modus mit eingeklappter Zielzeile.
 - **Zweck:** Zeigt, wo Profis das Ziel für Kunden- und Gebiets-Briefings festlegen.
 - **Relevante Schaltflächen:** „Ziel: Microsoft 365 Copilot", „Anderen Assistenten wählen", Kopier-/Öffnen-Knopf.
@@ -173,7 +183,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Profi
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-08-assistentenauswahl-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png`
 - **Sichtbarer Bereich:** Aufgeklappte Assistentenauswahl im Kundenbriefing.
 - **Zweck:** Zeigt alle tatsächlich verfügbaren Ziele und die Datenschutzgrenze.
 - **Relevante Schaltflächen:** Microsoft 365 Copilot, Google Gemini, ChatGPT, Eigener Assistent.
@@ -188,7 +199,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-MOBIL-01-kartenansicht.png`
 - **Gerät / Ansicht:** Smartphone, 390 x 844; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-01-kartenansicht.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-01-kartenansicht-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-01-kartenansicht.png`
 - **Sichtbarer Bereich:** Mobile Karte mit fester Basis-/Profi- und Karte-/Tour-Navigation, fünf Kunden und zwei schwebenden Kartenaktionen.
 - **Zweck:** Zeigt, dass der Lasso-Workflow auf dem Smartphone unterstützt wird und wo er beginnt.
 - **Relevante Schaltflächen:** „In der Nähe", „Lasso ziehen", „Karte", „Tour".
@@ -203,7 +215,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-MOBIL-02-aktiver-zeichenmodus.png`
 - **Gerät / Ansicht:** Smartphone, 390 x 844; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-02-aktiver-zeichenmodus.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-02-aktiver-zeichenmodus-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-02-aktiver-zeichenmodus.png`
 - **Sichtbarer Bereich:** Mobile Karte während einer über Touch-Ereignisse eingespeisten echten Fingergeste.
 - **Zweck:** Dokumentiert den mobilen Zeichenmodus mit `touch-action: none` und sichtbarer Spur.
 - **Relevante Schaltflächen:** aktiver Lasso-Zustand; Hinweis zum Ziehen mit Finger oder Maus.
@@ -218,7 +231,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png`
 - **Gerät / Ansicht:** Smartphone, 390 x 844; Basis
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png`
 - **Sichtbarer Bereich:** Vollständig sichtbare mobile Auswahlkarte über der geschlossenen Fläche.
 - **Zweck:** Zeigt die mobile Anordnung mit klebenden Abschlussaktionen im sichtbaren Bereich.
 - **Relevante Schaltflächen:** „Briefing über alle", „Auswahl aufheben", „Schließen".
@@ -233,7 +247,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-KUNDE-01-marker-mit-briefing.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Profi
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-KUNDE-01-marker-mit-briefing.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-KUNDE-01-marker-mit-briefing-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-KUNDE-01-marker-mit-briefing.png`
 - **Sichtbarer Bereich:** Kunden-Popup auf der Karte mit sicherer synthetischer Identität, Status und Aktionen.
 - **Zweck:** Zeigt den passenden Einzelkundenweg, besonders wenn das Lasso nur einen Kunden trifft.
 - **Relevante Schaltflächen:** „Als Start", „Als Ziel", „Zur Tour", „Briefing", „Heute besucht".
@@ -248,7 +263,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-TOUR-01-tourplanung.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Profi
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-TOUR-01-tourplanung.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-TOUR-01-tourplanung-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-TOUR-01-tourplanung.png`
 - **Sichtbarer Bereich:** Tour-Reiter mit Kartenansicht, Bezirk, Nähe-Einstieg und den drei Planungsstufen.
 - **Zweck:** Ordnet Startpunkt, Vorschläge und „Meine Tour" räumlich ein.
 - **Relevante Schaltflächen:** „Was ist in meiner Nähe?", „1. Startpunkt", „2. Vorschläge", „3. Meine Tour".
@@ -263,7 +279,8 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Dateipfad:** `../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png`
 - **Gerät / Ansicht:** Desktop, 1440 x 900; Profi
 - **App-Version / Aufnahme:** 3.3.0 / 09.08.2026
-- **Öffentliche HTTPS-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png`
+- **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-DATEN-01-export-vor-ersatz-preview.webp`
+- **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png`
 - **Sichtbarer Bereich:** Daten-Reiter mit Bestandszahlen, „Andere Excel- oder CSV-Liste laden", Export und Löschaktion.
 - **Zweck:** Zeigt die Sicherung vor einem vollständigen Kundenbasis-Ersatz oder Löschen.
 - **Relevante Schaltflächen:** „Andere Excel- oder CSV-Liste laden", „Als Excel exportieren", „Daten löschen".
