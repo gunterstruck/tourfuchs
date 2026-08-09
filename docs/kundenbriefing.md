@@ -116,7 +116,7 @@ Vorgänge und den letzten Schriftwechsel nicht.
 
 | Einstieg | Gebiet |
 |---|---|
-| Karte → **🖊️ Fläche markieren** → umfahren → **🧭 Briefing erstellen** | die frei gezogene Fläche |
+| Karte → **Lasso ziehen** → umfahren → **Briefing über alle** | die frei gezogene Fläche |
 | Tourplaner → „2. Vorschläge" → **🧭 Wen zuerst?** | der eingestellte Umkreis um den Startpunkt bzw. der Korridor entlang der Strecke |
 | Karte → „In der Nähe" → **🧭 Wen zuerst?** | die nächstgelegenen Kunden um Kartenmitte oder GPS-Standort |
 
@@ -124,6 +124,10 @@ Der erste Weg ist der schnellste und beantwortet als einziger auch **unrunde**
 Gebiete: Gewerbegebiet, eine Flussseite, ein Autobahnkorridor. Vertriebsgebiete
 sind keine Kreise; ein Radius nimmt immer zu viel oder zu wenig mit. Einzelheiten
 zum Werkzeug: [Lasso](./lasso.md).
+
+Fachlich sind es zwei getrennte Schritte: Das Lasso erzeugt ausschließlich die
+Kundenauswahl. Erst **„Briefing über alle"** öffnet den Gebiets-Briefing-Ablauf,
+der den Prompt lokal vorbereitet und zur Prüfung zeigt.
 
 Der Ablauf ist derselbe wie beim Kundenbriefing: lokal bauen, vollständig zeigen,
 kopieren, im Assistenten selbst absenden.
