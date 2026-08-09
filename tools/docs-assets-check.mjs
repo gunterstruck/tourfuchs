@@ -31,6 +31,7 @@ const requiredFiles = [
   'docs/bildanleitung-tourfuchs.md',
   'docs/custom-gpt-systemprompt.txt',
   'TourFuchs_KI-Agent_Wissensbasis.pdf',
+  'tools/docs-previews.mjs',
   'tools/fixtures/docs-screenshot-customers.tsv',
 ];
 const failures = [];
@@ -40,6 +41,37 @@ const requireCondition = (condition, message) => {
 
 for (const relative of requiredFiles) {
   requireCondition(existsSync(join(root, relative)), `Datei fehlt: ${relative}`);
+}
+
+function webpDimensions(webp) {
+  if (webp.toString('ascii', 0, 4) !== 'RIFF' || webp.toString('ascii', 8, 12) !== 'WEBP') return null;
+  let offset = 12;
+  while (offset + 8 <= webp.length) {
+    const type = webp.toString('ascii', offset, offset + 4);
+    const size = webp.readUInt32LE(offset + 4);
+    const data = offset + 8;
+    if (type === 'VP8 ' && data + 10 <= webp.length) {
+      return { width: webp.readUInt16LE(data + 6) & 0x3fff, height: webp.readUInt16LE(data + 8) & 0x3fff };
+    }
+    if (type === 'VP8L' && data + 5 <= webp.length) {
+      const b1 = webp[data + 1];
+      const b2 = webp[data + 2];
+      const b3 = webp[data + 3];
+      const b4 = webp[data + 4];
+      return {
+        width: 1 + b1 + ((b2 & 0x3f) << 8),
+        height: 1 + (b2 >> 6) + (b3 << 2) + ((b4 & 0x0f) << 10),
+      };
+    }
+    if (type === 'VP8X' && data + 10 <= webp.length) {
+      return {
+        width: 1 + webp.readUIntLE(data + 4, 3),
+        height: 1 + webp.readUIntLE(data + 7, 3),
+      };
+    }
+    offset = data + size + (size % 2);
+  }
+  return null;
 }
 
 const catalog = readFileSync(join(root, 'docs/bildanleitung-tourfuchs.md'), 'utf8');
@@ -57,13 +89,37 @@ for (const [name, expectedWidth, expectedHeight] of expectedScreenshots) {
   requireCondition(catalog.includes(name), `Bildkatalog nennt ${name} nicht`);
   requireCondition(
     catalog.includes(`https://tourfuchs.vercel.app/docs/screenshots/${name}`),
-    `Vollstaendige spaetere HTTPS-URL fehlt fuer ${name}`,
+    `Vollstaendige Original-URL fehlt fuer ${name}`,
   );
+  const previewName = name.replace(/\.png$/i, '-preview.webp');
+  const previewPath = join(screenshotDir, previewName);
+  requireCondition(existsSync(previewPath), `WebP-Vorschau fehlt: ${previewName}`);
+  if (existsSync(previewPath)) {
+    const previewDimensions = webpDimensions(readFileSync(previewPath));
+    const previewWidth = Math.min(expectedWidth, 960);
+    const previewHeight = Math.round(expectedHeight * previewWidth / expectedWidth);
+    requireCondition(
+      previewDimensions?.width === previewWidth && previewDimensions?.height === previewHeight,
+      `${previewName}: ${previewDimensions?.width}x${previewDimensions?.height}, erwartet ${previewWidth}x${previewHeight}`,
+    );
+    requireCondition(
+      catalog.includes(`https://tourfuchs.vercel.app/docs/screenshots/${previewName}`),
+      `Vollstaendige Vorschau-URL fehlt fuer ${previewName}`,
+    );
+    requireCondition(
+      readFileSync(previewPath).length < png.length,
+      `${previewName} ist nicht kleiner als das PNG-Original`,
+    );
+  }
 }
 
 const expectedNames = new Set(expectedScreenshots.map(([name]) => name));
+const expectedPreviewNames = new Set(expectedScreenshots.map(([name]) => name.replace(/\.png$/i, '-preview.webp')));
 for (const name of readdirSync(screenshotDir).filter((entry) => entry.endsWith('.png'))) {
   requireCondition(expectedNames.has(name), `Nicht katalogisierter Screenshot: ${name}`);
+}
+for (const name of readdirSync(screenshotDir).filter((entry) => entry.endsWith('.webp'))) {
+  requireCondition(expectedPreviewNames.has(name), `Nicht katalogisierte Vorschau: ${name}`);
 }
 
 const knowledgeDocPaths = [
@@ -90,6 +146,7 @@ requireCondition(utf16Length <= 7900, `Systemprompt hat ${utf16Length} UTF-16-Ze
 requireCondition(codePointLength <= 7900, `Systemprompt hat ${codePointLength} Codepoints (maximal 7900)`);
 requireCondition(prompt.includes('immer vollständig als Text'), 'Systemprompt: Text-vor-Bild-Regel fehlt');
 requireCondition(prompt.includes('BILD-LASSO-'), 'Systemprompt: echte Lasso-Bild-IDs fehlen');
+requireCondition(prompt.includes('Vorschau-URL'), 'Systemprompt: WebP-Vorschauregel fehlt');
 
 if (failures.length) {
   console.error(`Dokumentationspruefung fehlgeschlagen (${failures.length}):`);
