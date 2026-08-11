@@ -480,9 +480,12 @@ Klick (Willkommens-Panel oder Info-Dialog).
 Solange Beispieldaten laufen, liegt zusätzlich **mittig über der Karte** eine
 ruhige, nicht-blockierende Hinweiskarte („🧪 Das sind Beispieldaten" · **Eigene
 Daten laden** · **Kurze Live-Demos ansehen** · Quittung **"Verstanden – erst
-umsehen"**). Die Karte dahinter bleibt bedienbar. Ein dezenter Streifen im Panel
-(„🧪 Beispieldaten – Eigene Daten laden") bietet den geführten Upload jederzeit
-an, solange die Demo läuft.
+umsehen"**). Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
+Tipp auf die Hinweiskarte selbst lässt sie zurücktreten** (gilt als Quittung).
+Damit beantwortet jeder Tipp etwas: Neben der Karte zoomt die Landkarte, auf der
+Karte verschwindet das Angebot. Ein dezenter Streifen im Panel („🧪
+Beispieldaten – Eigene Daten laden") bietet den geführten Upload jederzeit an,
+solange die Demo läuft.
 
 **Eine Frage zur Zeit.** Solange die Hinweiskarte im Bild steht, tritt zurück,
 was dieselbe Frage beantwortet: Die **"Erste Schritte"-Checkliste** wartet als
@@ -2936,6 +2939,14 @@ von 7.900 Zeichen. Diese Zahl muss nach jeder Änderung erneut geprüft werden.
 - **Der Knopf „Was ist in meiner Nähe?" ist entfallen.** Die Aktion bleibt: über
   den Fuchs-Knopf auf der Karte, über „📍 Mein Standort" in Schritt 1 und über
   den PWA-Kurzbefehl.
+- **Die Willkommens-Hinweiskarte tritt auf Berührung zurück.** Sie steht mittig
+  über Deutschland – also über den Kundenstapeln. Gemessen waren am Schreibtisch
+  8 von 11 Stapeln nicht antippbar, am Handy **alle**. Wer zuerst auf einen
+  Stapel tippte, erlebte „nichts passiert". Jetzt quittiert ein Tipp auf die
+  Karte den Hinweis; der zweite Tipp zoomt.
+  - **Antwortregel:** Auf „ich tippe auf einen Kundenstapel und nichts
+    passiert" lautet die Antwort „der Beispieldaten-Hinweis lag darüber – ein
+    Tipp räumt ihn weg", **nicht** „das ist ein Kartenfehler".
 - Aktuelle App-Screenshots für Import, Lasso, Gebiets-Briefing,
   Assistentenauswahl, Kunden-Popup, Tour und Sicherung ergänzt.
 - Lasso fachlich klar vom Gebiets-Briefing getrennt: Die Geste erzeugt die

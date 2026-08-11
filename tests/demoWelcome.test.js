@@ -34,6 +34,30 @@ describe('Zentraler Willkommens-Hinweis bei Beispieldaten', () => {
         expect(main).toContain('initDemoWelcome');
     });
 
+    it('tritt auf Berührung zurück – kein Tipp läuft ins Leere', () => {
+        // Gemessener Anlass: Die Karte steht mittig über Deutschland, also über
+        // den Kundenstapeln. Am Schreibtisch waren 8 von 11 Stapeln nicht
+        // antippbar, am Handy alle. Wer zuerst auf einen Stapel tippt, erlebte
+        // „nichts passiert".
+        const from = welcome.indexOf("root.querySelector('.demo-welcome-card')");
+        expect(from).toBeGreaterThan(-1);
+        const handler = welcome.slice(from, from + 320);
+        // Die eigenen Knöpfe behalten ihre Bedeutung.
+        expect(handler).toContain("ev.target.closest('button, a[href], input, select, textarea, label')");
+        expect(handler).toContain('dismiss()');
+        // Kein synthetischer Zweitklick an den Stapel darunter: Ein Griff, den
+        // es nur in einem Zustand gibt, wäre der nächste unsichtbare Griff.
+        expect(welcome).not.toContain('elementFromPoint');
+    });
+
+    it('lässt den Rahmen um die Karte weiterhin Klicks durchreichen', () => {
+        // Nur die Karte selbst fängt Tipps ab; daneben bleibt die Landkarte
+        // unmittelbar bedienbar (zoomen, schieben, Stapel antippen).
+        const css = read('src/styles/components.css');
+        const block = css.slice(css.indexOf('.demo-welcome {'), css.indexOf('.demo-welcome[hidden]'));
+        expect(block).toContain('pointer-events: none;');
+    });
+
     it('führt „Eigene Daten laden" in den geführten Upload-Dialog', () => {
         const from = wizard.indexOf("getElementById('btn-demo-welcome-own')");
         expect(from).toBeGreaterThan(-1);
