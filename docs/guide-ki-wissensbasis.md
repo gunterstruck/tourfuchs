@@ -2826,10 +2826,10 @@ zusätzlich die Regeln für Lasso und Gebiets-Briefing, das einmalige Angebot de
 Bildanleitung, ausschließlich vorhandene Bild-IDs, mobile WebP-Vorschauen und
 einen Originalgrößen-Link zum hochauflösenden PNG.
 
-**Geprüfte Länge am 11.08.2026:** 7.861 Unicode-Codepunkte und 7.862
+**Geprüfte Länge am 11.08.2026:** 7.844 Unicode-Codepunkte und 7.845
 UTF-16-Codeeinheiten. Damit bleibt der vollständige Prompt unter dem Grenzwert
-von 7.900 Zeichen – der Abstand ist mit rund 40 Zeichen allerdings knapp
-geworden. Diese Zahl muss nach jeder Änderung erneut geprüft werden; wer den
+von 7.900 Zeichen. Der Abstand ist knapp; `docs:check` warnt deshalb ab 7.700
+Zeichen sichtbar vor, statt erst an der harten Grenze rot zu werden. Wer den
 Prompt erweitert, kürzt an anderer Stelle.
 
 ---

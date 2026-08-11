@@ -96,6 +96,43 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(showcaseSource).toContain("emit('showcase:story-completed', story.id)");
     });
 
+    it('klopft nicht auf einen Stapel ein, der sich nicht öffnet', () => {
+        // Gemeldet vom Handy: Der Cursor tippt viermal auf denselben Stapel und
+        // es tut sich nichts. Wie viele Ebenen nötig sind, hängt am Bestand und
+        // am Gerät (mobil bündelt die Karte mit bis zu 124 px statt 104) – eine
+        // feste Zahl ist deshalb eine Wette. Jetzt entscheidet die Wirkung.
+        const block = showcaseSource.slice(showcaseSource.indexOf('async zoomToCustomerCards()'),
+            showcaseSource.indexOf('async openCustomerCard()'));
+        expect(block).toContain('const vorher = mapSignature();');
+        expect(block).toContain('ohneWirkung = mapSignature() === vorher ? ohneWirkung + 1 : 0;');
+        expect(block).toContain('ohneWirkung < 2');
+        // Und die Zusage wird auch dann eingelöst, wenn der Bestand ein Stapel
+        // bleibt: mit einem Flug auf einen einzelnen Kunden.
+        expect(block).toContain("if (!await resolveEl('.customer-marker-card', 350)) await HELPERS.showOneCustomer();");
+    });
+
+    it('schlägt unmittelbar vor dem Klick noch einmal nach', () => {
+        // Zwischen Anvisieren und Klick liegt der Weg des Cursors. Leaflet baut
+        // Kundenstapel bei jeder Bewegung neu auf – der gemerkte Knoten hängt
+        // dann nicht mehr im Dokument, und der Klick geht lautlos ins Leere.
+        const block = showcaseSource.slice(showcaseSource.indexOf('async function clickEl('),
+            showcaseSource.indexOf('async function typeInto('));
+        expect(block).toContain('const frisch = document.querySelector(sel);');
+        expect(block).toContain('(frisch && isVisible(frisch) ? frisch : el).click();');
+    });
+
+    it('zählt den Tourprozess in jeder Tiefe als drei Stufen', () => {
+        // „1. Startpunkt · 3. Vorschläge · 4. Meine Tour" ließ in der Übersicht
+        // eine Lücke: Die 2 lag im Startpunkt-Block und war zugeklappt nicht zu
+        // sehen. Das optionale Ziel ist eine Beigabe zu Schritt 1, keine Stufe.
+        const panel = readFileSync(resolve(process.cwd(), 'src/ui/tourPanel.js'), 'utf8');
+        expect(panel).toContain("sh.textContent = '2. Vorschläge'");
+        expect(panel).toContain("mh.textContent = '3. Meine Tour'");
+        expect(panel).not.toContain("'3. Vorschläge'");
+        expect(panel).not.toContain("'4. Meine Tour'");
+        expect(html).toContain('<h3>Ziel <span class="muted small">(optional)</span>');
+    });
+
     it('die Stories in fester Reihenfolge', () => {
         expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'lasso', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
     });

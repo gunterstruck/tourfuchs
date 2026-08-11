@@ -267,7 +267,7 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-TOUR-01-tourplanung.png`
 - **Sichtbarer Bereich:** Tour-Bereich mit der eingeklappten Karte „In der Nähe", Kartenansicht und den drei Planungsstufen.
 - **Zweck:** Ordnet Startpunkt, Vorschläge und „Meine Tour" räumlich ein.
-- **Relevante Schaltflächen:** „In der Nähe", „1. Startpunkt", „3. Vorschläge", „4. Meine Tour" (in Profi trägt der optionale Zielschritt die 2).
+- **Relevante Schaltflächen:** „In der Nähe", „1. Startpunkt", „2. Vorschläge", „3. Meine Tour".
 - **Klickpfad:** `Außendienst -> Tab „Tour"`.
 - **Erwartetes Ergebnis:** Der Nutzer öffnet schrittweise Start, Vorschläge und Tour; nichts wird ungefragt geplant.
 - **Hilft bei Fragen:** „Wo starte ich die Tourplanung?", „Wo sind Vorschläge?", „Warum ist noch keine Tour da?"

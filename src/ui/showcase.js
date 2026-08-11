@@ -26,7 +26,7 @@ import {
 import { distanceKm } from '../services/geocode.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
-import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups } from '../features/map.js';
+import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
 import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
@@ -162,6 +162,23 @@ function layerFor(el) {
 }
 
 /**
+ * Zustand der Karte in einem Wort – Zoomstufe, Kundenstapel, Kundenkacheln.
+ *
+ * Damit lässt sich nach einem vorgeführten Klick fragen: Hat sich überhaupt
+ * etwas bewegt? Die Prüfstrecke `demo-check` misst nur, ob der Cursor sein Ziel
+ * trifft; ob der Treffer wirkt, sieht sie nicht. Innerhalb der Vorführung ist
+ * genau das aber die Frage, an der ein Schritt scheitert oder gelingt.
+ */
+function mapSignature() {
+    const zoom = getMap()?.getZoom?.() ?? null;
+    return [
+        zoom,
+        document.querySelectorAll('.customer-stack-card').length,
+        document.querySelectorAll('.customer-marker-card').length
+    ].join('|');
+}
+
+/**
  * Von mehreren gleichartigen Zielen (Kartenkacheln) das am besten sichtbare
  * wählen: ganz im Bild und möglichst nah an der Mitte. Sonst klickt der
  * Geister-Cursor gern das erste im DOM – und das kann am Bildrand kleben.
@@ -283,7 +300,17 @@ async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
     cursorEl.classList.add('sc-click', 'sc-press');
     await sleep(150);
     cursorEl.classList.remove('sc-press');
-    el.click();
+    // Unmittelbar vor dem Klick noch einmal nachschlagen.
+    //
+    // Zwischen Anvisieren und Klick liegen rund 800 ms Cursor-Weg. Karten-
+    // elemente überstehen das nicht immer: Leaflet baut Kundenstapel bei jeder
+    // Bewegung neu auf. Der Klick träfe dann einen Knoten, der nicht mehr im
+    // Dokument hängt – er geht ins Leere, ohne dass etwas danebengeht. Auf einem
+    // echten Telefon ist das wahrscheinlicher als im Emulator, weil dort jede
+    // Animation länger dauert. Genau diese Fehlerklasse hat `attention-check`
+    // schon einmal getroffen (Wechsel von Tiefe/Modus baut die Reiterleiste neu).
+    const frisch = document.querySelector(sel);
+    (frisch && isVisible(frisch) ? frisch : el).click();
     await sleep(120);
     cursorEl.classList.remove('sc-click');
     await sleep(prefersReduced ? 120 : 420);
@@ -465,12 +492,33 @@ const HELPERS = {
         // Die echte Cluster-Interaktion sichtbar wiederholen, bis aus dem
         // Kundenstapel einzelne Kundenkacheln werden. So erklärt sich die
         // Zoom-Logik durch die Mausbewegung statt durch einen Sprung.
-        for (let depth = 0; depth < 4; depth++) {
+        //
+        // Wie oft das nötig ist, hängt am Bestand und am Gerät – es ist keine
+        // feste Zahl. Am Handy bündelt die Karte mit bis zu 124 px statt 104
+        // (`customerClusterRadius`), und wer 5.000 Kunden in einer Region hat,
+        // braucht mehr Ebenen als die Beispieldaten. Vier Tipps waren deshalb
+        // eine Wette: Ging sie nicht auf, klopfte der Cursor viermal auf einen
+        // Stapel, der sich nicht öffnete, und der nächste Satz sprach von
+        // Kundenkacheln, die gar nicht dastanden.
+        //
+        // Jetzt entscheidet die **Wirkung**, nicht die Anzahl: Nach jedem Tipp
+        // wird nachgesehen, ob sich die Karte überhaupt bewegt hat. Tut sie es
+        // nicht, ist die tiefste Ebene erreicht – dann hört der Cursor auf zu
+        // klopfen. Die Obergrenze ist nur noch ein Notnagel gegen Endlosläufe.
+        // Zwei folgenlose Tipps hintereinander beenden den Versuch – einer
+        // allein kann ein neu aufgebauter Stapel gewesen sein.
+        for (let tiefe = 0, ohneWirkung = 0; tiefe < 8 && ohneWirkung < 2; tiefe += 1) {
             if (await resolveEl('.customer-marker-card', 350)) break;
             if (!await resolveEl('.customer-stack-card', 900)) break;
+            const vorher = mapSignature();
             await clickEl('.customer-stack-card');
             await sleep(1100);
+            ohneWirkung = mapSignature() === vorher ? ohneWirkung + 1 : 0;
         }
+        // Bleibt der Bestand auch dann ein Stapel, wird die Zusage anders
+        // eingelöst: ein Flug auf einen einzelnen Kunden. Danach steht die
+        // Kundenkachel wirklich da, von der der nächste Satz spricht.
+        if (!await resolveEl('.customer-marker-card', 350)) await HELPERS.showOneCustomer();
     },
     async openCustomerCard() {
         if (await resolveEl('.customer-marker-card', 800)) {

@@ -616,11 +616,18 @@ function applyTourMode(mode, doEmit = true) {
     tourExpert = mode === 'expert';
     const planner = document.getElementById('tour-planner');
     if (planner) planner.classList.toggle('basic', !tourExpert);
-    // Schritt-Nummerierung an den Modus anpassen
+    // Der Prozess hat drei Stufen – in jeder Tiefe.
+    //
+    // Früher zählte Profi das optionale Ziel mit: 1. Startpunkt · 3. Vorschläge
+    // · 4. Meine Tour. In der Übersicht (alle Karten zugeklappt) stand damit
+    // eine Lücke im Bild, denn die „2" liegt im Startpunkt-Block und ist dort
+    // nur zu sehen, wenn man ihn öffnet. Eine Nummer, die auf etwas Verborgenes
+    // zeigt, erklärt nichts – sie lässt suchen. Das Ziel ist eine Beigabe zu
+    // Schritt 1, keine eigene Stufe; es trägt deshalb keine Nummer mehr.
     const sh = document.getElementById('suggest-head');
     const mh = document.getElementById('mytour-head');
-    if (sh) sh.textContent = tourExpert ? '3. Vorschläge' : '2. Vorschläge';
-    if (mh) mh.textContent = tourExpert ? '4. Meine Tour' : '3. Meine Tour';
+    if (sh) sh.textContent = '2. Vorschläge';
+    if (mh) mh.textContent = '3. Meine Tour';
     if (!tourExpert) {
         // Basis: nur Umkreis-Vorschläge, kein Ziel
         state.tour.suggestMode = 'radius';
