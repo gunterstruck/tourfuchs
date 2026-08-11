@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.2 · Stand: 09.08.2026 · App-Version: 3.3.0**
+**Version 3.2 · Stand: 11.08.2026 · App-Version: 3.3.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -14,6 +14,13 @@ dieses Dokument nur für den oben genannten Stand.
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
 `"Gebietsplanung" -> Tab "Gebiete" -> "Gebiets-Cockpit öffnen"`.
+
+**Am Handy und auf dem hochkanten Tablet gibt es keine Reiterleiste** (seit
+Version 3.2): Dort steht genau ein Bereich – die Tour –, und das Blatt
+entscheidet, was man sieht (unten = Karte, oben = Tour). Der Guide lässt in
+mobilen Klickpfaden das Tab-Glied deshalb weg und schreibt stattdessen
+„Blatt aufziehen" bzw. „Blatt einklappen", z. B.
+`"Außendienst" -> Blatt aufziehen -> "In der Nähe"`.
 
 **Begriffsregel:** Die aktuelle App verwendet sichtbar **Vertriebsbezirk**. Der
 Import akzeptiert **Betriebsbezirk** als Synonym. Der Guide soll in Antworten den
@@ -236,7 +243,7 @@ ist beides, je nachdem, wie man es hält:
 
 | Gerät / Haltung | Ansicht | Panel | Einstieg | Funktionsumfang |
 |---|---|---|---|---|
-| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte, Basis | Basis-Tiefe, Außendienst, Karte + Tour |
+| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte (Blatt eingeklappt), Basis | Basis-Tiefe, Außendienst, ein Bereich: Tour |
 | **Tablet hochkant** (bis 1200px) | **Touransicht** | unten als Blatt | **exakt wie Handy** | **exakt wie Handy** |
 | Tablet quer | **Schreibtisch** | seitlich | gespeicherter Modus/Tab | voll |
 | Schreibtisch (ab 1201px oder quer) | **Schreibtisch** | seitlich, ziehbar | gespeicherter Modus/Tab | voll |
@@ -308,7 +315,7 @@ die beiden vorhandenen Gesichter, und die **Haltung** entscheidet, welches:
 **quer** den Schreibtisch (Seitenleiste, gespeicherter Modus/Tab, voller
 Umfang), **hochkant** die Touransicht – dann verhält es sich in jedem Punkt wie
 ein Smartphone, einschließlich des reduzierten Umfangs (Basis-Tiefe,
-Außendienst, Karte + Tour). Gebietsplanung, Cockpit und Simulation sind
+Außendienst, ein Bereich: Tour). Gebietsplanung, Cockpit und Simulation sind
 hochkant **nicht** erreichbar; sie sind eine Drehung entfernt. Siehe 3.0.
 
 ### 3.3 Basis gegen Profi
@@ -391,6 +398,7 @@ wird ausschließlich mit **Plus/Minus** unten rechts eingestellt.
 - **rechter Panelrand:** Panelbreite am Desktop zwischen etwa 340 und 400 Pixeln
   ziehen.
 - **oberer grauer Griff, senkrecht ziehen:** Panelhöhe ändern.
+- **Tipp auf den Griff:** Blatt ein-/ausklappen (Handy und Tablet hochkant).
 - **oberer Griff, am Desktop waagerecht ziehen:** Panel frei verschieben.
 - nahe an den linken Rand ziehen: wieder andocken.
 - **Doppelklick auf den Griff am Desktop:** Position zurücksetzen.
@@ -1277,7 +1285,7 @@ Vorgänge, Eskalationen und zugesagte Rückmeldungen weiß nur der Assistent.
 
 - `Karte -> "Lasso ziehen" -> Fläche umfahren -> "Briefing über alle"` (Lasso, siehe 9.7)
 - `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"`
-- `Tab "Karte" -> "In der Nähe" -> Kartenmitte oder Standort -> "Wen zuerst? Briefing für diese Umgebung"`
+- `Blatt aufziehen -> "In der Nähe" aufklappen -> Kartenmitte oder Standort -> "Wen zuerst? Briefing für diese Umgebung"` (am Schreibtisch: `Tab "Tour" -> "In der Nähe"`)
 
 Alle Knöpfe erscheinen **erst ab zwei echten Kunden**. Bei einem einzigen Kunden
 ist das Kundenbriefing der bessere Weg; bei reinen Demo-Kunden wird kein Prompt
@@ -1469,8 +1477,8 @@ Profi ergänzt:
 
 - Kartenansicht **"Kunden"**, **"Status"**, **"Chancen"** – die Karten-
   Einfärbung liegt **nur auf dem Desktop** (dort ist die Karte sichtbar). Im
-  mobilen Tour-Flow ist sie bewusst nicht enthalten; „Was ist in meiner Nähe?"
-  und „Überfällige zuerst" decken den Bedarf dort ab.
+  mobilen Tour-Flow ist sie bewusst nicht enthalten; die Klappkarte
+  **"In der Nähe"** und „Überfällige zuerst" decken den Bedarf dort ab.
 - festen **"Ziel"**-Kunden
 - Vorschlagsmodus **"Umkreis um Start"** / **"Entlang der Tour"**
 - **"Rundreise (zurück zum Start)"**
@@ -1729,7 +1737,9 @@ nicht mehr im Bild. Was man sieht, entscheidet allein die Höhe des Blatts:
 **unten = Karte, oben = Tour**.
 
 Fest unter der Topbar bleibt die Pille **"Basis" / "Profi"** – einzeilig, seit
-die Reiter „Karte | Tour" entfallen sind. Gebietsplanung, Cockpit und Simulation
+die Reiter „Karte | Tour" entfallen sind. Dass sie bleibt, ist eine bewusste
+Entscheidung vom 11.08.2026 und keine Übriggebliebene: Der Einwand gegen sie war
+immer der Platz, und der ist jetzt da. Gebietsplanung, Cockpit und Simulation
 sind bewusst Desktop-Aufgaben.
 
 Bis Version 3.2 standen dort zwei Reiter. Sie waren kein Bereichswechsel: „Karte"
@@ -2205,7 +2215,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Kundenbriefing Basis | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
 | Kundenbriefing Profi | `Profi -> Kundenmarker -> "Briefing" -> "Ziel: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
 | Gebiets-Briefing Tour | `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"` |
-| Gebiets-Briefing Karte | `Tab "Karte" -> "In der Nähe" -> Kartenmitte/Standort -> "Wen zuerst? Briefing für diese Umgebung"` |
+| Gebiets-Briefing Umgebung | `Blatt aufziehen (Schreibtisch: Tab "Tour") -> "In der Nähe" aufklappen -> Kartenmitte/Standort -> "Wen zuerst? Briefing für diese Umgebung"` |
 | Demo-Briefing | `Demo-Kundenmarker -> "Briefing" -> lokale Ergebnisvorschau -> "Verstanden"` |
 | Kunden anrufen | `Kundenmarker -> "Anrufen"` |
 | Besuch abhaken | `Kundenmarker -> "Heute besucht"` oder `Tourstopp -> "✓ Heute"` (Handy: Tipp auf den Tour-Punkt) |
@@ -2347,8 +2357,10 @@ Netzwerk prüfen und die einzelne Funktion manuell testen.
 
 ### 18.12 Mobile Sheet schrumpft scheinbar falsch
 
-Am oberen Griff anfassen und kontinuierlich senkrecht ziehen. Ein reiner Tipp
-ändert mobil nichts. **"Tour"** öffnet, **"Karte"** schließt das Sheet.
+Am oberen Griff anfassen und kontinuierlich senkrecht ziehen. Ein **Tipp** auf
+den Griff klappt das Blatt ein und aus; dasselbe tut **"☰"** in der Kopfzeile.
+Reiter „Karte" und „Tour" gibt es seit Version 3.2 nicht mehr – das Blatt selbst
+ist der Schalter.
 
 ### 18.13 QR-Senden fehlt auf dem Smartphone
 
@@ -2692,9 +2704,11 @@ Danach:
 
 ### 21.2 "Ich bin unterwegs und habe spontan Zeit"
 
-> Öffne zuerst "Was ist in meiner Nähe?" oder die Kartenansicht "Chancen". Tippe
-> einen passenden Kunden an und wähle "Briefing". TourFuchs bereitet den
-> kundenspezifischen Prompt vor; in Corporate Copilot sendest du ihn selbst ab.
+> Zieh das Blatt auf und klapp **"In der Nähe"** auf – oder tippe am Handy den
+> Fuchs-Knopf **"Kunden in meiner Nähe"** über der Karte; am Schreibtisch führt
+> zusätzlich die Kartenansicht **"Chancen"** weiter. Tippe einen passenden
+> Kunden an und wähle "Briefing". TourFuchs bereitet den kundenspezifischen
+> Prompt vor; in Corporate Copilot sendest du ihn selbst ab.
 
 ### 21.3 "Ich möchte mein internes Wissen nutzen"
 
@@ -2812,9 +2826,11 @@ zusätzlich die Regeln für Lasso und Gebiets-Briefing, das einmalige Angebot de
 Bildanleitung, ausschließlich vorhandene Bild-IDs, mobile WebP-Vorschauen und
 einen Originalgrößen-Link zum hochauflösenden PNG.
 
-**Geprüfte Länge am 09.08.2026:** 6.944 Unicode-Codepunkte und 6.945
+**Geprüfte Länge am 11.08.2026:** 7.861 Unicode-Codepunkte und 7.862
 UTF-16-Codeeinheiten. Damit bleibt der vollständige Prompt unter dem Grenzwert
-von 7.900 Zeichen. Diese Zahl muss nach jeder Änderung erneut geprüft werden.
+von 7.900 Zeichen – der Abstand ist mit rund 40 Zeichen allerdings knapp
+geworden. Diese Zahl muss nach jeder Änderung erneut geprüft werden; wer den
+Prompt erweitert, kürzt an anderer Stelle.
 
 ---
 
@@ -2939,6 +2955,13 @@ von 7.900 Zeichen. Diese Zahl muss nach jeder Änderung erneut geprüft werden.
 - **Der Knopf „Was ist in meiner Nähe?" ist entfallen.** Die Aktion bleibt: über
   den Fuchs-Knopf auf der Karte, über „📍 Mein Standort" in Schritt 1 und über
   den PWA-Kurzbefehl.
+- **„Basis" / „Profi" bleibt – und ist jetzt die einzige Zeile im
+  Kopf-Streifen.** Die seit dem 02.08.2026 offene Frage („braucht es den
+  Schalter auf dem Handy überhaupt?") ist damit entschieden. Die Begründung
+  gegen ihn war immer der Platz, nie die Sache; der Platz ist jetzt da.
+  - **Antwortregel:** Der Guide nennt Basis/Profi weiterhin als festen
+    Bestandteil der mobilen Oberfläche – und **nicht** als Kandidaten zum
+    Wegfall.
 - **Die Willkommens-Hinweiskarte tritt auf Berührung zurück.** Sie steht mittig
   über Deutschland – also über den Kundenstapeln. Gemessen waren am Schreibtisch
   8 von 11 Stapeln nicht antippbar, am Handy **alle**. Wer zuerst auf einen
@@ -2995,9 +3018,11 @@ Monaten unbelastet wiederkommen.
   um **ein** Bedienelement (Tour-Reiter 7 gegen 8, Karten-Reiter 0 gegen 0). Die
   Umbenennung hätte 16 Testdateien, eine Migration des gespeicherten Werts
   (`gf_app_depth` mit `basis`/`profi`), Schulungsunterlagen und diese
-  Wissensbasis berührt. **Offen geblieben** ist die Frage dahinter – ob es den
-  Schalter auf dem Handy überhaupt braucht; sie ist nicht entschieden, nur
-  vertagt.
+  Wissensbasis berührt. **Offen geblieben** war die Frage dahinter – ob es den
+  Schalter auf dem Handy überhaupt braucht. **Beantwortet am 11.08.2026: Er
+  bleibt.** Mit dem Wegfall des Reiters „Karte | Tour" ist er die einzige Zeile
+  im Kopf-Streifen; die Begründung gegen ihn war immer der Platz, nie die Sache,
+  und der Platz ist da (siehe 26.3).
 - **„TourFuchs Light" als eigenständige App – verworfen am 02.08.2026.** Die
   Handy-Ansicht ist dieses Produkt bereits: Gebietsplanung, Cockpit,
   Gebiets-Editor und Vertrags-Radar hängen am Viewport, nicht an der Tiefe, und

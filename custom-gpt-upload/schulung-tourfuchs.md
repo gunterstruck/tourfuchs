@@ -595,7 +595,7 @@ Das mobile Tour-Panel kann in Stufen bewegt werden:
 - halb offen
 - voll geöffnet
 
-Damit bleibt die Karte sichtbar, während Tourdaten zugänglich sind. Der Griff wird senkrecht gezogen, „Tour" zieht das Blatt ganz auf. Startpunkt · Vorschläge · Meine Tour bilden ein Akkordeon (genau eine Gruppe offen); ein kleiner schwebender Fuchs-Knopf schlägt den nächsten Schritt vor. Der eingeklappte Blattrand und die schwebenden Bedienelemente liegen über einer eingeblendeten System-Navigationsleiste (Android/iOS), sodass Hinweise dort nicht verdeckt werden.
+Damit bleibt die Karte sichtbar, während Tourdaten zugänglich sind. Der Griff wird senkrecht gezogen; ein **Tipp** auf den Griff klappt das Blatt ein und aus, ebenso „☰" in der Kopfzeile. Eine Reiterleiste gibt es unterwegs nicht – das Blatt selbst ist der Schalter: unten die Karte, oben die Tour. Über den drei Schritten steht die eingeklappte Karte **„In der Nähe"** (Anzahl und Entfernung des nächsten Kunden in der Kopfzeile). Startpunkt · Vorschläge · Meine Tour bilden ein Akkordeon (genau eine Gruppe offen); ein kleiner schwebender Fuchs-Knopf schlägt den nächsten Schritt vor. Der eingeklappte Blattrand und die schwebenden Bedienelemente liegen über einer eingeblendeten System-Navigationsleiste (Android/iOS), sodass Hinweise dort nicht verdeckt werden.
 
 ### Hochformat
 
