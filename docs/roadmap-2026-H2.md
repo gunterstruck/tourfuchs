@@ -360,12 +360,20 @@ Code gab der Beobachtung recht, und zwar schärfer als vermutet.
 | 10.2 | **„In der Nähe" wird eine Klappkarte über dem Prozess** | ✅ umgesetzt | Der einzige eigene Inhalt des alten Reiters, jetzt im Gewand der Tourschritte: zugeklappt „12 · ab 1,1 km", aufgeklappt Bezugspunkt, fünf Kunden, „Alle N zeigen". Bewusst **keine** `.tour-acc` – sie steht über dem Prozess (1 · 2 · 3), nicht darin, und liegt außerhalb von `#tour-planner`, weil man „wer ist hier?" vor der Bezirkswahl beantwortet. Kostet netto null Bedienelemente: Sie ersetzt den Knopf „Was ist in meiner Nähe?". |
 | 10.3 | **Ein Tipp auf den Griff klappt ein und aus** | ✅ umgesetzt | Fund beim Nachmessen am gebauten Bild, nicht im Entwurf: Am Handy tat ein Tipp auf den Griff **nichts** (`if (!moved) { if (!isSheetUi()) toggleSheet(); }`) – obwohl der Griff selbst „Ziehen: Größe · Tippen: ein-/ausklappen" verspricht. Solange der Reiter danebenstand, fiel das nicht auf; er war der beschriftete Tipp-Weg. Ohne ihn wäre der auffälligste Griff der Oberfläche stumm gewesen. |
 | 10.4 | **Prüfstrecke ohne Reiterleiste** | ✅ umgesetzt | `attention-check` maß Reiter. Ohne Leiste hätte sie **null** Ansichten gemessen und wäre grün gewesen – genau der Fall, gegen den Item 9.5 die Vollständigkeitsprüfung eingezogen hat. Sie misst jetzt ersatzweise das aktive Panel; erwartete Messungen am Handy 4 → 2, Budget „karte" entfällt. |
+| 10.5 | **Kein Tipp läuft ins Leere: die Willkommenskarte tritt zurück** | ✅ umgesetzt | Nutzerbefund („ich tippe auf einen Stapel und nichts passiert"), beim Nachmessen bestätigt und **älter als dieses Release**: Der Rahmen um die Hinweiskarte lässt Klicks durch (`pointer-events: none`), die Karte selbst nicht – und sie steht mittig über Deutschland, wo die Kundenstapel liegen. Gemessen: Schreibtisch **8 von 11**, Tablet hochkant 6 von 8, Handy **3 von 3** Stapeln nicht antippbar. Jetzt quittiert ein Tipp auf die Karte den Hinweis; der zweite Tipp zoomt. Bewusst **kein** Durchreichen des Tipps an den Stapel darunter – ein synthetischer Zweitklick, den es nur in einem Zustand gibt, wäre der nächste unsichtbare Griff. |
 
 **Was das Muster daran ist:** Der Reiter war nicht falsch entworfen. Er war
 einmal richtig – und blieb stehen, als der Griff das Gleiche lernte. Diese Sorte
 Doppelung findet kein Review des einzelnen Features, sondern nur die Frage
 „was tut das hier eigentlich noch?" am fertigen Bild. Dieselbe Lehre wie bei den
 zwei richtigen Entscheidungen auf demselben Platz (9.4).
+
+**Und eine Lücke in den Prüfstrecken (10.5):** `demo-check` prüft, ob der
+Geister-Cursor sein Ziel **trifft** – Abweichung in Pixeln, im Bild, ganz
+sichtbar. Ob der Treffer etwas **bewirkt**, prüft es nicht. Genau dort lag der
+Befund zur Willkommenskarte: 28 von 28 Durchläufen „alle sauber", während ein
+Tipp auf einen verdeckten Kundenstapel folgenlos blieb. Ein Messgerät, das nur
+die Geste misst und nicht die Antwort, ist gegen diese Fehlerklasse blind.
 
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 

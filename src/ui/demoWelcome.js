@@ -77,6 +77,26 @@ export function initDemoWelcome() {
     document.getElementById('btn-demo-welcome-ack')?.addEventListener('click', dismiss);
     document.getElementById('btn-demo-welcome-close')?.addEventListener('click', dismiss);
 
+    // Ein Tipp auf die Karte selbst quittiert ebenfalls.
+    //
+    // Anlass ist eine Messung, kein Wunsch: Der Rahmen um die Karte lässt Klicks
+    // durch (`pointer-events: none`), die Karte selbst nicht – und sie steht
+    // mittig über Deutschland, also genau dort, wo die Kundenstapel liegen. Am
+    // Schreibtisch waren dadurch 8 von 11 Stapeln nicht antippbar, am Handy
+    // **alle drei**. Wer als Erstes auf einen Stapel tippt, erlebte: nichts
+    // passiert. Ein Angebot, das die Antwort verdeckt, über die es spricht
+    // („sieh dich in Ruhe um"), muss wenigstens auf Berührung zurücktreten.
+    //
+    // Bewusst **kein** Durchreichen des Tipps an den Stapel darunter: Ein
+    // synthetischer Zweitklick, den es nur in diesem einen Zustand gibt, wäre
+    // der nächste unsichtbare Griff. Der erste Tipp räumt das Angebot weg – das
+    // ist eine sichtbare Antwort –, der zweite zoomt.
+    root.querySelector('.demo-welcome-card')?.addEventListener('click', (ev) => {
+        // Die eigenen Knöpfe behalten ihre Bedeutung; sie quittieren schon selbst.
+        if (ev.target.closest('button, a[href], input, select, textarea, label')) return;
+        dismiss();
+    });
+
     on('app:ready', render);
     on('customers:changed', render);
     on('demo:loaded', render);
