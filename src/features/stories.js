@@ -23,9 +23,12 @@
 // Ohne diese zweite Zahl versprach das Panel dem Handy die Desktop-Laufzeit –
 // bei „Von der Excel-Liste zur Kundenkarte" waren das 44 s für 31 s Vorführung.
 //
-// Zuletzt gemessen am 31.07.2026 (Chromium, Produktions-Build) in vier
+// Zuletzt gemessen am 11.08.2026 (Chromium, Produktions-Build) in vier
 // Formaten: Desktop 1440×900, Tablet 834×1112 und 1112×834, Handy 390×844.
-// Lauf: 30 Durchläufe, 30 ok, 0 Abbrüche, 0 Klickmängel.
+// Lauf: 28 Durchläufe, 28 ok, 0 Abbrüche, 0 Klickmängel. Drei Zahlen sind
+// gestiegen, weil die Tour-Demo das Aussuchen jetzt wirklich zeigt (Vorschläge
+// öffnen, zweimal auf „+" tippen) statt die Stopps still zu setzen: „tour"
+// 60→68 bzw. 54→59, „handy-qr" 53→56, „chancen" 45→47.
 // Die Messung beginnt beim Klick auf die Kachel und endet mit dem
 // Ergebnis-Dialog; der Dialog-Vorlauf von rund einer Sekunde ist abgezogen.
 export const STORIES = [
@@ -88,8 +91,8 @@ export const STORIES = [
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',
         blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 60,
-        durationMobile: 54,
+        duration: 68,
+        durationMobile: 59,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -102,7 +105,14 @@ export const STORIES = [
             { t: 'run', key: 'pickBezirkAll' },
             { t: 'say', text: 'Jetzt einen Startpunkt setzen …', sel: '#start-search', ms: 1500 },
             { t: 'run', key: 'pickStart' },
-            { t: 'say', text: 'TourFuchs schlägt Kunden in der Nähe vor – einfach hinzufügen.', ms: 2200 },
+            // Aussuchen ist der Kern dieses Produkts: Der automatische
+            // Tourvorschlag wurde am 10.07.2026 nach Nutzerfeedback gestrichen –
+            // „die Tour plant der Mensch". Die Vorführung muss deshalb zeigen,
+            // wie jemand die Vorschläge aufschlägt und selbst auswählt, statt
+            // die Stopps erscheinen zu lassen.
+            { t: 'say', text: 'Jetzt schlägt TourFuchs vor, wen du in der Nähe noch mitnehmen könntest.', sel: '#suggest-head', ms: 2200 },
+            { t: 'run', key: 'showSuggestions' },
+            { t: 'say', text: 'Aussuchen tust du: Ein Tipp auf das Plus nimmt einen Kunden mit.', sel: '#tour-suggestions', ms: 2600 },
             { t: 'run', key: 'addTwoSuggestions' },
             { t: 'run', key: 'showMyTour' },
             { t: 'say', text: 'Die Stopps stehen. Jetzt sortiert TourFuchs sie in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
@@ -124,7 +134,7 @@ export const STORIES = [
         icon: '📲',
         title: 'Aufs Handy – ohne Kabel, ohne Cloud',
         blurb: 'Tour per QR-Code an dein Smartphone.',
-        duration: 53,
+        duration: 56,
         desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
         needsData: true,
         mutatesTour: true,
@@ -204,7 +214,7 @@ export const STORIES = [
         icon: '🎯',
         title: 'Spontaner Termin? Sofort gebrieft',
         blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
-        duration: 45,
+        duration: 47,
         durationMobile: 36,
         needsData: true,
         mutatesTour: true,
@@ -222,7 +232,7 @@ export const STORIES = [
             { t: 'run', key: 'pickBezirkAll' },
             { t: 'run', key: 'pickStart' },
             { t: 'run', key: 'addOneSuggestion' },
-            { t: 'say', text: 'TourFuchs hat einen passenden Kunden in der Nähe gefunden. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
+            { t: 'say', text: 'Einen passenden Kunden in der Nähe ausgesucht. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
             { t: 'run', key: 'openCustomerBriefing' },
             { t: 'say', text: 'Die Demo zeigt dir das Ergebnis kompakt – ohne erfundene Kunden an einen Assistenten zu senden.', sel: '.briefing-demo-preview', ms: 3000 },
             { t: 'say', text: 'Mit echten Kunden kopiert TourFuchs den fertigen Prompt und öffnet deinen Assistenten – absenden tust du selbst.', sel: '.briefing-demo-note', ms: 3400 },

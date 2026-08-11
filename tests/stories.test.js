@@ -96,6 +96,37 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(showcaseSource).toContain("emit('showcase:story-completed', story.id)");
     });
 
+    it('lässt den Menschen sichtbar aussuchen, statt die Tour zu füllen', () => {
+        // Gemeldet vom Handy: In der Tour-Demo sieht man nur, dass sich „Meine
+        // Tour" füllt – nicht, dass jemand die Vorschläge durchsieht und einen
+        // Kunden aussucht. Ursache war eine Abkürzung: Die Suche nach dem „+"
+        // gab nach 250 ms auf und schrieb den Stopp still in den Zustand. Da
+        // der Schritt „Vorschläge" in der Übersicht zugeklappt ist, war das „+"
+        // zu dem Zeitpunkt nie sichtbar – die Abkürzung war der Normalfall.
+        //
+        // Das ist nicht bloß unschön: Der automatische Tourvorschlag wurde am
+        // 10.07.2026 nach Nutzerfeedback gestrichen („die Tour plant der
+        // Mensch"). Eine Vorführung, die das Aussuchen unterschlägt, wirbt für
+        // genau das gestrichene Feature.
+        const tour = STORIES.find((story) => story.id === 'tour');
+        const keys = tour.steps.filter((step) => step.t === 'run').map((step) => step.key);
+        expect(keys).toContain('showSuggestions');
+        expect(keys.indexOf('showSuggestions')).toBeLessThan(keys.indexOf('addTwoSuggestions'));
+        // Die Vorschlagsliste wird benannt, bevor ausgesucht wird.
+        expect(tour.steps.some((step) => step.sel === '#tour-suggestions')).toBe(true);
+
+        const block = showcaseSource.slice(showcaseSource.indexOf('async addSuggestions('),
+            showcaseSource.indexOf('async focusTourRoute('));
+        // Erst öffnen, dann sichtbar auf das „+" der Zeile.
+        expect(block).toContain("await HELPERS.showSuggestions()");
+        expect(block).toContain("await clickEl(selektor)");
+        // Der stille Weg ist der Notnagel, nicht der erste Versuch: Er steht
+        // hinter dem Klick, und die Suche wartet 2,5 s statt 250 ms.
+        expect(block).toContain('2500');
+        expect(block).not.toContain(', 250)');
+        expect(block.indexOf('await clickEl(selektor)')).toBeLessThan(block.indexOf('state.tour.stops.push'));
+    });
+
     it('klopft nicht auf einen Stapel ein, der sich nicht öffnet', () => {
         // Gemeldet vom Handy: Der Cursor tippt viermal auf denselben Stapel und
         // es tut sich nichts. Wie viele Ebenen nötig sind, hängt am Bestand und
