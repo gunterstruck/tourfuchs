@@ -640,25 +640,52 @@ const HELPERS = {
     async addTwoSuggestions() {
         await HELPERS.addSuggestions(2);
     },
-    async addSuggestions(count = 2) {
-        const plannedStops = showcaseTourPlan?.stops?.filter((c) => c.id !== state.tour.start?.customerId) || [];
-        if (plannedStops.length >= count) {
-            await moveToEl('#tour-suggestions');
-            for (const customer of plannedStops.slice(0, count)) {
-                const selector = `#tour-suggestions [data-add="${CSS.escape(String(customer.id))}"]`;
-                if (await resolveEl(selector, 250)) await clickEl(selector);
-                else if (!state.tour.stops.includes(customer.id)) {
-                    state.tour.stops.push(customer.id);
-                    emit('tour:changed');
-                    await sleep(650);
-                }
-            }
-            return;
+    /** Den Schritt „Vorschläge" sichtbar öffnen – wie es ein Mensch täte. */
+    async showSuggestions() {
+        const stepper = document.getElementById('tour-stepper');
+        if (stepper && !stepper.hidden && await resolveEl('#tour-stepper .tour-step[data-step="suggest"]', 600)) {
+            await clickEl('#tour-stepper .tour-step[data-step="suggest"]');
+        } else {
+            const acc = document.querySelector('.tour-acc[data-acc="suggest"]');
+            if (acc && !acc.classList.contains('open')) await clickEl('.tour-acc[data-acc="suggest"] .acc-head');
         }
+        await resolveEl('#tour-suggestions [data-add]', 2500);
+        await sleep(400);
+    },
+    /**
+     * Kunden aus den Vorschlägen zur Tour nehmen – sichtbar, Zeile für Zeile.
+     *
+     * Vorher stand hier eine Abkürzung mit Folgen: Die Suche nach dem Plus der
+     * Zeile gab nach 250 ms auf und schrieb den Stopp danach still in den
+     * Zustand. Weil der Schritt „Vorschläge" in der Übersicht zugeklappt ist,
+     * war das Plus zu diesem Zeitpunkt gar nicht sichtbar – die Abkürzung war
+     * also nicht der Ausnahmefall, sondern der Normalfall. Zu sehen blieb, dass
+     * „Meine Tour" sich von selbst füllt.
+     *
+     * Genau den Eindruck darf diese Demo nicht hinterlassen: **Die Tour plant
+     * der Mensch** – das ist die Produktentscheidung vom 10.07.2026, für die
+     * ein fertig gebauter Tourvorschlag gestrichen wurde. Eine Vorführung, die
+     * das Aussuchen unterschlägt, wirbt für das Gegenteil.
+     *
+     * Deshalb: erst die Liste öffnen, dann mit dem Cursor auf das Plus der
+     * Zeile. Der stille Weg bleibt nur als Notnagel, wenn die Liste wirklich
+     * nichts hergibt.
+     */
+    async addSuggestions(count = 2) {
+        // Steht die Liste schon offen (die Tour-Demo öffnet sie als eigenen,
+        // erzählten Schritt), nicht noch einmal auf den Kopf tippen.
+        if (!await resolveEl('#tour-suggestions [data-add]', 400)) await HELPERS.showSuggestions();
+        const geplant = showcaseTourPlan?.stops?.filter((c) => c.id !== state.tour.start?.customerId) || [];
         for (let i = 0; i < count; i++) {
-            const add = await resolveEl('#tour-suggestions [data-add]', 2500);
-            if (add) { await clickEl('#tour-suggestions [data-add]'); await sleep(600); continue; }
-            // Fallback: einen weiteren verorteten Kunden anhängen
+            const kunde = geplant[i];
+            const gezielt = kunde ? `#tour-suggestions [data-add="${CSS.escape(String(kunde.id))}"]` : null;
+            let selektor = null;
+            if (gezielt && await resolveEl(gezielt, 2500)) selektor = gezielt;
+            else if (await resolveEl('#tour-suggestions [data-add]', 2500)) selektor = '#tour-suggestions [data-add]';
+            if (selektor) { await clickEl(selektor); await sleep(650); continue; }
+            // Notnagel: einen weiteren verorteten Kunden anhängen, damit die
+            // Demo nicht ohne Tour dasteht. Sichtbar ist das nicht – deshalb
+            // wirklich nur, wenn die Liste leer bleibt.
             const startId = state.tour.start?.customerId;
             const cand = scopedWithCoords()
                 .filter((c) => c.id !== startId && !state.tour.stops.includes(c.id))
