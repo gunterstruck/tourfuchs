@@ -144,6 +144,15 @@ const utf16Length = prompt.length;
 const codePointLength = [...prompt].length;
 requireCondition(utf16Length <= 7900, `Systemprompt hat ${utf16Length} UTF-16-Zeichen (maximal 7900)`);
 requireCondition(codePointLength <= 7900, `Systemprompt hat ${codePointLength} Codepoints (maximal 7900)`);
+// Eine harte Grenze meldet sich erst, wenn es zu spät ist: Wer den Prompt um
+// zwei Sätze erweitert, steht dann vor einem roten Lauf und muss im selben Zug
+// kürzen. Die Vorwarnung sagt es eine Änderung früher – und ist bewusst nur ein
+// Hinweis, kein Befund, denn knapp ist nicht falsch.
+const RESERVE = 7700;
+if (utf16Length > RESERVE && utf16Length <= 7900) {
+    console.log(`Hinweis: Systemprompt bei ${utf16Length} von 7900 Zeichen – nur noch ${7900 - utf16Length} frei.`
+        + ' Wer ihn erweitert, kürzt an anderer Stelle.');
+}
 requireCondition(prompt.includes('immer vollständig als Text'), 'Systemprompt: Text-vor-Bild-Regel fehlt');
 requireCondition(prompt.includes('BILD-LASSO-'), 'Systemprompt: echte Lasso-Bild-IDs fehlen');
 requireCondition(prompt.includes('Vorschau-URL'), 'Systemprompt: WebP-Vorschauregel fehlt');
