@@ -73,8 +73,10 @@ const FORMATS = [
         viewport: { width: 390, height: 844 },
         touch: true,
         erstbildBudget: 20,
-        // Karte + Tour, je Tiefe.
-        erwarteteMessungen: 4
+        // Mobil gibt es genau einen Bereich (Tour) – gemessen je Tiefe.
+        // Der zweite Reiter „Karte" war nie ein Bereich, sondern ein
+        // Blatt-Schalter; mit ihm fiel auch seine Messung weg.
+        erwarteteMessungen: 2
     },
     {
         name: 'desktop',
@@ -94,14 +96,19 @@ const FORMATS = [
  * eben auch nicht beliebig viel mehr.
  *
  * Die Zahlen sind der gemessene Stand vom 01.08.2026 plus wenig Luft, nicht ein
- * Wunsch. „Service" (Verträge, Einsätze) ist bisher unvermessen: Der Modus
+ * Wunsch. Der Reiter „karte" ist samt Budget entfallen; sein Inhalt („In der
+ * Nähe") steht jetzt als eingeklappte Karte im Tour-Reiter und kostet dort
+ * genau den Knopf, den „Was ist in meiner Nähe?" vorher kostete – das Budget
+ * für „tour" bleibt deshalb unverändert.
+ *
+ * „Service" (Verträge, Einsätze) ist bisher unvermessen: Der Modus
  * verlangt Profi **und** ein Häkchen, das diese Strecke bewusst nicht setzt.
  * Die Budgets stehen trotzdem, damit die Reiter am Tag ihrer Erreichbarkeit
  * nicht ohne Maß dastehen.
  */
 const BUDGET = {
-    basis: { daten: 12, team: 14, gebiete: 8, tour: 10, karte: 4, vertraege: 16, einsaetze: 16 },
-    profi: { daten: 12, team: 14, gebiete: 8, tour: 12, karte: 4, vertraege: 20, einsaetze: 20 }
+    basis: { daten: 12, team: 14, gebiete: 8, tour: 10, vertraege: 16, einsaetze: 16 },
+    profi: { daten: 12, team: 14, gebiete: 8, tour: 12, vertraege: 20, einsaetze: 20 }
 };
 
 /** Der Rahmen (Modus, Tiefe, Reiter, Kopfzeile) steht immer – auch er kostet. */
@@ -271,6 +278,14 @@ async function klicke(page, selektor, anlaeufe = 2) {
  * braucht.
  */
 async function oeffneReiter(page, reiter) {
+    // Mobil gibt es keine Reiterleiste mehr (ein Bereich braucht keine). Ist der
+    // gesuchte Reiter bereits das aktive Panel, gibt es nichts zu klicken – das
+    // ist kein Fehlschlag, sondern der Normalfall am Handy.
+    const schonAktiv = await page.evaluate(
+        (id) => document.querySelector('#sidebar .tab-panel.active')?.id === `tab-${id}`,
+        reiter
+    );
+    if (schonAktiv) return true;
     if (!await klicke(page, `.tab-button[data-tab="${reiter}"]`)) return false;
     try {
         await page.waitForFunction(
@@ -284,14 +299,27 @@ async function oeffneReiter(page, reiter) {
     }
 }
 
+/**
+ * Welche Bereiche stehen gerade zur Wahl?
+ *
+ * Am Schreibtisch ist das die Reiterleiste. Am Handy gibt es sie nicht mehr –
+ * dort ist der eine offene Bereich das, was gemessen werden muss. Wer hier nur
+ * Reiter zählte, bekäme eine leere Liste und damit einen grünen Lauf, der
+ * nichts gemessen hat.
+ */
 async function offeneReiter(page) {
-    return page.evaluate(() => [...document.querySelectorAll('.tab-button')]
-        .filter((b) => {
-            if (b.hidden) return false;
-            const cs = getComputedStyle(b);
-            return cs.display !== 'none' && cs.visibility !== 'hidden';
-        })
-        .map((b) => b.dataset.tab));
+    return page.evaluate(() => {
+        const reiter = [...document.querySelectorAll('.tab-button')]
+            .filter((b) => {
+                if (b.hidden) return false;
+                const cs = getComputedStyle(b);
+                return cs.display !== 'none' && cs.visibility !== 'hidden';
+            })
+            .map((b) => b.dataset.tab);
+        if (reiter.length) return reiter;
+        const aktiv = document.querySelector('#sidebar .tab-panel.active');
+        return aktiv ? [aktiv.id.replace(/^tab-/, '')] : [];
+    });
 }
 
 async function inspect(browser, format, baseUrl) {
@@ -334,8 +362,9 @@ async function inspect(browser, format, baseUrl) {
     // Reiter-Messung. Sie liegt am Handy zudem über dem Blatt und fängt Klicks ab.
     await klicke(page, '#btn-demo-welcome-ack');
 
-    // Am Handy liegt das Blatt zu; ohne Aufziehen gibt es keine Reiter zu messen.
-    if (!await page.locator('.tab-button[data-tab="daten"]').first().isVisible()) {
+    // Am Handy liegt das Blatt zu; ohne Aufziehen ist kein Panel zu sehen.
+    if (!await page.evaluate(() => document.body.classList.contains('sheet-open'))
+        && !await page.locator('.tab-button[data-tab="daten"]').first().isVisible()) {
         await klicke(page, '#sidebar-toggle');
         await sleep(600);
     }

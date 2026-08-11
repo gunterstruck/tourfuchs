@@ -576,13 +576,15 @@
 .seg-toggle .seg + .seg { border-left: none; }
 .seg-toggle .seg.active { background: var(--color-primary); color: #fff; font-weight: 600; }
 
-/* „In der Nähe"-Begleiter (Karte-Tab, mobil) */
-.karte-companion { padding-top: 4px; }
-.near-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 2px 0 6px; }
-.near-title { font-size: 1rem; }
-.near-origin { flex: 0 0 auto; margin: 0; }
+/* „In der Nähe"-Begleiter (Klappkarte über dem Tour-Prozess) */
+/* Der Titel bricht nicht um: Rechts steht die Zusammenfassung, und die kürzt
+   sich selbst per Ellipse. Ohne dies rutscht „In der Nähe" auf zwei Zeilen,
+   sobald die Zahl länger wird – die Karte wäre dann höher als ein Schritt. */
+.near-title { font-weight: 600; white-space: nowrap; }
+.near-origin { margin: 6px 0 8px; }
 .near-origin .seg { padding: 6px 10px; font-size: 0.78rem; white-space: nowrap; }
 .near-stats { margin: 0 0 8px; }
+.near-more { display: block; margin: 8px 0 0; font-size: 0.84rem; }
 .near-gps-hint { color: var(--color-primary-dark); }
 .near-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2px; }
 .near-row {
@@ -1173,7 +1175,6 @@ body:not(.depth-profi) .profi-only { display: none !important; }
     font-size: 0.78rem;
 }
 .mobile-data-reset { display: none; width: 100%; margin-top: 10px; }
-.btn-nearby { width: 100%; margin: 4px 0 10px; }
 .aussen-view-block { margin: 0 0 14px; }
 .aussen-view-block .field-label { display: block; }
 .start-chip {
@@ -1360,7 +1361,7 @@ body.tour-focus .basemap-control,
 body.tour-focus #first-steps,
 body.tour-focus .tour-panel-title,
 body.tour-focus #tab-tour #tour-scope,
-body.tour-focus #btn-nearby,
+body.tour-focus #nearby-card,
 body.tour-focus #btn-tour-scan {
     display: none;
 }

@@ -348,6 +348,25 @@ Sollte Punkt 1 oder 2 je wiederkommen, gilt dasselbe wie beim B3-Tor: Ein
 zurückkehrender Vorschlag braucht ein Kriterium, an dem er ein zweites Mal
 scheitern kann.
 
+### Release 10 – „Ein Bereich" *(11.08.2026 umgesetzt)*
+
+Anlass war eine Beobachtung aus der Hand: „Der Unterschied zwischen Karte und
+Tour ist gar nicht so groß – kann man sich den Knopf sparen?" Die Prüfung im
+Code gab der Beobachtung recht, und zwar schärfer als vermutet.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 10.1 | **Der Reiter „Karte \| Tour" ist gestrichen** | ✅ umgesetzt | Er war kein Bereichswechsel: `activateTab('karte')` setzte `sidebarOpen = false`, jeder andere Reiter setzte es auf `true`. „Karte" hieß „Blatt zu", „Tour" hieß „Blatt auf" – dasselbe, was der Griff und „☰" tun. Drei Bedienelemente für einen booleschen Zustand, zum Preis einer Pillenzeile am knappsten Rand des Geräts. Erstbild am Handy **16 → 14** Bedienelemente (`attention-check`), der Kopf-Streifen ist einzeilig. |
+| 10.2 | **„In der Nähe" wird eine Klappkarte über dem Prozess** | ✅ umgesetzt | Der einzige eigene Inhalt des alten Reiters, jetzt im Gewand der Tourschritte: zugeklappt „12 · ab 1,1 km", aufgeklappt Bezugspunkt, fünf Kunden, „Alle N zeigen". Bewusst **keine** `.tour-acc` – sie steht über dem Prozess (1 · 2 · 3), nicht darin, und liegt außerhalb von `#tour-planner`, weil man „wer ist hier?" vor der Bezirkswahl beantwortet. Kostet netto null Bedienelemente: Sie ersetzt den Knopf „Was ist in meiner Nähe?". |
+| 10.3 | **Ein Tipp auf den Griff klappt ein und aus** | ✅ umgesetzt | Fund beim Nachmessen am gebauten Bild, nicht im Entwurf: Am Handy tat ein Tipp auf den Griff **nichts** (`if (!moved) { if (!isSheetUi()) toggleSheet(); }`) – obwohl der Griff selbst „Ziehen: Größe · Tippen: ein-/ausklappen" verspricht. Solange der Reiter danebenstand, fiel das nicht auf; er war der beschriftete Tipp-Weg. Ohne ihn wäre der auffälligste Griff der Oberfläche stumm gewesen. |
+| 10.4 | **Prüfstrecke ohne Reiterleiste** | ✅ umgesetzt | `attention-check` maß Reiter. Ohne Leiste hätte sie **null** Ansichten gemessen und wäre grün gewesen – genau der Fall, gegen den Item 9.5 die Vollständigkeitsprüfung eingezogen hat. Sie misst jetzt ersatzweise das aktive Panel; erwartete Messungen am Handy 4 → 2, Budget „karte" entfällt. |
+
+**Was das Muster daran ist:** Der Reiter war nicht falsch entworfen. Er war
+einmal richtig – und blieb stehen, als der Griff das Gleiche lernte. Diese Sorte
+Doppelung findet kein Review des einzelnen Features, sondern nur die Frage
+„was tut das hier eigentlich noch?" am fertigen Bild. Dieselbe Lehre wie bei den
+zwei richtigen Entscheidungen auf demselben Platz (9.4).
+
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.

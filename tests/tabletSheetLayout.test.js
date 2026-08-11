@@ -64,7 +64,7 @@ describe('Zwei Gesichter: Touransicht und Schreibtisch', () => {
 
     it('startet hochkant exakt wie das Handy – kein eigener Tablet-Einstieg', () => {
         expect(main).toContain('const tourFace = isPhoneUi();');
-        expect(main).toContain("state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'karte';");
+        expect(main).toContain("state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'tour';");
         // Die drei alten Startweichen sind weg.
         expect(main).not.toContain('portraitTabletStartup');
         expect(main).not.toContain('compactStartup');

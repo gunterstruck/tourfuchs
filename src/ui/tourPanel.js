@@ -55,7 +55,12 @@ const SWIPE_HIDE_PX = 72;
 
 export function initTourPanel() {
     document.getElementById('btn-my-location').addEventListener('click', useMyLocation);
-    document.getElementById('btn-nearby').addEventListener('click', findNearby);
+    // „Was ist in meiner Nähe?" hat keinen eigenen Knopf mehr im Blatt: Der
+    // Fuchs über der Karte und der PWA-Kurzbefehl lösen die Aktion aus, im
+    // Planer steht sie als „📍 Mein Standort" in Schritt 1. Die Liste der
+    // nächstgelegenen Kunden ist etwas anderes – sie lebt in der Klappkarte
+    // „In der Nähe" (src/ui/nearby.js).
+    on('tour:find-nearby', findNearby);
 
     // Plan-Einstellungen (Datum/Startzeit/Besuchsdauer) + QR-Übergabe
     document.getElementById('plan-date').value = todayInputValue();

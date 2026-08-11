@@ -41,12 +41,19 @@ let demoSheetSnapshot = null;
 // **kein drittes Gesicht**, sondern eine Beschriftungslänge innerhalb der
 // Touransicht: Sie schaltet nichts frei und nichts ab.
 const narrowQuery = window.matchMedia('(max-width: 560px)');
-// Mobil dreht sich alles um die Tour: mit Daten nur Karte + Tour (kein
+// Mobil dreht sich alles um die Tour: mit Daten **genau ein** Bereich (kein
 // Daten-Tab). Daten kommen über die Tour rein (vom Desktop scannen / gesichert
 // empfangen) oder – nach dem Zurücksetzen – über den Einstiegs-/Onboarding-Blick.
 // Ohne Daten führt der Daten-Blick durch das Onboarding (Beispieldaten/Demos).
-const MOBILE_DATA_TABS = new Set(['karte', 'tour']);
-const MOBILE_EMPTY_TABS = new Set(['karte', 'daten']);
+//
+// Bis Version 3.2 stand hier zusätzlich „karte". Das war kein Bereich, sondern
+// ein Blatt-Schalter: Der Reiter klappte nur das Blatt ein. Weil Griff und ☰
+// dasselbe tun, waren es drei Bedienelemente für einen booleschen Zustand – zum
+// Preis einer Pillenzeile am oberen Rand. Jetzt gilt: Blatt unten = Karte,
+// Blatt oben = Tour. Ein Bereich braucht keine Reiterleiste, deshalb ist sie
+// mobil ausgeblendet (siehe responsive.css).
+const MOBILE_DATA_TABS = new Set(['tour']);
+const MOBILE_EMPTY_TABS = new Set(['daten']);
 const SIDEBAR_WIDTH_KEY = 'gf_sidebar_width';
 const SIDEBAR_POS_KEY = 'gf_sidebar_position';
 const SHEET_HEIGHT_KEY = 'gf_sheet_height';
@@ -107,28 +114,27 @@ export function isSheetUi() {
 }
 
 /**
- * Auf dem Handy die Ansichtstiefe (Basis/Profi) und die Tab-Leiste aus dem
- * Bottom-Sheet in den fixen Kopf-Streifen heben – so bleiben sie immer sichtbar
- * „oben aufgehängt". Auf dem Desktop wandern beide an ihre ursprüngliche Stelle
- * in der Sidebar zurück. Die Elemente behalten ihre IDs/Klassen, daher greifen
- * alle bestehenden Event-Handler unverändert.
+ * Auf dem Handy die Ansichtstiefe (Basis/Profi) aus dem Bottom-Sheet in den
+ * fixen Kopf-Streifen heben – so bleibt sie immer sichtbar „oben aufgehängt".
+ * Auf dem Desktop wandert sie an ihre ursprüngliche Stelle in der Sidebar
+ * zurück. Das Element behält ID und Klassen, daher greifen alle bestehenden
+ * Event-Handler unverändert.
+ *
+ * Die Reiterleiste zog früher mit nach oben. Sie führte mobil nur noch „Karte"
+ * und „Tour" – zwei Namen für „Blatt zu" und „Blatt auf" – und ist deshalb
+ * weggefallen. Der Streifen ist damit einzeilig: eine Pille, eine Aussage.
  */
 function syncTopnavPlacement() {
     const topnav = document.getElementById('mobile-topnav');
     const sidebar = document.getElementById('sidebar');
     const depth = document.getElementById('depth-switch');
-    const tabs = document.querySelector('.tabs');
-    if (!topnav || !sidebar || !depth || !tabs) return;
+    if (!topnav || !sidebar || !depth) return;
     if (isMobileUi()) {
-        // Reihenfolge im Streifen: erst Basis/Profi, dann die Tabs.
         if (depth.parentElement !== topnav) topnav.appendChild(depth);
-        if (tabs.parentElement !== topnav) topnav.appendChild(tabs);
     } else {
-        // Zurück in die Sidebar an die ursprünglichen Ankerpunkte.
+        // Zurück in die Sidebar an den ursprünglichen Ankerpunkt.
         const modeSwitch = sidebar.querySelector('.mode-switch');
-        const firstPanel = sidebar.querySelector('.tab-panel');
         if (depth.parentElement !== sidebar && modeSwitch) sidebar.insertBefore(depth, modeSwitch);
-        if (tabs.parentElement !== sidebar && firstPanel) sidebar.insertBefore(tabs, firstPanel);
     }
 }
 
@@ -672,7 +678,11 @@ function initMobileNextStep() {
         // Aufziehen). „Planen" führt bewusst ins Tour-Blatt mit gesetztem Start.
         if (btn.dataset.action === 'route') document.getElementById('btn-route-focus')?.click();
         else if (btn.dataset.action === 'plan') goToTourPlanning();
-        else document.getElementById('btn-nearby')?.click();
+        // „Kunden in meiner Nähe": Standort holen, als Tourstart setzen,
+        // Vorschläge rechnen. Der Knopf dafür stand früher im Tour-Blatt und
+        // hieß dort dasselbe; geblieben ist die Aktion, angeboten wird sie an
+        // den zwei Stellen, wo sie hilft (hier und als PWA-Kurzbefehl).
+        else emit('tour:find-nearby');
     });
     ['tour:changed', 'customers:changed', 'mode:changed', 'tab:changed', 'dataset:cleared', 'app:ready']
         .forEach((evt) => on(evt, updateMobileNextStep));
@@ -785,8 +795,9 @@ export function collapseSheetForDemo() {
 function toggleSheet() {
     const sidebar = document.getElementById('sidebar');
     if (isSheetUi()) {
-        // Klick auf den Griff: ein-/ausklappen (auf „karte" stattdessen Tour öffnen).
-        if (state.ui.activeTab === 'karte') { activateTab('tour'); return; }
+        // Klick auf den Griff: ein-/ausklappen. Beim Einklappen liegt die Karte
+        // frei – dann darf eine geplante Route sich auch zeigen.
+        if (state.ui.sidebarOpen) revealRouteOnUncover();
         state.ui.sidebarOpen = !state.ui.sidebarOpen;
         applySidebar();
     } else if (sidebar?.classList.contains('sheet-sized')) {
@@ -859,8 +870,16 @@ function initSheetGrip() {
         if (!mode) return;
         const done = mode; mode = null;
         document.body.classList.remove('sheet-resizing', 'sidebar-dragging');
-        // Handy: reiner Tipp macht nichts – das Blatt wird nur durch Ziehen bewegt.
-        if (!moved) { if (!isSheetUi()) toggleSheet(); return; }
+        // Ein Tipp klappt ein und aus – am Handy wie am Schreibtisch.
+        //
+        // Am Handy tat er bisher nichts („nur Ziehen bewegt das Blatt"), obwohl
+        // der Griff selbst „Ziehen: Größe · Tippen: ein-/ausklappen" verspricht.
+        // Solange der Reiter „Karte" danebenstand, fiel das nicht auf – er war
+        // der beschriftete Tipp-Weg. Mit seinem Wegfall wäre der auffälligste
+        // Griff der Oberfläche stumm, und das Versprechen im Tooltip falsch.
+        // Ein Zug bewegt den Finger um mehr als 4 px und setzt `moved`; ein
+        // Tipp bleibt darunter. Die beiden verwechseln sich also nicht.
+        if (!moved) { toggleSheet(); return; }
         if (done === 'resize') {
             // Bis zum Boden gezogen = ganz einklappen (nicht bei der Mindesthöhe
             // hängenbleiben). Das Blatt kehrt sauber zur Guckhöhe zurück.
@@ -974,7 +993,16 @@ function syncServiceCustomerScope() {
     }
 }
 
-/** Einen Tab aktivieren (DOM + State); Persistenz steuern die Aufrufer */
+/**
+ * Einen Tab aktivieren (DOM + State); Persistenz steuern die Aufrufer.
+ *
+ * Bewusst **ohne** Wirkung auf das Blatt: Welches Panel gefüllt ist, und ob das
+ * Blatt offen steht, sind zwei Fragen. Früher fielen sie zusammen (`karte`
+ * schloss, alles andere öffnete) – seit der Karten-Reiter weg ist, hieße das:
+ * Jedes `applyMode()` nach einer Datenänderung reißt das Blatt auf, während der
+ * Nutzer auf der Karte arbeitet. Wer das Blatt öffnen will, sagt es selbst
+ * (`showTourView`, `showDataView`, Griff, ☰).
+ */
 function activateTab(tab) {
     state.ui.activeTab = tab;
     document.querySelectorAll('.tab-button').forEach((b) =>
@@ -982,44 +1010,39 @@ function activateTab(tab) {
     document.querySelectorAll('.tab-panel').forEach((p) =>
         p.classList.toggle('active', p.id === `tab-${tab}`));
     emit('tab:changed', tab);
-
-    if (isSheetUi()) {
-        if (tab === 'karte') state.ui.sidebarOpen = false;
-        else state.ui.sidebarOpen = true;
-        applySidebar();
-    }
 }
 
-/** Mobil direkt zur Kartenansicht wechseln – dorthin, wo „In der Nähe" liegt.
- *  `activateTab('karte')` klappt das Blatt zugleich ganz nach unten ein. */
+/**
+ * Mobil die Karte freilegen: Das Blatt klappt ganz nach unten ein.
+ *
+ * Bewusst ohne `revealRouteOnUncover()`: Diese Funktion wird auch beim Start
+ * und aus der Live-Demo gerufen. Die Route von selbst einzublenden ist eine
+ * Antwort auf eine Geste, nicht auf einen Programmablauf – sie hängt deshalb am
+ * Griff und an „☰".
+ */
 export function showMapView(persist = true) {
     if (!isSheetUi()) return;
-    // Am Handy gibt es dafür einen eigenen Karten-Tab. Auf dem hochkanten
-    // Tablet liegt die Karte hinter dem Blatt – dort genügt Einklappen.
-    if (isMobileUi()) {
-        activateTab('karte');
-    } else {
-        state.ui.sidebarOpen = false;
-        applySidebar();
-    }
+    state.ui.sidebarOpen = false;
+    applySidebar();
     if (persist) persistSettings();
 }
 
 /**
- * Die geplante Route freilegen, **ohne** den Reiter zu wechseln.
+ * Die geplante Route freilegen, ohne die eigenen Stopps aus dem Blick zu
+ * verlieren.
  *
  * „Route auf Karte anzeigen" ging bisher über `showMapView()` und landete damit
  * auf dem Handy im Karten-Reiter. Das ist eine Ortsveränderung, wo eine Sicht
- * gemeint war: Man verlässt die Tour, um sie anzusehen, und findet danach im
+ * gemeint war: Man verließ die Tour, um sie anzusehen, und fand danach im
  * Blatt „In der Nähe" statt der eigenen Stopps.
  *
- * Nötig war der Wechsel nie. Die Karte wird frei, weil `activateTab('karte')`
- * nebenbei `sidebarOpen = false` setzt – nicht weil der Reiter wechselt. Der
- * Reiterwechsel war der Beifang, nicht das Mittel. Auf dem hochkanten Tablet
- * tut `showMapView()` längst genau das, was hier für alle gilt.
+ * Nötig war der Wechsel nie – frei wird die Karte, weil das Blatt zugeht. Seit
+ * der Karten-Reiter weg ist, tut `showMapView()` dasselbe; die zwei Namen
+ * bleiben trotzdem stehen, weil sie zwei Absichten benennen: „zeig mir die
+ * Karte" und „zeig mir meine Route".
  *
- * Der Rückweg steht im selben Bild, gleich dreifach: der Griff am Blatt, „☰"
- * in der Kopfzeile und der Tour-Reiter im Kopf-Streifen, der aktiv bleibt.
+ * Der Rückweg steht im selben Bild, doppelt: der Griff am Blatt und „☰" in der
+ * Kopfzeile.
  */
 export function showRouteView(persist = true) {
     if (!isSheetUi()) return;
@@ -1031,14 +1054,22 @@ export function showRouteView(persist = true) {
 /** Mobil gezielt mit geöffnetem Tour-Sheet starten, optional ohne Persistenz. */
 export function showTourView(persist = false) {
     activateTab('tour');
-    if (isSheetUi()) setSheetHeight(tourSheetHeight(), persist);
+    if (isSheetUi()) {
+        state.ui.sidebarOpen = true;
+        setSheetHeight(tourSheetHeight(), persist);
+        applySidebar();
+    }
     if (persist) persistSettings();
 }
 
 /** Mobil mit ruhiger Basisansicht und weit geöffnetem Datenblatt starten. */
 export function showDataView(persist = false) {
     activateTab('daten');
-    if (isSheetUi()) setSheetHeight(Math.round(sheetMaxHeight() * 0.88), persist);
+    if (isSheetUi()) {
+        state.ui.sidebarOpen = true;
+        setSheetHeight(Math.round(sheetMaxHeight() * 0.88), persist);
+        applySidebar();
+    }
     if (persist) persistSettings();
 }
 
@@ -1049,17 +1080,21 @@ function hasTourRouteForMap() {
 }
 
 /**
- * Wer mit geplanter Tour auf den Karten-Reiter tippt, will sie sehen.
+ * Wer mit geplanter Tour die Karte freilegt, will sie sehen.
  *
- * Früher schaltete ein zweiter Tipp auf denselben Reiter zusätzlich zwischen
- * Luftlinie und Straßenroute um. Diese Geste ist ersatzlos gestrichen: Sie tat
- * dasselbe wie `#btn-route-mode`, der als Knopf über der Karte steht,
- * beschriftet ist und nicht erraten werden muss. Ein unsichtbarer Griff, der
- * einen sichtbaren verdoppelt, ist kein Komfort, sondern ein Fund für die
- * nächste Fehlersuche.
+ * Der Auslöser war früher der Tipp auf den Karten-Reiter. Den gibt es nicht
+ * mehr – und er war ohnehin nie das Ereignis, das zählt: Gemeint ist „die Karte
+ * wird frei", und das ist das Einklappen des Blatts. Genau dort hängt die
+ * Geste jetzt.
+ *
+ * Was hier bewusst **nicht** steht: ein zweiter Tipp, der zwischen Luftlinie
+ * und Straßenroute umschaltet. Das tat dasselbe wie `#btn-route-mode`, der über
+ * der Karte steht, beschriftet ist und nicht erraten werden muss. Ein
+ * unsichtbarer Griff, der einen sichtbaren verdoppelt, ist kein Komfort,
+ * sondern ein Fund für die nächste Fehlersuche.
  */
-function handleMapTabRouteReveal(tab) {
-    if (!isMobileUi() || tab !== 'karte' || !hasTourRouteForMap()) return;
+function revealRouteOnUncover() {
+    if (!isMobileUi() || !hasTourRouteForMap()) return;
     if (state.tour.mapFocus) return;
     state.tour.mapFocus = true;
     state.tour.routeLineMode ||= 'air';
@@ -1195,7 +1230,7 @@ export function applyMode(mode, userInitiated = true, persist = true) {
         && state.serviceContracts.length === 0
         && state.serviceVisits.length === 0;
     if (isMobileUi()) {
-        const fallback = empty ? 'daten' : 'karte';
+        const fallback = empty ? 'daten' : 'tour';
         const current = tabs.find((b) => b.dataset.tab === state.ui.activeTab);
         activateTab(!current || current.hidden ? fallback : state.ui.activeTab);
     } else if (empty && mode !== 'service') {
@@ -1321,18 +1356,21 @@ export function initSidebar() {
         });
     });
 
-    // Tabs
+    // Tabs (mobil ausgeblendet – dort gibt es nur einen Bereich)
     document.querySelectorAll('.tab-button').forEach((btn) => {
         btn.addEventListener('click', () => {
-            handleMapTabRouteReveal(btn.dataset.tab);
             activateTab(btn.dataset.tab);
             // Handy: „Tour" zieht das Blatt ganz auf – volle Planungsfläche.
             if (isSheetUi() && btn.dataset.tab === 'tour') {
+                state.ui.sidebarOpen = true;
                 setSheetHeight(tourSheetHeight(), true);
+                applySidebar();
             } else if (isSheetUi() && btn.dataset.tab === 'daten') {
                 // Kundendaten brauchen mehr Lesefläche als die kompakte Tour.
                 // Das Panel bleibt dennoch per Griff frei in der Höhe verstellbar.
+                state.ui.sidebarOpen = true;
                 setSheetHeight(Math.round(sheetMaxHeight() * 0.88), true);
+                applySidebar();
             }
             persistSettings();
         });
@@ -1345,10 +1383,9 @@ export function initSidebar() {
     // Sidebar-Toggle (mobil)
     document.getElementById('sidebar-toggle').addEventListener('click', () => {
         clearTimeout(autoRevealTimer); // Nutzer übernimmt -> kein automatisches Einblenden mehr
-        if (isMobileUi() && hasDataset()) {
-            activateTab(state.ui.sidebarOpen ? 'karte' : 'tour');
-            return;
-        }
+        // Derselbe Schalter wie der Griff: Blatt auf oder zu. Beim Zuklappen
+        // darf eine geplante Route auf die frei werdende Karte.
+        if (isSheetUi() && state.ui.sidebarOpen) revealRouteOnUncover();
         state.ui.sidebarOpen = !state.ui.sidebarOpen;
         applySidebar();
     });

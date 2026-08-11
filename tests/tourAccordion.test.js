@@ -17,8 +17,13 @@ describe('Mobiles Tour-Akkordeon (Startpunkt · Vorschläge · Meine Tour)', () 
         expect(html).toContain('id="acc-sum-start"');
         expect(html).toContain('id="acc-sum-suggest"');
         expect(html).toContain('id="acc-sum-mytour"');
-        expect((html.match(/class="acc-head"/g) || []).length).toBe(3);
-        expect((html.match(/class="acc-body"/g) || []).length).toBe(3);
+        // Drei Schritte – plus die Klappkarte „In der Nähe", die über dem
+        // Prozess steht und bewusst KEINE `.tour-acc` ist (sie gehört weder in
+        // die Schrittleiste noch unter „genau ein Schritt offen").
+        expect((html.match(/class="tour-acc"/g) || []).length).toBe(3);
+        expect((html.match(/class="acc-head"/g) || []).length).toBe(4);
+        expect((html.match(/class="acc-body"/g) || []).length).toBe(4);
+        expect(html).toContain('id="nearby-card" class="nearby-card"');
     });
 
     it('lässt die drei Schritt-Anker (Start, Vorschläge, Stopps) unangetastet', () => {
@@ -69,9 +74,12 @@ describe('Mobiles Tour-Akkordeon (Startpunkt · Vorschläge · Meine Tour)', () 
         // Offene Gruppe scrollt intern (gedeckelt), damit die Köpfe stehenbleiben.
         expect(css).toContain('.tour-acc.open .acc-body {\n        max-height: 34vh;');
         expect(css).toContain('.tour-acc.open .scroll-list { max-height: none; overflow: visible; }');
-        // „Was ist in meiner Nähe?" beim Planen (Start steht) ausgeblendet.
+        // Der Scan-Einstieg wird beim Planen (Start steht) ausgeblendet.
         expect(panel).toContain("classList.toggle('tour-has-start', !!state.tour.start)");
-        expect(css).toContain('body.tour-has-start #tab-tour.active #btn-nearby');
+        expect(css).toContain('body.tour-has-start #tab-tour.active #btn-tour-scan');
+        // Die offene „In der Nähe"-Karte ist genauso gedeckelt wie ein Schritt –
+        // sie darf den Prozess darunter nicht aus dem Bild schieben.
+        expect(css).toContain('.nearby-card.open .acc-body {\n        max-height: 34vh;');
     });
 
     it('bleibt beim Aussuchen in „Vorschläge" – springt nicht beim ersten Stopp zu „Meine Tour"', () => {

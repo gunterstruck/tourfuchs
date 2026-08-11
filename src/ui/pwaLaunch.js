@@ -12,7 +12,7 @@
  * erst, wenn sie einen Sinn ergibt (eigene Daten, geplante Tour), nicht beim
  * ersten Blick auf die Beispieldaten.
  */
-import { state, on } from '../core/state.js';
+import { state, on, emit } from '../core/state.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import {
     installOfferMode,
@@ -46,7 +46,7 @@ function applyStartTarget(target) {
     else if (target === 'import') openOwnDataDialog();
     else if (target === 'nearby') {
         showTourView();
-        document.getElementById('btn-nearby')?.click();
+        emit('tour:find-nearby');
     }
 }
 

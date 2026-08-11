@@ -126,7 +126,6 @@
 }
 
 /* Mobile-Produktmodus: Karte + Tour statt Analyse-Cockpit */
-.mobile-map-tab,
 .mobile-desktop-note {
     display: none;
 }
@@ -206,6 +205,63 @@
 /* Der Info-Punkt im Kopf soll das Auf-/Zuklappen nicht auslösen. */
 .tour-acc .acc-head .help-dot { pointer-events: auto; }
 
+/* „In der Nähe": dasselbe Gewand, bewusst eine eigene Klasse.
+   Die Karte steht ÜBER dem Prozess und ist keine seiner Stufen – sie gehört
+   weder in die Schrittleiste noch unter die Regel „genau ein Schritt offen",
+   und die Prüfstrecke `attention-check` zählt weiterhin drei Schritt-Köpfe.
+   Ein gemeinsamer Selektor mit `.tour-acc` würde sie in all das hineinziehen;
+   die paar Deklarationen doppelt zu halten ist der billigere Preis. */
+.nearby-card {
+    display: block;
+    margin: 10px 0;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06);
+    overflow: hidden;
+}
+.nearby-card.open {
+    border-color: color-mix(in srgb, var(--color-primary, #0d9488) 40%, #e2e8f0);
+    box-shadow: 0 6px 18px rgba(13, 148, 136, 0.12);
+}
+.nearby-card .acc-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    padding: 13px 14px;
+    cursor: pointer;
+    user-select: none;
+    font-size: 0.98rem;
+    transition: background 0.15s;
+}
+.nearby-card .acc-head:active { background: #f8fafc; }
+.nearby-card.open .acc-head { border-bottom: 1px solid #f1f5f9; }
+.nearby-card .acc-summary {
+    display: block;
+    margin-left: auto;
+    max-width: 55%;
+    overflow: hidden;
+    color: var(--color-primary-dark, #0f766e);
+    font-size: 0.82rem;
+    font-weight: 700;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.nearby-card.open .acc-summary { display: none; }
+.nearby-card .acc-caret {
+    display: inline-block;
+    margin-left: 6px;
+    color: #94a3b8;
+    font-size: 0.8rem;
+    transition: transform 0.2s ease;
+}
+.nearby-card.open .acc-caret { transform: rotate(180deg); color: var(--color-primary, #0d9488); }
+.nearby-card .acc-body { padding: 2px 14px 14px; }
+.nearby-card:not(.open) .acc-body { display: none; }
+.nearby-card .acc-head .help-dot { pointer-events: auto; }
+
 /* ===========================================================================
    TOURANSICHT – Handy immer, Tablet hochkant.
 
@@ -226,10 +282,14 @@
     }
     /* Kein doppelter Scroller: In der offenen Gruppe scrollt die acc-body. */
     #tab-tour.active .tour-acc.open .scroll-list { max-height: none; overflow: visible; }
-    /* „Was ist in meiner Nähe?" und der Scan-Einstieg sind beim Planen (Start
-       steht) redundant und kosten Platz – dann ausblenden, damit die
-       Akkordeon-Köpfe passen. */
-    body.tour-has-start #tab-tour.active #btn-nearby,
+    /* Dieselbe Deckelung für die offene „In der Nähe"-Karte: Sie darf den
+       Prozess darunter nicht aus dem Bild schieben. */
+    #tab-tour.active .nearby-card.open .acc-body {
+        max-height: 34vh;
+        overflow-y: auto;
+    }
+    /* Der Scan-Einstieg ist beim Planen (Start steht) redundant und kostet
+       Platz – dann ausblenden, damit die Akkordeon-Köpfe passen. */
     body.tour-has-start #tab-tour.active #btn-tour-scan { display: none; }
 
     /* Die Karten-Einfärbung „Kartenansicht" (Kunden/Status/Chancen) ist eine
@@ -366,9 +426,14 @@
         --mobile-sheet-peek: 100px;
     }
 
-    /* Fixer Kopf-Streifen unter der Topbar: Ansichtstiefe + Tabs immer sichtbar.
-       Hintergrund transparent, damit die Karte durchscheint – nur die beiden
-       Segment-Pillen „schweben" darüber. */
+    /* Fixer Kopf-Streifen unter der Topbar: die Ansichtstiefe bleibt immer
+       sichtbar. Hintergrund transparent, damit die Karte durchscheint – nur die
+       Segment-Pille „schwebt" darüber.
+
+       Bis Version 3.2 hing hier eine zweite Zeile: die Reiter „Karte | Tour".
+       Sie waren kein Bereichswechsel, sondern ein zweiter Griff ans Blatt (der
+       erste ist der Griff selbst, der dritte „☰"). Gestrichen – der Streifen
+       ist seitdem einzeilig. */
     .mobile-topnav {
         display: block;
         position: absolute;
@@ -383,12 +448,11 @@
     /* Während des Onboardings (keine Daten) nur Willkommen + Demo zeigen. */
     body.app-onboarding .mobile-topnav { display: none; }
 
-    /* Beide Reihen identischer Stil: schwebende, leicht durchscheinende
-       Segment-Pille (wie Basis/Profi). */
-    .mobile-topnav .depth-switch,
-    .mobile-topnav .tabs {
+    /* Schwebende, leicht durchscheinende Segment-Pille. */
+    .mobile-topnav .depth-switch {
         pointer-events: auto;
         display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 3px;
         margin: 0 10px 5px;
         padding: 2px;
@@ -399,16 +463,14 @@
         border-radius: var(--radius-pill);
         box-shadow: var(--shadow-1);
     }
-    .mobile-topnav .depth-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    /* Mobil sind es genau zwei Tabs (Karte + Tour bzw. Karte + Daten im Einstieg);
-       eine Spalte je sichtbarem Tab füllt den Streifen ohne Lücke. */
-    .mobile-topnav .tabs { grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); grid-template-columns: none; }
-    .mobile-topnav .mobile-map-tab { display: block; }
 
-    /* Segmente in beiden Reihen gleich: inaktiv gedämpft, aktiv grün gefüllt.
-       Bewusst ~20 % kompakter als zuvor. */
-    .mobile-topnav .depth-switch .seg,
-    .mobile-topnav .tab-button {
+    /* Ein Bereich braucht keine Reiterleiste: Mobil gibt es nur die Tour (bzw.
+       im Onboarding nur die Daten). Die Leiste bleibt im DOM – am Schreibtisch
+       trägt sie weiterhin Daten · Filter · Gebiete · Tour. */
+    .sidebar .tabs { display: none; }
+
+    /* Segmente: inaktiv gedämpft, aktiv grün gefüllt. */
+    .mobile-topnav .depth-switch .seg {
         border: none;
         border-radius: var(--radius-pill);
         background: transparent;
@@ -419,15 +481,11 @@
         color: var(--color-text-muted);
         white-space: nowrap;
     }
-    .mobile-topnav .depth-switch .seg.active,
-    .mobile-topnav .tab-button.active {
+    .mobile-topnav .depth-switch .seg.active {
         background: var(--color-primary);
         color: #fff;
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
     }
-    /* Passende Icons für Karte/Tour (nur im mobilen Streifen). */
-    .mobile-topnav .tab-button[data-tab="karte"]::before { content: "🗺️ "; }
-    .mobile-topnav .tab-button[data-tab="tour"]::before { content: "🧭 "; }
 
     .sidebar {
         top: auto;
@@ -535,21 +593,6 @@
     .sidebar.onboarding .ob-hero h2 { margin: 4px 0 2px; }
     /* Der Live-Demo-Knopf ist der Held des Neustarts – etwas kräftiger. */
     .sidebar.onboarding .ob-primary-action { font-size: 1.1rem; padding: 15px 12px; }
-
-    .sidebar:not(.onboarding) .tabs {
-        grid-auto-flow: initial;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        flex-shrink: 0;
-    }
-
-    .sidebar:not(.onboarding) .mobile-map-tab {
-        display: block;
-    }
-
-    .sidebar:not(.onboarding) .tab-button {
-        min-height: 44px;
-        font-size: 0.92rem;
-    }
 
     .sidebar:not(.open) .mobile-desktop-note,
     .sidebar:not(.open) .basemap-control,

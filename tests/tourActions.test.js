@@ -10,12 +10,13 @@ describe('Tour-Aktionen: Scan als Einstieg, QR prominent, Desktop-Timeline', () 
     const components = read('src/styles/components.css');
 
     it('holt „Tour vom Desktop scannen" nach oben in die Einstiegszone (nur Handy)', () => {
-        // Der Scan-Knopf steht jetzt bei „Was ist in meiner Nähe?", nicht mehr
-        // unten in der „Meine Tour"-Aktionsliste.
+        // Der Scan-Knopf steht in der Einstiegszone – nach der Klappkarte
+        // „In der Nähe", nicht unten in der „Meine Tour"-Aktionsliste.
         expect(html).toMatch(/id="btn-tour-scan"[^>]*class="[^"]*only-mobile[^"]*btn-scan-entry/);
         const scanIdx = html.indexOf('id="btn-tour-scan"');
-        const nearbyIdx = html.indexOf('id="btn-nearby"');
+        const nearbyIdx = html.indexOf('id="nearby-card"');
         const optimizeIdx = html.indexOf('id="btn-optimize"'); // erster Knopf des Aktionsstapels
+        expect(nearbyIdx).toBeGreaterThan(-1);
         expect(scanIdx).toBeGreaterThan(nearbyIdx);   // direkt nach „In der Nähe"
         expect(scanIdx).toBeLessThan(optimizeIdx);     // nicht mehr im Aktionsstapel
     });
