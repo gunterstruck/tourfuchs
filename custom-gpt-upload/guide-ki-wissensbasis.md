@@ -1481,7 +1481,8 @@ Auf dem Smartphone können Profi-Abschnitte seitlich weggewischt werden.
 
 ### 10.3 "Was ist in meiner Nähe?"
 
-**Klickpfad:** `"Außendienst" -> "Tour" -> "Was ist in meiner Nähe?"`.
+**Klickpfad:** `"Außendienst" -> Fuchs-Knopf über der Karte "Kunden in meiner
+Nähe"` bzw. `"Außendienst" -> "Tour" -> Schritt 1 -> "📍 Mein Standort"`.
 
 Die Funktion nutzt den GPS-Standort als Start und zeigt passende Kunden im
 Umkreis. Eine Standortberechtigung kann erforderlich sein.
@@ -1493,9 +1494,19 @@ Treffer erscheint, und meldet das gefundene Ergebnis per Kurzhinweis. Auf dem
 Handy schlägt der schwebende Fuchs-Knopf danach den nächsten Schritt vor
 („Tour ab hier planen").
 
-Im mobilen Karte-Tab gibt es zusätzlich den Begleiter **"In der Nähe"**. Der
-Bezugspunkt kann zwischen **"Kartenmitte"** und **"Standort"** wechseln. Ein Tipp
-auf einen Kunden fliegt zum Marker; Plus fügt ihn zur Tour hinzu.
+Einen Knopf **"Was ist in meiner Nähe?"** gibt es im Blatt nicht mehr. Die
+Aktion löst der schwebende Fuchs-Knopf über der Karte aus; im Planer führt
+**"📍 Mein Standort"** in Schritt 1 zum selben Ergebnis. Der PWA-Kurzbefehl
+`?start=nearby` ruft sie ebenfalls auf.
+
+Über dem Tour-Prozess steht die eingeklappte Karte **"In der Nähe"**. Die
+Kopfzeile nennt zugeklappt Anzahl und Entfernung des nächsten Kunden
+(z. B. `12 · ab 1,1 km`); ein Tipp klappt sie auf und zeigt die fünf
+nächstgelegenen Kunden, **"Alle N zeigen"** den Rest (maximal zwölf). Der
+Bezugspunkt kann zwischen **"Kartenmitte"** und **"Standort"** wechseln; nach dem
+Standort wird erst beim Tipp auf **"Standort"** gefragt. Ein Tipp auf einen
+Kunden fliegt zum Marker; Plus fügt ihn zur Tour hinzu. **"Wen zuerst?"** startet
+das Briefing für diese Umgebung.
 
 ### 10.4 Vorschläge
 
@@ -1710,27 +1721,29 @@ verwirrend. Deshalb ist **"An Handy übergeben (QR)"** im Mobile View ausgeblend
 
 ### 12.1 Produktfokus
 
-Mobil stehen zwei Hauptreiter fest unter der Topbar:
+Mobil gibt es **einen** Bereich: die **Tour**. Eine Reiterleiste steht deshalb
+nicht mehr im Bild. Was man sieht, entscheidet allein die Höhe des Blatts:
+**unten = Karte, oben = Tour**.
 
-- **"Karte"**
-- **"Tour"**
+Fest unter der Topbar bleibt die Pille **"Basis" / "Profi"** – einzeilig, seit
+die Reiter „Karte | Tour" entfallen sind. Gebietsplanung, Cockpit und Simulation
+sind bewusst Desktop-Aufgaben.
 
-Darüber beziehungsweise in derselben festen Navigation bleibt
-**"Basis" / "Profi"** erreichbar. Gebietsplanung, Cockpit und Simulation sind
-bewusst Desktop-Aufgaben.
+Bis Version 3.2 standen dort zwei Reiter. Sie waren kein Bereichswechsel: „Karte"
+klappte das Blatt ein, „Tour" zog es auf – dasselbe, was Griff und "☰" tun. Drei
+Bedienelemente für einen Zustand, zum Preis einer Zeile am oberen Rand.
 
 ### 12.2 Bottom Sheet
 
 Das Bedienpanel ist unten an den Bildschirm angedockt.
 
-- **"Tour"** öffnet das Sheet – beim Planen **ganz aufgezogen** (bis knapp unter
-  die Basis/Profi- und Karte/Tour-Navigation, die bedienbar bleibt).
-- **"Karte"** schließt es zugunsten der Karte.
 - der obere Griff wird senkrecht gezogen, um die Höhe kontinuierlich zu ändern;
   bis zum Boden gezogen klappt das Blatt ganz auf die Guckhöhe ein.
 - aus geschlossenem Zustand folgt das Blatt direkt dem Finger, ohne von unten
   falsch zu schrumpfen.
-- ein reiner Tipp auf den Griff ändert mobil nichts.
+- ein **Tipp** auf den Griff klappt ein und aus – wie "☰" in der Topbar.
+- beim Einklappen zeigt eine bereits geplante Tour sich auf der frei werdenden
+  Karte.
 - die gewählte Höhe wird gespeichert.
 - der eingeklappte Peek und die schwebenden Overlays liegen bewusst **über der
   System-Navigationsleiste** (Android/iOS): Ist im Edge-to-Edge-Modus unten eine
@@ -1766,11 +1779,15 @@ ausgeblendet.
 
 ### 12.3 In der Nähe
 
-Wird im Karte-Tab das Sheet geöffnet, zeigt **"In der Nähe"** Kunden relativ zur
-Kartenmitte oder zum GPS-Standort.
+Die Klappkarte **"In der Nähe"** steht oben im Tour-Blatt, über Schritt 1, und
+zeigt Kunden relativ zur Kartenmitte oder zum GPS-Standort. Zugeklappt trägt sie
+Anzahl und Entfernung des nächsten Kunden; aufgeklappt fünf Zeilen, auf Wunsch
+alle (maximal zwölf).
 
 Basis zeigt Name, Ort, Entfernung und Umsatz. Profi ergänzt Besuchsstatus und
 Fälligkeitszähler.
+
+Berechnet wird nur, was zu sehen ist: Bei eingeklapptem Blatt ruht die Liste.
 
 ### 12.4 Mobile Popups
 
@@ -2902,6 +2919,23 @@ von 7.900 Zeichen. Diese Zahl muss nach jeder Änderung erneut geprüft werden.
 
 ### 26.3 Änderungen in Version 3.2
 
+- **Der Reiter „Karte" am Handy ist gestrichen.** Er war kein Bereich, sondern
+  ein zweiter Griff ans Blatt: „Karte" klappte ein, „Tour" zog auf – dasselbe,
+  was der Griff und „☰" tun. Mobil bleibt ein Bereich (Tour), die Reiterleiste
+  entfällt, der Kopf-Streifen ist einzeilig (nur „Basis"/„Profi").
+  - **Antwortregel:** Auf „wie komme ich zur Karte zurück?" lautet die Antwort
+    jetzt „Blatt nach unten ziehen oder auf den Griff tippen – oder ☰ oben
+    links", **nicht** mehr „Reiter Karte".
+  - Ein **Tipp** auf den Griff klappt jetzt auch am Handy ein und aus. Vorher
+    tat er nichts, obwohl der Griff genau das verspricht („Ziehen: Größe ·
+    Tippen: ein-/ausklappen").
+- **„In der Nähe" ist eine eingeklappte Karte über dem Tour-Prozess.** Der
+  Inhalt des alten Karten-Reiters, jetzt im selben Gewand wie die drei
+  Tourschritte: zugeklappt eine Zeile („12 · ab 1,1 km"), aufgeklappt
+  Bezugspunkt, fünf Kunden und „Alle N zeigen".
+- **Der Knopf „Was ist in meiner Nähe?" ist entfallen.** Die Aktion bleibt: über
+  den Fuchs-Knopf auf der Karte, über „📍 Mein Standort" in Schritt 1 und über
+  den PWA-Kurzbefehl.
 - Aktuelle App-Screenshots für Import, Lasso, Gebiets-Briefing,
   Assistentenauswahl, Kunden-Popup, Tour und Sicherung ergänzt.
 - Lasso fachlich klar vom Gebiets-Briefing getrennt: Die Geste erzeugt die
@@ -2924,16 +2958,18 @@ von 7.900 Zeichen. Diese Zahl muss nach jeder Änderung erneut geprüft werden.
   - Nötig war der Wechsel nie: Die Karte wird frei, weil das Blatt schließt,
     nicht weil der Reiter wechselt. Das hochkante Tablet machte es immer schon
     so; das Handy war der Sonderfall.
-  - **Der Rückweg steht dreifach im selben Bild:** der Griff am Blattrand, „☰"
-    in der Kopfzeile und der Reiter „Tour" im Kopf-Streifen, der aktiv bleibt.
+  - **Der Rückweg steht doppelt im selben Bild:** der Griff am Blattrand und
+    „☰" in der Kopfzeile. (Bis Version 3.2 zusätzlich der Reiter „Tour".)
   - **Antwortregel:** Auf „wie sehe ich meine Route?" bleibt die Antwort
     „Route auf Karte anzeigen". Der Guide darf **nicht** mehr sagen, man lande
     dabei im Karten-Reiter.
 - **Gestrichen: der unsichtbare Linienart-Umschalter.** Ein zweiter Tipp auf den
   Karten-Reiter wechselte zwischen Luftlinie und Straßenroute. Dafür gibt es den
   beschrifteten Knopf über der Karte (`#btn-route-mode`). Steht in „Was wir
-  weggelassen haben". Ein Tipp auf „Karte" **legt** die geplante Route weiterhin
-  auf die Karte – nur umgeschaltet wird dort nichts mehr.
+  weggelassen haben". Ein Tipp auf „Karte" **legte** die geplante Route weiterhin
+  auf die Karte – nur umgeschaltet wurde dort nichts mehr. Seit Version 3.2 gibt
+  es den Reiter nicht mehr; die Route erscheint jetzt, wenn Griff oder „☰" das
+  Blatt einklappen (siehe 26.3).
 
 #### Verworfene Vorschläge dieser Runde
 

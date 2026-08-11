@@ -307,8 +307,11 @@ async function mobileShots(browser, baseUrl) {
     page.on('pageerror', (error) => console.error(`  Browserfehler: ${error.message}`));
     await openFreshApp(page, baseUrl);
     await importFixture(page);
-    const mapTab = page.locator('.tab-button[data-tab="karte"]').first();
-    if (await mapTab.isVisible().catch(() => false)) await mapTab.tap();
+    // Karte freilegen: Am Handy heißt das schlicht „Blatt zu" – seit dem
+    // Wegfall des Karten-Reiters ist der Griff der Schalter dafür. Nur tippen,
+    // wenn das Blatt offen steht, sonst zieht der Tipp es auf.
+    const blattOffen = await page.evaluate(() => document.body.classList.contains('sheet-open'));
+    if (blattOffen) await page.locator('#sheet-grip').first().tap();
     // Nach dem ersten Kartenwechsel erklärt TourFuchs einmalig einen Marker.
     // Für die Lasso-Dokumentation lassen wir diesen echten Hinweis auslaufen.
     await sleep(7000);
