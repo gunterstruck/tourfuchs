@@ -104,12 +104,16 @@ steht das Blatt meist offen und nimmt die untere Hälfte ein – dort wandert di
 Zeile an den **oberen** Kartenrand, wo das Blatt nie hinkommt.
 
 **Auch die obere Kante ist belegt.** Dort schwebt der Kopf-Streifen mit
-Basis/Profi und den Reitern – aus genau demselben Grund nach oben gezogen.
-Rechnete die Knopfzeile gegen die Topbar, landete der Lasso-Knopf hinter der
-Basis/Profi-Pille und ließ sich nicht antippen (Befund `npm run touch-check`,
-01.08.2026). Sie beginnt deshalb unter der **gemessenen** Unterkante des
-Streifens (`--mobile-topnav-bottom`), nicht unter einer geschätzten Höhe: Der
-Streifen ist mal ein-, mal zweizeilig und im Onboarding gar nicht da.
+Basis/Profi – aus genau demselben Grund nach oben gezogen. Rechnete die
+Knopfzeile gegen die Topbar, landete der Lasso-Knopf hinter der Basis/Profi-Pille
+und ließ sich nicht antippen (Befund `npm run touch-check`, 01.08.2026). Sie
+beginnt deshalb unter der **gemessenen** Unterkante des Streifens
+(`--mobile-topnav-bottom`), nicht unter einer geschätzten Höhe: Der Streifen war
+mal ein-, mal zweizeilig und ist im Onboarding gar nicht da. Seit Version 3.2 ist
+er dauerhaft einzeilig (die Reiter „Karte | Tour" sind entfallen) – die Zeile
+rückt hochkant entsprechend um rund 45 Pixel nach oben. Dass die Messung das
+ohne eine einzige Änderung mitgemacht hat, ist der Beleg für die Regel: eine
+feste Zahl wäre an genau diesem Tag falsch geworden.
 
 **Drei Fallen beim Popup**, alle erst am Gerät sichtbar geworden:
 
