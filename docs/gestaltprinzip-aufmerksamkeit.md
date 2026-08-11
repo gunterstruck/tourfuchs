@@ -87,16 +87,21 @@ ein erklärender Satz ist Orientierung, ein Knopf ist eine Entscheidung.
 |---|---|
 | **Erstbild** | Was steht im Fenster, ohne einen einzigen Klick? |
 | **Rahmen** | Was kostet die Navigation selbst (Modus · Tiefe · Reiter)? |
-| **Reiter** | Was bietet ein Reiter im Erst-Zustand an, je Tiefe und Modus? |
-| **Übersicht** | Stehen im Tour-Reiter die Köpfe – und die Inhalte nicht? |
+| **Bereich** | Was bietet ein Bereich im Erst-Zustand an, je Tiefe und Modus? |
+| **Übersicht** | Stehen im Tour-Bereich die Köpfe – und die Inhalte nicht? |
 | **Vertiefung** | Bleibt beim Verdrängen der sichtbare Rückweg stehen? |
 
 Kunden, Bündel und Gebiete auf der Karte werden **nicht** mitgezählt. Sie sind
 die Landschaft, nicht die Bedienung; sie mitzurechnen hieße, der App genau das
 als Last anzukreiden, was da sein soll.
 
-**Gemessener Stand 01.08.2026:** Erstbild Handy 16, Schreibtisch 33. Rahmen 6
-bzw. 9. Reiter zwischen 0 und 11.
+**Gemessener Stand 11.08.2026:** Erstbild Handy **14**, Schreibtisch 33. Rahmen
+6 bzw. 9. Bereiche zwischen 0 und 11.
+
+Die Strecke misst am Handy seit dem Wegfall der Reiterleiste das **aktive
+Panel** statt der Reiter. Das ist kein Detail der Umsetzung: Wer nur Reiter
+zählt, bekommt ohne Reiterleiste eine leere Liste – und damit einen grünen Lauf,
+der nichts gemessen hat. Genau dagegen steht die Vollständigkeitsprüfung.
 
 Die Budgets im Werkzeug sind dieser Ist-Stand plus wenig Luft. Sie sind eine
 **Sperrklinke**: Sie verbieten nichts, was heute da ist, machen aber jedes

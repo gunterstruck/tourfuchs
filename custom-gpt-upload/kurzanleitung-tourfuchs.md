@@ -112,7 +112,8 @@ Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
 (volle Fläche), „☰ Übersicht" führt zurück – auf Handy wie Desktop.
 
 1. Modus Außendienst wählen.
-2. Tab Tour öffnen.
+2. Tab Tour öffnen. Unterwegs (Handy, Tablet hochkant) entfällt dieser Schritt:
+   Dort ist die Tour der einzige Bereich – Blatt aufziehen genügt.
 3. Startpunkt setzen. (Geplant wird über **alle Vertriebsbezirke** – nur wer
    einschränken will, tippt auf die Zeile „🗺️ Bezirk: Alle Bezirke · ändern ▸".)
 4. Kunden im Umkreis oder entlang der Tour anzeigen.
