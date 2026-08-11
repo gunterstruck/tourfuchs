@@ -109,7 +109,6 @@
             <div id="mobile-desktop-note" class="mobile-desktop-note" role="note">Komplexe Gebietsplanung steht nur auf dem Desktop zur Verfügung. Auf dem Smartphone stehen Karte, Kundendaten und Tour zur Verfügung.</div>
 
             <nav class="tabs" role="tablist">
-                <button class="tab-button mobile-map-tab" data-tab="karte" data-modes="aussendienst" data-mobile-only="true" role="tab">Karte</button>
                 <button class="tab-button active" data-tab="daten" data-modes="aussendienst gebietsplanung" role="tab">📄 Daten</button>
                 <button class="tab-button" data-tab="team" data-modes="aussendienst gebietsplanung" role="tab">Filter</button>
                 <button class="tab-button" data-tab="gebiete" data-modes="gebietsplanung" role="tab">🗺️ Gebiete</button>
@@ -358,24 +357,36 @@
                 <div id="team-filters"></div>
             </section>
 
-            <!-- Tab: Karte – „In der Nähe"-Begleiter (mobil, wenn das Blatt aufgezogen ist) -->
-            <section id="tab-karte" class="tab-panel karte-companion">
-                <div class="near-head">
-                    <b class="near-title">In der Nähe</b>
-                    <div class="near-origin seg-toggle" role="group" aria-label="Bezugspunkt für die Umkreissuche">
-                        <button type="button" class="seg active" data-near-origin="map">🗺️ Kartenmitte</button>
-                        <button type="button" class="seg" data-near-origin="gps">📍 Standort</button>
-                    </div>
-                </div>
-                <p class="near-stats muted small"></p>
-                <ul class="near-list"></ul>
-                <button type="button" id="btn-near-briefing" class="area-briefing-btn" hidden>🧭 Wen zuerst? Briefing für diese Umgebung</button>
-                <p class="near-empty muted small" hidden>Keine verorteten Kunden in der Nähe.</p>
-            </section>
-
             <!-- Tab: Tour -->
             <section id="tab-tour" class="tab-panel">
                 <h2 class="tour-panel-title">Besuchsplaner</h2>
+
+                <!-- „In der Nähe": der Einstieg VOR dem Prozess, nicht seine erste
+                     Stufe. Trägt deshalb dasselbe Gewand wie die drei Tourschritte,
+                     aber bewusst nicht deren Klasse `.tour-acc` – Schrittleiste,
+                     Fokus-Modus und die Regel „genau ein Schritt offen" gehören
+                     allein den Stufen 1 · 2 · 3. Steht außerhalb von #tour-planner:
+                     „Wer ist hier in der Nähe?" beantwortet man, bevor man einen
+                     Bezirk wählt. -->
+                <div id="nearby-card" class="nearby-card">
+                    <h3 class="acc-head" role="button" tabindex="0" aria-expanded="false" aria-controls="nearby-body">
+                        <span class="near-title">In der Nähe</span>
+                        <span class="help-dot" tabindex="0" title="Die nächstgelegenen Kunden – bezogen auf die Kartenmitte oder deinen Standort. Ein Tipp auf eine Zeile springt auf der Karte dorthin, ➕ nimmt den Kunden in die Tour.">?</span>
+                        <span class="acc-summary" id="acc-sum-nearby"></span>
+                        <span class="acc-caret" aria-hidden="true">▾</span>
+                    </h3>
+                    <div class="acc-body" id="nearby-body">
+                        <div class="near-origin seg-toggle" role="group" aria-label="Bezugspunkt für die Umkreissuche">
+                            <button type="button" class="seg active" data-near-origin="map">🗺️ Kartenmitte</button>
+                            <button type="button" class="seg" data-near-origin="gps">📍 Standort</button>
+                        </div>
+                        <p class="near-stats muted small"></p>
+                        <ul class="near-list"></ul>
+                        <button type="button" class="linklike near-more" hidden></button>
+                        <button type="button" id="btn-near-briefing" class="area-briefing-btn" hidden>🧭 Wen zuerst? Briefing für diese Umgebung</button>
+                        <p class="near-empty muted small" hidden>Keine verorteten Kunden in der Nähe.</p>
+                    </div>
+                </div><!-- /#nearby-card -->
 
                 <!-- Schritt 0: eigenen Bezirk wählen (nach Wahl auf schmale Zeile eingeklappt) -->
                 <div id="tour-scope" class="tour-scope"></div>
@@ -390,7 +401,6 @@
                     <button type="button" class="tour-step" data-step="mytour" role="tab"><span class="ts-num">3</span><span class="ts-label">Meine Tour</span></button>
                     <button type="button" class="tour-focus-exit" title="Übersicht anzeigen" aria-label="Übersicht anzeigen">☰</button>
                 </div>
-                <button id="btn-nearby" class="primary btn-nearby">📍 Was ist in meiner Nähe?</button>
                 <!-- Zweiter Einstieg (nur Handy): eine fertige Tour vom Desktop
                      holen. Gehört zu den Start-Aktionen, nicht ans Listenende. -->
                 <button id="btn-tour-scan" class="only-mobile btn-scan-entry">📷 Tour vom Desktop holen</button>
@@ -807,6 +817,12 @@
 
                         <dt>„TourFuchs Light" als eigene App <span class="omitted-date">02.08.2026</span></dt>
                         <dd><b>Nicht gebaut.</b> Geplant war eine zweite, minimale Anwendung – nur Karte, Nähe-Liste, Lasso und Briefing, ohne Tourplanung. Beim Nachsehen war sie schon da: Genau das ist die Handy-Ansicht, weil Gebietsplanung, Cockpit und Service dort ohnehin nicht erreichbar sind. Eine zweite Codebasis für ein Produkt, das bereits läuft, hätte nur die Pflege verdoppelt.</dd>
+
+                        <dt>Der Reiter „Karte | Tour" auf dem Handy <span class="omitted-date">11.08.2026</span></dt>
+                        <dd><b>Gestrichen.</b> Zwei Reiter oben, und dahinter nur eine einzige Frage: Ist das Blatt zu oder auf? „Karte" klappte es ein, „Tour" zog es auf – genau das, was der Griff am Blattrand und „☰" oben links längst tun. Drei Bedienelemente für einen Zustand, und die Pillenzeile lag ausgerechnet dort, wo auf einem Telefon jeder Millimeter zählt. Der Reiter war nicht falsch entworfen; er war einmal richtig und blieb stehen, als der Griff dasselbe lernte. Sein einziger eigener Inhalt, die Liste „In der Nähe", steht jetzt als eingeklappte Karte über dem Tourplaner – und ist damit erstmals neben der Tour erreichbar statt nur anstelle von ihr.</dd>
+
+                        <dt>Der Knopf „Was ist in meiner Nähe?" <span class="omitted-date">11.08.2026</span></dt>
+                        <dd><b>Entfernt, die Funktion nicht.</b> Der Knopf versprach eine Liste und tat etwas anderes: Standort holen, ihn als Tourstart setzen, Vorschläge rechnen. Dieselbe Aktion steht beschriftet und richtig einsortiert als „📍 Mein Standort" in Schritt 1, und der Fuchs über der Karte bietet sie weiter an. Die Liste, die man beim Lesen des Knopfes erwartete, gibt es nun wirklich – in der Klappkarte darüber.</dd>
 
                         <dt>Der unsichtbare Umschalter am Karten-Reiter <span class="omitted-date">02.08.2026</span></dt>
                         <dd><b>Gestrichen.</b> Ein zweiter Tipp auf „Karte" schaltete die Route zwischen Luftlinie und Straße um – ohne Beschriftung, ohne Hinweis, und deckungsgleich mit dem Knopf, der sichtbar über der Karte steht. Zwei Griffe für dieselbe Frage sind kein Komfort. Sie sind der Grund, warum bei der nächsten Fehlersuche niemand mehr weiß, wofür der eine da war.</dd>

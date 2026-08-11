@@ -51,9 +51,11 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         const main = readFileSync(resolve(process.cwd(), 'src/main.js'), 'utf8');
         const sidebar = readFileSync(resolve(process.cwd(), 'src/ui/sidebar.js'), 'utf8');
 
-        // Das Handy startet weiterhin auf der Karte; das hochkante Tablet zweigt
-        // bewusst auf die Tour ab (dort liegt die Karte ohnehin über dem Blatt).
-        expect(main).toContain("state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'karte'");
+        // Das Handy startet weiterhin auf der Karte – aber nicht mehr über
+        // einen Reiter „Karte", sondern über den einzigen Zustand, der die
+        // Karte freilegt: das eingeklappte Blatt. Der aktive Bereich dahinter
+        // ist die Tour.
+        expect(main).toContain("state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'tour'");
         expect(main).toContain("if (state.customers.length === 0) showDataView(false)");
         expect(main).toContain('else showMapView(false)');
         expect(sidebar).toContain("if (isMobileUi()) depth = 'basis'");
@@ -84,21 +86,24 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         expect(sidebar).toContain("onFaceChange((face) => {");
     });
 
-    it('zeigt mobil mit Daten nur Karte + Tour; das Onboarding trägt den Dateneinstieg', () => {
+    it('zeigt mobil genau einen Bereich – ohne Reiterleiste', () => {
         const sidebar = readFileSync(resolve(process.cwd(), 'src/ui/sidebar.js'), 'utf8');
         const responsiveCss = readFileSync(resolve(process.cwd(), 'src/styles/responsive.css'), 'utf8');
 
-        // Mit Daten kein Daten-Tab mehr – nur Karte + Tour.
-        expect(sidebar).toContain("const MOBILE_DATA_TABS = new Set(['karte', 'tour'])");
+        // Mit Daten bleibt nur die Tour. „Karte" war nie ein Bereich, sondern
+        // ein zweiter Griff ans Blatt – Griff und ☰ tun dasselbe.
+        expect(sidebar).toContain("const MOBILE_DATA_TABS = new Set(['tour'])");
         // Ohne Daten führt der Daten-Blick weiterhin durch das Onboarding.
-        expect(sidebar).toContain("const MOBILE_EMPTY_TABS = new Set(['karte', 'daten'])");
-        // Die Blatt-Höhe folgt der Geometrie (Handy und Tablet hochkant),
-        // die Tab-Auswahl oben dagegen weiterhin der Gerätegröße.
+        expect(sidebar).toContain("const MOBILE_EMPTY_TABS = new Set(['daten'])");
+        // Ein Bereich braucht keine Reiterleiste.
+        expect(responsiveCss).toContain('.sidebar .tabs { display: none; }');
+        // Der Kopf-Streifen trägt nur noch die Ansichtstiefe – einzeilig.
+        expect(responsiveCss).toContain('.mobile-topnav .depth-switch {');
+        expect(responsiveCss).not.toContain('.mobile-topnav .tabs');
+        expect(responsiveCss).not.toContain('.mobile-topnav .tab-button');
+        // Die Blatt-Höhe folgt der Geometrie (Handy und Tablet hochkant).
         expect(sidebar).toContain("else if (isSheetUi() && btn.dataset.tab === 'daten')");
         expect(sidebar).toContain('setSheetHeight(Math.round(sheetMaxHeight() * 0.88), true)');
-        expect(responsiveCss).toContain('.mobile-topnav .depth-switch { grid-template-columns: repeat(2, minmax(0, 1fr)); }');
-        // Genau zwei Tabs füllen den Streifen ohne Lücke.
-        expect(responsiveCss).toContain('.mobile-topnav .tabs { grid-auto-flow: column;');
         expect(responsiveCss).toContain('touch-action: pan-y;');
         expect(responsiveCss).toContain('-webkit-overflow-scrolling: touch;');
     });

@@ -27,7 +27,7 @@ import { distanceKm } from '../services/geocode.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups } from '../features/map.js';
-import { showMapView, showRouteView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
+import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
 import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
@@ -253,6 +253,21 @@ async function moveToEl(sel) {
     const c = centerOf(el);
     await moveTo(c.x, c.y);
     return el;
+}
+/**
+ * In den Tour-Bereich wechseln – am Schreibtisch über den Reiter, am Handy
+ * ohne ihn.
+ *
+ * Mobil gibt es keine Reiterleiste mehr: Die Tour ist dort der einzige Bereich,
+ * gewechselt wird nur noch die Blatt-Höhe. Ein Klick auf den unsichtbaren
+ * Reiter würde die Vorführung nur um die Wartezeit von `resolveEl` bremsen und
+ * dann still scheitern.
+ */
+async function openTourTab() {
+    const sel = '.tab-button[data-tab="tour"]';
+    if (isVisible(document.querySelector(sel))) { await clickEl(sel); return; }
+    showTourView();
+    await sleep(200);
 }
 async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
     const el = await moveToEl(sel);
@@ -504,7 +519,7 @@ const HELPERS = {
     async gotoTour() {
         await clickEl('.mode-btn[data-mode="aussendienst"]');
         await sleep(300);
-        await clickEl('.tab-button[data-tab="tour"]');
+        await openTourTab();
         // Auf dem Handy das Blatt weit aufziehen, damit man die Bedienung sieht.
         expandSheetForDemo();
         await resolveEl('#tour-scope', 3000);
@@ -521,7 +536,7 @@ const HELPERS = {
         await sleep(600);
     },
     async gotoServiceTour() {
-        await clickEl('.tab-button[data-tab="tour"]');
+        await openTourTab();
         expandSheetForDemo();
         await resolveEl('#service-day-planner', 3000);
         await sleep(400);
@@ -654,7 +669,7 @@ const HELPERS = {
     },
     // Fertige Tour als QR-Code zeigen (Barcode-Übergabe aufs Handy).
     async shareTourQr() {
-        await clickEl('.tab-button[data-tab="tour"]');
+        await openTourTab();
         expandSheetForDemo();
         await sleep(300);
         // Der QR-Knopf sitzt im Schritt „Meine Tour"; im Desktop-Fokus ist der

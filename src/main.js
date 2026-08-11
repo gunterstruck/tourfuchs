@@ -179,7 +179,7 @@ async function restorePersistedState() {
         state.ui.mode = 'aussendienst';
         // Mit Daten direkt auf die Karte (Blatt eingeklappt), damit die Kunden
         // sofort sichtbar sind. Ohne Daten öffnet das Datenblatt (Onboarding).
-        state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'karte';
+        state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'tour';
     }
     applyMode(state.ui.mode, false);
     if (tourFace) {
