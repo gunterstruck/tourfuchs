@@ -186,6 +186,14 @@ draußen bleibt (`realOnly`/`demoOnly` in `features/stories.js`). Ein Satz für
 beide Fälle wäre in einem der beiden unwahr – und der Fall mit echten Daten ist
 zugleich der, der gefilmt wird: siehe [Der Film: Lasso + Briefing](./film-lasso-briefing.md).
 
+Daneben steht **„📋 Ein Prompt, deine KI"** – derselbe Weg mit umgekehrtem
+Schwerpunkt. Dort ist die Fläche nur der Anlauf; die Zeit liegt im Prompt, der
+**von oben bis unten durchgescrollt** wird, samt Quellenanweisung und
+Qualitätsregeln, und der Absatz „Nicht enthalten" wird ausdrücklich benannt.
+Zwei Demos zum selben Weg sind Absicht: Die Frage „was kann das?" beantwortet
+die Geste in zehn Sekunden, die Frage „was schickt ihr da eigentlich weg?"
+beantwortet nur der sichtbare Prompt.
+
 ## Prüfschritte
 
 1. Eigene Kunden laden → **🖊️ Lasso ziehen** erscheint neben „Kunden in meiner Nähe“.

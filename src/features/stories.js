@@ -47,6 +47,11 @@
 // Lauf mit eingefügter Fantasieliste (der Weg des Films, siehe
 // docs/film-lasso-briefing.md): 62 s, 6 Klicks, alle sauber – dort treten die
 // `realOnly`-Schritte an die Stelle der Demo-Sperre → `durationOwnData` 61.
+//
+// Ebenfalls am 12.08.2026 erstmals gemessen: „briefing" (derselbe Weg, aber mit
+// dem Schwerpunkt im Prompt). Vier Formate mit Beispieldaten je 42 s, 4 Klicks,
+// alle sauber → 41. Mit eigener Liste 68 s: Dort kommt das Durchscrollen des
+// Prompts dazu, und genau das ist der Unterschied zur Lasso-Demo.
 export const STORIES = [
     {
         id: 'excel-karte',
@@ -120,6 +125,52 @@ export const STORIES = [
             { t: 'say', text: 'Zwei angehakt – und der Knopf meint jetzt genau die zwei.', sel: '.popup-lasso [data-lasso="tour"]', ms: 2800 },
             { t: 'run', key: 'lassoPickedToTour' },
             { t: 'say', text: 'Umfahren. Briefen lassen. Entscheiden. Aus einer Fläche auf der Karte wird eine Tour – ohne Konto, ohne Cloud.', ms: 3600, pos: 'bottom' }
+        ]
+    },
+    {
+        // Dieselben zwei Handgriffe wie in „lasso" – aber mit umgekehrtem
+        // Schwerpunkt. Dort ist die Geste die Hauptsache und das Briefing die
+        // Fortsetzung; hier ist die Fläche nur der Anlauf, und die Zeit liegt
+        // im Prompt: was drinsteht, was bewusst nicht, wo er entsteht und wer
+        // ihn absendet.
+        //
+        // Zwei Demos zum selben Weg sind Absicht. Die Frage „was kann das?"
+        // beantwortet die Geste in zehn Sekunden. Die Frage „was schickt ihr da
+        // eigentlich weg?" – die in jedem Konzern als zweite kommt – beantwortet
+        // nur der sichtbare Prompt, und dafür muss man ihn durchscrollen dürfen.
+        id: 'briefing',
+        icon: '📋',
+        title: 'Ein Prompt, deine KI',
+        blurb: 'Was im Briefing steht – und was bewusst nicht.',
+        duration: 41,
+        durationOwnData: 68,
+        needsData: true,
+        mutatesTour: true,
+        steps: [
+            { t: 'run', key: 'ensureDemo' },
+            { t: 'run', key: 'focusDemoTourArea' },
+            { t: 'say', text: 'Eine Fläche umfahren – das ist der schnelle Teil.', ms: 2000 },
+            { t: 'run', key: 'drawLasso' },
+            { t: 'say', text: 'Die Kunden stehen da. Wer davon ist wirklich dran? Das weiß TourFuchs nicht – das weiß deine Ablage.', sel: '.popup-lasso', ms: 3600, pos: 'top' },
+            { t: 'run', key: 'openLassoBriefing' },
+
+            // ---- Ab hier liegt der Schwerpunkt ----
+            { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3400, demoOnly: true },
+            { t: 'say', text: 'Mit deinen echten Kunden steht hier der fertige Prompt: einsehbar, kopierbar, und abgesendet wird er von dir.', ms: 4000, demoOnly: true },
+            { t: 'say', text: 'Deshalb baut TourFuchs hier keinen Bericht, sondern eine Frage – als fertigen Prompt.', ms: 3200, realOnly: true },
+            { t: 'run', key: 'revealAreaPrompt', realOnly: true },
+            { t: 'say', text: 'Er entsteht auf deinem Gerät. Und du siehst ihn vollständig, bevor irgendetwas kopiert wird.', sel: '.briefing-prompt-visible', ms: 3800, realOnly: true },
+            { t: 'run', key: 'scrollPromptThrough', realOnly: true },
+            { t: 'say', text: 'Das ist alles: Gebiet, die Kunden mit Nummer, Ort und Fälligkeit – und die Aufgabe, eine Reihenfolge zu begründen.', ms: 4200, realOnly: true },
+            { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: kein Umsatz, keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600, realOnly: true },
+            { t: 'say', text: 'Ein Klick kopiert ihn und öffnet deinen Assistenten – Copilot, Gemini, ChatGPT oder den eurer Firma.', sel: '#area-briefing-footer', ms: 4200, realOnly: true },
+            { t: 'say', text: 'Abgesendet wird von dir. TourFuchs meldet sich an keinem KI-Dienst an und ruft keine Schnittstelle auf.', ms: 4000, realOnly: true },
+            { t: 'say', text: 'Zurück kommt, was in deinen eigenen Quellen steht: offene Vorgänge, letzte Zusagen – und eine begründete Reihenfolge.', ms: 4200, realOnly: true },
+            { t: 'run', key: 'closeLassoBriefing' },
+            { t: 'say', text: 'Und dann entscheidest du.', sel: '.popup-lasso', ms: 2400, pos: 'top' },
+            { t: 'run', key: 'pickLassoCustomers' },
+            { t: 'run', key: 'lassoPickedToTour' },
+            { t: 'say', text: 'Ein Prompt. Deine KI. Deine Entscheidung.', ms: 3000, pos: 'bottom' }
         ]
     },
     {

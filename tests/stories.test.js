@@ -165,18 +165,18 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('die Stories in fester Reihenfolge', () => {
-        expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'lasso', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
+        expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
     });
 
     it('am Desktop entfällt die mobile-only Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'lasso', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor']);
+        expect(ids).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor']);
         expect(ids).not.toContain('empfang');
     });
 
     it('am Smartphone entfallen die desktop-only Stories, dafür kommt die Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: false }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'lasso', 'tour', 'chancen', 'tresor', 'empfang']);
+        expect(ids).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'chancen', 'tresor', 'empfang']);
         expect(ids).not.toContain('handy-qr');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -336,6 +336,35 @@ describe('Showcase-Stories: Guardrail', () => {
         // Die Demo nimmt Kunden in die Tour auf – also muss sie den Tourzustand
         // sichern und zurückgeben.
         expect(lasso.mutatesTour).toBe(true);
+    });
+
+    it('legt die Briefing-Demo den Schwerpunkt wirklich auf den Prompt', () => {
+        // Zwei Demos zum selben Weg sind Absicht – aber nur, wenn sie sich
+        // unterscheiden. „lasso" trägt die Geste, „briefing" den Prompt: Es
+        // wird durchgescrollt, benannt was drinsteht UND was nicht, und die
+        // Wahl des Assistenten ausgesprochen. Fällt das weg, ist es eine
+        // Dublette.
+        const briefing = STORIES.find((story) => story.id === 'briefing');
+        const lasso = STORIES.find((story) => story.id === 'lasso');
+        const mitDaten = visibleStorySteps(briefing, { hasOwnData: true });
+
+        expect(mitDaten.some((step) => step.key === 'scrollPromptThrough')).toBe(true);
+        expect(lasso.steps.some((step) => step.key === 'scrollPromptThrough')).toBe(false);
+        // Was NICHT im Prompt steht, ist die Frage, die im Konzern als zweite
+        // kommt – sie wird am zuständigen Absatz beantwortet.
+        expect(mitDaten.some((step) => step.sel === '.briefing-manual-note')).toBe(true);
+        // Und die freie Wahl des Assistenten wird benannt, nicht vorausgesetzt.
+        expect(mitDaten.some((step) => /Gemini/.test(step.text || ''))).toBe(true);
+        expect(mitDaten.some((step) => /keine Schnittstelle|ruft keine/.test(step.text || ''))).toBe(true);
+
+        // Der Anlauf bleibt kurz: vor dem Briefing höchstens ein erklärender Satz.
+        const bisBriefing = mitDaten.slice(0, mitDaten.findIndex((step) => step.key === 'openLassoBriefing'));
+        expect(bisBriefing.filter((step) => step.t === 'say').length).toBeLessThanOrEqual(2);
+
+        // Auch diese Demo endet in der Entscheidung, nicht im Dialog.
+        expect(mitDaten.at(-1)?.text).toContain('Entscheidung');
+        expect(mitDaten.some((step) => step.key === 'lassoPickedToTour')).toBe(true);
+        expect(briefing.mutatesTour).toBe(true);
     });
 
     it('sagt beim Briefing die Wahrheit – je nach Datenlage einen anderen Satz', () => {
