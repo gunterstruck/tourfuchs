@@ -105,6 +105,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 - [Systemprompt für den Custom GPT](./docs/custom-gpt-systemprompt.txt) – verbindliche Antwort-, Datenschutz- und Bildregeln
 - [Kunden- und Gebiets-Briefing](./docs/kundenbriefing.md) – Ablauf, Inhalt der Prompts, Wahl des Assistenten und Prüfschritte
 - [Lasso auf der Karte](./docs/lasso.md) – Zeichenmodus, Auswahlvorschau, Grenzen, Verhalten am Handy und Prüfschritte
+- [Der Film: Lasso + Briefing](./docs/film-lasso-briefing.md) – Drehbuch für den LinkedIn-Film: die Live-Demo ist der Film, dazu Vorbereitung, Einstellungsliste und Beitragstext
 - [Gestaltprinzip: Aufmerksamkeit](./docs/gestaltprinzip-aufmerksamkeit.md) – die Regel hinter Zoom-Automatik, Akkordeon und Zurücktreten, ihre vier Prüffragen, das Messgerät und die drei Grenzen (kein selbstumbauendes UI, kein KI-Aufmerksamkeitsmodell, Zoom ist nicht alles)
 
 ---

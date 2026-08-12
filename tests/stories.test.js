@@ -280,6 +280,68 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(showcaseSource).toContain('showStoryFailure(story, failure)');
     });
 
+    it('zeigt die Lasso-Demo den ganzen Bogen: umfahren, briefen, entscheiden', () => {
+        // Das Hauptargument des Produkts sind zwei Hälften: die Geste UND der
+        // Prompt, den man in eine KI seiner Wahl trägt. Eine Vorführung, die
+        // nach der Auswahlkarte aufhört, zeigt die hübsche Hälfte und lässt die
+        // neue weg. Der Rückweg gehört dazu: Erst „welche zwei nehme ich
+        // wirklich mit?" macht aus dem Briefing eine Entscheidung.
+        const lasso = STORIES.find((story) => story.id === 'lasso');
+        const keys = lasso.steps.filter((step) => step.t === 'run').map((step) => step.key);
+
+        expect(keys).toContain('drawLasso');
+        expect(keys).toContain('openLassoBriefing');
+        expect(keys).toContain('revealAreaPrompt');
+        expect(keys).toContain('pickLassoCustomers');
+        expect(keys).toContain('lassoPickedToTour');
+        // Reihenfolge: ziehen -> briefen -> Prompt zeigen -> zurück -> aussuchen
+        expect(keys.indexOf('drawLasso')).toBeLessThan(keys.indexOf('openLassoBriefing'));
+        expect(keys.indexOf('openLassoBriefing')).toBeLessThan(keys.indexOf('revealAreaPrompt'));
+        expect(keys.indexOf('revealAreaPrompt')).toBeLessThan(keys.indexOf('closeLassoBriefing'));
+        expect(keys.indexOf('closeLassoBriefing')).toBeLessThan(keys.indexOf('pickLassoCustomers'));
+        expect(keys.indexOf('pickLassoCustomers')).toBeLessThan(keys.indexOf('lassoPickedToTour'));
+
+        // Die Demo nimmt Kunden in die Tour auf – also muss sie den Tourzustand
+        // sichern und zurückgeben.
+        expect(lasso.mutatesTour).toBe(true);
+    });
+
+    it('sagt beim Briefing die Wahrheit – je nach Datenlage einen anderen Satz', () => {
+        // Mit Beispielkunden baut TourFuchs bewusst keinen Prompt; mit eigenen
+        // Kunden steht er vollständig da. Ein Satz für beide Fälle wäre in
+        // einem der beiden gelogen – und ausgerechnet der Fall mit echten Daten
+        // ist der, den man filmt (docs/film-lasso-briefing.md).
+        const lasso = STORIES.find((story) => story.id === 'lasso');
+        const mitDaten = visibleStorySteps(lasso, { hasOwnData: true });
+        const ohneDaten = visibleStorySteps(lasso, { hasOwnData: false });
+
+        // Die Demo-Sperre wird nur ohne eigene Daten erklärt …
+        expect(ohneDaten.some((step) => /Für Beispielkunden/.test(step.text || ''))).toBe(true);
+        expect(mitDaten.some((step) => /Für Beispielkunden/.test(step.text || ''))).toBe(false);
+        // … und der echte Prompt nur mit.
+        expect(mitDaten.some((step) => step.key === 'revealAreaPrompt')).toBe(true);
+        expect(ohneDaten.some((step) => step.key === 'revealAreaPrompt')).toBe(false);
+        expect(mitDaten.some((step) => /Zwischenablage/.test(step.text || ''))).toBe(true);
+
+        // Der Rückweg gehört in beide Fassungen: Aussuchen kann man immer.
+        for (const steps of [mitDaten, ohneDaten]) {
+            expect(steps.some((step) => step.key === 'lassoPickedToTour')).toBe(true);
+        }
+    });
+
+    it('lässt die Auswahl für den Rückweg liegen, statt sie mit dem Dialog wegzuräumen', () => {
+        // „Zurück auf der Karte liegt deine Auswahl noch genau so da" ist die
+        // zugesagte Eigenschaft des Lassos – und der letzte Beat der Demo.
+        // Räumte closeLassoBriefing die Auswahl weg, spräche der nächste Satz
+        // über eine Karte, die nicht mehr da ist.
+        const start = showcaseSource.indexOf('async closeLassoBriefing()');
+        const helper = showcaseSource.slice(start, showcaseSource.indexOf('async pickLassoCustomers(', start));
+        expect(helper).not.toContain('clearLassoSelection()');
+        // Aufgeräumt wird trotzdem – am Ende, auch bei Abbruch.
+        const cleanup = showcaseSource.slice(showcaseSource.indexOf('// Weitere Overlays schließen'));
+        expect(cleanup).toContain('clearLassoSelection();');
+    });
+
     it('verbindet die Kundenauswahl mit einem sicheren Copilot-Briefing', () => {
         const briefing = STORIES.find((story) => story.id === 'chancen');
 

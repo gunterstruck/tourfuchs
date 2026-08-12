@@ -24,6 +24,7 @@ import {
     seenShowcaseIds
 } from '../services/showcaseOnboarding.js';
 import { distanceKm } from '../services/geocode.js';
+import { isDemoCustomer } from '../core/demoSafety.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
@@ -399,6 +400,22 @@ function hideBubble() {
 // ---- benannte Helfer (aus den Stories referenziert) ----
 function scopedWithCoords() {
     return state.customers.filter((c) => c.lat !== null && c.lng !== null);
+}
+/**
+ * Stehen eigene Kunden bereit – oder ist das hier eine Kulisse?
+ *
+ * Davon hängt ab, was die Vorführung beim Briefing überhaupt zeigen KANN: Mit
+ * Beispielkunden gibt es bewusst keinen Prompt. Gezählt wird gegen zwei, weil
+ * das Gebiets-Briefing erst ab zwei echten Kunden angeboten wird – bei einem
+ * einzelnen führt das Kundenbriefing weiter.
+ */
+function hasOwnCustomers() {
+    let real = 0;
+    for (const customer of state.customers) {
+        if (!isDemoCustomer(customer)) real += 1;
+        if (real >= 2) return true;
+    }
+    return false;
 }
 function showcaseSearchTerm(customer) {
     const pool = scopedWithCoords();
@@ -968,12 +985,64 @@ const HELPERS = {
         if (!dialog?.open) throw new Error('Das Gebiets-Briefing konnte nicht geöffnet werden.');
         await sleep(500);
     },
+    /**
+     * Den Prompt aufklappen – der eigentliche Beweis dieser Vorführung.
+     *
+     * Die Zusage „TourFuchs baut den Prompt lokal und zeigt ihn vollständig,
+     * bevor irgendetwas kopiert wird" ist behauptet, solange sie niemand sieht.
+     * Der Klick auf „🔍 Vollständigen Prompt ansehen" macht sie nachprüfbar.
+     *
+     * Mit Beispielkunden gibt es diesen Block nicht (geschützte Vorschau) –
+     * dann tut der Helfer nichts. Die begleitenden Sätze sind über `realOnly`
+     * ohnehin an dieselbe Bedingung geknüpft.
+     */
+    async revealAreaPrompt() {
+        const sel = '#area-briefing-dialog .briefing-prompt-visible';
+        const details = await resolveEl(sel, 1600);
+        if (!details) return;
+        if (!details.open) await clickEl(`${sel} summary`);
+        await sleep(500);
+        // Der Prompt ist länger als der Dialog hoch ist. Sein Anfang trägt die
+        // Aussage („Du bist meine Vertriebsassistenz … Gebiet … diese Kunden"),
+        // also wird der Anfang gezeigt und nicht die Mitte.
+        details.querySelector('pre')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        await sleep(900);
+    },
     async closeLassoBriefing() {
         moveOverlaysInto(document.body);
         const dialog = document.getElementById('area-briefing-dialog');
         if (dialog?.open) dialog.close();
-        clearLassoSelection();
-        await sleep(400);
+        // Die Auswahl bleibt bewusst liegen: Genau das ist der Rückweg, den
+        // diese Vorführung als Nächstes zeigt („und jetzt entscheidest du").
+        // Aufgeräumt wird sie am Ende in `cleanup`.
+        await sleep(500);
+    },
+    /**
+     * Zwei Zeilen der Auswahlkarte anhaken.
+     *
+     * Der Klick geht auf das echte Kästchen, nicht auf den Zustand: So ändert
+     * sich sichtbar die Aufschrift des Tour-Knopfes („Alle zur Tour" → „2 zur
+     * Tour"), und der Zuschauer sieht die Regel, statt sie erklärt zu bekommen.
+     */
+    async pickLassoCustomers(count = 2) {
+        const boxes = [...document.querySelectorAll('.popup-lasso [data-pick]')].slice(0, count);
+        if (boxes.length === 0) throw new Error('Die Auswahlkarte bietet keine Häkchen an.');
+        for (const box of boxes) {
+            guard();
+            // Über eine Marke ansteuern: Die Karte kann sich zwischendurch neu
+            // aufbauen, ein festgehaltener Knoten wäre dann veraltet.
+            box.classList.add('sc-pick');
+            await clickEl('.popup-lasso [data-pick].sc-pick');
+            document.querySelector('.popup-lasso [data-pick].sc-pick')?.classList.remove('sc-pick');
+            box.classList.remove('sc-pick');
+            await sleep(300);
+        }
+    },
+    async lassoPickedToTour() {
+        if (!await clickEl('.popup-lasso [data-lasso="tour"]')) {
+            throw new Error('„Zur Tour" steht in dieser Auswahl nicht zur Verfügung.');
+        }
+        await sleep(1100);
     },
     async checkVisit() {
         const id = state.tour.stops[0];
@@ -1156,7 +1225,7 @@ async function play(story) {
     const startedAt = Date.now();
     try {
         const isDesktop = !isPhoneUi();
-        const steps = visibleStorySteps(story, { isDesktop });
+        const steps = visibleStorySteps(story, { isDesktop, hasOwnData: hasOwnCustomers() });
         for (let i = 0; i < steps.length; i++) {
             guard();
             setProgress(i, steps.length);
@@ -1274,7 +1343,7 @@ function buildPanel() {
     const tiles = currentVisibleStories().map((s) => `
         <button type="button" class="sc-tile" data-story="${s.id}">
             <span class="sc-tile-icon">${s.icon}</span>
-            <span class="sc-tile-body"><b>${s.title}</b><span>${s.blurb}</span><small>ca. ${storyDuration(s, { isDesktop: !isPhoneUi() })} Sek.</small></span>
+            <span class="sc-tile-body"><b>${s.title}</b><span>${s.blurb}</span><small>ca. ${storyDuration(s, { isDesktop: !isPhoneUi(), hasOwnData: hasOwnCustomers() })} Sek.</small></span>
             ${seen.has(s.id) ? '<span class="sc-tile-seen" title="schon gesehen">✓</span>' : '<span class="sc-tile-play">▶</span>'}
         </button>`).join('');
     dialog.dataset.view = 'intro';
