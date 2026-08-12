@@ -164,6 +164,28 @@ Produkt, das es so noch nicht gibt.
 Botschaft 3 ist der Unterschied zu jedem CRM-Modul. Sie steht bewusst **hinten**:
 Zuerst muss man sehen, was es kann; dann wird interessant, wie es das macht.
 
+### 4.3 Das Hauptgericht *(nachgetragen 12.08.2026)*
+
+Die drei Botschaften oben beschreiben, warum TourFuchs **gut** ist. Sie
+beschreiben nicht, was daran **neu** ist. Das ist eine Kombination aus zwei
+Schritten:
+
+> **Eine Fläche auf der Karte umfahren – und über genau diese Kunden ein
+> Briefing bekommen: ein fertiger Prompt in der Zwischenablage, den ich in
+> meiner eigenen KI absende. Die sagt mir, was dort gerade läuft. Danach
+> entscheide ich, wen ich wirklich besuche.**
+
+Das Lasso allein ist eine gute Geste; sie beeindruckt in zehn Sekunden und ist
+nachbaubar. Der zweite Schritt ist der, den kaum jemand hat – und er ist gerade
+deshalb selten, weil er auf eine Anbindung **verzichtet**: TourFuchs meldet sich
+an keinem KI-Dienst an, ruft keine API auf, sondern hört bei der Zwischenablage
+auf. Genau das macht es in einem Konzern benutzbar, ohne dass jemand etwas
+freigeben muss.
+
+Alles andere in der App – Gebiete, Tourenoptimierung, QR-Übergabe, Tresor,
+Service-Radar – ist gute Beilage. Für die Außendarstellung gilt: **eine Sache,
+und zwar diese.**
+
 ### 4.3 Zielgruppe und Kanal
 
 | Zielgruppe | Kanal | Erwartung |
@@ -178,6 +200,22 @@ und für ehrliches Feedback – wer es als Nutzerakquise misst, wird enttäuscht
 ---
 
 ## 5. Der Film – Regie
+
+> **Nachtrag 12.08.2026 – es gibt jetzt zwei Filme, und der kleinere geht vor.**
+>
+> Dieser Abschnitt beschreibt den großen Film: *Excel → Karte → Flugmodus*. Er
+> beantwortet die Frage „was ist das überhaupt?" und tut das gut. Er zeigt aber
+> vor allem eine **gute Ausführung von etwas Bekanntem** – Listen auf Karten
+> gibt es.
+>
+> Der zweite Film zeigt die Kombination, die es sonst nirgends gibt: **eine
+> Fläche umfahren – und daraus einen Prompt bekommen, den man in die KI seiner
+> Wahl trägt.** Regie, Vorbereitung und Beitragstext dafür stehen in
+> [Der Film: Lasso + Briefing](./film-lasso-briefing.md).
+>
+> Warum der zuerst gedreht wird: Er dauert ein Drittel, er braucht keinen
+> Schnittplan (die Live-Demo ist der Film), und er zeigt Neues statt Bekanntem.
+> Der große Film kann danach kommen – oder gar nicht.
 
 **Format:** 90 Sekunden Hauptfilm (16:9) + 30-Sekunden-Schnitt (9:16, vertikal).
 **Werkzeuge:** Bildschirmaufnahme + Clipchamp (Schnitt, Untertitel, Musik),
@@ -517,11 +555,20 @@ Antwort. Ein Halbsatz genügt – „MIT, privates Projekt, ohne Gewähr".
 
 ## 9. Reihenfolge
 
+*Aktualisiert am 12.08.2026: Der Lasso-Film rückt vor den großen Film.*
+
 1. ~~Onboarding P1 + P3 + Mobile-Korrektur~~ – ✅ umgesetzt.
 2. ~~Onboarding P2 (Befund nach dem Import)~~ – ✅ umgesetzt.
-3. **Film drehen** – die Voraussetzungen stehen jetzt. Einstellung 4 der
-   Einstellungsliste (der Befund) ist ab sofort echt und nicht nachgestellt.
-4. **LinkedIn Beitrag 1** (Problem), zwei Tage später **Beitrag 2** (Film), eine
-   Woche später **Beitrag 3** (Haltung).
-5. **Reddit** – die Lizenzentscheidung steht (MIT), damit ist der Weg frei.
+3. ~~Live-Demo „Fläche umfahren, Briefing bekommen" auf den ganzen Bogen
+   umbauen~~ – ✅ umgesetzt. Sie ist die Vorlage für den Film; mit eigenen Daten
+   zeigt sie den echten Prompt.
+4. **Lasso-Film drehen** – ein Nachmittag, siehe
+   [film-lasso-briefing.md](./film-lasso-briefing.md). Die Vorbereitung
+   (Fantasieliste, erfundene Ablage für den Assistenten) ist die eigentliche
+   Arbeit; die Aufnahme selbst ist eine Bildschirmaufzeichnung der Live-Demo.
+5. **LinkedIn Beitrag 1** (Problem), zwei Tage später **Beitrag 2** (Lasso-Film),
+   eine Woche später **Beitrag 3** (Haltung).
+6. **Reddit** – die Lizenzentscheidung steht (MIT), damit ist der Weg frei.
    Trotzdem nur mit Zeit für Antworten am Tag des Postens.
+7. **Großer Film** (Excel → Karte → Flugmodus) – nur, wenn nach Schritt 5 noch
+   Lust und Anlass besteht. Er ist eine Kür, keine Voraussetzung.

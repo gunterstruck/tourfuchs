@@ -114,8 +114,34 @@ describe('Versprochene Laufzeiten', () => {
         // Gestiegene Zahlen brauchen einen Grund im selben Text – sonst liest
         // sich eine längere Vorführung wie ein Versehen.
         expect(stories).toContain('das Aussuchen jetzt wirklich zeigt');
+        // Nachmessungen einzelner Stories stehen daneben, mit demselben Anspruch.
+        expect(stories).toContain('Nachgemessen am 12.08.2026, nur „lasso"');
         // Keine Story ohne Laufzeitangabe
         for (const story of STORIES) expect(story.duration).toBeGreaterThan(0);
+    });
+
+    it('verspricht mit eigenen Daten die Laufzeit, die dann wirklich gilt', () => {
+        // Die Lasso-Demo zeigt mit eigenen Kunden zusätzlich den echten Prompt
+        // (`realOnly`) – gemessen 61 s gegen 51 s mit der Kulisse. Ohne eigene
+        // Zahl verspräche das Panel ausgerechnet dem Nutzer mit Daten zehn
+        // Sekunden zu wenig.
+        const lasso = STORIES.find((story) => story.id === 'lasso');
+        expect(lasso.durationOwnData).toBeGreaterThan(lasso.duration);
+        expect(storyDuration(lasso, { hasOwnData: true })).toBe(lasso.durationOwnData);
+        expect(storyDuration(lasso, { hasOwnData: false })).toBe(lasso.duration);
+
+        // Wo Schritte an der Datenlage hängen, MUSS es die zweite Zahl geben.
+        for (const story of STORIES) {
+            const hatRealOnly = story.steps.some((step) => step.realOnly);
+            if (hatRealOnly) {
+                expect(story.durationOwnData, `${story.id} zeigt mit eigenen Daten mehr Schritte, verspricht aber dieselbe Zeit`)
+                    .toBeGreaterThan(0);
+            }
+        }
+
+        // Und das Panel muss die Angabe auch abfragen.
+        const showcase = read('src/ui/showcase.js');
+        expect(showcase).toContain('hasOwnData: hasOwnCustomers()');
     });
 });
 

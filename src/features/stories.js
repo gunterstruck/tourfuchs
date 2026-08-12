@@ -13,6 +13,10 @@
  *  { t:'wait', ms }               Pause
  *  { t:'waitFor', sel, ms? }      Warten, bis Element sichtbar ist
  *  { t:'run', key }               benannter Helfer aus der Engine
+ *
+ * Schritt-Filter:
+ *  desktopOnly / mobileOnly       Gerät
+ *  realOnly / demoOnly            Datenlage – siehe `visibleStorySteps`
  */
 
 // `duration` ist die real gemessene Laufzeit (Sekunden, kompletter Durchlauf
@@ -23,6 +27,11 @@
 // Ohne diese zweite Zahl versprach das Panel dem Handy die Desktop-Laufzeit –
 // bei „Von der Excel-Liste zur Kundenkarte" waren das 44 s für 31 s Vorführung.
 //
+// `durationOwnData` gilt aus demselben Grund für die Lasso-Demo: Mit eigenen
+// Kunden zeigt sie den echten Prompt und braucht dafür zehn Sekunden mehr als
+// mit der Kulisse. Wer eigene Daten geladen hat, soll die Zahl sehen, die für
+// ihn gilt.
+//
 // Zuletzt gemessen am 11.08.2026 (Chromium, Produktions-Build) in vier
 // Formaten: Desktop 1440×900, Tablet 834×1112 und 1112×834, Handy 390×844.
 // Lauf: 28 Durchläufe, 28 ok, 0 Abbrüche, 0 Klickmängel. Drei Zahlen sind
@@ -31,6 +40,13 @@
 // 60→68 bzw. 54→59, „handy-qr" 53→56, „chancen" 45→47.
 // Die Messung beginnt beim Klick auf die Kachel und endet mit dem
 // Ergebnis-Dialog; der Dialog-Vorlauf von rund einer Sekunde ist abgezogen.
+//
+// Nachgemessen am 12.08.2026, nur „lasso" (die Story ist auf den ganzen Bogen
+// umgebaut: umfahren → briefen → entscheiden). Vier Formate mit Beispieldaten,
+// je 51–52 s, 4 vorgeführte Klicks, 0 Abbrüche, 0 Klickmängel → 34→51. Dazu ein
+// Lauf mit eingefügter Fantasieliste (der Weg des Films, siehe
+// docs/film-lasso-briefing.md): 62 s, 6 Klicks, alle sauber – dort treten die
+// `realOnly`-Schritte an die Stelle der Demo-Sperre → `durationOwnData` 61.
 export const STORIES = [
     {
         id: 'excel-karte',
@@ -62,28 +78,48 @@ export const STORIES = [
         ]
     },
     {
-        // Die kürzeste Strecke von „ich sehe eine Karte" zu „ich weiß, wen ich
-        // zuerst besuche". Eine Geste statt eines Formulars – und genau deshalb
-        // steht diese Demo weit vorn.
+        // Das Hauptgericht – und die einzige Demo, die den ganzen Bogen zeigt:
+        // umfahren, briefen lassen, entscheiden. Eine Geste statt eines
+        // Formulars, danach ein Prompt statt eines Berichts, am Ende eine Tour
+        // statt einer Liste. Genau deshalb steht sie weit vorn.
+        //
+        // Sie ist zugleich die Vorlage für den LinkedIn-Film
+        // (docs/film-lasso-briefing.md): Wer eigene Daten geladen hat, sieht
+        // hier den echten Prompt – die Schritte mit `realOnly` treten dann an
+        // die Stelle der Demo-Vorschau.
         id: 'lasso',
         icon: '🖊️',
         title: 'Fläche umfahren, Briefing bekommen',
-        blurb: 'Kunden auf der Karte einkreisen und sofort fragen: Wen zuerst?',
-        duration: 34,
-        durationMobile: 35,
+        blurb: 'Einkreisen, fragen „Wen zuerst?", die richtigen in die Tour.',
+        duration: 51,
+        durationOwnData: 61,
         needsData: true,
+        mutatesTour: true,   // am Ende wandern zwei Kunden in die Tour
         steps: [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'focusDemoTourArea' },
             { t: 'say', text: 'Du bist in einer Gegend unterwegs und siehst deine Kunden auf der Karte.', ms: 2400 },
             { t: 'say', text: 'Statt Regler zu schieben: einfach die Fläche umfahren, die dich interessiert.', sel: '#btn-lasso', ms: 2800 },
             { t: 'run', key: 'drawLasso' },
-            { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – erst sehen, dann entscheiden.', sel: '.popup-lasso', ms: 3000, pos: 'top' },
+            { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – Anzahl, fällige Kunden, Orte. Erst sehen, dann entscheiden.', sel: '.popup-lasso', ms: 3400, pos: 'top' },
+
+            // ---- Der zweite Handgriff: das Briefing über genau diese Kunden ----
+            { t: 'say', text: 'Und jetzt die Frage, die TourFuchs allein nicht beantworten kann: Was ist bei diesen Kunden gerade los?', sel: '#btn-lasso-brief', ms: 3400, realOnly: true },
             { t: 'run', key: 'openLassoBriefing' },
-            { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3200 },
-            { t: 'say', text: 'Mit deinen echten Kunden entsteht hier ein fertiger Prompt: kopieren, in Copilot einfügen, absenden. Zurück kommt die Reihenfolge – wen zuerst, und warum.', ms: 4200 },
+            { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3200, demoOnly: true },
+            { t: 'say', text: 'Mit deinen echten Kunden entsteht hier ein fertiger Prompt: kopieren, im Assistenten einfügen, absenden. Zurück kommt die Reihenfolge – wen zuerst, und warum.', ms: 4200, demoOnly: true },
+            { t: 'run', key: 'revealAreaPrompt', realOnly: true },
+            { t: 'say', text: 'Das ist der fertige Prompt. Er entsteht hier auf deinem Gerät – aus Name, Kundennummer, Ort und Fälligkeit. Umsatz, Telefon und Straße bleiben draußen.', sel: '.briefing-prompt-visible', ms: 4600, realOnly: true },
+            { t: 'say', text: 'Ein Klick legt ihn in die Zwischenablage und öffnet deinen Assistenten. Abgesendet wird er von dir – TourFuchs meldet sich nirgends an.', sel: '#area-briefing-footer', ms: 4400, realOnly: true },
+            { t: 'say', text: 'Der recherchiert in deinen eigenen Quellen, was bei diesen Kunden läuft – offene Vorgänge, letzte Zusagen – und schlägt eine Reihenfolge vor.', ms: 4200, realOnly: true },
             { t: 'run', key: 'closeLassoBriefing' },
-            { t: 'say', text: 'Zwei Handgriffe von der Karte zum aktuellen Briefing. Genau da, wo du gerade bist.', ms: 2600 }
+
+            // ---- Der Rückweg: entscheiden. Die Auswahl liegt noch da. ----
+            { t: 'say', text: 'Zurück auf der Karte liegt deine Auswahl noch genau so da. Jetzt entscheidest du: Wen fährst du wirklich an?', sel: '.popup-lasso', ms: 3600, pos: 'top' },
+            { t: 'run', key: 'pickLassoCustomers' },
+            { t: 'say', text: 'Zwei angehakt – und der Knopf meint jetzt genau die zwei.', sel: '.popup-lasso [data-lasso="tour"]', ms: 2800 },
+            { t: 'run', key: 'lassoPickedToTour' },
+            { t: 'say', text: 'Umfahren. Briefen lassen. Entscheiden. Aus einer Fläche auf der Karte wird eine Tour – ohne Konto, ohne Cloud.', ms: 3600, pos: 'bottom' }
         ]
     },
     {
@@ -308,11 +344,26 @@ export function visibleStories({ isDesktop = true } = {}) {
     });
 }
 
-/** Schritte einer Story, die in der aktuellen Ansicht sinnvoll sind. */
-export function visibleStorySteps(story, { isDesktop = true } = {}) {
+/**
+ * Schritte einer Story, die in der aktuellen Ansicht sinnvoll sind.
+ *
+ * Neben dem Gerät entscheidet die **Datenlage**. Grund ist das Briefing: Mit
+ * Beispielkunden baut TourFuchs bewusst keinen Prompt (`renderDemoOnly`), mit
+ * eigenen Kunden steht er vollständig da. Eine Vorführung, die beides mit
+ * demselben Satz begleitet, sagt in einem der beiden Fälle die Unwahrheit –
+ * und ausgerechnet der Fall mit echten Daten ist der, den man filmt.
+ *
+ * - `realOnly`: nur mit eigenen Kunden (der Prompt ist wirklich da)
+ * - `demoOnly`: nur mit Beispielkunden (die geschützte Vorschau)
+ *
+ * @param {{isDesktop?: boolean, hasOwnData?: boolean}} [opts]
+ */
+export function visibleStorySteps(story, { isDesktop = true, hasOwnData = false } = {}) {
     return (story?.steps || []).filter((step) => {
         if (step.desktopOnly && !isDesktop) return false;
         if (step.mobileOnly && isDesktop) return false;
+        if (step.realOnly && !hasOwnData) return false;
+        if (step.demoOnly && hasOwnData) return false;
         return true;
     });
 }
@@ -397,10 +448,14 @@ export function selectShowcaseTour(customers, { areaRadiusKm = 85, maxRouteKm = 
 }
 
 /**
- * Die Laufzeit, die dem Nutzer versprochen wird – geräteabhängig, weil das
- * Handy bei manchen Demos weniger Schritte sieht.
+ * Die Laufzeit, die dem Nutzer versprochen wird.
+ *
+ * Sie hängt an denselben zwei Größen wie die Schrittauswahl: am Gerät (das
+ * Handy sieht bei manchen Demos weniger Schritte) und an der Datenlage (mit
+ * eigenen Kunden zeigt die Lasso-Demo zusätzlich den echten Prompt).
  */
-export function storyDuration(story, { isDesktop = true } = {}) {
+export function storyDuration(story, { isDesktop = true, hasOwnData = false } = {}) {
+    if (hasOwnData && story?.durationOwnData) return story.durationOwnData;
     if (!isDesktop && story?.durationMobile) return story.durationMobile;
     return story?.duration || 25;
 }

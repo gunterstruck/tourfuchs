@@ -174,6 +174,18 @@ App vor – mit echten Zeigerereignissen, nicht als Animation. Sie steht bewusst
 weit vorn in der Demo-Auswahl: Wenn der Effekt nur im Werbefilm existiert, ist er
 Werbung; wenn ihn jeder Besucher selbst auslösen kann, ist er das Produkt.
 
+Sie zeigt den **ganzen Bogen**, nicht nur die Geste: umfahren → Briefing →
+zurück auf die Karte → zwei anhaken → „🚩 2 zur Tour". Das Briefing ist dabei
+kein Selbstzweck, sondern die Begründung für die Auswahl, die danach getroffen
+wird – deshalb endet die Vorführung in der Tour und nicht im Dialog.
+
+**Was sie zeigt, hängt an der Datenlage.** Mit Beispielkunden gibt es bewusst
+keinen Prompt; dort erklärt die Demo die Sperre. Mit **eigenen** Kunden klappt
+sie stattdessen den fertigen Prompt auf und benennt, was drinsteht und was
+draußen bleibt (`realOnly`/`demoOnly` in `features/stories.js`). Ein Satz für
+beide Fälle wäre in einem der beiden unwahr – und der Fall mit echten Daten ist
+zugleich der, der gefilmt wird: siehe [Der Film: Lasso + Briefing](./film-lasso-briefing.md).
+
 ## Prüfschritte
 
 1. Eigene Kunden laden → **🖊️ Lasso ziehen** erscheint neben „Kunden in meiner Nähe“.

@@ -38,5 +38,9 @@ lerna-debug.log*
 # Berichte der Demo-Prüfstrecke (npm run demo-check)
 tmp/
 
+# Gedrehte Filme (npm run film) – Videodateien gehören nicht ins Repository,
+# sie entstehen jederzeit neu aus der Live-Demo.
+film/
+
 # Temporäre Arbeitsdateien der Dokumentationserzeugung
 work/
