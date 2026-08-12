@@ -1,6 +1,6 @@
 # 🦊 TourFuchs Vertrieb – Produkt-Roadmap H2/2026
 
-**Stand:** 25.07.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
+**Stand:** 12.08.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
 
 ---
 
@@ -68,28 +68,92 @@ Tourenoptimierung, Umkreis/Korridor) wird ein **Ein-Klick-Tagesplaner**:
 scannen, losfahren – Lokal-first in Reinform. Die manuelle Planung bleibt dabei
 vollständig in der Hand des Nutzers.
 
-### Release 3 – „Entscheidungsvorlage" · **WOW-Feature #2** *(~2 Wochen)*
+### Release 3 – „Entscheidungsvorlage" · **WOW-Feature #2** *(3.1 und 3.3 umgesetzt, 3.2 offen)*
 
 Ziel: Moment B zu Ende denken. Die Simulation (PRs #44–#48) ist stark, aber ihr
 Ergebnis „verpufft" im Dialog.
 
-| # | Item | Akzeptanzkriterien |
-|---|---|---|
-| 3.1 | **Simulations-Report exportieren** | Ein Klick erzeugt aus der aktiven Simulation eine druckfertige Vorlage (HTML-Druckansicht → PDF): Kartenbild Alt/Neu, Kennzahlen-Tabelle je Bezirk (Kunden, Umsatz, Delta), Fairness-Kennzahl vorher/nachher, Aktionsliste. Zusätzlich Excel-Export der Umbuchungsliste. |
-| 3.2 | **Ausgewogenheits-Assistent** | Button „Vorschlag: ausgleichen": Greedy-Heuristik schlägt Gebietsverschiebungen vor, die den Kunden-/Umsatz-Faktor Richtung ≤ 1,5 senken – als Simulation, die der Nutzer prüft, editiert, verwirft oder übernimmt. Keine Blackbox: jede vorgeschlagene Verschiebung ist einzeln begründet (Gebiet, Kunden, Umsatz). |
-| 3.3 | **Benannte Simulations-Szenarien** | Simulation als Szenario speichern/laden (IndexedDB), z. B. „Variante Nord" vs. „Variante Süd" vergleichbar. |
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 3.1 | **Simulations-Report exportieren** | ✅ umgesetzt *(12.08.2026)* | `src/features/simulationReport.js`: Druckansicht mit Kennzahlen je Einheit (Kunden, Umsatz, Δ – vorher **und** nachher), Ausgewogenheit vorher/nachher, Aktionsliste und betroffenen Gebieten; dazu der Excel-Export der Umbuchungsliste (`exportReassignments`). **Ohne Kartenbild** – siehe 3.1b. |
+| 3.2 | **Ausgewogenheits-Assistent** | ⏳ offen | Button „Vorschlag: ausgleichen": Greedy-Heuristik schlägt Gebietsverschiebungen vor, die den Kunden-/Umsatz-Faktor Richtung ≤ 1,5 senken – als Simulation, die der Nutzer prüft, editiert, verwirft oder übernimmt. Keine Blackbox: jede vorgeschlagene Verschiebung ist einzeln begründet (Gebiet, Kunden, Umsatz). |
+| 3.3 | **Benannte Simulations-Szenarien** | ✅ umgesetzt | Nachgeholt als Item 6.8 in Release 8 (`src/features/simulationScenarios.js`). Speichern, Laden, Vergleichen; nur Zuordnungen, keine Kundendaten. |
+| 3.1b | **Kartenbild Alt/Neu in der Vorlage** | ⏸ zurückgestellt | Bewusst aus 3.1 herausgeschnitten, Begründung unten. |
 
-### Release 4 – „Tresor" · High-End-Sicherheit *(~3 Wochen, nach Release 3)*
+#### Zwei Adressaten, zwei Dokumente (3.1)
+
+Die Vorlage ist **aggregiert und nennt keinen Kundennamen**; die namentliche
+Umbuchungsliste gibt es getrennt als Excel-Datei. Das ist keine Bequemlichkeit,
+sondern die Anwendung der eigenen Leitplanke auf ein Papier: Eine
+Entscheidungsvorlage wird in einer Sitzung herumgereicht und kopiert. Wer die
+Kundenliste hineinlegt, verteilt sie an einen Kreis, der über Zuschnitte
+entscheidet und dafür keine Namen braucht. Die Person, die die Umbuchung
+anschließend ausführt, braucht sie – und bekommt sie als eigene Datei.
+
+Zweite Festlegung: Die Vorlage zeigt **beide Stände**, nicht nur den
+Zielzustand. Eine Vorlage, die nur zeigt, was danach ist, ist keine
+Entscheidungsgrundlage, sondern eine Werbung für die Variante, die gerade offen
+ist – und sie lädt zu genau der Zahlenauswahl ein, gegen die das B3-Tor
+geschrieben wurde.
+
+#### Warum das Kartenbild nicht mitkommt (3.1b)
+
+Das Kartenbild stand in den Akzeptanzkriterien vom 25.07. und ist der einzige
+Punkt daraus, der nicht gebaut wurde. Der Grund ist nicht Aufwand:
+
+1. **Es braucht eine neue Abhängigkeit** (html2canvas oder leaflet-image), um
+   eine Leaflet-Karte zu rastern. Das Projekt hat fünf Laufzeit-Pakete.
+2. **Es rastert fremde Kacheln in eine Datei, die weitergegeben wird.** Damit
+   wird aus einer Kartenanzeige eine Weitergabe von Kartenmaterial – eine
+   Lizenzfrage an OpenStreetMap-Kacheln, keine Programmierfrage. DoD Nr. 3
+   verlangt für Drittdienste eine ausdrückliche Entscheidung, und die gehört
+   nicht als Nebensatz in ein Export-Feature.
+3. **Canvas-Tainting:** Kacheln von einem fremden Host machen das Canvas
+   unlesbar, sofern der Server nicht CORS-Header liefert – der Weg ist also
+   nicht einmal technisch geradlinig.
+
+Was stattdessen bleibt: Die Karte selbst kann die Simulation längst zeigen
+(„Simulation auf Karte prüfen", 13.6). Der Bildschirm-Hinweis im Fenster der
+Vorlage sagt das und wird **nicht mitgedruckt** – ein Blatt in einer Sitzung
+soll nicht erklären, was ihm fehlt.
+
+Der bessere Ort für das visuelle Argument ist ohnehin der bereits bewertete
+Kandidat 2 (**Vorher/Nachher-Slider über der Karte**): live und vergleichend
+statt als eingefrorenes Bild. Kommt 3.1b zurück, dann über die
+Drittdienst-Frage – nicht über „wäre schön".
+
+### Release 4 – „Tresor" · High-End-Sicherheit *(umgesetzt, vorgezogen vor Release 3)*
 
 Ziel: Echte Kundendaten dürfen bedenkenlos auf dem privaten Handy liegen.
 Verschlüsselung **at rest** und **in transit** – ohne das Lokal-first-Prinzip zu brechen.
 
-| # | Item | Akzeptanzkriterien |
-|---|---|---|
-| 4.1 | **Lokaler App-Tresor (Data at Rest)** | Optional aktivierbar. Kundendaten in IndexedDB mit AES-256-GCM verschlüsselt; Schlüssel wird aus einer PIN abgeleitet (PBKDF2/Argon2, hohe Iterationszahl) und **nie gespeichert**. Sperrbildschirm beim App-Start und nach Inaktivität. Ohne PIN sind die Daten kryptografisch unlesbar. |
-| 4.2 | **Biometrie-Unlock (Komfortstufe)** | Wo verfügbar (WebAuthn mit PRF-/largeBlob-Erweiterung) FaceID/Fingerabdruck statt PIN. Realistische Grenze: plattformabhängig, v. a. iOS-PWA eingeschränkt – **PIN bleibt der garantierte Weg**, Biometrie ist Zusatz, kein Ersatz. |
-| 4.3 | **Auto-Wipe** | Nach N Fehlversuchen (konfigurierbar, Standard 10) werden die lokalen Daten gelöscht. Ehrliche Einordnung im UI: Abschreckung, kein Hardware-Schutz – der eigentliche Schutz ist die Verschlüsselung aus 4.1. |
-| 4.4 | **Verschlüsselter Export mit QR-Schlüssel (Data in Transit)** | Datei-Export (Excel/JSON) optional AES-256-verschlüsselt; der Schlüssel wird **nicht** mit der Datei transportiert, sondern als QR-Code am Desktop angezeigt (Out-of-Band). Handy: Datei öffnen + QR scannen = lokal entschlüsselt. Datei allein (E-Mail, USB, Cloud) ist wertlos. |
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 4.1 | **Lokaler App-Tresor (Data at Rest)** | ✅ umgesetzt | `src/services/vault.js` + `src/services/crypto.js`: AES-256-GCM, DEK aus PIN über PBKDF2 abgeleitet, DEK **nur im Arbeitsspeicher**. Persistiert werden ausschließlich Salt, gewrappter DEK und Fehlversuchszähler. Sperrbildschirm (`src/ui/lockVault.js`) beim Start und nach Inaktivität (`DEFAULT_AUTOLOCK_MS`, 5 min). |
+| 4.2 | **Biometrie-Unlock (Komfortstufe)** | ✅ umgesetzt | `src/services/biometric.js`: WebAuthn mit PRF-Erweiterung als **zusätzliche Tür** neben PIN und Wiederherstellungscode. Ohne Unterstützung meldet der Service das sauber, die App läuft ohne Biometrie normal weiter – die vorab notierte Grenze („PIN bleibt der garantierte Weg") ist eingehalten. |
+| 4.3 | **Auto-Wipe** | ✅ umgesetzt | `DEFAULT_MAX_ATTEMPTS = 10`, konfigurierbar über `setup()`. Nach Erreichen löscht `wipe()` Tresor und lokalen Datensatz. |
+| 4.4 | **Verschlüsselter Export mit QR-Schlüssel (Data in Transit)** | ✅ umgesetzt | „Sicherer Umzug": `.tfsafe`-Container (AES-256-GCM, Zufallsschlüssel) in `src/features/safeTransfer.js`; der Schlüssel reist getrennt per Bildschirm→Kamera. Am Zielgerät folgt das erzwungene Tresor-Setup. |
+
+**Nachtrag 12.08.2026 – warum das hier so spät steht:** Release 4 war zum
+Zeitpunkt dieser Zeile längst ausgeliefert und in der Wissensbasis vollständig
+beschrieben (Kapitel 14.1–14.7), abgesichert durch `tests/vault.test.js`,
+`tests/crypto.test.js`, `tests/safeTransfer.test.js` und
+`tests/vaultOverview.test.js`. Nur **hier** stand weiterhin ein Plan im Futur.
+
+Das ist derselbe Fehler wie 6.1, nur in die andere Richtung: Dort beschrieb die
+Wissensbasis ein Verhalten falsch, hier beschreibt die Roadmap ein
+ausgeliefertes Release als offen. Die Folge ist dieselbe – eine externe
+Bewertung vom 12.08.2026 las den Tresor als „offen, strategisch wichtig" und
+empfahl mittelfristig zu bauen, was seit Monaten im Produkt ist. Ein
+Statusfeld, das nur bei Misserfolg falsch sein kann, wäre harmlos; eines, das
+Fertiges als offen führt, verschiebt Prioritäten.
+
+`tests/docsConsistency.test.js` deckt diesen Fall nicht ab: Es prüft
+Beschriftungen und Konstanten gegen `docs/guide-ki-wissensbasis.md`, nicht
+Statusfelder gegen den Code. Ein Tor dafür ist bewusst **nicht** gebaut – ein
+Test, der „ist Feature X ausgeliefert?" beantworten müsste, ist eine Heuristik
+über Dateinamen und wird selbst zur Fehlerquelle. Stattdessen die Regel: **Wer
+ein Roadmap-Item baut, trägt es im selben PR hier ein** (siehe DoD Nr. 7).
 
 **Abgrenzung zu 2.5:** Die QR-Tour-Übergabe (Release 2) überträgt wenige, bewusst
 ausgewählte Daten direkt Bildschirm→Kamera und braucht keine Verschlüsselung.
@@ -179,6 +243,21 @@ Reproduzierbar mit:
 
 Nächste Zählung: 01.02.2027. Eine Regel, die nichts verbietet, das man später
 nachweisen könnte, hat Fitness null.
+
+**Zwischenmessung 12.08.2026** (nach den Releases 7–10, also nach vier
+ausgelieferten Releases): Verzweigungen **24**, Lesezugriffe **27** – beide
+Werte **unverändert**. Die Einfrier-Regel hält nachweislich, und zwar durch den
+Zeitraum, in dem am meisten an der Oberfläche geändert wurde. Das ist der
+eigentliche Test; eine Sperrklinke, die nur in ruhigen Wochen gehalten hat,
+hätte nichts gezeigt.
+
+Ein Vorbehalt zur dritten Zeile: Die Dateizahl hängt am Zählverfahren. Der
+Verzweigungs-Grep trifft 10 Dateien, ein Grep auf `ui.depth` ebenfalls 10
+(nicht deckungsgleich), ein Grep auf das bloße Wort `depth` 15 – darunter
+`mapLevel.js`, wo es um Kartentiefe geht und nicht um Basis/Profi. Die „12" von
+oben ist ohne Kommandozeile notiert und deshalb nicht reproduzierbar. Für die
+Zählung am 01.02.2027 gelten die **beiden oberen Zahlen** als Maß; die
+Dateizeile ist nachrichtlich.
 
 ### Sprint 2 – festgelegt, noch nicht gebaut
 
@@ -384,13 +463,30 @@ die Geste misst und nicht die Antwort, ist gegen diese Fehlerklasse blind.
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
    Nutzt `visits.js` + `territory.js`, beides vorhanden.
-2. **Vorher/Nachher-Slider über der Karte** (zieht aus Release 3 den Teil vor,
-   der im Management-Meeting wirklich überzeugt).
+2. **Vorher/Nachher-Slider über der Karte** – seit 12.08.2026 der Erbe von
+   3.1b: Die Entscheidungsvorlage liefert die Zahlen, das visuelle Argument
+   fehlt ihr. Ein Slider löst es **live auf der Karte** statt als gerastertes
+   Bild in einer Datei und wirft damit keine Kachel-Lizenzfrage auf.
 3. **Haltbarkeit der lokalen Daten:** `navigator.storage.persist()` anfordern,
    Status ehrlich anzeigen, an Sicherung erinnern. Lokal-first ist nur dann ein
    Vorteil und kein Risiko, wenn dieser Punkt sichtbar beantwortet ist.
 4. **Korridor-Modus als eigene Frage:** „Ich muss nach Hamburg – wen nehme ich
    mit?" Die Technik liegt bereits im OSRM-Korridor.
+5. **Barrierefreiheit: gebaut, aber nicht gemessen und nicht zugesagt.**
+   Gezählt am 12.08.2026: 78 `aria-label`, 42 `role=`, 11 `aria-live`,
+   13 `prefers-reduced-motion`-Regeln, `<html lang="de">`. Es ist also mehr da,
+   als eine Bewertung von außen sehen kann – aber **kein** Dokument und **kein**
+   Test nennt Barrierefreiheit, Screenreader oder Kontrast, und
+   `prefers-contrast` kommt null-mal vor, `focus-visible` viermal.
+   Das ist genau das Muster, das dieses Projekt schon zweimal benannt hat:
+   vorhandene Qualität ohne Messgerät ist bei der nächsten Änderung weg, ohne
+   dass es jemand merkt (9.2 für die Aufmerksamkeit, 6.7 für die Doku).
+   Ehrliche Einordnung: Attribute zählen ist **keine** Prüfung – ob ein
+   Screenreader die Tour vorlesen kann, weiß niemand, weil es nie jemand
+   versucht hat. Erster Schritt wäre deshalb ein Durchlauf mit einem echten
+   Screenreader an Moment A, nicht eine fünfte Prüfstrecke. Dieselbe Lehre wie
+   bei `face-check` und beim Tablet-Zwitter: Diese Fehlerklasse findet nur das
+   echte Gerät.
 
 ### Backlog & Vision (bewusst NICHT jetzt)
 
@@ -429,6 +525,12 @@ Ab Release 1 gilt für jeden PR:
    und keine der beiden Playwright-Strecken liest Text.
 6. **Keine neue `depth`-Verzweigung** ohne Begründung im PR (siehe Basislinie
    in Release 6).
+7. **Wer ein Roadmap-Item baut, trägt den Status im selben PR in
+   `docs/roadmap-2026-H2.md` ein.** Anlass: Release 4 („Tresor") stand nach der
+   Auslieferung monatelang als offener Plan in diesem Dokument und wurde von
+   einer externen Bewertung folgerichtig als fehlend gelesen. Ein Statusfeld,
+   das dem Code hinterherhinkt, ist schlimmer als keines – es lenkt
+   Priorisierung.
 
 ---
 
@@ -437,3 +539,8 @@ Ab Release 1 gilt für jeden PR:
 - **Moment A:** Vom App-Start bis zur startklaren Tagestour ≤ 30 s, ≤ 3 Interaktionen.
 - **Moment B:** Von „Cockpit öffnen" bis exportierter Entscheidungsvorlage ≤ 10 min.
 - **Vertrauen:** Jeder Satz auf der Datenschutzseite ist im Code nachweisbar wahr.
+- **Einstieg (TTOD):** Sekunden vom ersten Öffnen bis zu den **eigenen** Kunden
+  auf der Karte, Zielwert ≤ 60 s für 80 % der Erstnutzer. Herleitung, Diagnose
+  und Maßnahmen stehen in **`docs/go-to-market.md`** – dieses Dokument
+  beschreibt das Produkt, jenes den Weg zum Nutzer. Der Verweis steht hier,
+  weil die Trennung von außen wie eine Lücke aussieht.

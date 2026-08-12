@@ -14,10 +14,17 @@
  */
 
 import { CONFIG } from '../core/config.js';
+import { hasDemoCustomers } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, emit, on, attrColor, setCustomers, setTerritory, getTerritory, getCustomer, DIMENSIONS, UNASSIGNED } from '../core/state.js';
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
-import { regionMembership } from '../features/territory.js';
+import { exportReassignments } from '../services/excel.js';
+import { fairness, regionMembership } from '../features/territory.js';
+import {
+    buildSimulationReport,
+    printSimulationReport,
+    reassignmentRows
+} from '../features/simulationReport.js';
 import {
     compareScenarios,
     removeScenario,
@@ -273,6 +280,8 @@ export function initCockpit() {
         renderRegionList();
     });
     document.getElementById('sim-apply').addEventListener('click', assignSelected);
+    document.getElementById('sim-report-print')?.addEventListener('click', openReport);
+    document.getElementById('sim-report-xlsx')?.addEventListener('click', downloadReassignments);
     document.getElementById('sim-undo').addEventListener('click', undoSimulationStep);
     document.getElementById('sim-redo').addEventListener('click', redoSimulationStep);
     document.getElementById('sim-scenario-store')?.addEventListener('click', storeScenario);
@@ -768,16 +777,14 @@ function renderTable() {
  */
 function renderFairness(sim, allKeys) {
     const summaryEl = document.getElementById('cockpit-summary');
-    const units = allKeys.filter((k) => k !== UNASSIGNED)
-        .map((k) => ({ key: k, count: sim.get(k)?.count ?? 0, umsatz: sim.get(k)?.umsatz ?? 0 }))
-        .filter((u) => u.count > 0);
-    if (units.length < 2) { summaryEl.innerHTML = ''; return; }
-
-    const byCount = [...units].sort((a, b) => a.count - b.count);
-    const cMin = byCount[0], cMax = byCount[byCount.length - 1];
-    const cRatio = cMax.count / Math.max(1, cMin.count);
     const maxRatio = CONFIG.territory.balancedMaxRatio;
-    const balanced = cRatio <= maxRatio;
+    // Der Rechenweg liegt seit der Entscheidungsvorlage (3.1) in territory.js:
+    // Die Vorlage braucht ihn ein zweites Mal für den Zustand *vor* der
+    // Simulation, und zwei Kopien derselben Kennzahl laufen auseinander.
+    const result = fairness(sim, allKeys, { maxRatio, exclude: UNASSIGNED });
+    if (!result) { summaryEl.innerHTML = ''; return; }
+
+    const { ratio: cRatio, balanced, units } = result;
     const ratioText = String(maxRatio).replace('.', ',');
     const conventionNote = `Ausgewogen bis Faktor ${ratioText} – gesetzte Konvention, keine Messung.`;
     const conventionTitle = `Die Grenze von ${ratioText} ist der Zielwert des Ausgewogenheits-Assistenten `
@@ -785,26 +792,20 @@ function renderFairness(sim, allKeys) {
         + 'Wer anders zuschneidet, darf die Grenze anders setzen: sie steht an einer Stelle '
         + 'im Code (core/config.js) und gilt zugleich für den Hinweis nach dem Import.';
 
-    let top = cMax;
-    let weak = cMin;
-    let topValue = `${cMax.count} Kunden`;
-    let weakValue = `${cMin.count} Kunden`;
-    const withRev = units.filter((u) => u.umsatz > 0);
-    if (withRev.length >= 2) {
-        const byRev = [...withRev].sort((a, b) => a.umsatz - b.umsatz);
-        const rMin = byRev[0], rMax = byRev[byRev.length - 1];
-        top = rMax;
-        weak = rMin;
-        topValue = formatRevenueShort(rMax.umsatz);
-        weakValue = formatRevenueShort(rMin.umsatz);
-    }
+    // Umsatz schlägt Kundenzahl, sobald mindestens zwei Einheiten ihn führen –
+    // sonst stünde ein echter Betrag gegen eine fehlende Angabe.
+    const source = result.revenue ?? result.count;
+    const top = source.max;
+    const weak = source.min;
+    const topValue = result.revenue ? formatRevenueShort(top.umsatz) : `${top.count} Kunden`;
+    const weakValue = result.revenue ? formatRevenueShort(weak.umsatz) : `${weak.count} Kunden`;
 
     summaryEl.innerHTML = `<div class="cockpit-kpi-cards">
         <div class="cockpit-kpi-card ${balanced ? 'ok' : 'warn'}">
             <span class="kpi-icon">${balanced ? '✓' : '!'}</span>
             <span class="kpi-label">Status</span>
             <b class="kpi-value">${balanced ? 'Ausgewogen' : 'Ungleich verteilt'}</b>
-            <small class="kpi-subline">Kunden-Faktor ${cRatio.toFixed(1)}× über ${units.length} ${escapeHtml(attrLabel(assignAttr))}</small>
+            <small class="kpi-subline">Kunden-Faktor ${cRatio.toFixed(1)}× über ${units} ${escapeHtml(attrLabel(assignAttr))}</small>
             <small class="kpi-convention" title="${escapeHtml(conventionTitle)}">${escapeHtml(conventionNote)}</small>
         </div>
         <div class="cockpit-kpi-card">
@@ -1017,6 +1018,11 @@ function renderChanges() {
     const mapButton = document.getElementById('cockpit-to-map');
     mapButton.textContent = nothing ? 'Zur Karte' : 'Simulation auf Karte prüfen';
     mapButton.classList.toggle('simulation-ready', !nothing);
+    // Die Ausgabe-Knöpfe stehen nur da, wenn es etwas auszugeben gibt: Ein
+    // Angebot, das ohne Simulation nichts tun kann, ist im Erstzustand eine
+    // Frage, die niemand gestellt hat (Gestaltprinzip, Prüffrage 1).
+    const reportActions = document.getElementById('sim-report-actions');
+    if (reportActions) reportActions.hidden = nothing;
     if (nothing) { el.innerHTML = ''; return; }
 
     const movedCustomers = [...overrides.keys()]
@@ -1051,6 +1057,81 @@ function renderChanges() {
                 <span>${escapeHtml(op.desc)}</span>
                 <span class="change-row-result">${op.count ? `${op.count} Kd. · ${formatRevenue(op.revenue)} ` : ''}→ <b>${escapeHtml(op.toRep)}</b></span>
             </div>`).join('');
+}
+
+// ---- Entscheidungsvorlage (Roadmap 3.1) -------------------------------------
+//
+// Moment B endete bisher im Dialog: Wer eine Reform durchgerechnet hatte,
+// schrieb die Zahlen für die Sitzung von Hand ab – und schrieb dabei die
+// Kennzahl ab, die seine Variante stützt. Die Vorlage nimmt beide Stände mit.
+
+function reportModel() {
+    const levelLabel = CONFIG.levels[simulationLevel]?.label ?? simulationLevel;
+    const baseStats = computeStats(false);
+    const simStats = computeStats(true);
+
+    const moves = [...overrides.entries()].map(([id, to]) => {
+        const customer = getCustomer(id);
+        if (!customer) return null;
+        return {
+            id,
+            name: customer.name,
+            nummer: customer.nummer,
+            plz: customer.plz,
+            ort: customer.ort,
+            // Der Ist-Wert des Kunden, nicht der des Gebiets: Ein Gebiet kann
+            // gemischt sein, und „bisher" muss je Kunde stimmen, sonst ist die
+            // Umbuchungsliste beim Ausführen falsch.
+            from: attrValueOf(customer),
+            to,
+            umsatz: customer.umsatz || 0
+        };
+    }).filter(Boolean);
+
+    const territories = [...pendingTerr.values()].map((info) => ({
+        name: info.name,
+        level: info.level,
+        levelLabel: CONFIG.levels[info.level]?.label ?? info.level,
+        value: info.value,
+        customerCount: (info.customerIds || []).length
+    }));
+
+    return buildSimulationReport({
+        baseStats,
+        simStats,
+        keys: [...new Set([...baseStats.keys(), ...simStats.keys()])],
+        moves,
+        territories,
+        opsLog,
+        meta: {
+            attrLabel: attrLabel(assignAttr),
+            levelLabel,
+            groupScope,
+            fileName: state.fileName,
+            createdAt: new Date(),
+            demo: hasDemoCustomers(state.customers),
+            maxRatio: CONFIG.territory.balancedMaxRatio,
+            unassigned: UNASSIGNED
+        }
+    });
+}
+
+function openReport() {
+    if (overrides.size === 0 && pendingTerr.size === 0) return;
+    if (!printSimulationReport(reportModel())) {
+        showToast('Der Browser hat das Fenster blockiert – bitte Pop-ups für TourFuchs erlauben.', 'error');
+    }
+}
+
+function downloadReassignments() {
+    const model = reportModel();
+    if (!exportReassignments(reassignmentRows(model), { demo: model.meta.demo })) {
+        // Gebiete lassen sich auch ohne einen einzigen Kundenwechsel zuweisen –
+        // etwa leere Flächen. Dann gibt es eine Vorlage, aber keine Liste.
+        showToast('Keine umgebuchten Kunden – die Liste wäre leer.', 'info');
+        return;
+    }
+    showToast('Umbuchungsliste als Excel gespeichert.', 'success');
 }
 
 function commitSimulation() {
