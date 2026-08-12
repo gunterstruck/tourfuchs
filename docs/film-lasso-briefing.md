@@ -198,26 +198,21 @@ Aufnahme.
 
 Zwei gangbare Wege:
 
-**A – Erfundene Ablage (empfohlen).** Ein ChatGPT-Projekt anlegen und dort fünf
-bis acht kurze Dateien hochladen, die aussehen wie interner Schriftverkehr zu
-den erfundenen Firmen: eine Mail mit einer Reklamation, eine Gesprächsnotiz mit
-einer zugesagten Rückmeldung, ein Angebot ohne Antwort, ein Wartungsbericht.
-Datum, Name, Kundennummer – mehr braucht es nicht. Der Assistent antwortet dann
-**wirklich**, aus wirklich vorhandenen (nur eben erfundenen) Quellen. Nichts am
-Bild ist gestellt.
+**A – Erfundene Ablage (empfohlen).** Ein eigenes Projekt im Assistenten anlegen
+und dort kurze Dateien hochladen, die aussehen wie interner Schriftverkehr zu
+den erfundenen Firmen. Der Assistent antwortet dann **wirklich**, aus wirklich
+vorhandenen (nur eben erfundenen) Quellen. Nichts am Bild ist gestellt.
 
-Als Vorlage genügt dieser Zuschnitt, je Datei drei bis fünf Zeilen:
+**Die Ablage liegt fertig im Projekt: [`docs/film-ablage/`](./film-ablage/).**
+Sechs Dateien – zwei Mail-Verläufe, eine Gesprächsnotiz, ein Angebot, ein
+Wartungsbericht, ein Kalendereintrag –, abgestimmt auf die Kundennummern,
+Fälligkeiten und den Bezugstag der Filmliste. Wie sie zu benutzen sind und was
+dabei herauskommen sollte, steht in der
+[README dort](./film-ablage/README.md).
 
-| Datei | Inhalt |
-|---|---|
-| `mail-rheinstahl.txt` | Kunde meldet Stillstand an Anlage 4, wartet seit dem 14.07. auf Rückmeldung |
-| `notiz-hellweg.txt` | Gesprächsnotiz: Angebot über Ersatzteilpaket zugesagt, Frist Ende des Monats |
-| `mail-emscher.txt` | Reklamation aus Mai, Gutschrift offen |
-| `notiz-sauerland.txt` | Erweiterung geplant, Budgetfreigabe im Quartal, will Termin |
-| `bericht-westfalen.txt` | Wartung ohne Befund, nächster Turnus in acht Wochen |
-
-Damit hat die Antwort eine Reihenfolge, die sich begründen lässt – und der Film
-kann zeigen, wie diese Begründung entsteht.
+Sechs der zwölf Firmen haben **bewusst keine Notiz**. So füllt der Assistent den
+Abschnitt „## Nichts gefunden" wirklich – und der Film zeigt nebenbei, dass die
+Regel „Erfinde nichts" greift.
 
 **B – Der eigene Arbeits-Copilot mit echten Kunden.** Liefert das
 überzeugendste Ergebnis und ist als Aufnahme heikel: echte Kundennamen, echte
