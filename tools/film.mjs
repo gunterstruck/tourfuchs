@@ -14,12 +14,17 @@
  * Vorführung schaltet selbsttätig auf ihre ausführlichen Sätze um.
  *
  * Ergebnis in `film/`:
- *   tourfuchs-lasso-briefing.mp4   fertig für LinkedIn (H.264, 1920×1080)
- *   schnittliste.md                jeder gesprochene Satz mit echtem Timecode
+ *   tourfuchs-<demo>-<format>.mp4   fertig für LinkedIn (H.264)
+ *   schnittliste-<demo>-<format>.md jeder gesprochene Satz mit echtem Timecode
  *
  * Aufruf:
  *   npm run build && npm run film
  *   npm run film -- --format=hochkant     (9:16 für Feed und Story)
+ *   npm run film -- --demo=briefing       (Schwerpunkt Prompt statt Geste)
+ *
+ * `--demo` wählt die Live-Demo, die gefilmt wird. Zwei taugen dafür:
+ *   lasso     (Voreinstellung) – die Geste trägt, das Briefing folgt
+ *   briefing  – die Fläche ist der Anlauf, die Zeit liegt im Prompt
  *
  * Voraussetzungen (bewusst nicht in package.json – ein normales `npm install`
  * soll keinen Browser und kein ffmpeg herunterladen):
@@ -222,11 +227,42 @@ async function eigeneDatenEinfuegen(page) {
     return page.evaluate(() => document.querySelectorAll('.customer-marker-card, .customer-stack-card').length);
 }
 
+/**
+ * Vor- und Abspann je Fassung. Der Film bekommt seinen Schwerpunkt nicht nur
+ * durch die Vorführung, sondern auch dadurch, womit er anfängt und worauf er
+ * landet.
+ */
+const FASSUNGEN = {
+    lasso: {
+        titel: `<span class="kicker">TourFuchs</span>
+            <h1>Ich bin in dieser Gegend.<br>Wen besuche ich?</h1>`,
+        abspann: `<span class="fox">🦊</span>
+            <h1>Umfahren. Briefen lassen. Entscheiden.</h1>
+            <p class="url">tourfuchs.vercel.app</p>
+            <p class="fine">Alle Kunden und Vorgänge in diesem Film sind erfunden.<br>Privates Projekt, kostenlos, ohne Gewähr.</p>`
+    },
+    briefing: {
+        titel: `<span class="kicker">TourFuchs</span>
+            <h1>Die Karte weiß, <i>wo</i> die Kunden sind.<br>Nicht, was dort gerade läuft.</h1>`,
+        abspann: `<span class="fox">🦊</span>
+            <h1>Ein Prompt. Deine KI. Deine Entscheidung.</h1>
+            <p class="url">tourfuchs.vercel.app</p>
+            <p class="fine">Kein Konto, keine KI-Schnittstelle, keine Cloud.<br>Alle Kunden und Vorgänge in diesem Film sind erfunden.</p>`
+    }
+};
+
 // ---- Hauptlauf ------------------------------------------------------------
-const argFormat = (process.argv.slice(2).find((a) => a.startsWith('--format=')) || '').split('=')[1] || 'quer';
+const arg = (name, fallback) => (process.argv.slice(2).find((a) => a.startsWith(`--${name}=`)) || '').split('=')[1] || fallback;
+const argFormat = arg('format', 'quer');
+const demoId = arg('demo', 'lasso');
 const format = FORMATE[argFormat];
+const fassung = FASSUNGEN[demoId];
 if (!format) {
     console.error(`Unbekanntes Format „${argFormat}". Verfügbar: ${Object.keys(FORMATE).join(', ')}`);
+    process.exit(2);
+}
+if (!fassung) {
+    console.error(`Für die Demo „${demoId}" gibt es keine Fassung. Verfügbar: ${Object.keys(FASSUNGEN).join(', ')}`);
     process.exit(2);
 }
 
@@ -277,9 +313,7 @@ try {
 
     // Titelkarte SOFORT: Alles, was die Vorbereitung an Dialogen aufmacht,
     // passiert dahinter. Geschnitten wird später auf genau diesen Moment.
-    await zeigeKarte(page, `
-        <span class="kicker">TourFuchs</span>
-        <h1>Ich bin in dieser Gegend.<br>Wen besuche ich?</h1>`);
+    await zeigeKarte(page, fassung.titel);
 
     await sleep(7000);                     // Willkommens-Choreografie abwarten
     const anzahl = await eigeneDatenEinfuegen(page);
@@ -287,12 +321,12 @@ try {
 
     // Demo-Auswahl öffnen und die Story starten – ebenfalls hinter der Karte.
     await page.evaluate(() => document.getElementById('btn-showcase')?.click());
-    await page.waitForSelector('#showcase-dialog .sc-tile[data-story="lasso"]', { timeout: 10000 });
+    await page.waitForSelector(`#showcase-dialog .sc-tile[data-story="${demoId}"]`, { timeout: 10000 });
 
     // Ab hier läuft der Film.
     filmStart = Date.now();
     await sleep(2600);                     // Titelkarte stehen lassen
-    await page.locator('#showcase-dialog .sc-tile[data-story="lasso"]').click();
+    await page.locator(`#showcase-dialog .sc-tile[data-story="${demoId}"]`).click();
     await blendeKarteAus(page);
 
     // Jeden Satz mit echtem Timecode mitschreiben – daraus entsteht die
@@ -315,11 +349,7 @@ try {
     // Der Ergebnis-Dialog der Demo gehört nicht in den Film – der Abspann schon.
     await page.evaluate(() => document.getElementById('showcase-dialog')?.close());
     await sleep(400);
-    await zeigeKarte(page, `
-        <span class="fox">🦊</span>
-        <h1>Umfahren. Briefen lassen. Entscheiden.</h1>
-        <p class="url">tourfuchs.vercel.app</p>
-        <p class="fine">Alle Kunden und Vorgänge in diesem Film sind erfunden.<br>Privates Projekt, kostenlos, ohne Gewähr.</p>`);
+    await zeigeKarte(page, fassung.abspann);
     await sleep(4200);
     const filmEnde = Date.now() - filmStart;
 
@@ -330,7 +360,7 @@ try {
     const roh = readdirSync(rohOrdner).find((f) => f.endsWith('.webm'));
     if (!roh) throw new Error('Playwright hat keine Aufnahme abgelegt.');
 
-    const ziel = resolve(zielOrdner, `tourfuchs-lasso-briefing-${format.name}.mp4`);
+    const ziel = resolve(zielOrdner, `tourfuchs-${demoId}-${format.name}.mp4`);
     // Vorne wird alles abgeschnitten, was vor dem Filmbeginn lag (Laden,
     // Einfügen, Import) – es lag ohnehin hinter der Titelkarte.
     const vorlaufSek = (filmStart - aufnahmeStart) / 1000;
@@ -344,9 +374,13 @@ try {
     ]);
 
     // ---- Schnittliste ------------------------------------------------------
-    const schnittmarke = saetze.find((s) => /Zwischenablage/.test(s.text));
+    // Die Schnittmarke ist der Satz, in dem der Assistent aufgemacht wird – ab
+    // da hört die App auf. Beide Fassungen sagen es mit anderen Worten
+    // („Zwischenablage" bzw. „kopiert ihn und öffnet deinen Assistenten"),
+    // gemeint ist derselbe Moment.
+    const schnittmarke = saetze.find((s) => /Zwischenablage|öffnet deinen Assistenten/.test(s.text));
     const liste = [
-        `# Schnittliste – ${format.name === 'quer' ? '16:9' : '9:16'}`,
+        `# Schnittliste – ${demoId} · ${format.name === 'quer' ? '16:9' : '9:16'}`,
         '',
         `Gedreht am ${new Date().toLocaleDateString('de-DE')} · Lauf: ${ergebnis} · Länge ${zeit(filmEnde)}`,
         `Demo-Teil bis ${zeit(demoEnde)}, danach Abspann.`,
@@ -362,10 +396,10 @@ try {
             : 'Die Schnittmarke wurde nicht gefunden – bitte die Sätze oben durchsehen.',
         ''
     ].join('\n');
-    writeFileSync(resolve(zielOrdner, `schnittliste-${format.name}.md`), liste, 'utf8');
+    writeFileSync(resolve(zielOrdner, `schnittliste-${demoId}-${format.name}.md`), liste, 'utf8');
 
     console.log(`\nFilm: ${ziel}`);
-    console.log(`Schnittliste: ${resolve(zielOrdner, `schnittliste-${format.name}.md`)}`);
+    console.log(`Schnittliste: ${resolve(zielOrdner, `schnittliste-${demoId}-${format.name}.md`)}`);
     console.log(`Länge ${zeit(filmEnde)} · Vorführung ${ergebnis} · ${saetze.length} Sätze`);
     if (fehler.length) console.log(`Skriptfehler: ${fehler.length} – ${fehler[0]}`);
     code = ergebnis === 'ok' ? 0 : 1;

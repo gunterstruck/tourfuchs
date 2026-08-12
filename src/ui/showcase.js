@@ -1043,6 +1043,35 @@ const HELPERS = {
         details.querySelector('pre')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
         await sleep(900);
     },
+    /**
+     * Den Prompt einmal von oben bis unten durchziehen.
+     *
+     * „Du siehst ihn vollständig" ist eine Behauptung, solange nur die ersten
+     * zehn Zeilen im Bild stehen – der Kasten ist auf 300 px gedeckelt und
+     * scrollt selbst. Wer die Frage „was schickt ihr da eigentlich weg?"
+     * beantworten will, muss den ganzen Text zeigen, samt Aufgabe und
+     * Qualitätsregeln am Ende.
+     *
+     * Bewusst langsam und in kleinen Schritten statt mit einem Sprung: Gelesen
+     * werden soll er nicht, aber erkennbar bleiben, dass da nichts versteckt ist.
+     */
+    async scrollPromptThrough() {
+        const pre = await resolveEl('#area-briefing-dialog .briefing-prompt-visible pre', 1600);
+        if (!pre) return;
+        const weg = pre.scrollHeight - pre.clientHeight;
+        if (weg <= 0) { await sleep(800); return; }
+        const schritte = prefersReduced ? 1 : 26;
+        for (let i = 1; i <= schritte; i += 1) {
+            guard();
+            pre.scrollTop = (weg * i) / schritte;
+            await sleep(prefersReduced ? 0 : 170);
+        }
+        await sleep(700);
+        // Wieder an den Anfang: Der nächste Satz spricht vom Prompt als Ganzem,
+        // und ein Kasten, der am Ende klebt, sieht aus wie ein Rest.
+        pre.scrollTop = 0;
+        await sleep(400);
+    },
     async closeLassoBriefing() {
         moveOverlaysInto(document.body);
         const dialog = document.getElementById('area-briefing-dialog');

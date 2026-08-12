@@ -45,9 +45,36 @@ Kamera davor.
 
 ```
 npm run build
-npm run film                      # 16:9, für den Feed
-npm run film -- --format=hochkant # 9:16, für Story und Reels
+npm run film                       # 16:9, für den Feed
+npm run film -- --format=hochkant  # 9:16, für Story und Reels
+npm run film -- --demo=briefing    # zweite Fassung, Schwerpunkt Prompt
 ```
+
+### Zwei Fassungen, zwei Schwerpunkte
+
+`--demo` wählt die Live-Demo, die gefilmt wird. Zwei taugen dafür, und sie
+beantworten verschiedene Fragen:
+
+| Fassung | Trägt | Antwortet auf | Länge |
+|---|---|---|---|
+| `lasso` *(Voreinstellung)* | die **Geste** – Fläche umfahren, Treffer stehen da | „Was kann das?" | 1:09 |
+| `briefing` | den **Prompt** – durchgescrollt, mit dem, was drinsteht und was nicht | „Was schickt ihr da eigentlich weg?" | 1:17 |
+
+Der Unterschied ist nicht der Schnitt, sondern die Vorführung: In der
+Briefing-Fassung ist die Fläche nur der Anlauf (zwei Sätze), dafür wird der
+Prompt **von oben bis unten durchgescrollt** – samt Quellenanweisung, Aufgabe
+und Qualitätsregeln – und der Absatz „Nicht enthalten: Umsatz, Telefon, E-Mail,
+Straße" ausdrücklich benannt. Rund 58 % der Laufzeit liegen im Briefing statt
+wie in der Lasso-Fassung 38 %.
+
+**Welche wofür:** `lasso` ist der bessere Erstkontakt – die Geste versteht man
+in zehn Sekunden ohne Vorwissen. `briefing` ist die Fassung für die zweite
+Frage, die in jedem Konzern kommt, und damit die bessere Antwort in Kommentaren,
+in einer internen Vorstellung oder als Beitrag 3 zum Thema Haltung.
+
+Vor- und Abspann unterscheiden sich mit: Die Briefing-Fassung öffnet mit
+„Die Karte weiß, *wo* die Kunden sind. Nicht, was dort gerade läuft." und landet
+auf „Ein Prompt. Deine KI. Deine Entscheidung."
 
 Einmalige Einrichtung (bewusst nicht in `package.json`, damit ein normales
 `npm install` keinen Browser und kein ffmpeg herunterlädt):
