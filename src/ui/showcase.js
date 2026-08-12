@@ -200,24 +200,35 @@ function pickMostCentral(sel) {
     return best;
 }
 
-// ---- Cursor-Bewegung / Klick ----
-function placeCursor(x, y) {
-    // Sitzt der Cursor in einem transformierten Vorfahren, ist „fixed" relativ zu
-    // diesem – nicht zum Viewport. Offene Dialoge tragen durch die Einblend-
-    // Animation dauerhaft ein transform (scale(1) via fill-mode „both") und bilden
-    // damit einen solchen Bezugsrahmen. Dessen Viewport-Versatz abziehen, damit die
-    // Zeigerspitze trotzdem exakt auf den Viewport-Koordinaten (x, y) sitzt.
-    let ox = 0;
-    let oy = 0;
-    for (let n = cursorEl.parentElement; n && n !== document.body; n = n.parentElement) {
+/**
+ * Versatz des Bezugsrahmens, in dem ein Overlay gerade hängt.
+ *
+ * Sitzt ein Element in einem transformierten Vorfahren, ist `position: fixed`
+ * relativ zu diesem – nicht zum Viewport. Offene Dialoge tragen durch die
+ * Einblend-Animation dauerhaft ein transform (scale(1) via fill-mode „both")
+ * und bilden damit genau so einen Rahmen. Wer Viewport-Koordinaten setzt, muss
+ * diesen Versatz abziehen.
+ *
+ * Gilt für **beide** Overlays: Der Cursor rechnete das seit jeher heraus, die
+ * Sprechblase nicht – sie wanderte um die Höhe des Dialogkopfes nach unten und
+ * stand bei einem hohen Dialog auf einem 720 px hohen Schirm halb außerhalb des
+ * Bildes. In einer Vorführung, deren Blasen die Untertitel sind, ist das kein
+ * Schönheitsfehler, sondern der verlorene Satz.
+ */
+function fixedFrame(el) {
+    for (let n = el?.parentElement; n && n !== document.body; n = n.parentElement) {
         const cs = getComputedStyle(n);
         if (cs.transform !== 'none' || cs.perspective !== 'none' || (cs.willChange || '').includes('transform')) {
-            const r = n.getBoundingClientRect();
-            ox = r.left;
-            oy = r.top;
-            break;
+            return n.getBoundingClientRect();
         }
     }
+    return null;
+}
+const frameOffset = (rect) => ({ x: rect?.left ?? 0, y: rect?.top ?? 0 });
+
+// ---- Cursor-Bewegung / Klick ----
+function placeCursor(x, y) {
+    const { x: ox, y: oy } = frameOffset(fixedFrame(cursorEl));
     const px = x - ox - 4;
     const py = y - oy - 2;
     cursorEl.style.setProperty('--sc-x', `${px}px`);
@@ -364,8 +375,6 @@ async function say(text, sel, pos) {
     bubbleEl.style.left = '-9999px';
     bubbleEl.style.top = '0px';
     await sleep(10);
-    const bw = bubbleEl.offsetWidth;
-    const bh = bubbleEl.offsetHeight;
     const anchor = sel ? await resolveEl(sel, 800) : null;
     if (anchor) {
         moveOverlaysInto(layerFor(anchor));
@@ -374,6 +383,11 @@ async function say(text, sel, pos) {
         const target = centerOf(anchor);
         await moveTo(target.x, target.y);
     }
+    // Erst JETZT messen: Zwischen dem Setzen des Textes und hier ist die Blase
+    // womöglich in einen Dialog umgehängt worden.
+    const bw = bubbleEl.offsetWidth;
+    const bh = bubbleEl.offsetHeight;
+
     let x;
     let y;
     if (anchor) {
@@ -387,8 +401,29 @@ async function say(text, sel, pos) {
             ? Math.max(window.innerHeight * 0.5, window.innerHeight - bh - 180)
             : Math.max(64, window.innerHeight * 0.16);
     }
-    bubbleEl.style.left = `${x}px`;
-    bubbleEl.style.top = `${Math.max(58, y)}px`;
+
+    // Wo darf die Blase überhaupt stehen?
+    //
+    // Hängt sie in einem Dialog (das muss sie: ein modaler Dialog liegt im „top
+    // layer" und verdeckte sie sonst), dann schneidet dieser Dialog alles ab,
+    // was über seinen Rand hinausragt. Der sichtbare Bereich ist dann NICHT das
+    // Fenster, sondern der Dialog. Vorher wurde nur die obere Fensterkante
+    // geklammert – beim Gebiets-Briefing auf einem 720 px hohen Schirm stand der
+    // Satz zum Prompt deshalb zur Hälfte unter dem Dialogrand, also unsichtbar.
+    // In einer Vorführung, deren Blasen die Untertitel sind, ist das der
+    // verlorene Satz.
+    const frame = fixedFrame(bubbleEl);
+    const passt = frame && frame.height >= bh + 24 && frame.width >= bw + 24;
+    const box = passt
+        ? { left: frame.left + 12, top: frame.top + 12, right: frame.right - 12, bottom: frame.bottom - 12 }
+        : { left: 12, top: 58, right: window.innerWidth - 12, bottom: window.innerHeight - 12 };
+    x = Math.min(Math.max(box.left, x), Math.max(box.left, box.right - bw));
+    y = Math.min(Math.max(box.top, y), Math.max(box.top, box.bottom - bh));
+
+    // `fixed` bezieht sich auf den transformierten Rahmen, nicht auf das Fenster.
+    const off = frameOffset(frame);
+    bubbleEl.style.left = `${x - off.x}px`;
+    bubbleEl.style.top = `${y - off.y}px`;
     bubbleEl.classList.add('sc-show');
 }
 function hideBubble() {

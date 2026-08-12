@@ -36,6 +36,59 @@ Rückfrage, die kommen wird.
 
 ---
 
+## 1a. Wie der Film entsteht: `npm run film`
+
+**Der Film wird nicht aufgenommen, er wird erzeugt.** Es gibt keinen Grund, eine
+Bildschirmaufnahme von Hand zu machen: Die Live-Demo bedient die echte App
+bereits selbsttätig und in jedem Anlauf gleich. `tools/film.mjs` setzt nur eine
+Kamera davor.
+
+```
+npm run build
+npm run film                      # 16:9, für den Feed
+npm run film -- --format=hochkant # 9:16, für Story und Reels
+```
+
+Einmalige Einrichtung (bewusst nicht in `package.json`, damit ein normales
+`npm install` keinen Browser und kein ffmpeg herunterlädt):
+
+```
+npm i -D playwright ffmpeg-static && npx playwright install chromium
+```
+
+Was der Lauf tut, der Reihe nach:
+
+1. startet die gebaute App in einer echten Chromium-Sitzung,
+2. blendet die **Titelkarte** ein und erledigt dahinter die ganze Vorbereitung –
+   insbesondere fügt er die erfundene Kundenliste ein, damit die App **eigene
+   Daten** hat und der Prompt echt ist (siehe Abschnitt 3.1),
+3. startet die Live-Demo **„Fläche umfahren, Briefing bekommen"** und filmt sie,
+4. blendet den **Abspann** ein (Adresse, „alle Kunden erfunden"),
+5. schneidet die Vorbereitung vorne ab und wandelt nach **MP4/H.264, 30 fps** –
+   direkt bei LinkedIn hochladbar,
+6. schreibt eine **Schnittliste** mit dem echten Timecode jedes gesprochenen
+   Satzes.
+
+Ergebnis in `film/` (nicht im Repository – der Film entsteht jederzeit neu):
+
+```
+film/tourfuchs-lasso-briefing-quer.mp4
+film/schnittliste-quer.md
+```
+
+Vor- und Abspann sind **Einblendungen in der Seite**, kein Videoschnitt
+hinterher. Der Film entsteht dadurch in einem Stück, ohne Schnittprogramm, und
+sieht nach jeder App-Änderung wieder aktuell aus. Wer den Text ändern will,
+ändert ihn in `KARTEN_CSS` bzw. den beiden `zeigeKarte`-Aufrufen in
+`tools/film.mjs`.
+
+**Was der Lauf nicht kann:** sich bei einem KI-Assistenten anmelden. Der
+KI-Einschub ist der einzige Teil, der von Hand entsteht – wenn man ihn
+überhaupt will (Abschnitt 3.2). Die Schnittliste nennt die Sekunde, an der er
+hingehört.
+
+---
+
 ## 2. Die Regieentscheidung: Der Film ist die Live-Demo
 
 TourFuchs hat einen Geister-Cursor, der die echte App bedient – und die
@@ -45,8 +98,8 @@ Werbematerial neben dem Produkt, sondern das Produkt selbst.
 
 **Das heißt für die Produktion:**
 
-- Es wird **nicht nachgestellt**. Bildschirmaufnahme starten, Demo starten,
-  fertig. Kein Schnittplan für die App-Teile.
+- Es wird **nicht nachgestellt** und – seit `npm run film` – nicht einmal von
+  Hand aufgenommen. Kein Schnittplan für die App-Teile.
 - Die **Sprechblasen der Demo sind die Untertitel**. Der LinkedIn-Feed läuft
   stumm – hier steht der Text ohnehin schon im Bild, in ganzen Sätzen, lang
   genug zum Lesen. Ein Voice-over ist optional (Text in Abschnitt 6), nicht
@@ -80,8 +133,10 @@ der Prompt echt, der Beispieldaten-Streifen verschwindet, und die Demo schaltet
 selbsttätig auf ihre `realOnly`-Sätze um (der Prompt wird aufgeklappt und
 erklärt, statt der Demo-Sperre).
 
-Diese Liste in Excel einfügen, Spalte A bis G, dann **Strg+C** – oder direkt
-hier kopieren und in TourFuchs unter **Daten → Liste einfügen** ablegen:
+**`npm run film` fügt diese Liste selbst ein** – sie steht als `KUNDENLISTE` in
+`tools/film.mjs`. Hier steht sie für den Fall, dass von Hand gedreht oder etwas
+ausprobiert werden soll: in Excel einfügen und **Strg+C**, oder direkt hier
+kopieren und in TourFuchs unter **Daten → Liste einfügen** ablegen.
 
 ```
 Kundenname	Kundennummer	PLZ	Ort	Vertriebsbezirk	Besuchsrhythmus	Letzter Besuch
@@ -146,13 +201,19 @@ lieber Weg A.
 diesem Film sind erfunden."* Das kostet eine Sekunde und beantwortet eine Frage,
 die sonst in den Kommentaren landet.
 
-### 3.3 Bildschirm und Aufnahme
+### 3.3 Bildschirm und Aufnahme – nur beim Drehen von Hand
+
+`npm run film` bringt das alles selbst mit: eigenes Browserfenster in
+1920 × 1080, keine Lesezeichenleiste, keine Benachrichtigungen, und die Demo
+schaltet den Profi-Modus ohnehin ein (nur dort trägt die Auswahlkarte Häkchen –
+der Schluss „2 zur Tour" ist genau das).
+
+Wer trotzdem selbst aufnimmt:
 
 - Fenster 1920 × 1080, keine Lesezeichenleiste, Benachrichtigungen aus,
   neutraler Hintergrund.
-- **Profi-Modus einschalten** – nur dort trägt die Auswahlkarte Häkchen, und der
-  Schluss („2 zur Tour") ist genau das. Die Live-Demo schaltet ihn zwar selbst
-  ein, aber wer vorher schon dort steht, hat ein ruhigeres Bild.
+- **Profi-Modus einschalten**, bevor die Aufnahme läuft – das gibt ein ruhigeres
+  Bild, als wenn die Demo mittendrin umschaltet.
 - Assistent im Profi-Modus auf **ChatGPT** stellen (Daten → Briefing-Ziel), wenn
   Weg A gewählt wurde – sonst steht auf dem Knopf „Microsoft 365 Copilot
   öffnen" und im nächsten Bild geht ChatGPT auf. Solche Kleinigkeiten fallen im
@@ -322,17 +383,27 @@ danach kommen – oder gar nicht.
 
 ---
 
-## 9. Prüfschritte vor der Aufnahme
+## 9. Prüfschritte
+
+### Nach `npm run film` – den fertigen Film ansehen
+
+1. **Der Prompt ist lesbar** (etwa ab 0:30). Ist er zu klein, im Schnitt auf den
+   oberen Teil zoomen – dort stehen Gebiet, Kundenliste und Aufgabe.
+2. **Die Sätze sprechen vom echten Prompt**, nicht von der Demo-Sperre. Die
+   Schnittliste zeigt sie alle; taucht dort „Für Beispielkunden bleibt es bei
+   dieser Vorschau" auf, hat das Einfügen nicht geklappt und der Film ist
+   unbrauchbar. Der Lauf meldet in dem Fall auch weniger geladene Kunden.
+3. **Am Ende stehen zwei Kunden mit ✓ „in Tour"** in der Auswahlkarte.
+4. Der Lauf endet mit `Vorführung ok`. Steht dort `FEHLER`, ist die Demo
+   unterwegs hängengeblieben – dann `npm run demo-check -- --story=lasso`
+   laufen lassen, das sagt, an welchem Schritt.
+
+### Beim Drehen von Hand
 
 1. Fantasieliste einfügen → 12 Kunden auf der Karte, **kein**
    Beispieldaten-Streifen mehr.
 2. Profi-Modus an, Briefing-Ziel auf den gewünschten Assistenten gestellt.
-3. Live-Demo **„Fläche umfahren, Briefing bekommen"** einmal komplett
-   durchlaufen lassen. Dabei prüfen:
-   - Der Prompt klappt auf und ist lesbar.
-   - Die Sätze sprechen vom **echten** Prompt, nicht von der Demo-Sperre.
-     (Steht dort „Für Beispielkunden bleibt es bei dieser Vorschau", sind noch
-     Beispieldaten geladen – dann Schritt 1 wiederholen.)
-   - Am Ende stehen zwei Kunden mit ✓ **in Tour** in der Auswahlkarte.
+3. Live-Demo einmal komplett durchlaufen lassen und dieselben drei Punkte
+   prüfen.
 4. Erst dann aufnehmen. Die Demo verändert die Tour nur vorübergehend und stellt
    den vorherigen Stand danach wieder her – ein zweiter Anlauf ist gefahrlos.

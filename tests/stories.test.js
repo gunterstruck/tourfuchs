@@ -280,6 +280,38 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(showcaseSource).toContain('showStoryFailure(story, failure)');
     });
 
+    it('hält die Sprechblase ganz im Bild – auch in einem hohen Dialog', () => {
+        // Befund beim Drehen des Films (1280×720): Der Satz zum Prompt stand zur
+        // Hälfte unter dem Bildrand. Zwei Ursachen, beide hier abgesichert.
+        //
+        // 1. Die Blase hängt während eines Dialogschritts IM Dialog, und ein
+        //    offener Dialog trägt durch seine Einblendung ein transform –
+        //    „fixed" bezieht sich dann auf ihn, nicht auf den Viewport. Der
+        //    Cursor rechnete das immer heraus, die Blase nicht.
+        // 2. Geklammert war nur die obere Kante (`Math.max(58, y)`); wie tief
+        //    die Blase unten hinausragt, prüfte niemand.
+        //
+        // In einer Vorführung, deren Blasen die Untertitel sind, ist ein
+        // abgeschnittener Satz kein Schönheitsfehler.
+        expect(showcaseSource).toContain('function fixedFrame(');
+        const cursor = showcaseSource.slice(showcaseSource.indexOf('function placeCursor('),
+            showcaseSource.indexOf('async function moveTo('));
+        expect(cursor).toContain('fixedFrame(cursorEl)');
+
+        const bubble = showcaseSource.slice(showcaseSource.indexOf('async function say('),
+            showcaseSource.indexOf('function hideBubble('));
+        expect(bubble).toContain('fixedFrame(bubbleEl)');
+        // Der sichtbare Bereich ist der Dialog, wenn die Blase in ihm hängt.
+        expect(bubble).toContain('box.bottom - bh');
+        expect(bubble).toContain('box.right - bw');
+        // Gemessen wird NACH dem Umhängen, sonst klammert man gegen eine
+        // Höhe, die nicht mehr gilt.
+        expect(bubble.indexOf('moveOverlaysInto(layerFor(anchor))'))
+            .toBeLessThan(bubble.indexOf('const bh = bubbleEl.offsetHeight;'));
+        // Der alte, nur nach oben klammernde Ausdruck darf nicht zurückkehren.
+        expect(bubble).not.toContain('`${Math.max(58, y)}px`');
+    });
+
     it('zeigt die Lasso-Demo den ganzen Bogen: umfahren, briefen, entscheiden', () => {
         // Das Hauptargument des Produkts sind zwei Hälften: die Geste UND der
         // Prompt, den man in eine KI seiner Wahl trägt. Eine Vorführung, die

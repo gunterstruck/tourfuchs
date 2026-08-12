@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "demo-check": "node tools/demo-check.mjs",
+    "film": "node tools/film.mjs",
     "touch-check": "node tools/touch-check.mjs",
     "face-check": "node tools/face-check.mjs",
     "attention-check": "node tools/attention-check.mjs",
