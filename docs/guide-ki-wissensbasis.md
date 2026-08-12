@@ -1980,6 +1980,48 @@ Aktionen:
 In **"Änderungen"** zeigt die Füllung die neue Farbe und die Umrandung die alte
 Farbe.
 
+### 13.7 Entscheidungsvorlage und Umbuchungsliste
+
+**Klickpfad:** Cockpit -> **"Was-wäre-wenn: Gebiete zuweisen"** -> mindestens
+eine Zuweisung -> **"📄 Entscheidungsvorlage"** bzw.
+**"⤓ Umbuchungsliste (Excel)"**.
+
+Beide Knöpfe stehen erst da, **sobald eine Simulation läuft**. Ohne Zuweisung
+gibt es nichts auszugeben, und ein Knopf, der nichts tun kann, ist eine Frage,
+die niemand gestellt hat.
+
+**"📄 Entscheidungsvorlage"** öffnet ein neues Fenster mit einer Druckansicht
+(über den Druckdialog des Browsers auch als PDF zu sichern). Inhalt:
+
+- Kopfzeile mit Datum, Datensatz, Ebene, Zuweisungsart und Gruppenfokus
+- der Hinweis, dass die Zuweisung **nicht übernommen** ist
+- vier Kennzahlen: zugewiesene Gebiete, umgebuchte Kunden, bewegter Umsatz,
+  betroffene Einheiten
+- Ausgewogenheit **vorher und nachher** mit stärkster und schwächster Einheit
+- Kennzahlen je Einheit: Kunden und Umsatz vorher, nachher und Differenz
+- die Liste der ausgeführten Schritte und der betroffenen Gebiete
+
+Die Vorlage nennt **keine Kundennamen**. Das ist Absicht: Sie wird in einer
+Sitzung herumgereicht, und ein Verteiler, der über Gebietszuschnitte
+entscheidet, braucht keine namentliche Kundenliste.
+
+**"⤓ Umbuchungsliste (Excel)"** lädt die namentliche Gegenliste für die
+Person, die die Umbuchung ausführt: je Kunde Name, Kundennummer, PLZ, Ort,
+bisheriger und neuer Wert sowie Umsatz. Sind nur Gebiete ohne Kunden zugewiesen
+worden, meldet TourFuchs **"Keine umgebuchten Kunden - die Liste wäre leer."**
+und lädt nichts.
+
+Enthält der Bestand Demo-Kunden, tragen beide Ausgaben die Warnung
+**"DEMO - NICHT PRODUKTIV"**.
+
+**Was die Vorlage nicht enthält:** kein Kartenbild Alt/Neu. Für den Blick auf
+die Karte ist **"Simulation auf Karte prüfen"** der Weg (13.6). Ein Hinweis
+darauf steht im Fenster der Vorlage am Bildschirm und wird nicht mitgedruckt.
+
+**Richtige Guide-Antwort auf "Wie bekomme ich die Simulation ins Management?":**
+Entscheidungsvorlage drucken oder als PDF sichern; die namentliche Liste nur
+dorthin geben, wo sie gebraucht wird.
+
 ---
 
 ## 14. Datentresor und sicherer Geräteumzug
@@ -2232,6 +2274,8 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Cockpit | `Gebietsplanung -> Gebiete -> "Gebiets-Cockpit öffnen"` |
 | Simulation | `Cockpit -> Ebene -> Gebiete markieren -> Ziel -> "Auswahl zuweisen"` |
 | Simulationskarte | `Cockpit -> "Simulation auf Karte prüfen" -> Alt/Neu/Änderungen` |
+| Entscheidungsvorlage | `Simulation -> "📄 Entscheidungsvorlage" -> Drucken / als PDF sichern` |
+| Umbuchungsliste | `Simulation -> "⤓ Umbuchungsliste (Excel)"` |
 | dauerhaft übernehmen | `Simulation -> "Zuweisung übernehmen" -> bestätigen` |
 | Tresor | `Daten -> "Tresor aktivieren (PIN)"` |
 | sicher senden | `Daten -> "Verschlüsselt exportieren (Datei + QR)"` |

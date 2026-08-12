@@ -617,6 +617,31 @@ export function customerExportRows(customers) {
     }));
 }
 
+/**
+ * Umbuchungsliste einer Gebietssimulation als Excel (Roadmap 3.1).
+ *
+ * Gegenstück zur gedruckten Entscheidungsvorlage: Die Vorlage bleibt
+ * aggregiert und geht in die Sitzung, diese Datei nennt die Kunden namentlich
+ * und geht an die Person, die die Umbuchung ausführt.
+ *
+ * @param {Array<object>} rows  aus `reassignmentRows()` – bereits mit
+ *                              sprechenden deutschen Spaltenköpfen
+ * @param {{ demo?: boolean }} options
+ * @returns {boolean} false, wenn es nichts zu exportieren gibt
+ */
+export function exportReassignments(rows, { demo = false } = {}) {
+    if (!Array.isArray(rows) || rows.length === 0) return false;
+    const marked = demo
+        ? rows.map((row) => ({ 'Datenstatus': DEMO_DATA_LABEL, ...row }))
+        : rows;
+    const ws = XLSX.utils.json_to_sheet(marked);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, demo ? 'DEMO-Umbuchungen' : 'Umbuchungen');
+    const prefix = demo ? 'tourfuchs-DEMO-nicht-produktiv-umbuchungen' : 'tourfuchs-umbuchungen';
+    XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    return true;
+}
+
 /** Aktuelle Kundenliste als Excel exportieren (inkl. Besuchsdaten) */
 export function exportCustomers(customers) {
     const demo = hasDemoCustomers(customers);
