@@ -2449,6 +2449,17 @@ body.lasso-active .mobile-next-step { display: none; }
     .map-fab .mns-icon { font-size: 1rem; }
 }
 
+/* ---- Entscheidungsvorlage (Roadmap 3.1) -----------------------------------
+   Steht nur da, wenn eine Simulation läuft – `hidden` setzt das Cockpit.
+   Zwei Ausgabewege für zwei Adressaten: die aggregierte Druckvorlage für die
+   Sitzung, die namentliche Excel-Liste für die Umsetzung. */
+.sim-report-actions {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    margin: 10px 0 4px;
+}
+.sim-report-actions[hidden] { display: none; }
+.sim-report-actions .muted { flex: 1 1 220px; }
+
 /* ---- Benannte Simulations-Szenarien ---------------------------------------
    „Variante Nord" gegen „Variante Süd": Der Bereich ist eingeklappt, weil er
    erst interessant wird, wenn eine Simulation überhaupt läuft. */

@@ -67,6 +67,57 @@ export function dominantRep(entry) {
 }
 
 /**
+ * Fairness einer Verteilung: Wie weit liegen größte und kleinste Einheit
+ * auseinander?
+ *
+ * Lag bis Version 3.3 inline in `renderFairness()` im Cockpit und war damit
+ * nur über das DOM prüfbar. Die Entscheidungsvorlage (Roadmap 3.1) braucht
+ * denselben Rechenweg ein zweites Mal – für den Zustand **vor** der Simulation.
+ * Zwei Kopien derselben Kennzahl wären genau der Fehler, den Item 6.2 für die
+ * Schwelle 1,5 schon einmal behoben hat: Beide stimmen für sich, bis eine
+ * geändert wird.
+ *
+ * `maxRatio` wird bewusst **übergeben** und nicht importiert. Die Norm steht in
+ * `CONFIG.territory.balancedMaxRatio`; ein Aggregationsmodul, das sich seine
+ * eigene Grenze holt, wäre die zweite Quelle.
+ *
+ * @param {Map<string, {count:number, umsatz:number}>} stats
+ * @param {Iterable<string>} keys      zu berücksichtigende Einheiten
+ * @param {{ maxRatio:number, exclude?:string }} options
+ * @returns {null|{units, ratio, balanced, count:{min,max}, revenue:{min,max}|null}}
+ *          `null`, wenn weniger als zwei Einheiten Kunden haben – ein Faktor
+ *          über einer einzigen Einheit ist keine Aussage, sondern eine 1.
+ */
+export function fairness(stats, keys, { maxRatio, exclude = null } = {}) {
+    const units = [...keys]
+        .filter((key) => key !== exclude)
+        .map((key) => ({
+            key,
+            count: stats.get(key)?.count ?? 0,
+            umsatz: stats.get(key)?.umsatz ?? 0
+        }))
+        .filter((unit) => unit.count > 0);
+    if (units.length < 2) return null;
+
+    const byCount = [...units].sort((a, b) => a.count - b.count);
+    const min = byCount[0];
+    const max = byCount[byCount.length - 1];
+    const ratio = max.count / Math.max(1, min.count);
+
+    // Umsatz nur, wenn ihn mindestens zwei Einheiten führen: Sonst vergleicht
+    // die Karte einen echten Betrag gegen eine fehlende Angabe und nennt das
+    // Ergebnis „schwächster Bezirk".
+    const withRevenue = units.filter((unit) => unit.umsatz > 0);
+    let revenue = null;
+    if (withRevenue.length >= 2) {
+        const byRevenue = [...withRevenue].sort((a, b) => a.umsatz - b.umsatz);
+        revenue = { min: byRevenue[0], max: byRevenue[byRevenue.length - 1] };
+    }
+
+    return { units: units.length, ratio, balanced: ratio <= maxRatio, count: { min, max }, revenue };
+}
+
+/**
  * Zuordnung Gebiet -> Kunden-IDs (für das Gebiets-Cockpit / What-if).
  * Nur Gebiete mit mindestens einem Kunden werden zurückgegeben.
  * @returns {Array<{ key, name, customerIds: string[] }>} nach Kundenzahl sortiert

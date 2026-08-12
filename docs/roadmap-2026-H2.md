@@ -68,22 +68,59 @@ Tourenoptimierung, Umkreis/Korridor) wird ein **Ein-Klick-Tagesplaner**:
 scannen, losfahren – Lokal-first in Reinform. Die manuelle Planung bleibt dabei
 vollständig in der Hand des Nutzers.
 
-### Release 3 – „Entscheidungsvorlage" · **WOW-Feature #2** *(~2 Wochen)*
+### Release 3 – „Entscheidungsvorlage" · **WOW-Feature #2** *(3.1 und 3.3 umgesetzt, 3.2 offen)*
 
 Ziel: Moment B zu Ende denken. Die Simulation (PRs #44–#48) ist stark, aber ihr
 Ergebnis „verpufft" im Dialog.
 
-| # | Item | Status | Akzeptanzkriterien |
+| # | Item | Status | Ergebnis |
 |---|---|---|---|
-| 3.1 | **Simulations-Report exportieren** | ⏳ offen | Ein Klick erzeugt aus der aktiven Simulation eine druckfertige Vorlage (HTML-Druckansicht → PDF): Kartenbild Alt/Neu, Kennzahlen-Tabelle je Bezirk (Kunden, Umsatz, Delta), Fairness-Kennzahl vorher/nachher, Aktionsliste. Zusätzlich Excel-Export der Umbuchungsliste. |
+| 3.1 | **Simulations-Report exportieren** | ✅ umgesetzt *(12.08.2026)* | `src/features/simulationReport.js`: Druckansicht mit Kennzahlen je Einheit (Kunden, Umsatz, Δ – vorher **und** nachher), Ausgewogenheit vorher/nachher, Aktionsliste und betroffenen Gebieten; dazu der Excel-Export der Umbuchungsliste (`exportReassignments`). **Ohne Kartenbild** – siehe 3.1b. |
 | 3.2 | **Ausgewogenheits-Assistent** | ⏳ offen | Button „Vorschlag: ausgleichen": Greedy-Heuristik schlägt Gebietsverschiebungen vor, die den Kunden-/Umsatz-Faktor Richtung ≤ 1,5 senken – als Simulation, die der Nutzer prüft, editiert, verwirft oder übernimmt. Keine Blackbox: jede vorgeschlagene Verschiebung ist einzeln begründet (Gebiet, Kunden, Umsatz). |
 | 3.3 | **Benannte Simulations-Szenarien** | ✅ umgesetzt | Nachgeholt als Item 6.8 in Release 8 (`src/features/simulationScenarios.js`). Speichern, Laden, Vergleichen; nur Zuordnungen, keine Kundendaten. |
+| 3.1b | **Kartenbild Alt/Neu in der Vorlage** | ⏸ zurückgestellt | Bewusst aus 3.1 herausgeschnitten, Begründung unten. |
 
-**Damit ist Release 3 der einzige offene Hebel für Moment B.** 3.1 und 3.2 sind
-in dieser Fassung unangetastet: `CONFIG.territory.balancedMaxRatio` und die
-Status-Karte im Cockpit nennen den Ausgewogenheits-Assistenten zwar bereits als
-Herkunft der 1,5 – gebaut ist er nicht. Der einzige Druckweg im Produkt ist der
-Tagesplan-Druck in `src/features/tourExport.js`, nicht der Gebiets-Report.
+#### Zwei Adressaten, zwei Dokumente (3.1)
+
+Die Vorlage ist **aggregiert und nennt keinen Kundennamen**; die namentliche
+Umbuchungsliste gibt es getrennt als Excel-Datei. Das ist keine Bequemlichkeit,
+sondern die Anwendung der eigenen Leitplanke auf ein Papier: Eine
+Entscheidungsvorlage wird in einer Sitzung herumgereicht und kopiert. Wer die
+Kundenliste hineinlegt, verteilt sie an einen Kreis, der über Zuschnitte
+entscheidet und dafür keine Namen braucht. Die Person, die die Umbuchung
+anschließend ausführt, braucht sie – und bekommt sie als eigene Datei.
+
+Zweite Festlegung: Die Vorlage zeigt **beide Stände**, nicht nur den
+Zielzustand. Eine Vorlage, die nur zeigt, was danach ist, ist keine
+Entscheidungsgrundlage, sondern eine Werbung für die Variante, die gerade offen
+ist – und sie lädt zu genau der Zahlenauswahl ein, gegen die das B3-Tor
+geschrieben wurde.
+
+#### Warum das Kartenbild nicht mitkommt (3.1b)
+
+Das Kartenbild stand in den Akzeptanzkriterien vom 25.07. und ist der einzige
+Punkt daraus, der nicht gebaut wurde. Der Grund ist nicht Aufwand:
+
+1. **Es braucht eine neue Abhängigkeit** (html2canvas oder leaflet-image), um
+   eine Leaflet-Karte zu rastern. Das Projekt hat fünf Laufzeit-Pakete.
+2. **Es rastert fremde Kacheln in eine Datei, die weitergegeben wird.** Damit
+   wird aus einer Kartenanzeige eine Weitergabe von Kartenmaterial – eine
+   Lizenzfrage an OpenStreetMap-Kacheln, keine Programmierfrage. DoD Nr. 3
+   verlangt für Drittdienste eine ausdrückliche Entscheidung, und die gehört
+   nicht als Nebensatz in ein Export-Feature.
+3. **Canvas-Tainting:** Kacheln von einem fremden Host machen das Canvas
+   unlesbar, sofern der Server nicht CORS-Header liefert – der Weg ist also
+   nicht einmal technisch geradlinig.
+
+Was stattdessen bleibt: Die Karte selbst kann die Simulation längst zeigen
+(„Simulation auf Karte prüfen", 13.6). Der Bildschirm-Hinweis im Fenster der
+Vorlage sagt das und wird **nicht mitgedruckt** – ein Blatt in einer Sitzung
+soll nicht erklären, was ihm fehlt.
+
+Der bessere Ort für das visuelle Argument ist ohnehin der bereits bewertete
+Kandidat 2 (**Vorher/Nachher-Slider über der Karte**): live und vergleichend
+statt als eingefrorenes Bild. Kommt 3.1b zurück, dann über die
+Drittdienst-Frage – nicht über „wäre schön".
 
 ### Release 4 – „Tresor" · High-End-Sicherheit *(umgesetzt, vorgezogen vor Release 3)*
 
@@ -426,8 +463,10 @@ die Geste misst und nicht die Antwort, ist gegen diese Fehlerklasse blind.
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
    Nutzt `visits.js` + `territory.js`, beides vorhanden.
-2. **Vorher/Nachher-Slider über der Karte** (zieht aus Release 3 den Teil vor,
-   der im Management-Meeting wirklich überzeugt).
+2. **Vorher/Nachher-Slider über der Karte** – seit 12.08.2026 der Erbe von
+   3.1b: Die Entscheidungsvorlage liefert die Zahlen, das visuelle Argument
+   fehlt ihr. Ein Slider löst es **live auf der Karte** statt als gerastertes
+   Bild in einer Datei und wirft damit keine Kachel-Lizenzfrage auf.
 3. **Haltbarkeit der lokalen Daten:** `navigator.storage.persist()` anfordern,
    Status ehrlich anzeigen, an Sicherung erinnern. Lokal-first ist nur dann ein
    Vorteil und kein Risiko, wenn dieser Punkt sichtbar beantwortet ist.
