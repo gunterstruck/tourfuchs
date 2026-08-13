@@ -415,14 +415,14 @@
                 </div>
 
                 <div class="tour-acc" data-acc="start">
-                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true">1. Startpunkt <span class="help-dot" tabindex="0" title="Starte mit deinem Standort oder einem Kunden. Danach schlägt TourFuchs passende Kunden in der Nähe oder entlang der Route vor.">?</span><span class="acc-summary" id="acc-sum-start"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
+                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true">1. Startpunkt <span class="help-dot" tabindex="0" title="Starte mit deinem Standort, einem Kunden oder einem Ort (Station, Büro, Hotel) – Ortsname oder PLZ genügt. Häufige Orte lassen sich mit „★ merken“ sichern. Danach schlägt TourFuchs passende Kunden in der Nähe oder entlang der Route vor.">?</span><span class="acc-summary" id="acc-sum-start"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
                 <div class="acc-body">
                 <div id="tour-start"></div>
                 <div class="button-row">
                     <button id="btn-my-location">📍 Mein Standort</button>
                 </div>
                 <div class="start-search-wrap">
-                    <input id="start-search" type="search" placeholder="…oder Kunde als Start wählen" autocomplete="off">
+                    <input id="start-search" type="search" placeholder="…oder Kunde, Ort oder PLZ als Start" autocomplete="off">
                     <div id="start-results"></div>
                 </div>
 
@@ -454,10 +454,10 @@
                 </section>
 
                 <div class="expert-only expert-swipe-section" data-expert-section="destination">
-                    <h3>Ziel <span class="muted small">(optional)</span> <span class="help-dot" tabindex="0" title="Mit Ziel berechnet TourFuchs Vorschläge entlang der Strecke. Ohne Ziel ist der letzte Stopp automatisch das Ziel.">?</span></h3>
+                    <h3>Ziel <span class="muted small">(optional)</span> <span class="help-dot" tabindex="0" title="Mit Ziel berechnet TourFuchs Vorschläge entlang der Strecke. Ziel kann ein Kunde oder ein Ort sein (z. B. die Rückgabestation). Ohne Ziel ist der letzte Stopp automatisch das Ziel.">?</span></h3>
                     <div id="tour-dest"></div>
                     <div class="start-search-wrap">
-                        <input id="dest-search" type="search" placeholder="Zielkunde wählen – Vorschläge dann entlang der Strecke" autocomplete="off">
+                        <input id="dest-search" type="search" placeholder="Kunde, Ort oder PLZ als Ziel – Vorschläge dann entlang der Strecke" autocomplete="off">
                         <div id="dest-results"></div>
                     </div>
                 </div>
@@ -791,6 +791,12 @@
                     <summary><b>🪦 Was wir weggelassen haben</b></summary>
                     <p class="muted small">Jedes Produkt zeigt, was es kann. Hier steht, was es <b>bewusst nicht</b> kann – und warum. Streichungen sind Entscheidungen, keine Versäumnisse, und sie gehören genauso offengelegt wie die Funktionen.</p>
                     <dl class="omitted-list">
+                        <dt>Adressen im Internet suchen <span class="omitted-date">13.08.2026</span></dt>
+                        <dd><b>Nicht gebaut – vorerst.</b> Mit dem Startpunkt kam der naheliegende Wunsch: „SIXT Flughafen Hamburg" eintippen und hausgenau finden. Dafür bräuchte es eine Suchanfrage bei einem fremden Dienst, und zwar mit dem, was Sie tippen – bisher verlässt nur die Adresse eines eigenen Kunden das Gerät, und nur auf ausdrücklichen Klick. Außerdem verbietet die Nutzungsrichtlinie von OpenStreetMap ein Suchfeld, das beim Tippen mitsucht; erlaubt wäre nur „tippen, abschicken, warten". Stattdessen sucht TourFuchs in den mitgelieferten Postleitzahl-Daten – ortsgenau statt hausgenau, dafür ohne jede Übertragung. Wer eine Station hausgenau braucht, merkt sie sich einmal mit „★ merken".</dd>
+
+                        <dt>Startpunkt per langem Druck auf die Karte <span class="omitted-date">13.08.2026</span></dt>
+                        <dd><b>Nicht gebaut.</b> Es wäre die dritte Antwort auf dieselbe Frage – „📍 Mein Standort" und das Suchfeld beantworten sie bereits. Ein unbeschrifteter Griff, den man nur kennt, wenn man ihn einmal gezeigt bekam, ist kein Komfort, sondern eine Doppelung mit Erklärungsbedarf. Kommt er zurück, dann als Ersatz für etwas, nicht als Ergänzung.</dd>
+
                         <dt>Automatischer Tourvorschlag <span class="omitted-date">10.07.2026</span></dt>
                         <dd><b>Gestrichen nach Nutzerfeedback.</b> „Plane meinen Tag" war als Kernfunktion geplant und vollständig entworfen: überfällige Kunden gewichtet nach Fälligkeit, Umsatz und Fahrstrecke, fertig optimiert ab GPS-Standort. Die Rückmeldung war eindeutig – die Tour plant der Mensch. Automatik hilft nur dort, wo sie nichts vorwegnimmt: bei Zeiten, Terminen und der Übergabe aufs Handy.</dd>
 

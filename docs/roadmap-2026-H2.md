@@ -459,6 +459,70 @@ Befund zur Willkommenskarte: 28 von 28 Durchläufen „alle sauber", während ei
 Tipp auf einen verdeckten Kundenstapel folgenlos blieb. Ein Messgerät, das nur
 die Geste misst und nicht die Antwort, ist gegen diese Fehlerklasse blind.
 
+### Release 11 – „Wo starte ich?" *(13.08.2026 umgesetzt, App 3.4.0)*
+
+Anlass war die erste eigene Tour eines Nutzers: *„Für die Routenplanung kann ich
+nur meinen Standort oder Kundenadressen nutzen. Ich brauche die nächste
+SIXT-Station – oder ein Büro."*
+
+Die Prüfung gab dem Befund recht und schärfte ihn: Der Startpunkt kannte zwei
+Formen, GPS und Kunde (`state.tour.start`), das Ziel sogar nur eine. Wer seine
+Tour an einer Mietwagenstation beginnt, musste den nächstgelegenen Kunden als
+Start missbrauchen – das verschiebt Umkreisvorschläge und Streckenschätzung um
+genau die Strecke, die einen erst zum Startpunkt bringt.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 11.1 | **Orte als Start und Ziel** | ✅ umgesetzt | `src/features/places.js`: Das **bestehende** Suchfeld nimmt zusätzlich Ortsnamen, Postleitzahlen und eingefügte Koordinaten an; Start **und** Ziel teilen sich dieselbe Suche (`wireTourPointSearch`). Aufgelöst wird gegen die ohnehin gebündelten ~8.300 PLZ-Zentroide – **kein neuer Netzaufruf**. |
+| 11.2 | **Eigene Orte merken** | ✅ umgesetzt | „★ merken" am Start-/Zielchip macht aus einem gefundenen Punkt einen benannten Ort („SIXT Essen Hbf"), der ab dann in der Trefferliste oben steht. Kein Pflegedialog: gelöscht wird mit ✕ in derselben Liste. Deckel `CONFIG.tour.maxOwnPlaces = 20`. |
+| 11.3 | **Orte liegen im Tresor** | ✅ umgesetzt | `state.places` reist im `datasetSnapshot()` mit und ist damit AES-verschlüsselt, sobald der Tresor aktiv ist. „Alle Daten löschen" löscht sie mit; beim sicheren Umzug werden sie **ergänzt statt überschrieben** (`mergeOwnPlaces`). |
+| 11.4 | **Ersatzkoordinaten aus dem Verzeichnis halten** | ✅ umgesetzt | Beim Bauen des Index gefunden: 94 Postleitzahlen tragen im Quelldatensatz die geografische Mitte Deutschlands statt einer Lage (darunter „11011 Berlin"). Als Kundenposition ist das eine grobe Angabe, als **Ortsvorschlag** eine falsche Auskunft – „Berlin" hätte auf einem Acker bei Niederdorla gelegen. Solche Einträge kommen nicht ins Verzeichnis. |
+| 11.5 | **Stufe 2 (Adresssuche) an ein Tor** | ⏳ offen | Siehe unten. Ausdrücklich **nicht** gebaut. |
+
+#### Drei Entscheidungen, die im Vorschlag noch offen waren
+
+1. **Start *und* Ziel.** Wer an einer Station startet, gibt den Wagen abends dort
+   wieder ab. Ein Ziel, das nur Kunden kennt, hätte die Hälfte des Bedarfs
+   beantwortet – und ausgerechnet die Hälfte, die den Korridor-Modus trägt.
+2. **Eigene Orte gehören in den Tresor.** Eine Büro- oder Hoteladresse ist ein
+   Personenbezug auf dem Gerät. Sie folgen deshalb der Kundendaten-Regel, nicht
+   der Einstellungs-Regel. Der Preis: Sie sind bei gesperrtem Tresor nicht
+   lesbar. Das ist richtig so.
+3. **Ein Feld, nicht zwei.** „Wo starte ich?" hatte mit Standort-Knopf und
+   Kundensuche bereits zwei Angebote. Ein drittes wäre der Stapel aus Release 9
+   gewesen (Prüffrage 2.4). Gemessen: `attention-check` meldet **Erstbild Handy
+   14, Schreibtisch 33** – unverändert. Die Trefferliste erscheint erst beim
+   Tippen, „★ merken" erst, wenn ein Ort ohne Kunden dahinter gewählt ist.
+
+#### Das Tor für die Adresssuche (11.5)
+
+Eine Freitextsuche über Nominatim würde „SIXT Flughafen Hamburg" hausgenau
+finden. Sie ist nicht gebaut, und zwar aus zwei Gründen, die nichts mit Aufwand
+zu tun haben:
+
+- **Es wäre eine neue Drittdienst-Verbindung.** Bisher gehen an Nominatim
+  ausschließlich die neutralen Adressfelder eigener Kunden. Freitext geht *als
+  Freitext* hinaus – der Nutzer kann alles hineinschreiben. Das ist eine andere
+  Zusage als die, die heute auf der Datenschutzseite steht (DoD Nr. 3).
+- **Die OSM-Nutzungsrichtlinie verbietet Autocomplete.** Ein Suchfeld, das beim
+  Tippen mitsucht, wäre ein Richtlinienbruch; erlaubt wäre nur „tippen → Enter →
+  eine Anfrage". Das ist ein anderes Bedienmuster als das hier gebaute und
+  gehört nicht als Nebensatz in dieses Release.
+
+**Abbruchbedingung, vor der Auswertung notiert** (wie beim B3-Tor): Stufe 2 wird
+gebaut, wenn bis zum **31.10.2026** in mindestens **drei** von zehn geplanten
+Touren ein Startpunkt gebraucht wurde, den eigene Orte, Ortsname oder PLZ nicht
+treffen konnten. Sonst stirbt sie und kommt in „Was wir weggelassen haben".
+Ehrliche Einordnung: Bei einem Nutzer ist n = 1, daraus folgt nichts
+Signifikantes. Der Wert liegt in der Selbstbindung gegen nachträgliches
+Rechthaben.
+
+**Verzichtszeile:** Ein Ort aus dem Verzeichnis ist ortsgenau, nicht hausgenau.
+Für einen 25-km-Umkreis und die Streckenschätzung ist das ohne Bedeutung; wer die
+Station hausgenau braucht, trägt sie einmal als eigenen Ort ein. Was fehlt, ist
+das Finden einer fremden Adresse in einer fremden Stadt – genau das, was an
+11.5 hängt.
+
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
@@ -490,10 +554,13 @@ die Geste misst und nicht die Antwort, ist gegen diese Fehlerklasse blind.
 
 ### Backlog & Vision (bewusst NICHT jetzt)
 
-- **POIs auf der Karte** (Ladestationen, eigene Niederlassungen): nur als Opt-in –
-  externe POI-Abfragen sind eine neue Drittdienst-Verbindung und unterliegen der
-  Offenlegungspflicht (DoD Nr. 3). Eigene Niederlassungen alternativ als lokale
-  Importdatei (kein externer Call) – das zuerst.
+- **POIs auf der Karte** (Ladestationen): nur als Opt-in – externe POI-Abfragen
+  sind eine neue Drittdienst-Verbindung und unterliegen der Offenlegungspflicht
+  (DoD Nr. 3). Der Teil „eigene Niederlassungen" ist mit **Release 11**
+  beantwortet und aus diesem Eintrag herausgelöst: Er war hier als
+  *Anzeige*-Frage abgelegt, gebraucht wurde er als *Planungs*-Frage – wo beginnt
+  meine Tour. Was hier bleibt, ist das Zeichnen fremder Punkte auf die Karte,
+  und das steht weiter hinten an.
 - **KI-Assistent in der App:** Die Grundsatzentscheidung ist mit 5.1 gefallen und
   gilt in die andere Richtung: TourFuchs bindet **keine** KI an – weder per API
   noch per Anmeldung. Es bereitet den Prompt vor, mehr nicht. Ein lokales Modell

@@ -1458,7 +1458,9 @@ Weitere Details: `docs/kundenbriefing.md`.
    geht es genauso zurück. Enthalten die Daten nur einen Bezirk, fehlt die
    Zeile ganz.
 2. **"Mein Standort"** nutzen oder im Feld
-   **"...oder Kunde als Start wählen"** einen Kunden suchen.
+   **"...oder Kunde, Ort oder PLZ als Start"** suchen. Das Feld findet dreierlei:
+   **eigene Orte**, **Kunden** und **Orte** aus dem mitgelieferten
+   Postleitzahl-Verzeichnis (siehe 10.1a).
 3. Datum, Startzeit und **"Besuch (Min.)"** einstellen.
 4. Umkreis mit dem Regler anpassen.
 5. optional **"Überfällige zuerst"** aktivieren.
@@ -1470,6 +1472,44 @@ Weitere Details: `docs/kundenbriefing.md`.
 
 Der Nutzer baut die Tour bewusst selbst. TourFuchs schlägt vor und optimiert nur
 die ausgewählten Stopps.
+
+### 10.1a Orte als Start und Ziel (Station, Büro, Hotel)
+
+**Klickpfad:** `"Außendienst" -> "Tour" -> Schritt 1 -> Feld "...oder Kunde, Ort
+oder PLZ als Start"`.
+
+Nicht jede Tour beginnt zu Hause oder bei einem Kunden. Wer mit dem Zug anreist
+und einen Mietwagen übernimmt, startet an einer Station; wer vom Büro losfährt,
+dort. Dasselbe Feld beantwortet deshalb drei Fragen und zeigt die Treffer in
+drei Gruppen:
+
+| Gruppe | Was drinsteht |
+|---|---|
+| **Eigene Orte** | selbst benannte Punkte, z. B. "SIXT Essen Hbf" |
+| **Kunden** | wie bisher: Name, Ort oder Postleitzahl |
+| **Orte** | Ortsnamen und Postleitzahlen aus dem mitgelieferten Verzeichnis |
+
+Eingefügte Koordinaten ("51.4459, 7.0185" oder "51,4459 7,0185") werden ebenfalls
+erkannt. Das **Ziel** benutzt dasselbe Feld
+(**"Kunde, Ort oder PLZ als Ziel"**) – für die Rückgabestation am Abend.
+
+**Einen Ort merken:** Ist ein Ort als Start oder Ziel gewählt, steht am Chip der
+Knopf **"★ merken"**. Er fragt nach einem Namen; danach trägt der Startpunkt
+diesen Namen und der Ort steht künftig oben in der Trefferliste. Gelöscht wird
+er mit **✕** direkt in dieser Liste. Es passen **20** eigene Orte.
+
+**Was der Guide zu Genauigkeit sagen muss:** Ein Ort aus dem Verzeichnis ist
+**ortsgenau, nicht hausgenau** – er liegt in der Ortsmitte bzw. in der Mitte des
+Postleitzahl-Gebiets. Für Umkreisvorschläge und Streckenschätzung genügt das;
+wer die Station hausgenau braucht, merkt sie sich einmal als eigenen Ort.
+TourFuchs sucht **keine Adressen im Internet**: Die Ortssuche arbeitet
+ausschließlich mit den mitgelieferten Postleitzahl-Daten, es geht dabei keine
+Anfrage hinaus.
+
+**Ein Ort ist kein Kunde.** Er zählt nicht in Kundenlisten, Umsatzsummen,
+Fälligkeiten oder Gebietsauswertungen mit. Eigene Orte werden zusammen mit den
+Kundendaten gespeichert und sind damit bei aktivem Datentresor verschlüsselt;
+"Alle Daten löschen" löscht sie mit.
 
 ### 10.2 Profi-Erweiterungen
 
@@ -1538,7 +1578,8 @@ ist eine Streckenheuristik und keine Echtzeit-Verkehrsoptimierung.
 
 ### 10.6 Ziel und Rundreise
 
-- mit explizitem Ziel endet die Tour dort.
+- mit explizitem Ziel endet die Tour dort. Ziel kann ein **Kunde oder ein Ort**
+  sein (Rückgabestation, Hotel, Büro) – dasselbe Suchfeld wie beim Start.
 - mit **"Rundreise"** endet sie wieder am Start.
 - ohne Ziel und ohne Rundreise ist der letzte Stopp automatisch das Ziel.
 
@@ -2179,6 +2220,8 @@ Dienste übergeben.
 | Funktion | Auslöser | Übertragene Daten | Ziel |
 |---|---|---|---|
 | PLZ-Verortung | automatisch beim Import | keine externe Übertragung | lokale PLZ-Tabelle |
+| Ortssuche für Start/Ziel | Tippen im Suchfeld | keine externe Übertragung | dieselbe lokale PLZ-Tabelle |
+| Eigene Orte merken | Klick auf "★ merken" | keine externe Übertragung; lokal gespeichert (im Tresor verschlüsselt) | nur TourFuchs im Browser |
 | Kartenanzeige | Karte betrachten | technische Zugriffsdaten, Kachelkoordinaten | OSM/CARTO/Esri-Kacheldienste |
 | Adressen exakt verorten | bewusster Klick bei Echtdaten | Straße, PLZ, Ort | Nominatim/OpenStreetMap |
 | Straßenroute/Korridor | nach Zustimmung | Koordinaten der Routenpunkte | OSRM |
