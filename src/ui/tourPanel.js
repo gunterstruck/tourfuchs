@@ -54,6 +54,15 @@ let suggestionRoadSeq = 0;
 let serviceDayPreview = null;
 let serviceDayGroups = new Map();
 
+/**
+ * Wie viele Zeilen eine Trefferguppe zeigt, wenn mehrere Gruppen im Spiel sind
+ * – und wie viele, wenn eine Gruppe allein dasteht. Der Zweck ist nicht Kürze,
+ * sondern dass **jede** Gruppe im Bild bleibt: Wer eine Postleitzahl tippt, an
+ * der Kunden hängen, muss den Ort darunter noch sehen.
+ */
+const GROUP_LIMIT = 3;
+const SINGLE_GROUP_LIMIT = 6;
+
 const HIDDEN_EXPERT_KEY = 'gf_hidden_expert_sections';
 const SWIPE_HIDE_PX = 72;
 
@@ -804,15 +813,14 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
         if (raw.length < MIN_PLACE_QUERY) { results.innerHTML = ''; return; }
 
         const q = raw.toLowerCase();
-        const customers = tourPool()
+        const matchingCustomers = tourPool()
             .filter((c) => c.lat !== null && (
                 c.name.toLowerCase().includes(q) ||
                 c.ort.toLowerCase().includes(q) ||
                 c.plz.startsWith(q)
-            ))
-            .slice(0, 6);
+            ));
 
-        const own = searchOwnPlaces(raw, state.places);
+        const own = searchOwnPlaces(raw, state.places, GROUP_LIMIT);
         const coords = parseCoordinateQuery(raw);
         const coordResults = coords
             ? [{ kind: 'koordinaten', id: 'koordinaten', label: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`, detail: 'Eingefügte Koordinaten', ...coords, plz: '', ort: '' }]
@@ -821,12 +829,20 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
         // Kunden und eigene Orte schon da.
         const index = await loadPlaceIndex();
         if (run !== sequence) return;   // zwischenzeitlich weitergetippt
-        const geo = coords ? [] : searchGeoPlaces(raw, index);
+        const geo = coords ? [] : searchGeoPlaces(raw, index, GROUP_LIMIT);
 
         const points = [...own, ...coordResults, ...geo];
+        // Am echten Bestand gefunden: An „45136" hängen drei Kunden, und der Ort
+        // „45136 Essen" rutschte damit unter die Faltkante – die Antwort, wegen
+        // der man die Postleitzahl getippt hat, war nicht zu sehen. Sobald es
+        // mehr als eine Gruppe gibt, bekommt jede denselben knappen Platz;
+        // steht eine Gruppe allein da, darf sie ihn ausnutzen.
+        const otherGroups = points.length;
+        const customers = matchingCustomers.slice(0, otherGroups ? GROUP_LIMIT : SINGLE_GROUP_LIMIT);
+        const hiddenCustomers = matchingCustomers.length - customers.length;
         results.innerHTML = [
             groupHtml('Eigene Orte', own.map((r) => placeRow(r, points.indexOf(r)))),
-            groupHtml('Kunden', customers.map((c) => `
+            groupHtml(hiddenCustomers > 0 ? `Kunden (${customers.length} von ${matchingCustomers.length})` : 'Kunden', customers.map((c) => `
                 <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
                     <b>${escapeHtml(c.name)}</b> <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}</span>
                 </button>`)),
@@ -881,11 +897,20 @@ function wireRememberPlace(buttonId, point) {
         const suggestion = point.ort && point.label !== point.ort ? point.label : (point.label || point.ort || '');
         const name = prompt('Name für diesen Ort (z. B. „SIXT Essen Hbf"):', suggestion);
         if (name === null) return;
+        // Zweite, freiwillige Frage – und nur dort, wo sie etwas ändert: Ein Ort
+        // aus dem Verzeichnis liegt in der Ortsmitte. Für die Umkreissuche
+        // genügt das, für die Navigation nicht. Die Straße wird **nicht**
+        // nachgeschlagen (das wäre eine Anfrage nach außen), sondern
+        // mitgeschrieben und an Google Maps übergeben, wenn du dorthin
+        // navigierst. Wer nichts einträgt, verliert nichts.
+        const strasse = point.strasse || (point.ort
+            ? (prompt(`Straße und Hausnummer in ${point.ort} (optional, nur für die Navigation):`, '') ?? '')
+            : '');
         const place = createOwnPlace({
             label: name,
             lat: point.lat,
             lng: point.lng,
-            strasse: point.strasse ?? '',
+            strasse,
             plz: point.plz ?? '',
             ort: point.ort ?? ''
         });
@@ -903,7 +928,10 @@ function wireRememberPlace(buttonId, point) {
         // Schritt stünde es weiter da und ließe sich beliebig oft auslösen.
         point.placeId = place.id;
         point.label = place.label;
-        showToast(`„${place.label}" gemerkt.`, 'success');
+        if (place.strasse) point.strasse = place.strasse;
+        showToast(place.strasse
+            ? `„${place.label}" gemerkt – Navigation zu ${place.strasse}.`
+            : `„${place.label}" gemerkt.`, 'success');
         emit('tour:changed');
     });
 }

@@ -82,7 +82,7 @@ describe('Wissensbasis bildet den Code ab', () => {
         // Kunde als Start wählen", schickte er Nutzer zu einem Feld, das es so
         // nicht mehr gibt – genau der Fehler aus Kapitel 5.5.
         const html = normalize(readProjectFile('index.html'));
-        for (const label of ['...oder Kunde, Ort oder PLZ als Start', 'Kunde, Ort oder PLZ als Ziel', '"★ merken"']) {
+        for (const label of ['...oder Kunde, Ort oder PLZ als Start', 'Kunde, Ort oder PLZ als Ziel', '"★ merken"', '"Straße und Hausnummer"']) {
             expect(doc).toContain(normalize(label));
         }
         expect(html).toContain('Kunde, Ort oder PLZ als Start');

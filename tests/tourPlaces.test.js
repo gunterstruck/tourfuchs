@@ -17,6 +17,7 @@ import {
 import { state, setPlaces, addPlace, removePlace, setCustomers, datasetSnapshot } from '../src/core/state.js';
 import { CONFIG } from '../src/core/config.js';
 import { encodeTourPayload, decodeTourPayload } from '../src/features/tourShare.js';
+import { googleMapsLink } from '../src/features/tour.js';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 
@@ -228,6 +229,40 @@ describe('Ein Ort als Startpunkt übersteht die QR-Übergabe', () => {
         expect(decoded.start.lat).toBeCloseTo(51.4459, 4);
         // Der Startpunkt trägt kein „hier" – navigiert wird ab der Station.
         expect(decoded.start.here).toBeUndefined();
+    });
+});
+
+describe('Straße und Hausnummer am eigenen Ort', () => {
+    it('reisen im QR-Code mit und führen die Navigation zur Tür', () => {
+        const encoded = encodeTourPayload({
+            start: {
+                lat: 51.4459, lng: 7.0185, label: 'SIXT Essen Hbf',
+                strasse: 'Hachestraße 1', plz: '45127', ort: 'Essen'
+            },
+            stops: [{ name: 'Autohaus', lat: 51.43, lng: 7.03 }]
+        });
+        const decoded = decodeTourPayload(encoded);
+        expect(decoded.start.adresse).toBe('Hachestraße 1, 45127 Essen');
+        // Und der Navigationslink benutzt sie, statt auf die Ortsmitte zu zeigen.
+        const link = decodeURIComponent(googleMapsLink(decoded.start, decoded.stops)).replace(/\+/g, ' ');
+        expect(link).toContain('origin=Hachestraße 1, 45127 Essen');
+    });
+
+    it('bleiben ohne Straße bei den Koordinaten', () => {
+        const encoded = encodeTourPayload({
+            start: { lat: 51.4459, lng: 7.0185, label: '45127 Essen', plz: '45127', ort: 'Essen' },
+            stops: [{ name: 'Autohaus', lat: 51.43, lng: 7.03 }]
+        });
+        const decoded = decodeTourPayload(encoded);
+        expect(decoded.start.adresse).toBeUndefined();
+        expect(googleMapsLink(decoded.start, decoded.stops)).toContain('origin=51.4459%2C7.0185');
+    });
+
+    it('fragt die Straße nur, wo sie etwas ändert, und schlägt sie nicht nach', () => {
+        const tourPanel = read('src/ui/tourPanel.js');
+        expect(tourPanel).toContain('Straße und Hausnummer in ${point.ort} (optional, nur für die Navigation)');
+        // Kein Nachschlagen: Die Eingabe wird mitgeschrieben, nicht verortet.
+        expect(tourPanel).not.toMatch(/geocodeExact|nominatim/i);
     });
 });
 
