@@ -165,6 +165,10 @@ export function routeDistance(start, stops, roundTrip = false) {
 function pointParam(p) {
     // Adresse ist für Google Maps robuster als rohe Koordinaten
     if (p.strasse && p.ort) return `${p.strasse}, ${p.plz ?? ''} ${p.ort}`.trim();
+    // Fertige Adresszeile aus einer per QR empfangenen Tour (dort gibt es keine
+    // getrennten Felder). Ohne diesen Zweig navigierte das Handy zu einer
+    // Ortsmitten-Koordinate, obwohl die Hausnummer mitgereist ist.
+    if (p.adresse) return p.adresse;
     return `${p.lat},${p.lng}`;
 }
 
