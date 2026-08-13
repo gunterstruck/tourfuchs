@@ -55,7 +55,7 @@ let serviceDayPreview = null;
 let serviceDayGroups = new Map();
 
 /**
- * Wie viele Zeilen eine Trefferguppe zeigt, wenn mehrere Gruppen im Spiel sind
+ * Wie viele Zeilen eine Treffergruppe zeigt, wenn mehrere Gruppen im Spiel sind
  * – und wie viele, wenn eine Gruppe allein dasteht. Der Zweck ist nicht Kürze,
  * sondern dass **jede** Gruppe im Bild bleibt: Wer eine Postleitzahl tippt, an
  * der Kunden hängen, muss den Ort darunter noch sehen.
