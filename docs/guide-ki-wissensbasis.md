@@ -1498,6 +1498,19 @@ Knopf **"★ merken"**. Er fragt nach einem Namen; danach trägt der Startpunkt
 diesen Namen und der Ort steht künftig oben in der Trefferliste. Gelöscht wird
 er mit **✕** direkt in dieser Liste. Es passen **20** eigene Orte.
 
+**Straße und Hausnummer:** Direkt nach dem Namen fragt TourFuchs freiwillig nach
+**"Straße und Hausnummer"**. Die Eingabe wird **nicht nachgeschlagen** – sie wird
+mitgeschrieben und an **Google Maps** übergeben, sobald von diesem Punkt aus
+navigiert wird; sie reist auch in der QR-Übergabe aufs Handy mit. Wirkung: Die
+Planung (Umkreis, Streckenschätzung) rechnet weiter mit der Ortsmitte, die
+**Navigation** führt aber zur Haustür. Wer nichts einträgt, verliert nichts.
+Diese Frage erscheint nur bei Orten ohne Straße; ein Kunde bringt seine Adresse
+bereits mit.
+
+Wichtige Abgrenzung für den Guide: Eine **Straße suchen** kann TourFuchs nicht –
+im Suchfeld findet man Ortsnamen und Postleitzahlen, keine Hausnummern. Wer eine
+Adresse hausgenau braucht, trägt sie einmal beim Merken ein.
+
 **Was der Guide zu Genauigkeit sagen muss:** Ein Ort aus dem Verzeichnis ist
 **ortsgenau, nicht hausgenau** – er liegt in der Ortsmitte bzw. in der Mitte des
 Postleitzahl-Gebiets. Für Umkreisvorschläge und Streckenschätzung genügt das;

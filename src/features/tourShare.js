@@ -34,6 +34,11 @@ const hasCoords = (p) => Boolean(p) && isCoord(p.lat) && isCoord(p.lng);
 function packPoint(point) {
     if (!hasCoords(point)) return null;
     const packed = { lat: round5(point.lat), lng: round5(point.lng), l: point.label || point.name || '' };
+    // Adresse des Start-/Zielpunkts mitgeben, wenn es eine gibt: Ein eigener Ort
+    // („SIXT Essen Hbf") liegt sonst nur als Ortsmitten-Koordinate vor, und das
+    // Handy navigierte einen Kilometer neben die Station.
+    const addr = [point.strasse, `${point.plz ?? ''} ${point.ort ?? ''}`.trim()].filter(Boolean).join(', ');
+    if (point.strasse && addr) packed.a = addr;
     if (isDemoCustomer(point)) packed.d = 1;
     if (point.here) packed.h = 1; // Geräte-Standort: Ziel-Navigation ab aktuellem Ort
     return packed;
@@ -124,6 +129,7 @@ export function decodeTourPayload(text) {
 
     const point = (p) => ({
         lat: Number(p.lat), lng: Number(p.lng), label: p.l || '',
+        ...(p.a ? { adresse: p.a } : {}),
         ...(p.h === 1 ? { here: true } : {}),
         ...(p.d === 1 ? { demo: true, dataOrigin: DEMO_DATA_ORIGIN } : {})
     });
