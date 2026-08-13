@@ -1197,8 +1197,47 @@ body:not(.depth-profi) .profi-only { display: none !important; }
     color: var(--color-text-muted);
 }
 .start-chip .chip-x:hover { color: #b91c1c; background: transparent; }
+/* „★ merken" steht am Chip, nicht in der Werkzeugleiste: Es gehört zu dem
+   Punkt, der gerade gewählt ist, und verschwindet, sobald er gemerkt ist. */
+.start-chip .chip-star {
+    margin-left: auto;
+    border: 1px solid var(--color-border);
+    background: var(--color-surface);
+    border-radius: var(--radius-l);
+    /* Höhe für den Daumen, nicht nur für die Maus: 24 px waren am Handy
+       gemessen zu wenig, um den Knopf sicher zu treffen. */
+    padding: 6px 10px;
+    min-height: 34px;
+    font-size: 0.78rem;
+    line-height: 1.3;
+    cursor: pointer;
+    color: var(--color-text-muted);
+    white-space: nowrap;
+}
+.start-chip .chip-star:hover { color: var(--color-text); }
+.start-chip .chip-star + .chip-x { margin-left: 0; }
 .start-search-wrap { position: relative; margin-top: 8px; }
 #start-results, #dest-results { margin-top: 4px; }
+/* Trefferliste mit Gruppen: eigene Orte, Kunden, Ortsverzeichnis. */
+.result-group {
+    padding: 6px 12px 2px;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+}
+.result-row-wrap { display: flex; align-items: stretch; background: var(--color-surface); }
+.result-row-wrap .result-row { flex: 1; }
+.result-row-x {
+    border: none;
+    border-bottom: 1px solid var(--color-surface-2);
+    background: var(--color-surface);
+    padding: 0 12px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+}
+.result-row-x:hover { color: #b91c1c; }
 /* Ziel-Zeile in der Tourliste (fester Streckenabschluss) */
 .stop-row.dest-row { background: #fef2f2; border-radius: var(--radius-l); }
 .stop-row.dest-row .stop-num { background: #b91c1c; }

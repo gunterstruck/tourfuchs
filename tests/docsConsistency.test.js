@@ -77,6 +77,23 @@ describe('Wissensbasis bildet den Code ab', () => {
         }
     });
 
+    it('nennt die Beschriftungen der Orts-Suche wörtlich', () => {
+        // Anlass: Der Guide erklärt den Startpunkt. Stünde dort weiter „...oder
+        // Kunde als Start wählen", schickte er Nutzer zu einem Feld, das es so
+        // nicht mehr gibt – genau der Fehler aus Kapitel 5.5.
+        const html = normalize(readProjectFile('index.html'));
+        for (const label of ['...oder Kunde, Ort oder PLZ als Start', 'Kunde, Ort oder PLZ als Ziel', '"★ merken"']) {
+            expect(doc).toContain(normalize(label));
+        }
+        expect(html).toContain('Kunde, Ort oder PLZ als Start');
+        // Und die Zusage, die im Code steht: Die Ortssuche geht nicht ins Netz.
+        expect(doc).toContain('keine Adressen im Internet');
+    });
+
+    it('nennt den Deckel für eigene Orte mit dem Wert aus der Konfiguration', () => {
+        expect(doc).toContain(`Es passen **${CONFIG.tour.maxOwnPlaces}** eigene Orte`);
+    });
+
     it('dokumentiert beide Abbruchbedingungen des B3-Tors', () => {
         expect(doc).toContain('15.09.2026');
         expect(doc).toContain('ueberfaelligAnteil');
