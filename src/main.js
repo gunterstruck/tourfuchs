@@ -8,7 +8,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 
 import { CONFIG } from './core/config.js';
 import { demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
-import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, datasetSnapshot } from './core/state.js';
+import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
 import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './services/storage.js';
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
 import { enrichPlacesByPlz, geocodeByPlz } from './services/geocode.js';
@@ -74,6 +74,9 @@ async function restorePersistedState() {
 
     const dataset = await loadDataset();
     if (dataset?.territories) state.territories = dataset.territories;
+    // Eigene Orte hängen nicht an der Kundenliste: Sie überleben deren Ersetzung
+    // und stehen auch dann bereit, wenn noch gar keine Kunden geladen sind.
+    setPlaces(dataset?.places || []);
     setServiceContracts(dataset?.serviceContracts || [], dataset?.serviceContractSources || {});
     setServiceVisits(dataset?.serviceVisits || [], dataset?.serviceVisitSources || {});
     if (dataset?.customers?.length) {

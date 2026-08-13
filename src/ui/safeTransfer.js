@@ -10,8 +10,9 @@
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import {
-    state, replaceCustomers, setServiceContracts, setServiceVisits, emit, datasetSnapshot
+    state, replaceCustomers, setServiceContracts, setServiceVisits, setPlaces, emit, datasetSnapshot
 } from '../core/state.js';
+import { mergeOwnPlaces } from '../features/places.js';
 import { saveDataset } from '../services/storage.js';
 import { isEnabled } from '../services/vault.js';
 import { geocodeByPlz } from '../services/geocode.js';
@@ -290,6 +291,10 @@ async function applyImported(dataset) {
     });
     setServiceContracts(serviceContracts, dataset?.serviceContractSources || {});
     setServiceVisits(serviceVisits, dataset?.serviceVisitSources || {});
+    // Eigene Orte werden ergänzt, nicht ersetzt: Die Station des Zielgeräts still
+    // zu überschreiben wäre Verdrängung ohne Rückweg. Der Bericht über die
+    // Ersetzung spricht von Kunden – also fassen wir hier nur an, was er meint.
+    setPlaces(mergeOwnPlaces(state.places, dataset?.places));
     fitToCustomers();
     receiveDialog.close();
 

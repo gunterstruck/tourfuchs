@@ -4,7 +4,7 @@
  */
 
 import { CONFIG } from '../core/config.js';
-import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, clearServiceContracts, clearServiceVisits, filterDimensionDefs, datasetSnapshot } from '../core/state.js';
+import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, setPlaces, clearServiceContracts, clearServiceVisits, filterDimensionDefs, datasetSnapshot } from '../core/state.js';
 import { exactGeocodeCandidates, groupExactGeocodeCandidates, geocodeExact } from '../services/geocode.js';
 import { isDemoDataset, isDemoCustomer } from '../core/demoSafety.js';
 import { saveDataset, clearDataset, saveSettings } from '../services/storage.js';
@@ -1263,8 +1263,8 @@ export function applyMode(mode, userInitiated = true, persist = true) {
 }
 
 async function clearAllData() {
-    if (state.customers.length === 0 && Object.keys(state.territories).length === 0 && state.serviceContracts.length === 0 && state.serviceVisits.length === 0) return;
-    if (!confirm('Alle Kunden-, Einsatz-, Vertrags- und Gebietszuordnungen aus dem Browser löschen?')) return;
+    if (state.customers.length === 0 && Object.keys(state.territories).length === 0 && state.serviceContracts.length === 0 && state.serviceVisits.length === 0 && state.places.length === 0) return;
+    if (!confirm('Alle Kunden-, Einsatz-, Vertrags- und Gebietszuordnungen sowie eigene Orte aus dem Browser löschen?')) return;
     // Ohne Daten gibt es nichts zu schützen -> Tresor mit deaktivieren,
     // sonst bliebe beim nächsten Öffnen ein Sperrbildschirm ohne Inhalt.
     if (vaultEnabled()) removeVaultMeta();
@@ -1275,6 +1275,8 @@ async function clearAllData() {
     state.tour.mapFocus = false;
     state.fileName = null;
     state.territories = {};
+    // Eigene Orte gehören zu den lokalen Daten – "alles löschen" heißt alles.
+    setPlaces([]);
     clearServiceVisits({ dirty: false });
     clearServiceContracts({ dirty: false });
     setCustomers([]);

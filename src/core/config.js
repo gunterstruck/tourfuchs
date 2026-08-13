@@ -139,7 +139,12 @@ export const CONFIG = {
         // Google Maps erlaubt max. 9 Zwischenziele im Directions-Link
         maxWaypoints: 9,
         // Faktor Luftlinie -> geschätzte Straßenkilometer
-        roadFactor: 1.3
+        roadFactor: 1.3,
+        // Wie viele eigene Orte (Station, Büro, Hotel) gemerkt werden können.
+        // Gesetzte Konvention, keine Messung: genug für die Stationen und Büros
+        // eines Außendienstgebiets, wenig genug, dass die Trefferliste eine
+        // Auswahl bleibt und kein Verzeichnis.
+        maxOwnPlaces: 20
     },
 
     routing: {

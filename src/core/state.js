@@ -59,6 +59,13 @@ export const state = {
     // Gebietszuordnungen (unabhängig von Kunden): 'level:regionKey' -> { bezirk, gruppe, channel, name }
     territories: {},
 
+    // Eigene Orte für Start und Ziel einer Tour (Mietwagenstation, Büro, Hotel):
+    // { id, label, lat, lng, strasse, plz, ort, createdAt }.
+    // Bewusst neben `customers`, nicht darin – ein Ort ist ein Wegpunkt und darf
+    // weder Kundenzähler noch Umsatz, Fälligkeit oder Gebiete berühren. Er reist
+    // im Datensatz mit und liegt damit im Tresor.
+    places: [],
+
     tour: {
         // Standard ist bewusst „alle Bezirke": Planen soll ohne Vorab-Entscheidung
         // beginnen. Wer einschraenken will, tut das jederzeit ueber die schmale
@@ -184,11 +191,50 @@ export function datasetSnapshot() {
         fileName: state.fileName,
         importedAt: state.importedAt,
         territories: state.territories,
+        places: state.places,
         serviceContracts: state.serviceContracts,
         serviceContractSources: state.serviceContractSources,
         serviceVisits: state.serviceVisits,
         serviceVisitSources: state.serviceVisitSources
     };
+}
+
+// ---- Eigene Orte (Start-/Zielpunkte jenseits der Kundenliste) ----
+
+// Number(null) wäre 0 – ein Ort ohne Koordinaten darf nicht am Nullmeridian landen.
+const isCoordinate = (value) => Number.isFinite(
+    typeof value === 'string' && value.trim() !== '' ? Number(value) : value
+);
+const hasCoordinates = (place) => Boolean(place) && isCoordinate(place.lat) && isCoordinate(place.lng);
+
+/** Eigene Orte aus Persistenz oder sicherem Umzug übernehmen. */
+export function setPlaces(places = []) {
+    state.places = (Array.isArray(places) ? places : [])
+        .filter(hasCoordinates)
+        .slice(0, CONFIG.tour.maxOwnPlaces);
+    emit('places:changed');
+}
+
+/**
+ * Ort merken. Gibt `false` zurück, wenn das Fach voll ist – der Aufrufer sagt
+ * das dem Nutzer, statt still zu verwerfen.
+ */
+export function addPlace(place) {
+    if (!hasCoordinates(place)) return false;
+    if (state.places.length >= CONFIG.tour.maxOwnPlaces) return false;
+    state.places = [...state.places, place];
+    emit('places:changed');
+    emit('dataset:dirty');
+    return true;
+}
+
+export function removePlace(id) {
+    const next = state.places.filter((place) => place.id !== id);
+    if (next.length === state.places.length) return false;
+    state.places = next;
+    emit('places:changed');
+    emit('dataset:dirty');
+    return true;
 }
 
 /** Verwirft einen bestätigten Service-Tagesplan nach manueller Touränderung. */

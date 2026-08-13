@@ -9,7 +9,11 @@
  */
 
 import { CONFIG } from '../core/config.js';
-import { state, on, emit, getCustomer, repColor, customerInTourScope, markDirty, clearServiceTourPlan, UNASSIGNED } from '../core/state.js';
+import { state, on, emit, getCustomer, repColor, customerInTourScope, markDirty, clearServiceTourPlan, addPlace, removePlace, UNASSIGNED } from '../core/state.js';
+import {
+    MIN_PLACE_QUERY, loadPlaceIndex, searchGeoPlaces, searchOwnPlaces,
+    parseCoordinateQuery, tourPointFromResult, createOwnPlace, findOwnPlaceForPoint
+} from '../features/places.js';
 import { suggestNearby, countNearby, suggestAlongRoute, optimizeOrder, routeDistance, googleMapsLink } from '../features/tour.js';
 import { printDayPlan, downloadIcs, DEFAULT_VISIT_MINUTES } from '../features/tourExport.js';
 import { combinePlanStart, todayInputValue } from '../features/dayPlanner.js';
@@ -171,57 +175,44 @@ export function initTourPanel() {
 
     loadTours().then((tours) => { savedTours = tours; renderSavedTours(); });
 
-    // Startpunkt per Suchfeld (Kunden)
-    const startInput = document.getElementById('start-search');
-    const startResults = document.getElementById('start-results');
-    startInput.addEventListener('input', () => {
-        const q = startInput.value.trim().toLowerCase();
-        if (q.length < 2) { startResults.innerHTML = ''; return; }
-        const hits = tourPool()
-            .filter((c) => c.lat !== null && (
-                c.name.toLowerCase().includes(q) ||
-                c.ort.toLowerCase().includes(q) ||
-                c.plz.startsWith(q)
-            ))
-            .slice(0, 6);
-        startResults.innerHTML = hits.map((c) => `
-            <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
-                <b>${escapeHtml(c.name)}</b> <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}</span>
-            </button>
-        `).join('');
-        startResults.querySelectorAll('[data-id]').forEach((btn) => {
-            btn.addEventListener('click', () => {
-                const c = getCustomer(btn.dataset.id);
-                if (!c) return;
-                invalidateAcceptedServicePlan(true);
-                state.tour.start = {
-                    lat: c.lat, lng: c.lng, label: c.name, customerId: c.id,
-                    strasse: c.strasse, plz: c.plz, ort: c.ort
-                };
-                startInput.value = '';
-                startResults.innerHTML = '';
-                emit('tour:changed');
-            });
-        });
-    });
-
-    // Zielpunkt per Suchfeld (Kunden)
-    wireCustomerSearch('dest-search', 'dest-results', (c) => {
+    // Startpunkt per Suchfeld: Kunde, eigener Ort, Ortsverzeichnis, Koordinaten
+    const setStart = (point) => {
         invalidateAcceptedServicePlan(true);
-        const first = !state.tour.destination;
-        state.tour.destination = {
+        state.tour.start = point;
+        emit('tour:changed');
+    };
+    wireTourPointSearch('start-search', 'start-results', {
+        onCustomer: (c) => setStart({
             lat: c.lat, lng: c.lng, label: c.name, customerId: c.id,
             strasse: c.strasse, plz: c.plz, ort: c.ort
-        };
+        }),
+        onPlace: setStart
+    });
+
+    // Zielpunkt per Suchfeld – dieselbe Suche. Wer an einer Station startet,
+    // gibt den Wagen abends dort auch wieder ab.
+    const setDestination = (point) => {
+        invalidateAcceptedServicePlan(true);
+        const first = !state.tour.destination;
+        state.tour.destination = point;
         // Ein Ziel macht die „Entlang der Tour"-Vorschläge sinnvoll -> beim ersten Mal umschalten
         if (first && state.tour.suggestMode !== 'route') {
             state.tour.suggestMode = 'route';
             updateSuggestModeUi();
         }
         emit('tour:changed');
+    };
+    wireTourPointSearch('dest-search', 'dest-results', {
+        onCustomer: (c) => setDestination({
+            lat: c.lat, lng: c.lng, label: c.name, customerId: c.id,
+            strasse: c.strasse, plz: c.plz, ort: c.ort
+        }),
+        onPlace: setDestination
     });
 
     on('tour:changed', renderPanel);
+    // Ein gemerkter oder gelöschter Ort ändert das Angebot am Chip („★ merken").
+    on('places:changed', renderPanel);
     on('customers:changed', () => { pruneTourToScope(); renderTourScope(); renderPanel(); });
     on('filters:changed', refreshPlanningScope);
     on('mode:changed', refreshPlanningScope);
@@ -775,33 +766,145 @@ function pruneTourToScope() {
     if (previous !== next) invalidateAcceptedServicePlan();
 }
 
-/** Kundensuche an ein Eingabefeld hängen (Treffer -> onPick(customer)) */
-function wireCustomerSearch(inputId, resultsId, onPick) {
+/**
+ * Punktsuche an ein Eingabefeld hängen: Kunden **und** Orte.
+ *
+ * Bewusst ein Feld statt eines zweiten daneben. „Wo starte ich?" hat mit dem
+ * Standort-Knopf und dieser Suche bereits zwei Angebote; ein drittes wäre genau
+ * der Stapel, den Prüffrage 2.4 des Gestaltprinzips verbietet. Wer tippt, weiß
+ * ohnehin nicht, ob sein Ziel ein Kunde oder eine Station ist – das Feld
+ * entscheidet das, nicht der Nutzer.
+ *
+ * Reihenfolge der Gruppen: eigene Orte, Kunden, Ortsverzeichnis. Was der Nutzer
+ * selbst angelegt hat, steht oben; das Verzeichnis ist der Rückfall.
+ */
+function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
     const input = document.getElementById(inputId);
     const results = document.getElementById(resultsId);
-    input.addEventListener('input', () => {
-        const q = input.value.trim().toLowerCase();
-        if (q.length < 2) { results.innerHTML = ''; return; }
-        const hits = tourPool()
+    if (!input || !results) return;
+    let sequence = 0;
+
+    const groupHtml = (title, rows) => (rows.length
+        ? `<div class="result-group" role="presentation">${escapeHtml(title)}</div>${rows.join('')}`
+        : '');
+
+    const placeRow = (result, index) => {
+        const removable = result.kind === 'eigener-ort';
+        return `<div class="result-row-wrap">
+            <button type="button" class="result-row" data-point="${index}">
+                <b>${escapeHtml(result.label)}</b> <span class="muted">${escapeHtml(result.detail)}</span>
+            </button>
+            ${removable ? `<button type="button" class="result-row-x" data-drop="${escapeHtml(result.id)}" title="Ort löschen" aria-label="Ort „${escapeHtml(result.label)}" löschen">✕</button>` : ''}
+        </div>`;
+    };
+
+    const render = async () => {
+        const raw = input.value.trim();
+        const run = ++sequence;
+        if (raw.length < MIN_PLACE_QUERY) { results.innerHTML = ''; return; }
+
+        const q = raw.toLowerCase();
+        const customers = tourPool()
             .filter((c) => c.lat !== null && (
                 c.name.toLowerCase().includes(q) ||
                 c.ort.toLowerCase().includes(q) ||
                 c.plz.startsWith(q)
             ))
             .slice(0, 6);
-        results.innerHTML = hits.map((c) => `
-            <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
-                <b>${escapeHtml(c.name)}</b> <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}</span>
-            </button>`).join('');
+
+        const own = searchOwnPlaces(raw, state.places);
+        const coords = parseCoordinateQuery(raw);
+        const coordResults = coords
+            ? [{ kind: 'koordinaten', id: 'koordinaten', label: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`, detail: 'Eingefügte Koordinaten', ...coords, plz: '', ort: '' }]
+            : [];
+        // Das Verzeichnis wird beim ersten Tippen aufgebaut; bis dahin stehen
+        // Kunden und eigene Orte schon da.
+        const index = await loadPlaceIndex();
+        if (run !== sequence) return;   // zwischenzeitlich weitergetippt
+        const geo = coords ? [] : searchGeoPlaces(raw, index);
+
+        const points = [...own, ...coordResults, ...geo];
+        results.innerHTML = [
+            groupHtml('Eigene Orte', own.map((r) => placeRow(r, points.indexOf(r)))),
+            groupHtml('Kunden', customers.map((c) => `
+                <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
+                    <b>${escapeHtml(c.name)}</b> <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}</span>
+                </button>`)),
+            groupHtml('Orte', [...coordResults, ...geo].map((r) => placeRow(r, points.indexOf(r))))
+        ].join('');
+
+        if (!points.length && !customers.length) {
+            results.innerHTML = '<p class="muted small result-empty">Kein Kunde und kein Ort gefunden. Postleitzahl oder Ortsname versuchen.</p>';
+            return;
+        }
+
         results.querySelectorAll('[data-id]').forEach((btn) => {
             btn.addEventListener('click', () => {
-                const c = getCustomer(btn.dataset.id);
-                if (!c) return;
+                const customer = getCustomer(btn.dataset.id);
+                if (!customer) return;
                 input.value = '';
                 results.innerHTML = '';
-                onPick(c);
+                onCustomer(customer);
             });
         });
+        results.querySelectorAll('[data-point]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                const point = tourPointFromResult(points[Number(btn.dataset.point)]);
+                if (!point) return;
+                input.value = '';
+                results.innerHTML = '';
+                onPlace(point);
+            });
+        });
+        results.querySelectorAll('[data-drop]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+                if (!confirm('Diesen eigenen Ort löschen?')) return;
+                if (removePlace(btn.dataset.drop)) {
+                    showToast('Ort gelöscht.', 'success');
+                    render();
+                }
+            });
+        });
+    };
+
+    input.addEventListener('input', () => { render(); });
+}
+
+/**
+ * „★ merken" am Start- bzw. Zielchip: Aus einem gefundenen Punkt wird ein
+ * benannter eigener Ort. Bewusst ohne Pflegedialog – ein Verwaltungsbereich für
+ * fünf Adressen wäre mehr Oberfläche als Nutzen; gelöscht wird in der
+ * Trefferliste, in der der Ort ohnehin wieder auftaucht.
+ */
+function wireRememberPlace(buttonId, point) {
+    document.getElementById(buttonId)?.addEventListener('click', () => {
+        const suggestion = point.ort && point.label !== point.ort ? point.label : (point.label || point.ort || '');
+        const name = prompt('Name für diesen Ort (z. B. „SIXT Essen Hbf"):', suggestion);
+        if (name === null) return;
+        const place = createOwnPlace({
+            label: name,
+            lat: point.lat,
+            lng: point.lng,
+            strasse: point.strasse ?? '',
+            plz: point.plz ?? '',
+            ort: point.ort ?? ''
+        });
+        if (!place) {
+            showToast('Bitte einen Namen angeben.', 'info');
+            return;
+        }
+        if (!addPlace(place)) {
+            showToast(`Es passen ${CONFIG.tour.maxOwnPlaces} eigene Orte – bitte zuerst einen löschen (Suchfeld, ✕ am Ort).`, 'info', 6000);
+            return;
+        }
+        // Der Punkt in der Tour *wird* der gemerkte Ort: Er trägt ab jetzt den
+        // Namen, den der Nutzer gerade vergeben hat („SIXT Essen Hbf" statt
+        // „45136 Essen"), und das Angebot „merken" verschwindet. Ohne diesen
+        // Schritt stünde es weiter da und ließe sich beliebig oft auslösen.
+        point.placeId = place.id;
+        point.label = place.label;
+        showToast(`„${place.label}" gemerkt.`, 'success');
+        emit('tour:changed');
     });
 }
 
@@ -1115,8 +1218,9 @@ function renderDest() {
             : '<p class="muted small">Kein Ziel gewählt. Ohne Rundreise ist der letzte Stopp automatisch das Ziel.</p>';
         return;
     }
-    el.innerHTML = `<div class="start-chip">🏁 <b>${escapeHtml(d.label)}</b>
+    el.innerHTML = `<div class="start-chip">🏁 <b>${escapeHtml(d.label)}</b>${rememberButtonHtml(d, 'btn-dest-remember')}
         <button type="button" id="btn-dest-clear" class="chip-x" title="Ziel entfernen">✕</button></div>`;
+    wireRememberPlace('btn-dest-remember', d);
     document.getElementById('btn-dest-clear').addEventListener('click', () => {
         invalidateAcceptedServicePlan(true);
         state.tour.destination = null;
@@ -1124,13 +1228,26 @@ function renderDest() {
     });
 }
 
+/**
+ * „★ merken" erscheint nur, wo es etwas zu merken gibt: bei einem Punkt ohne
+ * Kunden dahinter, der noch nicht in den eigenen Orten steht. Ein Kunde ist
+ * über die Kundensuche ohnehin wiederzufinden, und der GPS-Standort ist morgen
+ * ein anderer.
+ */
+function rememberButtonHtml(point, id) {
+    if (!point || point.customerId || point.here) return '';
+    if (findOwnPlaceForPoint(state.places, point)) return '';
+    return `<button type="button" class="chip-star" id="${id}" title="Diesen Ort merken" aria-label="Diesen Ort merken">★ merken</button>`;
+}
+
 function renderStart() {
     const el = document.getElementById('tour-start');
     if (!state.tour.start) {
-        el.innerHTML = '<p class="muted">Kein Startpunkt gewählt. Nutzen Sie Ihren Standort oder wählen Sie einen Kunden (Suche unten oder Karten-Popup „Als Start“).</p>';
+        el.innerHTML = '<p class="muted">Kein Startpunkt gewählt. Nutzen Sie Ihren Standort, einen eigenen Ort oder suchen Sie unten nach Kunde, Ort oder PLZ (auch Karten-Popup „Als Start“).</p>';
         return;
     }
-    el.innerHTML = `<div class="start-chip">🚩 <b>${escapeHtml(state.tour.start.label)}</b><button type="button" class="chip-x" id="btn-start-clear" title="Startpunkt entfernen" aria-label="Startpunkt entfernen">✕</button></div>`;
+    el.innerHTML = `<div class="start-chip">🚩 <b>${escapeHtml(state.tour.start.label)}</b>${rememberButtonHtml(state.tour.start, 'btn-start-remember')}<button type="button" class="chip-x" id="btn-start-clear" title="Startpunkt entfernen" aria-label="Startpunkt entfernen">✕</button></div>`;
+    wireRememberPlace('btn-start-remember', state.tour.start);
     document.getElementById('btn-start-clear')?.addEventListener('click', () => {
         invalidateAcceptedServicePlan(true);
         state.tour.start = null;
