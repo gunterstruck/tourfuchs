@@ -1822,6 +1822,15 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
     color: var(--color-text-muted);
 }
 .mapping-source select { max-width: 60vw; font-size: 0.85rem; }
+.mapping-source-warning {
+    margin: -4px 0 10px;
+    padding: 8px 10px;
+    border-left: 3px solid #f59e0b;
+    background: #fffbeb;
+    color: #92400e;
+    font-size: 0.85rem;
+    line-height: 1.4;
+}
 /* „Weitere Felder": optionale Zuordnungen eingeklappt (Konzept: Wichtiges zuerst). */
 .mapping-more { margin-top: 6px; border-top: 1px dashed var(--color-border); }
 .mapping-more > summary {

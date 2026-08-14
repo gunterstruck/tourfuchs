@@ -398,6 +398,15 @@ function renderMappingSource() {
         sheetSelect.onchange = () => reloadWorkbookSource({ sheet: sheetSelect.value });
     }
 
+    // Kein bekannter Feldname in der Kopfzeile: Der Import läuft trotzdem, aber
+    // genau hier ging zuletzt eine falsch gelesene Datei unbemerkt durch.
+    const warning = document.getElementById('mapping-source-warning');
+    if (warning) {
+        warning.hidden = parsed.headerConfident !== false;
+        warning.textContent = 'In der erkannten Überschriftenzeile steht kein bekannter Feldname. '
+            + 'Bitte oben prüfen, ob die richtige Zeile und das richtige Blatt gewählt sind.';
+    }
+
     const rowSelect = document.getElementById('mapping-header-row');
     if (rowSelect) {
         rowSelect.innerHTML = headerOptions.map((option) => (
