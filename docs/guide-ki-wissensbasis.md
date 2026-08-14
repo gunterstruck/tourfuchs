@@ -760,10 +760,22 @@ eindeutigen, kurzen Texten und daran, dass sich ihre Werte **nicht** in den
 Zeilen darunter wiederholen – ein Mitarbeitername, der in jeder Zeile steht,
 ist ein Wert und keine Spaltenüberschrift.
 
+**Falsche Bereichsangabe in der Datei:** Manche Exportwerkzeuge schreiben in
+die Datei einen Tabellenbereich, der **erst bei der ersten Datenzeile beginnt**
+(`A2:…` statt `A1:…`). Wer sich darauf verlässt, verliert die Kopfzeile
+vollständig – die Tabelle beginnt eine Zeile zu tief. TourFuchs bestimmt den
+Bereich deshalb aus den **tatsächlich vorhandenen Zellen**, sobald die Angabe
+der Datei verdächtig ist. Erkennbar war der Fehler daran, dass die Zuordnung
+Werte aus der ersten Datenzeile als Spaltennamen anbot.
+
 **Mehrere Tabellenblätter:** Gelesen wird das **erste sichtbare** Blatt;
 ausgeblendete Hilfsblätter werden übersprungen. Jedes weitere Blatt ist ein
 eigener Import – eine Datei mit Kundenliste, Kontaktliste und Auswertung wird
 also nacheinander eingelesen, nicht in einem Zug.
+
+Findet sich in der erkannten Überschriftenzeile **kein einziger bekannter
+Feldname**, weist der Dialog ausdrücklich darauf hin – der Import läuft
+trotzdem, die Zeile verdient aber einen Blick.
 
 **Beides ist korrigierbar:** Im Dialog **"Spalten zuordnen"** stehen oben die
 Auswahlfelder **"Tabellenblatt"** (nur bei mehreren Blättern) und

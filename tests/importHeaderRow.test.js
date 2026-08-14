@@ -103,6 +103,76 @@ describe('Excel-Import findet die echte Überschriftenzeile', () => {
     });
 });
 
+describe('Excel-Import traut der Bereichsangabe der Datei nicht blind', () => {
+    /**
+     * Der gemeldete Fall: Die Datei nennt im `<dimension>`-Eintrag `A2:…` statt
+     * `A1:…`. SheetJS übernimmt das ungeprüft als `!ref` – die Kopfzeile liegt
+     * geparst im Blatt, wird aber von `sheet_to_json` nie ausgeliefert. Die
+     * Tabelle beginnt eine Zeile zu tief, und eine Datenzeile muss den Kopf
+     * spielen.
+     */
+    /**
+     * Baut eine Datei mit falscher Bereichsangabe. Über die ZIP-Ebene, weil
+     * SheetJS beim Schreiben immer korrekt rechnet – die kaputte Angabe kommt
+     * nun einmal aus fremden Exportwerkzeugen, nicht aus SheetJS.
+     */
+    function fileWithDimension(ref) {
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([KOPF, ...DATEN]), 'VBEZ Übersicht');
+        const zip = XLSX.CFB.read(Buffer.from(XLSX.write(wb, { type: 'array', bookType: 'xlsx' })), { type: 'buffer' });
+        const entry = XLSX.CFB.find(zip, '/xl/worksheets/sheet1.xml');
+        const xml = new TextDecoder().decode(Uint8Array.from(entry.content))
+            .replace(/<dimension ref="[^"]*"\/>/, `<dimension ref="${ref}"/>`);
+        entry.content = Array.from(new TextEncoder().encode(xml));
+        entry.size = entry.content.length;
+        const raw = XLSX.CFB.write(zip, { fileType: 'zip', type: 'array', compression: true });
+        return { name: 'export.xlsx', arrayBuffer: async () => raw };
+    }
+
+    it('zeigt den Fehler, den die Datei auslöst: !ref verschluckt die Kopfzeile', async () => {
+        const file = fileWithDimension('A2:G4');
+        const sheet = XLSX.read(await file.arrayBuffer(), { type: 'array' }).Sheets['VBEZ Übersicht'];
+        expect(sheet['!ref']).toBe('A2:G4');
+        expect(sheet.A1.v).toBe('Debitor'); // Die Kopfzeile IST da …
+        // … nur liefert sie der Standardweg nicht aus: erste Zeile = erste Datenzeile.
+        expect(XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false })[0][0]).toBe(DATEN[0][0]);
+    });
+
+    it('liest die Kopfzeile trotzdem – über den echten Zellbereich', async () => {
+        const { headers, rows, headerRow, sheetName } = await readWorkbook(fileWithDimension('A2:G4'));
+        expect(sheetName).toBe('VBEZ Übersicht');
+        expect(headerRow).toBe(1);
+        expect(headers).toEqual(KOPF);
+        expect(rows).toHaveLength(3);
+        expect(rows[0].Kundenname).toBe('OXEA SERVICES GMBH');
+        expect(rows[0].plz).toBe('46147');
+    });
+
+    it('kommt auch mit einer zu weit rechts beginnenden Angabe zurecht', async () => {
+        const { headers, rows } = await readWorkbook(fileWithDimension('C1:G4'));
+        expect(headers).toEqual(KOPF);
+        expect(rows[0].Debitor).toBe(DATEN[0][0]);
+    });
+
+    it('lässt eine korrekte Angabe unangetastet', async () => {
+        const { headers, rows, headerRow } = await readWorkbook(fileWithDimension('A1:G4'));
+        expect(headerRow).toBe(1);
+        expect(headers).toEqual(KOPF);
+        expect(rows).toHaveLength(3);
+    });
+
+    it('meldet eine Kopfzeile ohne bekannte Feldnamen als unsicher', async () => {
+        const sicher = await readWorkbook(excelFile([{ name: 'Kunden', grid: [KOPF, ...DATEN] }]));
+        expect(sicher.headerConfident).toBe(true);
+
+        const unsicher = await readWorkbook(excelFile([{
+            name: 'Kunden',
+            grid: [['Feld A', 'Feld B', 'Feld C'], ['1', '2', '3'], ['4', '5', '6']]
+        }]));
+        expect(unsicher.headerConfident).toBe(false);
+    });
+});
+
 describe('Excel-Import wählt das richtige Tabellenblatt', () => {
     it('überspringt ausgeblendete Blätter', async () => {
         const file = excelFile([

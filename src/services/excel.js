@@ -190,13 +190,57 @@ function uniqueHeaders(cells, width) {
 }
 
 /**
+ * Der tatsächlich benutzte Bereich – nicht die Selbstauskunft der Datei.
+ *
+ * SheetJS übernimmt `!ref` ungeprüft aus dem `<dimension>`-Eintrag der Datei
+ * (parse_ws_xml_dim). Mehrere Exportwerkzeuge schreiben dort den Bereich AB
+ * der ersten Datenzeile, also z. B. `A2:AE172` statt `A1:AE172`. Die Zellen der
+ * Kopfzeile liegen dann zwar geparst im Blatt, `sheet_to_json` liefert sie aber
+ * nie aus: Die Tabelle beginnt eine Zeile zu tief, die Spaltennamen fehlen
+ * vollständig, und die erste Datenzeile muss den Kopf spielen.
+ *
+ * Deshalb wird der Bereich aus den vorhandenen Zellen bestimmt, sobald die
+ * Angabe der Datei verdächtig ist (Beginn nicht bei A1 oder nur eine Zeile).
+ */
+function usedRange(sheet) {
+    const declared = sheet['!ref'] ? XLSX.utils.decode_range(sheet['!ref']) : null;
+    if (declared && declared.s.r === 0 && declared.s.c === 0 && declared.e.r > declared.s.r) return sheet['!ref'];
+
+    let found = null;
+    for (const key of Object.keys(sheet)) {
+        if (key.startsWith('!')) continue;
+        const { r, c } = XLSX.utils.decode_cell(key);
+        if (!(r >= 0) || !(c >= 0)) continue;
+        if (!found) found = { s: { r, c }, e: { r, c } };
+        else {
+            if (r < found.s.r) found.s.r = r;
+            if (c < found.s.c) found.s.c = c;
+            if (r > found.e.r) found.e.r = r;
+            if (c > found.e.c) found.e.c = c;
+        }
+    }
+    if (!found) return sheet['!ref'] ?? null;
+    // Die Angabe der Datei darf den Bereich erweitern, aber nicht beschneiden.
+    if (declared) {
+        found.s.r = Math.min(found.s.r, declared.s.r);
+        found.s.c = Math.min(found.s.c, declared.s.c);
+        found.e.r = Math.max(found.e.r, declared.e.r);
+        found.e.c = Math.max(found.e.c, declared.e.c);
+    }
+    return XLSX.utils.encode_range(found);
+}
+
+/**
  * Blatt in `{ headers, rows }` überführen – mit erkannter oder vorgegebener
  * Überschriftenzeile.
  * @param {object} sheet SheetJS-Blatt
  * @param {number|null} headerRow 1-basierte Zeilennummer, oder null für Automatik
  */
 function tableFromSheet(sheet, headerRow = null) {
-    const grid = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false, blankrows: true });
+    const range = usedRange(sheet);
+    const grid = XLSX.utils.sheet_to_json(sheet, {
+        header: 1, defval: '', raw: false, blankrows: true, ...(range ? { range } : {})
+    });
     const detected = detectHeaderRow(grid);
     const firstFilled = grid.findIndex((row) => rowWidth(row) > 0);
     const index = headerRow
@@ -229,6 +273,9 @@ function tableFromSheet(sheet, headerRow = null) {
         rows,
         headerRow: index + 1,
         autoHeaderRow: (detected >= 0 ? detected : firstFilled) + 1,
+        // Kein einziger bekannter Feldname in der Kopfzeile: Die Erkennung kann
+        // richtig liegen, verdient aber einen ausdrücklichen Blick.
+        headerConfident: (grid[index] ?? []).map(cellText).some(isKnownFieldLabel),
         headerOptions: options
     };
 }
@@ -298,6 +345,7 @@ export async function readWorkbook(file, { sheet = null, headerRow = null } = {}
         hiddenSheetNames: infos.filter((s) => s.hidden).map((s) => s.name),
         headerRow: table.headerRow,
         autoHeaderRow: table.autoHeaderRow,
+        headerConfident: table.headerConfident,
         headerOptions: table.headerOptions
     };
 }
