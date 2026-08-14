@@ -87,7 +87,38 @@ Vorrang-Hinweis:
 > - Bezirksliste Rheinland – … : https://…
 > Diese Ablagen pflege ich selbst; sie sind für mich der aktuellste Stand. Steht
 > dort etwas zu einem der genannten Kunden, hat es Vorrang vor älteren
-> Fundstellen – ordne die Einträge über die Kundennummer zu. …
+> Fundstellen – ordne die Einträge über die Kundennummer zu; fehlt sie, über
+> Kundenname, Ort und Ansprechpartner gemeinsam.
+> Enthält eine Ablage strukturierte Vertriebsdaten (Kundenliste, CRM- oder
+> BI-Auswertung, Tabelle, Report), lies sie ganz durch – alle Tabellenblätter,
+> Abschnitte und Bereiche. Werte zuerst die Datensätze mit Umsatz-, Vertriebs-,
+> Opportunity-, Aktivitäts-, Segment- oder Kennzahlenangaben aus … Kontaktlisten,
+> Verteiler und Stammdaten sind nachrangig … Findest du zu einem Kunden
+> ausschließlich Kontaktdaten und keinen vertrieblichen Datensatz, sage das
+> ausdrücklich in einem Halbsatz. …
+
+### Warum der zweite Absatz dazugekommen ist
+
+Der Hinweis sagte anfangs nur, **wo** nachzusehen ist. Genau das erwies sich in
+der Praxis als zu wenig: Die hinterlegte Ablage wurde gefunden und geöffnet – der
+Assistent blieb aber auf dem **Kontaktblatt** hängen und lieferte zwei Namen
+statt der Kundenzeile mit Umsatz, Vertragslage und Aktivitäten.
+
+Eine Ablage hat eben mehrere Bereiche, und der vertrieblich brauchbare steht
+selten vorn. Der Prompt sagt deshalb jetzt auch, **wie** gelesen wird – als
+Rangfolge, nicht als Verbot:
+
+1. **Kennzahlen vor Kontakten.** Umsatz, Vertrieb, Opportunities, Aktivitäten,
+   Segment – Kontaktlisten und Verteiler ergänzen nur.
+2. **Ganz durchsehen.** Alle Tabellenblätter, Abschnitte und Bereiche, nicht nur
+   den zuerst sichtbaren.
+3. **Werte statt Zusammenfassung.** Der tatsächliche Datensatz des Kunden, nicht
+   das, was die Datei über sich selbst sagt.
+4. **Fehlanzeige ist eine Aussage.** Bleiben nur Kontaktdaten übrig, muss das im
+   Briefing stehen – sonst wirkt ein dünnes Ergebnis wie ein vollständiges.
+
+Der Zuordnungsweg ist dabei zweistufig: erst die Kundennummer, und nur wenn die
+fehlt, Kundenname, Ort und Ansprechpartner **gemeinsam**.
 
 Drei bewusste Grenzen:
 
