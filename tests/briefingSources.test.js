@@ -108,6 +108,53 @@ describe('Nachschlagequellen: Wirkung im Prompt', () => {
         expect(prompt).toContain(QUELLE.location);
     });
 
+    /**
+     * Praxisfall: Die hinterlegte Ablage wurde gefunden und geöffnet – der
+     * Assistent blieb aber auf dem Kontaktblatt hängen und lieferte zwei Namen
+     * statt der Kundenzeile mit Umsatz, Vertragslage und Aktivitäten. „Nutze
+     * diese Quelle zuerst" genügt nicht; der Prompt muss auch sagen, WIE
+     * gelesen wird.
+     */
+    describe('sagt nicht nur wo, sondern wie gelesen wird', () => {
+        const block = () => briefingSourcesPromptBlock([QUELLE]);
+
+        it('setzt vertriebliche Datensätze vor Kontaktlisten', () => {
+            expect(block()).toContain('Werte zuerst die Datensätze mit Umsatz-, Vertriebs-, Opportunity-, Aktivitäts-, Segment- oder Kennzahlenangaben aus');
+            expect(block()).toContain('Kontaktlisten, Verteiler und Stammdaten sind nachrangig');
+        });
+
+        it('verlangt die ganze Quelle, nicht nur den ersten Bereich', () => {
+            expect(block()).toContain('alle Tabellenblätter, Abschnitte und Bereiche');
+        });
+
+        it('verlangt die tatsächlichen Werte statt der Zusammenfassung', () => {
+            expect(block()).toContain('übernimm die tatsächlichen Werte des Kunden, nicht die Zusammenfassung der Datei');
+        });
+
+        it('macht die Fehlanzeige zur Pflicht', () => {
+            // Sonst wirkt ein dünnes Ergebnis wie ein vollständiges.
+            expect(block()).toContain('ausschließlich Kontaktdaten und keinen vertrieblichen Datensatz, sage das ausdrücklich');
+        });
+
+        it('nennt den Ersatzweg, wenn die Kundennummer fehlt', () => {
+            expect(block()).toContain('ordne die Einträge über die Kundennummer zu; fehlt sie, über Kundenname, Ort und Ansprechpartner gemeinsam');
+        });
+
+        it('wirkt in beiden Briefings', () => {
+            const kunde = buildCustomerBriefingPrompt(KUNDE, {}, null, [QUELLE]);
+            const gebiet = buildAreaBriefingPrompt([KUNDE], { areaLabel: 'Umkreis von 25 km' }, null, [QUELLE]);
+            for (const prompt of [kunde, gebiet]) {
+                expect(prompt).toContain('Kontaktlisten, Verteiler und Stammdaten sind nachrangig');
+            }
+        });
+
+        it('bleibt ohne hinterlegte Quelle vollständig aus dem Prompt', () => {
+            // Die Leseanweisung gehört zur Ablage. Ohne Ablage wäre sie Ballast.
+            expect(buildCustomerBriefingPrompt(KUNDE, {}, null, []))
+                .not.toContain('Kontaktlisten, Verteiler und Stammdaten sind nachrangig');
+        });
+    });
+
     it('nimmt auch eine Ortsangabe ohne Link', () => {
         const block = briefingSourcesPromptBlock([{ label: 'Bezirksordner', location: '' }]);
         expect(block).toContain('- Bezirksordner');
