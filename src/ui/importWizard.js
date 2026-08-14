@@ -349,11 +349,61 @@ async function handleFile(file) {
     }
     try {
         const { readWorkbook } = await excel();
-        const { headers, rows } = await readWorkbook(file);
-        parsed = { headers, rows, fileName: file.name };
+        const workbook = await readWorkbook(file);
+        // Die Datei bleibt greifbar: Blatt und Überschriftenzeile lassen sich im
+        // Zuordnungsschritt umstellen, ohne die Datei erneut auszuwählen.
+        parsed = { ...workbook, fileName: file.name, file };
         await showMappingStep();
     } catch (error) {
         showToast(`Datei konnte nicht gelesen werden: ${error.message}`, 'error');
+    }
+}
+
+/**
+ * Blatt oder Überschriftenzeile neu wählen und die Zuordnung frisch aufbauen.
+ * Schlägt das Lesen fehl (z. B. keine Datenzeilen unter der gewählten Zeile),
+ * bleibt der bisherige Stand bestehen – nur die Auswahlfelder springen zurück.
+ */
+async function reloadWorkbookSource({ sheet = null, headerRow = null } = {}) {
+    if (!parsed?.file) return;
+    try {
+        const { readWorkbook } = await excel();
+        const workbook = await readWorkbook(parsed.file, { sheet, headerRow });
+        parsed = { ...workbook, fileName: parsed.fileName, file: parsed.file };
+        await showMappingStep();
+    } catch (error) {
+        showToast(`Auswahl konnte nicht gelesen werden: ${error.message}`, 'error', 6000);
+        renderMappingSource();
+    }
+}
+
+/** Auswahlfelder für Tabellenblatt und Überschriftenzeile. */
+function renderMappingSource() {
+    const box = document.getElementById('mapping-source');
+    if (!box) return;
+    const { file, sheetNames = [], sheetName, headerRow, headerOptions = [] } = parsed ?? {};
+    // Eine eingefügte Tabelle bringt ihre Überschrift schon mit – dort gibt es
+    // weder ein zweites Blatt noch eine Zeile zum Verschieben.
+    box.hidden = !file;
+    if (!file) return;
+
+    const sheetField = document.getElementById('mapping-sheet-field');
+    const sheetSelect = document.getElementById('mapping-sheet');
+    if (sheetField && sheetSelect) {
+        sheetField.hidden = sheetNames.length < 2;
+        sheetSelect.innerHTML = sheetNames.map((name) => (
+            `<option value="${escapeHtml(name)}"${name === sheetName ? ' selected' : ''}>${escapeHtml(name)}</option>`
+        )).join('');
+        // Neues Blatt heißt neue Tabelle: Überschriftenzeile dort neu erkennen.
+        sheetSelect.onchange = () => reloadWorkbookSource({ sheet: sheetSelect.value });
+    }
+
+    const rowSelect = document.getElementById('mapping-header-row');
+    if (rowSelect) {
+        rowSelect.innerHTML = headerOptions.map((option) => (
+            `<option value="${option.row}"${option.row === headerRow ? ' selected' : ''}>Zeile ${option.row}: ${escapeHtml(option.preview)}</option>`
+        )).join('');
+        rowSelect.onchange = () => reloadWorkbookSource({ sheet: sheetName, headerRow: Number(rowSelect.value) });
     }
 }
 
@@ -508,11 +558,13 @@ async function usePastedTable(text) {
 
 async function showMappingStep() {
     const { FIELDS, autoDetectMapping } = await excel();
-    const { headers, rows, fileName } = parsed;
+    const { headers, rows, fileName, file, sheetName } = parsed;
     const mapping = autoDetectMapping(headers);
 
+    const sheetInfo = file && sheetName ? ` · Blatt „${sheetName}"` : '';
     document.getElementById('mapping-file-info').textContent =
-        `${fileName} – ${rows.length} Zeilen, ${headers.length} Spalten`;
+        `${fileName}${sheetInfo} – ${rows.length} Zeilen, ${headers.length} Spalten`;
+    renderMappingSource();
 
     // „Überblick → aufzoomen": Die wichtigsten Felder (Pflicht + die üblichen
     // Vertriebsfelder) stehen sofort sichtbar oben. Die vielen optionalen Felder
@@ -557,7 +609,9 @@ async function showMappingStep() {
     fieldSelects().forEach((sel) => sel.addEventListener('change', updatePreview));
     updatePreview();
 
-    dialog.showModal();
+    // Beim Wechsel von Blatt/Überschriftenzeile ist der Dialog bereits offen –
+    // showModal() ein zweites Mal wäre ein Fehler.
+    if (!dialog.open) dialog.showModal();
 }
 
 async function confirmImport() {

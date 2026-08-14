@@ -701,6 +701,17 @@
                 <button class="dialog-close" aria-label="Schließen">Schließen</button>
             </header>
             <p id="mapping-file-info" class="muted"></p>
+            <!-- Blatt und Überschriftenzeile: erkannt, aber jederzeit korrigierbar.
+                 Exporte aus Vertriebssystemen tragen oft Titelzeilen über der
+                 Tabelle oder liefern mehrere Reiter in einer Datei. -->
+            <div id="mapping-source" class="mapping-source" hidden>
+                <label id="mapping-sheet-field" hidden>Tabellenblatt
+                    <select id="mapping-sheet"></select>
+                </label>
+                <label id="mapping-header-row-field">Überschriftenzeile
+                    <select id="mapping-header-row"></select>
+                </label>
+            </div>
             <p class="muted small">TourFuchs hat die Spalten automatisch erkannt – bitte prüfen und ggf. anpassen.</p>
             <div class="table-scroll">
                 <table class="mapping-table">
