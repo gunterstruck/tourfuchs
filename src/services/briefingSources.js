@@ -94,6 +94,15 @@ export function saveBriefingSources(list, provided) {
  * Die Formulierung ist bewusst eine **Priorisierung, kein Filter**: „sieh
  * zuerst hier nach" statt „nur hier". Wer die Bezirksliste hinterlegt, will
  * nicht, dass die Mail von gestern unter den Tisch fällt.
+ *
+ * Der zweite Absatz sagt nicht mehr nur WO, sondern WIE gelesen werden soll.
+ * Anlass war ein Praxisfall: Die hinterlegte Ablage wurde gefunden und geöffnet,
+ * der Assistent blieb aber auf dem Kontaktblatt hängen und lieferte zwei Namen
+ * statt der Kundenzeile mit Umsatz, Vertragslage und Aktivitäten. „Nutze diese
+ * Quelle zuerst" genügt eben nicht – eine Ablage hat mehrere Bereiche, und der
+ * vertrieblich brauchbare steht selten vorn. Deshalb eine ausdrückliche
+ * Rangfolge (Kennzahlen vor Kontakten), die Aufforderung, die ganze Quelle
+ * durchzusehen, und die Pflicht zu melden, wenn nur Kontaktdaten übrig bleiben.
  */
 export function briefingSourcesPromptBlock(sources = []) {
     const list = normalizeBriefingSources(sources);
@@ -106,6 +115,8 @@ export function briefingSourcesPromptBlock(sources = []) {
 
     return `Vorrangige Quellen – sieh zuerst hier nach:
 ${lines.join('\n')}
-Diese Ablagen pflege ich selbst; sie sind für mich der aktuellste Stand. Steht dort etwas zu einem der genannten Kunden, hat es Vorrang vor älteren Fundstellen – ordne die Einträge über die Kundennummer zu. Wenn du etwas daraus verwendest, nenne die Quelle. Findest du eine der Ablagen nicht, sage das in einem Halbsatz und arbeite mit dem übrigen Fundmaterial weiter.
+Diese Ablagen pflege ich selbst; sie sind für mich der aktuellste Stand. Steht dort etwas zu einem der genannten Kunden, hat es Vorrang vor älteren Fundstellen – ordne die Einträge über die Kundennummer zu; fehlt sie, über Kundenname, Ort und Ansprechpartner gemeinsam.
+Enthält eine Ablage strukturierte Vertriebsdaten (Kundenliste, CRM- oder BI-Auswertung, Tabelle, Report), lies sie ganz durch – alle Tabellenblätter, Abschnitte und Bereiche. Werte zuerst die Datensätze mit Umsatz-, Vertriebs-, Opportunity-, Aktivitäts-, Segment- oder Kennzahlenangaben aus und übernimm die tatsächlichen Werte des Kunden, nicht die Zusammenfassung der Datei. Kontaktlisten, Verteiler und Stammdaten sind nachrangig und dienen nur der Ergänzung. Findest du zu einem Kunden ausschließlich Kontaktdaten und keinen vertrieblichen Datensatz, sage das ausdrücklich in einem Halbsatz.
+Wenn du etwas daraus verwendest, nenne die Quelle. Findest du eine der Ablagen nicht, sage das in einem Halbsatz und arbeite mit dem übrigen Fundmaterial weiter.
 `;
 }

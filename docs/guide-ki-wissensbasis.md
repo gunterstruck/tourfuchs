@@ -3485,7 +3485,14 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
   Ablagen (Link/Pfad plus "was steckt drin") lassen sich hinterlegen; beide
   Briefings stellen sie dem Prompt als Vorrang-Hinweis voran. Reiner
   Prompt-Text – TourFuchs öffnet nichts und sendet nichts. Eingeklappt im
-  Briefing-Dialog, in beiden Ansichtstiefen.
+  Briefing-Dialog, in beiden Ansichtstiefen. Der Hinweis sagt außerdem, **wie**
+  eine solche Ablage zu lesen ist: strukturierte Vertriebsdaten ganz durchsehen
+  (alle Tabellenblätter und Abschnitte), zuerst die Datensätze mit Umsatz-,
+  Vertriebs-, Opportunity-, Aktivitäts- oder Kennzahlenangaben auswerten,
+  Kontaktlisten nur zur Ergänzung – und ausdrücklich melden, wenn zu einem
+  Kunden nur Kontaktdaten und kein vertrieblicher Datensatz zu finden waren.
+  Anlass war ein Praxisfall: Die Ablage wurde gefunden, der Assistent blieb aber
+  auf dem Kontaktblatt hängen.
 - **Berechtigungs-Zusicherung einmalig statt je Sitzung:** Sie wird gespeichert
   (mit Datum, im Daten-Tab abwählbar) und kommt als Schritt **im Fluss** der
   gewollten Aktion – wer bestätigt, landet ohne zweiten Anlauf am Ziel. Vorher
