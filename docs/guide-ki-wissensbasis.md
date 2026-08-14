@@ -752,6 +752,25 @@ Semikolon, Komma, Tab, UTF-8 und Windows-1252.
 Spaltensynonyme werden automatisch erkannt. Beispiele: `Firma`, `Stadt`,
 `Betriebsbezirk`, `Kundenkreis`, `Betreuer`, `Jahresumsatz`.
 
+**Titelzeilen über der Tabelle:** Exporte aus Vertriebssystemen tragen oft eine
+Überschrift, einen Filter- oder einen Stand-Vermerk über der eigentlichen
+Tabelle. TourFuchs sucht deshalb die **Überschriftenzeile** und nimmt nicht
+stur die erste Zeile der Datei. Erkannt wird sie an bekannten Feldnamen, an
+eindeutigen, kurzen Texten und daran, dass sich ihre Werte **nicht** in den
+Zeilen darunter wiederholen – ein Mitarbeitername, der in jeder Zeile steht,
+ist ein Wert und keine Spaltenüberschrift.
+
+**Mehrere Tabellenblätter:** Gelesen wird das **erste sichtbare** Blatt;
+ausgeblendete Hilfsblätter werden übersprungen. Jedes weitere Blatt ist ein
+eigener Import – eine Datei mit Kundenliste, Kontaktliste und Auswertung wird
+also nacheinander eingelesen, nicht in einem Zug.
+
+**Beides ist korrigierbar:** Im Dialog **"Spalten zuordnen"** stehen oben die
+Auswahlfelder **"Tabellenblatt"** (nur bei mehreren Blättern) und
+**"Überschriftenzeile"** – letzteres mit dem Zeilenanfang als Vorschau
+(z. B. `Zeile 3: Debitor · IFA Nr · Kundenname · plz`). Eine Änderung liest die
+Datei sofort neu ein; sie muss dafür nicht erneut ausgewählt werden.
+
 **Import ohne Vertriebsbezirk:** Eine einfache Liste (nur Kundenname + PLZ)
 wird vollständig importiert. Kunden ohne Bezirk erscheinen unter
 **"Ohne Zuordnung"**; das Importergebnis weist mit einem Hinweis darauf hin.
@@ -777,7 +796,10 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 
    *BILD-IMPORT-02 - Die einmalige Berechtigungsbestätigung setzt den bereits begonnenen Importweg fort.*
 
-4. Im Dialog **"Spalten zuordnen"** automatische Zuordnung und Beispielwerte
+4. Im Dialog **"Spalten zuordnen"** zuerst die Kopfzeile der Dateizeile prüfen
+   (Dateiname, gelesenes **Blatt**, Zeilen- und Spaltenzahl) und bei Bedarf
+   **"Tabellenblatt"** oder **"Überschriftenzeile"** umstellen (7.4). Danach
+   automatische Zuordnung und Beispielwerte
    prüfen. Oben stehen die **wichtigen Felder** (Kundenname, PLZ, Straße, Ort,
    Vertriebsbezirk, Vertriebsgruppe, Umsatz); die übrigen **optionalen Felder**
    liegen unter **"Weitere Felder"** eingeklappt (mit Anzahl der automatisch

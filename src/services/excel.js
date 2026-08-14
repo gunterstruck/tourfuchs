@@ -88,7 +88,164 @@ function countOutsideQuotes(line, delimiter) {
     return count;
 }
 
-export async function readWorkbook(file) {
+/** Wie viele Zeilen am Anfang eines Blattes als Überschriftenzeile in Frage kommen. */
+const HEADER_SCAN_ROWS = 30;
+
+const cellText = (value) => String(value ?? '').trim();
+
+/** Bekannte Feldbezeichnungen aus FIELDS – der stärkste Hinweis auf eine Kopfzeile. */
+let knownLabels = null;
+function isKnownFieldLabel(label) {
+    if (!knownLabels) {
+        knownLabels = new Set(FIELDS.flatMap((field) => field.synonyms.map(normalizeHeader)));
+    }
+    const norm = normalizeHeader(label);
+    if (!norm) return false;
+    if (knownLabels.has(norm)) return true;
+    // „Kundenname (Endkunde)" oder „PLZ Rechnung" sollen ebenfalls zählen.
+    return [...knownLabels].some((s) => s.length > 3 && norm.startsWith(s));
+}
+
+/** Zahl, Betrag oder Datum – in einer Überschriftenzeile praktisch nie zu finden. */
+function looksNumeric(text) {
+    return /\d/.test(text) && /^[-+]?[\d.,:\s/€%]+$/.test(text);
+}
+
+/** Letzte gefüllte Spalte (+1) – die tatsächliche Breite einer Zeile. */
+function rowWidth(cells) {
+    let width = 0;
+    for (let i = 0; i < cells.length; i++) if (cellText(cells[i])) width = i + 1;
+    return width;
+}
+
+/**
+ * Wie sehr sieht Zeile `index` nach einer Überschriftenzeile aus?
+ *
+ * Excel-Exporte aus Vertriebssystemen tragen über der eigentlichen Tabelle oft
+ * Titel-, Filter- oder Stand-Zeilen. SheetJS nimmt stur die erste Zeile des
+ * benutzten Bereichs als Kopf – dadurch wurden Datenwerte („Endkunde",
+ * ein Mitarbeitername) zu Spaltennamen, die Zuordnung lief ins Leere und die
+ * erste echte Datenzeile verschwand als vermeintlicher Kopf.
+ *
+ * Bewertet werden fünf Signale, das stärkste ist die Wiederholung: Steht ein
+ * Wert genauso auch in den Zeilen darunter, ist es eine Datenzeile.
+ * @returns {number|null} Punktzahl, oder null wenn die Zeile ausscheidet
+ */
+function headerScore(grid, index) {
+    const cells = grid[index] ?? [];
+    const labels = cells.map(cellText);
+    const filled = labels.filter(Boolean);
+    if (filled.length < 2) return null;
+
+    const below = [];
+    for (let i = index + 1; i < grid.length && below.length < 12; i++) {
+        if (rowWidth(grid[i]) > 0) below.push(grid[i]);
+    }
+    if (below.length === 0) return null; // Ohne Datenzeilen darunter keine Kopfzeile
+
+    const width = Math.max(rowWidth(cells), ...below.map(rowWidth), 1);
+    const unique = new Set(filled.map((l) => l.toLowerCase())).size;
+    const known = filled.filter(isKnownFieldLabel).length;
+    const numeric = filled.filter(looksNumeric).length;
+    const long = filled.filter((l) => l.length > 60).length;
+    const repeated = labels.filter((label, col) => (
+        label && below.some((row) => cellText(row[col]).toLowerCase() === label.toLowerCase())
+    )).length;
+
+    return (known / filled.length) * 5
+        + (unique / filled.length) * 2
+        + (filled.length / width) * 2
+        - (numeric / filled.length) * 2
+        - (repeated / filled.length) * 4
+        - (long / filled.length) * 2;
+}
+
+/** Beste Kopfzeile im vorderen Bereich; -1 wenn keine Zeile in Frage kommt. */
+function detectHeaderRow(grid) {
+    let best = -1;
+    let bestScore = -Infinity;
+    const limit = Math.min(grid.length, HEADER_SCAN_ROWS);
+    for (let i = 0; i < limit; i++) {
+        const score = headerScore(grid, i);
+        // Bei Gleichstand gewinnt die obere Zeile: Sie ist die Überschrift,
+        // die darunter liegende wäre schon die erste Datenzeile.
+        if (score !== null && score > bestScore) { bestScore = score; best = i; }
+    }
+    return best;
+}
+
+/** Eindeutige, nie leere Spaltennamen – sonst verliert ein Zeilenobjekt Spalten. */
+function uniqueHeaders(cells, width) {
+    const headers = [];
+    const seen = new Set();
+    for (let i = 0; i < width; i++) {
+        const base = cellText(cells[i]) || `Spalte ${i + 1}`;
+        let name = base;
+        let suffix = 2;
+        while (seen.has(name)) name = `${base} (${suffix++})`;
+        seen.add(name);
+        headers.push(name);
+    }
+    return headers;
+}
+
+/**
+ * Blatt in `{ headers, rows }` überführen – mit erkannter oder vorgegebener
+ * Überschriftenzeile.
+ * @param {object} sheet SheetJS-Blatt
+ * @param {number|null} headerRow 1-basierte Zeilennummer, oder null für Automatik
+ */
+function tableFromSheet(sheet, headerRow = null) {
+    const grid = XLSX.utils.sheet_to_json(sheet, { header: 1, defval: '', raw: false, blankrows: true });
+    const detected = detectHeaderRow(grid);
+    const firstFilled = grid.findIndex((row) => rowWidth(row) > 0);
+    const index = headerRow
+        ? Math.max(0, Math.min(headerRow - 1, grid.length - 1))
+        : (detected >= 0 ? detected : firstFilled);
+
+    // Auswahlliste für die Korrektur von Hand: die vorderen gefüllten Zeilen mit Vorschau.
+    const options = [];
+    for (let i = 0; i < Math.min(grid.length, HEADER_SCAN_ROWS) && options.length < 15; i++) {
+        const preview = (grid[i] ?? []).map(cellText).filter(Boolean).slice(0, 4).join(' · ');
+        if (preview) options.push({ row: i + 1, preview: preview.slice(0, 80) });
+    }
+
+    if (index < 0) return { headers: [], rows: [], headerRow: 0, headerOptions: options, autoHeaderRow: 0 };
+    // Die geltende Zeile steht immer zur Auswahl – auch wenn sie weit unten liegt.
+    if (!options.some((option) => option.row === index + 1)) {
+        options.push({ row: index + 1, preview: (grid[index] ?? []).map(cellText).filter(Boolean).slice(0, 4).join(' · ').slice(0, 80) });
+        options.sort((a, b) => a.row - b.row);
+    }
+
+    const dataRows = grid.slice(index + 1).filter((row) => rowWidth(row) > 0);
+    const width = Math.max(rowWidth(grid[index] ?? []), ...dataRows.map(rowWidth), 0);
+    const headers = uniqueHeaders(grid[index] ?? [], width);
+    const rows = dataRows.map((cells) => Object.fromEntries(
+        headers.map((header, i) => [header, cells[i] ?? ''])
+    ));
+
+    return {
+        headers,
+        rows,
+        headerRow: index + 1,
+        autoHeaderRow: (detected >= 0 ? detected : firstFilled) + 1,
+        headerOptions: options
+    };
+}
+
+/** Blätter mit Sichtbarkeit – ausgeblendete Hilfsblätter sind nie die Kundenliste. */
+function sheetInfos(workbook) {
+    const meta = workbook.Workbook?.Sheets ?? [];
+    return workbook.SheetNames.map((name, i) => ({ name, hidden: Number(meta[i]?.Hidden ?? 0) > 0 }));
+}
+
+/**
+ * Datei einlesen.
+ * @param {File} file
+ * @param {{ sheet?: string, headerRow?: number }} options  Blatt und
+ *        Überschriftenzeile lassen sich von Hand vorgeben (Import-Dialog).
+ */
+export async function readWorkbook(file, { sheet = null, headerRow = null } = {}) {
     const buffer = await file.arrayBuffer();
     const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv';
     let workbook;
@@ -112,15 +269,37 @@ export async function readWorkbook(file) {
     } else {
         workbook = XLSX.read(buffer, { type: 'array', codepage: 65001 });
     }
-    const sheet = workbook.Sheets[workbook.SheetNames[0]];
-    if (!sheet) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Tabelle.' : 'Die Datei enthält kein Tabellenblatt.');
+    const infos = sheetInfos(workbook);
+    if (infos.length === 0) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Tabelle.' : 'Die Datei enthält kein Tabellenblatt.');
 
-    // defval: '' damit leere Zellen nicht fehlen; raw: false liefert formatierte Strings
-    const rows = XLSX.utils.sheet_to_json(sheet, { defval: '', raw: false });
-    if (rows.length === 0) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Datenzeilen.' : 'Das Tabellenblatt enthält keine Datenzeilen.');
+    // Reihenfolge der Auswahl: ausdrücklich gewähltes Blatt, sonst das erste
+    // SICHTBARE. Ein ausgeblendetes Hilfsblatt steht in Exporten oft an
+    // Position 1 – es zu lesen liefert eine völlig fremde Tabelle.
+    const selectable = infos.filter((s) => !s.hidden);
+    const pool = selectable.length ? selectable : infos;
+    const named = sheet ? pool.filter((s) => s.name === sheet) : [];
+    const candidates = named.length ? named : pool;
 
-    const headers = Object.keys(rows[0]);
-    return { headers, rows, sheetName: workbook.SheetNames[0] };
+    let table = null;
+    let chosen = null;
+    // Eine von Hand gesetzte Überschriftenzeile gilt für das erste Blatt der
+    // Auswahl; erst wenn dieses leer bleibt, wird auf dem nächsten wieder erkannt.
+    for (const [i, info] of candidates.entries()) {
+        const result = tableFromSheet(workbook.Sheets[info.name], i === 0 ? headerRow : null);
+        if (result.rows.length > 0) { table = result; chosen = info; break; }
+    }
+    if (!table) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Datenzeilen.' : 'Das Tabellenblatt enthält keine Datenzeilen.');
+
+    return {
+        headers: table.headers,
+        rows: table.rows,
+        sheetName: chosen.name,
+        sheetNames: pool.map((s) => s.name),
+        hiddenSheetNames: infos.filter((s) => s.hidden).map((s) => s.name),
+        headerRow: table.headerRow,
+        autoHeaderRow: table.autoHeaderRow,
+        headerOptions: table.headerOptions
+    };
 }
 
 /**
