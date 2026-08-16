@@ -554,6 +554,30 @@ das Finden einer fremden Adresse in einer fremden Stadt – genau das, was an
    bei `face-check` und beim Tablet-Zwitter: Diese Fehlerklasse findet nur das
    echte Gerät.
 
+### Release 12 – „Zwei Oberflächen, kein drittes" *(16.08.2026 umgesetzt)*
+
+Anlass: eine Vorgabe des Product Owners, die Release 7 zu Ende führt. Dort wurde
+die **Entscheidung** getroffen (hochkant = Touransicht, quer = Schreibtisch), aber
+nicht jede Stelle nachgezogen. Der Befund beim Nachzählen: Das Produkt hielt die
+Regel im Groben und brach sie im Kleinen.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 12.1 | **Der Tablet-Aufsatz im CSS ist weg** | ✅ umgesetzt | `@media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)` – genau die „eigene Regel für 769 bis 1200 Pixel im Hochformat". Sie trug eigene Blatt-Höhen (52px/52dvh statt 46px/68dvh), ein eigenes Griffmaß, einen eigenen Beispieldaten-Streifen (104px statt 100px) und eine Karten-Knopfzeile, die dort als einzigem Gerät **oben** stand. Vier Sondermaße und eine Sonderplatzierung – zusammen eine dritte Oberfläche. |
+| 12.2 | **Die Schreibtisch-Abfrage ist die exakte Verneinung** | ✅ umgesetzt | `DESKTOP_FACE_MEDIA` in `src/core/viewport.js`. Vorher „ab 1201px oder ab 769px quer" – ein Handy quer (880×500) traf **beide** Listen und bekam Blatt-Geometrie mit Desktop-Regeln darüber. Ein Zwitter entsteht auch aus zwei Abfragen, die sich überlappen. |
+| 12.3 | **Vier verirrte Schwellen auf die Gesichtsgrenze geholt** | ✅ umgesetzt | Kartenpopups und Marker (`map.css`), der Vorschau-Einstieg „Mobile Außendienst & Tour", die `.only-desktop`/`.only-mobile`-Texte und das Vertrags-Radar standen auf 768/769. Ein Tablet hochkant zeigte damit die mobile Geometrie **mit Desktop-Kartenpopups darin** – derselbe Befund wie in Release 7, nur eine Ebene tiefer. |
+| 12.4 | **Touch-Ziele folgen dem Gesicht, nicht dem Finger** | ✅ umgesetzt | `@media (pointer: coarse)` vergrößerte Knöpfe auf **jedem** Berührgerät. Ein Tablet quer bekam dadurch den Schreibtisch mit größeren Knöpfen – weder die eine noch die andere Oberfläche. Die Regel liegt jetzt in der Touransicht. **Preis, ehrlich benannt:** Ein Tablet quer und ein Touch-Laptop haben Maus-Knopfgrößen. Das ist die Bedeutung von „quer ist Schreibtisch". |
+| 12.5 | **Eine Zwischenstufe bei 1180px gestrichen** | ✅ umgesetzt | `.service-day-plan-settings` klappte unter 1180px Fensterbreite auf eine Spalte – eine vierte Schwelle, mitten in den Tablet-Breiten. Sie maß zusätzlich die falsche Größe: Die Felder stehen im Panel, dessen Breite frei ziehbar ist. Ersetzt durch `repeat(auto-fit, minmax(150px, 1fr))` – Platz statt Gerätestufe. |
+| 12.6 | **`tests/faces.test.js` statt `tabletSheetLayout.test.js`** | ✅ umgesetzt | Die alte Datei bewachte den Tablet-Block, also genau das, was es nicht geben darf. Die neue wertet **jede** Medienabfrage aller Stylesheets aus: keine, die nur ein Tablet trifft; keine, die über die Gesichtsgrenze greift; keine, die eine Gesichtsschwelle mit eigenen Grenzen wiederholt. |
+| 12.7 | **`face-check` prüft beide Hälften der Regel** | ✅ umgesetzt | Bis hierher gab es nur ein Referenzgerät (Smartphone), also nur die Prüfung „hochkant = Handy". „Quer = Schreibtisch" blieb Behauptung. Jetzt hat jedes Gesicht seine Referenz, drei Tablets stehen in beiden Haltungen im Feld, und alle sechs antworten in 15 von 15 Punkten wie ihr Maßstab. |
+
+**Was die Regel nicht meint.** Innerhalb einer Oberfläche darf die Breite weiter
+entscheiden – die Kurzfassung der Beschriftungen ab 560px, zweispaltige Kacheln
+ab 480px. Das trifft ein großes und ein kleines Handy verschieden, so wie es ein
+großes und ein kleines Tablet verschieden trifft: Textumbruch, kein zweites
+Produkt. Verboten ist, eine der vier Gesichtsschwellen erneut hinzuschreiben
+oder die Haltung des Geräts an einer zweiten Stelle auszuwerten.
+
 ### Backlog & Vision (bewusst NICHT jetzt)
 
 - **POIs auf der Karte** (Ladestationen): nur als Opt-in – externe POI-Abfragen

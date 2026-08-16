@@ -2,12 +2,20 @@
 
 /* Mobile Außendienst & Tour: am Desktop sichtbar, im eingebetteten Handy nicht. */
 .mobile-preview-entry { position: relative; flex: 0 0 auto; }
-/* Die Vorschau beantwortet „wie sieht das auf meinem Handy aus?" – auf einem
-   Handy ist das sinnlos, auf einem Tablet nicht. Die Schwelle liegt deshalb bei
-   der Handy-Grenze (768px), nicht bei 900px: Im Band 769–900px wurde die
-   QR-Demo angeboten, deren Schritt 9 aber genau diesen Knopf braucht und ins
-   Leere griff. Der Rahmen ist 390px breit und passt dort mühelos. */
-@media (max-width: 768px) { .mobile-preview-entry { display: none; } }
+/* Die Vorschau beantwortet „wie sieht das auf meinem Handy aus?" und ist damit
+   ein Schreibtisch-Werkzeug: In der Touransicht schaut man ohnehin schon auf
+   dieses Bild.
+
+   Die Schwelle stand hier bei 768px und damit **nicht** auf der Gesichtsgrenze.
+   Ein Tablet hochkant zeigte die Touransicht und darin diesen Desktop-Einstieg –
+   Mobile View plus ein Element, das es dort nicht gibt. Genau das ist die
+   Mischung, die es nicht geben darf; auf dem Tablet ist der Knopf eine Drehung
+   entfernt. */
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    .mobile-preview-entry { display: none; }
+}
 .in-mobile-preview .mobile-preview-entry { display: none; }
 #btn-mobile-preview {
     border: 1px solid #99f6e4;
@@ -509,8 +517,12 @@
 }
 .linklike:hover:not(:disabled) { background: transparent; color: var(--color-primary); }
 
-/* Kontext-abhängige Sichtbarkeit im Onboarding */
-@media (max-width: 768px) {
+/* Kontext-abhängige Sichtbarkeit im Onboarding – an der Gesichtsgrenze, nicht an
+   einer eigenen. Bei 768/769 sah ein Tablet hochkant die Touransicht, las darin
+   aber die Desktop-Texte (`.only-desktop`) und nicht die mobilen. */
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
     .only-desktop { display: none !important; }
     .own-data-dialog {
         width: calc(100vw - 16px);
@@ -519,7 +531,11 @@
         padding: 14px;
     }
 }
-@media (min-width: 769px) { .only-mobile { display: none !important; } }
+@media (min-width: 1201px),
+       (min-width: 901px) and (orientation: landscape),
+       (min-width: 769px) and (orientation: landscape) and (min-height: 521px) {
+    .only-mobile { display: none !important; }
+}
 
 /* kurzer Aufmerksamkeits-Puls (z. B. „In meiner Nähe" nach Demo) */
 @keyframes gf-pulse {
@@ -1653,8 +1669,10 @@ dialog {
 }
 dialog::backdrop { background: rgba(15, 23, 42, 0.45); }
 
-/* Ruhige, einheitliche Modal-Bewegung auf dem Desktop. */
-@media (min-width: 769px) {
+/* Ruhige, einheitliche Modal-Bewegung auf dem Schreibtisch. */
+@media (min-width: 1201px),
+       (min-width: 901px) and (orientation: landscape),
+       (min-width: 769px) and (orientation: landscape) and (min-height: 521px) {
     dialog[open] {
         animation: tf-modal-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
