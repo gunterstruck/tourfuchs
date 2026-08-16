@@ -255,7 +255,25 @@ gleicher Funktionsumfang. Wer Gebietsplanung, Cockpit oder Simulation braucht,
 **dreht das Gerät**.
 
 Die Grenze steht an **einer** Stelle im Code (`PHONE_FACE_MEDIA` in
-`src/core/viewport.js`) und gilt wortgleich für CSS und JavaScript.
+`src/core/viewport.js`) und gilt wortgleich für CSS und JavaScript. Ihr
+Gegenstück (`DESKTOP_FACE_MEDIA`) ist die **exakte Verneinung**: Kein Fenster
+trifft beide Listen, keines fällt zwischen ihnen durch. Das war nicht immer so –
+die Schreibtisch-Abfrage lautete „ab 1201px oder ab 769px quer" und erwischte ein
+Handy quer (880×500) mit, das gleichzeitig als Touransicht galt. Ein Zwitter
+entsteht nicht nur durch eine dritte Abfrage, sondern genauso durch zwei, die
+sich überlappen.
+
+**Auch die Reste sind weg.** Bis Version 3.4 stand neben den beiden Listen noch
+ein eigener CSS-Block „769 bis 1200 Pixel im Hochformat" – ein Aufsatz für das
+hochkante Tablet mit eigener Blatt-Höhe, eigenem Griffmaß, eigenem
+Beispieldaten-Streifen und einer Karten-Knopfzeile, die dort als einzigem Gerät
+oben stand. Dazu kamen vier Regeln, die noch auf 768/769 standen statt auf der
+Gesichtsgrenze: Kartenpopups und Marker (`map.css`), der Vorschau-Einstieg
+„Mobile Außendienst & Tour", die `.only-desktop`/`.only-mobile`-Texte und das
+Vertrags-Radar. Ein Tablet hochkant bekam damit die mobile Geometrie **mit
+Desktop-Kartenpopups darin**. Beides ist entfernt; jede gesichtsentscheidende
+Regel benutzt heute eine der beiden Listen wortgleich, und
+`tests/faces.test.js` wertet jede Medienabfrage der App daraufhin aus.
 
 **Warum die Haltung entscheidet und nicht die Pixelbreite:** Bis Version 3.1
 gab es vier unabhängige Schwellen (560, 768/769, 900/901 und eine eigene
@@ -3214,11 +3232,15 @@ nichts. Wer künftig auf dieser Annahme aufbaut, muss wissen, dass sie eine ist.
     erste Quelle. Sie ist keine Roadmap – was hier steht, kommt nicht wieder,
     solange kein neuer Grund vorliegt.
 - **`npm run face-check`** als dritte Prüfstrecke neben `demo-check` und
-  `touch-check`. Sie fährt sechs echte Gerätemaße im Browser ab, prüft je das
-  erwartete Gesicht und vergleicht jedes Touransicht-Format Punkt für Punkt
-  gegen das Smartphone. Anlass: Der Tablet-Zwitter aus Version 2.9 war tagelang
-  im Produkt, weil keine der beiden vorhandenen Strecken **liest**, welches
-  Gesicht die App zeigt.
+  `touch-check`. Sie fährt acht echte Gerätemaße im Browser ab, prüft je das
+  erwartete Gesicht und vergleicht jedes Gerät Punkt für Punkt gegen das
+  Referenzgerät **seines** Gesichts – Tablet hochkant gegen das Smartphone,
+  Tablet quer gegen den Schreibtisch. Anlass: Der Tablet-Zwitter aus Version 2.9
+  war tagelang im Produkt, weil keine der beiden vorhandenen Strecken **liest**,
+  welches Gesicht die App zeigt. Die zweite Referenz kam in 3.4 dazu: Bis dahin
+  wurde nur „hochkant = Handy" nachgemessen, „quer = Schreibtisch" blieb
+  Behauptung. Die Tablets werden dabei in beiden Haltungen als Berührgeräte
+  geöffnet – sonst prüfte der Quervergleich ein Gerät, das es nicht gibt.
 
 ### 26.6 Änderungen in Version 2.9
 

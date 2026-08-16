@@ -364,12 +364,18 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
 describe('Streifen und Knopf am unteren Rand', () => {
     const responsive = readFileSync(resolve(process.cwd(), 'src/styles/responsive.css'), 'utf8');
 
-    it('liegt auf Tablet-Hochkant über dem Blatt, nicht dahinter', () => {
-        // Dort gilt die Blatt-Geometrie, aber nicht die Handy-Regeln ab 768px.
-        const start = responsive.indexOf('@media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)');
-        const portrait = responsive.slice(start, start + 3000);
-        expect(portrait).toContain('.map-fab-row');
-        expect(portrait).toContain('--mobile-sheet-peek');
+    it('steht auf dem Tablet hochkant genau dort, wo sie am Handy steht', () => {
+        // Vorher wanderte die Knopfzeile **nur** auf dem hochkanten Tablet an
+        // den oberen Kartenrand – eine eigene Platzierung, die es weder am
+        // Handy noch am Schreibtisch gab, samt eigener Messgröße
+        // (`--mobile-topnav-bottom`) und eigener Kollision mit der
+        // Basis/Profi-Pille. Genau so entsteht eine dritte Oberfläche.
+        //
+        // Heute gilt die Handy-Regel auch dort: unten über dem eingeklappten
+        // Blatt, und weg, sobald das Blatt aufgezogen ist.
+        expect(responsive).not.toContain('@media (min-width: 769px) and (max-width: 1200px) and (orientation: portrait)');
+        expect(responsive).not.toContain('--mobile-topnav-bottom');
+        expect(responsive).toContain('body.sheet-open .map-fab-row { display: none; }');
     });
 
     it('schwebt am Handy über dem eingeklappten Blatt', () => {

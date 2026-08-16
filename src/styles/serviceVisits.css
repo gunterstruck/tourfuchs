@@ -130,7 +130,15 @@
 .service-day-planner[hidden], #service-plan-end-field[hidden] { display: none !important; }
 .service-day-planner-head > div { display: grid; gap: 2px; }
 .service-day-planner-head small { color: var(--color-text-muted); font-size: 0.68rem; }
-.service-day-plan-settings { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+/* Zwei Spalten, solange sie hineinpassen – sonst eine.
+   Vorher entschied das eine Fensterbreite (`max-width: 1180px`). Das war schon
+   die falsche Größe: Diese Felder stehen im Bedienpanel, und dessen Breite ist
+   frei ziehbar, sie folgt dem Fenster nicht. Es war zusätzlich eine vierte
+   Schwelle, die ausgerechnet mitten in die Tablet-Breiten fiel – ein Tablet quer
+   (1133px) bekam den Schreibtisch mit einspaltigen Einstellungen, ein Laptop
+   (1440px) mit zweispaltigen. `auto-fit` fragt stattdessen den Platz, der
+   wirklich da ist, und braucht dafür keine Gerätestufe. */
+.service-day-plan-settings { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 7px; }
 .service-day-plan-settings label { display: grid; gap: 3px; color: var(--color-text-muted); font-size: 0.68rem; }
 
 .service-day-preview-card { display: grid; gap: 8px; margin-top: 8px; padding-top: 9px; border-top: 1px solid #ccfbf1; }
@@ -160,10 +168,6 @@
 .popup-service-visits { display: grid; gap: 5px; margin: 7px 0; padding: 8px; border: 1px solid #bae6fd; border-radius: var(--radius-m); background: #f0f9ff; }
 .popup-service-visits b { color: #075985; }
 .popup-service-visits small { display: block; color: #475569; }
-
-@media (max-width: 1180px) {
-    .service-day-plan-settings { grid-template-columns: 1fr; }
-}
 
 /* ---- Zanobo-Brücke (akustischer Maschinen-Check) ---- */
 .zanobo-base-row {
