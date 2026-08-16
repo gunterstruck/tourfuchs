@@ -123,7 +123,9 @@
 
 /* Desktop: nicht mittig – das Panel dockt schlank an den rechten Rand, damit die
    Karte der erste Eindruck bleibt. Der Hintergrund bleibt Standard. */
-@media (min-width: 769px) {
+@media (min-width: 1201px),
+       (min-width: 901px) and (orientation: landscape),
+       (min-width: 769px) and (orientation: landscape) and (min-height: 521px) {
     #showcase-dialog {
         margin: 0;
         position: fixed;
@@ -271,7 +273,9 @@
     white-space: normal;
 }
 
-@media (min-width: 769px) {
+@media (min-width: 1201px),
+       (min-width: 901px) and (orientation: landscape),
+       (min-width: 769px) and (orientation: landscape) and (min-height: 521px) {
     #showcase-dialog[open] {
         display: grid;
         grid-template-rows: auto minmax(0, 1fr) auto;
@@ -332,7 +336,9 @@
     }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
     #showcase-dialog {
         width: calc(100vw - 12px);
         max-width: none;
@@ -420,7 +426,9 @@
     .sc-bubble { max-width: 78vw; }
 }
 
-@media (max-width: 768px) and (max-height: 700px) {
+@media (max-width: 768px) and (max-height: 700px),
+       (max-width: 1200px) and (orientation: portrait) and (max-height: 700px),
+       (max-width: 900px) and (max-height: 520px) {
     .sc-panel-head { padding-top: 8px; }
     .sc-panel-fox { font-size: 1.55rem; }
     .sc-panel-head h2 { font-size: 1rem; }

@@ -6,6 +6,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { STORIES, storyDuration, visibleStorySteps } from '../src/features/stories.js';
+import { PHONE_FACE_MEDIA } from '../src/core/viewport.js';
 
 const read = (file) => readFileSync(resolve(process.cwd(), file), 'utf8');
 
@@ -14,6 +15,10 @@ describe('Schwellenwerte passen zueinander', () => {
         // Befund: handy-qr wurde ab 769px angeboten, #btn-mobile-preview war
         // aber erst ab 901px sichtbar. Auf dem Tablet hochkant (834px) brach
         // die Demo bei Schritt 9/18 ab.
+        //
+        // Der Fehler war beide Male derselbe: zwei Schwellen für eine Frage.
+        // Die Demo hängt an `desktopOnly`, also am **Gesicht** – und der Knopf
+        // muss an derselben Grenze verschwinden, nicht an einer eigenen.
         const css = read('src/styles/components.css');
         const stories = read('src/features/stories.js');
 
@@ -21,10 +26,14 @@ describe('Schwellenwerte passen zueinander', () => {
             .steps.some((step) => step.sel === '#btn-mobile-preview');
         expect(usesPreview).toBe(true);
 
-        // Die Demo ist desktopOnly, also ab 769px sichtbar – der Knopf muss
-        // dieselbe Grenze haben.
         expect(stories).toContain('desktopOnly: true,   // Übergabe Desktop -> Handy');
-        expect(css).toContain('@media (max-width: 768px) { .mobile-preview-entry { display: none; } }');
+        // Kein eigener Pixelwert mehr: die Touransicht-Liste, wortgleich.
+        for (const clause of PHONE_FACE_MEDIA.split(',').map((part) => part.trim())) {
+            expect(css).toContain(clause);
+        }
+        const block = css.slice(css.indexOf('.mobile-preview-entry { display: none; }') - 400,
+            css.indexOf('.mobile-preview-entry { display: none; }'));
+        expect(block).toContain('(max-width: 1200px) and (orientation: portrait)');
     });
 
     it('deckt die Kachel-Cacheregel alle angebotenen Kartenquellen ab', () => {

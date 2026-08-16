@@ -17,10 +17,17 @@
  * seitlich? Ist das Cockpit erreichbar? Und vor allem:
  *
  *   **Antwortet ein Tablet hochkant exakt wie ein Handy?**
+ *   **Und antwortet ein Tablet quer exakt wie ein Schreibtisch?**
  *
- * Das ist das Versprechen aus Version 3.2 („kein Unterschied"), und es ist die
- * einzige Frage, die dieses Werkzeug wirklich beantworten muss. Jede Abweichung
- * zwischen der Hochkant-Spalte und der Handy-Spalte ist ein Fehler.
+ * Lange stand hier nur die erste Frage, und der Maßstab war allein das
+ * Smartphone. Das prüfte die Regel nur zur Hälfte: „Tablet quer = Schreibtisch"
+ * blieb Behauptung. Jetzt hat jedes Gesicht sein Referenzgerät, und jedes
+ * Tablet wird gegen das seine gehalten. Jede Abweichung ist ein Fehler.
+ *
+ * Die Tablets werden dabei in **beiden** Haltungen als Berührgeräte geöffnet
+ * (`hasTouch`). Sonst prüfte der Querformat-Vergleich ein Gerät, das es nicht
+ * gibt – und übersähe genau die Sorte Abweichung, die ihn interessiert: einen
+ * Schreibtisch, der auf einem Tablet anders aussieht als auf einem Laptop.
  *
  * Ausgeführt wird gegen `dist/` – also vorher `npm run build`.
  *
@@ -40,15 +47,19 @@ import { createServer } from 'node:net';
 
 /**
  * Echte Geräte in CSS-Pixeln. `erwartet` ist das Gesicht, das laut
- * `src/core/viewport.js` gelten muss.
+ * `src/core/viewport.js` gelten muss; `referenz` markiert das Gerät, an dem
+ * dieses Gesicht gemessen wird. Jedes Gesicht braucht genau eine Referenz –
+ * ohne die zweite bliebe die Hälfte der Regel ungeprüft.
  */
 const FORMATS = [
-    { name: 'smartphone',        viewport: { width: 390, height: 844 },  erwartet: 'phone',   referenz: true },
-    { name: 'tablet-hochkant',   viewport: { width: 800, height: 1333 }, erwartet: 'phone' },  // Tab S6 Lite
-    { name: 'tablet-quer',       viewport: { width: 1333, height: 800 }, erwartet: 'desktop' },
-    { name: 'ipad11-hochkant',   viewport: { width: 834, height: 1194 }, erwartet: 'phone' },
-    { name: 'ipad129-hochkant',  viewport: { width: 1024, height: 1366 }, erwartet: 'phone' },
-    { name: 'desktop',           viewport: { width: 1440, height: 900 }, erwartet: 'desktop' }
+    { name: 'smartphone',        viewport: { width: 390, height: 844 },  erwartet: 'phone',   referenz: true, hasTouch: true },
+    { name: 'tablet-hochkant',   viewport: { width: 800, height: 1333 }, erwartet: 'phone',   hasTouch: true },  // Tab S6 Lite
+    { name: 'ipad11-hochkant',   viewport: { width: 834, height: 1194 }, erwartet: 'phone',   hasTouch: true },
+    { name: 'ipad129-hochkant',  viewport: { width: 1024, height: 1366 }, erwartet: 'phone',  hasTouch: true },
+    { name: 'tablet-quer',       viewport: { width: 1333, height: 800 }, erwartet: 'desktop', hasTouch: true },
+    { name: 'ipad11-quer',       viewport: { width: 1194, height: 834 }, erwartet: 'desktop', hasTouch: true },
+    { name: 'ipad129-quer',      viewport: { width: 1366, height: 1024 }, erwartet: 'desktop', hasTouch: true },
+    { name: 'desktop',           viewport: { width: 1440, height: 900 }, erwartet: 'desktop', referenz: true, hasTouch: false }
 ];
 
 /**
@@ -61,7 +72,16 @@ const PROBE = `(() => {
         if (!el) return 'fehlt';
         if (el.hidden) return 'aus';
         const cs = getComputedStyle(el);
-        return (cs.display === 'none' || cs.visibility === 'hidden') ? 'aus' : 'an';
+        if (cs.display === 'none' || cs.visibility === 'hidden') return 'aus';
+        // Auch die Vorfahren zählen: Ein Knopf in einem ausgeblendeten Behälter
+        // behält sein eigenes display und wäre sonst „an".
+        return el.getClientRects().length ? 'an' : 'aus';
+    };
+    /** Nur die Regel am Element selbst – unabhängig von seinen Vorfahren. */
+    const geschaltet = (sel) => {
+        const el = document.querySelector(sel);
+        if (!el) return 'fehlt';
+        return getComputedStyle(el).display === 'none' ? 'aus' : 'an';
     };
     const sidebar = document.getElementById('sidebar');
     const rect = sidebar ? sidebar.getBoundingClientRect() : null;
@@ -79,7 +99,26 @@ const PROBE = `(() => {
         tiefeProfi: document.body.classList.contains('depth-profi'),
         cockpitKnopf: sichtbar('#btn-cockpit'),
         panelZoom: sichtbar('.panel-zoom'),
-        seitenleisteZiehen: sichtbar('.sidebar-resize')
+        seitenleisteZiehen: sichtbar('.sidebar-resize'),
+        // Die Stellen, an denen früher eine dritte Oberfläche entstand: Sie
+        // hingen an eigenen Schwellen (768/769/1180) statt an der Gesichtsgrenze
+        // und trafen ausgerechnet die Tablet-Breiten.
+        kartenZoomTasten: sichtbar('#map .leaflet-control-zoom'),
+        handyVorschau: sichtbar('#btn-mobile-preview'),
+        // Die only-desktop / only-mobile-Klassen schalten Texte und Einstiege
+        // im Onboarding um. Gefragt wird hier die Regel selbst, nicht der Platz
+        // auf dem Schirm: Die Träger liegen beim Start in eingeklappten
+        // Bereichen und wären über ihre Sichtbarkeit gar nicht zu lesen.
+        nurDesktopRegel: geschaltet('.only-desktop'),
+        nurMobilRegel: geschaltet('.only-mobile'),
+        kopfStreifen: sichtbar('#mobile-topnav'),
+        // Die Karten-Knopfzeile stand auf dem hochkanten Tablet als einzigem
+        // Gerät oben. „Obere Fensterhälfte" ist die Frage, nicht der Pixelwert.
+        knopfzeileOben: (() => {
+            const row = document.querySelector('.map-fab-row');
+            if (!row || getComputedStyle(row).display === 'none') return 'aus';
+            return row.getBoundingClientRect().top < window.innerHeight / 2 ? 'oben' : 'unten';
+        })()
     };
 })()`;
 
@@ -125,7 +164,7 @@ async function faceOf(page) {
 async function inspect(browser, format, baseUrl) {
     const context = await browser.newContext({
         viewport: format.viewport,
-        hasTouch: format.erwartet === 'phone',
+        hasTouch: Boolean(format.hasTouch),
         deviceScaleFactor: 1
     });
     const page = await context.newPage();
@@ -194,29 +233,36 @@ for (const r of ergebnisse) {
 }
 
 /**
- * Die eigentliche Prüfung: Jedes Touransicht-Format muss dieselben Antworten
- * geben wie das Smartphone. „Kein Unterschied" ist das Versprechen, und hier
- * wird es nachgezählt statt behauptet.
+ * Die eigentliche Prüfung: Jedes Gerät muss dieselben Antworten geben wie das
+ * Referenzgerät **seines** Gesichts – das Tablet hochkant wie das Smartphone,
+ * das Tablet quer wie der Schreibtisch. „Kein Unterschied" ist das Versprechen,
+ * und hier wird es nachgezählt statt behauptet.
+ *
+ * Beide Richtungen zu prüfen ist der Punkt: Eine dritte Oberfläche zeigt sich
+ * genauso gut als Schreibtisch mit mobilen Zügen wie als Handy mit
+ * Desktop-Reiten.
  */
-const referenz = ergebnisse.find((r) => r.referenz);
-if (referenz) {
-    for (const r of ergebnisse) {
-        if (r === referenz || r.erwartet !== 'phone') continue;
-        const abweichungen = Object.keys(referenz.zustand).filter(
-            (key) => JSON.stringify(r.zustand[key]) !== JSON.stringify(referenz.zustand[key])
-        );
-        if (abweichungen.length) {
-            console.log(`\n✗ ${r.name} weicht vom Smartphone ab:`);
-            for (const key of abweichungen) {
-                console.log(`      ${key}: ${JSON.stringify(r.zustand[key])} statt ${JSON.stringify(referenz.zustand[key])}`);
-            }
-            fehlerhaft++;
-        } else {
-            console.log(`\n✓ ${r.name} antwortet in allen ${Object.keys(referenz.zustand).length} Punkten wie das Smartphone.`);
+const referenzen = new Map(
+    ergebnisse.filter((r) => r.referenz).map((r) => [r.erwartet, r])
+);
+if (!referenzen.size) {
+    console.log('\n(Ohne ein Referenzformat entfällt der Vergleich – „smartphone" und „desktop" sind die Maßstäbe.)');
+}
+for (const r of ergebnisse) {
+    const referenz = referenzen.get(r.erwartet);
+    if (!referenz || r === referenz) continue;
+    const abweichungen = Object.keys(referenz.zustand).filter(
+        (key) => JSON.stringify(r.zustand[key]) !== JSON.stringify(referenz.zustand[key])
+    );
+    if (abweichungen.length) {
+        console.log(`\n✗ ${r.name} weicht von „${referenz.name}" ab:`);
+        for (const key of abweichungen) {
+            console.log(`      ${key}: ${JSON.stringify(r.zustand[key])} statt ${JSON.stringify(referenz.zustand[key])}`);
         }
+        fehlerhaft++;
+    } else {
+        console.log(`\n✓ ${r.name} antwortet in allen ${Object.keys(referenz.zustand).length} Punkten wie „${referenz.name}".`);
     }
-} else {
-    console.log('\n(Ohne das Format „smartphone" entfällt der Vergleich – es ist der Maßstab.)');
 }
 
 console.log(fehlerhaft === 0
