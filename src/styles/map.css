@@ -1,5 +1,100 @@
 /* Karten-spezifische Styles (Marker, Cluster, Popups) */
 
+/* Gespeicherte Orte sind bewusst keine Kundenmarker: eigener Pin, kein Cluster,
+   keine Kundenfarbe. Bis zu 20 Punkte bleiben so eindeutig lesbar. */
+.own-place-marker-wrapper,
+.place-picker-marker-wrapper { background: transparent; overflow: visible !important; }
+.own-place-marker {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border: 2px solid #fff;
+    border-radius: 50% 50% 50% 8px;
+    background: #7c3aed;
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(76, 29, 149, 0.38);
+    font-size: 0.9rem;
+    transform: rotate(-45deg);
+}
+.own-place-marker span { transform: rotate(45deg); }
+.popup-place .popup-place-kind {
+    margin: 0 0 4px;
+    color: #6d28d9;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
+.popup-place .popup-place-coordinates { font: 0.72rem ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+/* Aktiver Auswahlmodus: Der Pin liegt über allen Fachdaten; Kunden und Flächen
+   bleiben sichtbar, reagieren aber nicht versehentlich auf den Fingertipp. */
+body.place-picker-active #map { cursor: crosshair; }
+/* Die normalen Kartenaktionen liegen ebenfalls am unteren Kartenrand. Während
+   der Pin-Auswahl würden sie die Bestätigungsleiste überdecken und versehentlich
+   ausgelöst werden – besonders im schmalen bzw. niedrigen Außendienst-Layout. */
+body.place-picker-active .map-fab-row { display: none !important; }
+body.place-picker-active #map .customer-marker-wrapper,
+body.place-picker-active #map .cluster-wrapper,
+body.place-picker-active #map .own-place-marker-wrapper,
+body.place-picker-active #map .leaflet-overlay-pane path { pointer-events: none !important; }
+.place-picker-marker-wrapper { pointer-events: auto !important; }
+.place-picker-marker {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 3px solid #fff;
+    border-radius: 50% 50% 50% 8px;
+    background: #e11d48;
+    box-shadow: 0 8px 22px rgba(159, 18, 57, 0.42);
+    transform: rotate(-45deg);
+    cursor: grab;
+}
+.place-picker-marker span { font-size: 1.35rem; transform: rotate(45deg); }
+.leaflet-drag-target .place-picker-marker { cursor: grabbing; transform: rotate(-45deg) scale(1.08); }
+.place-picker-controls {
+    position: absolute;
+    z-index: 1200;
+    left: 50%;
+    bottom: calc(18px + env(safe-area-inset-bottom));
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: min(720px, calc(100% - 28px));
+    padding: 10px 12px;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.24);
+    transform: translateX(-50%);
+    pointer-events: auto;
+}
+.place-picker-controls[hidden] { display: none; }
+.place-picker-instruction { display: grid; grid-template-columns: 34px 1fr; align-items: center; gap: 1px 8px; min-width: 0; flex: 1; }
+.place-picker-big-pin { grid-row: 1 / span 2; font-size: 1.4rem; }
+.place-picker-instruction b, .place-picker-instruction small { display: block; }
+.place-picker-instruction small { color: var(--color-text-muted); font-size: 0.72rem; }
+.place-picker-instruction code { grid-column: 2; color: var(--color-text-muted); font-size: 0.68rem; }
+.place-picker-actions { display: flex; gap: 8px; }
+.place-picker-actions button { min-height: 40px; white-space: nowrap; }
+
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    .place-picker-controls {
+        align-items: stretch;
+        flex-direction: column;
+        /* Das mobile Bedienblatt bleibt als Griff bzw. Datenhinweis sichtbar.
+           Die Bestätigung sitzt vollständig darüber und bleibt erreichbar. */
+        bottom: calc(var(--mobile-sheet-peek, 46px) + var(--safe-bottom, 0px) + 12px);
+    }
+    .place-picker-actions { display: grid; grid-template-columns: 0.75fr 1.25fr; }
+    .place-picker-actions button { min-height: 46px; }
+}
+
 .customer-marker-wrapper {
     display: flex;
     align-items: center;

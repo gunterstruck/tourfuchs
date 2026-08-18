@@ -163,6 +163,10 @@ export function routeDistance(start, stops, roundTrip = false) {
 }
 
 function pointParam(p) {
+    // Ein bewusst auf der Karte gesetzter Pin ist genauer als jede Adress-
+    // Neuauflösung durch Google. Seine Koordinate darf deshalb nicht von der
+    // optionalen Beschriftungsadresse verdrängt werden.
+    if (p.coordinateSource === 'map-pin') return `${p.lat},${p.lng}`;
     // Adresse ist für Google Maps robuster als rohe Koordinaten
     if (p.strasse && p.ort) return `${p.strasse}, ${p.plz ?? ''} ${p.ort}`.trim();
     // Fertige Adresszeile aus einer per QR empfangenen Tour (dort gibt es keine

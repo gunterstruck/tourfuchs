@@ -39,6 +39,7 @@ function packPoint(point) {
     // Handy navigierte einen Kilometer neben die Station.
     const addr = [point.strasse, `${point.plz ?? ''} ${point.ort ?? ''}`.trim()].filter(Boolean).join(', ');
     if (point.strasse && addr) packed.a = addr;
+    if (point.coordinateSource === 'map-pin') packed.m = 1;
     if (isDemoCustomer(point)) packed.d = 1;
     if (point.here) packed.h = 1; // Geräte-Standort: Ziel-Navigation ab aktuellem Ort
     return packed;
@@ -130,6 +131,7 @@ export function decodeTourPayload(text) {
     const point = (p) => ({
         lat: Number(p.lat), lng: Number(p.lng), label: p.l || '',
         ...(p.a ? { adresse: p.a } : {}),
+        ...(p.m === 1 ? { coordinateSource: 'map-pin' } : {}),
         ...(p.h === 1 ? { here: true } : {}),
         ...(p.d === 1 ? { demo: true, dataOrigin: DEMO_DATA_ORIGIN } : {})
     });
