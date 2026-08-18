@@ -303,14 +303,32 @@ export function tourPointFromResult(result) {
         ort: result.ort ?? ''
     };
     if (result.strasse) point.strasse = result.strasse;
+    if (result.coordinateSource) point.coordinateSource = result.coordinateSource;
     if (result.kind === 'eigener-ort') point.placeId = result.id;
     return point;
+}
+
+/** Ein gespeicherter Ort wird zum Tourpunkt, ohne dabei zum Kunden zu werden. */
+export function tourPointFromOwnPlace(place) {
+    if (!hasPoint(place)) return null;
+    return {
+        lat: Number(place.lat),
+        lng: Number(place.lng),
+        label: place.label,
+        placeId: place.id,
+        strasse: place.strasse ?? '',
+        plz: place.plz ?? '',
+        ort: place.ort ?? '',
+        coordinateSource: place.coordinateSource ?? ''
+    };
 }
 
 let placeCounter = 0;
 
 /** Neuen eigenen Ort anlegen. Der Name ist Pflicht – ohne ihn gäbe es nichts wiederzufinden. */
-export function createOwnPlace({ label, lat, lng, strasse = '', plz = '', ort = '' } = {}) {
+export function createOwnPlace({
+    label, lat, lng, strasse = '', plz = '', ort = '', coordinateSource = ''
+} = {}) {
     const name = String(label ?? '').trim();
     if (!name) return null;
     if (!isCoordinate(lat) || !isCoordinate(lng)) return null;
@@ -323,6 +341,7 @@ export function createOwnPlace({ label, lat, lng, strasse = '', plz = '', ort = 
         strasse: String(strasse ?? ''),
         plz: String(plz ?? ''),
         ort: String(ort ?? ''),
+        coordinateSource: String(coordinateSource ?? ''),
         createdAt: new Date().toISOString()
     };
 }

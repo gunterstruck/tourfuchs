@@ -11,7 +11,7 @@ import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
-import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, UNASSIGNED } from '../core/state.js';
+import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, UNASSIGNED } from '../core/state.js';
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
 import { getRoadRoute, peekRoadRoute } from '../services/routing.js';
 import { aggregateByRegion, dominantRep } from './territory.js';
@@ -42,10 +42,12 @@ import {
 } from './customerMarkers.js';
 import { openRegionEditor } from '../ui/regionEditor.js';
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
+import { tourPointFromOwnPlace } from './places.js';
 
 let map = null;
 let regionLayer = null;
 let clusterGroup = null;
+let placeLayer = null;
 let tourLayer = null;
 
 // Mindest-Stapelgröße: Ein Kundenstapel entsteht erst ab dieser Anzahl. Darunter
@@ -487,6 +489,7 @@ export function initMap(containerId) {
     syncCustomerMarkerMode();
 
     labelLayer = L.layerGroup().addTo(map);
+    placeLayer = L.layerGroup().addTo(map);
     tourLayer = L.layerGroup().addTo(map);
 
     // Zoom-Automatik: bei „auto" den Detailgrad neu bestimmen
@@ -595,7 +598,8 @@ export function initMap(containerId) {
         syncEffectiveLevel();
     });
     on('tour:scope-changed', refreshAll);
-    on('tour:changed', renderTour);
+    on('tour:changed', () => { renderTour(); renderPlaces(); });
+    on('places:changed', renderPlaces);
     on('simulation:preview', (preview) => {
         simulationPreview = preview?.active ? preview : null;
         map.closePopup();
@@ -639,6 +643,30 @@ export function initMap(containerId) {
 
 /** @returns {boolean} true, wenn das Popup offen bleiben soll */
 function handlePopupAction(action, customerId) {
+    if (action?.startsWith('place-')) {
+        const place = state.places.find((entry) => entry?.id === customerId);
+        if (!place) return false;
+        const point = tourPointFromOwnPlace(place);
+        if (action === 'place-start' && point) {
+            clearServiceTourPlan();
+            state.tour.start = point;
+            emit('tour:changed');
+        } else if (action === 'place-dest' && point) {
+            clearServiceTourPlan();
+            const first = !state.tour.destination;
+            state.tour.destination = point;
+            if (first && state.tour.suggestMode !== 'route') state.tour.suggestMode = 'route';
+            emit('tour:changed');
+        } else if (action === 'place-edit') {
+            emit('place-picker:open', { target: 'edit', placeId: place.id, point: place });
+        } else if (action === 'place-remove') {
+            if (confirm(`Gespeicherten Ort „${place.label}" löschen?`)) {
+                removePlace(place.id);
+                emit('toast', { type: 'success', text: `„${place.label}" gelöscht.` });
+            }
+        }
+        return false;
+    }
     const customer = getCustomer(customerId);
     if (!customer) return false;
     if (action === 'demo-call' || action === 'demo-email') {
@@ -768,6 +796,7 @@ function applyView() {
         : resolveView();
     restyleRegions();
     renderMarkers();
+    renderPlaces();
     renderLabels();
 }
 
@@ -1712,6 +1741,54 @@ function renderMarkers() {
 
 // ---- Tour-Anzeige ----
 
+function ownPlaceIcon() {
+    return L.divIcon({
+        className: 'own-place-marker-wrapper',
+        html: '<div class="own-place-marker"><span>★</span></div>',
+        iconSize: [34, 38],
+        iconAnchor: [17, 34]
+    });
+}
+
+function ownPlacePopupHtml(place) {
+    const placeLine = [place.plz, place.ort].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
+    const address = [place.strasse, placeLine].filter(Boolean).map(escapeHtml).join(' · ');
+    const exact = place.coordinateSource === 'map-pin';
+    return `<div class="popup popup-place">
+        <p class="popup-place-kind">★ Gespeicherter Ort</p>
+        <h3>${escapeHtml(place.label)}</h3>
+        ${address ? `<p class="popup-addr">${address}</p>` : ''}
+        <p class="muted small popup-place-coordinates">${Number(place.lat).toFixed(6)}, ${Number(place.lng).toFixed(6)}${exact ? ' · exakt gesetzt' : ''}</p>
+        <div class="popup-actions">
+            <button data-action="place-start" data-id="${escapeHtml(place.id)}">🚩 Als Start</button>
+            ${state.ui.depth === 'profi' ? `<button data-action="place-dest" data-id="${escapeHtml(place.id)}">🏁 Als Ziel</button>` : ''}
+            <button data-action="place-edit" data-id="${escapeHtml(place.id)}">📌 Position ändern</button>
+            <button data-action="place-remove" data-id="${escapeHtml(place.id)}">✕ Löschen</button>
+        </div>
+    </div>`;
+}
+
+/** Eigene Orte nur auf der Tour-Bühne zeigen – getrennt von Kundenclustern. */
+function renderPlaces() {
+    if (!placeLayer || !map) return;
+    placeLayer.clearLayers();
+    const planningMode = state.ui.mode === 'aussendienst' || state.ui.mode === 'service';
+    if (!planningMode || state.ui.activeTab !== 'tour') return;
+    const selected = new Set([state.tour.start?.placeId, state.tour.destination?.placeId].filter(Boolean));
+    for (const place of state.places || []) {
+        if (!place || selected.has(place.id) || !Number.isFinite(Number(place.lat)) || !Number.isFinite(Number(place.lng))) continue;
+        L.marker([Number(place.lat), Number(place.lng)], {
+            icon: ownPlaceIcon(),
+            title: `${place.label} – gespeicherter Ort`,
+            alt: `${place.label} – gespeicherter Ort`,
+            zIndexOffset: 700
+        })
+            .bindTooltip(place.label)
+            .bindPopup(() => ownPlacePopupHtml(place), popupOptions({ maxWidth: 300, className: 'place-detail-popup' }))
+            .addTo(placeLayer);
+    }
+}
+
 function resolvedTourDestination(destination) {
     if (!destination) return null;
     const c = destination.customerId ? getCustomer(destination.customerId) : null;
@@ -1737,6 +1814,9 @@ function attachTourCustomerPopup(marker, point, tooltipText) {
         if (customer) {
             marker.bindPopup(() => customerPopupHtml(customer), customerPopupOptions());
         }
+    } else if (point?.placeId) {
+        const place = state.places.find((entry) => entry?.id === point.placeId);
+        if (place) marker.bindPopup(() => ownPlacePopupHtml(place), popupOptions({ maxWidth: 300, className: 'place-detail-popup' }));
     } else if (point?.id) {
         marker.bindPopup(() => customerPopupHtml(point), customerPopupOptions());
     }

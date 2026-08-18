@@ -1545,6 +1545,17 @@ Eingefügte Koordinaten ("51.4459, 7.0185" oder "51,4459 7,0185") werden ebenfal
 erkannt. Das **Ziel** benutzt dasselbe Feld
 (**"Kunde, Ort oder PLZ als Ziel"**) – für die Rückgabestation am Abend.
 
+**Einen Punkt exakt auf der Karte setzen:** Sobald das Suchfeld den Fokus hat,
+steht unter den Treffern **"Eigenen Ort auf der Karte setzen"**. Nach dem
+Antippen bleibt die Karte bedienbar: gewünschte Stelle antippen oder den roten
+Pin mit Finger bzw. Maus ziehen, dann **"Position übernehmen"**. Anschließend
+braucht der Punkt einen Namen; das Häkchen **"Diesen Ort für spätere Touren
+merken"** ist vorausgewählt. Der gespeicherte Ort erscheint als eigener
+violetter Stern-Pin auf der Tourkarte. Sein Popup bietet **"Als Start"**,
+**"Als Ziel"** (Profi), **"Position ändern"** und **"Löschen"**. Am Start- oder
+Zielchip öffnet **"📌 genauer"** denselben Ablauf für einen bereits gefundenen
+Ort.
+
 **Einen Ort merken:** Ist ein Ort als Start oder Ziel gewählt, steht am Chip der
 Knopf **"★ merken"**. Er fragt nach einem Namen; danach trägt der Startpunkt
 diesen Namen und der Ort steht künftig oben in der Trefferliste. Gelöscht wird
@@ -1554,8 +1565,11 @@ er mit **✕** direkt in dieser Liste. Es passen **20** eigene Orte.
 **"Straße und Hausnummer"**. Die Eingabe wird **nicht nachgeschlagen** – sie wird
 mitgeschrieben und an **Google Maps** übergeben, sobald von diesem Punkt aus
 navigiert wird; sie reist auch in der QR-Übergabe aufs Handy mit. Wirkung: Die
-Planung (Umkreis, Streckenschätzung) rechnet weiter mit der Ortsmitte, die
-**Navigation** führt aber zur Haustür. Wer nichts einträgt, verliert nichts.
+Planung (Umkreis, Streckenschätzung) rechnet bei einem Verzeichnistreffer weiter
+mit der Ortsmitte, die **Navigation** führt aber zur Haustür. Bei einem bewusst
+gesetzten Karten-Pin gilt dagegen durchgehend dessen genaue Koordinate – auch
+wenn zusätzlich eine Straße als Beschriftung eingetragen ist. Wer nichts
+einträgt, verliert nichts.
 Diese Frage erscheint nur bei Orten ohne Straße; ein Kunde bringt seine Adresse
 bereits mit.
 
@@ -1566,7 +1580,7 @@ Adresse hausgenau braucht, trägt sie einmal beim Merken ein.
 **Was der Guide zu Genauigkeit sagen muss:** Ein Ort aus dem Verzeichnis ist
 **ortsgenau, nicht hausgenau** – er liegt in der Ortsmitte bzw. in der Mitte des
 Postleitzahl-Gebiets. Für Umkreisvorschläge und Streckenschätzung genügt das;
-wer die Station hausgenau braucht, merkt sie sich einmal als eigenen Ort.
+wer die Station hausgenau braucht, setzt sie einmal mit dem Karten-Pin.
 TourFuchs sucht **keine Adressen im Internet**: Die Ortssuche arbeitet
 ausschließlich mit den mitgelieferten Postleitzahl-Daten, es geht dabei keine
 Anfrage hinaus.

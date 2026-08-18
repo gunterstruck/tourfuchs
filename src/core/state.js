@@ -237,6 +237,23 @@ export function removePlace(id) {
     return true;
 }
 
+/** Einen eigenen Ort umbenennen oder seinen Karten-Pin verschieben. */
+export function updatePlace(id, changes = {}) {
+    const index = state.places.findIndex((place) => place?.id === id);
+    if (index < 0) return null;
+    const current = state.places[index];
+    const next = { ...current, ...changes, id: current.id, createdAt: current.createdAt };
+    if (!String(next.label ?? '').trim() || !hasCoordinates(next)) return null;
+    next.label = String(next.label).trim();
+    next.lat = Number(next.lat);
+    next.lng = Number(next.lng);
+    next.updatedAt = new Date().toISOString();
+    state.places = state.places.map((place, placeIndex) => placeIndex === index ? next : place);
+    emit('places:changed');
+    emit('dataset:dirty');
+    return next;
+}
+
 /** Verwirft einen bestätigten Service-Tagesplan nach manueller Touränderung. */
 export function clearServiceTourPlan() {
     const hadPlan = Boolean(state.tour.servicePlan);
