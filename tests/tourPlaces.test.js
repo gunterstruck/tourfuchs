@@ -11,10 +11,10 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
     buildPlaceIndex, searchGeoPlaces, searchOwnPlaces, parseCoordinateQuery,
-    placeQueryVariants, tourPointFromResult, createOwnPlace, findOwnPlaceForPoint,
+    placeQueryVariants, tourPointFromResult, tourPointFromOwnPlace, createOwnPlace, findOwnPlaceForPoint,
     mergeOwnPlaces, PLACE_CLUSTER_KM
 } from '../src/features/places.js';
-import { state, setPlaces, addPlace, removePlace, setCustomers, datasetSnapshot } from '../src/core/state.js';
+import { state, setPlaces, addPlace, updatePlace, removePlace, setCustomers, datasetSnapshot } from '../src/core/state.js';
 import { CONFIG } from '../src/core/config.js';
 import { encodeTourPayload, decodeTourPayload } from '../src/features/tourShare.js';
 import { googleMapsLink } from '../src/features/tour.js';
@@ -145,6 +145,18 @@ describe('Eigene Orte', () => {
         expect(searchOwnPlaces('Hamburg', own)).toHaveLength(0);
     });
 
+    it('kennzeichnet einen bewusst gesetzten Karten-Pin', () => {
+        const place = createOwnPlace({
+            label: 'Ladestation A3', lat: 51.6123456, lng: 8.3012345,
+            coordinateSource: 'map-pin'
+        });
+        expect(place.coordinateSource).toBe('map-pin');
+        expect(tourPointFromOwnPlace(place)).toMatchObject({
+            placeId: place.id, label: 'Ladestation A3', lat: 51.6123456, lng: 8.3012345,
+            coordinateSource: 'map-pin'
+        });
+    });
+
     it('erkennt einen bereits gemerkten Punkt wieder', () => {
         const place = createOwnPlace({ label: 'Büro Essen', lat: 51.45, lng: 7.01 });
         expect(findOwnPlaceForPoint([place], { label: 'Büro Essen', lat: 51.45, lng: 7.01 })).toBe(place);
@@ -207,6 +219,18 @@ describe('Ein Ort ist ein Wegpunkt, kein Kunde', () => {
         expect(state.places).toHaveLength(0);
     });
 
+    it('verschiebt und benennt einen Ort, ohne Kunden anzufassen', () => {
+        const place = createOwnPlace({ label: 'Alte Station', lat: 51, lng: 7 });
+        addPlace(place);
+        const updated = updatePlace(place.id, {
+            label: 'Ladestation A3', lat: 51.6123456, lng: 8.3012345,
+            coordinateSource: 'map-pin'
+        });
+        expect(updated).toMatchObject({ label: 'Ladestation A3', lat: 51.6123456, coordinateSource: 'map-pin' });
+        expect(updated.updatedAt).toBeTruthy();
+        expect(state.customers).toHaveLength(1);
+    });
+
     it('wird beim Übernehmen zu einem Tourpunkt ohne Kunden-Id', () => {
         const point = tourPointFromResult({
             kind: 'eigener-ort', id: 'ort-1', label: 'SIXT Essen Hbf',
@@ -258,6 +282,19 @@ describe('Straße und Hausnummer am eigenen Ort', () => {
         expect(googleMapsLink(decoded.start, decoded.stops)).toContain('origin=51.4459%2C7.0185');
     });
 
+    it('lässt beim Karten-Pin die exakte Koordinate vor der Beschriftungsadresse gewinnen', () => {
+        const start = {
+            lat: 51.6123456, lng: 8.3012345, label: 'Ladestation A3',
+            strasse: 'Autohof 1', plz: '59510', ort: 'Lippetal', coordinateSource: 'map-pin'
+        };
+        const stops = [{ name: 'Autohaus', lat: 51.7, lng: 8.4 }];
+        const encoded = encodeTourPayload({ start, stops });
+        const decoded = decodeTourPayload(encoded);
+        expect(decoded.start.coordinateSource).toBe('map-pin');
+        expect(googleMapsLink(decoded.start, decoded.stops)).toContain('origin=51.61235%2C8.30123');
+        expect(decodeURIComponent(googleMapsLink(start, stops))).not.toContain('Autohof');
+    });
+
     it('fragt die Straße nur, wo sie etwas ändert, und schlägt sie nicht nach', () => {
         const tourPanel = read('src/ui/tourPanel.js');
         expect(tourPanel).toContain('Straße und Hausnummer in ${point.ort} (optional, nur für die Navigation)');
@@ -291,6 +328,27 @@ describe('Ein Feld beantwortet „wo starte ich?"', () => {
         const places = read('src/features/places.js');
         expect(places).not.toMatch(/fetch\(|nominatim|http/i);
         expect(tourPanel).toContain('loadPlaceIndex');
+    });
+
+    it('öffnet aus demselben Feld den exakten Karten-Pin statt ein weiteres Suchfeld zu bauen', () => {
+        expect(tourPanel).toContain('data-map-point');
+        expect(tourPanel).toContain("emit('place-picker:open', { target: 'start', label })");
+        expect(html).toContain('id="place-pin-dialog"');
+        const picker = read('src/ui/placePicker.js');
+        expect(picker).toContain("coordinateSource: 'map-pin'");
+        expect(picker).not.toMatch(/fetch\(|nominatim/i);
+    });
+
+    it('zeigt gespeicherte Orte als eigene Kartenebene statt im Kundencluster', () => {
+        const map = read('src/features/map.js');
+        expect(map).toContain('placeLayer = L.layerGroup()');
+        expect(map).toContain('function renderPlaces()');
+        expect(map).not.toContain('clusterGroup.addLayer(place');
+    });
+
+    it('hält die Bestätigung beim Pin-Setzen frei von schwebenden Kartenaktionen', () => {
+        const mapCss = read('src/styles/map.css');
+        expect(mapCss).toContain('body.place-picker-active .map-fab-row { display: none !important; }');
     });
 });
 

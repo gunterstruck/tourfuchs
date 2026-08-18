@@ -578,6 +578,24 @@ großes und ein kleines Tablet verschieden trifft: Textumbruch, kein zweites
 Produkt. Verboten ist, eine der vier Gesichtsschwellen erneut hinzuschreiben
 oder die Haltung des Geräts an einer zweiten Stelle auszuwerten.
 
+### Release 13 – „Genau dieser Punkt" *(18.08.2026 umgesetzt, App 3.5.0)*
+
+Anlass war der Nutzerwunsch nach einer wiederkehrenden Ladestation, die weder
+aktueller GPS-Standort noch Kunde ist und nicht auf eine Postleitzahl-Mitte
+reduziert werden darf.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 13.1 | **Karten-Pin im bestehenden Start-/Zielfeld** | ✅ umgesetzt | Das gemeinsame Suchfeld bietet als Ergebnis „Eigenen Ort auf der Karte setzen". Ein ausdrücklicher Modus lässt die Karte bedienbar; Stelle antippen oder Pin ziehen, Koordinate übernehmen. Kein zusätzlicher Suchschlitz und kein Netzaufruf. |
+| 13.2 | **Benennen, merken, wiederverwenden** | ✅ umgesetzt | Ein kompaktes Bestätigungsblatt nimmt Name sowie freiwillig Straße, PLZ und Ort auf. „Diesen Ort für spätere Touren merken" ist vorausgewählt; bestehende Orte lassen sich über „📌 genauer" verschieben. |
+| 13.3 | **Eigene Kartenebene statt Pseudo-Kunde** | ✅ umgesetzt | Gespeicherte Orte erscheinen im Tour-Kontext als violette Stern-Pins mit Aktionen für Start, Ziel, Position ändern und Löschen. Sie bleiben außerhalb des Kundenclusters und aller Kundenkennzahlen. |
+| 13.4 | **Exakte Koordinate gewinnt** | ✅ umgesetzt | `coordinateSource: 'map-pin'` reist in der QR-Tour mit. `pointParam()` bevorzugt für diesen Typ immer Lat/Lng vor einer optionalen Adresse, damit Google Maps nicht erneut zu einer anderen Einfahrt geokodiert. |
+| 13.5 | **Werkzeuge schließen sich aus** | ✅ umgesetzt | Beim Öffnen des Pin-Modus werden Lasso und dessen Auswahl beendet; auf der Auswahlkarte reagieren Kunden- und Gebietsmarker nicht versehentlich. Escape und „Abbrechen" führen zuverlässig zurück. |
+
+**Produktentscheidung:** Ein Karten-Pin ist ein **gespeicherter Ort**, kein neuer
+Kundentyp. Die existierende Regel aus Release 11 bleibt damit intakt: Kundenzahl,
+Umsatz, Fälligkeit und Gebiete kennen den Punkt nicht; Tour und Navigation schon.
+
 ### Backlog & Vision (bewusst NICHT jetzt)
 
 - **POIs auf der Karte** (Ladestationen): nur als Opt-in – externe POI-Abfragen

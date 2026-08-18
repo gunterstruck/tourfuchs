@@ -195,7 +195,8 @@ export function initTourPanel() {
             lat: c.lat, lng: c.lng, label: c.name, customerId: c.id,
             strasse: c.strasse, plz: c.plz, ort: c.ort
         }),
-        onPlace: setStart
+        onPlace: setStart,
+        onMapPoint: (label) => emit('place-picker:open', { target: 'start', label })
     });
 
     // Zielpunkt per Suchfeld – dieselbe Suche. Wer an einer Station startet,
@@ -216,7 +217,8 @@ export function initTourPanel() {
             lat: c.lat, lng: c.lng, label: c.name, customerId: c.id,
             strasse: c.strasse, plz: c.plz, ort: c.ort
         }),
-        onPlace: setDestination
+        onPlace: setDestination,
+        onMapPoint: (label) => emit('place-picker:open', { target: 'destination', label })
     });
 
     on('tour:changed', renderPanel);
@@ -787,7 +789,7 @@ function pruneTourToScope() {
  * Reihenfolge der Gruppen: eigene Orte, Kunden, Ortsverzeichnis. Was der Nutzer
  * selbst angelegt hat, steht oben; das Verzeichnis ist der Rückfall.
  */
-function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
+function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoint }) {
     const input = document.getElementById(inputId);
     const results = document.getElementById(resultsId);
     if (!input || !results) return;
@@ -807,10 +809,28 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
         </div>`;
     };
 
+    const mapRow = (label) => `<button type="button" class="result-row result-row-map" data-map-point>
+        <span class="result-map-pin" aria-hidden="true">📌</span>
+        <b>${label ? `„${escapeHtml(label)}" exakt auf der Karte setzen` : 'Eigenen Ort auf der Karte setzen'}</b>
+        <span class="muted">Stelle antippen oder Pin mit Finger bzw. Maus ziehen</span>
+    </button>`;
+
+    const wireMapChoice = (raw) => {
+        results.querySelector('[data-map-point]')?.addEventListener('click', () => {
+            input.value = '';
+            results.innerHTML = '';
+            onMapPoint?.(raw);
+        });
+    };
+
     const render = async () => {
         const raw = input.value.trim();
         const run = ++sequence;
-        if (raw.length < MIN_PLACE_QUERY) { results.innerHTML = ''; return; }
+        if (raw.length < MIN_PLACE_QUERY) {
+            results.innerHTML = groupHtml('Karte', [mapRow(raw)]);
+            wireMapChoice(raw);
+            return;
+        }
 
         const q = raw.toLowerCase();
         const matchingCustomers = tourPool()
@@ -846,12 +866,12 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
                 <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
                     <b>${escapeHtml(c.name)}</b> <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}</span>
                 </button>`)),
-            groupHtml('Orte', [...coordResults, ...geo].map((r) => placeRow(r, points.indexOf(r))))
+            groupHtml('Orte', [...coordResults, ...geo].map((r) => placeRow(r, points.indexOf(r)))),
+            groupHtml('Karte', [mapRow(raw)])
         ].join('');
 
         if (!points.length && !customers.length) {
-            results.innerHTML = '<p class="muted small result-empty">Kein Kunde und kein Ort gefunden. Postleitzahl oder Ortsname versuchen.</p>';
-            return;
+            results.insertAdjacentHTML('afterbegin', '<p class="muted small result-empty">Kein bestehender Treffer – den Ort direkt auf der Karte setzen:</p>');
         }
 
         results.querySelectorAll('[data-id]').forEach((btn) => {
@@ -881,9 +901,11 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace }) {
                 }
             });
         });
+        wireMapChoice(raw);
     };
 
     input.addEventListener('input', () => { render(); });
+    input.addEventListener('focus', () => { render(); });
 }
 
 /**
@@ -1246,8 +1268,9 @@ function renderDest() {
             : '<p class="muted small">Kein Ziel gewählt. Ohne Rundreise ist der letzte Stopp automatisch das Ziel.</p>';
         return;
     }
-    el.innerHTML = `<div class="start-chip">🏁 <b>${escapeHtml(d.label)}</b>${rememberButtonHtml(d, 'btn-dest-remember')}
+    el.innerHTML = `<div class="start-chip">🏁 <b>${escapeHtml(d.label)}</b>${refineButtonHtml(d, 'btn-dest-refine')}${rememberButtonHtml(d, 'btn-dest-remember')}
         <button type="button" id="btn-dest-clear" class="chip-x" title="Ziel entfernen">✕</button></div>`;
+    wireRefinePlace('btn-dest-refine', d, 'destination');
     wireRememberPlace('btn-dest-remember', d);
     document.getElementById('btn-dest-clear').addEventListener('click', () => {
         invalidateAcceptedServicePlan(true);
@@ -1268,13 +1291,34 @@ function rememberButtonHtml(point, id) {
     return `<button type="button" class="chip-star" id="${id}" title="Diesen Ort merken" aria-label="Diesen Ort merken">★ merken</button>`;
 }
 
+function refineButtonHtml(point, id) {
+    if (!point || point.customerId || point.here) return '';
+    return `<button type="button" class="chip-pin" id="${id}" title="Position dieses Orts exakt auf der Karte setzen">📌 genauer</button>`;
+}
+
+function wireRefinePlace(buttonId, point, target) {
+    document.getElementById(buttonId)?.addEventListener('click', () => {
+        const own = findOwnPlaceForPoint(state.places, point);
+        emit('place-picker:open', {
+            target,
+            point,
+            placeId: own?.id || point.placeId || null,
+            label: own?.label || point.label,
+            strasse: own?.strasse || point.strasse || '',
+            plz: own?.plz || point.plz || '',
+            ort: own?.ort || point.ort || ''
+        });
+    });
+}
+
 function renderStart() {
     const el = document.getElementById('tour-start');
     if (!state.tour.start) {
         el.innerHTML = '<p class="muted">Kein Startpunkt gewählt. Nutzen Sie Ihren Standort, einen eigenen Ort oder suchen Sie unten nach Kunde, Ort oder PLZ (auch Karten-Popup „Als Start“).</p>';
         return;
     }
-    el.innerHTML = `<div class="start-chip">🚩 <b>${escapeHtml(state.tour.start.label)}</b>${rememberButtonHtml(state.tour.start, 'btn-start-remember')}<button type="button" class="chip-x" id="btn-start-clear" title="Startpunkt entfernen" aria-label="Startpunkt entfernen">✕</button></div>`;
+    el.innerHTML = `<div class="start-chip">🚩 <b>${escapeHtml(state.tour.start.label)}</b>${refineButtonHtml(state.tour.start, 'btn-start-refine')}${rememberButtonHtml(state.tour.start, 'btn-start-remember')}<button type="button" class="chip-x" id="btn-start-clear" title="Startpunkt entfernen" aria-label="Startpunkt entfernen">✕</button></div>`;
+    wireRefinePlace('btn-start-refine', state.tour.start, 'start');
     wireRememberPlace('btn-start-remember', state.tour.start);
     document.getElementById('btn-start-clear')?.addEventListener('click', () => {
         invalidateAcceptedServicePlan(true);
