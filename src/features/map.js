@@ -42,7 +42,7 @@ import {
 } from './customerMarkers.js';
 import { openRegionEditor } from '../ui/regionEditor.js';
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
-import { tourPointFromOwnPlace } from './places.js';
+import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 
 let map = null;
 let regionLayer = null;
@@ -495,6 +495,10 @@ export function initMap(containerId) {
     // Zoom-Automatik: bei „auto" den Detailgrad neu bestimmen
     map.on('zoomend', () => {
         syncCustomerMarkerMode();
+        // Gespeicherte Orte hängen an einer Zoomschwelle und müssen sie beim
+        // Zoomen auch überqueren dürfen. `applyView()` läuft nur bei
+        // Ebenenwechsel bzw. in der Farbautomatik – zu selten dafür.
+        renderPlaces();
         const levelChanged = syncEffectiveLevel();
         if (!levelChanged && state.colorMode === 'auto') applyView();
         else if (!levelChanged && currentView.labels) renderLabels();
@@ -1774,6 +1778,12 @@ function renderPlaces() {
     placeLayer.clearLayers();
     const planningMode = state.ui.mode === 'aussendienst' || state.ui.mode === 'service';
     if (!planningMode || state.ui.activeTab !== 'tour') return;
+    // In der Übersicht sind die Kunden zu Blasen zusammengefasst; ein einzelner
+    // Ort stünde daneben als voller Pin und behauptete eine Genauigkeit, die der
+    // Maßstab nicht hergibt. Er erscheint deshalb mit den Kundenpunkten
+    // zusammen. Start und Ziel bleiben davon unberührt – die zeichnet
+    // `renderTour()` auf jeder Zoomstufe.
+    if (!ownPlacesVisibleAtZoom(map.getZoom())) return;
     const selected = new Set([state.tour.start?.placeId, state.tour.destination?.placeId].filter(Boolean));
     for (const place of state.places || []) {
         if (!place || selected.has(place.id) || !Number.isFinite(Number(place.lat)) || !Number.isFinite(Number(place.lng))) continue;
