@@ -1772,6 +1772,24 @@ function ownPlacePopupHtml(place) {
     </div>`;
 }
 
+/**
+ * Ein Treffer aus dem Ortsverzeichnis oder eine eingefügte Koordinate.
+ *
+ * Bewusst ohne Aktionen: Hier steht kein gespeicherter Ort, sondern eine Stelle
+ * auf der Karte. Und bewusst mit dem Hinweis „Ortsmitte" – die gebündelten
+ * Zentroide treffen den Ort, nicht die Adresse, und ein Popup, das so tut als
+ * wüsste es mehr, schickt jemanden an die falsche Tür.
+ */
+function foundPlacePopupHtml(result) {
+    const detail = String(result.detail ?? '').trim();
+    return `<div class="popup popup-place">
+        <p class="popup-place-kind">📍 Gefundener Ort</p>
+        <h3>${escapeHtml(result.label)}</h3>
+        ${detail ? `<p class="popup-addr">${escapeHtml(detail)}</p>` : ''}
+        <p class="muted small popup-place-coordinates">${Number(result.lat).toFixed(6)}, ${Number(result.lng).toFixed(6)}</p>
+    </div>`;
+}
+
 /** Eigene Orte nur auf der Tour-Bühne zeigen – getrennt von Kundenclustern. */
 function renderPlaces() {
     if (!placeLayer || !map) return;
@@ -1923,6 +1941,42 @@ export function flyToCustomer(customer, openPopup = true) {
                 .openOn(map);
         }, 850);
     }
+}
+
+/**
+ * Aus der Kopfsuche auf einen Ort springen.
+ *
+ * Gegenstück zu `flyToCustomer()` – dieselbe Bewegung, dieselbe Zoomstufe,
+ * damit sich ein Treffer aus der Kopfleiste nicht danach unterscheidet, ob er
+ * ein Kunde oder ein Ort war. Zwölf liegt über `lodCustomerZoom`; der Pin eines
+ * gespeicherten Ortes wird nach dem Flug also tatsächlich gezeichnet.
+ *
+ * Für einen **eigenen** Ort öffnet sich sein reguläres Popup – mitsamt „Als
+ * Start", „Position ändern" und „Löschen". Es ist dasselbe Popup wie auf der
+ * Karte, kein Nachbau: Wer einen Ort sucht, will meistens etwas mit ihm tun.
+ *
+ * Ein Treffer aus dem Ortsverzeichnis hat dagegen nichts, woran man etwas tun
+ * könnte – er ist eine Ortsmitte, kein gespeicherter Punkt. Er bekommt deshalb
+ * nur seinen Namen und die Koordinaten, und beides sagt ausdrücklich, was es
+ * ist: keine Adresse.
+ */
+export function flyToPlace(result, openPopup = true) {
+    if (!map || !result) return;
+    const lat = Number(result.lat);
+    const lng = Number(result.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) return;
+    map.flyTo([lat, lng], Math.max(map.getZoom(), 12), { duration: 0.8 });
+    if (!openPopup) return;
+    setTimeout(() => {
+        // Frisch nachschlagen: Zwischen Tippen und Landen kann der Ort
+        // umbenannt oder verschoben worden sein.
+        const place = state.places.find((entry) => entry?.id === result.id);
+        const html = place ? ownPlacePopupHtml(place) : foundPlacePopupHtml(result);
+        L.popup(popupOptions({ maxWidth: 300, className: 'place-detail-popup' }))
+            .setLatLng([lat, lng])
+            .setContent(html)
+            .openOn(map);
+    }, 850);
 }
 
 export function closeMapPopups() {

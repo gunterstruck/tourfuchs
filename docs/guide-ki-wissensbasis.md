@@ -1115,28 +1115,52 @@ Nur nach bewusstem Start werden Straße, PLZ und Ort einzeln und gedrosselt an
 Nominatim/OpenStreetMap gesendet. Kundenname, Umsatz, Kontakte und
 Vertriebsinformationen werden nicht mitgesendet.
 
-### 8.2 Globale Kundensuche
+### 8.2 Globale Suche in der Kopfleiste
 
 **Klickpfad:** Topbar -> Suchfeld **"Kunde, Ort, PLZ suchen..."** -> Treffer
 wählen.
 
-Die Suche beginnt ab zwei Zeichen und findet bis zu acht Kunden nach:
+Die Suche beginnt ab zwei Zeichen und durchsucht **drei Quellen**, in dieser
+Reihenfolge und mit diesen Gruppennamen:
 
-- Teil des Kundennamens
-- Teil des gespeicherten Orts
-- PLZ-Anfang
-- exakter Kundennummer
+| Gruppe | Was darin steht | Beispiel |
+|---|---|---|
+| **Eigene Orte** | selbst benannte Punkte (`state.places`) | `SIXT Essen Hbf` |
+| **Kunden** | Name, Ort, PLZ-Anfang, exakte Kundennummer | `Ruhrtechnik GmbH` |
+| **Orte** | die gebündelten ~8.300 PLZ-Zentroide | `Essen`, `45127 Essen` |
+
+Eingefügte **Koordinaten** (`51.4560, 7.0100`) werden ebenfalls angenommen; das
+Ortsverzeichnis bleibt dann weg, weil die Koordinate bereits die Antwort ist.
 
 Umlaute und Schreibvarianten werden tolerant normalisiert, zum Beispiel `Koln`
-für `Köln/Köln`.
+für `Köln`.
 
-Ein Treffer zeigt Kundenname sowie **PLZ + Ort** und fliegt nach der Auswahl zum
-Marker. Das Kunden-Popup öffnet sich.
+**Nach der Auswahl** fliegt die Karte zum Treffer. Ein Kunde öffnet sein
+Kunden-Popup, ein **eigener Ort** sein reguläres Ortspopup samt "Als Start",
+"Position ändern" und "Löschen" – dasselbe Popup wie auf der Karte, kein
+Nachbau. Ein Treffer aus dem Verzeichnis zeigt "📍 Gefundener Ort" mit Namen und
+Koordinaten und **ohne** Aktionen: Dort steht kein gespeicherter Ort, sondern
+eine Stelle auf der Karte.
 
-**Wichtige Grenze:** Die Suche ist eine Kundensuche, kein allgemeines
-Städteverzeichnis. `Essen` liefert Kunden, deren Datensatz im Feld `Ort` Essen
-enthält. Gibt es dort keinen Kunden oder fehlt das Ort-Feld im Import, erscheint
-kein reiner Stadt-Treffer. Deshalb `Ort` beim Import mitführen.
+**Platzaufteilung:** Stehen mehrere Gruppen da, bekommt jede höchstens vier
+Zeilen; steht eine allein, darf sie acht ausnutzen. Werden Kunden abgeschnitten,
+sagt die Überschrift es ("Kunden (4 von 12)") – verschwiegen wird nichts. Anlass
+war der echte Bestand: An einer Postleitzahl hängen mehrere Kunden, und der Ort
+selbst rutschte unter die Faltkante – ausgerechnet die Antwort, wegen der man
+die Postleitzahl getippt hat.
+
+**Wichtige Grenze:** Die Suche **legt keine Orte an**. Sie bringt zu einer
+Stelle auf der Karte. Das Anlegen gehört dorthin, wo der Ort gebraucht wird – an
+Start und Ziel im Tourplaner (siehe 10). Und sie fragt **nichts im Netz**: Alle
+drei Quellen liegen lokal. Eine Adresssuche bei einem Drittdienst steht
+ausdrücklich hinter einem Tor in der Roadmap.
+
+**Vorher (bis Version 3.4):** Das Feld versprach "Kunde, Ort, PLZ", fand aber
+nur Kunden. "Ort" und "PLZ" meinten die Spalten eines Kunden – wer `Essen`
+tippte, bekam die Kunden in Essen, nie Essen selbst; ein gespeicherter Ort war
+über dieses Feld gar nicht erreichbar. Es sind bewusst dieselben Funktionen aus
+`features/places.js` wie im Tourplaner: Zwei Ortssuchen mit eigenen Regeln
+fielen beim ersten Vergleich auf.
 
 Demo-Daten enthalten Ortsnamen. Ältere gespeicherte Demo-Daten werden beim Start
 lokal aus der PLZ-Tabelle ergänzt. Eigene Daten werden nicht stillschweigend mit

@@ -70,7 +70,12 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-l);
     box-shadow: var(--shadow-2);
-    overflow: hidden;
+    /* Die Liste führt jetzt bis zu drei Gruppen (eigene Orte, Kunden, Orte).
+       Sie darf dabei nicht über den Bildschirm hinauswachsen – gedeckelt und
+       innen rollend statt unten abgeschnitten. */
+    max-height: min(60dvh, 420px);
+    overflow: hidden auto;
+    overscroll-behavior: contain;
     z-index: 1200;
 }
 .result-row {
