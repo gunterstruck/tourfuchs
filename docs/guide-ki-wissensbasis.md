@@ -328,6 +328,16 @@ sauber, aber TourFuchs nicht, hilft eine Neuinstallation der App endgültig.
 | Mobile Außendienst & Tour als Vorschau | Ja, mit einmaligem ruhigem Hinweis | Nein |
 | Verschlüsselte Daten empfangen | Ja | Ja, mobil besonders sinnvoll |
 
+**Gespeicherte Orte auf der Karte:** Ein eigener Ort (★, lila Pin) erscheint auf
+der Tour-Bühne erst **ab derselben Zoomstufe wie einzelne Kunden**
+(`CONFIG.map.lodCustomerZoom`, Zoom 9). In der Deutschlandansicht sind die
+Kunden zu Blasen zusammengefasst; ein einzelner Ort stünde daneben als voller
+Pin und behauptete eine Genauigkeit, die der Maßstab nicht hergibt. **Ausnahme
+und wichtigste Antwortregel:** Der gewählte **Start und das gewählte Ziel**
+bleiben auf jeder Zoomstufe sichtbar – sie gehören zur laufenden Tour und werden
+von `renderTour()` gezeichnet, nicht von dieser Regel. Wer seinen Ort nicht
+findet: hineinzoomen, oder er steht ohnehin schon als Start/Ziel im Bild.
+
 **Tablets:** Es gibt bewusst **keine eigene Tablet-Ansicht**. Ein Tablet nutzt
 die beiden vorhandenen Gesichter, und die **Haltung** entscheidet, welches:
 **quer** den Schreibtisch (Seitenleiste, gespeicherter Modus/Tab, voller

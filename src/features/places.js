@@ -377,3 +377,33 @@ export function mergeOwnPlaces(existing = [], incoming = []) {
     }
     return merged;
 }
+
+/**
+ * Ist die Karte nah genug, um gespeicherte Orte zu zeigen?
+ *
+ * Der Befund kam vom Gerät: In der Deutschlandansicht (Zoom 6) sind die Kunden
+ * zu einer Blase zusammengefasst („17 Kunden"), ein gespeicherter Ort stand
+ * daneben aber als voller 32-Pixel-Pin – und verdeckte die Blase. Auf einer
+ * Fläche von 800 Kilometern Kantenlänge behauptet ein Pin eine Genauigkeit, die
+ * der Maßstab nicht hergibt; er ist dort kein Ort mehr, sondern ein Fleck.
+ *
+ * Die Schwelle ist deshalb **dieselbe**, ab der einzelne Kunden erscheinen
+ * (`CONFIG.map.lodCustomerZoom`): Ein Ort ist ein Wegpunkt, kein Kunde – aber
+ * beide sind Punkte, und Punkte kommen gemeinsam auf die Bühne. Eine eigene
+ * Zahl daneben wäre eine zweite Schwelle für dieselbe Frage.
+ *
+ * Was das ausdrücklich **nicht** verbirgt: den gewählten Start und das gewählte
+ * Ziel. Die zeichnet die Tour selbst (`renderTour`), auf jeder Zoomstufe – wer
+ * seinen Startpunkt gesetzt hat, sieht ihn auch in der Übersicht.
+ *
+ * @param {number} zoom
+ * @param {number} [minZoom]
+ * @returns {boolean}
+ */
+export function ownPlacesVisibleAtZoom(zoom, minZoom = CONFIG.map.lodCustomerZoom) {
+    const z = Number(zoom);
+    // Ohne brauchbare Zoomangabe lieber zeigen als verschlucken: Ein fehlender
+    // Messwert darf keine Daten unsichtbar machen.
+    if (!Number.isFinite(z)) return true;
+    return z >= Number(minZoom);
+}
