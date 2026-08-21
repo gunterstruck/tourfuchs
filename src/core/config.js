@@ -39,6 +39,11 @@ export const CONFIG = {
         wheelDebounceTime: 24,
         // Zoom-Automatik (Level of Detail): >= custom -> Kunden sichtbar,
         // >= bezirk -> Vertriebsbezirke als Flächen, darunter -> Vertriebsgruppen
+        //
+        // `lodCustomerZoom` ist zugleich die Schwelle für gespeicherte Orte: Ein
+        // Ort ist ein Punkt wie ein Kunde und kommt auf die Bühne, wenn Punkte
+        // an der Reihe sind. Bewusst **keine** eigene Zahl daneben – zwei
+        // Schwellen für dieselbe Frage laufen irgendwann auseinander.
         lodCustomerZoom: 9,
         lodBezirkZoom: 7,
         lodGroupZoom: 6,

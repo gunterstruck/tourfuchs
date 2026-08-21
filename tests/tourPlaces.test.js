@@ -12,7 +12,7 @@ import { resolve } from 'node:path';
 import {
     buildPlaceIndex, searchGeoPlaces, searchOwnPlaces, parseCoordinateQuery,
     placeQueryVariants, tourPointFromResult, tourPointFromOwnPlace, createOwnPlace, findOwnPlaceForPoint,
-    mergeOwnPlaces, PLACE_CLUSTER_KM
+    mergeOwnPlaces, ownPlacesVisibleAtZoom, PLACE_CLUSTER_KM
 } from '../src/features/places.js';
 import { state, setPlaces, addPlace, updatePlace, removePlace, setCustomers, datasetSnapshot } from '../src/core/state.js';
 import { CONFIG } from '../src/core/config.js';
@@ -366,5 +366,55 @@ describe('Eigene Orte gehören zu den lokalen Daten', () => {
 
     it('werden beim Start wiederhergestellt', () => {
         expect(read('src/main.js')).toContain('setPlaces(dataset?.places || [])');
+    });
+});
+
+describe('Gespeicherte Orte kommen mit den Kundenpunkten, nicht davor', () => {
+    // Befund vom Gerät (16.08.2026, Screenshot): In der Deutschlandansicht
+    // waren die Kunden zu einer Blase zusammengefasst („17 Kunden"), ein
+    // gespeicherter Ort stand daneben als voller 32-Pixel-Pin und verdeckte
+    // sie. Auf 800 Kilometern Kantenlänge behauptet ein Pin eine Genauigkeit,
+    // die der Maßstab nicht hergibt.
+
+    it('zeigt in der Übersicht keinen Pin, ab Kundenzoom schon', () => {
+        expect(ownPlacesVisibleAtZoom(6)).toBe(false);   // Deutschland
+        expect(ownPlacesVisibleAtZoom(8)).toBe(false);
+        expect(ownPlacesVisibleAtZoom(CONFIG.map.lodCustomerZoom)).toBe(true);
+        expect(ownPlacesVisibleAtZoom(14)).toBe(true);
+    });
+
+    it('teilt die Schwelle mit den Kunden, statt eine eigene zu setzen', () => {
+        // Zwei Zahlen für dieselbe Frage laufen irgendwann auseinander – genau
+        // daraus sind die vier Breitenschwellen der Oberfläche entstanden.
+        expect(read('src/core/config.js')).not.toMatch(/lodPlaceZoom/);
+        expect(read('src/features/places.js'))
+            .toContain('minZoom = CONFIG.map.lodCustomerZoom');
+    });
+
+    it('verschluckt ohne brauchbare Zoomangabe nichts', () => {
+        // Ein fehlender Messwert darf keine Daten unsichtbar machen.
+        expect(ownPlacesVisibleAtZoom(undefined)).toBe(true);
+        expect(ownPlacesVisibleAtZoom(Number.NaN)).toBe(true);
+    });
+
+    it('fragt die Schwelle beim Zeichnen und beim Zoomen', () => {
+        const map = read('src/features/map.js');
+        expect(map).toContain('if (!ownPlacesVisibleAtZoom(map.getZoom())) return;');
+        // `applyView()` läuft nur bei Ebenenwechsel bzw. in der Farbautomatik.
+        // Ohne diesen Aufruf bliebe der Pin beim Aufziehen der Karte weg.
+        const zoomend = map.slice(map.indexOf("map.on('zoomend'"), map.indexOf("map.on('movestart"));
+        expect(zoomend).toContain('renderPlaces();');
+    });
+
+    it('lässt Start und Ziel auf jeder Zoomstufe stehen', () => {
+        // Der gewählte Startpunkt ist kein Vorrat, sondern eine Aussage über
+        // die laufende Tour – er gehört auch in die Übersicht. `renderTour()`
+        // zeichnet ihn, und `renderPlaces()` überspringt ihn deshalb ohnehin.
+        const map = read('src/features/map.js');
+        const renderPlaces = map.slice(map.indexOf('function renderPlaces()'), map.indexOf('function resolvedTourDestination'));
+        expect(renderPlaces).toContain('selected.has(place.id)');
+        const renderTour = map.slice(map.indexOf('function renderTour()'), map.indexOf('function renderTour()') + 1200);
+        expect(renderTour).toContain('if (start) {');
+        expect(renderTour).not.toContain('ownPlacesVisibleAtZoom');
     });
 });
