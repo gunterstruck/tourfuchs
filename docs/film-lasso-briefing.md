@@ -11,15 +11,17 @@ TourFuchs alles kann – er zeigt die eine Kombination, die es sonst nirgends gi
 
 ## Fertiger Film zum Herunterladen
 
-Die veröffentlichte LinkedIn-Fassung mit dem beispielhaften Wechsel zu einem
-Sales Agent liegt hier:
+Die veröffentlichten Fassungen mit dem beispielhaften Wechsel zu einem Sales
+Agent liegen hier:
 
-[`tourfuchs-linkedin-mit-sales-agent.mp4`](../film/tourfuchs-linkedin-mit-sales-agent.mp4)
+- [LinkedIn 4:5 – 1080 × 1350](../film/tourfuchs-linkedin-mit-sales-agent.mp4)
+- [Shorts/Reels 9:16 – 1080 × 1920](../film/tourfuchs-shorts-9x16-ohne-musik.mp4)
 
-Format: MP4/H.264, 1080 × 1350 Pixel, 30 fps, 69 Sekunden. Diese Datei ist die
-Fassung **ohne Musik** und damit zugleich die Ausgangsdatei für einen späteren
-Schnitt mit separat lizenzierter Musik. Alle im Film gezeigten Firmen, Vorgänge
-und KI-Quellen sind erfunden.
+Beide Dateien sind MP4/H.264, 30 fps und 69 Sekunden lang. Die 9:16-Fassung
+erzeugt zwischen den UI-Zuständen zusätzliche Zwischenbilder, statt dieselben
+Bilder nur zu wiederholen. Beide Fassungen sind **ohne Musik** und damit zugleich
+Ausgangsdateien für einen späteren Schnitt mit separat lizenzierter Musik. Alle
+im Film gezeigten Firmen, Vorgänge und KI-Quellen sind erfunden.
 
 ---
 
