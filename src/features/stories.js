@@ -96,8 +96,8 @@ export const STORIES = [
         icon: '🖊️',
         title: 'Fläche umfahren, Briefing bekommen',
         blurb: 'Einkreisen, fragen „Wen zuerst?", die richtigen in die Tour.',
-        duration: 51,
-        durationOwnData: 61,
+        duration: 75,
+        durationOwnData: 85,
         needsData: true,
         mutatesTour: true,   // am Ende wandern zwei Kunden in die Tour
         steps: [
@@ -124,7 +124,24 @@ export const STORIES = [
             { t: 'run', key: 'pickLassoCustomers' },
             { t: 'say', text: 'Zwei angehakt – und der Knopf meint jetzt genau die zwei.', sel: '.popup-lasso [data-lasso="tour"]', ms: 2800 },
             { t: 'run', key: 'lassoPickedToTour' },
-            { t: 'say', text: 'Umfahren. Briefen lassen. Entscheiden. Aus einer Fläche auf der Karte wird eine Tour – ohne Konto, ohne Cloud.', ms: 3600, pos: 'bottom' }
+
+            // ---- Nicht bei der Auswahl abbrechen: bis zur fahrbaren Route. ----
+            { t: 'say', text: 'Die empfohlenen Kunden sind jetzt in deiner Tour. Für die Strecke fehlt nur noch der Startpunkt.', ms: 3200, pos: 'bottom' },
+            { t: 'run', key: 'gotoTour' },
+            { t: 'say', text: 'Du bestimmst, wo die Tour beginnt – zum Beispiel an deinem Standort, am Büro oder bei einem Kunden.', sel: '#start-search', ms: 3400 },
+            { t: 'run', key: 'pickStart' },
+            { t: 'say', text: 'Der Startpunkt ist gesetzt. Erst jetzt kann TourFuchs die Strecke sinnvoll berechnen.', sel: '#acc-sum-start', ms: 3000 },
+            { t: 'run', key: 'showMyTour' },
+            { t: 'say', text: 'Startpunkt und Stopps stehen. TourFuchs bringt sie jetzt in eine kurze Reihenfolge.', sel: '#btn-optimize', ms: 3200 },
+            { t: 'click', sel: '#btn-optimize' },
+            { t: 'say', text: 'Die Reihenfolge ist vorbereitet. Ein Tipp legt die Tour auf die Karte.', sel: '#btn-route-focus', ms: 3000 },
+            { t: 'click', sel: '#btn-route-focus' },
+            { t: 'wait', ms: 1700 },
+            { t: 'run', key: 'focusTourRoute' },
+            { t: 'say', text: 'Zuerst siehst du die direkte Verbindung als Luftlinie.', ms: 3200, pos: 'bottom' },
+            { t: 'say', text: 'Nach deiner Zustimmung wechselt ein Tipp auf die tatsächliche Straßenroute.', sel: '#btn-route-mode', ms: 3200 },
+            { t: 'run', key: 'showRoadRoute' },
+            { t: 'say', text: 'Aus dem Gebiet wurde ein Briefing. Aus dem Briefing wurde eine geplante Tour.', ms: 3800, pos: 'bottom' }
         ]
     },
     {

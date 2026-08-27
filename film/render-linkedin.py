@@ -1,5 +1,6 @@
 from pathlib import Path
 import sys
+import json
 from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -183,7 +184,7 @@ def outro_frame() -> Image.Image:
         image = Image.new("RGB", TARGET_SIZE, DARK)
         draw = ImageDraw.Draw(image)
         draw.text((60, 100), "TOURFUCHS", fill="#72D8C9", font=font(34, True))
-        draw.multiline_text((60, 560), "Eine Karte.\nEin Lasso.\nEin Prompt.", fill="white", font=font(92, True), spacing=22)
+        draw.multiline_text((60, 500), "Eine Karte.\nEin Lasso.\nEin Prompt.\nEine Tour.", fill="white", font=font(86, True), spacing=20)
         draw.rounded_rectangle((60, 1110, 250, 1120), radius=5, fill=ORANGE)
         draw.text((60, 1240), "Kostenlos · Open Source · privates Projekt", fill="#C7D8D5", font=font(34))
         draw.text((60, 1770), "tourfuchs.vercel.app", fill="white", font=font(48, True))
@@ -212,6 +213,19 @@ def outro_frame() -> Image.Image:
     draw.text((60, 970), "tourfuchs.vercel.app", fill="white", font=font(46, True))
     draw.text((60, 1050), "github.com/gunterstruck/tourfuchs", fill="#72D8C9", font=font(31))
     draw.text((60, 1210), "Alle gezeigten Kunden sind erfunden.", fill="#9CB0AD", font=font(25))
+    return image
+
+
+def chapter_frame(number: str, title: str, detail: str) -> Image.Image:
+    """Ruhiger Trenner zwischen App, Assistent und Tourplanung."""
+    image = Image.new("RGB", TARGET_SIZE, DARK)
+    draw = ImageDraw.Draw(image)
+    draw.text((60, 100), "TOURFUCHS", fill="#72D8C9", font=font(34, True))
+    draw.text((60, 620), number, fill=ORANGE, font=font(46, True))
+    title_font = fit_font(draw, title, 82, 950)
+    draw.text((60, 720), title, fill="white", font=title_font)
+    draw.rounded_rectangle((60, 850, 250, 860), radius=5, fill=ORANGE)
+    draw.multiline_text((60, 950), detail, fill="#C7D8D5", font=font(40), spacing=18)
     return image
 
 
@@ -395,6 +409,17 @@ def write(image: Image.Image, index: int):
     image.save(OUT / f"final-{index:04d}.jpg", quality=91, optimize=True, subsampling=0)
 
 
+def timeline_marker(timeline: dict, phrase: str, frame_count: int, fallback: int) -> int:
+    """Satzbeginn aus der echten Aufnahme in einen Quellbild-Index übersetzen."""
+    fps = int(timeline.get("fps", 6))
+    offset = int(timeline.get("captureStartMs", 0))
+    for sentence in timeline.get("sentences", []):
+        if phrase.lower() in str(sentence.get("text", "")).lower():
+            relative_ms = max(0, int(sentence.get("ms", 0)) - offset)
+            return min(frame_count - 1, max(0, round(relative_ms * fps / 1000)))
+    return min(frame_count - 1, max(0, fallback))
+
+
 def main():
     OUT.mkdir(parents=True, exist_ok=True)
     for old in OUT.glob("final-*.jpg"):
@@ -402,13 +427,13 @@ def main():
 
     timeline_fps = 6 if MOBILE_VIEW else 2
     index = 1
-    for _ in range(4 * timeline_fps):
+    for _ in range((5 if S24_VIEW else 4) * timeline_fps):
         write(title_frame(), index)
         index += 1
-    for _ in range(3 * timeline_fps):
+    for _ in range((4 if S24_VIEW else 3) * timeline_fps):
         write(app_frame(FRAMES / "02-import.jpg", "1. Kundenliste einfügen"), index)
         index += 1
-    for _ in range(3 * timeline_fps):
+    for _ in range((4 if S24_VIEW else 3) * timeline_fps):
         write(app_frame(FRAMES / "03-datenanalyse.jpg", "2. Räumlich verstehen"), index)
         index += 1
 
@@ -417,6 +442,73 @@ def main():
         # Das letzte Bild ist der technische Demo-Abschlussdialog und gehört
         # nicht in die Produktgeschichte; der eigene Abspann folgt ohnehin.
         demo_sources = demo_sources[:-1]
+
+    timeline_path = FRAMES / "timeline.json"
+    timeline = json.loads(timeline_path.read_text(encoding="utf-8")) if S24_VIEW and timeline_path.exists() else None
+    if S24_VIEW and WITH_AGENT and timeline and demo_sources:
+        count = len(demo_sources)
+        prompt_start = timeline_marker(timeline, "Und jetzt die Frage", count, round(count * 0.18))
+        prompt_end = timeline_marker(timeline, "Der recherchiert", count, round(count * 0.50))
+        selection_start = timeline_marker(timeline, "Zurück auf der Karte", count, prompt_end)
+        tour_start = timeline_marker(timeline, "Die empfohlenen Kunden sind jetzt", count, round(count * 0.72))
+        air_start = timeline_marker(timeline, "Zuerst siehst du", count, round(count * 0.86))
+        road_start = timeline_marker(timeline, "Nach deiner Zustimmung", count, round(count * 0.91))
+        final_start = timeline_marker(timeline, "Aus dem Gebiet wurde", count, round(count * 0.96))
+
+        def source_heading(position: int) -> str:
+            if position < prompt_start:
+                return "3. Gebiet mit einer Geste auswählen"
+            if position < selection_start:
+                return "4. Briefing-Prompt ohne Tippen erzeugen"
+            if position < tour_start:
+                return "6. Empfohlene Kunden auswählen"
+            if position < air_start:
+                return "7. Tour mit Startpunkt weiterplanen"
+            if position < road_start:
+                return "8. Route zuerst als Luftlinie"
+            if position < final_start:
+                return "9. Auf Straßenroute wechseln"
+            return "Tour steht. Du entscheidest."
+
+        def write_source_range(start: int, end: int, pace: float = 0.78):
+            """Live-Demo moderat verdichten, ohne Kapitel oder Lesepausen zu kürzen."""
+            nonlocal index
+            source_count = max(0, end - start)
+            output_count = max(1, round(source_count * pace))
+            for output_position in range(output_count):
+                relative = round(output_position * max(0, source_count - 1) / max(1, output_count - 1))
+                position = min(end - 1, start + relative)
+                write(app_frame(demo_sources[position], source_heading(position)), index)
+                index += 1
+
+        # Die beiden TourFuchs-Promptansichten bleiben direkt hintereinander.
+        # Erst danach wechselt der Film in den Assistenten. Den rein erklärenden
+        # Folgesatz ersetzt die sichtbare Antwort; anschließend geht es zur
+        # unverändert erhaltenen Auswahl auf der Karte zurück.
+        write_source_range(0, prompt_end)
+
+        for _ in range(round(1.5 * timeline_fps)):
+            write(chapter_frame("5", "Sales Agent", "Prompt einfügen.\nPriorisierung verstehen."), index)
+            index += 1
+        for agent_index in range(10 * timeline_fps):
+            write(sales_agent_frame(answer=agent_index >= 3 * timeline_fps), index)
+            index += 1
+        for _ in range(round(1.5 * timeline_fps)):
+            write(chapter_frame("6", "Kunden auswählen", "Die Empfehlung hilft.\nEntscheiden und anklicken tust du."), index)
+            index += 1
+
+        write_source_range(selection_start, tour_start)
+        for _ in range(round(1.5 * timeline_fps)):
+            write(chapter_frame("7", "Tour weiterplanen", "Startpunkt setzen.\nLuftlinie sehen.\nStraßenroute einschalten."), index)
+            index += 1
+        write_source_range(tour_start, count)
+
+        for _ in range(7 * timeline_fps):
+            write(outro_frame(), index)
+            index += 1
+        print(f"{index - 1} Filmframes gerendert")
+        return
+
     main_frames = 45 * timeline_fps
     for out_index in range(main_frames):
         if MOBILE_VIEW:

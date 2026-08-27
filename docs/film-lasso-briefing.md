@@ -19,12 +19,13 @@ Agent liegen hier:
 - [Shorts/Reels 9:16 mit Mobile-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-mobile-ohne-musik.mp4)
 - [Samsung Galaxy S24 mit Mobile-Ansicht – 1080 × 2340](../film/tourfuchs-samsung-s24-1080x2340-ohne-musik.mp4)
 
-Alle vier Dateien sind MP4/H.264, 30 fps und 69 Sekunden lang. Die drei
-Hochkantfassungen erzeugen zwischen den UI-Zuständen zusätzliche
-Zwischenbilder, statt dieselben Bilder nur zu wiederholen. Alle Fassungen sind
-**ohne Musik** und damit zugleich Ausgangsdateien für einen späteren Schnitt
-mit separat lizenzierter Musik. Alle im Film gezeigten Firmen, Vorgänge und
-KI-Quellen sind erfunden.
+Alle vier Dateien sind MP4/H.264 mit konstanten 30 fps. Die ersten drei
+Fassungen sind 69 Sekunden lang; die erweiterte S24-Fassung dauert 1:54 Minuten
+und erzählt den Ablauf bis zur fertigen Straßenroute. Die drei Hochkantfassungen
+erzeugen zwischen den UI-Zuständen zusätzliche Zwischenbilder, statt dieselben
+Bilder nur zu wiederholen. Alle Fassungen sind **ohne Musik** und damit zugleich
+Ausgangsdateien für einen späteren Schnitt mit separat lizenzierter Musik. Alle
+im Film gezeigten Firmen, Vorgänge und KI-Quellen sind erfunden.
 
 Die Mobile-Fassung zeigt nicht etwa einen beschnittenen Desktop. TourFuchs läuft
 darin mit Touch-Eingabe bei 720 × 1280 Pixeln: Karte über die volle Fläche,
@@ -37,6 +38,10 @@ Die S24-Fassung geht einen Schritt weiter: TourFuchs läuft mit 360 × 780
 CSS-Pixeln und dreifacher Pixeldichte. Die aufgenommenen App-Bilder entstehen
 dadurch direkt mit 1080 × 2340 Pixeln im Geräteverhältnis 19,5:9. Auch die
 beispielhafte Sales-Agent-Szene ist dort einspaltig für das Smartphone gebaut.
+Nach der KI-Priorisierung kehrt der Film in dieselbe erhaltene Lasso-Auswahl
+zurück: Zwei Kunden werden bewusst ausgewählt, ein Startpunkt wird gesetzt und
+die Tour zuerst als Luftlinie, dann – nach Zustimmung – als echte Straßenroute
+gezeigt. Ruhige Kapitelkarten trennen Assistent, Auswahl und Tourplanung.
 Für Instagram Reels, TikTok und YouTube Shorts bleibt die standardisierte
 1080-×-1920-Mobile-Fassung meist die passendere Upload-Datei; die S24-Fassung
 zeigt dagegen die unverfälschte Geräteansicht ohne Beschnitt.

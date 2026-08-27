@@ -152,6 +152,20 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(block).toContain('(frisch && isVisible(frisch) ? frisch : el).click();');
     });
 
+    it('führt die Lasso-Geschichte nach der KI-Empfehlung bis zur Straßenroute weiter', () => {
+        const lasso = STORIES.find((story) => story.id === 'lasso');
+        const keys = lasso.steps.filter((step) => step.t === 'run').map((step) => step.key);
+
+        expect(keys.indexOf('openLassoBriefing')).toBeLessThan(keys.indexOf('pickLassoCustomers'));
+        expect(keys.indexOf('pickLassoCustomers')).toBeLessThan(keys.indexOf('lassoPickedToTour'));
+        expect(keys.indexOf('lassoPickedToTour')).toBeLessThan(keys.indexOf('gotoTour'));
+        expect(keys.indexOf('gotoTour')).toBeLessThan(keys.indexOf('pickStart'));
+        expect(keys.indexOf('pickStart')).toBeLessThan(keys.indexOf('focusTourRoute'));
+        expect(keys.indexOf('focusTourRoute')).toBeLessThan(keys.indexOf('showRoadRoute'));
+        expect(lasso.steps.some((step) => step.text?.includes('Luftlinie'))).toBe(true);
+        expect(lasso.steps.at(-1)?.text).toContain('geplante Tour');
+    });
+
     it('zählt den Tourprozess in jeder Tiefe als drei Stufen', () => {
         // „1. Startpunkt · 3. Vorschläge · 4. Meine Tour" ließ in der Übersicht
         // eine Lücke: Die 2 lag im Startpunkt-Block und war zugeklappt nicht zu
