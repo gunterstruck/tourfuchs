@@ -18,10 +18,11 @@ Agent liegen hier:
 - [Shorts/Reels 9:16 mit Desktop-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-ohne-musik.mp4)
 - [Shorts/Reels 9:16 mit Mobile-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-mobile-ohne-musik.mp4)
 - [Samsung Galaxy S24 mit Mobile-Ansicht – 1080 × 2340](../film/tourfuchs-samsung-s24-1080x2340-ohne-musik.mp4)
+- [Samsung Galaxy S24 mit Microsoft-365-Copilot-Beispiel – 1080 × 2340](../film/tourfuchs-samsung-s24-microsoft-365-copilot-ohne-musik.mp4)
 
-Alle vier Dateien sind MP4/H.264 mit konstanten 30 fps. Die ersten drei
-Fassungen sind 69 Sekunden lang; die erweiterte S24-Fassung dauert 1:54 Minuten
-und erzählt den Ablauf bis zur fertigen Straßenroute. Die drei Hochkantfassungen
+Alle fünf Dateien sind MP4/H.264 mit konstanten 30 fps. Die ersten drei
+Fassungen sind 69 Sekunden lang; beide erweiterten S24-Fassungen dauern 1:54
+Minuten und erzählen den Ablauf bis zur fertigen Straßenroute. Die vier Hochkantfassungen
 erzeugen zwischen den UI-Zuständen zusätzliche Zwischenbilder, statt dieselben
 Bilder nur zu wiederholen. Alle Fassungen sind **ohne Musik** und damit zugleich
 Ausgangsdateien für einen späteren Schnitt mit separat lizenzierter Musik. Alle
@@ -42,6 +43,21 @@ Nach der KI-Priorisierung kehrt der Film in dieselbe erhaltene Lasso-Auswahl
 zurück: Zwei Kunden werden bewusst ausgewählt, ein Startpunkt wird gesetzt und
 die Tour zuerst als Luftlinie, dann – nach Zustimmung – als echte Straßenroute
 gezeigt. Ruhige Kapitelkarten trennen Assistent, Auswahl und Tourplanung.
+Die zusätzliche LinkedIn-Fassung zeigt Microsoft 365 Copilot als konkretes
+Beispiel: „Work IQ aktiviert", vorhandene Benutzerberechtigungen und die
+selbst ausgeführte Übergabe über die Zwischenablage sind ausdrücklich sichtbar.
+Sie behauptet weder eine technische Integration noch eine Partnerschaft mit
+Microsoft. Die neutrale S24-Fassung bleibt als herstellerunabhängige Alternative
+unverändert erhalten.
+
+Die Copilot-Fassung ist bewusst als **Beispiel** formuliert: Der Zugriff auf
+geschäftliche E-Mails, Dateien, Chats oder Meetings hängt von Microsoft-365-
+Copilot-Lizenz, aktiviertem Work IQ sowie den Einstellungen der Organisation
+ab. Copilot berücksichtigt nur Inhalte, für die der angemeldete Nutzer bereits
+berechtigt ist. Maßgeblich sind die aktuellen Microsoft-Hinweise zu
+[Work IQ und verwendeten Informationen](https://support.microsoft.com/en-US/Microsoft-365-Copilot/what-information-does-copilot-use-to-answer-my-prompt)
+und zum
+[Grounding mit Geschäfts- oder Schulkonto](https://support.microsoft.com/en-us/Microsoft-365-Copilot/how-grounding-works-with-a-work-or-school-account).
 Für Instagram Reels, TikTok und YouTube Shorts bleibt die standardisierte
 1080-×-1920-Mobile-Fassung meist die passendere Upload-Datei; die S24-Fassung
 zeigt dagegen die unverfälschte Geräteansicht ohne Beschnitt.
@@ -58,6 +74,12 @@ Reproduzierbarer Samsung-S24-Lauf nach `npm run build`:
 ```sh
 npm run film -- --format=s24 --demo=lasso --capture-mobile-frames
 zsh film/render-samsung-s24-sales-agent.sh
+```
+
+Reproduzierbare Microsoft-365-Copilot-Variante mit denselben S24-Quellbildern:
+
+```sh
+zsh film/render-samsung-s24-microsoft-365-copilot.sh
 ```
 
 ---

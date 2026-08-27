@@ -20,6 +20,7 @@ MUTED = "#55706C"
 ORANGE = "#FFB15C"
 LIGHT = "#DDF8F3"
 WITH_AGENT = "--with-agent" in sys.argv
+M365_COPILOT = "--m365-copilot" in sys.argv
 
 FONT = "/System/Library/Fonts/Supplemental/Arial.ttf"
 BOLD = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
@@ -230,14 +231,14 @@ def chapter_frame(number: str, title: str, detail: str) -> Image.Image:
 
 
 def sales_agent_s24_frame(answer: bool) -> Image.Image:
-    """Einspaltige, markenneutrale Assistentenansicht für das Galaxy S24."""
+    """Einspaltige Assistentenansicht für das Galaxy S24."""
     image = Image.new("RGB", TARGET_SIZE, BG)
     draw = ImageDraw.Draw(image)
     draw.text((50, 52), "TOURFUCHS", fill=TEAL, font=font(34, True))
-    right = "Beispielansicht · erfundene Quellen"
+    right = "Beispiel · keine Microsoft-Integration" if M365_COPILOT else "Beispielansicht · erfundene Quellen"
     right_font = font(25)
     draw.text((TARGET_SIZE[0] - 50 - draw.textbbox((0, 0), right, font=right_font)[2], 60), right, fill=MUTED, font=right_font)
-    heading = "5. Sales Agent aus der Zwischenablage"
+    heading = "5. Beispiel: Microsoft 365 Copilot" if M365_COPILOT else "5. Sales Agent aus der Zwischenablage"
     draw.text((50, 155), heading, fill=DARK, font=fit_font(draw, heading, 56, 980))
 
     draw.rounded_rectangle((45, 300, 1035, 2045), radius=34, fill="#FFFFFF", outline="#BDD4CF", width=3)
@@ -246,16 +247,22 @@ def sales_agent_s24_frame(answer: bool) -> Image.Image:
     for x, color in [(85, "#FF7B70"), (125, "#F4BE54"), (165, "#55C27A")]:
         draw.ellipse((x - 11, 340, x + 11, 362), fill=color)
     draw.rounded_rectangle((220, 327, 835, 385), radius=24, fill="#FFFFFF")
-    address = "Unternehmens-KI / Sales Agent"
+    address = "Microsoft 365 Copilot" if M365_COPILOT else "Unternehmens-KI / Sales Agent"
     address_font = font(25)
     address_box = draw.textbbox((0, 0), address, font=address_font)
     draw.text(((1080 - (address_box[2] - address_box[0])) // 2, 341), address, fill=MUTED, font=address_font)
     draw.rounded_rectangle((855, 326, 1000, 386), radius=24, fill=LIGHT)
-    draw.text((884, 342), "BEISPIEL", fill=TEAL, font=font(20, True))
+    chip = "WORK IQ" if M365_COPILOT else "BEISPIEL"
+    chip_font = fit_font(draw, chip, 20, 110)
+    chip_box = draw.textbbox((0, 0), chip, font=chip_font)
+    draw.text((927 - (chip_box[2] - chip_box[0]) / 2, 342), chip, fill=TEAL, font=chip_font)
 
-    draw.text((85, 470), "KI-ASSISTENT", fill=TEAL, font=font(24, True))
-    draw.text((85, 520), "Sales Agent", fill=DARK, font=font(42, True))
-    draw.text((85, 580), "z. B. Microsoft 365 Copilot", fill=MUTED, font=font(24))
+    product_kicker = "MICROSOFT 365 COPILOT" if M365_COPILOT else "KI-ASSISTENT"
+    product_name = "Copilot Chat" if M365_COPILOT else "Sales Agent"
+    product_detail = "Work IQ aktiviert · Geschäftskonto" if M365_COPILOT else "z. B. Microsoft 365 Copilot"
+    draw.text((85, 470), product_kicker, fill=TEAL, font=font(24, True))
+    draw.text((85, 520), product_name, fill=DARK, font=font(42, True))
+    draw.text((85, 580), product_detail, fill=MUTED, font=font(24))
 
     if not answer:
         draw.text((85, 675), "Prompt eingefügt", fill=TEAL, font=font(34, True))
@@ -263,8 +270,8 @@ def sales_agent_s24_frame(answer: bool) -> Image.Image:
         prompt = (
             "Priorisiere die ausgewählten Kunden\n"
             "für meinen Besuchstag.\n\n"
-            "Nutze meine freigegebenen Quellen.\n"
-            "Erfinde nichts. Nenne offene Vorgänge\n"
+            + ("Nutze meine freigegebenen E-Mails,\nDateien, Chats und Meetings.\n" if M365_COPILOT else "Nutze meine freigegebenen Quellen.\n")
+            + "Erfinde nichts. Nenne offene Vorgänge\n"
             "und eine begründete Reihenfolge."
         )
         draw.multiline_text((125, 800), prompt, fill=DARK, font=font(36), spacing=22)
@@ -272,7 +279,8 @@ def sales_agent_s24_frame(answer: bool) -> Image.Image:
         draw.text((704, 1577), "Senden  →", fill="white", font=font(34, True))
         draw.text((85, 1730), "Kein Buchstabe getippt.", fill=MUTED, font=font(28))
     else:
-        draw.text((85, 675), "Priorität für die Tour", fill=TEAL, font=font(34, True))
+        answer_title = "Priorität aus deinen Arbeitsdaten" if M365_COPILOT else "Priorität für die Tour"
+        draw.text((85, 675), answer_title, fill=TEAL, font=fit_font(draw, answer_title, 34, 900))
         rows = [
             ("1", "Rheinstahl Fördertechnik", "Anlage steht · Rückmeldung überfällig"),
             ("2", "Emscher Anlagenbau", "Gutschrift offen · Bestellung blockiert"),
@@ -291,14 +299,20 @@ def sales_agent_s24_frame(answer: bool) -> Image.Image:
             draw.text((235, y + 125), reason, fill=MUTED, font=reason_font)
             y += 285
         draw.rounded_rectangle((85, 1625, 995, 1745), radius=26, fill=LIGHT)
-        note = "Antwort aus vollständig erfundenen Filmquellen"
+        note = "Beispielantwort aus vollständig erfundenen Filmquellen" if M365_COPILOT else "Antwort aus vollständig erfundenen Filmquellen"
         note_font = fit_font(draw, note, 27, 840, bold=True)
         note_box = draw.textbbox((0, 0), note, font=note_font)
         draw.text(((1080 - (note_box[2] - note_box[0])) // 2, 1662), note, fill=TEAL, font=note_font)
 
-    draw.text((85, 1925), "Abgesendet wird bewusst erst im gewählten Assistenten.", fill=MUTED, font=fit_font(draw, "Abgesendet wird bewusst erst im gewählten Assistenten.", 27, 880, bold=False))
+    if M365_COPILOT:
+        permission = "Work IQ berücksichtigt nur Inhalte, auf die du zugreifen darfst."
+        independence = "TourFuchs ist nicht mit Microsoft verbunden. Du sendest selbst."
+        draw.text((85, 1865), permission, fill=MUTED, font=fit_font(draw, permission, 27, 880, bold=False))
+        draw.text((85, 1925), independence, fill=MUTED, font=fit_font(draw, independence, 27, 880, bold=False))
+    else:
+        draw.text((85, 1925), "Abgesendet wird bewusst erst im gewählten Assistenten.", fill=MUTED, font=fit_font(draw, "Abgesendet wird bewusst erst im gewählten Assistenten.", 27, 880, bold=False))
     draw.rounded_rectangle((50, 2170, 1030, 2290), radius=28, fill="#E2F6F2")
-    footer = "Prompt kopiert  →  Assistent deiner Wahl  →  du entscheidest"
+    footer = "TourFuchs  →  Zwischenablage  →  Microsoft 365 Copilot" if M365_COPILOT else "Prompt kopiert  →  Assistent deiner Wahl  →  du entscheidest"
     footer_font = fit_font(draw, footer, 30, 900, bold=True)
     footer_box = draw.textbbox((0, 0), footer, font=footer_font)
     draw.text(((1080 - (footer_box[2] - footer_box[0])) // 2, 2212), footer, fill=TEAL, font=footer_font)
@@ -488,7 +502,9 @@ def main():
         write_source_range(0, prompt_end)
 
         for _ in range(round(1.5 * timeline_fps)):
-            write(chapter_frame("5", "Sales Agent", "Prompt einfügen.\nPriorisierung verstehen."), index)
+            chapter_title = "Microsoft 365 Copilot" if M365_COPILOT else "Sales Agent"
+            chapter_detail = "Work IQ aktiviert.\nArbeitsinformationen zusammenführen." if M365_COPILOT else "Prompt einfügen.\nPriorisierung verstehen."
+            write(chapter_frame("5", chapter_title, chapter_detail), index)
             index += 1
         for agent_index in range(10 * timeline_fps):
             write(sales_agent_frame(answer=agent_index >= 3 * timeline_fps), index)
