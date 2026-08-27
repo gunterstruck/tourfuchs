@@ -138,7 +138,8 @@ function freePort() {
 }
 
 async function startPreview(port) {
-    const child = spawn('npx', ['vite', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    const viteCli = resolve('node_modules', 'vite', 'bin', 'vite.js');
+    const child = spawn(process.execPath, [viteCli, 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
     for (let i = 0; i < 40; i++) {
         await sleep(500);
         try { if ((await fetch(`http://localhost:${port}/`)).ok) return child; } catch { /* noch nicht bereit */ }
@@ -185,7 +186,22 @@ async function blendeKarteAus(page) {
 }
 
 // ---- Vorbereitung: eigene Daten herstellen --------------------------------
-async function eigeneDatenEinfuegen(page) {
+async function bildHinterTitelkarte(page, path) {
+    await page.evaluate(() => {
+        const card = document.getElementById('film-card');
+        if (card) card.style.visibility = 'hidden';
+        document.body.classList.remove('film-karte');
+    });
+    await sleep(250);
+    await page.screenshot({ path, type: 'jpeg', quality: 92 });
+    await page.evaluate(() => {
+        const card = document.getElementById('film-card');
+        if (card) card.style.visibility = '';
+        document.body.classList.add('film-karte');
+    });
+}
+
+async function eigeneDatenEinfuegen(page, bildOrdner = null) {
     await page.evaluate(() => {
         document.getElementById('own-data-dialog')?.showModal();
     });
@@ -202,11 +218,13 @@ async function eigeneDatenEinfuegen(page) {
         field.dispatchEvent(new Event('input', { bubbles: true }));
     }, KUNDENLISTE);
     await sleep(800);
+    if (bildOrdner) await bildHinterTitelkarte(page, resolve(bildOrdner, '02-import.jpg'));
     await page.locator('#paste-confirm').click({ timeout: 8000 });
     await page.waitForSelector('#mapping-confirm', { timeout: 10000 });
     await sleep(600);
     await page.locator('#mapping-confirm').click();
     await sleep(4000);
+    if (bildOrdner) await bildHinterTitelkarte(page, resolve(bildOrdner, '03-datenanalyse.jpg'));
 
     // Befund, Hinweise, Tresor-Angebot: alles wegquittieren, solange die
     // Titelkarte darüber liegt.
@@ -255,6 +273,7 @@ const FASSUNGEN = {
 const arg = (name, fallback) => (process.argv.slice(2).find((a) => a.startsWith(`--${name}=`)) || '').split('=')[1] || fallback;
 const argFormat = arg('format', 'quer');
 const demoId = arg('demo', 'lasso');
+const captureMobileFrames = process.argv.includes('--capture-mobile-frames');
 const format = FORMATE[argFormat];
 const fassung = FASSUNGEN[demoId];
 if (!format) {
@@ -270,31 +289,43 @@ let chromium;
 let ffmpegPfad;
 try {
     ({ chromium } = await import('playwright'));
+} catch {
+    console.error('Playwright fehlt. Einmalig einrichten:\n  npm i -D playwright && npx playwright install chromium');
+    process.exit(2);
+}
+try {
     ffmpegPfad = (await import('ffmpeg-static')).default;
 } catch {
-    console.error('Playwright oder ffmpeg-static fehlt. Einmalig einrichten:\n  npm i -D playwright ffmpeg-static && npx playwright install chromium');
-    process.exit(2);
+    // Auf Entwicklungsrechnern ist ffmpeg oft bereits systemweit vorhanden.
+    // Der Film braucht dann keine zweite, paketgebundene Binärdatei.
+    ffmpegPfad = process.env.FFMPEG_PATH || '/opt/homebrew/bin/ffmpeg';
 }
 
 const rohOrdner = resolve('tmp', 'film-roh');
 const zielOrdner = resolve('film');
+const bildOrdner = captureMobileFrames ? resolve(zielOrdner, 'frames-mobile') : null;
 rmSync(rohOrdner, { recursive: true, force: true });
 mkdirSync(rohOrdner, { recursive: true });
 mkdirSync(zielOrdner, { recursive: true });
+if (bildOrdner) {
+    rmSync(bildOrdner, { recursive: true, force: true });
+    mkdirSync(bildOrdner, { recursive: true });
+}
 
 const port = await freePort();
 const server = await startPreview(port);
 const browser = await chromium.launch(
     process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {}
 );
-const context = await browser.newContext({
+const contextOptionen = {
     viewport: format.viewport,
     hasTouch: format.hasTouch,
     locale: 'de-DE',
     timezoneId: 'Europe/Berlin',
-    reducedMotion: 'no-preference',
-    recordVideo: { dir: rohOrdner, size: format.viewport }
-});
+    reducedMotion: 'no-preference'
+};
+if (!captureMobileFrames) contextOptionen.recordVideo = { dir: rohOrdner, size: format.viewport };
+const context = await browser.newContext(contextOptionen);
 const page = await context.newPage();
 // Ab hier läuft die Kamera. Alles davor gibt es nicht, alles danach wird später
 // auf den eigentlichen Filmbeginn zurechtgeschnitten.
@@ -316,7 +347,7 @@ try {
     await zeigeKarte(page, fassung.titel);
 
     await sleep(7000);                     // Willkommens-Choreografie abwarten
-    const anzahl = await eigeneDatenEinfuegen(page);
+    const anzahl = await eigeneDatenEinfuegen(page, bildOrdner);
     console.log(`Eigene Kunden geladen${anzahl ? `: ${anzahl}` : ''}`);
 
     // Demo-Auswahl öffnen und die Story starten – ebenfalls hinter der Karte.
@@ -328,6 +359,27 @@ try {
     await sleep(2600);                     // Titelkarte stehen lassen
     await page.locator(`#showcase-dialog .sc-tile[data-story="${demoId}"]`).click();
     await blendeKarteAus(page);
+
+    // Für die Mobile-Werbefassung werden echte 720×1280-Screenshots mit sechs
+    // Bildern pro Sekunde aufgenommen. Das umgeht empfindliche WebM-Recorder
+    // und liefert zugleich deutlich mehr reale UI-Zustände für den 30-fps-
+    // Endschnitt als die frühere 2-fps-Strecke.
+    let bilderLaufen = captureMobileFrames;
+    let bildIndex = 1;
+    const bildSchleife = captureMobileFrames ? (async () => {
+        const takt = 1000 / 6;
+        let naechstesBild = Date.now();
+        while (bilderLaufen) {
+            await page.screenshot({
+                path: resolve(bildOrdner, `demo-${String(bildIndex).padStart(4, '0')}.jpg`),
+                type: 'jpeg',
+                quality: 90
+            });
+            bildIndex += 1;
+            naechstesBild += takt;
+            await sleep(Math.max(0, naechstesBild - Date.now()));
+        }
+    })() : null;
 
     // Jeden Satz mit echtem Timecode mitschreiben – daraus entsteht die
     // Schnittliste, und damit weiß man, wo der KI-Einschub hingehört.
@@ -343,6 +395,8 @@ try {
         ergebnis = await page.locator('#showcase-dialog .sc-outcome-failed').count() ? 'FEHLER' : 'ok';
     } catch { /* Abspann kommt trotzdem */ }
     clearInterval(ticker);
+    bilderLaufen = false;
+    if (bildSchleife) await bildSchleife;
 
     const demoEnde = Date.now() - filmStart;
 
@@ -355,6 +409,14 @@ try {
 
     // Die Aufnahme wird erst beim Schließen des Kontextes geschrieben.
     await context.close();
+
+    if (captureMobileFrames) {
+        console.log(`\nMobile Einzelbilder: ${bildOrdner}`);
+        console.log(`Demo-Bilder: ${bildIndex - 1} · Lauf ${ergebnis}`);
+        code = ergebnis === 'ok' ? 0 : 1;
+        if (fehler.length) console.log(`Skriptfehler: ${fehler.length} – ${fehler[0]}`);
+        // Kein WebM-Schnitt: Die Einzelbilder werden vom 9:16-Renderer genutzt.
+    } else {
 
     // ---- Schneiden und wandeln --------------------------------------------
     const roh = readdirSync(rohOrdner).find((f) => f.endsWith('.webm'));
@@ -403,6 +465,7 @@ try {
     console.log(`Länge ${zeit(filmEnde)} · Vorführung ${ergebnis} · ${saetze.length} Sätze`);
     if (fehler.length) console.log(`Skriptfehler: ${fehler.length} – ${fehler[0]}`);
     code = ergebnis === 'ok' ? 0 : 1;
+    }
 } finally {
     // Nicht über process.exit() abkürzen: Ein laufender Vorschau-Server und ein
     // offener Browser überleben das und bleiben als Waisen zurück.
