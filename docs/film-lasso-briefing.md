@@ -15,13 +15,29 @@ Die veröffentlichten Fassungen mit dem beispielhaften Wechsel zu einem Sales
 Agent liegen hier:
 
 - [LinkedIn 4:5 – 1080 × 1350](../film/tourfuchs-linkedin-mit-sales-agent.mp4)
-- [Shorts/Reels 9:16 – 1080 × 1920](../film/tourfuchs-shorts-9x16-ohne-musik.mp4)
+- [Shorts/Reels 9:16 mit Desktop-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-ohne-musik.mp4)
+- [Shorts/Reels 9:16 mit Mobile-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-mobile-ohne-musik.mp4)
 
-Beide Dateien sind MP4/H.264, 30 fps und 69 Sekunden lang. Die 9:16-Fassung
-erzeugt zwischen den UI-Zuständen zusätzliche Zwischenbilder, statt dieselben
-Bilder nur zu wiederholen. Beide Fassungen sind **ohne Musik** und damit zugleich
-Ausgangsdateien für einen späteren Schnitt mit separat lizenzierter Musik. Alle
-im Film gezeigten Firmen, Vorgänge und KI-Quellen sind erfunden.
+Alle drei Dateien sind MP4/H.264, 30 fps und 69 Sekunden lang. Die beiden
+9:16-Fassungen erzeugen zwischen den UI-Zuständen zusätzliche Zwischenbilder,
+statt dieselben Bilder nur zu wiederholen. Alle Fassungen sind **ohne Musik**
+und damit zugleich Ausgangsdateien für einen späteren Schnitt mit separat
+lizenzierter Musik. Alle im Film gezeigten Firmen, Vorgänge und KI-Quellen sind
+erfunden.
+
+Die Mobile-Fassung zeigt nicht etwa einen beschnittenen Desktop. TourFuchs läuft
+darin mit Touch-Eingabe bei 720 × 1280 Pixeln: Karte über die volle Fläche,
+Bottom-Sheets statt Seitenleiste und die echten mobilen Dialoge. Für den
+Endschnitt werden sechs reale UI-Zustände pro Sekunde aufgenommen und flüssig
+auf konstante 30 fps ergänzt. Titel, Dramaturgie, Sales-Agent-Beispiel und
+Abspann entsprechen der Desktop-Porträtfassung.
+
+Reproduzierbarer Mobile-Lauf nach `npm run build`:
+
+```sh
+npm run film -- --format=hochkant --demo=lasso --capture-mobile-frames
+zsh film/render-shorts-mobile-sales-agent.sh
+```
 
 ---
 
