@@ -348,6 +348,7 @@ const fehler = [];
 page.on('pageerror', (e) => fehler.push(String(e).slice(0, 300)));
 
 let filmStart = 0;
+let captureStartMs = 0;
 let code = 1;
 const saetze = [];
 
@@ -379,6 +380,7 @@ try {
     // und liefert zugleich deutlich mehr reale UI-Zustände für den 30-fps-
     // Endschnitt als die frühere 2-fps-Strecke. Beim S24 entstehen durch
     // 360 × 780 CSS-Pixel und DPR 3 direkt native 1080 × 2340 Pixel.
+    captureStartMs = Date.now() - filmStart;
     let bilderLaufen = captureMobileFrames;
     let bildIndex = 1;
     const bildSchleife = captureMobileFrames ? (async () => {
@@ -426,6 +428,13 @@ try {
     await context.close();
 
     if (captureMobileFrames) {
+        writeFileSync(resolve(bildOrdner, 'timeline.json'), JSON.stringify({
+            fps: 6,
+            captureStartMs,
+            demoDurationMs: demoEnde,
+            frameCount: bildIndex - 1,
+            sentences: saetze
+        }, null, 2), 'utf8');
         console.log(`\nMobile Einzelbilder: ${bildOrdner}`);
         console.log(`Demo-Bilder: ${bildIndex - 1} · Lauf ${ergebnis}`);
         code = ergebnis === 'ok' ? 0 : 1;
