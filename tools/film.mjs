@@ -74,7 +74,17 @@ const FORMATE = {
     // Hochkant nimmt das Handy-Layout auf – dort läuft dieselbe Vorführung mit
     // dem Blatt statt der Seitenleiste. Beschneiden wäre der schlechtere Weg:
     // Der Film zeigt dann eine Oberfläche, die es so nicht gibt.
-    hochkant: { name: 'hochkant', viewport: { width: 720, height: 1280 }, hasTouch: true }
+    hochkant: { name: 'hochkant', viewport: { width: 720, height: 1280 }, hasTouch: true },
+    // Galaxy S24: 360 × 780 CSS-Pixel bei dreifacher Pixeldichte ergeben die
+    // native Displayauflösung 1080 × 2340. Die schmale CSS-Breite ist der
+    // entscheidende Unterschied zur eher tabletartigen 720-px-Aufnahme.
+    s24: {
+        name: 's24',
+        viewport: { width: 360, height: 780 },
+        hasTouch: true,
+        isMobile: true,
+        deviceScaleFactor: 3
+    }
 };
 
 /**
@@ -303,7 +313,9 @@ try {
 
 const rohOrdner = resolve('tmp', 'film-roh');
 const zielOrdner = resolve('film');
-const bildOrdner = captureMobileFrames ? resolve(zielOrdner, 'frames-mobile') : null;
+const bildOrdner = captureMobileFrames
+    ? resolve(zielOrdner, format.name === 's24' ? 'frames-s24' : 'frames-mobile')
+    : null;
 rmSync(rohOrdner, { recursive: true, force: true });
 mkdirSync(rohOrdner, { recursive: true });
 mkdirSync(zielOrdner, { recursive: true });
@@ -320,6 +332,8 @@ const browser = await chromium.launch(
 const contextOptionen = {
     viewport: format.viewport,
     hasTouch: format.hasTouch,
+    isMobile: Boolean(format.isMobile),
+    deviceScaleFactor: format.deviceScaleFactor || 1,
     locale: 'de-DE',
     timezoneId: 'Europe/Berlin',
     reducedMotion: 'no-preference'
@@ -360,10 +374,11 @@ try {
     await page.locator(`#showcase-dialog .sc-tile[data-story="${demoId}"]`).click();
     await blendeKarteAus(page);
 
-    // Für die Mobile-Werbefassung werden echte 720×1280-Screenshots mit sechs
+    // Für die Mobile-Werbefassung werden echte Gerätescreenshots mit sechs
     // Bildern pro Sekunde aufgenommen. Das umgeht empfindliche WebM-Recorder
     // und liefert zugleich deutlich mehr reale UI-Zustände für den 30-fps-
-    // Endschnitt als die frühere 2-fps-Strecke.
+    // Endschnitt als die frühere 2-fps-Strecke. Beim S24 entstehen durch
+    // 360 × 780 CSS-Pixel und DPR 3 direkt native 1080 × 2340 Pixel.
     let bilderLaufen = captureMobileFrames;
     let bildIndex = 1;
     const bildSchleife = captureMobileFrames ? (async () => {

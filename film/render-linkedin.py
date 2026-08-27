@@ -4,13 +4,14 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT = Path(__file__).resolve().parent.parent
 FILM = ROOT / "film"
-MOBILE_VIEW = "--mobile-view" in sys.argv
-FRAMES = FILM / ("frames-mobile" if MOBILE_VIEW else "frames")
+S24_VIEW = "--s24-view" in sys.argv
+MOBILE_VIEW = "--mobile-view" in sys.argv or S24_VIEW
+FRAMES = FILM / ("frames-s24" if S24_VIEW else "frames-mobile" if MOBILE_VIEW else "frames")
 OUT = FILM / "work-linkedin" / "frames"
 
 SIZE = (1080, 1350)
 VERTICAL = "--vertical" in sys.argv or MOBILE_VIEW
-TARGET_SIZE = (1080, 1920) if VERTICAL else SIZE
+TARGET_SIZE = (1080, 2340) if S24_VIEW else (1080, 1920) if VERTICAL else SIZE
 BG = "#F2F7F6"
 TEAL = "#0E8A7D"
 DARK = "#101C2C"
@@ -47,20 +48,28 @@ def app_frame(source: Path, heading: str) -> Image.Image:
     if MOBILE_VIEW:
         image = Image.new("RGB", TARGET_SIZE, BG)
         draw = ImageDraw.Draw(image)
-        draw.text((50, 62), "TOURFUCHS", fill=TEAL, font=font(34, True))
-        right = "Echte Mobile-PWA"
+        draw.text((50, 42 if S24_VIEW else 62), "TOURFUCHS", fill=TEAL, font=font(34, True))
+        right = "Samsung S24 · echte PWA" if S24_VIEW else "Echte Mobile-PWA"
         right_font = font(25)
-        draw.text((TARGET_SIZE[0] - 50 - draw.textbbox((0, 0), right, font=right_font)[2], 70), right, fill=MUTED, font=right_font)
+        draw.text((TARGET_SIZE[0] - 50 - draw.textbbox((0, 0), right, font=right_font)[2], 50 if S24_VIEW else 70), right, fill=MUTED, font=right_font)
         heading_font = fit_font(draw, heading, 56, 980)
-        draw.text((50, 165), heading, fill=DARK, font=heading_font)
+        draw.text((50, 125 if S24_VIEW else 165), heading, fill=DARK, font=heading_font)
 
-        # Die Aufnahme bleibt unverfälscht im echten 9:16-Handyformat. Sie
-        # wird weder seitlich beschnitten noch zu einer Desktopansicht gedehnt.
-        screenshot = Image.open(source).convert("RGB").resize((900, 1600), Image.Resampling.LANCZOS)
-        image.paste(screenshot, (90, 250))
-        draw.rounded_rectangle((86, 246, 994, 1854), radius=22, outline="#70C9BD", width=4)
-        draw.rounded_rectangle((50, 1885, 1030, 1897), radius=6, fill="#D5E4E1")
-        draw.rounded_rectangle((50, 1885, 360, 1897), radius=6, fill=ORANGE)
+        # Die Aufnahme bleibt im echten Geräteverhältnis. Das S24-Material
+        # kommt nativ mit 1080 × 2340 herein und wird nur minimal eingerückt;
+        # die normale Mobile-Fassung bleibt im standardisierten 9:16-Rahmen.
+        if S24_VIEW:
+            screenshot = Image.open(source).convert("RGB").resize((960, 2080), Image.Resampling.LANCZOS)
+            image.paste(screenshot, (60, 230))
+            draw.rounded_rectangle((56, 226, 1024, 2314), radius=22, outline="#70C9BD", width=4)
+            draw.rounded_rectangle((50, 2323, 1030, 2335), radius=6, fill="#D5E4E1")
+            draw.rounded_rectangle((50, 2323, 360, 2335), radius=6, fill=ORANGE)
+        else:
+            screenshot = Image.open(source).convert("RGB").resize((900, 1600), Image.Resampling.LANCZOS)
+            image.paste(screenshot, (90, 250))
+            draw.rounded_rectangle((86, 246, 994, 1854), radius=22, outline="#70C9BD", width=4)
+            draw.rounded_rectangle((50, 1885, 1030, 1897), radius=6, fill="#D5E4E1")
+            draw.rounded_rectangle((50, 1885, 360, 1897), radius=6, fill=ORANGE)
         return image
 
     if VERTICAL:
@@ -133,6 +142,18 @@ def app_frame(source: Path, heading: str) -> Image.Image:
 
 
 def title_frame() -> Image.Image:
+    if S24_VIEW:
+        image = Image.new("RGB", TARGET_SIZE, TEAL)
+        draw = ImageDraw.Draw(image)
+        for radius, alpha_color in [(590, "#169A8C"), (440, "#1CA394"), (290, "#24AA9B")]:
+            draw.ellipse((820 - radius, 140 - radius, 820 + radius, 140 + radius), outline=alpha_color, width=3)
+        draw.text((60, 100), "TOURFUCHS · OPEN SOURCE", fill="white", font=font(34, True))
+        draw.multiline_text((60, 660), "Vom Excel-Blatt\nzum Kundenbriefing.", fill="white", font=font(78, True), spacing=22)
+        draw.multiline_text((60, 1010), "Gebiet einkreisen.\nPrompt kopieren.\nEntscheiden.", fill=LIGHT, font=font(44), spacing=18)
+        draw.rounded_rectangle((60, 1360, 250, 1370), radius=5, fill=ORANGE)
+        draw.text((60, 2110), "tourfuchs.vercel.app", fill="white", font=font(38, True))
+        return image
+
     if VERTICAL:
         image = Image.new("RGB", TARGET_SIZE, TEAL)
         draw = ImageDraw.Draw(image)
@@ -158,6 +179,18 @@ def title_frame() -> Image.Image:
 
 
 def outro_frame() -> Image.Image:
+    if S24_VIEW:
+        image = Image.new("RGB", TARGET_SIZE, DARK)
+        draw = ImageDraw.Draw(image)
+        draw.text((60, 100), "TOURFUCHS", fill="#72D8C9", font=font(34, True))
+        draw.multiline_text((60, 560), "Eine Karte.\nEin Lasso.\nEin Prompt.", fill="white", font=font(92, True), spacing=22)
+        draw.rounded_rectangle((60, 1110, 250, 1120), radius=5, fill=ORANGE)
+        draw.text((60, 1240), "Kostenlos · Open Source · privates Projekt", fill="#C7D8D5", font=font(34))
+        draw.text((60, 1770), "tourfuchs.vercel.app", fill="white", font=font(48, True))
+        draw.text((60, 1860), "github.com/gunterstruck/tourfuchs", fill="#72D8C9", font=font(31))
+        draw.text((60, 2160), "Alle gezeigten Kunden und Vorgänge sind erfunden.", fill="#9CB0AD", font=font(25))
+        return image
+
     if VERTICAL:
         image = Image.new("RGB", TARGET_SIZE, DARK)
         draw = ImageDraw.Draw(image)
@@ -182,6 +215,82 @@ def outro_frame() -> Image.Image:
     return image
 
 
+def sales_agent_s24_frame(answer: bool) -> Image.Image:
+    """Einspaltige, markenneutrale Assistentenansicht für das Galaxy S24."""
+    image = Image.new("RGB", TARGET_SIZE, BG)
+    draw = ImageDraw.Draw(image)
+    draw.text((50, 52), "TOURFUCHS", fill=TEAL, font=font(34, True))
+    right = "Beispielansicht · erfundene Quellen"
+    right_font = font(25)
+    draw.text((TARGET_SIZE[0] - 50 - draw.textbbox((0, 0), right, font=right_font)[2], 60), right, fill=MUTED, font=right_font)
+    heading = "5. Sales Agent aus der Zwischenablage"
+    draw.text((50, 155), heading, fill=DARK, font=fit_font(draw, heading, 56, 980))
+
+    draw.rounded_rectangle((45, 300, 1035, 2045), radius=34, fill="#FFFFFF", outline="#BDD4CF", width=3)
+    draw.rounded_rectangle((45, 300, 1035, 415), radius=34, fill="#E8F1EF")
+    draw.rectangle((45, 380, 1035, 415), fill="#E8F1EF")
+    for x, color in [(85, "#FF7B70"), (125, "#F4BE54"), (165, "#55C27A")]:
+        draw.ellipse((x - 11, 340, x + 11, 362), fill=color)
+    draw.rounded_rectangle((220, 327, 835, 385), radius=24, fill="#FFFFFF")
+    address = "Unternehmens-KI / Sales Agent"
+    address_font = font(25)
+    address_box = draw.textbbox((0, 0), address, font=address_font)
+    draw.text(((1080 - (address_box[2] - address_box[0])) // 2, 341), address, fill=MUTED, font=address_font)
+    draw.rounded_rectangle((855, 326, 1000, 386), radius=24, fill=LIGHT)
+    draw.text((884, 342), "BEISPIEL", fill=TEAL, font=font(20, True))
+
+    draw.text((85, 470), "KI-ASSISTENT", fill=TEAL, font=font(24, True))
+    draw.text((85, 520), "Sales Agent", fill=DARK, font=font(42, True))
+    draw.text((85, 580), "z. B. Microsoft 365 Copilot", fill=MUTED, font=font(24))
+
+    if not answer:
+        draw.text((85, 675), "Prompt eingefügt", fill=TEAL, font=font(34, True))
+        draw.rounded_rectangle((85, 740, 995, 1475), radius=28, fill="#F4F8F7", outline="#D3E3E0", width=2)
+        prompt = (
+            "Priorisiere die ausgewählten Kunden\n"
+            "für meinen Besuchstag.\n\n"
+            "Nutze meine freigegebenen Quellen.\n"
+            "Erfinde nichts. Nenne offene Vorgänge\n"
+            "und eine begründete Reihenfolge."
+        )
+        draw.multiline_text((125, 800), prompt, fill=DARK, font=font(36), spacing=22)
+        draw.rounded_rectangle((610, 1545, 995, 1655), radius=42, fill=TEAL)
+        draw.text((704, 1577), "Senden  →", fill="white", font=font(34, True))
+        draw.text((85, 1730), "Kein Buchstabe getippt.", fill=MUTED, font=font(28))
+    else:
+        draw.text((85, 675), "Priorität für die Tour", fill=TEAL, font=font(34, True))
+        rows = [
+            ("1", "Rheinstahl Fördertechnik", "Anlage steht · Rückmeldung überfällig"),
+            ("2", "Emscher Anlagenbau", "Gutschrift offen · Bestellung blockiert"),
+            ("3", "Sauerland Hydraulik", "Termin im August erbeten · Wettbewerb aktiv"),
+        ]
+        y = 745
+        for rank, name, reason in rows:
+            draw.rounded_rectangle((85, y, 995, y + 250), radius=28, fill="#F4F8F7", outline="#D3E3E0", width=2)
+            draw.ellipse((120, y + 76, 198, y + 154), fill=TEAL)
+            rank_font = font(34, True)
+            rank_box = draw.textbbox((0, 0), rank, font=rank_font)
+            draw.text((159 - (rank_box[2] - rank_box[0]) / 2, y + 95), rank, fill="white", font=rank_font)
+            name_font = fit_font(draw, name, 34, 720)
+            draw.text((235, y + 55), name, fill=DARK, font=name_font)
+            reason_font = fit_font(draw, reason, 28, 720, bold=False)
+            draw.text((235, y + 125), reason, fill=MUTED, font=reason_font)
+            y += 285
+        draw.rounded_rectangle((85, 1625, 995, 1745), radius=26, fill=LIGHT)
+        note = "Antwort aus vollständig erfundenen Filmquellen"
+        note_font = fit_font(draw, note, 27, 840, bold=True)
+        note_box = draw.textbbox((0, 0), note, font=note_font)
+        draw.text(((1080 - (note_box[2] - note_box[0])) // 2, 1662), note, fill=TEAL, font=note_font)
+
+    draw.text((85, 1925), "Abgesendet wird bewusst erst im gewählten Assistenten.", fill=MUTED, font=fit_font(draw, "Abgesendet wird bewusst erst im gewählten Assistenten.", 27, 880, bold=False))
+    draw.rounded_rectangle((50, 2170, 1030, 2290), radius=28, fill="#E2F6F2")
+    footer = "Prompt kopiert  →  Assistent deiner Wahl  →  du entscheidest"
+    footer_font = fit_font(draw, footer, 30, 900, bold=True)
+    footer_box = draw.textbbox((0, 0), footer, font=footer_font)
+    draw.text(((1080 - (footer_box[2] - footer_box[0])) // 2, 2212), footer, fill=TEAL, font=footer_font)
+    return image
+
+
 def sales_agent_frame(answer: bool) -> Image.Image:
     """Ehrliche Filmillustration des Übergangs an eine vorhandene Unternehmens-KI.
 
@@ -190,6 +299,9 @@ def sales_agent_frame(answer: bool) -> Image.Image:
     Quellen könnte sie zu den Filmkunden nichts finden. Die Szene benennt daher
     klar, was Illustration und was echter TourFuchs-Ablauf ist.
     """
+    if S24_VIEW:
+        return sales_agent_s24_frame(answer)
+
     image = Image.new("RGB", SIZE, BG)
     draw = ImageDraw.Draw(image)
     draw.text((50, 52), "TOURFUCHS", fill=TEAL, font=font(34, True))
