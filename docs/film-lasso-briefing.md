@@ -17,13 +17,14 @@ Agent liegen hier:
 - [LinkedIn 4:5 – 1080 × 1350](../film/tourfuchs-linkedin-mit-sales-agent.mp4)
 - [Shorts/Reels 9:16 mit Desktop-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-ohne-musik.mp4)
 - [Shorts/Reels 9:16 mit Mobile-Ansicht – 1080 × 1920](../film/tourfuchs-shorts-9x16-mobile-ohne-musik.mp4)
+- [Samsung Galaxy S24 mit Mobile-Ansicht – 1080 × 2340](../film/tourfuchs-samsung-s24-1080x2340-ohne-musik.mp4)
 
-Alle drei Dateien sind MP4/H.264, 30 fps und 69 Sekunden lang. Die beiden
-9:16-Fassungen erzeugen zwischen den UI-Zuständen zusätzliche Zwischenbilder,
-statt dieselben Bilder nur zu wiederholen. Alle Fassungen sind **ohne Musik**
-und damit zugleich Ausgangsdateien für einen späteren Schnitt mit separat
-lizenzierter Musik. Alle im Film gezeigten Firmen, Vorgänge und KI-Quellen sind
-erfunden.
+Alle vier Dateien sind MP4/H.264, 30 fps und 69 Sekunden lang. Die drei
+Hochkantfassungen erzeugen zwischen den UI-Zuständen zusätzliche
+Zwischenbilder, statt dieselben Bilder nur zu wiederholen. Alle Fassungen sind
+**ohne Musik** und damit zugleich Ausgangsdateien für einen späteren Schnitt
+mit separat lizenzierter Musik. Alle im Film gezeigten Firmen, Vorgänge und
+KI-Quellen sind erfunden.
 
 Die Mobile-Fassung zeigt nicht etwa einen beschnittenen Desktop. TourFuchs läuft
 darin mit Touch-Eingabe bei 720 × 1280 Pixeln: Karte über die volle Fläche,
@@ -32,11 +33,26 @@ Endschnitt werden sechs reale UI-Zustände pro Sekunde aufgenommen und flüssig
 auf konstante 30 fps ergänzt. Titel, Dramaturgie, Sales-Agent-Beispiel und
 Abspann entsprechen der Desktop-Porträtfassung.
 
+Die S24-Fassung geht einen Schritt weiter: TourFuchs läuft mit 360 × 780
+CSS-Pixeln und dreifacher Pixeldichte. Die aufgenommenen App-Bilder entstehen
+dadurch direkt mit 1080 × 2340 Pixeln im Geräteverhältnis 19,5:9. Auch die
+beispielhafte Sales-Agent-Szene ist dort einspaltig für das Smartphone gebaut.
+Für Instagram Reels, TikTok und YouTube Shorts bleibt die standardisierte
+1080-×-1920-Mobile-Fassung meist die passendere Upload-Datei; die S24-Fassung
+zeigt dagegen die unverfälschte Geräteansicht ohne Beschnitt.
+
 Reproduzierbarer Mobile-Lauf nach `npm run build`:
 
 ```sh
 npm run film -- --format=hochkant --demo=lasso --capture-mobile-frames
 zsh film/render-shorts-mobile-sales-agent.sh
+```
+
+Reproduzierbarer Samsung-S24-Lauf nach `npm run build`:
+
+```sh
+npm run film -- --format=s24 --demo=lasso --capture-mobile-frames
+zsh film/render-samsung-s24-sales-agent.sh
 ```
 
 ---
