@@ -1,5 +1,5 @@
 /**
- * Gebiets-Briefing (Anzeige).
+ * Mehrkunden-Briefing (Anzeige).
  *
  * Zwei Einstiege, ein Dialog:
  *  - Tourplaner → Vorschläge im gewählten Umkreis
@@ -43,7 +43,7 @@ function renderDemoOnly() {
     body.innerHTML = `<div class="briefing-state briefing-demo">
         <span class="briefing-kicker">Geschützte Demo</span>
         <h3>Für Beispielkunden wird kein Briefing erzeugt</h3>
-        <p class="briefing-demo-note">Im Gebiet liegen ausschließlich Beispielkunden. TourFuchs baut dafür bewusst keinen Prompt und öffnet keinen Assistenten. Mit Ihren eigenen Kunden steht das Gebiets-Briefing sofort zur Verfügung.</p>
+        <p class="briefing-demo-note">In der Auswahl liegen ausschließlich Beispielkunden. TourFuchs baut dafür bewusst keinen Prompt und öffnet keinen Assistenten. Mit Ihren eigenen Kunden steht das Mehrkunden-Briefing sofort zur Verfügung.</p>
     </div>`;
     footer.innerHTML = '<button type="button" class="primary" data-area-close>Verstanden</button>';
     footer.querySelector('[data-area-close]')?.addEventListener('click', () => dialog.close());
@@ -125,7 +125,7 @@ async function openAssistant() {
 }
 
 /**
- * Gebiets-Briefing öffnen.
+ * Mehrkunden-Briefing für eine geografisch sinnvolle Auswahl öffnen.
  * @param {object[]} customers  Kunden des Gebiets, bereits sinnvoll sortiert
  * @param {string} areaLabel    Beschreibung des Gebiets („Umkreis von 25 km …")
  */

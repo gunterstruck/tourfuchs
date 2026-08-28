@@ -1183,6 +1183,38 @@
    ausgeblendet – app-weit, nicht nur im Tour-Panel. */
 body:not(.depth-profi) .expert-only,
 body:not(.depth-profi) .profi-only { display: none !important; }
+.optional-modules {
+    margin: 8px 10px 0;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-m);
+    background: var(--color-surface-2);
+}
+.optional-modules > summary {
+    padding: 9px 11px;
+    color: var(--color-text-muted);
+    font-size: 0.82rem;
+    font-weight: 700;
+    cursor: pointer;
+}
+.optional-modules[open] > summary { color: var(--color-text); }
+.optional-modules > p {
+    margin: 0;
+    padding: 0 11px 8px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+    line-height: 1.35;
+}
+.module-optin {
+    align-items: flex-start;
+    margin: 0 9px 9px;
+    padding: 9px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s);
+    background: var(--color-surface);
+}
+.module-optin input { margin-top: 2px; }
+.module-optin span { min-width: 0; line-height: 1.3; }
+.module-optin small { display: block; margin-top: 2px; font-weight: 400; }
 .tour-mode { display: flex; align-items: center; gap: 8px; margin: 18px 0 4px; padding-top: 10px; border-top: 1px solid var(--color-surface-2); }
 .tour-mode .seg-toggle { flex: 1; margin: 0; }
 .expert-reset {

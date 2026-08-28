@@ -604,6 +604,10 @@
         display: none;
     }
 
+    /* Optionale Verwaltungs-Module werden am Schreibtisch konfiguriert. Das
+       mobile Blatt bleibt vollständig auf Kunden, Briefing und Tour fokussiert. */
+    .optional-modules { display: none !important; }
+
     .sidebar:not(.onboarding) .mobile-desktop-note {
         display: block;
         margin: 0 12px 8px;
