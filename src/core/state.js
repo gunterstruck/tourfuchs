@@ -90,8 +90,8 @@ export const state = {
         //              'service' (Experten: Vertragsradar und Service-Vorplanung)
         mode: 'aussendienst',
         activeTab: 'tour',
-        // Ansichtstiefe: 'basis' (nur Kernnutzen, wenig Ablenkung) |
-        //               'profi' (alle Komfort-/Feinsteuer-Funktionen)
+        // Ansichtstiefe: 'basis' (vollständiger täglicher Außendienst) |
+        //               'profi' (zusätzliche Spezial-/Administrationswerkzeuge)
         depth: 'basis',
         // Chancen-Fokus: nur fällige/überfällige Kunden auf der Karte zeigen
         opportunityOnly: false,

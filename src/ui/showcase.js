@@ -1325,7 +1325,11 @@ async function play(story) {
 
 function currentVisibleStories() {
     const isDesktop = !isPhoneUi();
-    return visibleStories({ isDesktop });
+    return visibleStories({
+        isDesktop,
+        territoryPlanningEnabled: document.body.classList.contains('territory-planning-on'),
+        serviceEnabled: document.body.classList.contains('service-on')
+    });
 }
 
 function showShowcaseDialog() {
@@ -1466,4 +1470,7 @@ export function initShowcase() {
 
     // Nach bewusstem Datenlöschen zählt der Demo-Fortschritt neu.
     on('dataset:cleared', () => resetShowcaseAfterDataClear());
+    on('optional-modules:changed', () => {
+        if (dialog.open && dialog.dataset.view === 'intro' && !running) buildPanel();
+    });
 }

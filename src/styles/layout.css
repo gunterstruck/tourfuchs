@@ -241,13 +241,16 @@
     border-radius: var(--radius-pill);
     overflow: hidden;
 }
-.sidebar > .mode-switch { margin-top: 8px; }
-/* Service ist ein optionales Modul (Häkchen unter Gebietsplanung). Ohne es
-   bleibt der Modus-Schalter zweispaltig; erst mit service-on wird er dreispaltig
-   und der Service-Knopf sichtbar. So erschlägt der Profi-Einstieg nicht. */
-.sidebar > .mode-switch .mode-btn[data-mode="service"] { display: none; }
-body.service-on .sidebar > .mode-switch .mode-btn[data-mode="service"] { display: block; }
-body.depth-profi.service-on .sidebar > .mode-switch { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.sidebar > .mode-switch {
+    display: flex;
+    margin-top: 8px;
+}
+.sidebar > .mode-switch .mode-btn { flex: 1 1 0; min-width: 0; }
+/* Die Spezialmodi existieren weiter, konkurrieren aber erst dann mit dem
+   Außendienst, wenn sie in den Profi-Einstellungen bewusst aktiviert wurden. */
+body:not(.territory-planning-on) .territory-module-only,
+body:not(.service-on) .service-module-only { display: none !important; }
+body.depth-profi:not(.territory-planning-on):not(.service-on) .sidebar > .mode-switch { display: none; }
 body.depth-profi .sidebar > .mode-switch .mode-btn { font-size: 0.76rem; }
 
 .sidebar > .depth-switch .seg,
@@ -326,6 +329,7 @@ body.depth-profi .sidebar > .mode-switch .mode-btn { font-size: 0.76rem; }
 /* Onboarding (keine Daten): Modus-Umschalter, Hinweis und Tab-Leiste ausblenden
    – der Einstieg zeigt nur Willkommen + Demo. */
 .sidebar.onboarding .depth-switch,
+.sidebar.onboarding .optional-modules,
 .sidebar.onboarding .mode-switch,
 .sidebar.onboarding .mode-hint,
 .sidebar.onboarding .basemap-control,

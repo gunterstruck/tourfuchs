@@ -12,6 +12,7 @@ import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js
 import { STATUS_COLORS, STATUS_LABELS, isOpportunity } from '../features/visits.js';
 import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
+import { OPTIONAL_MODULES, optionalModuleActive, optionalModuleEnabled, persistOptionalModule } from '../features/optionalModules.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
@@ -133,8 +134,8 @@ function syncTopnavPlacement() {
         if (depth.parentElement !== topnav) topnav.appendChild(depth);
     } else {
         // Zurück in die Sidebar an den ursprünglichen Ankerpunkt.
-        const modeSwitch = sidebar.querySelector('.mode-switch');
-        if (depth.parentElement !== sidebar && modeSwitch) sidebar.insertBefore(depth, modeSwitch);
+        const desktopAnchor = sidebar.querySelector('.optional-modules') || sidebar.querySelector('.mode-switch');
+        if (depth.parentElement !== sidebar && desktopAnchor) sidebar.insertBefore(depth, desktopAnchor);
     }
 }
 
@@ -922,14 +923,14 @@ const MODE_CONFIG = {
         primaryTab: 'gebiete',
         markerColorModes: ['rep', 'status'],
         defaultColorMode: 'auto',
-        hint: 'Experten-Modus: Gebiete schneiden, Zuständigkeiten, Cockpit, Simulation.'
+        hint: 'Optionales Spezialmodul: Gebiete schneiden, Zuständigkeiten, Cockpit, Simulation.'
     },
     service: {
         label: 'Service',
         primaryTab: 'einsaetze',
         markerColorModes: ['auto', 'channel', 'bezirk', 'gruppe', 'luecken'],
         defaultColorMode: 'rep',
-        hint: 'Experten-Modus: aktuelle Einsätze planen und Verträge getrennt im Blick behalten.'
+        hint: 'Optionales Spezialmodul: Einsätze planen und Verträge getrennt im Blick behalten.'
     }
 };
 
@@ -1112,29 +1113,44 @@ function tabInMode(tabBtn, mode) {
  *                           damit der noch nicht geladene gespeicherte Tab nicht überschrieben wird)
  */
 const DEPTH_KEY = 'gf_app_depth';
-const SERVICE_ENABLED_KEY = 'gf_service_enabled';
 
 /**
- * Service-Modul (Serviceverträge & Einsatzplanung) ist ein optionaler Modus.
- * Standardmäßig aus – erst per Häkchen unter Gebietsplanung sichtbar, damit der
- * Profi-Einstieg nicht überfrachtet. Aus = Body-Klasse weg + der Service-Knopf
- * (nur CSS-sichtbar bei service-on) verschwindet; läuft gerade Service, fällt
- * die App still auf Außendienst zurück.
+ * Beide seltenen Profi-Bereiche folgen derselben Opt-in-Mechanik. Das ändert
+ * ausschließlich ihre Zugänge; Daten und operative Außendienstfunktionen
+ * bleiben unangetastet.
  */
-export function applyServiceEnabled(on, persist = true) {
-    document.body.classList.toggle('service-on', !!on);
-    const chk = document.getElementById('chk-service-enabled');
-    if (chk) chk.checked = !!on;
-    if (!on && state.ui.mode === 'service') applyMode('aussendienst', true, persist);
-    if (persist) { try { localStorage.setItem(SERVICE_ENABLED_KEY, on ? '1' : '0'); } catch (e) { /* egal */ } }
+function applyOptionalModule(moduleId, on, { checkboxId, mode }, persist = true) {
+    const enabled = !!on;
+    document.body.classList.toggle(OPTIONAL_MODULES[moduleId].bodyClass, enabled);
+    const checkbox = document.getElementById(checkboxId);
+    if (checkbox) checkbox.checked = enabled;
+    if (!enabled && state.ui.mode === mode) applyMode('aussendienst', true, persist);
+    if (persist) persistOptionalModule(moduleId, enabled);
+    emit('optional-modules:changed', { moduleId, enabled });
 }
 
-function initServiceOptIn() {
-    let on = false;
-    try { on = localStorage.getItem(SERVICE_ENABLED_KEY) === '1'; } catch (e) { /* egal */ }
-    applyServiceEnabled(on, false);
-    document.getElementById('chk-service-enabled')?.addEventListener('change', (e) => {
-        applyServiceEnabled(e.target.checked, true);
+export function applyTerritoryPlanningEnabled(on, persist = true) {
+    applyOptionalModule('territoryPlanning', on, {
+        checkboxId: 'chk-territory-planning-enabled',
+        mode: 'gebietsplanung'
+    }, persist);
+}
+
+export function applyServiceEnabled(on, persist = true) {
+    applyOptionalModule('service', on, {
+        checkboxId: 'chk-service-enabled',
+        mode: 'service'
+    }, persist);
+}
+
+function initOptionalModuleOptIns() {
+    applyTerritoryPlanningEnabled(optionalModuleEnabled('territoryPlanning'), false);
+    applyServiceEnabled(optionalModuleEnabled('service'), false);
+    document.getElementById('chk-territory-planning-enabled')?.addEventListener('change', (event) => {
+        applyTerritoryPlanningEnabled(event.target.checked, true);
+    });
+    document.getElementById('chk-service-enabled')?.addEventListener('change', (event) => {
+        applyServiceEnabled(event.target.checked, true);
     });
 }
 
@@ -1160,7 +1176,7 @@ export function applyDepth(depth, persist = true) {
     document.querySelectorAll('#depth-switch .seg').forEach((b) =>
         b.classList.toggle('active', b.dataset.depth === state.ui.depth));
     syncLevelControl();
-    if (!profi && state.ui.mode === 'service') applyMode('aussendienst', true, persist);
+    if (!profi && state.ui.mode !== 'aussendienst') applyMode('aussendienst', true, persist);
     if (persist) { try { localStorage.setItem(DEPTH_KEY, state.ui.depth); } catch (e) { /* egal */ } }
     emit('depth:changed');
 }
@@ -1187,7 +1203,10 @@ function initDepth() {
 
 export function applyMode(mode, userInitiated = true, persist = true) {
     const previousMode = state.ui.mode;
-    if (isMobileUi() || (mode === 'service' && state.ui.depth !== 'profi')) mode = 'aussendienst';
+    const specialModeUnavailable = state.ui.depth !== 'profi'
+        || (mode === 'gebietsplanung' && !optionalModuleActive('territoryPlanning'))
+        || (mode === 'service' && !optionalModuleActive('service'));
+    if (isMobileUi() || (mode !== 'aussendienst' && specialModeUnavailable)) mode = 'aussendienst';
     if (!MODE_CONFIG[mode]) mode = 'aussendienst';
     const cfg = MODE_CONFIG[mode];
     const enteringService = mode === 'service' && previousMode !== 'service';
@@ -1283,7 +1302,7 @@ export function initSidebar() {
     initSheetGrip();
     restoreSheetHeight();
     initMobileNextStep();
-    initServiceOptIn();
+    initOptionalModuleOptIns();
     initDepth();
     syncTopnavPlacement();
     applyDataPanelLayout();

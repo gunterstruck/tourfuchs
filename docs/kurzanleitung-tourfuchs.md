@@ -141,10 +141,11 @@ Auf dem Smartphone stehen Karte und Tour im Mittelpunkt.
 - Eine eingeblendete Android/iOS-**System-Navigationsleiste** verdeckt das Blatt
   nicht mehr – Hinweise und Bedienelemente liegen darüber.
 
-Der Service-Modus ist ein optionales Modul: im Profi-Modus unten in der
-Gebietsplanung per Häkchen einblendbar.
+Gebietsmanagement und Service-Vertragsradar sind optionale Module. Sie werden
+am Desktop unter **Profi → Optionale Profi-Module** einzeln aktiviert.
 
-Komplexe Gebietsplanung bitte am Desktop durchführen.
+Karte, Kunden, Briefing und Tour bleiben der normale Basis-Ablauf. Komplexe
+Gebietsplanung bitte am Desktop durchführen.
 
 ![Mobile Lasso-Auswahl mit vollständig sichtbaren Abschlussaktionen](../public/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png)
 

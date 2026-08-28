@@ -182,10 +182,23 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
     });
 
-    it('am Desktop entfällt die mobile-only Empfangs-Story', () => {
+    it('am fokussierten Desktop entfallen Empfangs- und deaktivierte Modul-Stories', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor']);
+        expect(ids).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'chancen', 'tresor']);
         expect(ids).not.toContain('empfang');
+        expect(ids).not.toContain('simulation');
+        expect(ids).not.toContain('service-tag');
+    });
+
+    it('zeigt Modul-Stories nur nach der passenden Aktivierung', () => {
+        const territory = visibleStories({ isDesktop: true, territoryPlanningEnabled: true }).map((s) => s.id);
+        const service = visibleStories({ isDesktop: true, serviceEnabled: true }).map((s) => s.id);
+        const both = visibleStories({ isDesktop: true, territoryPlanningEnabled: true, serviceEnabled: true }).map((s) => s.id);
+        expect(territory).toContain('simulation');
+        expect(territory).not.toContain('service-tag');
+        expect(service).toContain('service-tag');
+        expect(service).not.toContain('simulation');
+        expect(both).toEqual(expect.arrayContaining(['simulation', 'service-tag']));
     });
 
     it('am Smartphone entfallen die desktop-only Stories, dafür kommt die Empfangs-Story', () => {

@@ -83,8 +83,9 @@ const FORMATS = [
         viewport: { width: 1440, height: 900 },
         touch: false,
         erstbildBudget: 36,
-        // Daten, Filter und Tour bzw. Gebiete, je Modus und Tiefe.
-        erwarteteMessungen: 12
+        // Basis/Profi im Außendienst (je Daten, Filter, Tour) plus das bewusst
+        // aktivierte Gebietsmodul in Profi (Daten, Filter, Gebiete).
+        erwarteteMessungen: 9
     }
 ];
 
@@ -101,10 +102,10 @@ const FORMATS = [
  * genau den Knopf, den „Was ist in meiner Nähe?" vorher kostete – das Budget
  * für „tour" bleibt deshalb unverändert.
  *
- * „Service" (Verträge, Einsätze) ist bisher unvermessen: Der Modus
- * verlangt Profi **und** ein Häkchen, das diese Strecke bewusst nicht setzt.
- * Die Budgets stehen trotzdem, damit die Reiter am Tag ihrer Erreichbarkeit
- * nicht ohne Maß dastehen.
+ * Gebietsplanung und Service sind optionale Profi-Module. Diese Strecke misst
+ * den fokussierten Standardzustand und aktiviert danach gezielt nur die
+ * Gebietsplanung. Service bleibt unverändert separat: Die Budgets stehen
+ * trotzdem, damit seine Reiter nicht ohne Maß dastehen.
  */
 const BUDGET = {
     basis: { daten: 12, team: 14, gebiete: 8, tour: 10, vertraege: 16, einsaetze: 16 },
@@ -269,6 +270,29 @@ async function klicke(page, selektor, anlaeufe = 2) {
     return false;
 }
 
+/** Einen Fokus wählen; der normale Außendienst kann bewusst ohne sichtbaren
+ * Modusschalter aktiv sein und ist dann bereits das richtige Ergebnis. */
+async function waehleModus(page, modus) {
+    const selector = `.mode-btn[data-mode="${modus}"]`;
+    const alreadyActive = await page.locator(selector).first().evaluate(
+        (element) => element.classList.contains('active')
+    ).catch(() => false);
+    return alreadyActive || klicke(page, selector);
+}
+
+/** Das seltene Gebietsmodul für seine eigene Aufmerksamkeitsmessung aktivieren.
+ * Der Erstzustand wurde zu diesem Zeitpunkt bereits unverändert gemessen. */
+async function aktiviereGebietsmodul(page) {
+    const checkbox = page.locator('#chk-territory-planning-enabled').first();
+    if (await checkbox.isChecked().catch(() => false)) return true;
+    const details = page.locator('#optional-modules').first();
+    if (!await details.getAttribute('open')) await klicke(page, '#optional-modules summary');
+    if (!await checkbox.isVisible()) return false;
+    await checkbox.check({ timeout: 4000 });
+    await sleep(350);
+    return checkbox.isChecked();
+}
+
 /**
  * Einen Reiter öffnen und das **Ergebnis** abwarten, nicht den Klick.
  *
@@ -374,11 +398,15 @@ async function inspect(browser, format, baseUrl) {
 
     for (const tiefe of ['basis', 'profi']) {
         await klicke(page, `[data-depth="${tiefe}"]`);
-        // Modi sind am Handy nicht wählbar – dort zählt schlicht, was offen ist.
-        const modi = format.touch ? [null] : ['aussendienst', 'gebietsplanung', 'service'];
+        if (!format.touch && tiefe === 'profi') await aktiviereGebietsmodul(page);
+        // Modi sind am Handy nicht wählbar. Am Desktop ist Außendienst der
+        // vollständige Standard; Gebietsplanung kommt nur in Profi nach Opt-in.
+        const modi = format.touch ? [null] : (tiefe === 'profi'
+            ? ['aussendienst', 'gebietsplanung']
+            : ['aussendienst']);
 
         for (const modus of modi) {
-            if (modus && !await klicke(page, `.mode-btn[data-mode="${modus}"]`)) continue;
+            if (modus && !await waehleModus(page, modus)) continue;
             for (const reiter of await offeneReiter(page)) {
                 if (!await oeffneReiter(page, reiter)) continue;
                 const wert = await page.evaluate(PROBE);
@@ -392,7 +420,7 @@ async function inspect(browser, format, baseUrl) {
     // dort in Schritt 1 tippen (= Fokus) und nachsehen, ob „☰ Übersicht" steht.
     let vertiefung = null;
     await klicke(page, '[data-depth="basis"]');
-    if (!format.touch) await klicke(page, '.mode-btn[data-mode="aussendienst"]');
+    if (!format.touch) await waehleModus(page, 'aussendienst');
     if (await oeffneReiter(page, 'tour')) {
         const uebersicht = await page.evaluate(PROBE);
         const getippt = await klicke(page, '#tab-tour .tour-acc[data-acc="start"] .acc-head');

@@ -383,14 +383,17 @@ Die Topbar enthält:
 - dynamisches Tresor-Symbol: einrichten, sperren oder Status anzeigen
 - **"Info & Impressum"** (`i`)
 
-### 4.2 Zwei globale Schalter im Desktop-Panel
+### 4.2 Ansichtstiefe, Außendienst und optionale Profi-Module
 
-1. **"Basis" / "Profi"** steuert die Ansichtstiefe.
-2. **"Außendienst" / "Gebietsplanung" / "Service"** steuert den Arbeitsfokus.
-   Der Fokus **"Service"** ist ein **optionales Modul**: standardmäßig
-   ausgeblendet und erst sichtbar, wenn im Profi-Modus **unten in der
-   Gebietsplanung** das Häkchen „🛡️ Service-Modul anzeigen" gesetzt ist. Die
-   Wahl merkt sich TourFuchs lokal.
+1. **"Basis"** enthält den vollständigen täglichen Außendienst: Kundenkarte,
+   Suche, Filter, Nähe, Tour und beide Briefing-Wege. **"Profi"** bedeutet nicht
+   „erfahrener Außendienst", sondern zusätzliche Spezial- und Verwaltungshilfen.
+2. Unter **"Profi" → "Optionale Profi-Module"** können
+   **"Gebietsplanung & Gebietsmanagement"** und **"Service-Vertragsradar"**
+   getrennt aktiviert werden. Beide sind standardmäßig aus; TourFuchs merkt die
+   Wahl lokal.
+3. Erst danach erscheinen neben **"Außendienst"** die zusätzlichen Arbeitsfoki
+   **"Gebietsplanung"** beziehungsweise **"Service"**.
 
 Tabs im Außendienst: **"Daten"**, **"Filter"**, **"Tour"**.
 
@@ -1773,9 +1776,9 @@ nie von selbst: Wann Feierabend ist, entscheidet der Nutzer.
 
 Der Arbeitsfokus **"Service"** ist ein **optionales Profi-Modul** mit den Tabs
 **"Einsätze"**, **"Verträge"** und **"Tour"**. Er ist standardmäßig ausgeblendet
-und wird erst sichtbar, wenn im Profi-Modus **unten in der Gebietsplanung** das
-Häkchen „🛡️ Service-Modul anzeigen" gesetzt wird (die Wahl wird lokal
-gemerkt). Er hält zwei getrennte Zusatzbestände neben den Kundendaten:
+und wird unter **Profi → Optionale Profi-Module → Service-Vertragsradar**
+aktiviert (die Wahl wird lokal gemerkt). Er hält zwei getrennte Zusatzbestände
+neben den Kundendaten:
 
 **Serviceverträge (Vertragsradar):** eigener Excel-/CSV-Import. Eindeutiger
 Schlüssel ist `Quellsystem + Vertragsnummer`; die Verknüpfung zum Kunden erfolgt
@@ -1997,7 +2000,11 @@ Desktop-only Geschichten und der QR-Sendeschritt werden ausgeblendet.
 
 ### 13.1 Gebietsansicht
 
-**Klickpfad:** `"Gebietsplanung" -> Tab "Gebiete"`.
+**Klickpfad:** `Profi -> Optionale Profi-Module -> Gebietsplanung & Gebietsmanagement aktivieren -> Gebietsplanung -> Tab Gebiete`.
+
+Die Aktivierung ist standardmäßig aus. Bezirke, Bezirksfarben und operative
+Filter bleiben im Außendienst sichtbar; nur strukturelle Analyse und Änderung
+liegen hinter diesem Modul.
 
 Gebietsebenen:
 
