@@ -231,7 +231,7 @@ describe('Kein drittes Gesicht im JavaScript', () => {
 
     it('nimmt der Touransicht überall denselben Funktionsumfang', () => {
         const sidebar = read('src/ui/sidebar.js');
-        expect(sidebar).toContain("if (isMobileUi() || (mode === 'service' && state.ui.depth !== 'profi')) mode = 'aussendienst';");
+        expect(sidebar).toContain("if (isMobileUi() || (mode !== 'aussendienst' && specialModeUnavailable)) mode = 'aussendienst';");
         const tabInMode = sidebar.slice(sidebar.indexOf('function tabInMode'), sidebar.indexOf('function tabInMode') + 320);
         expect(tabInMode).toContain('if (isMobileUi())');
     });

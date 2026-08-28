@@ -265,6 +265,7 @@ export const STORIES = [
     },
     {
         id: 'simulation',
+        optionalModule: 'territoryPlanning',
         icon: '🧪',
         title: 'Was wäre wenn? Gebiete umbauen – ohne Risiko',
         blurb: 'Testweise umverteilen, Wirkung sofort sehen.',
@@ -289,6 +290,7 @@ export const STORIES = [
     },
     {
         id: 'service-tag',
+        optionalModule: 'service',
         icon: '🛠️',
         title: 'Dein Service-Tag, verständlich geplant',
         blurb: 'Einsätze rein – erklärbarer Tagesplan raus.',
@@ -402,12 +404,18 @@ export const STORIES = [
  *   gibt – Gebietsplanung – oder die dort sinnlos sind – Tour AN das Handy
  *   senden, während man schon am Handy ist).
  * - `mobileOnly` entfällt am Desktop (z. B. Daten AUFS Handy empfangen).
- * @param {{isDesktop?: boolean}} [opts]
+ * @param {{isDesktop?: boolean, territoryPlanningEnabled?: boolean, serviceEnabled?: boolean}} [opts]
  */
-export function visibleStories({ isDesktop = true } = {}) {
+export function visibleStories({
+    isDesktop = true,
+    territoryPlanningEnabled = false,
+    serviceEnabled = false
+} = {}) {
     return STORIES.filter((s) => {
         if (s.desktopOnly && !isDesktop) return false;
         if (s.mobileOnly && isDesktop) return false;
+        if (s.optionalModule === 'territoryPlanning' && !territoryPlanningEnabled) return false;
+        if (s.optionalModule === 'service' && !serviceEnabled) return false;
         return true;
     });
 }

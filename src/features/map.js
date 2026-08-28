@@ -41,6 +41,7 @@ import {
     customerMarkerModeClass
 } from './customerMarkers.js';
 import { openRegionEditor } from '../ui/regionEditor.js';
+import { optionalModuleActive } from './optionalModules.js';
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 
@@ -543,9 +544,9 @@ export function initMap(containerId) {
         // Gebietszuordnung direkt im Gebiets-Popup (Vertriebsbezirk)
         el.querySelectorAll('select[data-terr]').forEach((sel) => {
             sel.addEventListener('change', () => {
-                if (isMobileMap() || state.ui.depth !== 'profi') {
+                if (isMobileMap() || state.ui.depth !== 'profi' || !optionalModuleActive('territoryPlanning')) {
                     map.closePopup();
-                    emit('toast', { type: 'info', text: 'Gebiete lassen sich am Desktop im Profi-Modus bearbeiten.' });
+                    emit('toast', { type: 'info', text: 'Gebiete lassen sich im aktivierten Profi-Modul am Desktop bearbeiten.' });
                     return;
                 }
                 setTerritory(sel.dataset.level, sel.dataset.key, sel.dataset.terr, sel.value, sel.dataset.name);
@@ -1350,7 +1351,7 @@ function renderLabels() {
 /** Zuweisung für die ganze Fläche eines Gebiets */
 function territoryAssignHtml(feature) {
     if (simulationPreview) return '';
-    if (isMobileMap() || state.ui.depth !== 'profi') return '';
+    if (isMobileMap() || state.ui.depth !== 'profi' || !optionalModuleActive('territoryPlanning')) return '';
     const name = regionName(state.level, feature);
     const key = regionKey(state.level, feature);
     const terr = getTerritory(state.level, key) || {};

@@ -610,9 +610,10 @@ function updatePlannerVisibility() {
 }
 
 /**
- * Basis- vs. Experten-Modus. Basis zeigt nur das Essenzielle (Bezirk, „In meiner
- * Nähe", Start, Umkreis-Vorschläge, Tour + Google Maps). Experte blendet Ziel/
- * Korridor, Kartenansicht, Rundreise, Export und gespeicherte Touren ein.
+ * Basis- vs. Experten-Modus. Der vollständige operative Tourweg – optionales
+ * Ziel, Korridor, Rundreise, Karte, Übergabe und Kalender – gehört in beide
+ * Tiefen. Profi ergänzt nur seltene Komfortwerkzeuge wie Druck, Textkopie und
+ * gespeicherte Touren; die Tiefe darf keinen Tourzustand verändern.
  */
 function applyTourMode(mode, doEmit = true) {
     tourExpert = mode === 'expert';
@@ -630,12 +631,6 @@ function applyTourMode(mode, doEmit = true) {
     const mh = document.getElementById('mytour-head');
     if (sh) sh.textContent = '2. Vorschläge';
     if (mh) mh.textContent = '3. Meine Tour';
-    if (!tourExpert) {
-        // Basis: nur Umkreis-Vorschläge, kein Ziel
-        state.tour.suggestMode = 'radius';
-        if (state.tour.destination) invalidateAcceptedServicePlan();
-        state.tour.destination = null;
-    }
     updateSuggestModeUi();
     applyHiddenExpertSections();
     if (doEmit) emit('tour:changed');

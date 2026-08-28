@@ -20,6 +20,7 @@ import { state, emit, on, attrColor, setCustomers, setTerritory, getTerritory, g
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
 import { exportReassignments } from '../services/excel.js';
 import { fairness, regionMembership } from '../features/territory.js';
+import { optionalModuleActive } from '../features/optionalModules.js';
 import {
     buildSimulationReport,
     printSimulationReport,
@@ -70,13 +71,15 @@ let openSequence = 0;
 const mobilePlanningQuery = mobilePlanningMediaQuery();
 
 function expertPlanningAvailable() {
-    return desktopPlanningAvailable() && state.ui.depth === 'profi';
+    return desktopPlanningAvailable()
+        && state.ui.depth === 'profi'
+        && optionalModuleActive('territoryPlanning');
 }
 
 function showPlanningHint() {
     const text = desktopPlanningAvailable()
-        ? 'Gebietsplanung und Simulation sind im Profi-Modus verfügbar.'
-        : 'Gebietsplanung und Simulation sind am Desktop im Profi-Modus verfügbar.';
+        ? 'Aktiviere unter „Optionale Profi-Module“ die Gebietsplanung.'
+        : 'Gebietsplanung und Simulation sind im aktivierten Profi-Modul am Desktop verfügbar.';
     showToast(text, 'info');
 }
 
@@ -263,6 +266,14 @@ export function initCockpit() {
     });
     on('depth:changed', () => {
         if (state.ui.depth === 'profi') return;
+        openSequence += 1;
+        const wasVisible = dialog.open || simulationMapActive;
+        if (dialog.open) dialog.close();
+        if (simulationMapActive) hideSimulationMap();
+        if (wasVisible) showPlanningHint();
+    });
+    on('optional-modules:changed', ({ moduleId, enabled } = {}) => {
+        if (moduleId !== 'territoryPlanning' || enabled) return;
         openSequence += 1;
         const wasVisible = dialog.open || simulationMapActive;
         if (dialog.open) dialog.close();

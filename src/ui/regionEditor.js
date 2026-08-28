@@ -17,6 +17,7 @@ import { pointInFeature } from '../services/geodata.js';
 import { saveDataset } from '../services/storage.js';
 import { showToast } from './toast.js';
 import { desktopPlanningAvailable, mobilePlanningMediaQuery } from './planningViewport.js';
+import { optionalModuleActive } from '../features/optionalModules.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -35,7 +36,7 @@ const mobilePlanningQuery = mobilePlanningMediaQuery();
 function closeUnavailableEditor() {
     if (!dialog?.open) return;
     dialog.close();
-    showToast('Der Gebiets-Editor wurde geschlossen. Bearbeitung ist am Desktop im Profi-Modus verfügbar.', 'info');
+    showToast('Der Gebiets-Editor wurde geschlossen. Bearbeitung ist im aktivierten Profi-Modul am Desktop verfügbar.', 'info');
 }
 
 export function initRegionEditor() {
@@ -62,6 +63,9 @@ export function initRegionEditor() {
     on('depth:changed', () => {
         if (state.ui.depth !== 'profi') closeUnavailableEditor();
     });
+    on('optional-modules:changed', ({ moduleId, enabled } = {}) => {
+        if (moduleId === 'territoryPlanning' && !enabled) closeUnavailableEditor();
+    });
 }
 
 /** Kunden in einem Gebiet ermitteln (unabhängig von Team-Filtern) */
@@ -76,10 +80,10 @@ function customersInRegion() {
 }
 
 export function openRegionEditor(context) {
-    if (!desktopPlanningAvailable() || state.ui.depth !== 'profi') {
+    if (!desktopPlanningAvailable() || state.ui.depth !== 'profi' || !optionalModuleActive('territoryPlanning')) {
         const text = desktopPlanningAvailable()
-            ? 'Der Gebiets-Editor ist im Profi-Modus verfügbar.'
-            : 'Der Gebiets-Editor ist am Desktop im Profi-Modus verfügbar.';
+            ? 'Aktiviere unter „Optionale Profi-Module“ die Gebietsplanung.'
+            : 'Der Gebiets-Editor ist im aktivierten Profi-Modul am Desktop verfügbar.';
         showToast(text, 'info');
         return;
     }
