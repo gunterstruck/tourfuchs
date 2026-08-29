@@ -193,7 +193,7 @@ brauchbares Ergebnis, kein enttäuschendes.
 | **Eine Entscheidung hält alles an** – Einwilligung, „Bestand ersetzen", Import-Ergebnis, verschlüsselter Export/Empfang, Tresor-Sperrbildschirm | 6 | Blockieren ist der Zweck |
 | **Eigenes Ziel, Kontext irrelevant** – Import-Strecke (5), Info, Live-Demos, QR-Übergabe (2), Feierabend-Rückblick | 10 | Der Dialog *ist* der Gedanke |
 | **Eigene Arbeitsfläche** – Cockpit, Vertragsradar | 2 | Vollbild ist richtig; das Cockpit hat sogar „Zur Karte" |
-| **Vertiefung eines Kartenobjekts** – Gebiets-Editor, Kunden-Briefing, Gebiets-Briefing, „Das sagt Ihre Liste" | 4 | genauer angesehen |
+| **Vertiefung eines Kartenobjekts** – Gebiets-Editor, Kunden-Briefing, Mehrkunden-Briefing, „Das sagt Ihre Liste" | 4 | genauer angesehen |
 
 ### Der eine Defekt: der Gebiets-Editor
 
@@ -214,7 +214,7 @@ nicht-modale Karte über der Landkarte und lässt sie bedienbar.
 
 ### Die drei, die bleiben, wie sie sind
 
-**Kunden- und Gebiets-Briefing** sind Textblöcke zum Lesen und Kopieren. Der
+**Kunden- und Mehrkunden-Briefing** sind Textblöcke zum Lesen und Kopieren. Der
 Kunde ist im Dialog benannt; die Karte dahinter trägt nichts zu der Entscheidung
 bei, die dort ansteht („kopieren oder nicht"). Mittlerer Aufwand, kaum Gewinn.
 

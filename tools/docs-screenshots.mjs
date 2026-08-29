@@ -26,8 +26,8 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT = resolve(ROOT, 'public/docs/screenshots');
 const FIXTURE = readFileSync(resolve(ROOT, 'tools/fixtures/docs-screenshot-customers.tsv'), 'utf8');
-const APP_VERSION = '3.3.0';
-const CAPTURE_DATE = '2026-08-11';
+const APP_VERSION = '3.5.0';
+const CAPTURE_DATE = '2026-08-29';
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
 const DESKTOP = { name: 'desktop', width: 1440, height: 900, hasTouch: false };

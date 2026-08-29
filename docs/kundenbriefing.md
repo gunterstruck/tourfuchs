@@ -136,7 +136,7 @@ Die Einträge gelten für **beide** Briefings; geändert werden sie in dem Dialo
 in dem sie gerade auffallen. Die Wirkung ist sofort im angezeigten Prompt
 sichtbar – man muss sie nicht im Assistenten nachprüfen.
 
-## Gebiets-Briefing: „Wen zuerst?"
+## Mehrkunden-Briefing: „Wen zuerst?"
 
 Die häufigere Frage im Außendienst ist nicht „erzähl mir alles über einen Kunden",
 sondern **„ich bin hier – wen von diesen besuche ich zuerst?"**. Genau das kann
@@ -157,7 +157,7 @@ sind keine Kreise; ein Radius nimmt immer zu viel oder zu wenig mit. Einzelheite
 zum Werkzeug: [Lasso](./lasso.md).
 
 Fachlich sind es zwei getrennte Schritte: Das Lasso erzeugt ausschließlich die
-Kundenauswahl. Erst **„Briefing über alle"** öffnet den Gebiets-Briefing-Ablauf,
+Kundenauswahl. Erst **„Briefing über alle"** öffnet den Mehrkunden-Briefing-Ablauf,
 der den Prompt lokal vorbereitet und zur Prüfung zeigt.
 
 Der Ablauf ist derselbe wie beim Kundenbriefing: lokal bauen, vollständig zeigen,
@@ -192,7 +192,7 @@ Liegen im Gebiet nur Demo-Kunden, wird kein Prompt gebaut und kein Assistent ge�
 4. Demo-Kunde → Demo-Vorschau, kein Fenster öffnet sich, nichts wird kopiert.
 5. Nach dem ersten Start sind `tourfuchs:copilot-config:v1` und
    `tourfuchs:copilot-consent:v1` nicht mehr im Local Storage.
-6. Gebiets-Briefing: Startpunkt setzen, Umkreis so wählen, dass mindestens zwei
+6. Mehrkunden-Briefing: Startpunkt setzen, Umkreis so wählen, dass mindestens zwei
    eigene Kunden erscheinen → **🧭 Wen zuerst?** wird sichtbar; der Dialog listet
    dieselben Kunden auf, die im Prompt stehen.
 7. Umkreis auf einen einzigen Kunden verkleinern → der Knopf verschwindet wieder.

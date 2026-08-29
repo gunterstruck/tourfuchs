@@ -34,7 +34,7 @@ Dass zwei Wege zum selben Dialog führen, ist Absicht: **geplant** am Schreibtis
    man zurückkommen muss. Beim Loslassen schließt sich die Form, die getroffenen
    Kunden leuchten auf – und es erscheint eine **Auswahlkarte im Gewand der
    Kundenkarte**: Anzahl, fällige Kunden, Umsatz, Orte, die ersten Namen.
-3. **📋 Briefing über alle.** Öffnet das [Gebiets-Briefing](./kundenbriefing.md)
+3. **📋 Briefing über alle.** Öffnet das [Mehrkunden-Briefing](./kundenbriefing.md)
    als Modal – genau wie beim einzelnen Kunden. Dort steht der fertige Prompt,
    wird kopiert, und der Assistent wird geöffnet.
 
@@ -166,7 +166,7 @@ und nicht in der Simulationsansicht.
 
 Nichts Eigenes. Das Lasso liefert ausschließlich die **Auswahl**; Prompt,
 Deckelung auf zwölf Kunden, Datenschutzzusage und Demo-Sperre kommen unverändert
-aus dem [Gebiets-Briefing](./kundenbriefing.md). Die Kunden werden vom
+aus dem [Mehrkunden-Briefing](./kundenbriefing.md). Die Kunden werden vom
 Flächenmittelpunkt nach außen sortiert übergeben – wer am nächsten an dem liegt,
 was markiert wurde, steht zuerst im Prompt.
 
@@ -205,7 +205,7 @@ beantwortet nur der sichtbare Prompt.
 3. Fläche um mehrere Kunden ziehen → die Spur folgt dem Finger, die Fläche
    bleibt liegen, Treffer leuchten, die Auswahlkarte nennt Zahl und Kennwerte,
    Modus ist wieder aus.
-4. **📋 Briefing über alle** → Gebiets-Briefing mit „die von mir auf der Karte
+4. **📋 Briefing über alle** → Mehrkunden-Briefing mit „die von mir auf der Karte
    markierte Fläche" als Gebiet.
 5. Profi-Modus: zwei Zeilen anhaken → der Knopf heißt **🚩 2 zur Tour**;
    drücken → die zwei stehen in der Tour, in der Liste mit ✓ **in Tour**, die

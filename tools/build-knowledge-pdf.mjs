@@ -25,6 +25,7 @@ const SOURCE = resolve(ROOT, 'docs/guide-ki-wissensbasis.md');
 const IMAGE_DIR = resolve(ROOT, 'public/docs/screenshots');
 const WORK = resolve(ROOT, 'work/pdf');
 const OUTPUT = resolve(ROOT, 'TourFuchs_KI-Agent_Wissensbasis.pdf');
+const PACKAGE = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8'));
 
 async function optionalImport(packageName, explicitPath, help) {
     try {
@@ -52,7 +53,10 @@ function imageTitle(fileName) {
     return fileName.replace(/\.png$/i, '').replace(/-/g, ' ');
 }
 
-const markdown = pdfSafeText(readFileSync(SOURCE, 'utf8'));
+const sourceMarkdown = readFileSync(SOURCE, 'utf8');
+const guideVersion = sourceMarkdown.match(/^\*\*Version\s+([^·*\n]+)/m)?.[1]?.trim() ?? PACKAGE.version;
+const captureDate = sourceMarkdown.match(/Stand:\s*(\d{2}\.\d{2}\.\d{4})/)?.[1] ?? '29.08.2026';
+const markdown = pdfSafeText(sourceMarkdown);
 let content = await marked.parse(markdown, { gfm: true });
 // Bild und direkt folgende Bildunterschrift auf derselben Seite halten.
 content = content.replace(
@@ -65,7 +69,7 @@ const appendix = imageFiles.map((name) => `
     <article class="visual-page">
         <h2>${imageTitle(name)}</h2>
         <img src="${pathToFileURL(resolve(IMAGE_DIR, name)).href}" alt="${imageTitle(name)}">
-        <p>App-Version 3.3.0 - Aufnahme 09.08.2026 - ausschließlich Demo-/synthetische Testdaten.</p>
+        <p>App-Version ${PACKAGE.version} - Aufnahme ${captureDate} - ausschließlich Demo-/synthetische Testdaten.</p>
     </article>`).join('');
 
 const html = `<!doctype html>
@@ -142,7 +146,7 @@ try {
         format: 'A4',
         printBackground: true,
         displayHeaderFooter: true,
-        headerTemplate: '<div style="font:8px Arial;color:#60717a;width:100%;padding:0 15mm;">TourFuchs Vertrieb - KI-Guide - Version 3.2</div>',
+        headerTemplate: `<div style="font:8px Arial;color:#60717a;width:100%;padding:0 15mm;">TourFuchs Vertrieb - KI-Guide - Version ${guideVersion}</div>`,
         footerTemplate: '<div style="font:8px Arial;color:#60717a;width:100%;padding:0 15mm;text-align:right;"><span class="pageNumber"></span> / <span class="totalPages"></span></div>',
         margin: { top: '17mm', right: '15mm', bottom: '18mm', left: '15mm' }
     });

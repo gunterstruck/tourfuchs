@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 09.08.2026 · App-Version 3.3.0
+Stand: 29.08.2026 · App-Version 3.5.0
 
 ## 1. Ziel der Schulung
 
@@ -8,11 +8,12 @@ Diese Schulung befähigt Anwenderinnen und Anwender, TourFuchs Vertrieb sicher i
 
 - Kundendaten aus Excel importieren und prüfen können
 - die Karte, Filter und Suchfunktionen sicher bedienen
-- Vertriebsbezirke und Vertriebsgruppen interpretieren können
-- das Gebiets-Cockpit für Analyse und Was-wäre-wenn-Simulation nutzen können
+- Vertriebsbezirke und Vertriebsgruppen als Orientierung interpretieren können
 - Besuchstouren auf Desktop und Smartphone planen können
-- mit dem Lasso mehrere Kunden auswählen und daraus bewusst ein Gebiets-Briefing vorbereiten können
-- Kunden- und Gebiets-Briefing sowie Basis-/Profi-Unterschiede sicher erklären können
+- mit dem Lasso mehrere Kunden auswählen und daraus bewusst ein Mehrkunden-Briefing vorbereiten können
+- Kunden- und Mehrkunden-Briefing sowie Basis-/Profi-Unterschiede sicher erklären können
+- optionale Profi-Module gezielt aktivieren können
+- bei Bedarf das Gebiets-Cockpit und Simulation als optionale Vertiefung nutzen können
 - Datenschutz, lokale Speicherung und PWA-Verhalten verstehen
 - typische Fehler selbst erkennen und beheben können
 
@@ -29,6 +30,7 @@ Der Außendienst nutzt TourFuchs vor allem mobil:
 - Tagesroute planen
 - Route an Google Maps übergeben
 - Kundeninformationen unterwegs ansehen
+- ein Kunden- oder Mehrkunden-Briefing für den internen KI-Assistenten vorbereiten
 
 Auf Smartphones ist die App bewusst reduziert. Komplexe Gebietsplanung steht dort nicht im Mittelpunkt.
 
@@ -70,17 +72,17 @@ Wichtig: Ein Browserwechsel, Gerätewechsel oder das Löschen der Browserdaten k
 
 Desktop:
 
-- Datenimport
-- Gebietsplanung
-- Cockpit
-- Simulation
-- Auswertung
+- Kundenkarte, Suche und Datenimport
+- Tourplanung und Übergabe
+- Kunden- und Mehrkunden-Briefing
+- optional nach Aktivierung: Gebietsplanung, Cockpit, Simulation und Service
 
 Smartphone:
 
 - Karte
 - Tour
 - Kundeninformationen
+- Kunden in der Nähe und Briefing
 - Navigation
 
 Das ist kein Nachteil, sondern eine Produktentscheidung: Analyse gehört an den großen Bildschirm, Navigation in die mobile Ansicht.
@@ -109,14 +111,22 @@ Oben befinden sich:
 - Mobile-Vorschau
 - Info und Rechtliches
 
-### Moduswechsel
+### Arbeitsfokus und optionale Module
 
-Links oben im Bedienpanel stehen zwei Hauptmodi:
+TourFuchs startet im Arbeitsfokus **Außendienst**. Dieser Fokus enthält den
+vollständigen täglichen Kern: Kunden sehen und finden, Tour planen und Briefing
+vorbereiten. Strategische Spezialbereiche konkurrieren standardmäßig nicht mit
+diesem Ablauf.
 
-- Außendienst
-- Gebietsplanung
+Unter **Profi -> Optionale Profi-Module** können am Desktop einzeln aktiviert
+werden:
 
-Der Modus bestimmt, welche Tabs sichtbar sind.
+- **Gebietsplanung & Gebietsmanagement**
+- **Service-Vertragsradar**
+
+Erst danach erscheinen die entsprechenden zusätzlichen Arbeitsfokusse. Das
+Deaktivieren blendet sie wieder aus; Kunden- und Tourdaten werden dadurch nicht
+gelöscht.
 
 ### Außendienst-Modus
 
@@ -128,7 +138,7 @@ Typische Tabs:
 
 Der Außendienst-Modus ist für Kundenkarte und Besuchsplanung optimiert.
 
-### Gebietsplanung-Modus
+### Gebietsplanung-Modus (optionales Profi-Modul)
 
 Typische Tabs:
 
@@ -140,9 +150,11 @@ Der Gebietsplanung-Modus ist für Analyse, Flächen, Cockpit und Simulation geda
 
 ### Basis und Profi
 
-**Basis** zeigt den ruhigen Kernweg. Beim Briefing ist Microsoft 365 Copilot das
-feste Ziel. **Profi** ergänzt unter anderem Ziel, Exporte, Analysewerkzeuge und
-die Wahl des Zielassistenten. Das Briefing selbst ist in beiden Tiefen
+**Basis** zeigt den vollständigen ruhigen Außendienstweg und reicht auch für
+erfahrene Außendienstmitarbeitende. Beim Briefing ist Microsoft 365 Copilot das
+feste Ziel. **Profi** ergänzt Spezial-, Konfigurations- und
+Administrationswerkzeuge sowie die Wahl des Zielassistenten. Profi bedeutet
+nicht „besserer Außendienst". Das Briefing selbst ist in beiden Tiefen
 verfügbar.
 
 ![Profi-Kundenbriefing mit sichtbarer Zielzeile](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
@@ -284,7 +296,7 @@ Für Schulungen empfiehlt sich der Demo-Modus:
 
 Vorteil: Alle Teilnehmenden sehen dieselbe Datenbasis, ohne echte Kundendaten verwenden zu müssen.
 
-Solange Beispieldaten laufen, weist eine ruhige Hinweiskarte mittig über der Karte darauf hin („Das sind Beispieldaten") und bietet „Eigene Daten laden" sowie „Kurze Live-Demos ansehen" an; ein Klick auf „Verstanden – erst umsehen" legt sie beiseite. Für die Vorführung eignen sich die geführten Live-Demos (ein sichtbarer Zeiger bedient die echte App, je ~30–60 s): u. a. „Von der Excel-Liste zur Kundenkarte" (führt am Schreibtisch das Einfügen aus Excel vor), „Deine Tour, Schritt für Schritt", „Aufs Handy – ohne Kabel, ohne Cloud" und „Dein Service-Tag, verständlich geplant".
+Solange Beispieldaten laufen, weist eine ruhige Hinweiskarte mittig über der Karte darauf hin („Das sind Beispieldaten") und bietet „Eigene Daten laden" sowie „Kurze Live-Demos ansehen" an; ein Klick auf „Verstanden – erst umsehen" legt sie beiseite. Die Bibliothek enthält zehn geführte Geschichten. Für den Kernweg eignen sich besonders „Von der Excel-Liste zur Kundenkarte", „Fläche umfahren, Briefing bekommen", „Ein Prompt, deine KI", „Deine Tour, Schritt für Schritt" und „Aufs Handy – ohne Kabel, ohne Cloud". Gebiets- und Service-Geschichten erscheinen nur, wenn das jeweilige optionale Modul aktiviert ist. Ein sichtbarer Zeiger bedient die echte App; eine Live-Demo ist kein Video.
 
 ## 9. Karte verstehen
 
@@ -306,9 +318,10 @@ Klick auf einen Kunden zeigt:
 
 *BILD-KUNDE-01 - Für einen einzelnen Kunden ist „Briefing" in dessen Kundenkarte der passende Weg.*
 
-### Gebietsflächen
+### Gebietsflächen (optionale Vertiefung)
 
-In der Gebietsplanung können Flächen eingeblendet werden:
+Nach Aktivierung von **Profi -> Optionale Profi-Module -> Gebietsplanung &
+Gebietsmanagement** können am Desktop Flächen eingeblendet werden:
 
 - Landkreise
 - PLZ 1-stellig
@@ -328,10 +341,10 @@ Der Kartenstil kann gewechselt werden:
 
 Hell ist am besten für Datenanalyse. Standard und Satellit helfen bei realer Orientierung.
 
-### Zentraler Workflow: Lasso -> Auswahl -> Gebiets-Briefing
+### Zentraler Workflow: Lasso -> Auswahl -> Mehrkunden-Briefing
 
 > Eine Geste um eine reale Region wird zur Auswahl mehrerer Kunden; TourFuchs
-> erstellt daraus ein strukturiertes Gebiets-Briefing für den internen
+> erstellt daraus ein strukturiertes Mehrkunden-Briefing für den internen
 > KI-Assistenten des Nutzers.
 
 ![Kartenansicht mit dem Bedienelement Lasso ziehen](../public/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png)
@@ -345,7 +358,7 @@ Der Ablauf wird in der Schulung bewusst in zwei fachliche Stufen getrennt:
    hervorgehoben und in einer Auswahlkarte zusammengefasst. Das Lasso erzeugt
    **noch keinen Prompt**.
 2. **Briefing vorbereiten:** Auswahl prüfen und **„Briefing über alle"** wählen.
-   Erst jetzt öffnet TourFuchs das Gebiets-Briefing, baut den Prompt lokal und
+   Erst jetzt öffnet TourFuchs das Mehrkunden-Briefing, baut den Prompt lokal und
    zeigt ihn zur Prüfung.
 3. **Bewusst übergeben:** „Prompt kopieren & Microsoft 365 Copilot öffnen" in
    Basis beziehungsweise das gewählte Ziel in Profi. Der Nutzer fügt den Prompt
@@ -355,7 +368,7 @@ Der Ablauf wird in der Schulung bewusst in zwei fachliche Stufen getrennt:
 
 *BILD-LASSO-04 - Anzahl, Kennzahlen und Namen zuerst prüfen; „Briefing über alle" ist der bewusste Übergang zur Prompt-Vorbereitung.*
 
-![Gebiets-Briefing mit aufgeklapptem vollständigem Prompt](../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png)
+![Mehrkunden-Briefing mit aufgeklapptem vollständigem Prompt](../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png)
 
 *BILD-LASSO-05 - Der Prompt entsteht im Briefing und ist vor dem Kopieren vollständig einsehbar.*
 
@@ -390,6 +403,10 @@ Für den Alltag ist besonders wichtig:
 
 ## 11. Gebietsplanung am Desktop
 
+Dieses Kapitel ist eine optionale Vertiefung. Voraussetzung ist:
+`Profi -> Optionale Profi-Module -> Gebietsplanung & Gebietsmanagement
+aktivieren`. Die täglichen Außendienstaufgaben benötigen das Modul nicht.
+
 ### Gebietsebene wählen
 
 Im Tab Gebiete:
@@ -415,6 +432,8 @@ Die automatische Ansicht reduziert visuelle Überladung:
 - naher Zoom: einzelne Kunden
 
 ## 12. Gebiets-Cockpit
+
+Das Cockpit gehört zum optionalen Modul **Gebietsplanung & Gebietsmanagement**.
 
 Das Gebiets-Cockpit ist das Analysezentrum für die Gebietsplanung. Es öffnet als reine KPI-Analyse; die Was-wäre-wenn-Simulation darunter ist eingeklappt und wird bei Bedarf aufgeklappt (erst der Überblick, dann die Details).
 
@@ -637,7 +656,7 @@ Nicht gesendet werden:
 
 Bei Übergabe an Google Maps verlassen Routendaten die App. Ab diesem Moment gelten die Datenschutzbedingungen von Google.
 
-### Kunden- und Gebiets-Briefing
+### Kunden- und Mehrkunden-Briefing
 
 TourFuchs erzeugt den Prompt lokal, zeigt ihn und kopiert ihn auf bewussten
 Klick. TourFuchs meldet sich an keinem KI-Dienst an und ruft keine KI-API auf.
@@ -755,7 +774,10 @@ Inhalte:
 - Karte zoomen
 - Kartenstil wechseln
 
-### Modul 4: Gebietsplanung (45 Minuten)
+### Modul 4: Gebietsplanung (optionale Vertiefung, 45 Minuten)
+
+Voraussetzung: Am Desktop unter `Profi -> Optionale Profi-Module` das Modul
+**Gebietsplanung & Gebietsmanagement** aktivieren.
 
 Inhalte:
 
@@ -772,7 +794,7 @@ Inhalte:
 - Gebiet anklicken
 - Umsatzsumme interpretieren
 
-### Modul 5: Gebiets-Cockpit und Simulation (45 Minuten)
+### Modul 5: Gebiets-Cockpit und Simulation (optionale Vertiefung, 45 Minuten)
 
 Inhalte:
 
@@ -819,6 +841,7 @@ Inhalte:
 - Bottom Sheet
 - Karte und Tour
 - warum Gebietsplanung mobil reduziert ist
+- Kunden in der Nähe und Briefing unterwegs
 
 Übung:
 
@@ -838,6 +861,10 @@ Inhalte:
 
 ## 24. Übungsaufgaben
 
+Empfohlener Kernpfad für Außendienstschulungen: Aufgaben 1 und 5 sowie eine
+Briefing-Übung. Aufgaben 2 bis 4 sind optionale Vertiefungen für
+Gebietsverantwortliche.
+
 ### Aufgabe 1: Import prüfen
 
 Lade Demo-Daten oder eine Schulungsdatei und prüfe:
@@ -846,7 +873,7 @@ Lade Demo-Daten oder eine Schulungsdatei und prüfe:
 - Gibt es Fehler?
 - Welche Spalten wurden automatisch erkannt?
 
-### Aufgabe 2: Bezirk analysieren
+### Aufgabe 2: Bezirk analysieren (optional)
 
 Wähle einen Vertriebsbezirk und beantworte:
 
@@ -854,7 +881,7 @@ Wähle einen Vertriebsbezirk und beantworte:
 - Wo liegen Cluster?
 - Gibt es auffällige Ausreißer?
 
-### Aufgabe 3: Cockpit lesen
+### Aufgabe 3: Cockpit lesen (optional)
 
 Öffne das Gebiets-Cockpit:
 
@@ -862,7 +889,7 @@ Wähle einen Vertriebsbezirk und beantworte:
 - Welcher Bezirk ist schwächster Bezirk?
 - Wie stark unterscheidet sich der Balken?
 
-### Aufgabe 4: Simulation durchführen
+### Aufgabe 4: Simulation durchführen (optional)
 
 Wähle ein Gebiet aus und weise es testweise einem anderen Bezirk zu:
 
@@ -890,6 +917,8 @@ Plane eine Tour:
 6. Was ist der Unterschied zwischen Auswahl zuweisen und Zuweisung übernehmen?
 7. Welche Daten werden bei optionaler OSM-Geocodierung gesendet?
 8. Was sollte vor dem Löschen lokaler Daten gemacht werden?
+9. Wo werden Gebietsplanung und Service-Vertragsradar aktiviert?
+10. Ist Basis nur für unerfahrene Außendienstmitarbeitende gedacht?
 
 ## 26. Antworten zu den Prüfungsfragen
 
@@ -899,6 +928,11 @@ Plane eine Tour:
 4. Weil komplexe Analyse am Desktop sinnvoller ist und mobile Nutzung auf Tour/Karte fokussiert ist.
 5. Relative Stärke zum stärksten sichtbaren Wert, abhängig von der Sortierung.
 6. Auswahl zuweisen ist Simulation; Zuweisung übernehmen schreibt dauerhaft.
+7. Nur Straße, PLZ und Ort; keine Kundenidentität oder Geschäftsdaten.
+8. Bei Bedarf einen Excel-Export erstellen.
+9. Am Desktop unter `Profi -> Optionale Profi-Module`.
+10. Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi
+    ergänzt Spezial-, Konfigurations- und Administrationswerkzeuge.
 7. Nur neutrale Adressdaten wie Straße, PLZ und Ort.
 8. Ein Excel-Export, falls die Daten noch gebraucht werden.
 
