@@ -3,6 +3,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
+const appVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 const screenshotDir = join(root, 'public/docs/screenshots');
 const expectedScreenshots = [
   ['BILD-IMPORT-01-eigene-daten-laden.png', 1440, 900],
@@ -138,6 +139,14 @@ for (const [index, document] of knowledgeDocs.entries()) {
     requireCondition(existsSync(resolved), `${knowledgeDocPaths[index]}: Bildlink fehlt: ${target}`);
   }
 }
+
+const guide = knowledgeDocs[0];
+requireCondition(guide.includes(`App-Version: ${appVersion}`), `Guide nennt nicht App-Version ${appVersion}`);
+requireCondition(knowledgeDocs[1].includes(`App-Version ${appVersion}`), `Schulung nennt nicht App-Version ${appVersion}`);
+requireCondition(knowledgeDocs[2].includes(`App-Version ${appVersion}`), `Kurzanleitung nennt nicht App-Version ${appVersion}`);
+requireCondition(guide.includes('Gebietsplanung & Gebietsmanagement'), 'Guide: optionales Gebietsmodul fehlt');
+requireCondition(guide.includes('standardmäßig') && guide.includes('Optionale Profi-Module'), 'Guide: Default-/Aktivierungsregel der Module fehlt');
+requireCondition(guide.includes('Mehrkunden-Briefing'), 'Guide: operative Mehrkunden-Bezeichnung fehlt');
 
 const prompt = readFileSync(join(root, 'docs/custom-gpt-systemprompt.txt'), 'utf8');
 const utf16Length = prompt.length;

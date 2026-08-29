@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Kurzanleitung
 
-Stand: 09.08.2026 · App-Version 3.3.0
+Stand: 29.08.2026 · App-Version 3.5.0
 
 ## 1. App starten
 
@@ -8,8 +8,9 @@ TourFuchs im Browser oder als installierte PWA öffnen.
 
 Wichtig:
 
-- Desktop: Daten, Gebiete, Cockpit, Simulation
-- Smartphone: Karte und Tour
+- Desktop: Kundenkarte, Suche, Briefing, Tour und Daten
+- Smartphone: Kundenkarte, „In der Nähe", Briefing, Tour und Navigation
+- Optional am Desktop: Gebietsplanung und Service-Vertragsradar nach Aktivierung
 
 ## 2. Daten laden
 
@@ -35,12 +36,13 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 - Suche oben für Kunde, Ort, PLZ oder Kundennummer.
 - Marker anklicken, um Kundendetails zu sehen.
 - Kartenstil wechseln: Hell, Standard oder Satellit.
-- Im Gebietsmodus Flächen nach Vertriebsbezirk oder Vertriebsgruppe einfärben.
+- Bezirkszuordnung und Bezirksfarben als Orientierung nutzen.
+- Strategische Flächenwerkzeuge nur bei aktiviertem Profi-Modul verwenden.
 
-## 4. Lasso und Gebiets-Briefing
+## 4. Lasso und Mehrkunden-Briefing
 
 > Eine Geste um eine reale Region wird zur Auswahl mehrerer Kunden; TourFuchs
-> erstellt daraus ein strukturiertes Gebiets-Briefing für den internen
+> erstellt daraus ein strukturiertes Mehrkunden-Briefing für den internen
 > KI-Assistenten des Nutzers.
 
 ![Karte mit dem Bedienelement Lasso ziehen](../public/docs/screenshots/BILD-LASSO-01-kartenansicht-mit-lasso.png)
@@ -51,14 +53,14 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 2. Fläche mit Finger oder Maus umfahren und loslassen.
 3. Treffer in der Auswahlkarte prüfen.
 4. **„Briefing über alle"** wählen.
-5. Im Gebiets-Briefing den vollständigen Prompt prüfen.
+5. Im Mehrkunden-Briefing den vollständigen Prompt prüfen.
 6. Prompt kopieren und Assistent öffnen; dort selbst einfügen, prüfen und senden.
 
 ![Auswahlkarte mit Briefing über alle](../public/docs/screenshots/BILD-LASSO-04-auswahlkarte.png)
 
 *BILD-LASSO-04 - Das Lasso erzeugt nur die Auswahl; erst dieser Knopf öffnet die Prompt-Vorbereitung.*
 
-![Gebiets-Briefing mit sichtbarer Prompt-Vorschau](../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png)
+![Mehrkunden-Briefing mit sichtbarer Prompt-Vorschau](../public/docs/screenshots/BILD-LASSO-05-gebietsbriefing-prompt.png)
 
 *BILD-LASSO-05 - Der Prompt entsteht lokal im Briefing und ist vor dem Kopieren lesbar.*
 
@@ -72,7 +74,7 @@ Wichtig:
 ## 4a. Basis und Profi beim Briefing
 
 - **Basis:** festes Ziel Microsoft 365 Copilot.
-- **Profi:** „Ziel: … · Anderen Assistenten wählen" im Kundenbriefing; die Wahl gilt auch für das Gebiets-Briefing.
+- **Profi:** „Ziel: … · Anderen Assistenten wählen" im Kundenbriefing; die Wahl gilt auch für das Mehrkunden-Briefing.
 
 ![Profi-Briefing mit aufgeklappter Assistentenauswahl](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
@@ -80,9 +82,13 @@ Wichtig:
 
 ## 5. Gebiets-Cockpit
 
-1. Modus Gebietsplanung wählen.
-2. Tab Gebiete öffnen.
-3. Gebiets-Cockpit öffnen.
+Voraussetzung: Desktop und aktiviertes Profi-Modul.
+
+1. `Profi -> Optionale Profi-Module` öffnen.
+2. `Gebietsplanung & Gebietsmanagement` aktivieren.
+3. Modus Gebietsplanung wählen.
+4. Tab Gebiete öffnen.
+5. Gebiets-Cockpit öffnen.
 4. KPI-Karten lesen:
    - Status
    - Top-Bezirk
@@ -93,6 +99,8 @@ Wichtig:
    - Alle anzeigen: vollständige Liste
 
 ## 6. Was-wäre-wenn-Simulation
+
+Diese Spezialfunktion gehört zum aktivierten Modul `Gebietsplanung & Gebietsmanagement`.
 
 1. Ebene wählen, zum Beispiel Landkreise.
 2. Gebiet suchen oder auswählen.
@@ -111,8 +119,8 @@ Der Tourplaner öffnet zuerst als Übersicht: die drei Schritte **Startpunkt ·
 Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
 (volle Fläche), „☰ Übersicht" führt zurück – auf Handy wie Desktop.
 
-1. Modus Außendienst wählen.
-2. Tab Tour öffnen. Unterwegs (Handy, Tablet hochkant) entfällt dieser Schritt:
+1. Außendienst öffnen (Standardzustand).
+2. Am Desktop Tab Tour öffnen. Unterwegs (Handy, Tablet hochkant) entfällt dieser Schritt:
    Dort ist die Tour der einzige Bereich – Blatt aufziehen genügt.
 3. Startpunkt setzen. (Geplant wird über **alle Vertriebsbezirke** – nur wer
    einschränken will, tippt auf die Zeile „🗺️ Bezirk: Alle Bezirke · ändern ▸".)

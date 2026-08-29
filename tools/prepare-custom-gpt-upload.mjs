@@ -19,16 +19,18 @@ for (const [source, name] of sources) {
 }
 
 const guide = readFileSync(join(root, 'docs/guide-ki-wissensbasis.md'), 'utf8');
-const version = guide.match(/^\*\*Version:\*\*\s*([^\n]+)/m)?.[1]?.trim() ?? 'unbekannt';
+const version = guide.match(/^\*\*Version\s+([^·*\n]+)/m)?.[1]?.trim() ?? 'unbekannt';
 const appVersion = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version;
 writeFileSync(
   join(target, 'README.md'),
-  `# TourFuchs - Dateien fuer den Custom GPT\n\n` +
+  `# TourFuchs - Export fuer Guided Agent / Custom GPT\n\n` +
     `Generierter Uploadstand: Wissensbasis ${version}, App ${appVersion}.\n\n` +
     `Diese Kopien nicht direkt bearbeiten. Die Quellen liegen unter \`docs/\` sowie im Repository-Stamm. ` +
     `Nach jeder Aenderung zuerst \`npm run docs:pdf\` und danach \`npm run docs:gpt-upload\` ausfuehren.\n\n` +
-    `Den Inhalt von \`custom-gpt-systemprompt.txt\` in das Feld fuer die Anweisungen kopieren; ` +
-    `die uebrigen Markdown- und PDF-Dateien als Wissen hochladen.\n`,
+    `1. Den Inhalt von \`custom-gpt-systemprompt.txt\` in das Feld fuer die Anweisungen kopieren.\n` +
+    `2. Die vier Markdown-Dateien und die PDF als Wissen hochladen.\n` +
+    `3. Eine kurze Testfrage stellen, zum Beispiel: \"Wie plane ich unterwegs eine Tour und hole mir davor ein Briefing?\"\n\n` +
+    `Die PDF enthaelt zusaetzlich den visuellen Bildanhang. Alle Schulungsbilder verwenden ausschliesslich Demo- oder synthetische Daten.\n`,
   'utf8',
 );
 
