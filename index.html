@@ -941,6 +941,21 @@
             </div>
         </dialog>
 
+        <!-- Große Detailkarte hinter den kompakten Gebietskacheln -->
+        <dialog id="territory-summary-dialog" class="territory-summary-dialog" aria-labelledby="territory-summary-title">
+            <header>
+                <div class="territory-summary-heading">
+                    <span id="territory-summary-dimension">Vertriebsbezirk</span>
+                    <h2 id="territory-summary-title">Gebiet</h2>
+                </div>
+                <button type="button" class="dialog-close" data-territory-summary-close>Schließen</button>
+            </header>
+            <div id="territory-summary-body"></div>
+            <footer>
+                <button id="territory-summary-focus" type="button" class="primary">⌖ Gebiet auf Karte zeigen</button>
+            </footer>
+        </dialog>
+
         <!-- Gebiets-Cockpit -->
         <dialog id="cockpit-dialog" class="panel-sheet">
             <header>

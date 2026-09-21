@@ -2082,6 +2082,14 @@ Die eingeblendeten Flächenlabels zeigen die fachliche Summe des sichtbaren
 Ausschnitts. Ohne aktiven Filter zeigen sie die Gesamtsumme der Einheit.
 `T EUR` bedeutet Tausend Euro. Der exakte Betrag steht im Tooltip.
 
+Jede Organisationskachel auf der Karte ist selbst anklickbar und liegt als
+eigenes Klickziel vor der Gebietsfläche. Der Klick öffnet eine große
+Detailkarte für die Einheit mit sichtbarer Kundenzahl, Umsatzsumme,
+Durchschnitt je Kunde mit Umsatzangabe, Zahl der betroffenen Landkreis-/PLZ-
+Teilgebiete, Vertriebsgruppe, Vertriebshauptgruppe und den vier stärksten
+Kundenstandorten nach Anzahl. **"Gebiet auf Karte zeigen"** schließt die
+Detailkarte und passt den Kartenausschnitt an alle Teilflächen der Einheit an.
+
 ### 13.3 Gebietspopup
 
 Ein Klick auf eine Fläche zeigt:
