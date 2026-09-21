@@ -587,6 +587,18 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
 .popup-nr { font-size: 0.72rem; font-weight: 600; color: var(--color-text-muted, #64748b); }
 .popup-customer .popup-addr { margin: 2px 0; }
 .popup-customer .popup-meta { margin: 2px 0 4px; }
+.popup-customer .popup-revenue {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 10px;
+    margin: 6px 0;
+    padding: 6px 9px;
+    border-radius: var(--radius-m);
+    background: var(--color-primary-light);
+    color: var(--color-text);
+    font-weight: 650;
+}
 .popup-umsatz { color: var(--color-primary-dark, #0f766e); white-space: nowrap; }
 .region-revenue {
     display: inline-block;
