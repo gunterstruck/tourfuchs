@@ -13,6 +13,7 @@
 import { CONFIG } from './config.js';
 import { normalizeDemoCustomers } from './demoSafety.js';
 import { isPhoneUi } from './viewport.js';
+import { customerMatchesRevenueFilter } from './customerFilters.js';
 
 /**
  * Planungsrelevante Gebietsebenen. Der Vertriebsbezirk ist die führende Ebene,
@@ -56,6 +57,12 @@ export const state = {
     colorMode: 'auto',
     basemap: 'standard',
 
+    // Fachliche Kundenfilter. Fehlender Umsatz ist etwas anderes als 0 Euro
+    // und wird bei aktivem Umsatzintervall deshalb ausgeschlossen.
+    filters: {
+        revenue: { enabled: false, min: null, max: null }
+    },
+
     // Gebietszuordnungen (unabhängig von Kunden): 'level:regionKey' -> { bezirk, gruppe, channel, name }
     territories: {},
 
@@ -97,6 +104,9 @@ export const state = {
         opportunityOnly: false,
         // Im Service-Fokus standardmäßig nur Kunden mit planungsrelevantem Vertrag.
         serviceCustomerScope: 'contracts',
+        // 0 = jede zugewiesene Fläche darf Farbe tragen. Ab 1 werden nur
+        // Gebiete mit mindestens so vielen aktuell sichtbaren Kunden gefärbt.
+        minRegionCustomers: 0,
         // Am Handy startet das Blatt eingeklappt – der erste Blick gehört der
         // Karte. Ab Tablet-Breite ist das Panel Teil der Arbeitsfläche (unten
         // als Blatt, am Schreibtisch seitlich) und startet offen.
@@ -520,7 +530,7 @@ export function isVisible(customer) {
         const value = dim.values.get(dimensionValue(customer, def) || UNASSIGNED);
         if (!(value?.visible ?? true)) return false;
     }
-    return true;
+    return customerMatchesRevenueFilter(customer, state.filters.revenue);
 }
 
 export function visibleCustomers() {

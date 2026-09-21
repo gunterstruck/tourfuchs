@@ -45,6 +45,7 @@ import { initContractRadar } from './ui/contractRadar.js';
 import { upgradeDemoServiceContracts } from './features/demoServiceContracts.js';
 import { upgradeDemoServiceVisits } from './features/demoServiceVisits.js';
 import { fitToCustomers } from './features/map.js';
+import { normalizeMinimumRegionCustomers, normalizeRevenueFilter } from './core/customerFilters.js';
 
 async function restorePersistedState() {
     const settings = await loadSettings();
@@ -55,6 +56,10 @@ async function restorePersistedState() {
     // und Profi gleichermaßen fixiert.
     state.levelMode = settings?.levelMode === 'fixed' ? 'fixed' : 'auto';
     emit('level:control-changed');
+    state.filters.revenue = normalizeRevenueFilter(settings?.revenueFilter);
+    state.ui.minRegionCustomers = normalizeMinimumRegionCustomers(settings?.minRegionCustomers);
+    emit('filters:changed');
+    emit('region-threshold:changed');
     if (settings?.radiusKm) state.tour.radiusKm = settings.radiusKm;
     state.ui.serviceCustomerScope = ['now', 'week', 'contracts', 'all'].includes(settings?.serviceCustomerScope)
         ? settings.serviceCustomerScope

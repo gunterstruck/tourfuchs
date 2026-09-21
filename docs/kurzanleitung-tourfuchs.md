@@ -37,6 +37,8 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 - Marker anklicken, um Kundendetails zu sehen.
 - Kartenstil wechseln: Hell, Standard oder Satellit.
 - Bezirkszuordnung und Bezirksfarben als Orientierung nutzen.
+- Im Tab **Filter** bei Bedarf **"Umsatz von-bis"** aktivieren. Ohne gültigen
+  Umsatzwert wird ein Kunde dann ausgeblendet; `0 EUR` ist ein eigener Wert.
 - Strategische Flächenwerkzeuge nur bei aktiviertem Profi-Modul verwenden.
 
 ## 4. Lasso und Mehrkunden-Briefing
@@ -118,6 +120,8 @@ Landkreise. Farbe und Kürzel zeigen Vertriebsbezirk oder Vertriebsgruppe. Ein
 Filter blendet unpassende Flächen und Beschriftungen vollständig aus; bei nur
 einem gewählten Vertriebsbezirk bleibt deshalb genau dessen Ausschnitt stehen.
 Mit **"Gebietsflächen ausblenden"** lässt sich ganz auf die Kundenkarte wechseln.
+Mit **"Fläche einfärben ab"** bleiben Landkreise oder PLZ-Flächen unter einer
+frei wählbaren Mindestzahl sichtbarer Kunden neutral; `0` schaltet die Schwelle aus.
 
 ## 7. Tour planen
 

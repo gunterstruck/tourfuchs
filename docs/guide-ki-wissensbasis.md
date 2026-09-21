@@ -2062,10 +2062,25 @@ Vertriebsgruppe.
 Ein Filter im Tab **"Filter"** gilt auch für die Gebietskarte: Abgewählte
 Einheiten verschwinden mitsamt Fläche, Hoverziel, Beschriftung und
 Legendeneintrag. Wird nur ein Vertriebsbezirk gewählt, bleibt damit nur dessen
-räumlicher Ausschnitt sichtbar. Die eingeblendeten Flächenlabels zeigen die
-fachliche Summe des sichtbaren Ausschnitts. Ohne aktiven Filter zeigen sie die
-Gesamtsumme der Einheit. `T EUR` bedeutet Tausend Euro. Der exakte Betrag steht
-im Tooltip.
+räumlicher Ausschnitt sichtbar.
+
+Der aktivierbare Filter **"Umsatz von-bis"** besitzt zwei offene Grenzen. Eine
+leere Von- oder Bis-Grenze bedeutet kein Limit in diese Richtung. Bei aktivem
+Filter werden Kunden ohne gültigen Umsatzwert ausgeschlossen; ein ausdrücklich
+vorhandener Wert von `0 EUR` bleibt dagegen ein echter Wert. Vertauschte Grenzen
+ordnet TourFuchs automatisch von klein nach groß. Der Filter wirkt auf
+Kundenpunkte, Zähler, Tourvorschläge sowie Gebietsflächen und -summen.
+
+Unter **"Fläche einfärben ab"** legt eine ganze Zahl fest, wie viele aktuell
+sichtbare Kunden mindestens in einem Landkreis oder PLZ-Gebiet liegen müssen,
+damit es eine Vertriebsfarbe erhält. `0` schaltet die Mindestzahl aus. Dünner
+besetzte Gebiete bleiben als neutrale, weiterhin anklickbare Orientierung
+erhalten; ihre Kunden fließen nicht in die sichtbaren Gebietskacheln ein. Die
+Ansicht **"Weiße Flecken"** bleibt von dieser Farbschwelle unberührt.
+
+Die eingeblendeten Flächenlabels zeigen die fachliche Summe des sichtbaren
+Ausschnitts. Ohne aktiven Filter zeigen sie die Gesamtsumme der Einheit.
+`T EUR` bedeutet Tausend Euro. Der exakte Betrag steht im Tooltip.
 
 ### 13.3 Gebietspopup
 

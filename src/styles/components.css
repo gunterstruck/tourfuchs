@@ -1035,6 +1035,23 @@
     color: var(--color-primary-dark);
     font-weight: 650;
 }
+.region-minimum-control {
+    margin: 10px 0;
+    padding: 9px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-l);
+    background: var(--color-surface-2);
+}
+.region-minimum-control .field-label { margin-top: 0; }
+.region-minimum-row {
+    display: grid;
+    grid-template-columns: 78px 1fr;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+}
+.region-minimum-row input { width: 100%; }
+.region-minimum-control p { margin: 5px 0 0; }
 .level-status {
     display: flex;
     align-items: center;
@@ -1085,6 +1102,46 @@
 .stat span { font-size: 0.72rem; color: var(--color-text-muted); }
 
 /* Team-Filter */
+.revenue-range-filter {
+    margin: 10px 0 12px;
+    padding: 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-l);
+    background: var(--color-surface-2);
+}
+.revenue-filter-toggle {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    cursor: pointer;
+}
+.revenue-filter-toggle input {
+    margin-top: 3px;
+    accent-color: var(--color-primary);
+}
+.revenue-filter-toggle span { display: grid; gap: 2px; }
+.revenue-filter-toggle small { color: var(--color-text-muted); }
+.revenue-range-inputs {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    margin-top: 9px;
+}
+.revenue-range-inputs label {
+    display: grid;
+    gap: 4px;
+    color: var(--color-text-muted);
+    font-size: 0.76rem;
+}
+.revenue-range-inputs input { width: 100%; min-width: 0; }
+.revenue-filter-foot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 7px;
+}
+.revenue-filter-foot p { flex: 1; margin: 0; }
+.revenue-filter-foot button { flex: none; padding: 4px 8px; font-size: 0.74rem; }
 .filter-row {
     display: flex;
     align-items: center;

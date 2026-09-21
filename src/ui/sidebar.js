@@ -14,6 +14,8 @@ import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
 import { OPTIONAL_MODULES, optionalModuleActive, optionalModuleEnabled, persistOptionalModule } from '../features/optionalModules.js';
 import { activeDimensionFilters } from '../features/territoryVisibility.js';
+import { normalizeMinimumRegionCustomers, normalizeRevenueFilter } from '../core/customerFilters.js';
+import { formatRevenueFull } from '../core/format.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
@@ -1173,6 +1175,17 @@ function syncLevelControl() {
     }
 }
 
+function syncRegionMinimumControl() {
+    const input = document.getElementById('min-region-customers');
+    const summary = document.getElementById('region-minimum-summary');
+    const minimum = normalizeMinimumRegionCustomers(state.ui.minRegionCustomers);
+    if (input) input.value = String(minimum);
+    if (!summary) return;
+    summary.textContent = minimum === 0
+        ? 'Keine Mindestzahl – auch leere, ausdrücklich zugewiesene Flächen dürfen Farbe tragen.'
+        : `Nur Gebiete mit mindestens ${minimum} sichtbaren Kunden werden farbig. Dünner besetzte Flächen bleiben neutral.`;
+}
+
 /**
  * Ansichtstiefe global setzen: 'basis' (nur Kernnutzen) oder 'profi' (alle
  * Werkzeuge). Steuert per Body-Klasse alle .expert-only/.profi-only Elemente.
@@ -1443,6 +1456,18 @@ export function initSidebar() {
     on('depth:changed', syncLevelControl);
     syncLevelControl();
 
+    const minRegionCustomers = document.getElementById('min-region-customers');
+    const commitRegionMinimum = () => {
+        state.ui.minRegionCustomers = normalizeMinimumRegionCustomers(minRegionCustomers.value);
+        syncRegionMinimumControl();
+        emit('region-threshold:changed');
+        persistSettings();
+    };
+    minRegionCustomers?.addEventListener('input', commitRegionMinimum);
+    minRegionCustomers?.addEventListener('change', commitRegionMinimum);
+    on('region-threshold:changed', syncRegionMinimumControl);
+    syncRegionMinimumControl();
+
     on('map:loading', (loading) => {
         document.getElementById('level-loading').style.display = loading ? 'inline-block' : 'none';
     });
@@ -1505,6 +1530,7 @@ export function initSidebar() {
     document.getElementById('btn-geocode').addEventListener('click', toggleExactGeocoding);
 
     restoreOptionalFilterSections();
+    initRevenueFilterControls();
     initTeamFilters();
 
     // Nach dem Demo-Laden: direkt in den Außendienst-Modus. Desktop zeigt den
@@ -1528,10 +1554,12 @@ export function initSidebar() {
         renderDataStatus();
         renderLegend();
         renderTerritoryFilterSummary();
+        syncRevenueFilterControls();
     });
     // Die Willkommenskarte entscheidet mit, ob der Streifen sein Angebot zeigt.
     on('demo-welcome:changed', renderDataStatus);
     renderDataStatus();
+    syncRevenueFilterControls();
     renderTeamFilters();
     renderTerritoryFilterSummary();
 }
@@ -1558,7 +1586,8 @@ function renderTerritoryFilterSummary() {
     const el = document.getElementById('territory-filter-summary');
     if (!el) return;
     const filters = activeDimensionFilters(state.dims, filterDimensionDefs());
-    if (filters.length === 0) {
+    const revenue = normalizeRevenueFilter(state.filters.revenue);
+    if (filters.length === 0 && !revenue.enabled) {
         el.classList.remove('is-active');
         el.textContent = 'Kein Gebietsfilter aktiv – alle Flächen werden gezeigt.';
         return;
@@ -1572,8 +1601,9 @@ function renderTerritoryFilterSummary() {
                 : `${values.length} von ${filter.total}`;
         return `${filter.label}: ${selection}`;
     });
+    if (revenue.enabled) parts.push(`Umsatz: ${revenueRangeLabel(revenue)}`);
     el.classList.add('is-active');
-    el.textContent = `Filter aktiv – ${parts.join(' · ')}. Nur passende Gebietsflächen und Beschriftungen sind sichtbar.`;
+    el.textContent = `Filter aktiv – ${parts.join(' · ')}. Kunden, Gebietsflächen und Beschriftungen folgen der Auswahl.`;
 }
 
 function renderLegend() {
@@ -1710,7 +1740,9 @@ function persistSettings() {
         repColors: Object.fromEntries([...state.reps].map(([k, v]) => [k, v.color])),
         dimVisibility,
         dimColors,
-        radiusKm: state.tour.radiusKm
+        radiusKm: state.tour.radiusKm,
+        revenueFilter: normalizeRevenueFilter(state.filters.revenue),
+        minRegionCustomers: normalizeMinimumRegionCustomers(state.ui.minRegionCustomers)
     });
 }
 
@@ -1841,6 +1873,65 @@ async function toggleExactGeocoding() {
 }
 
 // ---- Team-Tab (Filter) ----
+
+function revenueRangeLabel(filter = state.filters.revenue) {
+    const { min, max } = normalizeRevenueFilter(filter);
+    if (min !== null && max !== null) return `${formatRevenueFull(min)} bis ${formatRevenueFull(max)}`;
+    if (min !== null) return `ab ${formatRevenueFull(min)}`;
+    if (max !== null) return `bis ${formatRevenueFull(max)}`;
+    return 'vorhandener Umsatzwert';
+}
+
+function syncRevenueFilterControls() {
+    const enabled = document.getElementById('revenue-filter-enabled');
+    const minInput = document.getElementById('revenue-filter-min');
+    const maxInput = document.getElementById('revenue-filter-max');
+    const summary = document.getElementById('revenue-filter-summary');
+    const reset = document.getElementById('revenue-filter-reset');
+    if (!enabled || !minInput || !maxInput) return;
+
+    const filter = normalizeRevenueFilter(state.filters.revenue);
+    enabled.checked = filter.enabled;
+    minInput.value = filter.min ?? '';
+    maxInput.value = filter.max ?? '';
+    minInput.disabled = !filter.enabled;
+    maxInput.disabled = !filter.enabled;
+    if (reset) reset.disabled = !filter.enabled && filter.min === null && filter.max === null;
+    if (summary) {
+        summary.textContent = filter.enabled
+            ? `Aktiv: ${revenueRangeLabel(filter)}. Kunden ohne gültigen Umsatzwert werden ausgeblendet.`
+            : 'Aus – alle Kunden unabhängig vom Umsatz.';
+    }
+}
+
+function commitRevenueFilterControls() {
+    const enabled = document.getElementById('revenue-filter-enabled');
+    const minInput = document.getElementById('revenue-filter-min');
+    const maxInput = document.getElementById('revenue-filter-max');
+    state.filters.revenue = normalizeRevenueFilter({
+        enabled: enabled?.checked === true,
+        min: minInput?.value ?? null,
+        max: maxInput?.value ?? null
+    });
+    syncRevenueFilterControls();
+    emit('filters:changed');
+    persistSettings();
+}
+
+function initRevenueFilterControls() {
+    document.getElementById('revenue-filter-enabled')?.addEventListener('change', commitRevenueFilterControls);
+    document.getElementById('revenue-filter-min')?.addEventListener('input', commitRevenueFilterControls);
+    document.getElementById('revenue-filter-min')?.addEventListener('change', commitRevenueFilterControls);
+    document.getElementById('revenue-filter-max')?.addEventListener('input', commitRevenueFilterControls);
+    document.getElementById('revenue-filter-max')?.addEventListener('change', commitRevenueFilterControls);
+    document.getElementById('revenue-filter-reset')?.addEventListener('click', () => {
+        state.filters.revenue = { enabled: false, min: null, max: null };
+        syncRevenueFilterControls();
+        emit('filters:changed');
+        persistSettings();
+    });
+    syncRevenueFilterControls();
+}
 
 /** Kunden je Feldwert zählen */
 function countBy(field) {
