@@ -1661,25 +1661,32 @@ function serviceVisitsBlockHtml(customer) {
 export function customerPopupHtml(customer) {
     const inTour = state.tour.stops.includes(customer.id);
     const isDest = state.tour.destination?.customerId === customer.id;
-    // Kompakter Kopf: Adresse einzeilig, Hierarchie und Umsatz in einer Zeile,
-    // Kundennummer neben den Namen – damit ohne Scrollen mehr sichtbar ist.
+    // Kompakter Kopf: Adresse einzeilig, Kundennummer neben dem Namen. Umsatz
+    // bekommt bewusst eine eigene, klar beschriftete Zeile, damit er nicht
+    // zwischen Hierarchie-Codes untergeht.
     const place = [customer.plz, customer.ort].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
     const addr = [customer.strasse, place]
         .filter(Boolean).map(escapeHtml).join(' · ');
     const hierarchy = [customer.channel, customer.gruppe, customer.bezirk]
         .filter(Boolean).map(escapeHtml).join(' › ');
-    const umsatz = customer.umsatz
-        ? `<b class="popup-umsatz" title="${formatRevenueFull(customer.umsatz)}">${formatRevenueShort(customer.umsatz)}</b>`
+    const rawRevenue = customer.umsatz;
+    const hasRevenue = rawRevenue !== null
+        && rawRevenue !== undefined
+        && String(rawRevenue).trim() !== ''
+        && Number.isFinite(Number(rawRevenue));
+    const revenue = hasRevenue ? Number(rawRevenue) : null;
+    const revenueHtml = hasRevenue
+        ? `<p class="popup-revenue"><span>Umsatz</span><b class="popup-umsatz" title="${formatRevenueFull(revenue)}">${formatRevenueShort(revenue)}</b></p>`
         : '';
     const profi = state.ui.depth === 'profi';
-    // Basis: nur Umsatz (Priorisierung), Hierarchie/Kd.-Nr. sind Profi-Detail.
-    const metaLine = (profi ? [hierarchy, umsatz] : [umsatz]).filter(Boolean).join(' · ');
+    // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
     const nr = profi && customer.nummer ? `<span class="popup-nr">Nr. ${escapeHtml(customer.nummer)}</span>` : '';
     const demoBadge = isDemoCustomer(customer) ? '<span class="popup-demo-badge">Demo</span>' : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}${nr}</h3>
         ${addr ? `<p class="popup-addr">${addr}${customer.geo === 'plz' ? ' <span class="muted small">· 📍 ca. (PLZ-Mitte)</span>' : ''}</p>` : ''}
-        ${metaLine ? `<p class="muted small popup-meta">${metaLine}</p>` : ''}
+        ${revenueHtml}
+        ${profi && hierarchy ? `<p class="muted small popup-meta">${hierarchy}</p>` : ''}
         ${contactBlockHtml(customer)}
         ${serviceVisitsBlockHtml(customer)}
         ${serviceContractsBlockHtml(customer)}

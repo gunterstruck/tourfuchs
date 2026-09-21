@@ -1230,7 +1230,8 @@ Das Popup zeigt je nach vorhandenen Daten:
 - Kundenname
 - Straße sowie **PLZ + Ort**
 - Hinweis `ca. (PLZ-Mitte)` bei näherungsweiser Position
-- Umsatz
+- Umsatz – sofern vorhanden als eigene hervorgehobene Zeile; auch ein expliziter
+  Wert von `0 €` gilt als vorhanden
 - Hauptansprechpartner
 - **"Anrufen"** und **"E-Mail"**
 - **"Heute besucht"**
