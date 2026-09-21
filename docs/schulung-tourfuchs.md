@@ -400,6 +400,8 @@ Für den Alltag ist besonders wichtig:
 - Vertriebsbezirk ist die führende operative Ebene.
 - Vertriebsgruppe dient als Gruppierung für Vergleich und Umverteilung.
 - Weitere Ebenen sollten nur eingeblendet werden, wenn sie fachlich gebraucht werden.
+- **"Umsatz von-bis"** filtert Kunden mit zwei optionalen Grenzen. Bei aktivem
+  Filter gelten fehlende Umsatzangaben nicht als `0 EUR`, sondern werden ausgeblendet.
 
 ## 11. Gebietsplanung am Desktop
 
@@ -421,6 +423,10 @@ stehen für Vertriebsbezirk oder Vertriebsgruppe. Filter wirken auf die gesamte
 Gebietskarte: Bei nur einem gewählten Vertriebsbezirk verschwinden alle anderen
 Flächen, Beschriftungen und Legendeneinträge. **"Gebietsflächen ausblenden"**
 wechselt bei Bedarf auf die reine Kundenkarte.
+
+**"Fläche einfärben ab"** hält dünn besetzte Ausreißer neutral. Der eingegebene
+Wert ist die Mindestzahl aktuell sichtbarer Kunden je Landkreis oder PLZ-Gebiet;
+`0` bedeutet keine Mindestzahl. Die neutrale Fläche bleibt für Rückfragen anklickbar.
 
 Typische Fragestellungen:
 

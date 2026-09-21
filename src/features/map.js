@@ -43,6 +43,7 @@ import {
 import { openRegionEditor } from '../ui/regionEditor.js';
 import { optionalModuleActive } from './optionalModules.js';
 import { activeDimensionFilters, regionMatchesActiveFilters } from './territoryVisibility.js';
+import { normalizeMinimumRegionCustomers, regionMeetsMinimum } from '../core/customerFilters.js';
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 
@@ -79,6 +80,7 @@ let labelLayer = null;
 let baseLayer = null;
 let regionStats = new Map();
 let regionFilters = [];
+let revenueFilterApplies = false;
 let maxRegionTotal = 1;   // höchste Kundenzahl je Gebiet (für die Abdeckungs-Ansicht)
 let currentLevelData = null;
 let featureByKey = new Map();
@@ -594,6 +596,7 @@ export function initMap(containerId) {
         map.closePopup();
         refreshAll();
     });
+    on('region-threshold:changed', refreshAll);
     on('mode:changed', refreshAll);
     on('tab:changed', refreshAll);
     on('service-customer-scope:changed', refreshAll);
@@ -901,19 +904,39 @@ function computeStats() {
     regionFilters = state.ui.mode === 'service'
         ? []
         : activeDimensionFilters(state.dims, filterDimensionDefs());
+    revenueFilterApplies = state.ui.mode !== 'service' && state.filters.revenue.enabled;
     maxRegionTotal = Math.max(1, ...[...regionStats.values()].map((e) => e.total || 0));
     emit('regions:stats', regionStats);
 }
 
 function regionVisibleUnderFilters(feature) {
-    if (simulationPreview || regionFilters.length === 0) return true;
+    if (simulationPreview) return true;
     const key = regionKey(state.level, feature);
+    const customers = regionStats.get(key)?.customers || [];
+    if (revenueFilterApplies && customers.length === 0) return false;
+    if (regionFilters.length === 0) return true;
     return regionMatchesActiveFilters({
-        customers: regionStats.get(key)?.customers || [],
+        customers,
         territory: getTerritory(state.level, key),
         filters: regionFilters,
         unassigned: UNASSIGNED
     });
+}
+
+function regionMeetsCustomerMinimum(feature) {
+    const key = regionKey(state.level, feature);
+    return regionMeetsMinimum(regionStats.get(key), state.ui.minRegionCustomers);
+}
+
+function sparseRegionStyle() {
+    return {
+        fillColor: '#e2e8f0',
+        fillOpacity: 0.025,
+        color: '#cbd5e1',
+        opacity: 0.42,
+        weight: 0.75,
+        dashArray: ''
+    };
 }
 
 /** Häufigster Attributwert in einem Gebiet (nach Kundenzahl) */
@@ -1066,6 +1089,7 @@ function styleFor(feature) {
         return { fillColor: 'transparent', fillOpacity: 0, color: 'transparent', opacity: 0, weight: 0 };
     }
     if (currentView.paint === 'luecken') return styleLuecken(feature);
+    if (currentView.paint && !regionMeetsCustomerMinimum(feature)) return sparseRegionStyle();
     if (state.ui.mode === 'aussendienst' && currentView.markers) {
         return {
             ...CONFIG.regionStyle.default,
@@ -1097,6 +1121,9 @@ function regionTooltip(feature) {
     const key = regionKey(state.level, feature);
     const entry = regionStats.get(key);
     const total = entry?.total ?? 0;
+    const minimum = normalizeMinimumRegionCustomers(state.ui.minRegionCustomers);
+    const belowMinimum = minimum > 0 && total < minimum;
+    const minimumNote = belowMinimum ? ` · unter Mindestzahl ${minimum} (nicht eingefärbt)` : '';
 
     if (simulationPreview) {
         const info = simulationRegionInfo(feature);
@@ -1118,8 +1145,8 @@ function regionTooltip(feature) {
     const attr = currentView.paint || 'bezirk';
     const terr = getTerritory(state.level, key);
 
-    if (terr && terr[attr] && total === 0) return `${name} · ${terr[attr]} (zugeordnet, 0 Kunden)`;
-    if (!entry || total === 0) return terr ? `${name} · zugeordnet` : name;
+    if (terr && terr[attr] && total === 0) return `${name} · ${terr[attr]} (zugeordnet, 0 Kunden)${minimumNote}`;
+    if (!entry || total === 0) return `${terr ? `${name} · zugeordnet` : name}${minimumNote}`;
 
     // Zusammensetzung (Top-Anteile) anzeigen
     const counts = new Map();
@@ -1130,7 +1157,7 @@ function regionTooltip(feature) {
     const parts = [...counts.entries()].sort((a, b) => b[1] - a[1]).slice(0, 3)
         .map(([v, n]) => `${v} ${Math.round((n / total) * 100)}%`);
     const more = counts.size > 3 ? ' …' : '';
-    return `${name} · ${total} Kd. · ${parts.join(', ')}${more}`;
+    return `${name} · ${total} Kd. · ${parts.join(', ')}${more}${minimumNote}`;
 }
 
 function restyleRegions() {
@@ -1164,7 +1191,7 @@ function renderLabels() {
     // Ohne Filter bleiben fachliche Gesamtsummen und stabile Positionen erhalten.
     // Mit Filter folgt die Beschriftung dagegen exakt dem sichtbaren Ausschnitt:
     // Wer einen Bezirk isoliert, darf nicht weiter alle anderen Kacheln sehen.
-    const labelCustomers = regionFilters.length > 0 ? modeVisibleCustomers() : state.customers;
+    const labelCustomers = (regionFilters.length > 0 || revenueFilterApplies) ? modeVisibleCustomers() : state.customers;
     for (const c of labelCustomers) {
         const v = valueOf(c);
         countByVal.set(v, (countByVal.get(v) ?? 0) + 1);
@@ -1188,10 +1215,15 @@ function renderLabels() {
         polygonsByValue.set(val, list);
     };
 
+    const minimum = normalizeMinimumRegionCustomers(state.ui.minRegionCustomers);
+    const qualifyingCustomerIds = minimum > 0 ? new Set() : null;
     const allStats = aggregateByRegion(state.level, currentLevelData, labelCustomers);
     for (const [key, entry] of allStats) {
         const feature = featureByKey.get(key);
-        if (!feature) continue;
+        if (!feature || !regionMeetsMinimum(entry, minimum)) continue;
+        if (qualifyingCustomerIds) {
+            for (const customer of entry.customers) qualifyingCustomerIds.add(customer.id);
+        }
         const perVal = new Map(); // val -> { count, revenue }
         for (const c of entry.customers) {
             const v = valueOf(c);
@@ -1210,7 +1242,26 @@ function renderLabels() {
         const v = terr[attr];
         if (!v || polygonsByValue.has(v)) continue;
         const feature = featureByKey.get(id.slice(state.level.length + 1));
-        if (feature && regionVisibleUnderFilters(feature)) addPolygon(v, feature, 0, 0);
+        if (feature && regionVisibleUnderFilters(feature) && regionMeetsCustomerMinimum(feature)) addPolygon(v, feature, 0, 0);
+    }
+
+    // Bei einer Mindestbesetzung beziehen sich auch Zahl und Umsatz der Kachel
+    // nur auf die tatsächlich eingefärbten Gebiete. Sonst würde ein ausgeblendeter
+    // Ausreißer unbemerkt weiter in der sichtbaren Summe stecken.
+    if (qualifyingCustomerIds) {
+        revByVal.clear();
+        countByVal.clear();
+        revenueValues.clear();
+        for (const customer of labelCustomers) {
+            if (!qualifyingCustomerIds.has(customer.id)) continue;
+            const value = valueOf(customer);
+            countByVal.set(value, (countByVal.get(value) ?? 0) + 1);
+            if (customer.umsatz === null || customer.umsatz === undefined || customer.umsatz === '') continue;
+            const revenue = Number(customer.umsatz);
+            if (!Number.isFinite(revenue)) continue;
+            revByVal.set(value, (revByVal.get(value) ?? 0) + revenue);
+            revenueValues.add(value);
+        }
     }
 
     const positions = revenueWeightedCentroids(polygonsByValue);

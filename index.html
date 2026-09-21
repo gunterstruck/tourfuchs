@@ -347,6 +347,14 @@
                     <option value="luecken">🕳️ Weiße Flecken (Abdeckung)</option>
                 </select>
                 <p class="muted small" id="colormode-hint"></p>
+                <div class="region-minimum-control">
+                    <label class="field-label" for="min-region-customers">Fläche einfärben ab</label>
+                    <div class="region-minimum-row">
+                        <input id="min-region-customers" type="number" min="0" max="999" step="1" inputmode="numeric" value="0">
+                        <span>sichtbaren Kunden im Gebiet</span>
+                    </div>
+                    <p id="region-minimum-summary" class="muted small" aria-live="polite">0 = keine Mindestzahl.</p>
+                </div>
                 <div id="colormode-legend" class="legend"></div>
                 <p class="territory-map-explainer"><b>So liest du die Karte:</b> Die Flächen sind die gewählte Gebietsebene, zum Beispiel Landkreise. Farbe und Kürzel zeigen den Vertriebsbezirk oder die Vertriebsgruppe.</p>
                 <p id="territory-filter-summary" class="territory-filter-summary" aria-live="polite"></p>
@@ -362,6 +370,24 @@
             <section id="tab-team" class="tab-panel">
                 <h2>Filter</h2>
                 <p class="muted small">Vertriebsbezirke und Gruppen ein-/ausblenden. Weitere Gebietsebenen können über „+ Ebene hinzufügen“ eingeblendet werden. Farbe je Eintrag per Klick auf den Punkt.</p>
+                <div class="revenue-range-filter">
+                    <label class="revenue-filter-toggle" for="revenue-filter-enabled">
+                        <input id="revenue-filter-enabled" type="checkbox">
+                        <span><b>Umsatz von–bis</b><small>Kunden nach Umsatzintervall filtern</small></span>
+                    </label>
+                    <div class="revenue-range-inputs">
+                        <label>Von (€)
+                            <input id="revenue-filter-min" type="number" step="1000" inputmode="decimal" placeholder="kein Minimum">
+                        </label>
+                        <label>Bis (€)
+                            <input id="revenue-filter-max" type="number" step="1000" inputmode="decimal" placeholder="kein Maximum">
+                        </label>
+                    </div>
+                    <div class="revenue-filter-foot">
+                        <p id="revenue-filter-summary" class="muted small" aria-live="polite">Aus – alle Kunden unabhängig vom Umsatz.</p>
+                        <button id="revenue-filter-reset" type="button" class="ghost">Zurücksetzen</button>
+                    </div>
+                </div>
                 <div id="team-filters"></div>
             </section>
 
