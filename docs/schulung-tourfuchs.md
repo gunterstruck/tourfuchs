@@ -416,6 +416,12 @@ Im Tab Gebiete:
 3. Karte betrachten.
 4. Gebiet anklicken, um Details zu sehen.
 
+Die Fläche steht für die gewählte geografische Ebene; Farbe und Kürzel darauf
+stehen für Vertriebsbezirk oder Vertriebsgruppe. Filter wirken auf die gesamte
+Gebietskarte: Bei nur einem gewählten Vertriebsbezirk verschwinden alle anderen
+Flächen, Beschriftungen und Legendeneinträge. **"Gebietsflächen ausblenden"**
+wechselt bei Bedarf auf die reine Kundenkarte.
+
 Typische Fragestellungen:
 
 - Welche Bezirke sind räumlich zusammenhängend?

@@ -11,7 +11,7 @@ import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
-import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, UNASSIGNED } from '../core/state.js';
+import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, filterDimensionDefs, UNASSIGNED } from '../core/state.js';
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
 import { getRoadRoute, peekRoadRoute } from '../services/routing.js';
 import { aggregateByRegion, dominantRep } from './territory.js';
@@ -42,6 +42,7 @@ import {
 } from './customerMarkers.js';
 import { openRegionEditor } from '../ui/regionEditor.js';
 import { optionalModuleActive } from './optionalModules.js';
+import { activeDimensionFilters, regionMatchesActiveFilters } from './territoryVisibility.js';
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 
@@ -77,6 +78,7 @@ if (L.MarkerCluster && !L.MarkerCluster.prototype.__minSizePatched) {
 let labelLayer = null;
 let baseLayer = null;
 let regionStats = new Map();
+let regionFilters = [];
 let maxRegionTotal = 1;   // höchste Kundenzahl je Gebiet (für die Abdeckungs-Ansicht)
 let currentLevelData = null;
 let featureByKey = new Map();
@@ -588,7 +590,10 @@ export function initMap(containerId) {
     on('customers:changed', refreshAll);
     on('dataset:cleared', resetCustomerDiscoveryHints);
     on('customer:detail-opened', completeDiscoveryJourney);
-    on('filters:changed', refreshAll);
+    on('filters:changed', () => {
+        map.closePopup();
+        refreshAll();
+    });
     on('mode:changed', refreshAll);
     on('tab:changed', refreshAll);
     on('service-customer-scope:changed', refreshAll);
@@ -871,6 +876,7 @@ export async function setLevel(level) {
         attribution: CONFIG.levels[level].attribution,
         onEachFeature: (feature, layer) => {
             layer.on('mouseover', function () {
+                if (!regionVisibleUnderFilters(feature)) return;
                 this.setStyle({ weight: 2.5, color: '#0d9488' });
                 if (this.bringToFront) this.bringToFront();
             });
@@ -892,8 +898,22 @@ function computeStats() {
     regionStats = currentLevelData
         ? aggregateByRegion(state.level, currentLevelData, markerCustomers())
         : new Map();
+    regionFilters = state.ui.mode === 'service'
+        ? []
+        : activeDimensionFilters(state.dims, filterDimensionDefs());
     maxRegionTotal = Math.max(1, ...[...regionStats.values()].map((e) => e.total || 0));
     emit('regions:stats', regionStats);
+}
+
+function regionVisibleUnderFilters(feature) {
+    if (simulationPreview || regionFilters.length === 0) return true;
+    const key = regionKey(state.level, feature);
+    return regionMatchesActiveFilters({
+        customers: regionStats.get(key)?.customers || [],
+        territory: getTerritory(state.level, key),
+        filters: regionFilters,
+        unassigned: UNASSIGNED
+    });
 }
 
 /** Häufigster Attributwert in einem Gebiet (nach Kundenzahl) */
@@ -1042,6 +1062,9 @@ function simulationStyle(feature) {
 
 function styleFor(feature) {
     if (simulationPreview) return simulationStyle(feature);
+    if (!regionVisibleUnderFilters(feature)) {
+        return { fillColor: 'transparent', fillOpacity: 0, color: 'transparent', opacity: 0, weight: 0 };
+    }
     if (currentView.paint === 'luecken') return styleLuecken(feature);
     if (state.ui.mode === 'aussendienst' && currentView.markers) {
         return {
@@ -1113,7 +1136,15 @@ function regionTooltip(feature) {
 function restyleRegions() {
     if (!regionLayer || !currentLevelData) return;
     computeStats();
-    regionLayer.eachLayer((layer) => layer.setStyle(styleFor(layer.feature)));
+    regionLayer.eachLayer((layer) => {
+        const visible = regionVisibleUnderFilters(layer.feature);
+        layer.setStyle(styleFor(layer.feature));
+        const path = layer.getElement?.();
+        if (path) {
+            path.style.pointerEvents = visible ? '' : 'none';
+            path.setAttribute('aria-hidden', visible ? 'false' : 'true');
+        }
+    });
 }
 
 /**
@@ -1130,9 +1161,11 @@ function renderLabels() {
     const revByVal = new Map();
     const countByVal = new Map();
     const revenueValues = new Set();
-    // Filter steuern die sichtbaren Flächen, nicht die fachliche Gesamtsumme
-    // eines Vertriebsbezirks oder einer Vertriebsgruppe.
-    for (const c of state.customers) {
+    // Ohne Filter bleiben fachliche Gesamtsummen und stabile Positionen erhalten.
+    // Mit Filter folgt die Beschriftung dagegen exakt dem sichtbaren Ausschnitt:
+    // Wer einen Bezirk isoliert, darf nicht weiter alle anderen Kacheln sehen.
+    const labelCustomers = regionFilters.length > 0 ? modeVisibleCustomers() : state.customers;
+    for (const c of labelCustomers) {
         const v = valueOf(c);
         countByVal.set(v, (countByVal.get(v) ?? 0) + 1);
         if (c.umsatz === null || c.umsatz === undefined || c.umsatz === '') continue;
@@ -1142,9 +1175,9 @@ function renderLabels() {
         revenueValues.add(v);
     }
 
-    // Polygone je Wert sammeln – über ALLE Kunden (filterunabhängig, damit die
-    // Label-Position stabil bleibt und der fachlichen Gesamtsicht entspricht).
-    // Je Polygon Mittelpunkt, Kundenzahl und Umsatz dieses Werts erfassen.
+    // Polygone je Wert sammeln. Ohne Filter ueber alle Kunden, mit Filter nur
+    // ueber den bewusst gewaehlten Ausschnitt. Je Polygon Mittelpunkt,
+    // Kundenzahl und Umsatz dieses Werts erfassen.
     const polygonsByValue = new Map(); // val -> [{ lat, lng, count, revenue }]
     const addPolygon = (val, feature, count, revenue) => {
         const bbox = feature?._bbox;
@@ -1155,7 +1188,7 @@ function renderLabels() {
         polygonsByValue.set(val, list);
     };
 
-    const allStats = aggregateByRegion(state.level, currentLevelData, state.customers);
+    const allStats = aggregateByRegion(state.level, currentLevelData, labelCustomers);
     for (const [key, entry] of allStats) {
         const feature = featureByKey.get(key);
         if (!feature) continue;
@@ -1177,7 +1210,7 @@ function renderLabels() {
         const v = terr[attr];
         if (!v || polygonsByValue.has(v)) continue;
         const feature = featureByKey.get(id.slice(state.level.length + 1));
-        if (feature) addPolygon(v, feature, 0, 0);
+        if (feature && regionVisibleUnderFilters(feature)) addPolygon(v, feature, 0, 0);
     }
 
     const positions = revenueWeightedCentroids(polygonsByValue);

@@ -13,6 +13,7 @@ import { STATUS_COLORS, STATUS_LABELS, isOpportunity } from '../features/visits.
 import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
 import { OPTIONAL_MODULES, optionalModuleActive, optionalModuleEnabled, persistOptionalModule } from '../features/optionalModules.js';
+import { activeDimensionFilters } from '../features/territoryVisibility.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
@@ -36,6 +37,7 @@ function toHexColor(value) {
 let geocodeHandle = null;
 let autoRevealTimer = null;
 let demoSheetSnapshot = null;
+let levelBeforeHide = null;
 
 // Auf schmalen Schirmen teilen sich zwei Pillen die Zeile – dort müssen die
 // Beschriftungen kürzer sein, sonst wird eine davon abgeschnitten. Das ist
@@ -1163,6 +1165,12 @@ function syncLevelControl() {
     if (mode) mode.textContent = automatic ? 'Automatisch nach Zoom' : 'Manuell gewählt';
     if (active) active.textContent = CONFIG.levels[state.level]?.label ?? state.level;
     document.querySelector('.level-status')?.classList.toggle('is-fixed', !automatic);
+    const toggle = document.getElementById('btn-toggle-regions');
+    const hidden = state.levelMode === 'fixed' && state.fixedLevel === 'none';
+    if (toggle) {
+        toggle.textContent = hidden ? 'Gebietsflächen einblenden' : 'Gebietsflächen ausblenden';
+        toggle.setAttribute('aria-pressed', hidden ? 'true' : 'false');
+    }
 }
 
 /**
@@ -1415,6 +1423,22 @@ export function initSidebar() {
         emit('level:control-changed');
         persistSettings();
     });
+    document.getElementById('btn-toggle-regions')?.addEventListener('click', () => {
+        const hidden = state.levelMode === 'fixed' && state.fixedLevel === 'none';
+        if (hidden) {
+            const restore = levelBeforeHide || { levelMode: 'auto', fixedLevel: 'kreise' };
+            state.levelMode = restore.levelMode;
+            state.fixedLevel = restore.fixedLevel;
+            levelBeforeHide = null;
+        } else {
+            levelBeforeHide = { levelMode: state.levelMode, fixedLevel: state.fixedLevel };
+            state.levelMode = 'fixed';
+            state.fixedLevel = 'none';
+        }
+        syncLevelControl();
+        emit('level:control-changed');
+        persistSettings();
+    });
     on('level:resolved', syncLevelControl);
     on('depth:changed', syncLevelControl);
     syncLevelControl();
@@ -1497,19 +1521,59 @@ export function initSidebar() {
         renderDataStatus();
         renderTeamFilters();
         renderLegend();
+        renderTerritoryFilterSummary();
         applyMode(state.ui.mode, false, false);
     });
-    on('filters:changed', renderDataStatus);
+    on('filters:changed', () => {
+        renderDataStatus();
+        renderLegend();
+        renderTerritoryFilterSummary();
+    });
     // Die Willkommenskarte entscheidet mit, ob der Streifen sein Angebot zeigt.
     on('demo-welcome:changed', renderDataStatus);
     renderDataStatus();
     renderTeamFilters();
+    renderTerritoryFilterSummary();
 }
 
-function legendFromMap(entries) {
+function legendFromMap(entries, emptyText = 'Nach Datenimport sichtbar.') {
     return entries.length
         ? entries.map(([name, meta]) => `<span class="legend-item"><span class="dot" style="background:${meta.color}"></span>${escapeHtml(name)}</span>`).join('')
-        : '<span class="muted small">Nach Datenimport sichtbar.</span>';
+        : `<span class="muted small">${escapeHtml(emptyText)}</span>`;
+}
+
+function visibleLegendEntries(dimension) {
+    const entries = [...(dimension?.values?.entries?.() || [])];
+    const filtered = entries.some(([, meta]) => meta?.visible === false);
+    return (filtered ? entries.filter(([, meta]) => meta?.visible !== false) : entries).slice(0, 14);
+}
+
+function dimensionLegend(dimension) {
+    const entries = visibleLegendEntries(dimension);
+    const hasValues = (dimension?.values?.size || 0) > 0;
+    return legendFromMap(entries, hasValues && entries.length === 0 ? 'Keine Auswahl im Filter.' : undefined);
+}
+
+function renderTerritoryFilterSummary() {
+    const el = document.getElementById('territory-filter-summary');
+    if (!el) return;
+    const filters = activeDimensionFilters(state.dims, filterDimensionDefs());
+    if (filters.length === 0) {
+        el.classList.remove('is-active');
+        el.textContent = 'Kein Gebietsfilter aktiv – alle Flächen werden gezeigt.';
+        return;
+    }
+    const parts = filters.map((filter) => {
+        const values = [...filter.visible];
+        const selection = values.length === 0
+            ? 'keine Auswahl'
+            : values.length <= 2
+                ? values.join(', ')
+                : `${values.length} von ${filter.total}`;
+        return `${filter.label}: ${selection}`;
+    });
+    el.classList.add('is-active');
+    el.textContent = `Filter aktiv – ${parts.join(' · ')}. Nur passende Gebietsflächen und Beschriftungen sind sichtbar.`;
 }
 
 function renderLegend() {
@@ -1545,7 +1609,7 @@ function renderLegend() {
     } else if (mode === 'channel' || mode === 'bezirk' || mode === 'gruppe') {
         const dim = state.dims[mode];
         el.innerHTML = dim?.active
-            ? legendFromMap([...dim.values.entries()].slice(0, 14))
+            ? dimensionLegend(dim)
             : `<span class="muted small">Keine Spalte „${mode === 'channel' ? 'Vertriebshauptgruppe / Channel' : mode === 'bezirk' ? 'Vertriebsbezirk' : 'Vertriebsgruppe'}" in den Daten.</span>`;
     } else if (mode === 'rep') {
         el.innerHTML = legendFromMap([...state.reps.entries()].slice(0, 14));
@@ -1553,7 +1617,7 @@ function renderLegend() {
         // auto: Gebietsplanung führt über Vertriebsbezirk, nicht über Personen.
         const dim = state.dims.bezirk?.active ? state.dims.bezirk : state.dims.gruppe;
         el.innerHTML = dim?.active
-            ? legendFromMap([...dim.values.entries()].slice(0, 14))
+            ? dimensionLegend(dim)
             : '<span class="muted small">Nach Datenimport sichtbar.</span>';
     }
 }

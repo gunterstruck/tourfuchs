@@ -2037,6 +2037,9 @@ Gebietsebenen:
 - PLZ 2-stellig
 - PLZ 3-stellig
 - PLZ 5-stellig
+- **"Gebietsflächen ausblenden"** zeigt nur die Kundenkarte. Mit
+  **"Gebietsflächen einblenden"** kehrt die Karte zur vorherigen oder zur
+  automatischen Gebietsebene zurück.
 
 Anzeigearten:
 
@@ -2049,11 +2052,19 @@ Anzeigearten:
 Bei automatischer Anzeige gilt: weit herausgezoomt Vertriebsgruppen, mittlerer
 Zoom Vertriebsbezirke, nah Kundenmarker.
 
-### 13.2 Umsatzlabels
+### 13.2 Filter und Umsatzlabels
 
-Flächenlabels zeigen die fachliche Gesamtsumme einer Einheit, unabhängig von
-aktiven Kundenfiltern. `T EUR` bedeutet Tausend Euro. Der exakte Betrag steht im
-Tooltip.
+Die Fläche bezeichnet die gewählte geografische Gebietsebene, zum Beispiel
+einen Landkreis. Farbe und Kürzel darauf zeigen den Vertriebsbezirk oder die
+Vertriebsgruppe.
+
+Ein Filter im Tab **"Filter"** gilt auch für die Gebietskarte: Abgewählte
+Einheiten verschwinden mitsamt Fläche, Hoverziel, Beschriftung und
+Legendeneintrag. Wird nur ein Vertriebsbezirk gewählt, bleibt damit nur dessen
+räumlicher Ausschnitt sichtbar. Die eingeblendeten Flächenlabels zeigen die
+fachliche Summe des sichtbaren Ausschnitts. Ohne aktiven Filter zeigen sie die
+Gesamtsumme der Einheit. `T EUR` bedeutet Tausend Euro. Der exakte Betrag steht
+im Tooltip.
 
 ### 13.3 Gebietspopup
 

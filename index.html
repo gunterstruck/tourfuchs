@@ -327,6 +327,7 @@
                 <div class="level-control">
                     <label class="field-label" for="level-select">Gebietsebene</label>
                     <div class="level-row"><select id="level-select"></select></div>
+                    <button type="button" id="btn-toggle-regions" class="territory-visibility-toggle">Gebietsflächen ausblenden</button>
                     <p class="muted small">„Automatisch" folgt dem Zoom. Landkreise oder eine konkrete PLZ-Ebene bleiben fest, bis du sie selbst änderst.</p>
                     <ul class="hint-list expert-only">
                         <li><b>Landkreise:</b> klassische Gebietssicht (400 Kreise &amp; Städte)</li>
@@ -347,6 +348,8 @@
                 </select>
                 <p class="muted small" id="colormode-hint"></p>
                 <div id="colormode-legend" class="legend"></div>
+                <p class="territory-map-explainer"><b>So liest du die Karte:</b> Die Flächen sind die gewählte Gebietsebene, zum Beispiel Landkreise. Farbe und Kürzel zeigen den Vertriebsbezirk oder die Vertriebsgruppe.</p>
+                <p id="territory-filter-summary" class="territory-filter-summary" aria-live="polite"></p>
                 <h3>Auswertung</h3>
                 <button id="btn-cockpit" class="primary expert-only" style="width:100%">📊 Gebiets-Cockpit öffnen</button>
                 <p class="muted small expert-only">Kunden &amp; Umsatz je Vertriebsbezirk, plus Was-wäre-wenn-Zuweisung von Gebieten.</p>
