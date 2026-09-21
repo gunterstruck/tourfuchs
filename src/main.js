@@ -42,6 +42,7 @@ import { initAreaBriefing } from './ui/areaBriefing.js';
 import { initLasso } from './ui/lasso.js';
 import { initPlacePicker } from './ui/placePicker.js';
 import { initContractRadar } from './ui/contractRadar.js';
+import { initTerritorySummary } from './ui/territorySummary.js';
 import { upgradeDemoServiceContracts } from './features/demoServiceContracts.js';
 import { upgradeDemoServiceVisits } from './features/demoServiceVisits.js';
 import { fitToCustomers } from './features/map.js';
@@ -222,6 +223,7 @@ async function init() {
     initAreaBriefing();
     initBriefingSources();
     initContractRadar();
+    initTerritorySummary();
     initMap('map');
     initLasso();
     initSidebar();

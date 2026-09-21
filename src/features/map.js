@@ -597,6 +597,13 @@ export function initMap(containerId) {
         refreshAll();
     });
     on('region-threshold:changed', refreshAll);
+    on('territory-summary:focus', ({ bounds } = {}) => {
+        if (!Array.isArray(bounds) || bounds.length !== 4) return;
+        const [south, west, north, east] = bounds;
+        if (![south, west, north, east].every(Number.isFinite)) return;
+        map.closePopup();
+        map.fitBounds([[south, west], [north, east]], { padding: [48, 48], maxZoom: 10 });
+    });
     on('mode:changed', refreshAll);
     on('tab:changed', refreshAll);
     on('service-customer-scope:changed', refreshAll);
@@ -1264,6 +1271,17 @@ function renderLabels() {
         }
     }
 
+    const detailCustomers = qualifyingCustomerIds
+        ? labelCustomers.filter((customer) => qualifyingCustomerIds.has(customer.id))
+        : labelCustomers;
+    const customersByValue = new Map();
+    for (const customer of detailCustomers) {
+        const value = valueOf(customer);
+        const list = customersByValue.get(value) ?? [];
+        list.push(customer.id);
+        customersByValue.set(value, list);
+    }
+
     const positions = revenueWeightedCentroids(polygonsByValue);
     const labelMode = territoryLabelMode(map.getZoom(), { mobile: isMobileMap() });
     const labelSize = labelMode === 'chip'
@@ -1391,11 +1409,46 @@ function renderLabels() {
                 : dimension;
     const labelTitle = (val, count, hasRevenue, revenue) =>
         `${dimension} ${val}: ${count} Kunden${hasRevenue ? ` · ${formatRevenueFull(revenue)} Volumen` : ''}`;
-    const addLabel = (center, html) => L.marker(center, {
-        interactive: false,
-        keyboard: false,
-        icon: L.divIcon({ className: 'territory-label-wrapper', html, iconSize: null })
-    }).addTo(labelLayer);
+    const detailFor = (val, count, revenue, hasRevenue, color) => {
+        const parts = polygonsByValue.get(val) || [];
+        const boxes = parts.map((part) => part.bbox).filter((bbox) => Array.isArray(bbox));
+        const bounds = boxes.length ? [
+            Math.min(...boxes.map((bbox) => bbox[1])),
+            Math.min(...boxes.map((bbox) => bbox[0])),
+            Math.max(...boxes.map((bbox) => bbox[3])),
+            Math.max(...boxes.map((bbox) => bbox[2]))
+        ] : null;
+        return {
+            attr,
+            dimension,
+            value: val,
+            count,
+            revenue,
+            hasRevenue,
+            color,
+            regionCount: parts.length,
+            customerIds: customersByValue.get(val) || [],
+            bounds,
+            levelLabel: CONFIG.levels[state.level]?.label || 'Teilgebiete'
+        };
+    };
+    const addLabel = (center, html, detail, title) => {
+        const marker = L.marker(center, {
+            interactive: true,
+            keyboard: true,
+            bubblingMouseEvents: false,
+            riseOnHover: true,
+            riseOffset: 500,
+            alt: `${title}. Details öffnen`,
+            title: `${title} – Details öffnen`,
+            icon: L.divIcon({ className: 'territory-label-wrapper', html, iconSize: null })
+        });
+        marker.on('click', (event) => {
+            if (event.originalEvent) L.DomEvent.stop(event.originalEvent);
+            emit('territory-summary:open', detail);
+        });
+        return marker.addTo(labelLayer);
+    };
 
     // Beim Verkleinern skaliert die ganze Kachel mittig auf ihrem Gebiet.
     const scaleStyle = labelScale === 1 ? '' : `transform:translate(-50%,-50%) scale(${labelScale});`;
@@ -1417,7 +1470,7 @@ function renderLabels() {
                     <span class="tl-dimension">${escapeHtml(compactDimension)}</span>
                     <strong>${escapeHtml(displayValue)}</strong>
                     ${metrics}
-                </div>`);
+                </div>`, detailFor(val, count, revenue, hasRevenue, col), title);
     }
 
     // Vollständigkeits-Fallback: übrige Bezirke als kompakter Code-Chip – nie unsichtbar.
@@ -1428,7 +1481,7 @@ function renderLabels() {
         addLabel(center, `<div class="territory-stack-card territory-stack-card--mini${val === UNASSIGNED ? ' unassigned' : ''}" style="--territory-color:${col}" title="${escapeHtml(title)}">
                     <span class="tl-accent"></span>
                     <strong>${escapeHtml(compactTerritoryLabel(val))}</strong>
-                </div>`);
+                </div>`, detailFor(val, count, revenue, hasRevenue, col), title);
     }
 }
 

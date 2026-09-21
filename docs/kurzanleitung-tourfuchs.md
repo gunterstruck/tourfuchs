@@ -122,6 +122,9 @@ einem gewählten Vertriebsbezirk bleibt deshalb genau dessen Ausschnitt stehen.
 Mit **"Gebietsflächen ausblenden"** lässt sich ganz auf die Kundenkarte wechseln.
 Mit **"Fläche einfärben ab"** bleiben Landkreise oder PLZ-Flächen unter einer
 frei wählbaren Mindestzahl sichtbarer Kunden neutral; `0` schaltet die Schwelle aus.
+Ein Klick auf eine kleine Bezirks-/Gruppenkachel öffnet die große Detailkarte mit
+Kunden, Umsatz, Durchschnitt, Teilgebieten und stärksten Standorten. **"Gebiet auf
+Karte zeigen"** zoomt anschließend auf die vollständige räumliche Ausdehnung.
 
 ## 7. Tour planen
 

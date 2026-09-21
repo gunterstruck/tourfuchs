@@ -442,7 +442,11 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
 .tour-marker.auto-dest { font-size: 0.78rem; }
 
 /* Organisationskarten (Hauptgruppe / Gruppe / Bezirk + Kunden + Volumen) */
-.territory-label-wrapper { background: transparent; pointer-events: none; }
+.territory-label-wrapper {
+    background: transparent;
+    pointer-events: auto;
+    cursor: pointer;
+}
 .territory-stack-card {
     --territory-color: #0d9488;
     position: relative;
@@ -461,6 +465,19 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
     color: #0f172a;
     box-shadow: 0 4px 12px rgba(15, 23, 42, 0.18);
     backdrop-filter: blur(2px);
+    cursor: pointer;
+    transition: border-color 0.14s ease, box-shadow 0.14s ease, filter 0.14s ease;
+}
+.territory-label-wrapper:hover .territory-stack-card,
+.territory-label-wrapper:focus .territory-stack-card {
+    border-color: var(--territory-color);
+    box-shadow: 0 7px 20px rgba(15, 23, 42, 0.28);
+    filter: brightness(1.015);
+}
+.territory-label-wrapper:focus { outline: none; }
+.territory-label-wrapper:focus-visible .territory-stack-card {
+    outline: 3px solid color-mix(in srgb, var(--territory-color) 45%, white);
+    outline-offset: 3px;
 }
 .territory-stack-card::before {
     content: '';
