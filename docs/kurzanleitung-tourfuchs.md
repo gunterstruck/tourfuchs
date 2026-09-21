@@ -113,6 +113,12 @@ Merksatz:
 
 > Erst Zuweisung übernehmen schreibt dauerhaft.
 
+Zur Orientierung: Die gewählte Gebietsebene bestimmt die Flächen, zum Beispiel
+Landkreise. Farbe und Kürzel zeigen Vertriebsbezirk oder Vertriebsgruppe. Ein
+Filter blendet unpassende Flächen und Beschriftungen vollständig aus; bei nur
+einem gewählten Vertriebsbezirk bleibt deshalb genau dessen Ausschnitt stehen.
+Mit **"Gebietsflächen ausblenden"** lässt sich ganz auf die Kundenkarte wechseln.
+
 ## 7. Tour planen
 
 Der Tourplaner öffnet zuerst als Übersicht: die drei Schritte **Startpunkt ·

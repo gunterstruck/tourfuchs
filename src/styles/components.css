@@ -1014,6 +1014,27 @@
 
 .field-label { display: block; font-size: 0.85rem; color: var(--color-text-muted); margin: 10px 0 4px; }
 .level-row { display: flex; align-items: center; gap: 10px; }
+.territory-visibility-toggle {
+    width: 100%;
+    margin-top: 7px;
+}
+.territory-map-explainer,
+.territory-filter-summary {
+    margin: 8px 0;
+    padding: 8px 10px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-l);
+    background: var(--color-surface-2);
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    line-height: 1.4;
+}
+.territory-filter-summary.is-active {
+    border-color: rgba(13, 148, 136, 0.34);
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark);
+    font-weight: 650;
+}
 .level-status {
     display: flex;
     align-items: center;
