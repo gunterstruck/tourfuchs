@@ -7,11 +7,13 @@
 export const OPTIONAL_MODULES = Object.freeze({
     territoryPlanning: Object.freeze({
         storageKey: 'gf_territory_planning_enabled',
-        bodyClass: 'territory-planning-on'
+        bodyClass: 'territory-planning-on',
+        defaultEnabled: true
     }),
     service: Object.freeze({
         storageKey: 'gf_service_enabled',
-        bodyClass: 'service-on'
+        bodyClass: 'service-on',
+        defaultEnabled: false
     })
 });
 
@@ -21,13 +23,19 @@ function moduleDefinition(moduleId) {
     return definition;
 }
 
-/** Fehlender oder unlesbarer Speicher bedeutet immer: Modul aus. */
+/**
+ * Eine gespeicherte 1/0-Entscheidung gewinnt immer. Ohne Entscheidung gilt
+ * der Produkstandard des Moduls: Gebietsplanung an, Service weiterhin aus.
+ */
 export function optionalModuleEnabled(moduleId, storage = globalThis.localStorage) {
-    const { storageKey } = moduleDefinition(moduleId);
+    const { storageKey, defaultEnabled } = moduleDefinition(moduleId);
     try {
-        return storage?.getItem(storageKey) === '1';
+        const stored = storage?.getItem(storageKey);
+        if (stored === '1') return true;
+        if (stored === '0') return false;
+        return defaultEnabled;
     } catch (_error) {
-        return false;
+        return defaultEnabled;
     }
 }
 

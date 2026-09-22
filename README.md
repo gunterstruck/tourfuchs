@@ -21,7 +21,9 @@ TourFuchs beantwortet die drei Kernfragen im Vertriebsalltag:
 
 Strategische Gebietsplanung und das Service-Vertragsradar bleiben vollständig
 erhalten, konkurrieren aber nicht mit diesem Tagesablauf. Beide sind
-standardmäßig ausgeschaltete **optionale Profi-Module**.
+**optionale Profi-Module**. Die Gebietsplanung ist für die aktuelle
+Planungsarbeit standardmäßig aktiviert; das Service-Vertragsradar bleibt aus,
+bis es bewusst eingeschaltet wird. Beide Einstellungen lassen sich lokal ändern.
 
 ### Funktionen im Überblick
 

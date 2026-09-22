@@ -35,7 +35,8 @@ der Einordnung fremder Dateien erwähnen.
 die Kundenlisten aus Excel auf die Karte bringt und den täglichen Außendienst
 auf drei Aufgaben fokussiert: **Kunden sehen, Tour planen, gut vorbereitet
 hinfahren.** Strategische Gebietsplanung und Service bleiben vollständig
-erhalten, sind aber standardmäßig ausgeschaltete optionale Profi-Module. Alle
+erhalten und bleiben optionale Profi-Module. Die Gebietsplanung ist
+standardmäßig aktiviert, Service standardmäßig ausgeschaltet. Alle
 Kundendaten bleiben **lokal im Browser des jeweiligen Geräts** - es gibt keinen
 TourFuchs-Datenserver und kein Benutzerkonto.
 
@@ -407,8 +408,8 @@ Die Topbar enthält:
    „erfahrener Außendienst", sondern zusätzliche Spezial- und Verwaltungshilfen.
 2. Unter **"Profi" → "Optionale Profi-Module"** können
    **"Gebietsplanung & Gebietsmanagement"** und **"Service-Vertragsradar"**
-   getrennt aktiviert werden. Beide sind standardmäßig aus; TourFuchs merkt die
-   Wahl lokal.
+   getrennt aktiviert werden. Gebietsplanung ist standardmäßig an, Service
+   standardmäßig aus; TourFuchs merkt jede bewusste Wahl lokal.
 3. Erst danach erscheinen neben **"Außendienst"** die zusätzlichen Arbeitsfoki
    **"Gebietsplanung"** beziehungsweise **"Service"**.
 
@@ -2025,11 +2026,13 @@ Desktop-only Geschichten und der QR-Sendeschritt werden ausgeblendet.
 
 ### 13.1 Gebietsansicht
 
-**Klickpfad:** `Profi -> Optionale Profi-Module -> Gebietsplanung & Gebietsmanagement aktivieren -> Gebietsplanung -> Tab Gebiete`.
+**Klickpfad im Standard:** `Profi -> Gebietsplanung -> Tab Gebiete`.
 
-Die Aktivierung ist standardmäßig aus. Bezirke, Bezirksfarben und operative
-Filter bleiben im Außendienst sichtbar; nur strukturelle Analyse und Änderung
-liegen hinter diesem Modul.
+Die Moduloption **"Gebietsplanung & Gebietsmanagement"** ist standardmäßig
+aktiviert. Sie kann unter `Profi -> Optionale Profi-Module` bewusst ausgeschaltet
+und später wieder eingeschaltet werden. Bezirke, Bezirksfarben und operative
+Filter bleiben auch dann im Außendienst sichtbar; nur strukturelle Analyse und
+Änderung liegen hinter diesem Modul.
 
 Gebietsebenen:
 
@@ -2701,9 +2704,11 @@ altem Namen alte PWA entfernen und neu installieren.
 
 ### Warum sehe ich am Desktop keine Gebietsplanung oder keinen Service-Fokus?
 
-> Beide Bereiche sind optionale Profi-Module und standardmäßig aus. Öffne
-> `Profi -> Optionale Profi-Module` und aktiviere dort „Gebietsplanung &
-> Gebietsmanagement" beziehungsweise „Service-Vertragsradar". Der normale
+> Beide Bereiche sind optionale Profi-Module. Die Gebietsplanung ist im Standard
+> bereits aktiviert und erscheint am Desktop nach dem Wechsel auf `Profi`.
+> Wurde sie früher bewusst ausgeschaltet, lässt sie sich unter
+> `Profi -> Optionale Profi-Module` wieder aktivieren. Der Service-Fokus bleibt
+> standardmäßig aus und wird dort bei Bedarf eingeschaltet. Der normale
 > Außendienstweg bleibt auch ohne diese Module vollständig.
 
 ### Kann ich CSV statt Excel verwenden?
@@ -3156,8 +3161,9 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 20. **Welche Scrollwege hat das Desktop-Panel?**
     Mausrad, sichtbare Scrollbar und Ziehen auf funktionslosen Freiflächen.
 21. **Ist Gebietsplanung standardmäßig sichtbar?**
-    Nein. Sie ist ein optionales Profi-Modul und wird am Desktop unter
-    „Optionale Profi-Module" aktiviert.
+    Als Modul ist sie standardmäßig aktiviert. Der Arbeitsfokus erscheint am
+    Desktop nach dem Wechsel auf „Profi". Unter „Optionale Profi-Module" kann
+    die Gebietsplanung bewusst aus- und wieder eingeschaltet werden.
 22. **Ist Basis nur für Anfänger gedacht?**
     Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi ergänzt
     Spezial-, Konfigurations- und Administrationswerkzeuge.
@@ -3232,8 +3238,9 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
   Außendienst fokussiert: **Kunden sehen. Tour planen. Gut vorbereitet
   hinfahren.**
 - **Gebietsplanung & Gebietsmanagement** und **Service-Vertragsradar** sind
-  optionale Profi-Module, standardmäßig aus und am Desktop einzeln aktivierbar.
-  Bestehende Fachfunktionen und Daten bleiben erhalten.
+  optionale Profi-Module und am Desktop einzeln schaltbar. Gebietsplanung ist
+  standardmäßig aktiv, Service standardmäßig aus. Bestehende Fachfunktionen und
+  Daten bleiben erhalten.
 - Basis ist ausdrücklich der vollständige tägliche Arbeitsmodus, nicht ein
   Anfängermodus. Profi bündelt Spezial-, Konfigurations- und
   Administrationswerkzeuge.
@@ -3745,7 +3752,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Desktop-Handyvorschau | "Mobile Außendienst & Tour"; startet tourfokussiert, zeigt aber den vollständigen mobilen Außendienstweg |
 | Basis | ruhiger Kernweg, Briefing inklusive |
 | Profi | Spezial-, Konfigurations- und Administrationswerkzeuge; kein „besserer Außendienstmodus" |
-| Optionale Module | Gebietsplanung & Gebietsmanagement sowie Service-Vertragsradar; standardmäßig aus, am Desktop unter Profi aktivierbar |
+| Optionale Module | Gebietsplanung & Gebietsmanagement sowie Service-Vertragsradar; Gebietsplanung standardmäßig an, Service aus, am Desktop unter Profi einzeln schaltbar |
 | Suche | eigene Orte, Kunden, lokale PLZ-Ortszentren und Koordinaten; keine freie Straßenadresssuche im Netz |
 | Briefing Basis | Prompt anzeigen/kopieren, Copilot öffnen, Nutzer sendet selbst |
 | Briefing Profi | derselbe Weg, zusätzlich Zielassistent wählbar |
