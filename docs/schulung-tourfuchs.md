@@ -118,15 +118,16 @@ vollständigen täglichen Kern: Kunden sehen und finden, Tour planen und Briefin
 vorbereiten. Strategische Spezialbereiche konkurrieren standardmäßig nicht mit
 diesem Ablauf.
 
-Unter **Profi -> Optionale Profi-Module** können am Desktop einzeln aktiviert
+Unter **Profi -> Optionale Profi-Module** können am Desktop einzeln geschaltet
 werden:
 
 - **Gebietsplanung & Gebietsmanagement**
 - **Service-Vertragsradar**
 
-Erst danach erscheinen die entsprechenden zusätzlichen Arbeitsfokusse. Das
-Deaktivieren blendet sie wieder aus; Kunden- und Tourdaten werden dadurch nicht
-gelöscht.
+Die Gebietsplanung ist standardmäßig aktiviert; das Service-Vertragsradar ist
+standardmäßig aus. Ein aktiviertes Modul zeigt den entsprechenden zusätzlichen
+Arbeitsfokus. Das Deaktivieren blendet ihn wieder aus; Kunden- und Tourdaten
+werden dadurch nicht gelöscht.
 
 ### Außendienst-Modus
 

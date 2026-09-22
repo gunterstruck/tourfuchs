@@ -22,9 +22,11 @@ describe('Optionale Profi-Module', () => {
 
     beforeEach(() => localStorage.clear());
 
-    it('startet mit Gebietsplanung und Service ausdrücklich aus', () => {
-        expect(optionalModuleEnabled('territoryPlanning')).toBe(false);
+    it('startet mit Gebietsplanung an und Service weiterhin aus', () => {
+        expect(optionalModuleEnabled('territoryPlanning')).toBe(true);
         expect(optionalModuleEnabled('service')).toBe(false);
+        expect(OPTIONAL_MODULES.territoryPlanning.defaultEnabled).toBe(true);
+        expect(OPTIONAL_MODULES.service.defaultEnabled).toBe(false);
         expect(OPTIONAL_MODULES.territoryPlanning.storageKey).toBe('gf_territory_planning_enabled');
         expect(OPTIONAL_MODULES.service.storageKey).toBe('gf_service_enabled');
     });
@@ -38,6 +40,11 @@ describe('Optionale Profi-Module', () => {
         persistOptionalModule('territoryPlanning', false);
         expect(optionalModuleEnabled('territoryPlanning')).toBe(false);
         expect(optionalModuleEnabled('service')).toBe(true);
+    });
+
+    it('bewahrt ein bewusstes Ausschalten der Gebietsplanung', () => {
+        persistOptionalModule('territoryPlanning', false);
+        expect(optionalModuleEnabled('territoryPlanning')).toBe(false);
     });
 
     it('bildet Aktivierung und Deaktivierung eindeutig über die UI-Klasse ab', () => {
@@ -54,6 +61,7 @@ describe('Optionale Profi-Module', () => {
         expect(modules).toContain('optional-modules expert-only');
         expect(modules).toContain('Optionale Profi-Module');
         expect(modules).toContain('id="chk-territory-planning-enabled"');
+        expect(modules).toContain('id="chk-territory-planning-enabled" checked');
         expect(modules).toContain('Gebietsplanung &amp; Gebietsmanagement');
         expect(modules).toContain('id="chk-service-enabled"');
         expect(modules).toContain('Service-Vertragsradar');

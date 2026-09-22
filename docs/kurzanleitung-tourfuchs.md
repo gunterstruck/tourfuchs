@@ -162,8 +162,10 @@ Auf dem Smartphone stehen Karte und Tour im Mittelpunkt.
 - Eine eingeblendete Android/iOS-**System-Navigationsleiste** verdeckt das Blatt
   nicht mehr – Hinweise und Bedienelemente liegen darüber.
 
-Gebietsmanagement und Service-Vertragsradar sind optionale Module. Sie werden
-am Desktop unter **Profi → Optionale Profi-Module** einzeln aktiviert.
+Gebietsmanagement und Service-Vertragsradar sind optionale Module. Die
+Gebietsplanung ist standardmäßig aktiviert; das Service-Vertragsradar bleibt
+zunächst aus. Beide werden am Desktop unter **Profi → Optionale Profi-Module**
+einzeln ein- oder ausgeschaltet.
 
 Karte, Kunden, Briefing und Tour bleiben der normale Basis-Ablauf. Komplexe
 Gebietsplanung bitte am Desktop durchführen.
