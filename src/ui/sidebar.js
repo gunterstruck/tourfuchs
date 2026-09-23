@@ -1210,7 +1210,7 @@ function initDepth() {
         // Migration: wer früher den Tour-Experten-Modus aktiv hatte, startet in Profi.
         let legacy = null;
         try { legacy = localStorage.getItem('gf_tour_expert'); } catch (e) { /* egal */ }
-        depth = legacy === '1' ? 'profi' : 'basis';
+        depth = legacy === '1' || optionalModuleEnabled('territoryPlanning') ? 'profi' : 'basis';
     }
     // Das Smartphone ist der schnelle Außendienst-Einstieg: bei jedem neuen
     // Öffnen bewusst ruhig in Basis starten. Profi bleibt danach anwählbar.
@@ -1533,13 +1533,11 @@ export function initSidebar() {
     initRevenueFilterControls();
     initTeamFilters();
 
-    // Nach dem Demo-Laden: direkt in den Außendienst-Modus. Desktop zeigt den
-    // Tour-Einstieg; mobil springt die Ansicht auf die Karte und klappt das
-    // Blatt ganz nach unten ein – so erscheinen die neuen Kunden sofort auf der
-    // Karte, statt hinter einem weit geöffneten Datenblatt zu verschwinden.
+    // Nach dem Demo-Laden im gewählten Modus bleiben. Die automatische Demo
+    // darf den neuen Gebietsplanungs-Start nicht zurück auf Tour setzen.
     on('demo:loaded', () => {
         clearTimeout(autoRevealTimer);
-        applyMode('aussendienst', true);
+        applyMode(state.ui.mode, true);
         if (isMobileUi()) showMapView();
     });
 
@@ -1948,7 +1946,7 @@ const SEARCH_THRESHOLD = 8;    // ab so vielen Werten ein Suchfeld zeigen
 const ROW_CAP = 60;            // max. gerenderte Zeilen je Ebene
 const filterUI = { expanded: {}, search: {}, enabled: {}, wired: false };
 
-const DEFAULT_FILTER_SECTIONS = ['bezirk', 'gruppe'];
+const DEFAULT_FILTER_SECTIONS = ['bezirk', 'gruppe', 'kundentyp'];
 
 function restoreOptionalFilterSections() {
     try {
@@ -2036,11 +2034,11 @@ function renderSection(section) {
     const search = filterUI.search[section.id] || '';
     const body = expanded ? `<div class="filter-body">
         ${total > SEARCH_THRESHOLD ? `<input type="search" class="filter-search" data-search="${section.id}" placeholder="in „${escapeHtml(section.label)}" filtern…" value="${escapeHtml(search)}" autocomplete="off">` : ''}
-        <div class="filter-rows" data-rows="${section.id}">${renderRows(section, counts, search)}</div>
         <div class="filter-bulk">
-            <button type="button" data-bulk="${section.id}" data-on="1">Alle</button>
-            <button type="button" data-bulk="${section.id}" data-on="0">Keine</button>
+            <button type="button" data-bulk="${section.id}" data-on="1" title="Alle Einträge der aktuellen Suche auswählen">Alles auswählen</button>
+            <button type="button" data-bulk="${section.id}" data-on="0" title="Alle Einträge der aktuellen Suche abwählen">Alle abwählen</button>
         </div>
+        <div class="filter-rows" data-rows="${section.id}">${renderRows(section, counts, search)}</div>
     </div>` : '';
     return `<div class="filter-section">
         <button type="button" class="filter-head" data-toggle="${section.id}" aria-expanded="${expanded}">

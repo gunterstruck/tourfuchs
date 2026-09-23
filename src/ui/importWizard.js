@@ -417,9 +417,8 @@ function renderMappingSource() {
 }
 
 /**
- * Am Schreibtisch ist die Kundenliste meist ohnehin in Excel offen – dort ist
- * Einfügen der schnellste Weg zu eigenen Daten und deshalb der primäre. Am
- * Handy liegt die Liste als Datei oder Anhang vor; dort bleibt die Datei vorn.
+ * Datei auswählen ist auf allen Geräten der klar hervorgehobene Hauptweg.
+ * Das Einfügen einer kopierten Excel-Tabelle bleibt die sekundäre Alternative.
  */
 function applyDataWayOrder() {
     const paste = document.getElementById('btn-paste');
@@ -427,18 +426,12 @@ function applyDataWayOrder() {
     const hint = document.getElementById('own-data-way-hint');
     if (!paste || !upload) return;
 
-    const desktop = !mobileQuery.matches;
-    const lead = desktop ? paste : upload;
-    const second = desktop ? upload : paste;
-
-    lead.classList.add('primary');
-    second.classList.remove('primary');
-    lead.style.order = '0';
-    second.style.order = '1';
+    upload.classList.add('primary');
+    paste.classList.remove('primary');
+    upload.style.order = '0';
+    paste.style.order = '1';
     if (hint) {
-        hint.textContent = desktop
-            ? 'Am schnellsten: Liste in Excel markieren, Strg+C – und hier einfügen. Kein Speichern nötig.'
-            : 'Am Handy meist die Datei. Eine kopierte Tabelle lässt sich aber genauso einfügen.';
+        hint.textContent = 'Über den grünen Button eine Excel-/CSV-Datei auswählen. Alternativ eine kopierte Tabelle aus Excel einfügen.';
     }
 }
 
@@ -579,7 +572,7 @@ async function showMappingStep() {
     // Vertriebsfelder) stehen sofort sichtbar oben. Die vielen optionalen Felder
     // liegen eingeklappt darunter – erkannt werden sie trotzdem, das Summary sagt
     // wie viele. So wirkt der Dialog nicht erschlagend, ohne etwas zu verstecken.
-    const IMPORTANT = new Set(['name', 'plz', 'strasse', 'ort', 'bezirk', 'gruppe', 'umsatz']);
+    const IMPORTANT = new Set(['name', 'plz', 'strasse', 'ort', 'bezirk', 'gruppe', 'kundentyp', 'umsatz']);
     const rowHtml = (field) => {
         const options = ['<option value="">– nicht vorhanden –</option>']
             .concat(headers.map((h) => {

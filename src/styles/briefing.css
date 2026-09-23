@@ -398,3 +398,12 @@
 .briefing-source-row .briefing-field { margin: 0 0 8px; }
 .briefing-source-row .briefing-field:last-child { margin-bottom: 0; }
 .briefing-source-row input { width: 100%; }
+.briefing-copy-status {
+    margin: 12px 16px;
+    padding: 12px 14px;
+    border: 1px solid currentColor;
+    border-radius: 12px;
+    font-weight: 600;
+}
+.briefing-copy-status.is-success { color: #116449; background: #e9f8f1; }
+.briefing-copy-status.is-error { color: #922b21; background: #fff0ed; }

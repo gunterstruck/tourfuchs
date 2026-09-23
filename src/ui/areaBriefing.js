@@ -9,7 +9,7 @@
  * Prompt entsteht lokal, wird vollständig gezeigt, kopiert – und im Assistenten
  * vom Nutzer abgeschickt. TourFuchs meldet sich nirgends an.
  */
-import { state, emit } from '../core/state.js';
+import { state } from '../core/state.js';
 import {
     AREA_BRIEFING_LIMIT,
     areaBriefingSelection,
@@ -17,6 +17,7 @@ import {
 } from '../features/areaBriefing.js';
 import { assistantForDepth } from '../services/assistant.js';
 import { copyText } from '../features/handoff.js';
+import { showBriefingCopyResult } from './briefingFeedback.js';
 import { loadBriefingSources } from '../services/briefingSources.js';
 import { briefingSourcesHtml, wireBriefingSources } from './briefingSources.js';
 
@@ -114,14 +115,10 @@ function launchAssistant(assistant) {
 
 async function openAssistant() {
     const copyPromise = copyText(currentPrompt);
+    const assistantLabel = currentAssistant.label;
     launchAssistant(currentAssistant);
     const copied = await copyPromise;
-    emit('toast', {
-        type: copied ? 'success' : 'info',
-        text: copied
-            ? `Prompt vorbereitet. In ${currentAssistant.label} einfügen und absenden.`
-            : `${currentAssistant.label} wurde geöffnet. Der Prompt konnte nicht automatisch kopiert werden.`
-    });
+    showBriefingCopyResult(dialog?.open ? body : null, copied, assistantLabel);
 }
 
 /**

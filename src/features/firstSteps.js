@@ -49,7 +49,7 @@ function read(provided) {
             done: Array.isArray(raw.done) ? raw.done.filter((id) => typeof id === 'string') : [],
             dismissed: raw.dismissed === true,
             // undefined = noch keine bewusste/automatische Wahl -> UI entscheidet
-            // nach Gerät (mobil startet eingeklappt, Desktop ausgeklappt).
+            // mit ruhigem Standard (auf allen Geräten eingeklappt).
             collapsed: typeof raw.collapsed === 'boolean' ? raw.collapsed : undefined
         };
     } catch {
@@ -135,11 +135,9 @@ export function shouldAutoCollapseFirstSteps({ doneIds = [], tourStopCount = 0 }
  * drei beantworten dieselbe Frage („Was ist das hier, und wie komme ich an meine
  * Daten?"), zwei davon sogar mit demselben Knopf („📂 Eigene Daten laden").
  *
- * Beide Angebote waren für sich richtig und sind unabhängig voneinander
- * entstanden; erst zusammen wurden sie zum Stapel. Sie werden deshalb zu einer
- * Reihenfolge: erst die Karte, die den Zustand erklärt – und wenn sie quittiert
- * ist, die Checkliste, die den nächsten Schritt anbietet.
+ * Die Checkliste bleibt daher standardmäßig kompakt – auch nach dem Quittieren
+ * der Willkommenskarte. Nur eine bewusste Wahl zum Aufklappen wird erhalten.
  */
-export function shouldRevealFirstStepsOnDemo({ dismissed = false, welcomeOpen = false } = {}) {
-    return !dismissed && !welcomeOpen;
+export function shouldRevealFirstStepsOnDemo({ dismissed = false, welcomeOpen = false, collapsed = true } = {}) {
+    return !dismissed && !welcomeOpen && collapsed === false;
 }

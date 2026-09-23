@@ -4,6 +4,7 @@
  * Kunde: {
  *   id, nummer, name, strasse, plz, ort, vb,
  *   channel, gruppe, bezirk,   // Vertriebshierarchie (oben -> unten), je optional
+ *   kundentyp,                // optionale Kundenkategorie (keine Gebietshierarchie)
  *   ansprechpartner, telefon, email, umsatz,
  *   rhythmusWochen, besuche: [ISO-Datum, ...],
  *   lat, lng, geo: 'exakt' | 'plz' | 'none'
@@ -23,6 +24,10 @@ export const DIMENSIONS = [
     { id: 'bezirk',  field: 'bezirk',  label: 'Vertriebsbezirk' },
     { id: 'gruppe',  field: 'gruppe',  label: 'Vertriebsgruppe' },
     { id: 'channel', field: 'channel', label: 'Vertriebschannel' }
+];
+
+const CUSTOMER_FILTER_DIMENSIONS = [
+    { id: 'kundentyp', field: 'kundentyp', label: 'Kundentyp' }
 ];
 
 const EXTRA_DIM_PREFIX = 'extra:';
@@ -95,11 +100,11 @@ export const state = {
         // Fokus-Modus: 'aussendienst' (Alltag: Karte, Tour, Kunden) |
         //              'gebietsplanung' (Experten: Gebiete schneiden, Cockpit, Simulation) |
         //              'service' (Experten: Vertragsradar und Service-Vorplanung)
-        mode: 'aussendienst',
-        activeTab: 'tour',
+        mode: isPhoneUi() ? 'aussendienst' : 'gebietsplanung',
+        activeTab: isPhoneUi() ? 'tour' : 'gebiete',
         // Ansichtstiefe: 'basis' (vollständiger täglicher Außendienst) |
         //               'profi' (zusätzliche Spezial-/Administrationswerkzeuge)
-        depth: 'basis',
+        depth: isPhoneUi() ? 'basis' : 'profi',
         // Chancen-Fokus: nur fällige/überfällige Kunden auf der Karte zeigen
         opportunityOnly: false,
         // Im Service-Fokus standardmäßig nur Kunden mit planungsrelevantem Vertrag.
@@ -157,7 +162,7 @@ function inferExtraDimensions(customers) {
 }
 
 export function filterDimensionDefs() {
-    return [...DIMENSIONS, ...(state.extraDimensions || [])];
+    return [...DIMENSIONS, ...CUSTOMER_FILTER_DIMENSIONS, ...(state.extraDimensions || [])];
 }
 
 const listeners = new Map();

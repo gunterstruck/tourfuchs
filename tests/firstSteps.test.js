@@ -97,17 +97,18 @@ describe('Erste-Schritte-Checkliste (Logik)', () => {
         expect(shouldAutoCollapseFirstSteps({})).toBe(false);
     });
 
-    it('wartet mit dem Aufklappen, solange die Willkommenskarte im Bild steht', () => {
+    it('klappt Mini-Demos nur nach bewusster Auswahl auf', () => {
         // Der Anlass ist eine Messung: Willkommenskarte, Beispieldaten-Streifen
         // und ausgeklappte Checkliste standen gleichzeitig im ersten Bild und
         // beantworteten dieselbe Frage – zwei davon mit demselben Knopf.
         expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: true })).toBe(false);
-        // Quittiert: Jetzt ist die Checkliste der nächste Gedanke.
-        expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: false })).toBe(true);
+        // Auch nach dem Quittieren des Willkommens bleibt die Hilfe kompakt.
+        expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: false })).toBe(false);
+        expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: false, collapsed: false })).toBe(true);
+        expect(shouldRevealFirstStepsOnDemo({ welcomeOpen: true, collapsed: false })).toBe(false);
         // Eine bewusste Abwahl bleibt eine Abwahl – auch ohne Karte.
         expect(shouldRevealFirstStepsOnDemo({ dismissed: true, welcomeOpen: false })).toBe(false);
-        // Ohne Angaben (kein Demo-Kontext) gilt der bisherige Weg: aufklappen.
-        expect(shouldRevealFirstStepsOnDemo()).toBe(true);
+        expect(shouldRevealFirstStepsOnDemo()).toBe(false);
     });
 
     it('übersteht kaputte Persistenz ohne Fehler', () => {
