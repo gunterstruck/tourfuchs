@@ -692,12 +692,10 @@
                         <input type="checkbox" data-compliance-optin>
                         <span>Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</span>
                     </label>
-                    <!-- Reihenfolge und Gewicht setzt der Import-Assistent nach Gerät:
-                         am Schreibtisch ist die Liste meist schon in Excel offen,
-                         am Handy liegt sie als Datei vor. -->
+                    <!-- Datei-Auswahl ist auf allen Geräten der primäre Importweg. -->
                     <div class="own-data-ways">
+                        <button id="btn-upload" class="primary">📁 Excel-/CSV-Datei auswählen</button>
                         <button id="btn-paste">📋 Liste aus Excel einfügen</button>
-                        <button id="btn-upload">📁 Excel-/CSV-Datei auswählen</button>
                     </div>
                     <p id="own-data-way-hint" class="muted small own-data-way-hint"></p>
                     <button id="btn-template" class="linklike">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
@@ -871,7 +869,37 @@
                 <p><b>💬 Feedback &amp; Ideen:</b> Fehler gefunden oder einen Wunsch?
                     <a href="https://github.com/gunterstruck/tourfuchs/issues" target="_blank" rel="noopener">Auf GitHub melden</a> ·
                     <a href="mailto:tourfuchs@online.de?subject=TourFuchs%20Feedback">E-Mail schreiben</a></p>
-                <p><b>Datenschutz:</b> Kundendaten werden lokal in Ihrem Browser gespeichert. Optional lassen sie sich mit einem PIN- bzw. Face-/Touch-ID-geschützten <b>Datentresor AES-256-verschlüsseln</b>. Das Kundenbriefing erzeugt einen Prompt ausschließlich lokal, kopiert ihn auf Ihren Klick und öffnet Ihren Assistenten – TourFuchs meldet sich nirgends an und sendet nichts; abgeschickt wird der Prompt erst von Ihnen. Die optionale exakte Adress-Verortung sendet nur die jeweilige Adresse an OpenStreetMap (Nominatim).</p>
+                <section class="privacy-faq" aria-labelledby="privacy-faq-title">
+                    <h3 id="privacy-faq-title">🔒 Datenschutz – häufige Fragen</h3>
+                    <p>Local First: Die Kundenliste wird auf Ihrem Gerät verarbeitet und gespeichert. Welche Grenzen und freiwilligen Übertragungswege es gibt, erklären die Antworten unten.</p>
+                    <details>
+                        <summary>Wo werden meine Kundendaten gespeichert?</summary>
+                        <p>Import und Verarbeitung der Excel-/CSV-Liste erfolgen lokal im Browser. Der Kundendatensatz liegt in der lokalen Browser-Datenbank (IndexedDB). TourFuchs lädt diese Kundenliste nicht auf einen eigenen Server und synchronisiert sie nicht automatisch mit einer Cloud. Die Webseite und Karten benötigen dennoch Netzwerkzugriffe; die optionalen Übertragungswege sind unten aufgeführt.</p>
+                    </details>
+                    <details>
+                        <summary>Wann werden externe Dienste angesprochen?</summary>
+                        <p>Die Webseite wird vom Hosting-Dienst geladen. Kartenkacheln kommen je nach Kartenstil von OpenStreetMap, CARTO oder Esri; dabei erhalten die Anbieter unter anderem IP-Adresse und angeforderte Kartenausschnitte, nicht Ihre vollständige Kundenliste. Die normale PLZ-Verortung arbeitet mit den mitgelieferten Daten.</p>
+                        <p>Nur bei Nutzung der optionalen exakten Verortung wird die jeweilige Adresse an OpenStreetMap/Nominatim gesendet. Für die optionale Straßenroute gehen die Koordinaten der Wegpunkte an den Routing-Dienst OSRM. Beim Öffnen externer Navigation, beim Teilen oder Exportieren geben Sie ausgewählte Daten selbst weiter. Für vertrauliche Daten bitte nur betrieblich freigegebene Dienste verwenden.</p>
+                    </details>
+                    <details>
+                        <summary>Ist das so sicher wie das Speichern auf meinem Smartphone?</summary>
+                        <p>Das Prinzip ist vergleichbar mit lokal gespeicherten Daten auf einem Smartphone: Der Schutz hängt wesentlich von Gerätesperre, Betriebssystem, Browserprofil und Zugriffsrechten ab. Eine pauschale Gleichwertigkeit oder Sicherheitsgarantie lässt sich daraus nicht ableiten. Nutzen Sie ein geschütztes, aktuelles Gerät und bei sensiblen Daten zusätzlich den TourFuchs-Datentresor. Auf einem entsperrten Gerät können andere Personen oder berechtigte Programme gegebenenfalls mitlesen.</p>
+                    </details>
+                    <details>
+                        <summary>Verlassen Briefing-Prompts oder die Zwischenablage mein Gerät?</summary>
+                        <p>TourFuchs erzeugt den Prompt lokal und kopiert ihn erst auf Ihren Klick in die Zwischenablage. Es sendet den Prompt nicht automatisch an eine KI. Wenn Sie ihn in ein externes KI-Tool einfügen, übergeben Sie den Text an dieses Tool; dessen Verarbeitung richtet sich nach dem Anbieter und Ihren Unternehmenseinstellungen.</p>
+                        <p>Wichtig: Eine aktivierte Cloud-Zwischenablage, Geräte-Synchronisierung oder Clipboard-App kann kopierte Inhalte unabhängig von TourFuchs weitergeben. Für vertrauliche Inhalte diese Funktionen prüfen und gegebenenfalls deaktivieren. <a href="https://support.microsoft.com/de-de/windows/apps/using-the-clipboard" target="_blank" rel="noopener noreferrer">Microsoft: Zwischenablage und Synchronisierung</a>.</p>
+                    </details>
+                    <details>
+                        <summary>Kann ich die lokalen Daten zusätzlich verschlüsseln?</summary>
+                        <p>Ja. Über das Schloss bzw. den <b>Datentresor</b> lässt sich der gespeicherte Kundendatensatz mit <b>AES-256-GCM</b> verschlüsseln. Dazu gehören auch die im Datensatz enthaltenen Gebietszuordnungen, eigenen Orte, Verträge und Einsätze. Entsperrt wird mit PIN, optional über die unterstützte Face-/Touch-ID-Funktion. Bewahren Sie den Wiederherstellungscode sicher auf.</p>
+                        <p>Der Tresor verschlüsselt nicht pauschal die gesamte Browser-Datenbank: Einstellungen, separat gespeicherte Touren und Szenarien sind nicht vollständig davon umfasst. Ebenso wenig schützt er bereits exportierte Dateien, kopierte Prompts oder den während der Nutzung entschlüsselten Inhalt. Die ursprüngliche Excel-Datei bleibt unverändert an ihrem Speicherort.</p>
+                    </details>
+                    <details>
+                        <summary>Was passiert beim Löschen von Browserdaten oder Gerätewechsel?</summary>
+                        <p>Lokale Browserdaten können beim Zurücksetzen des Browsers oder durch Speicherbereinigung verloren gehen. TourFuchs hat keine serverseitige Sicherung Ihrer Kundenliste. Verwenden Sie vor einem Gerätewechsel den vorgesehenen verschlüsselten Datentransfer und bewahren Sie Sicherungen sowie Schlüssel getrennt und geschützt auf.</p>
+                    </details>
+                </section>
                 <details class="info-omitted">
                     <summary><b>🪦 Was wir weggelassen haben</b></summary>
                     <p class="muted small">Jedes Produkt zeigt, was es kann. Hier steht, was es <b>bewusst nicht</b> kann – und warum. Streichungen sind Entscheidungen, keine Versäumnisse, und sie gehören genauso offengelegt wie die Funktionen.</p>

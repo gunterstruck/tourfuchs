@@ -42,6 +42,7 @@ export const FIELDS = [
     { key: 'channel', label: 'Vertriebschannel',       required: false, synonyms: ['vertriebschannel', 'vertriebskanal', 'channel', 'kanal', 'absatzkanal', 'vertriebsweg', 'saleschannel', 'sales channel', 'vertriebslinie'] },
     { key: 'gruppe',  label: 'Vertriebsgruppe',        required: false, synonyms: ['vertriebsgruppe', 'gruppe', 'vg neu', 'vg', 'kundengruppe', 'kundenkreis', 'segment', 'kategorie', 'sparte', 'branche', 'klasse', 'team'] },
     { key: 'bezirk',  label: 'Vertriebsbezirk',        required: false, synonyms: ['vertriebsbezirk', 'betriebsbezirk', 'bezirk', 'vbez neu', 'vbez', 'verkaufsbezirk', 'gebietsbezirk', 'außendienstbezirk', 'aussendienstbezirk', 'district'] },
+    { key: 'kundentyp', label: 'Kundentyp', required: false, synonyms: ['kundentyp', 'kunden typ', 'kundenart', 'kundentyp bezeichnung', 'customer type', 'account type'] },
     { key: 'gebiet',  label: 'Gebiet (nur Flächenzeile: LK oder PLZ)', required: false, synonyms: ['gebiet', 'landkreis', 'lk', 'kreis', 'plz-gebiet', 'plz gebiet', 'fläche', 'flaeche', 'gebietszuweisung', 'nur gebiet'] },
     { key: 'ansprechpartner', label: 'Hauptansprechpartner', required: false, synonyms: ['hauptansprechpartner', 'haupt ansprechpartner', 'ansprechpartner', 'kontaktperson', 'kontakt', 'hauptkontakt', 'primary contact', 'main contact', 'contact', 'ap', 'ansprechpartner in'] },
     { key: 'telefon', label: 'Telefon',                required: false, synonyms: ['telefon', 'tel', 'telefonnummer', 'phone', 'mobil', 'handy', 'rufnummer', 'festnetz'] },
@@ -371,6 +372,10 @@ export function autoDetectMapping(headers) {
             for (const header of headers) {
                 if (used.has(header)) continue;
                 const norm = normalizeHeader(header);
+                // Ein expliziter Kundentyp darf nicht über „kunde…“ als Name
+                // verbraucht werden; dasselbe gilt für andere exakte Feldnamen.
+                if (!matcher.exact && FIELDS.some((other) => other.key !== field.key
+                    && other.synonyms.some((synonym) => normalizeHeader(synonym) === norm))) continue;
                 if (field.synonyms.some((s) => (matcher.exact || s.length > 2) && matcher.fn(norm, s))) {
                     mapping[field.key] = header;
                     used.add(header);
@@ -686,6 +691,7 @@ export function parseRows(rows, mapping) {
             channel: get('channel'),
             gruppe: get('gruppe'),
             bezirk,
+            kundentyp: get('kundentyp'),
             ansprechpartner: get('ansprechpartner'),
             telefon: get('telefon'),
             email: get('email'),
@@ -778,6 +784,7 @@ export function downloadTemplate() {
             'Straße': '', 'PLZ': '50667', 'Ort': 'Köln',
             'Vertriebsbeauftragter': 'Demo Vertrieb West',
             'Vertriebschannel': 'Fachhandel', 'Vertriebsgruppe': 'Handel', 'Vertriebsbezirk': 'Bezirk West',
+            'Kundentyp': 'Fachhändler',
             'Gebiet (LK/PLZ)': '',
             'Hauptansprechpartner': first.ansprechpartner, 'Telefon': first.telefon, 'E-Mail': first.email,
             'Umsatz': 125000, 'Besuchsrhythmus (Wochen)': 6, 'Letzter Besuch': '12.05.2026'
@@ -788,6 +795,7 @@ export function downloadTemplate() {
             'Straße': '', 'PLZ': '80331', 'Ort': 'München',
             'Vertriebsbeauftragter': 'Demo Vertrieb Süd',
             'Vertriebschannel': 'Direktvertrieb', 'Vertriebsgruppe': 'Lebensmittel', 'Vertriebsbezirk': 'Bezirk Süd',
+            'Kundentyp': 'Endkunde',
             'Hauptansprechpartner': second.ansprechpartner, 'Telefon': second.telefon, 'E-Mail': second.email,
             'Umsatz': 48000, 'Besuchsrhythmus (Wochen)': 4, 'Letzter Besuch': '28.06.2026'
         },
@@ -797,6 +805,7 @@ export function downloadTemplate() {
             'Straße': '', 'PLZ': '04109', 'Ort': 'Leipzig',
             'Vertriebsbeauftragter': 'Demo Vertrieb Ost',
             'Vertriebschannel': 'Direktvertrieb', 'Vertriebsgruppe': 'Handwerk', 'Vertriebsbezirk': 'Bezirk Ost',
+            'Kundentyp': 'Partner',
             'Gebiet (LK/PLZ)': '',
             'Hauptansprechpartner': third.ansprechpartner, 'Telefon': third.telefon, 'E-Mail': third.email,
             'Umsatz': 87500, 'Besuchsrhythmus (Wochen)': 8, 'Letzter Besuch': ''
@@ -833,6 +842,7 @@ export function customerExportRows(customers) {
         'Vertriebschannel': c.channel ?? '',
         'Vertriebsgruppe': c.gruppe,
         'Vertriebsbezirk': c.bezirk ?? '',
+        'Kundentyp': c.kundentyp ?? '',
         'Hauptansprechpartner': c.ansprechpartner ?? '',
         'Telefon': c.telefon ?? '',
         'E-Mail': c.email ?? '',

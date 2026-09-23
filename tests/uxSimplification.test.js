@@ -38,7 +38,7 @@ describe('Basis-/Profi-Schnitt der Gebietskarte', () => {
         expect(editor).toContain("const primary = ['bezirk', 'gruppe']");
         expect(cockpit).toContain('hasLegacyAssignments');
         expect(editor).toContain('hasLegacyAssignments');
-        expect(sidebar).toContain("const DEFAULT_FILTER_SECTIONS = ['bezirk', 'gruppe']");
+        expect(sidebar).toContain("const DEFAULT_FILTER_SECTIONS = ['bezirk', 'gruppe', 'kundentyp']");
     });
 
     it('macht alte optionale Filter sichtbar und räumt sie beim Entfernen vollständig auf', () => {

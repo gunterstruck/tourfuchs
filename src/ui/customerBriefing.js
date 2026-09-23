@@ -9,7 +9,7 @@
  *
  * Im Profi-Modus ist zusätzlich wählbar, welcher Assistent geöffnet wird.
  */
-import { state, emit } from '../core/state.js';
+import { state } from '../core/state.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import {
     buildCustomerBriefingPrompt,
@@ -17,6 +17,7 @@ import {
     customerBriefingFlow
 } from '../features/customerBriefing.js';
 import { copyText } from '../features/handoff.js';
+import { showBriefingCopyResult } from './briefingFeedback.js';
 import { loadBriefingSources } from '../services/briefingSources.js';
 import { briefingSourcesHtml, wireBriefingSources } from './briefingSources.js';
 import {
@@ -228,14 +229,10 @@ async function openAssistant() {
         return;
     }
     const copyPromise = copyText(currentPrompt);
+    const assistantLabel = currentAssistant.label;
     launchAssistant(currentAssistant);
     const copied = await copyPromise;
-    emit('toast', {
-        type: copied ? 'success' : 'info',
-        text: copied
-            ? `Prompt vorbereitet. In ${currentAssistant.label} einfügen und absenden.`
-            : `${currentAssistant.label} wurde geöffnet. Der Prompt konnte nicht automatisch kopiert werden.`
-    });
+    showBriefingCopyResult(dialog?.open ? body : null, copied, assistantLabel);
 }
 
 export function initCustomerBriefing() {

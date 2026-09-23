@@ -181,13 +181,13 @@ describe('Auffindbarkeit des Einfüge-Wegs', () => {
         expect(wizard).toContain("getElementById('btn-demo-welcome-paste')");
     });
 
-    it('führt am Schreibtisch, folgt am Handy', () => {
+    it('bleibt sekundär zum grünen Datei-Upload auf allen Geräten', () => {
         const order = wizard.slice(wizard.indexOf('function applyDataWayOrder'), wizard.indexOf('function renderPasteSteps'));
-        expect(order).toContain('const desktop = !mobileQuery.matches');
-        expect(order).toContain('desktop ? paste : upload');
-        // Beide Knöpfe kommen ohne feste Gewichtung aus dem Markup
+        expect(order).toContain("upload.classList.add('primary')");
+        expect(order).toContain("paste.classList.remove('primary')");
         const ways = html.slice(html.indexOf('own-data-ways'), html.indexOf('own-data-way-hint'));
-        expect(ways).not.toContain('class="primary"');
+        expect(ways).toContain('id="btn-upload" class="primary"');
+        expect(ways.indexOf('id="btn-upload"')).toBeLessThan(ways.indexOf('id="btn-paste"'));
     });
 
     it('sagt am Handy nirgends „Strg"', () => {

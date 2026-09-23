@@ -9,7 +9,7 @@
  *
  * Die Karte klappt von selbst ein, sobald der Nutzer erkennbar arbeitet:
  * Ein frisch abgehakter Schritt bleibt kurz als Feedback sichtbar (~4 s),
- * danach reicht die Zeile. Auf dem Handy startet sie direkt eingeklappt.
+ * danach reicht die Zeile. Auf allen Geräten startet sie eingeklappt.
  * Als Aktivität zählt auch das Scrollen in den Inhalt – dasselbe Signal, auf
  * das die übrigen Angebote zurücktreten (ui/offerAutoHide.js).
  */
@@ -40,8 +40,6 @@ let container = null;
 let celebrated = false;
 let collapseTimer = null;
 
-const isMobileUi = () => isPhoneUi();
-
 /** Ableitbare Schritte festschreiben; liefert Fortschritt + frisch Erledigtes. */
 function persistedProgress() {
     const fresh = [];
@@ -55,16 +53,10 @@ function persistedProgress() {
     return { progress: firstStepsProgress(), fresh };
 }
 
-/** Eingeklappt? Gespeicherte Wahl gewinnt; sonst Gerät + Arbeitskontext. */
+/** Gespeicherte Wahl gewinnt; ohne bewusste Auswahl bleibt die Hilfe kompakt. */
 function effectiveCollapsed(progress) {
     if (typeof progress.collapsed === 'boolean') return progress.collapsed;
-    // Ohne eigene Wahl tritt die Checkliste hinter die Willkommenskarte zurück:
-    // Solange die im Bild steht, ist sie der aktuelle Gedanke, nicht diese Liste.
-    if (isDemoWelcomeOpen()) return true;
-    return isMobileUi() || shouldAutoCollapseFirstSteps({
-        doneIds: progress.done,
-        tourStopCount: state.tour.stops.length
-    });
+    return true;
 }
 
 function scheduleAutoCollapse() {
@@ -187,24 +179,19 @@ export function initFirstSteps() {
     on('customers:changed', render);
     on('tour:changed', render);
     on('app:ready', render);
-    // Der allererste automatische Reveal (Beispielkunden erscheinen von selbst)
-    // ist der Moment, die geführten Live-Demos zu zeigen: Checkliste einmal
-    // ausgeklappt – auf dem Handy sonst nur ein Chip. Die Einklapp-bei-Aktivität-
-    // Logik räumt sie beim ersten echten Tap wieder weg.
-    // … es sei denn, die Willkommenskarte steht noch im Bild. Dann wartet die
-    // Checkliste, bis der Nutzer sie quittiert hat – zwei Angebote zur selben
-    // Frage sind eines zu viel (features/firstSteps.js).
+    // Automatisch geladene Beispieldaten dürfen die Mini-Demos nicht aufklappen.
+    // Eine bereits bewusst geöffnete Hilfe bleibt dagegen geöffnet.
     const revealOnDemo = () => {
         if (!shouldRevealFirstStepsOnDemo({
             dismissed: firstStepsProgress().dismissed,
-            welcomeOpen: isDemoWelcomeOpen()
+            welcomeOpen: isDemoWelcomeOpen(),
+            collapsed: firstStepsProgress().collapsed
         })) return;
         setFirstStepsCollapsed(false);
         render();
     };
     on('demo:auto-loaded', revealOnDemo);
-    // Quittiert heißt: Die Frage ist beantwortet, jetzt darf der nächste Schritt
-    // dran sein. Das ist die Übergabe, nicht bloß ein Nachziehen.
+    // Auch das Quittieren des Willkommens erzwingt kein Aufklappen der Hilfe.
     on('demo-welcome:changed', (offen) => { if (!offen) revealOnDemo(); });
     on('customer:detail-opened', () => completeFirstStep('daten'));
     on('showcase:story-completed', (storyId) => {

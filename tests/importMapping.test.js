@@ -16,7 +16,7 @@ describe('Import-Assistent: wichtige Felder zuerst, optionale auf Abruf (Konzept
     });
 
     it('rendert die wichtigen Felder oben, den Rest in den optionalen Block', () => {
-        expect(wiz).toContain("const IMPORTANT = new Set(['name', 'plz', 'strasse', 'ort', 'bezirk', 'gruppe', 'umsatz'])");
+        expect(wiz).toContain("const IMPORTANT = new Set(['name', 'plz', 'strasse', 'ort', 'bezirk', 'gruppe', 'kundentyp', 'umsatz'])");
         expect(wiz).toContain("FIELDS.filter((f) => IMPORTANT.has(f.key))");
         expect(wiz).toContain("FIELDS.filter((f) => !IMPORTANT.has(f.key))");
         expect(wiz).toContain("getElementById('mapping-rows-optional')");

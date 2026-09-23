@@ -1282,8 +1282,13 @@
     padding: 2px 8px;
     color: var(--color-text-muted);
 }
-.filter-bulk { display: flex; gap: 6px; margin: 6px 0 4px; }
+.filter-bulk { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 8px; }
 .filter-bulk button { font-size: 0.78rem; padding: 3px 10px; }
+.privacy-faq { margin: 20px 0; }
+.privacy-faq details { margin: 8px 0; border: 1px solid var(--color-border, #dce5e7); border-radius: 10px; padding: 10px 12px; }
+.privacy-faq summary { cursor: pointer; font-weight: 600; }
+.privacy-faq summary:focus-visible { outline: 2px solid var(--color-primary, #0d9488); outline-offset: 4px; }
+.privacy-faq details p { line-height: 1.55; }
 
 /* Ein-/ausklappbare Filter-Ebenen (skaliert auf viele VB/Bezirke) */
 .filter-section { border-bottom: 1px solid var(--color-surface-2); }
