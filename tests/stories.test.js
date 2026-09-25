@@ -152,18 +152,16 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(block).toContain('(frisch && isVisible(frisch) ? frisch : el).click();');
     });
 
-    it('führt die Lasso-Geschichte nach der KI-Empfehlung bis zur Straßenroute weiter', () => {
+    it('teilt Lasso-Auswahl und Tourplanung in kurze getrennte Schulungen', () => {
         const lasso = STORIES.find((story) => story.id === 'lasso');
         const keys = lasso.steps.filter((step) => step.t === 'run').map((step) => step.key);
 
         expect(keys.indexOf('openLassoBriefing')).toBeLessThan(keys.indexOf('pickLassoCustomers'));
         expect(keys.indexOf('pickLassoCustomers')).toBeLessThan(keys.indexOf('lassoPickedToTour'));
-        expect(keys.indexOf('lassoPickedToTour')).toBeLessThan(keys.indexOf('gotoTour'));
-        expect(keys.indexOf('gotoTour')).toBeLessThan(keys.indexOf('pickStart'));
-        expect(keys.indexOf('pickStart')).toBeLessThan(keys.indexOf('focusTourRoute'));
-        expect(keys.indexOf('focusTourRoute')).toBeLessThan(keys.indexOf('showRoadRoute'));
-        expect(lasso.steps.some((step) => step.text?.includes('Luftlinie'))).toBe(true);
-        expect(lasso.steps.at(-1)?.text).toContain('geplante Tour');
+        expect(keys).not.toContain('showRoadRoute');
+        expect(keys).not.toContain('gotoTour');
+        expect(lasso.steps.at(-1)?.text).toContain('Deine Tour, Schritt für Schritt');
+        expect(lasso.steps.at(-1)?.text).toContain('keinen KI-Bericht');
     });
 
     it('zählt den Tourprozess in jeder Tiefe als drei Stufen', () => {
@@ -179,7 +177,7 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('die Stories in fester Reihenfolge', () => {
-        expect(STORIES.map((s) => s.id)).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
+        expect(STORIES.map((s) => s.id)).toEqual(['gebietsueberblick', 'excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
     });
 
     it('am fokussierten Desktop entfallen Empfangs- und deaktivierte Modul-Stories', () => {
@@ -271,15 +269,27 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(vault.steps.some((step) => step.t === 'say' && step.sel === '#recovery-code')).toBe(true);
     });
 
-    it('schaltet die Straßenroute über den sichtbaren Karten-Umschalter (nicht den im Handy-Blatt versteckten Knopf)', () => {
-        // Nach dem Kartenfokus verschwindet #btn-route-focus im eingeklappten
-        // Handy-Blatt; der Umschalter liegt dann als Leiste über der Karte
-        // (#btn-route-mode) und muss dort geklickt werden, sonst bleibt Luftlinie.
-        const road = showcaseSource.slice(showcaseSource.indexOf('async showRoadRoute('));
-        expect(road.slice(0, 900)).toContain("clickEl('#btn-route-mode')");
+    it('erklärt die Straßenroute ohne Zustimmung zu erteilen oder den Dienst aufzurufen', () => {
+        expect(showcaseSource).not.toContain('gf_routing_consent');
+        expect(showcaseSource).not.toContain("clickEl('#btn-route-mode')");
+        expect(showcaseSource).not.toContain('showRoadRoute');
         const tour = STORIES.find((story) => story.id === 'tour');
         const roadSay = tour.steps.find((s) => s.t === 'say' && /Straßenroute/.test(s.text) && s.sel);
         expect(roadSay?.sel).toBe('#btn-route-mode');
+        expect(roadSay?.text).toContain('Zustimmung');
+        expect(roadSay?.text).toContain('aktiviert sie nicht');
+    });
+
+    it('zeigt die Gebietsübersicht zuerst, mit gesicherten Filtern und echten Detail-Klicks', () => {
+        const overview = visibleStories({ isDesktop: true, territoryPlanningEnabled: true })[0];
+        expect(overview.id).toBe('gebietsueberblick');
+        expect(visibleStories({ isDesktop: false }).map(s => s.id)).not.toContain('gebietsueberblick');
+        const keys = overview.steps.filter(s => s.t === 'run').map(s => s.key);
+        expect(keys).toEqual(['overviewSetup', 'overviewDistrict', 'overviewRevenue', 'overviewMinimum', 'overviewDetail', 'overviewZoom']);
+        expect(showcaseSource).toContain('restoreFilters = captureShowcaseFilters()');
+        expect(showcaseSource).toContain('restoreFilters?.()');
+        expect(showcaseSource).toContain("clickEl('.territory-stack-card')");
+        expect(showcaseSource).toContain("clickEl('#territory-summary-focus')");
     });
 
     it('wechselt vor dem Optimieren auf den Schritt „Meine Tour" (Desktop-Fokus blendet ihn sonst aus)', () => {
@@ -433,10 +443,12 @@ describe('Showcase-Stories: Guardrail', () => {
     it('verbindet die Kundenauswahl mit einem sicheren Copilot-Briefing', () => {
         const briefing = STORIES.find((story) => story.id === 'chancen');
 
-        expect(briefing.title).toContain('Sofort gebrieft');
+        expect(briefing.title).toContain('Briefing vorbereiten');
         expect(briefing.steps.some((step) => step.key === 'openCustomerBriefing')).toBe(true);
-        expect(briefing.steps.some((step) => step.sel === '.briefing-demo-preview')).toBe(true);
-        expect(briefing.steps.some((step) => step.sel === '.briefing-demo-note')).toBe(true);
+        expect(briefing.steps.some((step) => step.sel === '#customer-briefing-dialog')).toBe(true);
+        expect(briefing.steps.some((step) => step.text?.includes('keinen KI-Bericht'))).toBe(true);
+        expect(briefing.steps.some((step) => step.text?.includes('Kopierbestätigung'))).toBe(true);
+        expect(briefing.steps.at(-1).text).toContain('KI-Antwort prüfst du');
         expect(briefing.steps.some((step) => step.sel === '[data-briefing-fallback]')).toBe(false);
         expect(briefing.steps.some((step) => step.key === 'closeCustomerBriefing')).toBe(true);
         expect(briefing.steps.some((step) => step.key === 'checkVisit')).toBe(false);

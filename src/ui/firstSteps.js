@@ -115,6 +115,12 @@ function render() {
             <b>🦊 Erste Schritte</b>
             <span class="muted small">${doneCount}/${steps.length}</span>
         </div>
+        ${!isPhoneUi() && document.body.classList.contains('territory-planning-on') ? `
+            <button type="button" class="first-steps-action" data-showcase="gebietsueberblick">
+                <span aria-hidden="true">🧭</span>
+                <span class="first-steps-text"><b>Mein Gebiet im Überblick</b><small>Bezirk, Umsatzfilter und Kunden kennenlernen</small></span>
+                <span aria-hidden="true">▶</span>
+            </button>` : ''}
         <ul class="first-steps-list">
             ${steps.map((step) => `
                 <li class="${done.has(step.id) ? 'done' : ''}">

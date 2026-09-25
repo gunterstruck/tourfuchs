@@ -12,7 +12,7 @@
  */
 
 import { STORIES, visibleStories, visibleStorySteps, prepareShowcaseTour, selectShowcaseTour, storyDuration } from '../features/stories.js';
-import { state, emit, markDirty, datasetSnapshot, on } from '../core/state.js';
+import { state, emit, markDirty, datasetSnapshot, on, visibleCustomers } from '../core/state.js';
 import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
 import { saveDataset } from '../services/storage.js';
 import {
@@ -35,8 +35,8 @@ import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js'
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo } from './importWizard.js';
-
-const ROUTING_CONSENT_KEY = 'gf_routing_consent';
+import { ShowcasePlayback, ShowcaseAbortError as AbortError } from '../features/showcasePlayback.js';
+import { captureShowcaseFilters } from './sidebar.js';
 
 // Beispieltabelle für die Einfüge-Vorführung: bewusst klein, mit
 // Überschriftenzeile und Tabulatoren – genau das, was Excel beim Kopieren in
@@ -80,18 +80,16 @@ let toolbarEl = null;
 let dialog = null;
 let running = false;
 let aborted = false;
-let activeReject = null;
+let playback = null;
+let restoreFilters = null;
 let tourSnapshot = null;
 let visitRestore = null;      // { id, besuche } zum Zurücksetzen von „Heute besucht"
 let origConfirm = null;       // Originales window.confirm während patchConfirm
-let priorConsent = undefined; // Routing-Zustimmung vor der Demo (zum Zurücksetzen)
 let demoVaultCreated = false; // hat DIESE Demo den Tresor angelegt? (nur dann abbauen)
 let priorDepth = null;        // Ansichtstiefe vor der Demo (zum Zurücksetzen)
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
-
-class AbortError extends Error {}
 
 // ---- DOM der Show ----
 function ensureDom() {
@@ -108,23 +106,16 @@ function ensureDom() {
 
 // ---- Abbruch-sichere Pausen ----
 function sleep(ms) {
-    return new Promise((resolve, reject) => {
-        const dur = prefersReduced ? Math.min(ms, 250) : ms;
-        const timer = setTimeout(() => { activeReject = null; resolve(); }, dur);
-        activeReject = () => { clearTimeout(timer); reject(new AbortError()); };
-    });
+    return playback.wait(ms);
 }
 function sleepExact(ms) {
-    return new Promise((resolve, reject) => {
-        const timer = setTimeout(() => { activeReject = null; resolve(); }, ms);
-        activeReject = () => { clearTimeout(timer); reject(new AbortError()); };
-    });
+    return playback.wait(ms, { exact: true });
 }
 function guard() { if (aborted) throw new AbortError(); }
 function abortNow() {
     if (!running) return;
     aborted = true;
-    if (activeReject) activeReject();
+    playback?.abort();
 }
 
 // ---- Element-Auflösung ----
@@ -775,25 +766,6 @@ const HELPERS = {
         if (d?.open) d.close();
         await sleep(400);
     },
-    // Von Luftlinie auf die echte Straßenroute umschalten (OSRM). Zustimmung für
-    // die Vorführung setzen und danach wieder auf den alten Stand bringen.
-    async showRoadRoute() {
-        if (priorConsent === undefined) {
-            try { priorConsent = localStorage.getItem(ROUTING_CONSENT_KEY); } catch { priorConsent = null; }
-        }
-        try { localStorage.setItem(ROUTING_CONSENT_KEY, 'yes'); } catch { /* egal */ }
-        // Umschalten Luftlinie -> Straße (mapFocus ist bereits aktiv). Der richtige
-        // Knopf dafür ist die Leiste ÜBER der Karte (#btn-route-mode): Sie ist im
-        // Kartenfokus auf Desktop wie Handy sichtbar. Der #btn-route-focus im
-        // Tour-Blatt verschwindet dagegen auf dem Handy, sobald die Karte in den
-        // Vordergrund rückt – dann bliebe es bei der Luftlinie.
-        const toggled = await clickEl('#btn-route-mode');
-        if (!toggled) await clickEl('#btn-route-focus');
-        collapseSheetForDemo();               // Karte frei halten, Blatt bleibt unten
-        await sleep(2600);                    // Straßenroute (OSRM) berechnen/zeichnen lassen
-        fitTourRoute();
-        await sleep(700);
-    },
     // Fertige Tour als QR-Code zeigen (Barcode-Übergabe aufs Handy).
     async shareTourQr() {
         await openTourTab();
@@ -886,6 +858,83 @@ const HELPERS = {
         await sleep(400);
     },
     // ---- Story 4: Simulation ----
+    async overviewSetup() {
+        await HELPERS.ensureDemo();
+        // Establish an understandable starting view; captureShowcaseFilters restores it.
+        for (const dim of Object.values(state.dims)) {
+            for (const value of dim.values.values()) value.visible = true;
+        }
+        state.filters.revenue = { enabled: false, min: null, max: null };
+        state.ui.opportunityOnly = false;
+        emit('customers:changed');
+        emit('filters:changed');
+        await HELPERS.gotoGebiete();
+        await selectValue('#level-select', 'kreise');
+        await selectValue('#colormode-select', 'bezirk');
+        await fillNoFocus('#min-region-customers', '0');
+        fitToCustomers();
+        await sleep(900);
+    },
+    async overviewDistrict() {
+        await clickEl('.tab-button[data-tab="team"]');
+        const head = document.querySelector('[data-toggle="bezirk"]');
+        if (!head) throw new Error('Für diese Schulung wird mindestens ein Vertriebsbezirk benötigt.');
+        if (head.getAttribute('aria-expanded') !== 'true') await clickEl('[data-toggle="bezirk"]');
+        const search = document.querySelector('[data-search="bezirk"]');
+        if (search) {
+            search.value = '';
+            search.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+        await clickEl('[data-bulk="bezirk"][data-on="0"]');
+        const chosen = [...document.querySelectorAll('input[data-filter="bezirk"]')].find(el =>
+            state.customers.some(c => (c.bezirk || 'Ohne Zuordnung') === el.dataset.value && Number.isFinite(c.lat) && Number.isFinite(c.lng)));
+        if (!chosen) throw new Error('Kein verorteter Kunde in den angezeigten Bezirken.');
+        chosen.classList.add('sc-district-pick');
+        await clickEl('.sc-district-pick');
+        chosen.classList.remove('sc-district-pick');
+        await sleep(500);
+    },
+    async overviewRevenue() {
+        // Choose an interval containing an actual customer, including datasets with 0 revenue.
+        const located = visibleCustomers().filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lng));
+        const amounts = located.map(c => c.umsatz).filter(v => v !== null && v !== '' && v !== undefined && Number.isFinite(Number(v))).map(Number);
+        if (!amounts.length) {
+            await say('Hier fehlen Umsatzangaben. Mit importiertem Umsatz kannst du Von und Bis setzen; fehlende Werte werden dann ausgeblendet.', '#revenue-filter-enabled');
+            await playback.wait(4500, { reading: true });
+            return;
+        }
+        const value = amounts.find(v => v > 5) ?? amounts[0];
+        await fillNoFocus('#revenue-filter-min', String(Math.floor(value)));
+        await fillNoFocus('#revenue-filter-max', String(Math.ceil(Math.max(value, 100000))));
+        await clickEl('#revenue-filter-enabled');
+        await sleep(400);
+    },
+    async overviewMinimum() {
+        await clickEl('.tab-button[data-tab="gebiete"]');
+        await fillNoFocus('#min-region-customers', '3');
+        await sleep(500);
+    },
+    async overviewDetail() {
+        // Reset only the threshold demonstrated above: sparse own datasets must also work.
+        await fillNoFocus('#min-region-customers', '1');
+        fitToCustomers();
+        await sleep(1000);
+        const tile = await resolveEl('.territory-stack-card', 12000);
+        if (!tile) throw new Error('Die Gebietskachel ist noch nicht verfügbar. Bitte nach dem Laden der Karte erneut starten.');
+        await clickEl('.territory-stack-card');
+        if (!await resolveEl('#territory-summary-dialog[open]', 3000)) throw new Error('Die große Gebietskachel konnte nicht geöffnet werden.');
+    },
+    async overviewZoom() {
+        await clickEl('#territory-summary-focus');
+        moveOverlaysInto(document.body);
+        await sleep(1300);
+        await clickEl('#btn-toggle-regions');
+        const customers = visibleCustomers().filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lng));
+        const customer = customers.find(c => c.umsatz !== null && c.umsatz !== undefined) || customers[0];
+        if (!customer) throw new Error('In der Auswahl ist kein verorteter Kunde vorhanden.');
+        flyToCustomer(customer, true);
+        await sleep(2400);
+    },
     async gotoGebiete() {
         await clickEl('.mode-btn[data-mode="gebietsplanung"]');
         await sleep(300);
@@ -1122,7 +1171,10 @@ const HELPERS = {
 async function runStep(step) {
     if (step.t !== 'say') hideBubble();
     switch (step.t) {
-        case 'say': await say(step.text, step.sel, step.pos); await sleep(step.ms ?? 1800); break;
+        case 'say':
+            await say(step.text, step.sel, step.pos);
+            await playback.wait(step.ms ?? 1800, { reading: true });
+            break;
         case 'move': if (!await moveToEl(step.sel)) throw new Error('Demo-Ziel nicht sichtbar.'); break;
         case 'click': if (!await clickEl(step.sel)) throw new Error('Demo-Aktion nicht erreichbar.'); break;
         case 'type': if (!await typeInto(step.sel, step.text)) throw new Error('Demo-Eingabe nicht erreichbar.'); break;
@@ -1145,16 +1197,31 @@ function showChrome(story) {
     shieldEl.className = 'sc-shield';
     toolbarEl = document.createElement('div');
     toolbarEl.className = 'sc-toolbar';
+    toolbarEl.setAttribute('role', 'group');
+    toolbarEl.setAttribute('aria-label', 'Live-Demo steuern');
     toolbarEl.innerHTML = `<span class="sc-story-label">${story.icon} <b>${story.title}</b></span>
         <span class="sc-progress"></span>
+        <button type="button" class="sc-pause" aria-pressed="false">Pause</button>
+        <button type="button" class="sc-next" disabled title="Zum nächsten Erklärungsschritt">Weiter</button>
         <button type="button" class="sc-cancel">Beenden</button>`;
     document.body.append(shieldEl, toolbarEl);
     // Während einer Vorführung ruht die schwebende „nächster Schritt"-Hilfe –
     // sie würde sonst über der Karte mitlaufen und die Demo überlagern.
     document.body.classList.add('sc-running');
+    emit('showcase:running', true);
     toolbarEl.querySelector('.sc-cancel').addEventListener('click', abortNow);
+    toolbarEl.querySelector('.sc-pause').addEventListener('click', () => playback.togglePause());
+    toolbarEl.querySelector('.sc-next').addEventListener('click', () => playback.next());
     cursorEl.hidden = false;
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
+}
+function syncPlaybackControls() {
+    if (!toolbarEl || !playback) return;
+    const pause = toolbarEl.querySelector('.sc-pause');
+    pause.textContent = playback.paused ? 'Fortsetzen' : 'Pause';
+    pause.setAttribute('aria-pressed', String(playback.paused));
+    toolbarEl.querySelector('.sc-next').disabled = !playback.pending?.reading;
+    document.body.classList.toggle('sc-paused', playback.paused);
 }
 function setProgress(i, n) {
     const el = toolbarEl?.querySelector('.sc-progress');
@@ -1167,6 +1234,9 @@ function cleanup(story) {
     shieldEl?.remove(); shieldEl = null;
     toolbarEl?.remove(); toolbarEl = null;
     document.body.classList.remove('sc-running');
+    emit('showcase:running', false);
+    document.body.classList.remove('sc-paused');
+    document.getElementById('territory-summary-dialog')?.close();
 
     // Simulation gefahrlos verwerfen (auch bei Abbruch) – confirm dabei bejahen
     const savedConfirm = window.confirm;
@@ -1225,14 +1295,6 @@ function cleanup(story) {
     tourSnapshot = null;
     showcaseTourPlan = null;
 
-    // Routing-Zustimmung auf den Stand vor der Demo zurücksetzen.
-    if (priorConsent !== undefined) {
-        try {
-            if (priorConsent === null) localStorage.removeItem(ROUTING_CONSENT_KEY);
-            else localStorage.setItem(ROUTING_CONSENT_KEY, priorConsent);
-        } catch { /* egal */ }
-        priorConsent = undefined;
-    }
 
     // Nur einen von DIESER Demo angelegten Tresor wieder abbauen – ein bereits
     // vorhandener (echter) Tresor bleibt unangetastet.
@@ -1249,6 +1311,8 @@ function cleanup(story) {
     // Ansichtstiefe und Arbeitsfokus auf den Stand vor der Demo zurück.
     if (priorDepth) { applyDepth(priorDepth, false); priorDepth = null; }
     if (priorMode) { applyMode(priorMode, false); priorMode = null; }
+    restoreFilters?.();
+    restoreFilters = null;
     resetView();
 }
 
@@ -1268,6 +1332,8 @@ async function play(story) {
     if (running) return;
     running = true;
     aborted = false;
+    playback = new ShowcasePlayback({ reducedMotion: prefersReduced, onChange: syncPlaybackControls });
+    restoreFilters = captureShowcaseFilters();
     let completed = false;
     let failure = null;
     ensureDom();
@@ -1292,6 +1358,7 @@ async function play(story) {
         const steps = visibleStorySteps(story, { isDesktop, hasOwnData: hasOwnCustomers() });
         for (let i = 0; i < steps.length; i++) {
             guard();
+            if (playback.paused) await sleepExact(0);
             setProgress(i, steps.length);
             try {
                 await runStep(steps[i]);

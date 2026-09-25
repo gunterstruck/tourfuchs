@@ -96,11 +96,19 @@
     text-overflow: ellipsis;
     white-space: nowrap;
 }
-.sc-toolbar .sc-cancel {
+.sc-toolbar button {
     min-height: 32px;
     padding: 5px 13px;
     border-radius: 999px;
     font-weight: 700;
+}
+.sc-toolbar button:disabled { opacity: 0.45; }
+.sc-paused .sc-cursor { transition: none; }
+@media (max-width: 600px) {
+    .sc-toolbar { width: calc(100% - 24px); box-sizing: border-box; flex-wrap: wrap; gap: 5px; border-radius: 18px; padding: 7px 10px; }
+    .sc-toolbar .sc-story-label { max-width: none; flex: 1 1 75%; }
+    .sc-toolbar .sc-progress { white-space: nowrap; }
+    .sc-toolbar button { flex: 1; min-height: 36px; }
 }
 .sc-progress {
     color: var(--color-text-muted, #64748b);

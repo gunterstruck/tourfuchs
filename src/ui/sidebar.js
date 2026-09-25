@@ -1715,7 +1715,54 @@ function updateChancenCount() {
     }
 }
 
+let showcaseSettingsPaused = false;
+
+/** Live-Demos dürfen Filter und deren gespeicherte Voreinstellungen nicht ersetzen. */
+export function captureShowcaseFilters() {
+    const saved = {
+        filters: structuredClone(state.filters),
+        dims: structuredClone(state.dims),
+        reps: structuredClone(state.reps),
+        levelMode: state.levelMode, fixedLevel: state.fixedLevel, colorMode: state.colorMode,
+        minimum: state.ui.minRegionCustomers, opportunity: state.ui.opportunityOnly,
+        activeTab: state.ui.activeTab,
+        filterUI: structuredClone({ expanded: filterUI.expanded, search: filterUI.search }),
+        levelBeforeHide: levelBeforeHide && { ...levelBeforeHide }
+    };
+    showcaseSettingsPaused = true;
+    return () => {
+        state.filters = saved.filters;
+        // A first-run demo may have loaded example data after the snapshot.
+        for (const [id, dim] of Object.entries(saved.dims)) {
+            for (const [name, value] of dim.values) {
+                const current = state.dims[id]?.values.get(name);
+                if (current) current.visible = value.visible;
+            }
+        }
+        for (const [name, value] of saved.reps) {
+            if (state.reps.has(name)) state.reps.get(name).visible = value.visible;
+        }
+        state.levelMode = saved.levelMode;
+        state.fixedLevel = saved.fixedLevel;
+        state.colorMode = saved.colorMode;
+        state.ui.minRegionCustomers = saved.minimum;
+        state.ui.opportunityOnly = saved.opportunity;
+        Object.assign(filterUI, saved.filterUI);
+        levelBeforeHide = saved.levelBeforeHide;
+        document.getElementById('colormode-select').value = saved.colorMode;
+        document.querySelector(`.tab-button[data-tab="${saved.activeTab}"]`)?.click();
+        syncLevelControl();
+        renderTeamFilters();
+        emit('filters:changed');
+        emit('region-threshold:changed');
+        emit('level:control-changed');
+        emit('colormode:changed');
+        showcaseSettingsPaused = false;
+    };
+}
+
 function persistSettings() {
+    if (showcaseSettingsPaused) return;
     const dimVisibility = {};
     const dimColors = {};
     for (const def of filterDimensionDefs()) {

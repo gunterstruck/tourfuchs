@@ -98,6 +98,7 @@ export function initDemoWelcome() {
     });
 
     on('app:ready', render);
+    on('showcase:running', render);
     on('customers:changed', render);
     on('demo:loaded', render);
     on('demo:auto-loaded', render);
