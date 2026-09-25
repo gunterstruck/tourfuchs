@@ -12,11 +12,10 @@ describe('Route-Reveal auf dem Handy: Karte frei, Tour nicht nach oben gequetsch
     it('klappt das Blatt für den Karten-Reveal ein (Demo)', () => {
         expect(sidebar).toContain('export function collapseSheetForDemo(');
         expect(showcase).toContain('collapseSheetForDemo');
-        // Sowohl beim ersten Route-Einblenden als auch beim Straßen-Umschalten.
+        // Die Demo bleibt bei der Luftlinie und erklärt den externen Dienst nur.
         const focus = showcase.slice(showcase.indexOf('async focusTourRoute('), showcase.indexOf('async focusTourRoute(') + 300);
         expect(focus).toContain('collapseSheetForDemo()');
-        const road = showcase.slice(showcase.indexOf('async showRoadRoute('), showcase.indexOf('async showRoadRoute(') + 900);
-        expect(road).toContain('collapseSheetForDemo()');
+        expect(showcase).not.toContain('async showRoadRoute(');
     });
 
     it('zeigt die Route, ohne den Tour-Reiter zu verlassen', () => {

@@ -19,20 +19,20 @@
  *  realOnly / demoOnly            Datenlage – siehe `visibleStorySteps`
  */
 
-// `duration` ist die real gemessene Laufzeit (Sekunden, kompletter Durchlauf
-// in der laufenden App) – keine Schätzung. Nach jeder Skript-Änderung neu
-// messen, damit das Demo-Panel hält, was es verspricht.
+// Aktuelle ungefähre Laufzeiten ohne manuelle Pausen: am 25.09.2026 in Chrome
+// geprüft (Desktop 1440×900, Smartphone-Format 390×844). Kartenladezeiten und
+// eigener Datenumfang können variieren. Nach Ablaufänderungen neu messen.
 //
 // `durationMobile` gilt, wo das Handy weniger Schritte sieht (desktopOnly).
 // Ohne diese zweite Zahl versprach das Panel dem Handy die Desktop-Laufzeit –
 // bei „Von der Excel-Liste zur Kundenkarte" waren das 44 s für 31 s Vorführung.
 //
 // `durationOwnData` gilt aus demselben Grund für die Lasso-Demo: Mit eigenen
-// Kunden zeigt sie den echten Prompt und braucht dafür zehn Sekunden mehr als
-// mit der Kulisse. Wer eigene Daten geladen hat, soll die Zahl sehen, die für
-// ihn gilt.
+// Kunden zeigt sie zusätzliche Prompt-Schritte. Die eigene Datenlage braucht
+// deshalb eine andere Zeitangabe als die Beispielkunden-Vorschau.
 //
-// Zuletzt gemessen am 11.08.2026 (Chromium, Produktions-Build) in vier
+// Historische Messungen vor der Überarbeitung vom 25.09.2026:
+// Gemessen am 11.08.2026 (Chromium, Produktions-Build) in vier
 // Formaten: Desktop 1440×900, Tablet 834×1112 und 1112×834, Handy 390×844.
 // Lauf: 28 Durchläufe, 28 ok, 0 Abbrüche, 0 Klickmängel. Drei Zahlen sind
 // gestiegen, weil die Tour-Demo das Aussuchen jetzt wirklich zeigt (Vorschläge
@@ -54,12 +54,39 @@
 // Prompts dazu, und genau das ist der Unterschied zur Lasso-Demo.
 export const STORIES = [
     {
+        id: 'gebietsueberblick',
+        optionalModule: 'territoryPlanning',
+        icon: '🧭',
+        title: 'Mein Gebiet im Überblick',
+        blurb: 'Bezirk filtern, Umsatz eingrenzen, Kunden und große Kacheln ansehen.',
+        duration: 75,
+        desktopOnly: true,
+        needsData: true,
+        steps: [
+            { t: 'run', key: 'overviewSetup' },
+            { t: 'say', text: 'Erst Übersicht gewinnen: Die Flächen zeigen Landkreise, die Farben deine Vertriebsbezirke.', sel: '#colormode-select', ms: 3000 },
+            { t: 'run', key: 'overviewDistrict' },
+            { t: 'say', text: 'Alle abwählen, einen Bezirk anhaken: Die Karte zeigt jetzt nur diese Auswahl.', sel: '[data-toggle="bezirk"]', ms: 3200 },
+            { t: 'run', key: 'overviewRevenue' },
+            { t: 'say', text: 'Von und Bis begrenzen den Umsatz. Bei aktivem Filter fehlen Kunden ohne Umsatzangabe; 0 Euro ist ein gültiger Wert.', sel: '#revenue-filter-summary', ms: 4600 },
+            { t: 'say', text: 'Auch Kundentyp ist hier filterbar, sofern du diese Spalte importiert hast.', sel: '#team-filters', ms: 3000 },
+            { t: 'run', key: 'overviewMinimum' },
+            { t: 'say', text: 'Zum Beispiel drei sichtbare Kunden: Erst dann wird der Landkreis eingefärbt. Einzelne Ausreißer bleiben neutral.', sel: '#min-region-customers', ms: 4200 },
+            { t: 'say', text: 'Für die Detailansicht setzen wir die Mindestzahl wieder auf eins und öffnen die Bezirkskachel.', ms: 3000 },
+            { t: 'run', key: 'overviewDetail' },
+            { t: 'say', text: 'Groß und lesbar: Kundenanzahl, vorhandener Umsatz und die stärksten Standorte des ausgewählten Bezirks.', sel: '#territory-summary-body', ms: 3600 },
+            { t: 'run', key: 'overviewZoom' },
+            { t: 'say', text: 'Hineinzoomen, Flächen ausblenden, Kunden ansehen: Hier steht auch der Umsatz, sofern vorhanden.', sel: '.leaflet-popup-content', ms: 3800, pos: 'bottom' },
+            { t: 'say', text: 'Deine bisherigen Filter werden danach wiederhergestellt. Die Simulation findest du in einer eigenen Schulung.', ms: 2800 }
+        ]
+    },
+    {
         id: 'excel-karte',
         icon: '🗺️',
         title: 'Von der Excel-Liste zur Kundenkarte',
         blurb: 'Liste einfügen, Stapel verstehen, bis zum Detail aufzoomen.',
-        duration: 50,
-        durationMobile: 32,   // am Handy entfallen die Einfüge-Schritte
+        duration: 54,
+        durationMobile: 34,   // am Handy entfallen die Einfüge-Schritte
         minRuntimeMs: 15000,
         steps: [
             { t: 'say', text: 'TourFuchs macht aus einer Kundenliste eine verständliche Deutschlandkarte.', sel: '#map', ms: 2400 },
@@ -96,8 +123,8 @@ export const STORIES = [
         icon: '🖊️',
         title: 'Fläche umfahren, Briefing bekommen',
         blurb: 'Einkreisen, fragen „Wen zuerst?", die richtigen in die Tour.',
-        duration: 75,
-        durationOwnData: 85,
+        duration: 58,
+        durationOwnData: 76,
         needsData: true,
         mutatesTour: true,   // am Ende wandern zwei Kunden in die Tour
         steps: [
@@ -112,11 +139,11 @@ export const STORIES = [
             { t: 'say', text: 'Und jetzt die Frage, die TourFuchs allein nicht beantworten kann: Was ist bei diesen Kunden gerade los?', sel: '#btn-lasso-brief', ms: 3400, realOnly: true },
             { t: 'run', key: 'openLassoBriefing' },
             { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3200, demoOnly: true },
-            { t: 'say', text: 'Mit deinen echten Kunden entsteht hier ein fertiger Prompt: kopieren, im Assistenten einfügen, absenden. Zurück kommt die Reihenfolge – wen zuerst, und warum.', ms: 4200, demoOnly: true },
+            { t: 'say', text: 'Mit echten Kunden: Prompt kopieren, die Kopierbestätigung abwarten und im freigegebenen KI-Assistenten einfügen. Du sendest ab und prüfst seine Antwort.', ms: 5200, demoOnly: true },
             { t: 'run', key: 'revealAreaPrompt', realOnly: true },
             { t: 'say', text: 'Das ist der fertige Prompt. Er entsteht hier auf deinem Gerät – aus Name, Kundennummer, Ort und Fälligkeit. Umsatz, Telefon und Straße bleiben draußen.', sel: '.briefing-prompt-visible', ms: 4600, realOnly: true },
-            { t: 'say', text: 'Ein Klick legt ihn in die Zwischenablage und öffnet deinen Assistenten. Abgesendet wird er von dir – TourFuchs meldet sich nirgends an.', sel: '#area-briefing-footer', ms: 4400, realOnly: true },
-            { t: 'say', text: 'Der recherchiert in deinen eigenen Quellen, was bei diesen Kunden läuft – offene Vorgänge, letzte Zusagen – und schlägt eine Reihenfolge vor.', ms: 4200, realOnly: true },
+            { t: 'say', text: 'Prompt in die Zwischenablage kopieren, Kopierbestätigung abwarten, im freigegebenen Assistenten einfügen und selbst absenden. Hier wird nichts automatisch versendet.', sel: '#area-briefing-footer', ms: 5400, realOnly: true },
+            { t: 'say', text: 'Eigene Quellen kann die KI nur mit passender Anbindung und Berechtigung nutzen. Prüfe ihre Antwort, bevor du entscheidest.', ms: 4600, realOnly: true },
             { t: 'run', key: 'closeLassoBriefing' },
 
             // ---- Der Rückweg: entscheiden. Die Auswahl liegt noch da. ----
@@ -125,23 +152,7 @@ export const STORIES = [
             { t: 'say', text: 'Zwei angehakt – und der Knopf meint jetzt genau die zwei.', sel: '.popup-lasso [data-lasso="tour"]', ms: 2800 },
             { t: 'run', key: 'lassoPickedToTour' },
 
-            // ---- Nicht bei der Auswahl abbrechen: bis zur fahrbaren Route. ----
-            { t: 'say', text: 'Die empfohlenen Kunden sind jetzt in deiner Tour. Für die Strecke fehlt nur noch der Startpunkt.', ms: 3200, pos: 'bottom' },
-            { t: 'run', key: 'gotoTour' },
-            { t: 'say', text: 'Du bestimmst, wo die Tour beginnt – zum Beispiel an deinem Standort, am Büro oder bei einem Kunden.', sel: '#start-search', ms: 3400 },
-            { t: 'run', key: 'pickStart' },
-            { t: 'say', text: 'Der Startpunkt ist gesetzt. Erst jetzt kann TourFuchs die Strecke sinnvoll berechnen.', sel: '#acc-sum-start', ms: 3000 },
-            { t: 'run', key: 'showMyTour' },
-            { t: 'say', text: 'Startpunkt und Stopps stehen. TourFuchs bringt sie jetzt in eine kurze Reihenfolge.', sel: '#btn-optimize', ms: 3200 },
-            { t: 'click', sel: '#btn-optimize' },
-            { t: 'say', text: 'Die Reihenfolge ist vorbereitet. Ein Tipp legt die Tour auf die Karte.', sel: '#btn-route-focus', ms: 3000 },
-            { t: 'click', sel: '#btn-route-focus' },
-            { t: 'wait', ms: 1700 },
-            { t: 'run', key: 'focusTourRoute' },
-            { t: 'say', text: 'Zuerst siehst du die direkte Verbindung als Luftlinie.', ms: 3200, pos: 'bottom' },
-            { t: 'say', text: 'Nach deiner Zustimmung wechselt ein Tipp auf die tatsächliche Straßenroute.', sel: '#btn-route-mode', ms: 3200 },
-            { t: 'run', key: 'showRoadRoute' },
-            { t: 'say', text: 'Aus dem Gebiet wurde ein Briefing. Aus dem Briefing wurde eine geplante Tour.', ms: 3800, pos: 'bottom' }
+            { t: 'say', text: 'Die ausgewählten Kunden sind vorgemerkt. Startpunkt und Reihenfolge erklärt die eigene Schulung „Deine Tour, Schritt für Schritt“. Diese Demo hat keinen KI-Bericht abgerufen.', ms: 5000, pos: 'bottom' }
         ]
     },
     {
@@ -159,8 +170,8 @@ export const STORIES = [
         icon: '📋',
         title: 'Ein Prompt, deine KI',
         blurb: 'Was im Briefing steht – und was bewusst nicht.',
-        duration: 41,
-        durationOwnData: 68,
+        duration: 51,
+        durationOwnData: 75,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -173,16 +184,17 @@ export const STORIES = [
 
             // ---- Ab hier liegt der Schwerpunkt ----
             { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3400, demoOnly: true },
-            { t: 'say', text: 'Mit deinen echten Kunden steht hier der fertige Prompt: einsehbar, kopierbar, und abgesendet wird er von dir.', ms: 4000, demoOnly: true },
+            { t: 'say', text: 'Mit echten Kunden: Prompt prüfen, kopieren, Kopierbestätigung abwarten. Dann im freigegebenen Assistenten einfügen und selbst absenden.', ms: 5000, demoOnly: true },
+            { t: 'say', text: 'Eigene Quellen braucht die KI als Anbindung mit Berechtigung. Diese Demo ruft keinen KI-Bericht ab – die spätere Antwort prüfst du.', ms: 4600, demoOnly: true },
             { t: 'say', text: 'Deshalb baut TourFuchs hier keinen Bericht, sondern eine Frage – als fertigen Prompt.', ms: 3200, realOnly: true },
             { t: 'run', key: 'revealAreaPrompt', realOnly: true },
             { t: 'say', text: 'Er entsteht auf deinem Gerät. Und du siehst ihn vollständig, bevor irgendetwas kopiert wird.', sel: '.briefing-prompt-visible', ms: 3800, realOnly: true },
             { t: 'run', key: 'scrollPromptThrough', realOnly: true },
             { t: 'say', text: 'Das ist alles: Gebiet, die Kunden mit Nummer, Ort und Fälligkeit – und die Aufgabe, eine Reihenfolge zu begründen.', ms: 4200, realOnly: true },
             { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: kein Umsatz, keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600, realOnly: true },
-            { t: 'say', text: 'Ein Klick kopiert ihn und öffnet deinen Assistenten – Copilot, Gemini, ChatGPT oder den eurer Firma.', sel: '#area-briefing-footer', ms: 4200, realOnly: true },
+            { t: 'say', text: 'Ein Klick kopiert ihn und öffnet deinen Assistenten – Copilot, Gemini, ChatGPT oder den eurer Firma. Warte die Kopierbestätigung ab, dann füge ihn dort ein.', sel: '#area-briefing-footer', ms: 5200, realOnly: true },
             { t: 'say', text: 'Abgesendet wird von dir. TourFuchs meldet sich an keinem KI-Dienst an und ruft keine Schnittstelle auf.', ms: 4000, realOnly: true },
-            { t: 'say', text: 'Zurück kommt, was in deinen eigenen Quellen steht: offene Vorgänge, letzte Zusagen – und eine begründete Reihenfolge.', ms: 4200, realOnly: true },
+            { t: 'say', text: 'Eigene Quellen kann der Assistent nur mit passender Anbindung und Berechtigung nutzen. Prüfe seine Antwort; hier wird kein KI-Bericht abgerufen.', ms: 4800, realOnly: true },
             { t: 'run', key: 'closeLassoBriefing' },
             { t: 'say', text: 'Und dann entscheidest du.', sel: '.popup-lasso', ms: 2400, pos: 'top' },
             { t: 'run', key: 'pickLassoCustomers' },
@@ -195,14 +207,14 @@ export const STORIES = [
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',
         blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 68,
-        durationMobile: 59,
+        duration: 70,
+        durationMobile: 65,
         needsData: true,
         mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'focusDemoTourArea' },
-            { t: 'say', text: 'Wir starten im Ruhrgebiet: Hier liegen genug Kunden für eine sichtbare, sinnvolle Tagestour.', ms: 2400, pos: 'bottom' },
+            { t: 'say', text: 'Wir starten in einer Region mit Kunden für eine sichtbare, sinnvolle Tagestour.', ms: 2400, pos: 'bottom' },
             { t: 'run', key: 'gotoTour' },
             // Kein Bezirks-Schritt mehr: Geplant wird ab Werk über alle Bezirke.
             // Der Lauf stellt den Standard nur still sicher.
@@ -221,15 +233,14 @@ export const STORIES = [
             { t: 'run', key: 'showMyTour' },
             { t: 'say', text: 'Die Stopps stehen. Jetzt sortiert TourFuchs sie in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
             { t: 'click', sel: '#btn-optimize' },
-            { t: 'say', text: 'Reihenfolge optimiert – kürzeste Strecke.', ms: 1800 },
+            { t: 'say', text: 'Eine kurze, sinnvolle Reihenfolge – anhand der Luftlinienentfernungen optimiert.', ms: 2800 },
             { t: 'say', text: 'Ein Klick bringt die geplante Tour zurück auf die Karte.', sel: '#btn-route-focus', ms: 2200 },
             { t: 'click', sel: '#btn-route-focus' },
             { t: 'wait', ms: 1500 },
             { t: 'run', key: 'focusTourRoute' },
             { t: 'say', text: 'Die Route liegt auf der Karte – zuerst als Luftlinie.', ms: 2200, pos: 'bottom' },
-            { t: 'say', text: 'Für die Fahrt: ein Tipp wechselt von Luftlinie auf die echte Straßenroute.', sel: '#btn-route-mode', ms: 2300 },
-            { t: 'run', key: 'showRoadRoute' },
-            { t: 'say', text: 'So fährt sich der Tag – Reihenfolge und Strecke stehen.', ms: 2600, pos: 'bottom' },
+            { t: 'say', text: 'Die Straßenroute nutzt den externen Dienst OSRM und benötigt deine Zustimmung zur Übertragung der Koordinaten. Die Demo aktiviert sie nicht.', sel: '#btn-route-mode', ms: 5000 },
+            { t: 'say', text: 'Reihenfolge und Strecke als Luftlinie stehen. Die Straßenroute kannst du nach der Demo selbst aktivieren.', ms: 3400, pos: 'bottom' },
             { t: 'say', text: 'Und wie kommt die fertige Tour aufs Handy? Genau das zeigt die nächste Demo.', ms: 2800, desktopOnly: true }
         ]
     },
@@ -238,7 +249,7 @@ export const STORIES = [
         icon: '📲',
         title: 'Aufs Handy – ohne Kabel, ohne Cloud',
         blurb: 'Tour per QR-Code an dein Smartphone.',
-        duration: 56,
+        duration: 53,
         desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
         needsData: true,
         mutatesTour: true,
@@ -294,7 +305,7 @@ export const STORIES = [
         icon: '🛠️',
         title: 'Dein Service-Tag, verständlich geplant',
         blurb: 'Einsätze rein – erklärbarer Tagesplan raus.',
-        duration: 51,
+        duration: 46,
         desktopOnly: true,   // Service-Fokus (Profi) gibt es nur auf dem Desktop
         needsData: true,
         mutatesTour: true,
@@ -318,10 +329,10 @@ export const STORIES = [
     {
         id: 'chancen',
         icon: '🎯',
-        title: 'Spontaner Termin? Sofort gebrieft',
+        title: 'Spontaner Termin? Briefing vorbereiten',
         blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
-        duration: 47,
-        durationMobile: 36,
+        duration: 55,
+        durationMobile: 45,
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -340,10 +351,10 @@ export const STORIES = [
             { t: 'run', key: 'addOneSuggestion' },
             { t: 'say', text: 'Einen passenden Kunden in der Nähe ausgesucht. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
             { t: 'run', key: 'openCustomerBriefing' },
-            { t: 'say', text: 'Die Demo zeigt dir das Ergebnis kompakt – ohne erfundene Kunden an einen Assistenten zu senden.', sel: '.briefing-demo-preview', ms: 3000 },
-            { t: 'say', text: 'Mit echten Kunden kopiert TourFuchs den fertigen Prompt und öffnet deinen Assistenten – absenden tust du selbst.', sel: '.briefing-demo-note', ms: 3400 },
+            { t: 'say', text: 'Hier bereitest du den Prompt vor. Die Demo ruft keinen KI-Bericht ab und sendet nichts an einen Assistenten.', sel: '#customer-briefing-dialog', ms: 3600 },
+            { t: 'say', text: 'Mit echten Kunden: kopieren, Kopierbestätigung abwarten, im freigegebenen Assistenten einfügen und selbst absenden.', sel: '#customer-briefing-dialog', ms: 4400 },
             { t: 'run', key: 'closeCustomerBriefing' },
-            { t: 'say', text: 'Der nächste Kunde steht fest. Das aktuelle Gesprächsbriefing auch.', ms: 2500 }
+            { t: 'say', text: 'Der nächste Kunde steht fest. Die KI-Antwort prüfst du danach. Eigene Quellen benötigt die KI als freigegebene Anbindung.', ms: 4100 }
         ]
     },
     {
