@@ -177,12 +177,12 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('die Stories in fester Reihenfolge', () => {
-        expect(STORIES.map((s) => s.id)).toEqual(['gebietsueberblick', 'excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
+        expect(STORIES.map((s) => s.id)).toEqual(['gebietsueberblick', 'excel-karte', 'import-zuordnung', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
     });
 
     it('am fokussierten Desktop entfallen Empfangs- und deaktivierte Modul-Stories', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'handy-qr', 'chancen', 'tresor']);
+        expect(ids).toEqual(['excel-karte', 'import-zuordnung', 'lasso', 'briefing', 'tour', 'handy-qr', 'chancen', 'tresor']);
         expect(ids).not.toContain('empfang');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -201,7 +201,7 @@ describe('Showcase-Stories: Guardrail', () => {
 
     it('am Smartphone entfallen die desktop-only Stories, dafür kommt die Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: false }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'lasso', 'briefing', 'tour', 'chancen', 'tresor', 'empfang']);
+        expect(ids).toEqual(['excel-karte', 'import-zuordnung', 'lasso', 'briefing', 'tour', 'chancen', 'tresor', 'empfang']);
         expect(ids).not.toContain('handy-qr');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -479,5 +479,31 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(plan.stops.map((c) => c.id)).toEqual(['essen', 'dortmund']);
         expect(plan.stops.map((c) => c.id)).not.toContain('duplicate');
         expect(plan.inRuhr).toBe(true);
+    });
+});
+
+describe('Import-Vorführung mit Spaltenzuordnung', () => {
+    const story = STORIES.find((s) => s.id === 'import-zuordnung');
+    const showcase = readFileSync(resolve(process.cwd(), 'src/ui/showcase.js'), 'utf8');
+
+    it('zeigt den Zuordnungsschritt und ordnet eine unbekannte Spalte von Hand zu', () => {
+        expect(story).toBeTruthy();
+        expect(story.desktopOnly).toBeFalsy();
+        expect(story.steps).toContainEqual({ t: 'select', sel: '#mapping-rows select[data-field="name"]', value: 'Firmenbezeichnung' });
+    });
+
+    it('importiert nichts: Der Dialog schließt vor „Importieren"', () => {
+        const keys = story.steps.filter((s) => s.t === 'run').map((s) => s.key);
+        expect(keys).toEqual(['openImportDemo', 'importDemoFile', 'closeImportDemo']);
+        expect(story.steps.some((s) => s.t === 'click' && s.sel === '#mapping-confirm')).toBe(false);
+        // Auch bei Abbruch bleibt der Zuordnungsschritt nicht offen.
+        expect(showcase).toContain("const importDialog = document.getElementById('import-dialog');\n    if (importDialog?.open) importDialog.close();");
+    });
+
+    it('nutzt eine Beispieldatei, deren „Firmenbezeichnung" TourFuchs nicht selbst erkennt', async () => {
+        const { autoDetectMapping } = await import('../src/services/excel.js');
+        const mapping = autoDetectMapping(['Firmenbezeichnung', 'Straße', 'PLZ', 'Ort', 'Vertriebsbezirk', 'Umsatz 2025']);
+        expect(mapping.name).toBeNull();
+        expect(mapping).toMatchObject({ strasse: 'Straße', plz: 'PLZ', ort: 'Ort', bezirk: 'Vertriebsbezirk', umsatz: 'Umsatz 2025' });
     });
 });

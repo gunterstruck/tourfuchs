@@ -341,6 +341,16 @@ export function importExternalFile(file) {
     withDataConsent(() => handleFile(file));
 }
 
+/**
+ * Nur für die Live-Demo „Deine Excel-Liste importieren": eine im Speicher
+ * erzeugte Beispieldatei in den echten Zuordnungsschritt geben – ohne
+ * Dateiauswahl (die würde den System-Dialog öffnen) und ohne Import: Die
+ * Vorführung schließt den Dialog vor „Importieren".
+ */
+export function openMappingForShowcase(file) {
+    return handleFile(file);
+}
+
 async function handleFile(file) {
     const isExcel = /\.(xlsx|xlsm|xls|csv|ods)$/i.test(file.name);
     if (!isExcel) {

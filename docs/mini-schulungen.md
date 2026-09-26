@@ -32,6 +32,15 @@ Die Mindestzahl wird für die anschließende Detailansicht sichtbar wieder auf e
 
 Die Simulation bleibt eine separate Schulung für Fortgeschrittene. Die Lasso-Schulung endet nach der bewussten Kundenauswahl; Startpunkt und Reihenfolge erklärt die separate Tour-Schulung.
 
+## Excel-Liste importieren
+
+„Deine Excel-Liste importieren“ (Desktop und Handy, ca. 40 s) zeigt den Weg einer echten Datei bis zur Spaltenzuordnung:
+
+1. „Eigene Daten laden“ öffnen; der Knopf „Datei auswählen“ wird gezeigt, aber nicht geklickt (er öffnete den System-Dialog zur Dateiauswahl).
+2. Eine im Speicher erzeugte Beispieldatei (`meine-kundenliste.xlsx`, sechs Kunden) geht in den echten Zuordnungsschritt.
+3. Straße, PLZ, Ort, Vertriebsbezirk und Umsatz erkennt TourFuchs selbst; „Firmenbezeichnung“ nicht – der Zeiger ordnet sie dem Pflichtfeld Kundenname zu, die Beispielwerte erscheinen sofort.
+4. Vor „Importieren“ bricht die Vorführung ab: Es wird nichts importiert, der Bestand bleibt unberührt – auch bei vorzeitigem Beenden.
+
 ## Routing und KI: klare Grenzen
 
 Die Tour-Demo zeigt eine **Luftlinie** und erklärt lediglich, wo später die Straßenroute aktiviert werden kann. Sie setzt keine Routing-Zustimmung und schaltet nicht automatisch auf den externen OSRM-Dienst um. Außerhalb der Schulung gilt weiterhin der reguläre Zustimmungsdialog vor einer erstmaligen Straßenroutenanfrage.
@@ -47,4 +56,4 @@ Musiksteuerung: `src/features/showcaseMusic.js`; Quelldatei: `public/audio/tropi
 
 Nach Ablaufänderungen die angezeigten ungefähren Dauern nachmessen. Die Zeiten gelten ohne manuelle Pausen; Kartenladezeiten und Umfang des eigenen Bestands können sie verändern.
 
-Relevante Tests: `tests/stories.test.js`, `tests/showcasePlayback.test.js`, `tests/demoRouteReveal.test.js`, `tests/showcaseOnboarding.test.js`, `tests/firstSteps.test.js`. Für echte Browser-Durchläufe: `npm run demo-check`.
+Relevante Tests: `tests/stories.test.js`, `tests/showcasePlayback.test.js`, `tests/demoRouteReveal.test.js`, `tests/showcaseOnboarding.test.js`, `tests/firstSteps.test.js`. Für echte Browser-Durchläufe: `npm run demo-check` (öffnet die Auswahl über „🎬 Alle Demos“ im Beispieldaten-Streifen).

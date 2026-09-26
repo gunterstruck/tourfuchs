@@ -36,7 +36,7 @@ import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.j
 import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
-import { loadDemo } from './importWizard.js';
+import { loadDemo, openMappingForShowcase } from './importWizard.js';
 import { ShowcasePlayback, ShowcaseAbortError as AbortError } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
 import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
@@ -51,6 +51,19 @@ const PASTE_DEMO_TABLE = [
     'Beispiel Maschinenbau AG\t44135\tDortmund\tBezirk West',
     'Demo Handel KG\t50667\tKöln\tBezirk Rheinland'
 ].join('\n');
+
+// Beispieldatei für die Import-Vorführung. Die Spaltennamen sind bewusst so
+// gewählt, wie sie in echten Exporten vorkommen: Das meiste erkennt TourFuchs
+// selbst, „Firmenbezeichnung" aber nicht – genau daran zeigt sich, wozu die
+// Zuordnung da ist.
+const IMPORT_DEMO_ROWS = [
+    { Firmenbezeichnung: 'Muster Technik GmbH', 'Straße': 'Beispielweg 1', PLZ: '45136', Ort: 'Essen', Vertriebsbezirk: 'Bezirk West', 'Umsatz 2025': 48200 },
+    { Firmenbezeichnung: 'Beispiel Maschinenbau AG', 'Straße': 'Musterstraße 12', PLZ: '44135', Ort: 'Dortmund', Vertriebsbezirk: 'Bezirk West', 'Umsatz 2025': 91500 },
+    { Firmenbezeichnung: 'Demo Handel KG', 'Straße': 'Probeallee 7', PLZ: '50667', Ort: 'Köln', Vertriebsbezirk: 'Bezirk Rheinland', 'Umsatz 2025': 23800 },
+    { Firmenbezeichnung: 'Vorlage Logistik GmbH', 'Straße': 'Testring 3', PLZ: '40213', Ort: 'Düsseldorf', Vertriebsbezirk: 'Bezirk Rheinland', 'Umsatz 2025': 67100 },
+    { Firmenbezeichnung: 'Schema Elektro OHG', 'Straße': 'Fiktivplatz 5', PLZ: '48143', Ort: 'Münster', Vertriebsbezirk: 'Bezirk Nord', 'Umsatz 2025': 35400 },
+    { Firmenbezeichnung: 'Platzhalter Bau GmbH', 'Straße': 'Übungsweg 9', PLZ: '33602', Ort: 'Bielefeld', Vertriebsbezirk: 'Bezirk Nord', 'Umsatz 2025': 12900 }
+];
 
 /**
  * Die Berechtigungs-Zusicherung nach der Vorführung zurücknehmen.
@@ -642,6 +655,36 @@ const HELPERS = {
         field.value = PASTE_DEMO_TABLE;
         field.dispatchEvent(new Event('input', { bubbles: true }));
         await sleep(900);
+    },
+    async openImportDemo() {
+        const ownData = document.getElementById('own-data-dialog');
+        if (!ownData?.showModal) return;
+        if (!ownData.open) ownData.showModal();
+        await sleep(700);
+    },
+    /**
+     * Beispieldatei in den echten Zuordnungsschritt geben. Der Knopf „Datei
+     * auswählen" wird nur gezeigt, nicht geklickt: Er öffnete den System-Dialog
+     * zur Dateiauswahl, den die Vorführung nicht bedienen kann.
+     */
+    async importDemoFile() {
+        const XLSX = await import('xlsx');
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, XLSX.utils.json_to_sheet(IMPORT_DEMO_ROWS), 'Kunden');
+        const bytes = XLSX.write(workbook, { type: 'array', bookType: 'xlsx' });
+        const file = new File([bytes], 'meine-kundenliste.xlsx', {
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        });
+        guard();
+        moveOverlaysInto(document.body);
+        document.getElementById('own-data-dialog')?.close();
+        await openMappingForShowcase(file);
+        if (!await resolveEl('#import-dialog[open]', 4000)) throw new Error('Der Zuordnungsschritt ist nicht erschienen.');
+        await sleep(500);
+    },
+    async closeImportDemo() {
+        document.getElementById('import-dialog')?.close();
+        await sleep(400);
     },
     async closePasteDemo() {
         restorePasteDemoConsent();
@@ -1500,6 +1543,10 @@ function cleanup(story) {
     // Weitere Overlays schließen
     // Einfüge-Vorführung: Feld leeren, Bestätigung zurücknehmen (auch bei Abbruch)
     restorePasteDemoConsent();
+    // Import-Vorführung: Zuordnungsschritt nie offen zurücklassen – importiert
+    // wird in der Vorführung nichts.
+    const importDialog = document.getElementById('import-dialog');
+    if (importDialog?.open) importDialog.close();
     const pasteDialog = document.getElementById('paste-dialog');
     if (pasteDialog?.open) pasteDialog.close();
     const ownData = document.getElementById('own-data-dialog');
