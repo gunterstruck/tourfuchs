@@ -29,6 +29,9 @@ import { distanceKm } from '../services/geocode.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { CONFIG } from '../core/config.js';
+import { demoCorridorPoints, demoDestination, demoHomePoint, demoVia, DEMO_HOME_QUERY } from '../features/demoTour.js';
+import { loadPlaceIndex, tourPointFromResult, searchGeoPlaces } from '../features/places.js';
+import { peekRoadRoute, registerStaticRoutes, routingKey } from '../services/routing.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
 import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyDepth, applyMode } from './sidebar.js';
@@ -110,6 +113,7 @@ let demoVaultCreated = false; // hat DIESE Demo den Tresor angelegt? (nur dann a
 let priorDepth = null;        // Ansichtstiefe vor der Demo (zum Zurücksetzen)
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
+let demoTour = null;          // Tour-Demo: Zuhause, Ziel, Kunden auf dem Weg
 let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
 const music = new ShowcaseMusic({ onChange: syncMusicControls });
 
@@ -225,6 +229,30 @@ function pickMostCentral(sel) {
         if (score < bestScore) { bestScore = score; best = el; }
     }
     return best;
+}
+
+/** Das Element, das auf der Karte am nächsten an einem Kunden liegt (in px). */
+function elementNear(sel, point, maxPx) {
+    const map = getMap();
+    if (!map || !point) return null;
+    const box = map.getContainer().getBoundingClientRect();
+    const p = map.latLngToContainerPoint([point.lat, point.lng]);
+    const target = { x: box.left + p.x, y: box.top + p.y };
+    let best = null;
+    let bestD = maxPx;
+    for (const el of document.querySelectorAll(sel)) {
+        const r = el.getBoundingClientRect();
+        if (r.width === 0 || r.top < 0 || r.left < 0 || r.bottom > window.innerHeight || r.right > window.innerWidth) continue;
+        const d = Math.hypot(r.left + r.width / 2 - target.x, r.top + r.height / 2 - target.y);
+        if (d < bestD) { bestD = d; best = el; }
+    }
+    return best;
+}
+
+/** Den Stapel markieren, in dem der Kunde steckt – dorthin zeigt die Sprechblase. */
+function markStackNear(point) {
+    document.querySelectorAll('.sc-focus-stack').forEach((el) => el.classList.remove('sc-focus-stack'));
+    (elementNear('.customer-stack-card', point, 90) || elementNear('.customer-marker-card', point, 40))?.classList.add('sc-focus-stack');
 }
 
 function distanceToCenter(el) {
@@ -789,6 +817,135 @@ const HELPERS = {
         const c = located.find((x) => x.umsatz && x.telefon) || located.find((x) => x.umsatz) || located[Math.floor(located.length / 2)];
         flyToCustomer(c, true);
         await sleep(2400);
+    },
+    // ---- Tour-Demo: Karte → Ziel → zu Hause starten → unterwegs → Straßenroute ----
+    async planDemoTour() {
+        // Die vorberechnete Straßenroute kommt vom eigenen Server; passt sie
+        // nicht (eigene Kunden), bleibt es am Ende ehrlich bei der Luftlinie.
+        try {
+            const response = await fetch(CONFIG.demoRoutesUrl);
+            if (response.ok) registerStaticRoutes((await response.json()).routes);
+        } catch { /* ohne Datei: Luftlinie */ }
+        const customers = scopedWithCoords();
+        const home = demoHomePoint(await loadPlaceIndex());
+        let dest = demoDestination(customers, home);
+        let start = home;
+        if (!dest) {
+            // Eigener Bestand ohne Kunden im Revier: Start und Ziel aus den eigenen Kunden.
+            const plan = selectShowcaseTour(customers);
+            const first = plan?.start || customers[0];
+            dest = plan?.stops?.at(-1) || customers[1];
+            start = first ? { lat: first.lat, lng: first.lng, label: first.name, customerId: first.id } : null;
+        }
+        if (!start || !dest) throw new Error('Für die Tour-Demo fehlen verortete Kunden.');
+        const corridor = peekRoadRoute(demoCorridorPoints(start, dest));
+        const via = demoVia(customers, start, dest, {
+            corridorKm: state.tour.radiusKm,
+            corridorPath: corridor?.latLngs?.map(([lat, lng]) => ({ lat, lng })) || null
+        });
+        demoTour = { start, dest, via, fromHome: start === home };
+        document.querySelector('.mode-btn[data-mode="aussendienst"]')?.click();
+        showMapView();
+        await sleep(400);
+        // Nah genug, dass Stapel und Kacheln erscheinen – mit dem Ziel mittendrin.
+        focusMapArea(dest.lat, dest.lng, 11);
+        await sleep(1700);
+        markStackNear(dest);
+    },
+    /** Vom Stapel zum Zielkunden – Tipp für Tipp, bis seine Kachel da ist. */
+    async tapToDestination() {
+        const dest = demoTour?.dest;
+        if (!dest) return;
+        for (let tap = 0; tap < 4; tap += 1) {
+            const card = elementNear('.customer-marker-card', dest, 26);
+            if (card) {
+                card.classList.add('sc-pick');
+                await clickEl('.customer-marker-card.sc-pick');
+                card.classList.remove('sc-pick');
+                if (await resolveEl('.leaflet-popup-content', 2200)) { await sleep(900); return; }
+                break;
+            }
+            const stack = document.querySelector('.sc-focus-stack') || elementNear('.customer-stack-card', dest, 90);
+            if (!stack) break;
+            document.querySelectorAll('.sc-focus-stack').forEach((el) => el.classList.remove('sc-focus-stack'));
+            stack.classList.add('sc-focus-stack');
+            await clickEl('.customer-stack-card.sc-focus-stack');
+            stack.classList.remove('sc-focus-stack');
+            await sleep(1300);
+        }
+        // Notnagel: direkt zum Ziel – die Geschichte bleibt dieselbe.
+        flyToCustomer(dest, true);
+        await resolveEl('.leaflet-popup-content', 2500);
+        await sleep(900);
+    },
+    /** Den Schritt „Startpunkt" sichtbar öffnen – das Startfeld liegt darin. */
+    async showStartStep() {
+        const stepper = document.getElementById('tour-stepper');
+        if (stepper && !stepper.hidden && await resolveEl('#tour-stepper .tour-step[data-step="start"]', 600)) {
+            await clickEl('#tour-stepper .tour-step[data-step="start"]');
+        } else {
+            const acc = document.querySelector('.tour-acc[data-acc="start"]');
+            if (acc && !acc.classList.contains('open')) await clickEl('.tour-acc[data-acc="start"] .acc-head');
+        }
+        await sleep(400);
+    },
+    /** Start „zu Hause" – wie ein Mensch es ins Startfeld tippt. */
+    async pickHome() {
+        const home = demoTour?.start;
+        if (!home) return;
+        if (demoTour.fromHome && !isMobileView()) {
+            await typeInto('#start-search', DEMO_HOME_QUERY);
+            const row = await resolveEl('#start-results [data-point]', 2500);
+            const match = [...document.querySelectorAll('#start-results [data-point]')]
+                .find((el) => el.querySelector('b')?.textContent.trim() === home.label);
+            if (row && match) {
+                match.classList.add('sc-pick');
+                await clickEl('#start-results .sc-pick');
+                match.classList.remove('sc-pick');
+                await sleep(500);
+                return;
+            }
+        }
+        // Handy (keine Bildschirmtastatur) oder kein Treffer: derselbe Punkt direkt.
+        const [hit] = demoTour.fromHome ? searchGeoPlaces(DEMO_HOME_QUERY, await loadPlaceIndex(), 1) : [];
+        state.tour.start = hit ? tourPointFromResult(hit) : { ...home };
+        emit('tour:changed');
+        await sleep(500);
+    },
+    async showRouteSuggestions() {
+        await HELPERS.showSuggestions();
+        if (state.tour.suggestMode !== 'route') await clickEl('#mode-route');
+        await resolveEl('#tour-suggestions [data-add]', 3000);
+        await sleep(500);
+    },
+    async addViaCustomers() {
+        for (const customer of demoTour?.via || []) {
+            const sel = `#tour-suggestions [data-add="${CSS.escape(String(customer.id))}"]`;
+            if (await resolveEl(sel, 2500)) await clickEl(sel);
+            else if (await resolveEl('#tour-suggestions [data-add]', 1500)) await clickEl('#tour-suggestions [data-add]');
+            await sleep(650);
+        }
+    },
+    /** Zum Schluss die echte Straßenroute – vorberechnet, ohne Übertragung. */
+    async showDemoRoadRoute() {
+        const dest = state.tour.destination?.customerId
+            ? state.customers.find((c) => c.id === state.tour.destination.customerId)
+            : state.tour.destination;
+        const stops = state.tour.stops.map((id) => state.customers.find((c) => c.id === id)).filter(Boolean);
+        const points = [state.tour.start, ...stops, dest].filter(Boolean).map((p) => [p.lat, p.lng]);
+        const road = peekRoadRoute(points);
+        if (road?.precomputed) {
+            state.tour.routeLineMode = 'road';
+            emit('tour:changed');
+            await sleep(1400);
+            await say(`Und das ist die echte Straßenroute: ${Math.round(road.distanceKm)} km, etwa ${Math.round(road.durationMin)} Minuten.`, '#btn-route-mode', 'top');
+            await playback.wait(3600, { reading: true });
+            await say('Für die Vorführung ist sie vorberechnet. Mit deinen Kunden berechnet sie der Dienst OSRM – erst nach deiner Zustimmung.', null, 'bottom');
+            await playback.wait(4400, { reading: true });
+            return;
+        }
+        await say('Die Tour liegt auf der Karte – als Luftlinie. Die Straßenroute berechnet der Dienst OSRM, erst nach deiner Zustimmung; die Demo schaltet sie nicht ein.', '#btn-route-mode', 'top');
+        await playback.wait(5000, { reading: true });
     },
     async gotoTour() {
         await clickEl('.mode-btn[data-mode="aussendienst"]');
@@ -1642,6 +1799,7 @@ function cleanup(story) {
     }
     tourSnapshot = null;
     showcaseTourPlan = null;
+    demoTour = null;
 
 
     // Nur einen von DIESER Demo angelegten Tresor wieder abbauen – ein bereits
@@ -1688,6 +1846,7 @@ async function play(story) {
     let failure = null;
     ensureDom();
     showcaseTourPlan = null;
+    demoTour = null;
     captureSheetForDemo();
     if (story.mutatesTour) {
         tourSnapshot = JSON.parse(JSON.stringify(state.tour));

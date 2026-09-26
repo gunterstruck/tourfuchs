@@ -110,8 +110,12 @@ describe('Showcase-Stories: Guardrail', () => {
         // genau das gestrichene Feature.
         const tour = STORIES.find((story) => story.id === 'tour');
         const keys = tour.steps.filter((step) => step.t === 'run').map((step) => step.key);
-        expect(keys).toContain('showSuggestions');
-        expect(keys.indexOf('showSuggestions')).toBeLessThan(keys.indexOf('addTwoSuggestions'));
+        expect(keys).toContain('showRouteSuggestions');
+        expect(keys.indexOf('showRouteSuggestions')).toBeLessThan(keys.indexOf('addViaCustomers'));
+        // Die Mitnahme geht sichtbar über das „+" der Vorschlagszeile.
+        const via = showcaseSource.slice(showcaseSource.indexOf('async addViaCustomers('), showcaseSource.indexOf('async showDemoRoadRoute('));
+        expect(via).toContain('#tour-suggestions [data-add=');
+        expect(via).toContain('await clickEl(sel)');
         // Die Vorschlagsliste wird benannt, bevor ausgesucht wird.
         expect(tour.steps.some((step) => step.sel === '#tour-suggestions')).toBe(true);
 
@@ -228,7 +232,7 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(desktopSteps.some((step) => step.key === 'shareTourQr')).toBe(false);
         expect(desktopSteps.at(-1)?.text).toContain('nächste Demo');
         expect(mobileSteps.some((step) => step.sel === '#qr-share-canvas')).toBe(false);
-        expect(mobileSteps.at(-1)?.text).toContain('Reihenfolge und Strecke');
+        expect(mobileSteps.at(-1)?.key).toBe('showDemoRoadRoute');
     });
 
     it('blendet die QR-Übergabe-Taste im mobilen View aus', () => {
@@ -275,11 +279,13 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(showcaseSource).not.toContain('gf_routing_consent');
         expect(showcaseSource).not.toContain("clickEl('#btn-route-mode')");
         expect(showcaseSource).not.toContain('showRoadRoute');
-        const tour = STORIES.find((story) => story.id === 'tour');
-        const roadSay = tour.steps.find((s) => s.t === 'say' && /Straßenroute/.test(s.text) && s.sel);
-        expect(roadSay?.sel).toBe('#btn-route-mode');
-        expect(roadSay?.text).toContain('Zustimmung');
-        expect(roadSay?.text).toContain('aktiviert sie nicht');
+        // Die echte Straßenroute zeigt die Demo nur, wenn sie vorberechnet
+        // vorliegt – sonst bleibt es ehrlich bei der Luftlinie.
+        const helper = showcaseSource.slice(showcaseSource.indexOf('async showDemoRoadRoute('), showcaseSource.indexOf('async gotoTour('));
+        expect(helper).toContain('road?.precomputed');
+        expect(helper).toContain('erst nach deiner Zustimmung');
+        expect(helper).toContain('die Demo schaltet sie nicht ein');
+        expect(helper).not.toContain('requestRoutingConsent');
     });
 
     it('beginnt am Schreibtisch mit dem Film „Vom Bezirk zum Kunden" – nur echte Klicks bis zur Kundenkachel', () => {
@@ -313,7 +319,18 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(idxShowMyTour).toBeLessThan(idxOptimize);
         // Der Helfer existiert in der Engine.
         expect(showcaseSource).toContain('async showMyTour(');
-        expect(keys).toContain('addTwoSuggestions');
+        expect(keys).toContain('addViaCustomers');
+    });
+
+    it('baut die Tour auf der Karte: Stapel, Kundenkarte, „Als Ziel", Start zu Hause, unterwegs mitnehmen', () => {
+        const tour = STORIES.find((story) => story.id === 'tour');
+        const order = ['planDemoTour', 'tapToDestination', '[data-action="tour-dest"]', 'pickHome', 'showRouteSuggestions', 'addViaCustomers', '#btn-optimize', 'showDemoRoadRoute'];
+        const positions = order.map((needle) => tour.steps.findIndex((step) => step.key === needle || (step.t === 'click' && step.sel?.includes(needle))));
+        expect(positions.every((pos) => pos >= 0)).toBe(true);
+        expect([...positions].sort((a, b) => a - b)).toEqual(positions);
+        for (const key of tour.steps.filter((s) => s.t === 'run').map((s) => s.key)) {
+            expect(showcaseSource, `Helfer fehlt: ${key}`).toContain(`async ${key}(`);
+        }
     });
 
     it('öffnet native Dialoge in Demos zuverlässig und erklärt einen Abbruch konkret', () => {

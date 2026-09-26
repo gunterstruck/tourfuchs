@@ -53,11 +53,31 @@ export function peekRoadRoute(points) {
     return routeCache.get(routingKey(points));
 }
 
+/**
+ * Vorberechnete Straßenrouten (die Tour der Live-Demo) in den Cache legen.
+ * Sie kommen vom eigenen Server – angezeigt werden sie ohne Anfrage an OSRM
+ * und deshalb auch ohne Zustimmung. Sie passen nur auf genau diese Punkte.
+ */
+export function registerStaticRoutes(routes = []) {
+    for (const route of routes) {
+        if (!route?.key || !Array.isArray(route.latLngs) || route.latLngs.length < 2) continue;
+        routeCache.set(route.key, {
+            provider: route.provider || CONFIG.routing.provider,
+            latLngs: route.latLngs,
+            distanceKm: route.distanceKm,
+            durationMin: route.durationMin,
+            precomputed: true
+        });
+    }
+}
+
 export async function getRoadRoute(points) {
+    const key = routingKey(points);
+    // Vorberechnet (Demo-Tour): liegt schon da, ohne Übertragung.
+    if (routeCache.get(key)?.precomputed) return routeCache.get(key);
     // Ohne Zustimmung nichts anfragen und nichts cachen (sonst bliebe nach
     // späterer Zustimmung ein null-Eintrag im Cache hängen).
     if (!hasRoutingConsent()) return null;
-    const key = routingKey(points);
     if (routeCache.has(key)) return routeCache.get(key);
     if (pendingRoutes.has(key)) return pendingRoutes.get(key);
 

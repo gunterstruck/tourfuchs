@@ -93,44 +93,46 @@ export const STORIES = [
         ]
     },
     {
+        // Der erste Wow-Moment, am Handy der größte: Die Tour entsteht auf der
+        // Karte. Kunde finden, als Ziel setzen, zu Hause starten, mitnehmen,
+        // wer auf dem Weg liegt – und am Ende die echte Straßenroute. Die Tour
+        // rechnet src/features/demoTour.js; die Straßenroute ist vorberechnet
+        // (tools/demo-route.mjs), die Demo schickt nichts an OSRM.
         id: 'tour',
         icon: '🚗',
         title: 'Deine Tour, Schritt für Schritt',
-        blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 70,
-        durationMobile: 65,
+        blurb: 'Kunde als Ziel, zu Hause starten, unterwegs mitnehmen, echte Route.',
+        duration: 76,         // 26.09.2026: Desktop und Tablet quer 77 s, 12 Klicks, alle sauber
+        durationMobile: 71,   // Handy 72 s – ohne den Verweis auf die nächste Demo
         needsData: true,
         mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
-            { t: 'run', key: 'focusDemoTourArea' },
-            { t: 'say', text: 'Wir starten in einer Region mit Kunden für eine sichtbare, sinnvolle Tagestour.', ms: 2400, pos: 'bottom' },
+            { t: 'run', key: 'planDemoTour' },
+            { t: 'say', text: 'Heute willst du zu einem Kunden im Westen. Ein Tipp auf den Stapel geht eine Ebene näher.', sel: '.sc-focus-stack', ms: 3000 },
+            { t: 'run', key: 'tapToDestination' },
+            { t: 'say', text: 'Die Kundenkarte: Adresse, Umsatz, letzter Besuch – alles auf einen Blick.', sel: '.leaflet-popup-content', ms: 3400, pos: 'bottom' },
+            { t: 'say', text: 'Da willst du hin – also „Als Ziel".', sel: '.leaflet-popup-content [data-action="tour-dest"]', ms: 2200 },
+            { t: 'click', sel: '.leaflet-popup-content [data-action="tour-dest"]' },
             { t: 'run', key: 'gotoTour' },
-            // Kein Bezirks-Schritt mehr: Geplant wird ab Werk über alle Bezirke.
-            // Der Lauf stellt den Standard nur still sicher.
+            // Geplant wird ab Werk über alle Bezirke; der Lauf stellt das nur still sicher.
             { t: 'run', key: 'pickBezirkAll' },
-            { t: 'say', text: 'Jetzt einen Startpunkt setzen …', sel: '#start-search', ms: 1500 },
-            { t: 'run', key: 'pickStart' },
-            // Aussuchen ist der Kern dieses Produkts: Der automatische
-            // Tourvorschlag wurde am 10.07.2026 nach Nutzerfeedback gestrichen –
-            // „die Tour plant der Mensch". Die Vorführung muss deshalb zeigen,
-            // wie jemand die Vorschläge aufschlägt und selbst auswählt, statt
-            // die Stopps erscheinen zu lassen.
-            { t: 'say', text: 'Jetzt schlägt TourFuchs vor, wen du in der Nähe noch mitnehmen könntest.', sel: '#suggest-head', ms: 2200 },
-            { t: 'run', key: 'showSuggestions' },
-            { t: 'say', text: 'Aussuchen tust du: Ein Tipp auf das Plus nimmt einen Kunden mit.', sel: '#tour-suggestions', ms: 2600 },
-            { t: 'run', key: 'addTwoSuggestions' },
+            { t: 'run', key: 'showStartStep' },
+            { t: 'say', text: 'Los geht es zu Hause – in Dortmund.', sel: '#start-search', ms: 2200 },
+            { t: 'run', key: 'pickHome' },
+            // Aussuchen tut der Mensch – TourFuchs zeigt nur, wer auf dem Weg liegt.
+            { t: 'run', key: 'showRouteSuggestions' },
+            { t: 'say', text: 'Und wer liegt auf dem Weg? „Entlang der Tour" zeigt die Kunden an deiner Strecke.', sel: '#suggest-mode', ms: 3200 },
+            { t: 'say', text: 'Ein Tipp auf das Plus nimmt einen Kunden mit – hier zwei.', sel: '#tour-suggestions', ms: 2400 },
+            { t: 'run', key: 'addViaCustomers' },
             { t: 'run', key: 'showMyTour' },
-            { t: 'say', text: 'Die Stopps stehen. Jetzt sortiert TourFuchs sie in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
+            { t: 'say', text: 'Jetzt sortiert TourFuchs die Stopps in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
             { t: 'click', sel: '#btn-optimize' },
-            { t: 'say', text: 'Eine kurze, sinnvolle Reihenfolge – anhand der Luftlinienentfernungen optimiert.', ms: 2800 },
-            { t: 'say', text: 'Ein Klick bringt die geplante Tour zurück auf die Karte.', sel: '#btn-route-focus', ms: 2200 },
+            { t: 'say', text: 'Ein Klick bringt die Tour auf die Karte.', sel: '#btn-route-focus', ms: 2000 },
             { t: 'click', sel: '#btn-route-focus' },
-            { t: 'wait', ms: 1500 },
+            { t: 'wait', ms: 1200 },
             { t: 'run', key: 'focusTourRoute' },
-            { t: 'say', text: 'Die Route liegt auf der Karte – zuerst als Luftlinie.', ms: 2200, pos: 'bottom' },
-            { t: 'say', text: 'Die Straßenroute nutzt den externen Dienst OSRM und benötigt deine Zustimmung zur Übertragung der Koordinaten. Die Demo aktiviert sie nicht.', sel: '#btn-route-mode', ms: 5000 },
-            { t: 'say', text: 'Reihenfolge und Strecke als Luftlinie stehen. Die Straßenroute kannst du nach der Demo selbst aktivieren.', ms: 3400, pos: 'bottom' },
+            { t: 'run', key: 'showDemoRoadRoute' },
             { t: 'say', text: 'Und wie kommt die fertige Tour aufs Handy? Genau das zeigt die nächste Demo.', ms: 2800, desktopOnly: true }
         ]
     },
