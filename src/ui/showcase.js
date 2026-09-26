@@ -19,8 +19,9 @@ import {
     allShowcaseStoriesSeen,
     markShowcaseCompleted,
     markShowcaseStorySeen,
-    nextUnseenShowcaseStory,
+    nextShowcaseStoryInLoop,
     resetShowcaseAfterDataClear,
+    SHOWCASE_AUTO_ADVANCE_SECONDS,
     seenShowcaseIds
 } from '../services/showcaseOnboarding.js';
 import { distanceKm } from '../services/geocode.js';
@@ -1555,6 +1556,7 @@ function showShowcaseDialog() {
 
 function startStory(story) {
     if (!story || running) return;
+    clearAutoAdvance();
     // Noch im Klick: Die Musik fährt ohne Neustart auf volle Lautstärke hoch
     // (und darf als erste Wiedergabe dieser Nutzergeste starten).
     music.setPlayback({ active: true, paused: false, onBreak: false });
@@ -1585,40 +1587,109 @@ function wireOutcomeActions({ next = null, retry = null } = {}) {
     dialog.querySelector('.sc-retry')?.addEventListener('click', () => startStory(retry));
 }
 
+// ---- Schleife: nach einem Film startet die nächste Demo von selbst ----
+//
+// Ein Kreis zählt im Abschlussfenster herunter; nach der letzten Demo geht es
+// mit der ersten weiter. Wer irgendetwas im Fenster bedient, hält ihn an –
+// dann entscheidet er selbst, der Kreis wird zum ruhigen ▶-Knopf. Geht der
+// Bildschirm aus oder wechselt der Tab, endet die Schleife ebenfalls: Ein
+// weggelegtes Handy soll nicht stundenlang weiterspielen. Den Bildschirm hält
+// TourFuchs bewusst nicht wach; die Zeitsperre des Geräts ist die Bremse.
+let autoAdvance = null;   // { timer }
+
+function countdownHtml(wraps) {
+    const s = SHOWCASE_AUTO_ADVANCE_SECONDS;
+    return `<div class="sc-countdown-wrap">
+            <button type="button" class="sc-countdown" data-state="running" style="--sc-countdown-s: ${s}s" aria-label="Nächste Demo jetzt starten">
+                <svg viewBox="0 0 100 100" aria-hidden="true">
+                    <circle class="sc-countdown-track" cx="50" cy="50" r="44"></circle>
+                    <circle class="sc-countdown-ring" cx="50" cy="50" r="44"></circle>
+                </svg>
+                <span class="sc-countdown-num" aria-hidden="true">${s}</span>
+            </button>
+            <p class="sc-countdown-label">${wraps ? 'Weiter mit der ersten Demo' : 'Nächste Demo startet'} in <b>${s}</b> s</p>
+        </div>`;
+}
+function clearAutoAdvance() {
+    if (autoAdvance) clearInterval(autoAdvance.timer);
+    autoAdvance = null;
+}
+/** Countdown anhalten; der Kreis bleibt als ▶-Knopf stehen. */
+function stopAutoAdvance() {
+    const wasRunning = Boolean(autoAdvance);
+    clearAutoAdvance();
+    const el = dialog?.querySelector('.sc-countdown');
+    if (!el || (!wasRunning && el.dataset.state === 'stopped')) return;
+    el.dataset.state = 'stopped';
+    el.querySelector('.sc-countdown-num').textContent = '▶';
+    const label = dialog.querySelector('.sc-countdown-label');
+    if (label) label.textContent = 'Angehalten – tippen startet die nächste Demo';
+}
+function startAutoAdvance(next) {
+    clearAutoAdvance();
+    const el = dialog.querySelector('.sc-countdown');
+    if (!el || !next) return;
+    el.addEventListener('click', () => startStory(next));
+    if (document.hidden) { stopAutoAdvance(); return; }
+    const endsAt = Date.now() + SHOWCASE_AUTO_ADVANCE_SECONDS * 1000;
+    const num = el.querySelector('.sc-countdown-num');
+    const count = dialog.querySelector('.sc-countdown-label b');
+    autoAdvance = {
+        timer: setInterval(() => {
+            const left = Math.ceil((endsAt - Date.now()) / 1000);
+            if (left <= 0) {
+                clearAutoAdvance();
+                startStory(next);
+                return;
+            }
+            num.textContent = String(left);
+            if (count) count.textContent = String(left);
+        }, 200)
+    };
+}
+
 function showStoryCompletion(story) {
+    clearAutoAdvance();
     const stories = currentVisibleStories();
     const seen = seenShowcaseIds();
-    const next = nextUnseenShowcaseStory(stories, seen, story.id);
+    const loop = nextShowcaseStoryInLoop(stories, seen, story.id);
+    const next = loop?.story || null;
     const allDone = allShowcaseStoriesSeen(stories, seen);
     if (allDone) markShowcaseCompleted();
+    // „Alle Demos angesehen" nur am Ende einer Runde – in der Schleife danach
+    // wieder die gewohnte Abschlussansicht je Film.
+    const roundDone = allDone && Boolean(loop?.wraps);
 
     dialog.dataset.view = 'outcome';
     dialog.innerHTML = `${breakMusicButton()}
         <div class="sc-outcome-head">
             <div class="sc-outcome-icon" aria-hidden="true">✓</div>
             <span>Live-Demo abgeschlossen</span>
-            <h2>${allDone ? 'Alle Demos angesehen' : story.title}</h2>
+            <h2>${roundDone ? 'Alle Demos angesehen' : story.title}</h2>
         </div>
         <div class="sc-outcome-body">
-            <p>${allDone
+            <p>${roundDone
                 ? 'Du kennst jetzt die wichtigsten TourFuchs-Abläufe. Starte direkt mit deinen Kunden oder öffne die Demos später erneut über die Info.'
                 : `Du hast gesehen: ${story.blurb}`}</p>
             ${next ? `<div class="sc-next-story">
-                <span>Als Nächstes</span>
+                <span>${roundDone ? 'Wieder von vorn' : 'Als Nächstes'}</span>
                 <div><b>${next.icon} ${next.title}</b><small>${next.blurb}</small></div>
-            </div>` : ''}
+            </div>
+            ${countdownHtml(roundDone)}` : ''}
         </div>
         <div class="sc-outcome-actions">
-            ${allDone
+            ${roundDone
                 ? '<button type="button" class="sc-overview">Demo-Auswahl</button><button type="button" class="primary sc-finish">TourFuchs verwenden</button>'
                 : '<button type="button" class="sc-finish">Für jetzt beenden</button><button type="button" class="sc-overview">Demo-Auswahl</button><button type="button" class="primary sc-next">Nächste Demo starten</button>'}
         </div>`;
     wireOutcomeActions({ next });
     syncBreakMusicButton();
     showShowcaseDialog();
+    startAutoAdvance(next);
 }
 
 function showStoryFailure(story, failure) {
+    clearAutoAdvance();
     const step = Number(failure?.showcaseStep) || 0;
     const total = Number(failure?.showcaseStepCount) || 0;
     const reason = String(failure?.message || 'Der nächste Demo-Schritt war nicht erreichbar.');
@@ -1645,6 +1716,7 @@ function showStoryFailure(story, failure) {
 
 // ---- Intro-Panel ----
 function buildPanel() {
+    clearAutoAdvance();
     const seen = new Set(seenShowcaseIds());
     const tiles = currentVisibleStories().map((s) => `
         <button type="button" class="sc-tile" data-story="${s.id}">
@@ -1707,16 +1779,28 @@ export function initShowcase() {
     // Pause zwischen zwei Filmen: Wer das Auswahlfenster verlässt (Beenden,
     // Später, Escape), beendet die Runde – die Musik klingt aus. Startet von
     // hier der nächste Film, läuft `running` schon und die Musik spielt weiter.
-    dialog.addEventListener('close', () => { if (!running) music.setPlayback({ onBreak: false }); });
+    dialog.addEventListener('close', () => {
+        clearAutoAdvance();
+        if (!running) music.setPlayback({ onBreak: false });
+    });
     // Jede Bedienung im Fenster zählt als „noch da" für den Minuten-Leerlauf.
-    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => dialog.addEventListener(type, () => music.touch(), { passive: true }));
+    // Wer eingreift, entscheidet selbst: Das hält auch den Countdown an – außer
+    // am Kreis selbst, der startet die nächste Demo sofort.
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => dialog.addEventListener(type, (event) => {
+        music.touch();
+        if (!event.target?.closest?.('.sc-countdown')) stopAutoAdvance();
+    }, { passive: true }));
     dialog.addEventListener('click', (event) => {
         if (event.target.closest('.sc-dialog-music')) music.setEnabled(!music.enabled);
     });
 
     // ESC bricht eine laufende Vorführung ab (statt nur den Dialog zu schließen)
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && running) { e.preventDefault(); abortNow(); } }, true);
-    document.addEventListener('visibilitychange', () => music.setPlayback({ hidden: document.hidden }));
+    document.addEventListener('visibilitychange', () => {
+        music.setPlayback({ hidden: document.hidden });
+        // Bildschirm aus oder anderer Tab: Die Schleife endet hier.
+        if (document.hidden) stopAutoAdvance();
+    });
     window.addEventListener('pagehide', () => music.dispose());
 
     // Nach bewusstem Datenlöschen zählt der Demo-Fortschritt neu.

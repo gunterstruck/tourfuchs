@@ -199,3 +199,24 @@ describe('Optional tutorial music', () => {
         expect(showcase).toContain("music.enabled ? '♫ Musik aus' : '♫ Musik ein'");
     });
 });
+
+describe('Schleife der Mini-Schulungen', () => {
+    const showcase = readFileSync('src/ui/showcase.js', 'utf8');
+    const css = readFileSync('src/styles/showcase.css', 'utf8');
+    it('zeigt nach einem Film einen Countdown, der die nächste Demo startet', () => {
+        expect(showcase).toContain('startAutoAdvance(next);');
+        expect(showcase).toContain('clearAutoAdvance();\n                startStory(next);');
+    });
+    it('hält den Countdown bei jeder Bedienung außer am Kreis an und beendet ihn bei ausgeblendetem Tab', () => {
+        expect(showcase).toContain("if (!event.target?.closest?.('.sc-countdown')) stopAutoAdvance();");
+        expect(showcase).toContain('if (document.hidden) stopAutoAdvance();');
+    });
+    it('hat keinen Countdown nach einer abgebrochenen Demo', () => {
+        const failure = showcase.slice(showcase.indexOf('function showStoryFailure'), showcase.indexOf('// ---- Intro-Panel'));
+        expect(failure).not.toContain('countdownHtml');
+        expect(failure).toContain('clearAutoAdvance();');
+    });
+    it('respektiert reduzierte Bewegung', () => {
+        expect(css).toMatch(/prefers-reduced-motion: reduce\) \{\s*\.sc-countdown-ring \{ animation: none; \}/);
+    });
+});

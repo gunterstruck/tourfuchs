@@ -14,8 +14,10 @@ import {
     markShowcaseStorySeen,
     markDatasetCleared,
     markWelcomeDemoHandled,
+    nextShowcaseStoryInLoop,
     nextUnseenShowcaseStory,
     resetShowcaseAfterDataClear,
+    SHOWCASE_AUTO_ADVANCE_SECONDS,
     resetWelcomeDemoAfterDataClear,
     seenShowcaseIds,
     welcomeDemoDelayMs
@@ -41,6 +43,20 @@ describe('Showcase-Onboarding', () => {
         expect(nextUnseenShowcaseStory(stories, ['eins'], 'eins')?.id).toBe('zwei');
         expect(nextUnseenShowcaseStory(stories, ['eins', 'drei'], 'drei')?.id).toBe('zwei');
         expect(nextUnseenShowcaseStory(stories, ['eins', 'zwei', 'drei'], 'drei')).toBeNull();
+    });
+
+    it('läuft in der Schleife weiter: erst Ungesehenes, nach der letzten wieder die erste', () => {
+        expect(nextShowcaseStoryInLoop(stories, ['eins'], 'eins')).toEqual({ story: stories[1], wraps: false });
+        expect(nextShowcaseStoryInLoop(stories, ['eins', 'drei'], 'drei')).toEqual({ story: stories[1], wraps: false });
+        // Alles gesehen: einfach die folgende Demo …
+        expect(nextShowcaseStoryInLoop(stories, ['eins', 'zwei', 'drei'], 'eins')).toEqual({ story: stories[1], wraps: false });
+        // … und nach der letzten wieder von vorn – das Ende einer Runde.
+        expect(nextShowcaseStoryInLoop(stories, ['eins', 'zwei', 'drei'], 'drei')).toEqual({ story: stories[0], wraps: true });
+        expect(nextShowcaseStoryInLoop([], [], 'eins')).toBeNull();
+    });
+
+    it('startet die nächste Demo nach acht Sekunden', () => {
+        expect(SHOWCASE_AUTO_ADVANCE_SECONDS).toBe(8);
     });
 
     it('erkennt den Abschluss aller sichtbaren Demos', () => {
