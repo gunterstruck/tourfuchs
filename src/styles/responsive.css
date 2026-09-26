@@ -466,66 +466,13 @@
         --mobile-sheet-peek: 124px;
     }
 
-    /* Fixer Kopf-Streifen unter der Topbar: die Ansichtstiefe bleibt immer
-       sichtbar. Hintergrund transparent, damit die Karte durchscheint – nur die
-       Segment-Pille „schwebt" darüber.
-
-       Bis Version 3.2 hing hier eine zweite Zeile: die Reiter „Karte | Tour".
-       Sie waren kein Bereichswechsel, sondern ein zweiter Griff ans Blatt (der
-       erste ist der Griff selbst, der dritte „☰"). Gestrichen – der Streifen
-       ist seitdem einzeilig. */
-    .mobile-topnav {
-        display: block;
-        position: absolute;
-        top: var(--topbar-height);
-        left: 0;
-        right: 0;
-        z-index: 1040;
-        background: transparent;
-        padding: 8px 0 2px;
-        pointer-events: none; /* Lücken lassen die Karte darunter durch */
-    }
-    /* Während des Onboardings (keine Daten) nur Willkommen + Demo zeigen. */
-    body.app-onboarding .mobile-topnav { display: none; }
-
-    /* Schwebende, leicht durchscheinende Segment-Pille. */
-    .mobile-topnav .depth-switch {
-        pointer-events: auto;
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 3px;
-        margin: 0 10px 5px;
-        padding: 2px;
-        background: rgba(255, 255, 255, 0.72);
-        -webkit-backdrop-filter: blur(9px);
-        backdrop-filter: blur(9px);
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        border-radius: var(--radius-pill);
-        box-shadow: var(--shadow-1);
-    }
+    /* Hier stand der Kopf-Streifen mit der Basis/Profi-Pille. Sie ist seit dem
+       26.09.2026 weg – die Zeile gehört wieder der Karte. */
 
     /* Ein Bereich braucht keine Reiterleiste: Mobil gibt es nur die Tour (bzw.
        im Onboarding nur die Daten). Die Leiste bleibt im DOM – am Schreibtisch
        trägt sie weiterhin Daten · Filter · Gebiete · Tour. */
     .sidebar .tabs { display: none; }
-
-    /* Segmente: inaktiv gedämpft, aktiv grün gefüllt. */
-    .mobile-topnav .depth-switch .seg {
-        border: none;
-        border-radius: var(--radius-pill);
-        background: transparent;
-        padding: 7px 5px;
-        min-height: 34px;
-        font-size: 0.76rem;
-        font-weight: 700;
-        color: var(--color-text-muted);
-        white-space: nowrap;
-    }
-    .mobile-topnav .depth-switch .seg.active {
-        background: var(--color-primary);
-        color: #fff;
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
-    }
 
     .sidebar {
         top: auto;
