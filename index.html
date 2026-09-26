@@ -673,6 +673,25 @@
             </div>
         </div>
 
+        <!-- Adressgenaue Verortung: einmalige Rückfrage nach einem Import mit
+             Straßenadressen. Die Antwort wird gemerkt (änderbar in ⓘ Info). -->
+        <dialog id="geocode-offer-dialog" class="geocode-offer-dialog" aria-labelledby="geocode-offer-title">
+            <h2 id="geocode-offer-title">📍 Adressgenau verorten?</h2>
+            <p id="geocode-offer-lead"></p>
+            <p class="muted small">Dafür werden <b>nur Straße, PLZ und Ort</b> an OpenStreetMap (Nominatim) übertragen – keine Namen, Kundennummern, Umsätze oder Kontakte. Der freie Dienst schafft etwa eine Adresse pro Sekunde (hier <b id="geocode-offer-duration">wenige Minuten</b>). Es läuft im Hintergrund weiter, setzt nach einem Funkloch fort, und gefundene Positionen bleiben gespeichert.</p>
+            <div class="geocode-offer-actions">
+                <button type="button" id="geocode-offer-no">Nein, PLZ reicht</button>
+                <button type="button" id="geocode-offer-yes" class="primary">Ja, immer genau verorten</button>
+            </div>
+            <p class="muted small geocode-offer-foot">Jederzeit änderbar unter ⓘ Info.</p>
+        </dialog>
+
+        <!-- Fortschritt der Verortung im Hintergrund -->
+        <div id="geocode-status" class="geocode-status" role="status" hidden>
+            <span>📍 Verorte Adressen … <b>0/0</b></span>
+            <button type="button" id="geocode-status-stop">Anhalten</button>
+        </div>
+
         <!-- Mobile-Vorschau (nur zu Demonstrationszwecken am Desktop) -->
         <div id="mobile-preview" class="mobile-preview" hidden>
             <div class="mp-backdrop" data-mp-close></div>
@@ -882,6 +901,10 @@
             <div class="info-content">
                 <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;">🎬 Funktionen entdecken (Live-Demos)</button>
                 <button type="button" id="btn-first-steps-restore" class="only-desktop" style="width:100%;margin-bottom:12px;">🦊 Erste Schritte anzeigen</button>
+                <label class="info-setting">
+                    <input type="checkbox" id="exact-geocode-toggle">
+                    <span><b>📍 Adressen genau verorten</b><br><span class="muted small">Kunden mit Straße über OpenStreetMap auf die genaue Position setzen. Übertragen werden nur Straße, PLZ und Ort.</span></span>
+                </label>
                 <p>Kundenlisten aus Excel auf der Deutschlandkarte: Vertriebsgebiete (Landkreise & Postleitzahlen), Team-Filter und Besuchsplanung mit Tourenoptimierung. Optional mit verschlüsseltem Datentresor.</p>
                 <p class="note-private"><b>Privates, nicht-kommerzielles Projekt.</b> Nutzung auf eigene Gefahr, ohne Gewähr und ohne Haftung jeglicher Art.</p>
                 <p><b>💬 Feedback &amp; Ideen:</b> Fehler gefunden oder einen Wunsch?
