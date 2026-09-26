@@ -18,9 +18,26 @@ Die Mini-Schulungen zeigen echte Bedienhandlungen direkt in TourFuchs. Sie sind 
 - Die Systemeinstellung „Bewegung reduzieren“ verkürzt Animationen, nicht die Lesedauer der Erklärungstexte.
 - **Die Steuerleiste weicht aus.** Sie steht nicht fest oben, sondern sucht vor jedem Schritt den Platz, an dem sie am wenigsten verdeckt: Das gerade gezeigte Element und die Sprechblase bleiben immer frei, Überschriften, Felder und Knöpfe eines offenen Fensters möglichst auch. Geht ein Fenster auf, rückt die Leiste daneben, darüber oder darunter. Ist nirgends genug Platz – am Handy mit bildschirmfüllendem Fenster die Regel –, schrumpft sie zur Symbol-Pille (Fortschritt · ♫ · ❚❚/▶ · ✕). Umsetzung: `src/features/showcaseToolbar.js` (Platzwahl) und `placeToolbar()` in `src/ui/showcase.js` (Messen und Setzen).
 
+## Reihenfolge
+
+Erst was fängt, dann das Handwerk, zum Schluss die Verschlüsselung. Am Schreibtisch (mit aktivierter Gebietsplanung): Vom Bezirk zum Kunden · Tour · Tour aufs Handy · Lasso · Briefing · Chancen · Von der Excel-Liste zur Kundenkarte · Excel-Liste importieren · Mein Gebiet im Überblick · Simulation · (Service-Tag mit Service-Modul) · Tresor. Am Handy dieselbe Reihenfolge ohne die Schreibtisch-Filme, dafür mit „Tour empfangen“ vor dem Tresor. Die Schleife und der Selbststart der Begrüßung beginnen mit dem ersten noch nicht gesehenen Film dieser Liste.
+
+## Vom Bezirk zum Kunden
+
+Der Einstiegsfilm am Schreibtisch – und der Knopf im aufgeklappten Bereich „Erste Schritte“. Nur echte Klicks, kein Sprung:
+
+1. Ganz Deutschland, eingefärbt nach Vertriebsbezirken.
+2. Alle Bezirke abwählen, einen anhaken – die Karte zeigt nur noch diesen Bezirk.
+3. Die Bezirkskachel groß öffnen: Kunden, Umsatz, stärkste Standorte.
+4. „Auf Karte zeigen“, Anzeige auf „Automatisch (nach Zoom)“ – auf Kundenebene bleibt die Bezirksfarbe als Orientierung, darauf erscheinen die Kundenstapel.
+5. Den mittigsten Stapel antippen, bis Kundenkacheln die Mitte übernehmen, und die Kachel öffnen: Adresse, Kontakt, Umsatz, letzter Besuch.
+6. Zum Schluss der Hinweis auf die Pillen „Briefing für mein Gebiet“ und „Gebiet exportieren“.
+
+Filter, Gebietsebene und Anzeige werden am Ende oder bei Abbruch wiederhergestellt.
+
 ## Gebietsübersicht
 
-Bei aktivierter Gebietsplanung steht am Desktop „Mein Gebiet im Überblick“ an erster Stelle in der Auswahl und zusätzlich im aufgeklappten Bereich „Erste Schritte“. Die Schulung zeigt:
+„Mein Gebiet im Überblick“ ist die ausführliche Schulung zu den Werkzeugen dahinter. Sie zeigt:
 
 1. Landkreise und Vertriebsbezirke unterscheiden.
 2. Alle Bezirke abwählen und einen Bezirk auswählen.

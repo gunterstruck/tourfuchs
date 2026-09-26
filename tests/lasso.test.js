@@ -427,7 +427,7 @@ describe('Lasso-Demo', () => {
     });
 
     it('nutzt nur Helfer, die es wirklich gibt', () => {
-        const story = stories.slice(stories.indexOf("id: 'lasso'"), stories.indexOf("id: 'tour'"));
+        const story = stories.slice(stories.indexOf("id: 'lasso'"), stories.indexOf("id: 'briefing'"));
         const keys = [...story.matchAll(/key: '([^']+)'/g)].map((match) => match[1]);
         expect(keys.length).toBeGreaterThan(0);
         for (const key of keys) expect(showcase).toContain(`async ${key}(`);

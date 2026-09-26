@@ -177,12 +177,14 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('die Stories in fester Reihenfolge', () => {
-        expect(STORIES.map((s) => s.id)).toEqual(['gebietsueberblick', 'excel-karte', 'import-zuordnung', 'lasso', 'briefing', 'tour', 'handy-qr', 'simulation', 'service-tag', 'chancen', 'tresor', 'empfang']);
+        // Erst was fängt (Gebiet, Tour, Lasso, Briefing), dann das Handwerk,
+        // zum Schluss die Verschlüsselung.
+        expect(STORIES.map((s) => s.id)).toEqual(['bezirk-zum-kunden', 'tour', 'handy-qr', 'lasso', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'gebietsueberblick', 'simulation', 'service-tag', 'empfang', 'tresor']);
     });
 
     it('am fokussierten Desktop entfallen Empfangs- und deaktivierte Modul-Stories', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'import-zuordnung', 'lasso', 'briefing', 'tour', 'handy-qr', 'chancen', 'tresor']);
+        expect(ids).toEqual(['tour', 'handy-qr', 'lasso', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'tresor']);
         expect(ids).not.toContain('empfang');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -201,7 +203,7 @@ describe('Showcase-Stories: Guardrail', () => {
 
     it('am Smartphone entfallen die desktop-only Stories, dafür kommt die Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: false }).map((s) => s.id);
-        expect(ids).toEqual(['excel-karte', 'import-zuordnung', 'lasso', 'briefing', 'tour', 'chancen', 'tresor', 'empfang']);
+        expect(ids).toEqual(['tour', 'lasso', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'empfang', 'tresor']);
         expect(ids).not.toContain('handy-qr');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -280,9 +282,18 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(roadSay?.text).toContain('aktiviert sie nicht');
     });
 
-    it('zeigt die Gebietsübersicht zuerst, mit gesicherten Filtern und echten Detail-Klicks', () => {
-        const overview = visibleStories({ isDesktop: true, territoryPlanningEnabled: true })[0];
-        expect(overview.id).toBe('gebietsueberblick');
+    it('beginnt am Schreibtisch mit dem Film „Vom Bezirk zum Kunden" – nur echte Klicks bis zur Kundenkachel', () => {
+        const [first] = visibleStories({ isDesktop: true, territoryPlanningEnabled: true });
+        expect(first.id).toBe('bezirk-zum-kunden');
+        expect(visibleStories({ isDesktop: false, territoryPlanningEnabled: true }).map(s => s.id)).not.toContain('bezirk-zum-kunden');
+        const keys = first.steps.filter(s => s.t === 'run').map(s => s.key);
+        expect(keys).toEqual(['overviewSetup', 'overviewDistrict', 'overviewDetail', 'districtFocus', 'districtStackToCustomer', 'openCustomerCard']);
+        for (const key of keys) expect(showcaseSource).toContain(`async ${key}(`);
+        expect(first.steps.at(-1).sel).toBe('#btn-territory-briefing');
+    });
+
+    it('behält die Gebietsübersicht mit gesicherten Filtern und echten Detail-Klicks', () => {
+        const overview = STORIES.find((s) => s.id === 'gebietsueberblick');
         expect(visibleStories({ isDesktop: false }).map(s => s.id)).not.toContain('gebietsueberblick');
         const keys = overview.steps.filter(s => s.t === 'run').map(s => s.key);
         expect(keys).toEqual(['overviewSetup', 'overviewDistrict', 'overviewRevenue', 'overviewMinimum', 'overviewDetail', 'overviewZoom']);
