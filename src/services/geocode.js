@@ -23,6 +23,21 @@ export async function loadPlzCentroids() {
     return plzCentroids;
 }
 
+let demoStreets = null;
+/** Vorberechnete Straßen je PLZ; fehlt die Datei, bleiben die Beispielkunden auf der PLZ-Mitte. */
+export async function loadDemoStreets() {
+    if (demoStreets) return demoStreets;
+    try {
+        const response = await fetch(CONFIG.demoStreetsUrl);
+        if (!response.ok) return {};
+        const data = await response.json();
+        demoStreets = data.streets || {};
+    } catch {
+        return {};
+    }
+    return demoStreets;
+}
+
 export async function loadPlzPlaces() {
     if (plzPlaces) return plzPlaces;
     const response = await fetch(CONFIG.plzPlacesUrl);
@@ -71,6 +86,8 @@ export async function geocodeByPlz(customers) {
         // Auch ältere Demo-Datensätze mit vermeintlich exakter Position werden
         // auf die lokal gebündelte PLZ-Position zurückgeführt.
         if (c.geo === 'exakt' && !isDemoCustomer(c)) continue;
+        // Beispielkunden an einer vorberechneten Straße (ohne Hausnummer) bleiben dort.
+        if (c.geo === 'strasse' && isDemoCustomer(c) && Number.isFinite(c.lat) && Number.isFinite(c.lng)) { located++; continue; }
         const hit = c.plz ? centroids[c.plz] : null;
         if (hit) {
             const [dLat, dLng] = jitterFor(c.id + c.name);

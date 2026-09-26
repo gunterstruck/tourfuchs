@@ -55,11 +55,44 @@ export function demoCustomersNeedNormalization(customers) {
         text(customer.dataOrigin) !== DEMO_DATA_ORIGIN
         || customer.demo !== true
         || !text(customer.name).startsWith('TourFuchs Demo ·')
-        || text(customer.strasse) !== ''
+        || text(customer.strasse) !== demoStreetName(customer.strasse)
         || text(customer.ansprechpartner) !== 'Demo-Team'
         || !isDramaPhone(customer.telefon)
         || !text(customer.email).endsWith('@example.com')
     ));
+}
+
+// Beispielkunden dürfen einen echten Straßennamen tragen – nie eine Hausnummer.
+// So sehen sie auf der Karte echt aus und bleiben doch erkennbar erfunden.
+const HOUSE_NUMBER = /\d+\s*[a-z]?(\s*[-/]\s*\d+\s*[a-z]?)?$/i;
+
+export function demoStreetName(value) {
+    const street = text(value);
+    return street && !HOUSE_NUMBER.test(street) ? street : '';
+}
+
+/**
+ * Beispielkunden an vorberechnete Straßen setzen (public/geodata/demo-streets.json).
+ * Je PLZ bekommt jeder Kunde eine eigene Straße; reichen die Straßen nicht,
+ * wird die Liste wiederverwendet und der Punkt leicht versetzt.
+ * @returns {number} Zahl der gesetzten Kunden
+ */
+export function applyDemoStreets(customers, streets = {}) {
+    const used = new Map();
+    let placed = 0;
+    for (const customer of customers || []) {
+        if (!isDemoCustomer(customer)) continue;
+        const list = streets[customer.plz];
+        if (!list?.length) continue;
+        const n = used.get(customer.plz) || 0;
+        used.set(customer.plz, n + 1);
+        const [name, lat, lng] = list[n % list.length];
+        if (!demoStreetName(name) || !Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+        const shift = Math.floor(n / list.length) * 0.0004;
+        Object.assign(customer, { strasse: demoStreetName(name), lat: lat + shift, lng: lng + shift, geo: 'strasse' });
+        placed++;
+    }
+    return placed;
 }
 
 function demoIndex(customer, fallbackIndex = 0) {
@@ -110,8 +143,11 @@ export function normalizeDemoCustomer(customer, fallbackIndex = 0) {
     if (!isDemoCustomer(customer)) return customer;
     const index = demoIndex(customer, fallbackIndex);
     const identity = demoCustomerIdentity(index, demoBranch(customer));
+    const strasse = demoStreetName(customer.strasse);
+    // Wer seine Straße verliert, verliert auch deren Position – dann gilt wieder die PLZ.
+    if (!strasse && customer.geo === 'strasse') Object.assign(customer, { lat: null, lng: null, geo: 'none' });
     Object.assign(customer, identity, {
-        strasse: '',
+        strasse,
         primaryContactId: `demo-contact-${index}`,
         contacts: [{
             id: `demo-contact-${index}`,

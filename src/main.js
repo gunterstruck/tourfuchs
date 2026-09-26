@@ -7,11 +7,11 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 
 import { CONFIG } from './core/config.js';
-import { demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
+import { applyDemoStreets, demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
 import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
 import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './services/storage.js';
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
-import { enrichPlacesByPlz, geocodeByPlz } from './services/geocode.js';
+import { enrichPlacesByPlz, geocodeByPlz, loadDemoStreets } from './services/geocode.js';
 import { initMap } from './features/map.js';
 import { initSidebar, applyMode, autoRevealIfEmpty, showDataView, showMapView } from './ui/sidebar.js';
 import { isPhoneUi, releaseInheritedOrientationLock } from './core/viewport.js';
@@ -96,7 +96,11 @@ async function restorePersistedState() {
         if (migratedDemoCustomers) normalizeDemoCustomers(dataset.customers);
         if (dataset.fileName === 'Demo-Daten') {
             try {
-                enrichedDemoPlaces = await enrichPlacesByPlz(dataset.customers);
+                // Ältere gespeicherte Beispieldaten kennen noch keine Straßen.
+                if (!dataset.customers.some((c) => c.strasse)) {
+                    enrichedDemoPlaces += applyDemoStreets(dataset.customers, await loadDemoStreets());
+                }
+                enrichedDemoPlaces += await enrichPlacesByPlz(dataset.customers);
             } catch (error) {
                 console.warn('Ortsnamen älterer Demodaten konnten nicht ergänzt werden:', error);
             }
