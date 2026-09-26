@@ -91,16 +91,33 @@ function wireClose() {
 }
 
 /** Prompt an den gewählten Assistenten anpassen (Quellenzeile unterscheidet sich). */
+// Nur in der Live-Demo: Auch für Beispielkunden wird der Prompt gezeigt – als
+// reine Ansicht, der Kopier-Knopf ist gesperrt. Außerhalb der Vorführung
+// bleibt es bei der geschützten Demo-Karte (renderDemo).
+let briefingPreview = false;
+
+export function setCustomerBriefingPreview(on) {
+    briefingPreview = Boolean(on);
+}
+
+function previewActive() {
+    return briefingPreview && isDemoCustomer(currentCustomer);
+}
+
 function rebuildPrompt() {
     currentPrompt = buildCustomerBriefingPrompt(
         currentCustomer,
-        customerBriefingContext(currentCustomer, state.tour, plannedDate()),
+        { ...customerBriefingContext(currentCustomer, state.tour, plannedDate()), preview: previewActive() },
         currentAssistant,
         loadBriefingSources()
     );
 }
 
 function actionFooter() {
+    if (previewActive()) {
+        setFooter(`<button type="button" class="primary" data-briefing-open disabled title="In der Vorführung wird nichts kopiert">Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`);
+        return;
+    }
     setFooter(`<button type="button" class="primary" data-briefing-open>Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`);
     footer.querySelector('[data-briefing-open]')?.addEventListener('click', openAssistant);
 }
@@ -169,7 +186,7 @@ function wireAssistantChooser() {
 function renderBriefing({ withChooser = false } = {}) {
     body.innerHTML = `${identityHtml(currentCustomer)}
         <div class="briefing-state briefing-manual">
-            <span class="briefing-kicker">Direkt nutzbar</span>
+            <span class="briefing-kicker">${previewActive() ? 'Beispiel · nur zur Ansicht' : 'Direkt nutzbar'}</span>
             <h3>Ihr Kundenbriefing ist vorbereitet</h3>
             <p class="briefing-manual-note"><b>Im Assistenten:</b> Prompt einfügen und selbst absenden. Erst dann werden die enthaltenen Daten übertragen.</p>
             ${withChooser ? assistantChooserHtml() : ''}
@@ -254,7 +271,7 @@ export function openCustomerBriefing(customer) {
     if (!dialog || !customer) return;
     currentCustomer = customer;
     dialog.showModal();
-    if (isDemoCustomer(customer)) {
+    if (isDemoCustomer(customer) && !briefingPreview) {
         currentPrompt = '';
         renderDemo();
         return;

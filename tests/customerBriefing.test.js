@@ -202,3 +202,12 @@ describe('Der Prompt ist einsehbar, aber nicht im Weg', () => {
         expect(readme).not.toContain('wird vollständig angezeigt und nur in die Zwischenablage');
     });
 });
+
+describe('Kundenbriefing: Beispielkunden nur als Ansicht in der Live-Demo', () => {
+    const demo = { id: 'demo-3', name: 'TourFuchs Demo · Optik 0004', plz: '44135', ort: 'Dortmund', demo: true };
+
+    it('baut für Beispielkunden nur mit ausdrücklichem preview einen Prompt', () => {
+        expect(() => buildCustomerBriefingPrompt(demo, {})).toThrow();
+        expect(buildCustomerBriefingPrompt(demo, { preview: true })).toContain('TourFuchs Demo · Optik 0004');
+    });
+});

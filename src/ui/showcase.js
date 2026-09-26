@@ -30,13 +30,14 @@ import { isDemoCustomer } from '../core/demoSafety.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { CONFIG } from '../core/config.js';
 import { demoCorridorPoints, demoDestination, demoHomePoint, demoVia, DEMO_HOME_QUERY } from '../features/demoTour.js';
+import { optimizeOrder } from '../features/tour.js';
 import { loadPlaceIndex, tourPointFromResult, searchGeoPlaces } from '../features/places.js';
 import { peekRoadRoute, registerStaticRoutes, routingKey } from '../services/routing.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
 import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
-import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
+import { openCustomerBriefing as openBriefingDialog, setCustomerBriefingPreview } from './customerBriefing.js';
 import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPreview } from './lasso.js';
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
@@ -648,6 +649,51 @@ async function waitForCustomers(timeout = 6000) {
     }
 }
 
+/**
+ * Die Tour der Demo rechnen: zu Hause in Dortmund, Ziel im Westen, zwei Kunden
+ * auf dem Weg (src/features/demoTour.js). Die vorberechnete Straßenroute kommt
+ * vom eigenen Server; passt sie nicht (eigene Kunden), bleibt es ehrlich bei
+ * der Luftlinie.
+ */
+async function computeDemoTour() {
+    try {
+        const response = await fetch(CONFIG.demoRoutesUrl);
+        if (response.ok) registerStaticRoutes((await response.json()).routes);
+    } catch { /* ohne Datei: Luftlinie */ }
+    const customers = scopedWithCoords();
+    const home = demoHomePoint(await loadPlaceIndex());
+    let dest = demoDestination(customers, home);
+    let start = home;
+    if (!dest) {
+        // Eigener Bestand ohne Kunden im Revier: Start und Ziel aus den eigenen Kunden.
+        const plan = selectShowcaseTour(customers);
+        const first = plan?.start || customers[0];
+        dest = plan?.stops?.at(-1) || customers[1];
+        start = first ? { lat: first.lat, lng: first.lng, label: first.name, customerId: first.id } : null;
+    }
+    if (!start || !dest) throw new Error('Für die Tour-Demo fehlen verortete Kunden.');
+    const corridor = peekRoadRoute(demoCorridorPoints(start, dest));
+    const via = demoVia(customers, start, dest, {
+        corridorKm: state.tour.radiusKm,
+        corridorPath: corridor?.latLngs?.map(([lat, lng]) => ({ lat, lng })) || null
+    });
+    return { start, dest, via, fromHome: start === home };
+}
+
+/** Einen Punkt in die Mitte des sichtbaren Kartenteils rücken (Handy: über dem Blatt). */
+function centerInVisibleMap(point) {
+    const map = getMap();
+    if (!map || !point) return;
+    const box = map.getContainer().getBoundingClientRect();
+    const sheet = document.getElementById('sidebar');
+    const sheetTop = isMobileView() && sheet ? sheet.getBoundingClientRect().top : box.bottom;
+    const visibleBottom = Math.min(box.bottom, sheetTop);
+    const targetY = (box.top + visibleBottom) / 2 - box.top;
+    const targetX = box.width / 2;
+    const p = map.latLngToContainerPoint([point.lat, point.lng]);
+    map.panBy([p.x - targetX, p.y - targetY], { animate: false });
+}
+
 const HELPERS = {
     async ensureDemo() {
         if (state.customers.length > 0) return;
@@ -819,37 +865,56 @@ const HELPERS = {
     },
     // ---- Tour-Demo: Karte → Ziel → zu Hause starten → unterwegs → Straßenroute ----
     async planDemoTour() {
-        // Die vorberechnete Straßenroute kommt vom eigenen Server; passt sie
-        // nicht (eigene Kunden), bleibt es am Ende ehrlich bei der Luftlinie.
-        try {
-            const response = await fetch(CONFIG.demoRoutesUrl);
-            if (response.ok) registerStaticRoutes((await response.json()).routes);
-        } catch { /* ohne Datei: Luftlinie */ }
-        const customers = scopedWithCoords();
-        const home = demoHomePoint(await loadPlaceIndex());
-        let dest = demoDestination(customers, home);
-        let start = home;
-        if (!dest) {
-            // Eigener Bestand ohne Kunden im Revier: Start und Ziel aus den eigenen Kunden.
-            const plan = selectShowcaseTour(customers);
-            const first = plan?.start || customers[0];
-            dest = plan?.stops?.at(-1) || customers[1];
-            start = first ? { lat: first.lat, lng: first.lng, label: first.name, customerId: first.id } : null;
-        }
-        if (!start || !dest) throw new Error('Für die Tour-Demo fehlen verortete Kunden.');
-        const corridor = peekRoadRoute(demoCorridorPoints(start, dest));
-        const via = demoVia(customers, start, dest, {
-            corridorKm: state.tour.radiusKm,
-            corridorPath: corridor?.latLngs?.map(([lat, lng]) => ({ lat, lng })) || null
-        });
-        demoTour = { start, dest, via, fromHome: start === home };
+        demoTour = await computeDemoTour();
+        const { dest } = demoTour;
         document.querySelector('.mode-btn[data-mode="aussendienst"]')?.click();
         showMapView();
         await sleep(400);
-        // Nah genug, dass Stapel und Kacheln erscheinen – mit dem Ziel mittendrin.
+        // Nah genug, dass Stapel und Kacheln erscheinen – mit dem Ziel mittendrin,
+        // und zwar in der Mitte des Kartenteils, den man wirklich sieht (am Handy
+        // liegt unten das eingeklappte Blatt).
         focusMapArea(dest.lat, dest.lng, 11);
-        await sleep(1700);
+        await sleep(1200);
+        centerInVisibleMap(dest);
+        await sleep(700);
         markStackNear(dest);
+    },
+    /**
+     * Die Tour aus dem Film „Deine Tour" still wieder anlegen – für den Film
+     * „Aufs Handy", der direkt danach kommt und genau diese Tour übergibt.
+     */
+    async buildDemoTourQuietly() {
+        demoTour = await computeDemoTour();
+        const { start, dest, via } = demoTour;
+        document.querySelector('.mode-btn[data-mode="aussendienst"]')?.click();
+        state.tour.start = { ...start };
+        state.tour.destination = {
+            lat: dest.lat, lng: dest.lng, label: dest.name, customerId: dest.id,
+            strasse: dest.strasse, plz: dest.plz, ort: dest.ort,
+            dataOrigin: dest.dataOrigin, demo: dest.demo
+        };
+        state.tour.stops = optimizeOrder(start, via, dest).map((c) => c.id);
+        state.tour.suggestMode = 'route';
+        emit('tour:changed');
+        await sleep(400);
+    },
+    /** Nur den Startpunkt „zu Hause" vorbereiten (Chancen-Film). */
+    async prepareHomeStart() {
+        demoTour = await computeDemoTour();
+        await sleep(100);
+    },
+    /** Die Straßenroute der Demo-Tour zeigen, falls vorberechnet – sonst Luftlinie. */
+    async useDemoRoadRoute() {
+        const dest = state.tour.destination?.customerId
+            ? state.customers.find((c) => c.id === state.tour.destination.customerId)
+            : state.tour.destination;
+        const stops = state.tour.stops.map((id) => state.customers.find((c) => c.id === id)).filter(Boolean);
+        const points = [state.tour.start, ...stops, dest].filter(Boolean).map((p) => [p.lat, p.lng]);
+        if (peekRoadRoute(points)?.precomputed) {
+            state.tour.routeLineMode = 'road';
+            emit('tour:changed');
+        }
+        await sleep(600);
     },
     /** Vom Stapel zum Zielkunden – Tipp für Tipp, bis seine Kachel da ist. */
     async tapToDestination() {
@@ -1387,6 +1452,16 @@ const HELPERS = {
         if (!briefing?.open) throw new Error('Das Kundenbriefing konnte nicht geöffnet werden.');
         await sleep(500);
     },
+    /** Den Prompt im Kundenbriefing aufklappen – wie beim Mehrkunden-Briefing. */
+    async revealCustomerPrompt() {
+        const sel = '#customer-briefing-dialog .briefing-prompt-visible';
+        const details = await resolveEl(sel, 1600);
+        if (!details) return;
+        if (!details.open) await clickEl(`${sel} summary`);
+        await sleep(500);
+        details.querySelector('pre')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        await sleep(900);
+    },
     async closeCustomerBriefing() {
         moveOverlaysInto(document.body);
         const briefing = document.getElementById('customer-briefing-dialog');
@@ -1816,6 +1891,7 @@ function cleanup(story) {
     if (priorMode) { applyMode(priorMode, false); priorMode = null; }
     restoreFilters?.();
     setLassoBriefingPreview(false);
+    setCustomerBriefingPreview(false);
     restoreFilters = null;
     resetView();
 }
@@ -1841,6 +1917,7 @@ async function play(story) {
     playback = new ShowcasePlayback({ reducedMotion: prefersReduced, onChange: syncPlaybackControls });
     restoreFilters = captureShowcaseFilters();
     setLassoBriefingPreview(true);
+    setCustomerBriefingPreview(true);
     let completed = false;
     let failure = null;
     ensureDom();
