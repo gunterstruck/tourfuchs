@@ -7,7 +7,7 @@ Die Mini-Schulungen zeigen echte Bedienhandlungen direkt in TourFuchs. Sie sind 
 - **Pause / Fortsetzen** unterbricht die Wiedergabe. Eine bereits gestartete Kartenanimation kann noch zu Ende laufen; weitere Demo-Schritte warten.
 - **Weiter** beendet die aktuelle Lesepause. Während einer Bedienhandlung ist die Schaltfläche deaktiviert, damit notwendige Schritte nicht übersprungen werden.
 - **Beenden** oder **Escape** bricht die Demo ab.
-- **♫ Musik an/aus** schaltet „Tropical Island House 2024“ von Sascha Ende freiwillig hinzu. Beim Neuladen ist Musik aus; die Auswahl gilt nur für die aktuelle Sitzung. Ohne Einschalten wird keine Musikdatei geladen.
+- **♫ Musik aus/ein** schaltet „Tropical Island House 2024“ von Sascha Ende aus oder wieder ein. Die Musik startet mit der ersten bewusst gestarteten Schulung; der Startknopf ist zugleich die dafür notwendige Nutzerinteraktion. Eine bewusste Ausschaltung gilt für weitere Schulungen der aktuellen Sitzung.
 - Bei eingeschalteter Musik erscheint ein Lautstärkeregler (Standard 18 %, maximal 50 %). Pause hält auch die Musik an. Beenden, Escape, Fehler und reguläres Ende stoppen sie; beim Verlassen des Tabs wird sie sofort stummgeschaltet. Zurück im sichtbaren Tab läuft sie nur bei aktiver, nicht pausierter Schulung weiter.
 - Die Musik kommt vom TourFuchs-Server, nicht von externen Musikdiensten. Ohne verfügbare Datei oder bei blockierter Wiedergabe erscheint ein Hinweis; die Schulung bleibt ohne Musik benutzbar. Offline-Musik wird nicht zugesichert.
 - Die Systemeinstellung „Bewegung reduzieren“ verkürzt Animationen, nicht die Lesedauer der Erklärungstexte.

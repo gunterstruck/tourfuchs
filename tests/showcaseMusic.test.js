@@ -26,19 +26,16 @@ afterEach(() => { music.dispose(); vi.useRealTimers(); });
 const settle = () => vi.advanceTimersByTimeAsync(400);
 async function start() {
     music.setPlayback({ active: true });
-    music.setEnabled(true);
     await settle();
 }
 
 describe('Optional tutorial music', () => {
-    it('does not create or load audio without opt-in', () => {
-        music.setPlayback({ active: true });
+    it('is enabled by default but does not load audio before a tutorial starts', () => {
         expect(createAudio).not.toHaveBeenCalled();
-        expect(music.enabled).toBe(false);
+        expect(music.enabled).toBe(true);
     });
-    it('starts synchronously on opt-in, loops the local file and fades to 18%', async () => {
+    it('starts synchronously with the tutorial, loops the local file and fades to 18%', async () => {
         music.setPlayback({ active: true });
-        music.setEnabled(true);
         expect(audio.play).toHaveBeenCalledOnce();
         expect(audio.src).toBe(SHOWCASE_MUSIC_URL);
         expect(audio.src).toMatch(/^\/audio\//);
@@ -154,5 +151,7 @@ describe('Optional tutorial music', () => {
         expect(notice).toContain('https://creativecommons.org/licenses/by/4.0/deed.de');
         const config = readFileSync('vite.config.js', 'utf8');
         expect(config).not.toContain('mp3');
+        const showcase = readFileSync('src/ui/showcase.js', 'utf8');
+        expect(showcase).toContain("music.enabled ? '♫ Musik aus' : '♫ Musik ein'");
     });
 });
