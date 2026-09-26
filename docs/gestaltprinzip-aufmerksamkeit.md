@@ -126,8 +126,8 @@ dahin schlicht unbeantwortbar.
 
 Am Schreibtisch standen im Erstbild gleichzeitig:
 
-1. die **Willkommenskarte** über der Landkarte („Das sind Beispieldaten" ·
-   eigene Daten laden · Live-Demos · „Verstanden"),
+1. die **Willkommenskarte** über der Landkarte („Willkommen bei TourFuchs" ·
+   TourFuchs in Aktion sehen · eigene Daten laden · „Verstanden"),
 2. der **Beispieldaten-Streifen** im Panel mit dem Knopf „📂 Eigene Daten laden",
 3. die ausgeklappte **Erste-Schritte-Checkliste** mit vier Aktionen, „Später"
    und „Nicht mehr zeigen".
