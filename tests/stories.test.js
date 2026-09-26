@@ -507,3 +507,21 @@ describe('Import-Vorführung mit Spaltenzuordnung', () => {
         expect(mapping).toMatchObject({ strasse: 'Straße', plz: 'PLZ', ort: 'Ort', bezirk: 'Vertriebsbezirk', umsatz: 'Umsatz 2025' });
     });
 });
+
+describe('Live-Demos direkt im Fenster „Eigene Daten laden"', () => {
+    const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
+    const showcase = readFileSync(resolve(process.cwd(), 'src/ui/showcase.js'), 'utf8');
+    const dialog = html.slice(html.indexOf('id="own-data-dialog"'), html.indexOf('</dialog>', html.indexOf('id="own-data-dialog"')));
+
+    it('bietet beim Excel-Import die Import-Demo und bei .tfsafe (nur Handy) die Empfangs-Demo an', () => {
+        expect(dialog).toContain('data-demo-story="import-zuordnung"');
+        expect(dialog).toMatch(/class="linklike own-data-demo only-mobile" data-demo-story="empfang"/);
+        for (const id of ['import-zuordnung', 'empfang']) expect(STORIES.some((s) => s.id === id)).toBe(true);
+    });
+
+    it('kehrt danach ins Import-Fenster zurück statt in die Demo-Schleife', () => {
+        expect(showcase).toContain('if (backToImport && !failure) {');
+        expect(showcase).toContain("onBreak: !backToImport && (completed || Boolean(failure))");
+        expect(showcase).toMatch(/if \(backToImport && !failure\) \{[\s\S]*?openOwnDataDialog\(\);\s*return;/);
+    });
+});

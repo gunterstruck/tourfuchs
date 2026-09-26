@@ -36,7 +36,7 @@ import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.j
 import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
-import { loadDemo, openMappingForShowcase } from './importWizard.js';
+import { loadDemo, openMappingForShowcase, openOwnDataDialog } from './importWizard.js';
 import { ShowcasePlayback, ShowcaseAbortError as AbortError } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
 import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
@@ -97,6 +97,8 @@ let toolbarEl = null;
 let dialog = null;
 let running = false;
 let inRound = false;   // eine Schulungsrunde läuft (Film oder Fenster dazwischen)
+// Aus „Eigene Daten laden" gestartet: danach dorthin zurück statt in die Schleife.
+let returnToImport = false;
 let aborted = false;
 let playback = null;
 let restoreFilters = null;
@@ -1625,6 +1627,8 @@ async function play(story) {
     if (running) return;
     running = true;
     aborted = false;
+    const backToImport = returnToImport;
+    returnToImport = false;
     playback = new ShowcasePlayback({ reducedMotion: prefersReduced, onChange: syncPlaybackControls });
     restoreFilters = captureShowcaseFilters();
     let completed = false;
@@ -1676,9 +1680,18 @@ async function play(story) {
         // Film zu Ende (oder hängengeblieben): Das Auswahlfenster folgt, die
         // Runde läuft weiter – die Musik also auch, nur leiser. Ein bewusster
         // Abbruch beendet die Runde und lässt sie ausklingen.
-        music.setPlayback({ active: false, onBreak: completed || Boolean(failure) });
+        music.setPlayback({ active: false, onBreak: !backToImport && (completed || Boolean(failure)) });
         cleanup(story);
         running = false;
+    }
+    // Hilfe aus dem Import-Fenster: Wer von dort kam, will danach importieren –
+    // nicht acht Sekunden später in die nächste Demo. Also zurück, auch nach
+    // „Beenden" oder „Selbst ausprobieren". Nur ein Fehler zeigt seinen Hinweis.
+    if (backToImport && !failure) {
+        if (completed) emit('showcase:story-completed', story.id);
+        endRound();
+        openOwnDataDialog();
+        return;
     }
     if (completed) {
         emit('showcase:story-completed', story.id);
@@ -1915,6 +1928,16 @@ function startShowcaseLoop() {
     if (first) startStory(first);
 }
 
+/** Live-Demo aus dem Fenster „Eigene Daten laden" – danach zurück dorthin. */
+function startImportHelp(storyId) {
+    if (insideMobilePreview || !dialog || running) return;
+    const story = currentVisibleStories().find((item) => item.id === storyId);
+    if (!story) return;
+    returnToImport = true;
+    document.getElementById('own-data-dialog')?.close();
+    startStory(story);
+}
+
 /** Startet eine konkrete Live-Demo aus einem kontextuellen Einstieg. */
 export function startShowcaseStory(storyId) {
     if (insideMobilePreview || !dialog || running) return false;
@@ -1943,6 +1966,10 @@ export function initShowcase() {
     // Beispieldaten-Streifen im Panel: dieselben Wege, jederzeit erreichbar.
     document.getElementById('btn-demo-show')?.addEventListener('click', () => startShowcaseLoop());
     document.getElementById('btn-demo-overview')?.addEventListener('click', () => openPanel());
+    // Hilfe im Fenster „Eigene Daten laden": die passende Demo, danach zurück.
+    document.querySelectorAll('#own-data-dialog [data-demo-story]').forEach((button) => {
+        button.addEventListener('click', () => startImportHelp(button.dataset.demoStory));
+    });
     on('demo-welcome:autostart', () => startShowcaseLoop());
 
     // Pause zwischen zwei Filmen: Wer das Auswahlfenster verlässt (Beenden,
