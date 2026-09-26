@@ -172,30 +172,27 @@ was markiert wurde, steht zuerst im Prompt.
 
 ## Live-Demo
 
-Die Demo **„Fläche umfahren, Briefing bekommen"** führt die Geste in der echten
+Die Demo **„📋 Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** führt die Geste in der echten
 App vor – mit echten Zeigerereignissen, nicht als Animation. Sie steht bewusst
 weit vorn in der Demo-Auswahl: Wenn der Effekt nur im Werbefilm existiert, ist er
 Werbung; wenn ihn jeder Besucher selbst auslösen kann, ist er das Produkt.
 
-Sie zeigt den **ganzen Bogen**, nicht nur die Geste: umfahren → Briefing →
-zurück auf die Karte → zwei anhaken → „🚩 2 zur Tour". Das Briefing ist dabei
-kein Selbstzweck, sondern die Begründung für die Auswahl, die danach getroffen
-wird – deshalb endet die Vorführung in der Tour und nicht im Dialog.
+Sie zeigt den **ganzen Bogen**: umfahren → „📋 Briefing über alle" antippen →
+den Prompt von oben bis unten ansehen, samt Absatz „Nicht enthalten" → den Weg
+zur freigegebenen Firmen-KI in vier kurzen Schritten → zurück auf die Karte →
+zwei anhaken → „🚩 2 zur Tour". Das Briefing ist kein Selbstzweck, sondern die
+Begründung für die Auswahl – deshalb endet die Vorführung in der Tour.
 
-**Was sie zeigt, hängt an der Datenlage.** Mit Beispielkunden gibt es bewusst
-keinen Prompt; dort erklärt die Demo die Sperre. Mit **eigenen** Kunden klappt
-sie stattdessen den fertigen Prompt auf und benennt, was drinsteht und was
-draußen bleibt (`realOnly`/`demoOnly` in `features/stories.js`). Ein Satz für
-beide Fälle wäre in einem der beiden unwahr – und der Fall mit echten Daten ist
-zugleich der, der gefilmt wird: siehe [Der Film: Lasso + Briefing](./film-lasso-briefing.md).
+**Auch mit Beispielkunden** steht in der Vorführung der Knopf „📋 Briefing über
+alle" in der Auswahlkarte und wird angetippt (`setLassoBriefingPreview`); das
+Briefing öffnet sich dann als reine Ansicht, der Kopier-Knopf ist gesperrt.
+Außerhalb der Vorführung bleibt es dabei: Für Beispielkunden gibt es keinen
+Prompt. Mit eigenen Kunden zeigt dieselbe Demo den echten Prompt – gefilmt wird
+dieser Fall: siehe [Der Film: Lasso + Briefing](./film-lasso-briefing.md).
 
-Daneben steht **„📋 Ein Prompt, deine KI"** – derselbe Weg mit umgekehrtem
-Schwerpunkt. Dort ist die Fläche nur der Anlauf; die Zeit liegt im Prompt, der
-**von oben bis unten durchgescrollt** wird, samt Quellenanweisung und
-Qualitätsregeln, und der Absatz „Nicht enthalten" wird ausdrücklich benannt.
-Zwei Demos zum selben Weg sind Absicht: Die Frage „was kann das?" beantwortet
-die Geste in zehn Sekunden, die Frage „was schickt ihr da eigentlich weg?"
-beantwortet nur der sichtbare Prompt.
+Bis zum 26.09.2026 gab es dazu zwei Demos („Fläche umfahren, Briefing bekommen"
+und „Ein Prompt, deine KI"). Inhaltlich waren sie fast gleich; übrig ist die
+zweite, erweitert um Geste und Rückweg der ersten.
 
 ## Prüfschritte
 

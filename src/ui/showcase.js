@@ -37,7 +37,7 @@ import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopu
 import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
-import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
+import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPreview } from './lasso.js';
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo, openMappingForShowcase, openOwnDataDialog } from './importWizard.js';
@@ -1444,10 +1444,9 @@ const HELPERS = {
         if (!document.querySelector('.popup-lasso')) throw new Error('Die Lasso-Auswahl ist nicht zustande gekommen.');
     },
     async openLassoBriefing() {
-        // Mit Beispielkunden bietet der Streifen bewusst kein „Briefing
-        // erstellen" an – genau dieselbe Sperre wie beim Kundenbriefing. Die
-        // Vorführung öffnet das Briefing dann als reine Ansicht: Der Prompt
-        // aus den Beispielkunden ist zu sehen, der Kopier-Knopf ist gesperrt.
+        // Der Knopf wird sichtbar angetippt – auch mit Beispielkunden: In der
+        // Vorführung steht er dann in der Auswahlkarte (setLassoBriefingPreview)
+        // und öffnet das Briefing als reine Ansicht, Kopier-Knopf gesperrt.
         const opened = await clickEl('#btn-lasso-brief');
         if (!opened) openAreaBriefingDialog(lassoSelection(), areaLabelFor({ mode: 'lasso' }), { preview: true });
         const dialog = document.getElementById('area-briefing-dialog');
@@ -1818,6 +1817,7 @@ function cleanup(story) {
     if (priorDepth) { applyDepth(priorDepth, false); priorDepth = null; }
     if (priorMode) { applyMode(priorMode, false); priorMode = null; }
     restoreFilters?.();
+    setLassoBriefingPreview(false);
     restoreFilters = null;
     resetView();
 }
@@ -1842,6 +1842,7 @@ async function play(story) {
     returnToImport = false;
     playback = new ShowcasePlayback({ reducedMotion: prefersReduced, onChange: syncPlaybackControls });
     restoreFilters = captureShowcaseFilters();
+    setLassoBriefingPreview(true);
     let completed = false;
     let failure = null;
     ensureDom();
