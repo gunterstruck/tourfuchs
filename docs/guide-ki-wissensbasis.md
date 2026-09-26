@@ -671,8 +671,7 @@ Die Vorführung:
 | Live-Demo | Desktop | Smartphone | Kernaussage |
 |---|---:|---:|---|
 | **"Von der Excel-Liste zur Kundenkarte"** | Ja | Ja | **am Schreibtisch zuerst das Einfügen vorführen** (siehe 6.2.1), dann Demo-Liste laden, Kundenstapel antippen bis zur einzelnen Kundenkachel, Details öffnen |
-| **"Fläche umfahren, Briefing bekommen"** | Ja | Ja | Lasso-Auswahl, Mehrkunden-Briefing, Auswahl zur Tour, Start, Optimierung, Luftlinie und Straßenroute |
-| **"Ein Prompt, deine KI"** | Ja | Ja | Prompt-Inhalt, ausgeschlossene Daten, bewusste Übergabe und Entscheidung |
+| **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** | Ja | Ja | Lasso-Auswahl, „Briefing über alle", Prompt-Inhalt und ausgeschlossene Daten, Weg zur freigegebenen Firmen-KI, Auswahl zur Tour |
 | **"Deine Tour, Schritt für Schritt"** | Ja | Ja | ins Ruhrgebiet zoomen, Start und Kunden wählen, optimieren, Luftlinie und Straßenroute |
 | **"Aufs Handy - ohne Kabel, ohne Cloud"** | Ja | Nein | Desktop-Tour per QR ans Smartphone übergeben |
 | **"Was wäre wenn? Gebiete umbauen - ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
@@ -717,10 +716,10 @@ Beispieldaten.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
-Die Geschichten **"Fläche umfahren, Briefing bekommen"** und **"Ein Prompt,
-deine KI"** zeigen den vollständigen Mehrkunden-Bogen. Die erste betont den Weg
-von der räumlichen Auswahl bis zur Route, die zweite Inhalt, Datenminimierung und
-bewusste Übergabe des Prompts. **"Spontaner Termin? Sofort gebrieft"** zeigt den
+Die Geschichte **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"**
+zeigt den vollständigen Mehrkunden-Bogen: räumliche Auswahl, Inhalt und
+Datenminimierung des Prompts, bewusste Übergabe an die freigegebene Firmen-KI und
+die Entscheidung zurück auf der Karte. (Bis 26.09.2026 waren das zwei Demos.) **"Spontaner Termin? Sofort gebrieft"** zeigt den
 Einzelkunden-Weg. Mit reinen Demo-Kunden bleibt jede Geschichte bei einer lokalen
 Vorschau; erst eigene Kundendaten erzeugen einen echten Prompt.
 
@@ -1520,7 +1519,7 @@ Verhalten in Randfällen:
 | Karte verschieben oder zoomen | Auswahl wird verworfen |
 | Sehr große Auswahl | Zahl vollständig, hervorgehoben höchstens 250 Punkte |
 
-Die Live-Demo "Fläche umfahren, Briefing bekommen" führt die Geste in der echten
+Die Live-Demo "Kunde(n) wählen / Briefing / Entscheiden / Tour wählen" führt die Geste in der echten
 App vor - mit echten Zeigerereignissen, nicht als Animation.
 
 ### 9.8 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung

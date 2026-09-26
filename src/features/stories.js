@@ -180,7 +180,7 @@ export const STORIES = [
         // setLassoBriefingPreview).
         id: 'briefing',
         icon: '📋',
-        title: 'Wen zuerst? Frag deine KI',
+        title: 'Kunde(n) wählen / Briefing / Entscheiden / Tour wählen',
         blurb: 'Fläche umfahren, Prompt ansehen, mit deiner Firmen-KI entscheiden.',
         duration: 88,   // 26.09.2026: Desktop und Handy je 89 s, 6 Klicks, alle sauber
         needsData: true,

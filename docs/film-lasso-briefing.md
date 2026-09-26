@@ -162,7 +162,7 @@ Was der Lauf tut, der Reihe nach:
 2. blendet die **Titelkarte** ein und erledigt dahinter die ganze Vorbereitung –
    insbesondere fügt er die erfundene Kundenliste ein, damit die App **eigene
    Daten** hat und der Prompt echt ist (siehe Abschnitt 3.1),
-3. startet die Live-Demo **„Fläche umfahren, Briefing bekommen"** und filmt sie,
+3. startet die Live-Demo **„📋 Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** und filmt sie,
 4. blendet den **Abspann** ein (Adresse, „alle Kunden erfunden"),
 5. schneidet die Vorbereitung vorne ab und wandelt nach **MP4/H.264, 30 fps** –
    direkt bei LinkedIn hochladbar,
@@ -192,7 +192,7 @@ hingehört.
 ## 2. Die Regieentscheidung: Der Film ist die Live-Demo
 
 TourFuchs hat einen Geister-Cursor, der die echte App bedient – und die
-Live-Demo **„🖊️ Fläche umfahren, Briefing bekommen"** erzählt seit dem Umbau
+Live-Demo **„📋 Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** erzählt seit dem Umbau
 genau diese Geschichte, von der Fläche bis in die Tour. Sie ist damit kein
 Werbematerial neben dem Produkt, sondern das Produkt selbst.
 
