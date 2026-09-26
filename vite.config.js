@@ -139,8 +139,9 @@ export default defineConfig({
                     'geodata/plz2.geojson',
                     'geodata/plz-centroids.json',
                     'geodata/plz-places.json',
-                    // Straßen der Beispielkunden – klein, und die Demo soll offline laufen
-                    'geodata/demo-streets.json'
+                    // Straßen und Tour-Route der Beispielkunden – klein, die Demo soll offline laufen
+                    'geodata/demo-streets.json',
+                    'geodata/demo-routes.json'
                 ],
                 maximumFileSizeToCacheInBytes: 3 * 1024 * 1024,
                 runtimeCaching: [

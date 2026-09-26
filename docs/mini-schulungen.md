@@ -63,7 +63,9 @@ Im Fenster „Eigene Daten laden“ steht die passende Demo direkt beim jeweilig
 
 ## Routing und KI: klare Grenzen
 
-Die Tour-Demo zeigt eine **Luftlinie** und erklärt lediglich, wo später die Straßenroute aktiviert werden kann. Sie setzt keine Routing-Zustimmung und schaltet nicht automatisch auf den externen OSRM-Dienst um. Außerhalb der Schulung gilt weiterhin der reguläre Zustimmungsdialog vor einer erstmaligen Straßenroutenanfrage.
+Die Tour-Demo baut die Tour auf der Karte: Stapel antippen, Kundenkarte ansehen, „🏁 Als Ziel“ (ein Kunde in Duisburg), Start **zu Hause in Dortmund** über das Startfeld, im Modus „Entlang der Tour“ zwei Kunden auf dem Weg mitnehmen (Bochum, Essen), optimieren – und am Ende die **echte Straßenroute** (61 km, etwa 61 Minuten).
+
+Diese Straßenroute ist **vorberechnet** (`tools/demo-route.mjs` → `public/geodata/demo-routes.json`) und kommt vom eigenen Server: Die Demo schickt nichts an OSRM und setzt keine Routing-Zustimmung. Die Tour selbst rechnet `src/features/demoTour.js` – in der App und im Werkzeug dieselben Funktionen; `tests/demoTour.test.js` schlägt an, wenn Beispielkunden, Straßen oder Tourlogik sich ändern und die Route neu berechnet werden muss. Mit eigenen Kunden passt die vorberechnete Route nicht – dann endet die Demo ehrlich mit der Luftlinie und dem Hinweis auf die Zustimmung. Außerhalb der Schulung gilt weiterhin der reguläre Zustimmungsdialog vor einer erstmaligen Straßenroutenanfrage.
 
 Die Optimierung sucht eine kurze, sinnvolle Reihenfolge anhand von Luftlinienentfernungen; sie garantiert weder die global kürzeste Strecke noch die kürzeste Straßenroute.
 
