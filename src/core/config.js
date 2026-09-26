@@ -102,6 +102,8 @@ export const CONFIG = {
     // Straßennamen (ohne Hausnummer) für die Beispielkunden, vorberechnet mit
     // tools/demo-streets.mjs – zur Laufzeit keine Anfrage an OpenStreetMap.
     demoStreetsUrl: '/geodata/demo-streets.json',
+    // Straßenroute der Tour-Demo, vorberechnet mit tools/demo-route.mjs.
+    demoRoutesUrl: '/geodata/demo-routes.json',
 
     regionStyle: {
         default: {
