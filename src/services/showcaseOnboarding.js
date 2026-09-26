@@ -138,6 +138,23 @@ export function nextUnseenShowcaseStory(stories, seenIds = [], currentId = '') {
     return null;
 }
 
+/** Nach einem Film startet die nächste Demo von selbst – nach so vielen Sekunden. */
+export const SHOWCASE_AUTO_ADVANCE_SECONDS = 8;
+
+/**
+ * Welche Demo kommt in der Schleife als Nächstes?
+ *
+ * Zuerst eine noch nicht gesehene, sonst schlicht die folgende – nach der
+ * letzten wieder die erste. `wraps` sagt, ob damit eine Runde vorbei ist.
+ */
+export function nextShowcaseStoryInLoop(stories, seenIds = [], currentId = '') {
+    if (!Array.isArray(stories) || stories.length === 0) return null;
+    const currentIndex = stories.findIndex((story) => story.id === currentId);
+    const unseen = nextUnseenShowcaseStory(stories, seenIds, currentId);
+    const story = unseen || stories[(currentIndex + 1) % stories.length];
+    return { story, wraps: !unseen && stories.indexOf(story) <= currentIndex };
+}
+
 export function canAutoOfferShowcase({
     suppressed = false,
     hasCustomers = false,
