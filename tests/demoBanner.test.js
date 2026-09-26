@@ -12,8 +12,8 @@ describe('Demo-Streifen: „Eigene Daten laden" bei Beispieldaten überall anbie
     it('bringt einen ständigen Streifen mit direktem Upload-Einstieg', () => {
         expect(html).toContain('id="demo-banner"');
         expect(html).toContain('id="btn-demo-own-data"');
-        // Steht oben im Panel (vor der Ansichtstiefe), damit er überall sichtbar ist.
-        expect(html.indexOf('id="demo-banner"')).toBeLessThan(html.indexOf('id="depth-switch"'));
+        // Steht oben im Panel (vor den optionalen Modulen), damit er überall sichtbar ist.
+        expect(html.indexOf('id="demo-banner"')).toBeLessThan(html.indexOf('id="optional-modules"'));
     });
 
     it('zeigt den Streifen nur bei aktiven Beispieldaten', () => {
@@ -41,7 +41,7 @@ describe('Demo-Streifen: Live-Demos gleichwertig neben „Eigene Daten laden"', 
     const sidebar = read('src/ui/sidebar.js');
 
     it('bietet „In Aktion sehen" und „Eigene Daten laden" nebeneinander an', () => {
-        const banner = html.slice(html.indexOf('id="demo-banner"'), html.indexOf('id="depth-switch"'));
+        const banner = html.slice(html.indexOf('id="demo-banner"'), html.indexOf('id="optional-modules"'));
         expect(banner).toContain('id="btn-demo-show" class="demo-banner-cta">▶ In Aktion sehen');
         expect(banner).toContain('id="btn-demo-own-data" class="demo-banner-cta">📂 Eigene Daten laden');
         expect(banner.indexOf('btn-demo-show')).toBeLessThan(banner.indexOf('btn-demo-own-data'));

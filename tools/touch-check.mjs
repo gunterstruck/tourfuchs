@@ -237,9 +237,7 @@ async function runFormat(browser, format, baseUrl) {
         // Ein Häkchen ist 17 Pixel groß. Ob man es mit dem Daumen trifft und ob
         // der Knopf danach wirklich die angehakten meint, zeigt nur ein echter
         // Finger – am Bildschirm, nicht im Zustandsobjekt.
-        await page.evaluate(() => document.querySelector('[data-depth="profi"]')?.click());
-        await sleep(1500);
-        await page.locator('#btn-lasso').tap({ timeout: 8000 }).catch(() => problems.push('Der Lasso-Knopf ließ sich im Profi-Modus nicht antippen.'));
+        await page.locator('#btn-lasso').tap({ timeout: 8000 }).catch(() => problems.push('Der Lasso-Knopf ließ sich nicht antippen.'));
         await sleep(700);
         await zieheFlaeche();
 

@@ -34,7 +34,7 @@ import { loadPlaceIndex, tourPointFromResult, searchGeoPlaces } from '../feature
 import { peekRoadRoute, registerStaticRoutes, routingKey } from '../services/routing.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
-import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyDepth, applyMode } from './sidebar.js';
+import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
 import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPreview } from './lasso.js';
@@ -110,7 +110,6 @@ let tourSnapshot = null;
 let visitRestore = null;      // { id, besuche } zum Zurücksetzen von „Heute besucht"
 let origConfirm = null;       // Originales window.confirm während patchConfirm
 let demoVaultCreated = false; // hat DIESE Demo den Tresor angelegt? (nur dann abbauen)
-let priorDepth = null;        // Ansichtstiefe vor der Demo (zum Zurücksetzen)
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let demoTour = null;          // Tour-Demo: Zuhause, Ziel, Kunden auf dem Weg
@@ -1814,7 +1813,6 @@ function cleanup(story) {
     // Vorführung geendet hat).
     restoreSheetAfterDemo();
     // Ansichtstiefe und Arbeitsfokus auf den Stand vor der Demo zurück.
-    if (priorDepth) { applyDepth(priorDepth, false); priorDepth = null; }
     if (priorMode) { applyMode(priorMode, false); priorMode = null; }
     restoreFilters?.();
     setLassoBriefingPreview(false);
@@ -1857,10 +1855,7 @@ async function play(story) {
     }
     if (story.patchConfirm) { origConfirm = window.confirm; window.confirm = () => true; }
     showChrome(story);
-    // Vorführungen laufen im Profi-Modus, damit alle Funktionen zeigbar sind.
-    priorDepth = state.ui.depth;
     priorMode = state.ui.mode;
-    applyDepth('profi', false);
     resetView();
     const startedAt = Date.now();
     try {

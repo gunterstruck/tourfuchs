@@ -550,7 +550,7 @@ export function initMap(containerId) {
             sel.addEventListener('change', () => {
                 if (isMobileMap() || state.ui.depth !== 'profi' || !optionalModuleActive('territoryPlanning')) {
                     map.closePopup();
-                    emit('toast', { type: 'info', text: 'Gebiete lassen sich im aktivierten Profi-Modul am Desktop bearbeiten.' });
+                    emit('toast', { type: 'info', text: 'Gebiete lassen sich mit aktivierter Gebietsplanung am Desktop bearbeiten.' });
                     return;
                 }
                 setTerritory(sel.dataset.level, sel.dataset.key, sel.dataset.terr, sel.value, sel.dataset.name);
@@ -1530,7 +1530,7 @@ function regionPopupHtml(feature) {
     const readonly = isMobileMap()
         ? '<p class="muted small region-readonly">Nur lesbar – Änderungen am Desktop.</p>'
         : state.ui.depth !== 'profi'
-            ? '<p class="muted small region-readonly">Nur lesbar – Bearbeitung im Profi-Modus.</p>'
+            ? '<p class="muted small region-readonly">Nur lesbar – Bearbeitung in der Gebietsplanung am Desktop.</p>'
             : '';
 
     if (!entry || entry.total === 0) {

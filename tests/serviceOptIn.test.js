@@ -59,7 +59,7 @@ describe('Optionale Profi-Module', () => {
     it('führt beide Schalter in einem gemeinsamen, eingeklappten Profi-Block', () => {
         const modules = html.slice(html.indexOf('id="optional-modules"'), html.indexOf('class="mode-switch'));
         expect(modules).toContain('optional-modules expert-only');
-        expect(modules).toContain('Optionale Profi-Module');
+        expect(modules).toContain('Optionale Module');
         expect(modules).toContain('id="chk-territory-planning-enabled"');
         expect(modules).toContain('id="chk-territory-planning-enabled" checked');
         expect(modules).toContain('Gebietsplanung &amp; Gebietsmanagement');
