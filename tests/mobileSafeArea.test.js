@@ -42,6 +42,7 @@ describe('Untere System-Navigationsleiste (Android/iOS) verdeckt das Blatt nicht
         // … und hebt dann die Peek-Höhe, damit der Streifen komplett sichtbar ist.
         expect(css).toContain('body.demo-data-active {');
         const demoBlock = css.slice(css.indexOf('body.demo-data-active {'));
-        expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*100px/);
+        // Zwei Zeilen: Hinweis mit Demo-Übersicht, darunter „In Aktion sehen" · „Eigene Daten laden".
+        expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*124px/);
     });
 });

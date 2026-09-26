@@ -66,10 +66,18 @@
             </div>
 
             <!-- Ständiger, ruhiger Hinweis solange Beispieldaten laufen: jederzeit
-                 sichtbar in allen Bereichen, ein Tipp öffnet den geführten Upload. -->
+                 sichtbar in allen Bereichen. Dieselben zwei gleichwertigen Wege wie
+                 die Begrüßung (Live-Demos · eigene Daten), dazu die Demo-Übersicht
+                 für den gezielten Einstieg. -->
             <div id="demo-banner" class="demo-banner" role="note" hidden>
-                <span class="demo-banner-text">🧪 <b>Beispieldaten</b> – das sind Demo-Kunden.</span>
-                <button type="button" id="btn-demo-own-data" class="demo-banner-cta">📂 Eigene Daten laden</button>
+                <div class="demo-banner-head">
+                    <span class="demo-banner-text">🧪 <b>Beispieldaten</b> – das sind Demo-Kunden.</span>
+                    <button type="button" id="btn-demo-overview" class="demo-banner-link">🎬 Alle Demos</button>
+                </div>
+                <div class="demo-banner-actions" id="demo-banner-actions">
+                    <button type="button" id="btn-demo-show" class="demo-banner-cta">▶ In Aktion sehen</button>
+                    <button type="button" id="btn-demo-own-data" class="demo-banner-cta">📂 Eigene Daten laden</button>
+                </div>
             </div>
             <div class="depth-switch seg-toggle" id="depth-switch" role="group" aria-label="Ansichtstiefe wählen" title="Basis für den vollständigen Außendienst · Profi für zusätzliche Spezial- und Administrationswerkzeuge">
                 <button type="button" class="seg" data-depth="basis">🌱 Basis</button>

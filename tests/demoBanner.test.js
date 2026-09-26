@@ -34,3 +34,26 @@ describe('Demo-Streifen: „Eigene Daten laden" bei Beispieldaten überall anbie
         expect(wizard).toContain('if (isDemoDataset(state.customers)) { cancelWelcomeDemo(); ownDataDialog?.showModal(); return; }');
     });
 });
+
+describe('Demo-Streifen: Live-Demos gleichwertig neben „Eigene Daten laden"', () => {
+    const html = read('index.html');
+    const showcase = read('src/ui/showcase.js');
+    const sidebar = read('src/ui/sidebar.js');
+
+    it('bietet „In Aktion sehen" und „Eigene Daten laden" nebeneinander an', () => {
+        const banner = html.slice(html.indexOf('id="demo-banner"'), html.indexOf('id="depth-switch"'));
+        expect(banner).toContain('id="btn-demo-show" class="demo-banner-cta">▶ In Aktion sehen');
+        expect(banner).toContain('id="btn-demo-own-data" class="demo-banner-cta">📂 Eigene Daten laden');
+        expect(banner.indexOf('btn-demo-show')).toBeLessThan(banner.indexOf('btn-demo-own-data'));
+    });
+
+    it('startet mit „In Aktion sehen" die Schleife und öffnet über den Link die Übersicht', () => {
+        expect(showcase).toContain("getElementById('btn-demo-show')?.addEventListener('click', () => startShowcaseLoop());");
+        expect(showcase).toContain("getElementById('btn-demo-overview')?.addEventListener('click', () => openPanel());");
+    });
+
+    it('überlässt die zwei Wege der Begrüßung, solange diese steht – die Übersicht bleibt', () => {
+        expect(sidebar).toContain('demoActions.hidden = demoActive && isDemoWelcomeOpen();');
+        expect(html).toContain('id="btn-demo-overview"');
+    });
+});

@@ -1810,6 +1810,35 @@ body.offers-receded #demo-banner {
     .basemap-control,
     #demo-banner { transition: none; }
 }
+/* Kopfzeile: Hinweis links, Demo-Übersicht als dezenter Link rechts.
+   Darunter zwei gleich breite, gleich gewichtige Wege. */
+.demo-banner-head {
+    display: flex;
+    flex: 1 1 100%;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.demo-banner-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: var(--color-primary-dark, #0f766e);
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-decoration: underline;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.demo-banner-actions {
+    display: grid;
+    flex: 1 1 100%;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+.demo-banner-actions[hidden] { display: none; }
+.demo-banner-actions .demo-banner-cta { min-height: 34px; }
 .demo-banner-cta {
     flex-shrink: 0;
     padding: 6px 12px;
