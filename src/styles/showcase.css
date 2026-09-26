@@ -395,8 +395,10 @@ body.sc-running dialog[open] {
     text-align: center;
 }
 .sc-countdown-label b { color: #0f766e; font-variant-numeric: tabular-nums; }
+/* Negativer Versatz: Die Lücke wächst ab 12 Uhr im Uhrzeigersinn – der Ring
+   baut sich rechtsherum ab wie ein Uhrzeiger, nicht linksherum. */
 @keyframes sc-countdown {
-    to { stroke-dashoffset: 276.46; }
+    to { stroke-dashoffset: -276.46; }
 }
 @media (prefers-reduced-motion: reduce) {
     .sc-countdown-ring { animation: none; }

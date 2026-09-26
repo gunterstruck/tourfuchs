@@ -534,10 +534,15 @@ Sidebar sichtbar. Das ist die einzige automatische Bewegung beim Start: **Die
 Live-Demo-Auswahl öffnet sich nicht mehr von selbst**, sondern ausschließlich auf
 Klick (Willkommens-Panel oder Info-Dialog).
 
-Solange Beispieldaten laufen, liegt zusätzlich **mittig über der Karte** eine
-ruhige, nicht-blockierende Hinweiskarte („🧪 Das sind Beispieldaten" · **Eigene
-Daten laden** · **Kurze Live-Demos ansehen** · Quittung **"Verstanden – erst
-umsehen"**). Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
+Solange nur Beispieldaten laufen, liegt bei **jedem Start** zusätzlich **mittig
+über der Karte** eine ruhige, nicht-blockierende Begrüßung („Willkommen bei
+TourFuchs") mit zwei gleichwertigen Wegen: **▶ TourFuchs in Aktion sehen**
+(startet die Live-Demos direkt als Schleife, mit Musik) und **📂 Eigene Daten
+laden**, dazu die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
+Besuch). Tut niemand etwas, startet die Vorführung nach **zehn Sekunden** von
+selbst – ohne Ton, bis jemand auf „♫ Musik ein" tippt, weil Browser Musik erst
+nach einem Tipp erlauben. Die erste Bedienung irgendwo in der App bricht den
+Selbststart ab; gezählt wird nur, solange der Tab sichtbar ist. Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
 Tipp auf die Hinweiskarte selbst lässt sie zurücktreten** (gilt als Quittung).
 Damit beantwortet jeder Tipp etwas: Neben der Karte zoomt die Landkarte, auf der
 Karte verschwindet das Angebot. Ein dezenter Streifen im Panel („🧪

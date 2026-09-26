@@ -138,6 +138,9 @@ export function nextUnseenShowcaseStory(stories, seenIds = [], currentId = '') {
     return null;
 }
 
+/** Begrüßung ohne eigene Daten: So lange ohne Bedienung, dann startet die Vorführung. */
+export const DEMO_WELCOME_AUTOSTART_SECONDS = 10;
+
 /** Nach einem Film startet die nächste Demo von selbst – nach so vielen Sekunden. */
 export const SHOWCASE_AUTO_ADVANCE_SECONDS = 8;
 

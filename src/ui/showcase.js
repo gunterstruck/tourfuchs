@@ -1752,6 +1752,13 @@ function openPanel() {
     showShowcaseDialog();
 }
 
+/** Startet die Schleife bei der ersten (noch nicht gesehenen) Demo. */
+function startShowcaseLoop() {
+    if (insideMobilePreview || !dialog || running) return;
+    const first = nextShowcaseStoryInLoop(currentVisibleStories(), seenShowcaseIds(), '')?.story;
+    if (first) startStory(first);
+}
+
 /** Startet eine konkrete Live-Demo aus einem kontextuellen Einstieg. */
 export function startShowcaseStory(storyId) {
     if (insideMobilePreview || !dialog || running) return false;
@@ -1772,9 +1779,12 @@ export function initShowcase() {
         document.getElementById('info-dialog')?.close();
         openPanel();
     });
-    ['btn-showcase-ob', 'btn-demo-welcome-demos'].forEach((id) => {
-        document.getElementById(id)?.addEventListener('click', () => openPanel());
-    });
+    document.getElementById('btn-showcase-ob')?.addEventListener('click', () => openPanel());
+    // Begrüßung ohne eigene Daten: „In Aktion sehen" startet direkt die erste
+    // Demo der Schleife – ohne Umweg über die Auswahl. Der Selbststart nach
+    // zehn Sekunden nimmt denselben Weg.
+    document.getElementById('btn-demo-welcome-demos')?.addEventListener('click', () => startShowcaseLoop());
+    on('demo-welcome:autostart', () => startShowcaseLoop());
 
     // Pause zwischen zwei Filmen: Wer das Auswahlfenster verlässt (Beenden,
     // Später, Escape), beendet die Runde – die Musik klingt aus. Startet von

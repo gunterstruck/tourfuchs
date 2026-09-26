@@ -133,12 +133,27 @@ export class ShowcaseMusic {
                 this.loading = false;
                 this.fade(this.targetVolume());
                 this.onChange();
-            }).catch(() => {
-                if (generation === this.generation) this.fail();
+            }).catch((error) => {
+                if (generation !== this.generation) return;
+                // Ohne vorherigen Tipp verweigert der Browser Ton (Autoplay-Regel),
+                // etwa beim Selbststart der Vorführung. Das ist kein Fehler: still
+                // auf „Musik ein" stellen – ein Tipp darauf startet sie.
+                if (error?.name === 'NotAllowedError') this.block();
+                else this.fail();
             });
         } catch {
             this.fail();
         }
+    }
+
+    block() {
+        ++this.generation;
+        this.enabled = false;
+        this.wanted = false;
+        this.loading = false;
+        this.error = '';
+        this.silence();
+        this.onChange();
     }
 
     fail() {

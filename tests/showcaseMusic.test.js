@@ -123,6 +123,18 @@ describe('Optional tutorial music', () => {
         expect(music.error).toBe('');
         expect(audio.paused).toBe(false);
     });
+    it('switches silently to "Musik ein" when the browser blocks autoplay without a tap', async () => {
+        const blocked = new Error('play() failed because the user did not interact');
+        blocked.name = 'NotAllowedError';
+        audio.play.mockRejectedValueOnce(blocked);
+        await start();
+        expect(music.enabled).toBe(false);
+        expect(music.error).toBe('');
+        expect(audio.paused).toBe(true);
+        // Ein Tipp auf „Musik ein" ist die fehlende Nutzergeste.
+        music.setEnabled(true); await settle();
+        expect(audio.paused).toBe(false);
+    });
     it('handles file/decode errors and ignores errors from a released player', async () => {
         await start();
         const oldAudio = audio;
@@ -215,6 +227,9 @@ describe('Schleife der Mini-Schulungen', () => {
         const failure = showcase.slice(showcase.indexOf('function showStoryFailure'), showcase.indexOf('// ---- Intro-Panel'));
         expect(failure).not.toContain('countdownHtml');
         expect(failure).toContain('clearAutoAdvance();');
+    });
+    it('baut den Ring rechtsherum ab (im Uhrzeigersinn)', () => {
+        expect(css).toMatch(/@keyframes sc-countdown \{\s*to \{ stroke-dashoffset: -276\.46; \}/);
     });
     it('respektiert reduzierte Bewegung', () => {
         expect(css).toMatch(/prefers-reduced-motion: reduce\) \{\s*\.sc-countdown-ring \{ animation: none; \}/);
