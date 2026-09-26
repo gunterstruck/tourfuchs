@@ -57,13 +57,14 @@
  * erzählt, in mehreren kurzen Blasen statt einem langen Satz. Gezeigt wird
  * nur: Die Vorführung kopiert nichts und öffnet keinen Assistenten.
  */
-const PROMPT_WAY = [
-    { t: 'say', text: '① Ein Klick legt den Prompt in die Zwischenablage.', sel: '#area-briefing-footer', ms: 3000 },
+const promptWay = (footerSel) => [
+    { t: 'say', text: '① Ein Klick legt den Prompt in die Zwischenablage.', sel: footerSel, ms: 3000 },
     { t: 'say', text: '② Dann öffnest du die KI, die deine Firma freigegeben hat – zum Beispiel Microsoft 365 Copilot. Kundendaten gehören aus Datenschutzgründen nur dorthin.', ms: 5200 },
     { t: 'say', text: '③ Einfügen und selbst absenden – TourFuchs ruft keine KI-Schnittstelle auf. Zurück kommt dein Briefing: wen zuerst und warum.', ms: 4600 },
     { t: 'say', text: '④ Mit dem Briefing zurück zu TourFuchs und die Tour planen.', ms: 3000 },
     { t: 'say', text: 'In dieser Vorführung wird nichts kopiert und kein Assistent geöffnet. Prüfe die Antwort der KI, bevor du entscheidest.', ms: 4000 }
 ];
+const PROMPT_WAY = promptWay('#area-briefing-footer');
 
 export const STORIES = [
     {
@@ -109,7 +110,7 @@ export const STORIES = [
         steps: [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'planDemoTour' },
-            { t: 'say', text: 'Heute willst du zu einem Kunden im Westen. Ein Tipp auf den Stapel geht eine Ebene näher.', sel: '.sc-focus-stack', ms: 3000 },
+            { t: 'say', text: 'Heute willst du zu einem Kunden im Westen. Ein Tipp – und du bist bei ihm.', sel: '.sc-focus-stack', ms: 3000 },
             { t: 'run', key: 'tapToDestination' },
             { t: 'say', text: 'Die Kundenkarte: Adresse, Umsatz, letzter Besuch – alles auf einen Blick.', sel: '.leaflet-popup-content', ms: 3400, pos: 'bottom' },
             { t: 'say', text: 'Da willst du hin – also „Als Ziel".', sel: '.leaflet-popup-content [data-action="tour-dest"]', ms: 2200 },
@@ -140,20 +141,20 @@ export const STORIES = [
         id: 'handy-qr',
         icon: '📲',
         title: 'Aufs Handy – ohne Kabel, ohne Cloud',
-        blurb: 'Tour per QR-Code an dein Smartphone.',
-        duration: 53,
+        blurb: 'Die geplante Tour per QR-Code aufs Smartphone.',
+        duration: 43,   // 26.09.2026: Desktop 44 s, 8 Klicks, alle sauber
         desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
         needsData: true,
         mutatesTour: true,
         steps: [
+            // Der Film schließt an „Deine Tour" an: dieselbe Tour, still wieder
+            // angelegt (src/features/demoTour.js) – statt einer zweiten, fremden.
             { t: 'run', key: 'ensureDemo' },
-            { t: 'say', text: 'Im Schnelldurchlauf entsteht erst eine kleine Tour – Startpunkt und zwei Stopps. Wie in der Tour-Demo.', ms: 2800 },
+            { t: 'run', key: 'buildDemoTourQuietly' },
             { t: 'run', key: 'gotoTour' },
-            { t: 'run', key: 'pickBezirkAll' },
-            { t: 'run', key: 'pickStart' },
-            { t: 'say', text: 'Noch zwei Stopps aus den Vorschlägen …', ms: 1800 },
-            { t: 'run', key: 'addTwoSuggestions' },
-            { t: 'say', text: 'So sieht das Ganze auf dem Handy aus …', sel: '#btn-mobile-preview', ms: 1900 },
+            { t: 'run', key: 'showMyTour' },
+            { t: 'say', text: 'Die Tour aus dem letzten Film steht bereit: zu Hause in Dortmund los, über Bochum und Essen nach Duisburg.', sel: '#tour-stops', ms: 3600 },
+            { t: 'say', text: 'So sieht TourFuchs auf dem Handy aus …', sel: '#btn-mobile-preview', ms: 1900 },
             { t: 'click', sel: '#btn-mobile-preview' },
             { t: 'wait', ms: 3200 },
             { t: 'say', text: 'Dieselbe App, im Taschenformat.', ms: 1900 },
@@ -163,7 +164,9 @@ export const STORIES = [
             { t: 'run', key: 'shareTourQr' },
             { t: 'wait', ms: 3200 },
             { t: 'run', key: 'closeQr' },
-            { t: 'say', text: 'Mit der Handy-Kamera scannen – die Tour ist drüben. Kein Server, kein Kabel.', ms: 3200 }
+            { t: 'run', key: 'useDemoRoadRoute' },
+            { t: 'run', key: 'focusTourRoute' },
+            { t: 'say', text: 'Mit der Handy-Kamera scannen – und genau diese Tour ist drüben. Kein Server, kein Kabel.', ms: 3400, pos: 'bottom' }
         ]
     },
     {
@@ -216,13 +219,14 @@ export const STORIES = [
         id: 'chancen',
         icon: '🎯',
         title: 'Spontaner Termin? Briefing vorbereiten',
-        blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
-        duration: 55,
-        durationMobile: 45,
+        blurb: 'Passenden Kunden finden, Prompt ansehen, mit der Firmen-KI vorbereiten.',
+        duration: 68,         // 26.09.2026: Desktop 69 s, 9 Klicks, alle sauber
+        durationMobile: 60,   // Handy 61 s
         needsData: true,
         mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
+            { t: 'run', key: 'prepareHomeStart' },
             { t: 'run', key: 'gotoTour' },
             { t: 'say', text: 'Du bist unterwegs und ein spontaner Kundentermin wird möglich.', ms: 2200 },
             // Die Karten-Einfärbung „Chancen" gibt es bewusst nur am Desktop (dort ist
@@ -231,16 +235,18 @@ export const STORIES = [
             { t: 'say', text: '„Chancen" zeigt dir dafür nur fällige und überfällige Kunden.', sel: '.seg[data-view="chancen"]', ms: 2400, desktopOnly: true },
             { t: 'run', key: 'chancenOn', desktopOnly: true },
             { t: 'wait', ms: 1400 },
-            { t: 'say', text: 'Der Startpunkt ist schnell gesetzt …', ms: 1800 },
             { t: 'run', key: 'pickBezirkAll' },
-            { t: 'run', key: 'pickStart' },
+            { t: 'run', key: 'showStartStep' },
+            { t: 'say', text: 'Du bist gerade zu Hause in Dortmund.', sel: '#start-search', ms: 1800 },
+            { t: 'run', key: 'pickHome' },
             { t: 'run', key: 'addOneSuggestion' },
             { t: 'say', text: 'Einen passenden Kunden in der Nähe ausgesucht. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
             { t: 'run', key: 'openCustomerBriefing' },
-            { t: 'say', text: 'Hier bereitest du den Prompt vor. Die Demo ruft keinen KI-Bericht ab und sendet nichts an einen Assistenten.', sel: '#customer-briefing-dialog', ms: 3600 },
-            { t: 'say', text: 'Mit echten Kunden: kopieren, Kopierbestätigung abwarten, im freigegebenen Assistenten einfügen und selbst absenden.', sel: '#customer-briefing-dialog', ms: 4400 },
+            { t: 'run', key: 'revealCustomerPrompt' },
+            { t: 'say', text: 'Der fertige Prompt für genau diesen Kunden – entstanden auf deinem Gerät.', sel: '#customer-briefing-dialog .briefing-prompt-visible', ms: 3400 },
+            ...promptWay('#customer-briefing-footer'),
             { t: 'run', key: 'closeCustomerBriefing' },
-            { t: 'say', text: 'Der nächste Kunde steht fest. Die KI-Antwort prüfst du danach. Eigene Quellen benötigt die KI als freigegebene Anbindung.', ms: 4100 }
+            { t: 'say', text: 'Der nächste Kunde steht fest – gut vorbereitet.', ms: 2600 }
         ]
     },
     {
