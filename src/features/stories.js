@@ -54,86 +54,101 @@
 // Prompts dazu, und genau das ist der Unterschied zur Lasso-Demo.
 export const STORIES = [
     {
-        id: 'gebietsueberblick',
+        // Der Film für Vertriebsbeauftragte: von ganz Deutschland über den
+        // eigenen Bezirk bis zur Kundenkachel – nur echte Klicks, kein Sprung.
+        id: 'bezirk-zum-kunden',
         optionalModule: 'territoryPlanning',
-        icon: '🧭',
-        title: 'Mein Gebiet im Überblick',
-        blurb: 'Bezirk filtern, Umsatz eingrenzen, Kunden und große Kacheln ansehen.',
-        duration: 75,
+        icon: '🎯',
+        title: 'Vom Bezirk zum Kunden',
+        blurb: 'Ganz Deutschland, dein Bezirk, ein Kunde – in wenigen Klicks.',
+        duration: 62,   // 26.09.2026: Desktop und Tablet quer je 63 s, 11 Klicks, alle sauber
         desktopOnly: true,
         needsData: true,
         steps: [
             { t: 'run', key: 'overviewSetup' },
-            { t: 'say', text: 'Erst Übersicht gewinnen: Die Flächen zeigen Landkreise, die Farben deine Vertriebsbezirke.', sel: '#colormode-select', ms: 3000 },
+            { t: 'say', text: 'Ganz Deutschland auf einen Blick – jede Farbe ist ein Vertriebsbezirk.', sel: '#map', ms: 3000 },
             { t: 'run', key: 'overviewDistrict' },
-            { t: 'say', text: 'Alle abwählen, einen Bezirk anhaken: Die Karte zeigt jetzt nur diese Auswahl.', sel: '[data-toggle="bezirk"]', ms: 3200 },
-            { t: 'run', key: 'overviewRevenue' },
-            { t: 'say', text: 'Von und Bis begrenzen den Umsatz. Bei aktivem Filter fehlen Kunden ohne Umsatzangabe; 0 Euro ist ein gültiger Wert.', sel: '#revenue-filter-summary', ms: 4600 },
-            { t: 'say', text: 'Auch Kundentyp ist hier filterbar, sofern du diese Spalte importiert hast.', sel: '#team-filters', ms: 3000 },
-            { t: 'run', key: 'overviewMinimum' },
-            { t: 'say', text: 'Zum Beispiel drei sichtbare Kunden: Erst dann wird der Landkreis eingefärbt. Einzelne Ausreißer bleiben neutral.', sel: '#min-region-customers', ms: 4200 },
-            { t: 'say', text: 'Für die Detailansicht setzen wir die Mindestzahl wieder auf eins und öffnen die Bezirkskachel.', ms: 3000 },
+            { t: 'say', text: 'Alle abwählen, deinen Bezirk anhaken – schon zeigt die Karte nur noch dein Gebiet.', sel: '[data-toggle="bezirk"]', ms: 3200 },
             { t: 'run', key: 'overviewDetail' },
-            { t: 'say', text: 'Groß und lesbar: Kundenanzahl, vorhandener Umsatz und die stärksten Standorte des ausgewählten Bezirks.', sel: '#territory-summary-body', ms: 3600 },
-            { t: 'run', key: 'overviewZoom' },
-            { t: 'say', text: 'Hineinzoomen, Flächen ausblenden, Kunden ansehen: Hier steht auch der Umsatz, sofern vorhanden.', sel: '.leaflet-popup-content', ms: 3800, pos: 'bottom' },
-            { t: 'say', text: 'Deine bisherigen Filter werden danach wiederhergestellt. Die Simulation findest du in einer eigenen Schulung.', ms: 2800 }
-        ]
-    },
-    {
-        id: 'excel-karte',
-        icon: '🗺️',
-        title: 'Von der Excel-Liste zur Kundenkarte',
-        blurb: 'Liste einfügen, Stapel verstehen, bis zum Detail aufzoomen.',
-        duration: 54,
-        durationMobile: 34,   // am Handy entfallen die Einfüge-Schritte
-        minRuntimeMs: 15000,
-        steps: [
-            { t: 'say', text: 'TourFuchs macht aus einer Kundenliste eine verständliche Deutschlandkarte.', sel: '#map', ms: 2400 },
-            // Der schnellste Weg zu eigenen Daten findet sich nicht von selbst –
-            // also wird er vorgeführt. Am Handy übersprungen: Dort ist die
-            // Kundenliste selten in einer Tabellen-App offen.
-            { t: 'say', text: 'Und wie kommen deine Kunden hinein? Meist ist die Liste ohnehin in Excel offen – dann braucht es nicht einmal eine Datei.', ms: 3400, desktopOnly: true },
-            { t: 'run', key: 'openPasteDemo', desktopOnly: true },
-            { t: 'say', text: 'In Excel markieren, Strg+C – und hier einfügen.', sel: '#paste-input', ms: 2600, desktopOnly: true },
-            { t: 'run', key: 'pasteDemoTable', desktopOnly: true },
-            { t: 'say', text: 'TourFuchs sagt sofort, was es erkannt hat. Danach nur noch die Spalten prüfen – fertig.', sel: '#paste-status', ms: 3200, desktopOnly: true },
-            { t: 'run', key: 'closePasteDemo', desktopOnly: true },
-            { t: 'say', text: 'Für diese Vorführung bleiben wir bei Beispielkunden – deine Daten rührt die Demo nicht an.', ms: 2800, desktopOnly: true },
-            { t: 'run', key: 'excelToMap' },
-            { t: 'say', text: 'Jeder Stapel sagt sofort, wie viele Kunden hier liegen. Antippen bedeutet: eine Ebene näher.', sel: '.customer-stack-card', ms: 3200 },
-            { t: 'run', key: 'zoomToCustomerCards' },
-            { t: 'say', text: 'Näher dran wird aus dem Stapel jede einzelne Kundenkachel – die Farbe zeigt den Vertriebsbezirk.', sel: '.customer-marker-card', ms: 2800 },
+            { t: 'say', text: 'Die Bezirkskachel: wie viele Kunden, wie viel Umsatz und wo die stärksten Standorte liegen.', sel: '#territory-summary-body', ms: 3600 },
+            { t: 'run', key: 'districtFocus' },
+            { t: 'say', text: 'Hinein in den Bezirk: Aus der Fläche werden Kundenstapel – jeder Tipp geht eine Ebene näher.', sel: '.sc-focus-stack', ms: 3000 },
+            { t: 'run', key: 'districtStackToCustomer' },
             { t: 'run', key: 'openCustomerCard' },
-            { t: 'say', text: 'So entsteht der Zusammenhang ganz natürlich: Region, Kundenkarte, Details – Adresse, Kontakt und Umsatz auf einen Blick.', sel: '.leaflet-popup-content', ms: 3600, pos: 'bottom' },
-            { t: 'say', text: 'Und von hier ist alles einen Tipp entfernt: anrufen, zur Tour hinzufügen, Gesprächs-Briefing.', sel: '.leaflet-popup-content', ms: 3000, pos: 'bottom' }
+            { t: 'say', text: 'Angekommen beim Kunden: Adresse, Kontakt, Umsatz und der letzte Besuch.', sel: '.leaflet-popup-content', ms: 3600, pos: 'bottom' },
+            { t: 'say', text: 'Für das ganze Gebiet liegen unten zwei Wege bereit: Briefing und Export – etwa fürs CRM.', sel: '#btn-territory-briefing', ms: 3400 }
         ]
     },
     {
-        // Der Weg einer echten Excel-Datei – mit dem Schritt, an dem Neue
-        // unsicher werden: „Meine Spalte heißt anders – geht das trotzdem?"
-        // Die Beispieldatei trägt deshalb eigene Spaltennamen; „Firmenbezeichnung"
-        // erkennt TourFuchs nicht und wird sichtbar von Hand zugeordnet.
-        // Importiert wird nichts: Die Vorführung bricht vor „Importieren" ab.
-        id: 'import-zuordnung',
-        icon: '📊',
-        title: 'Deine Excel-Liste importieren',
-        blurb: 'Datei wählen, Spalten zuordnen – auch wenn sie anders heißen.',
-        duration: 40,   // gemessen 26.09.2026: 39–40 s in allen vier Formaten
+        id: 'tour',
+        icon: '🚗',
+        title: 'Deine Tour, Schritt für Schritt',
+        blurb: 'Startpunkt, Vorschläge, optimierte Route.',
+        duration: 70,
+        durationMobile: 65,
+        needsData: true,
+        mutatesTour: true,
         steps: [
-            { t: 'say', text: 'Deine Kundenliste liegt als Excel-Datei vor? So kommt sie hinein – auch wenn die Spalten anders heißen als bei uns.', ms: 3400 },
-            { t: 'run', key: 'openImportDemo' },
-            { t: 'say', text: 'Hier wählst du deine Excel- oder CSV-Datei. Für die Vorführung nehmen wir eine Beispieldatei.', sel: '#btn-upload', ms: 3200 },
-            { t: 'run', key: 'importDemoFile' },
-            { t: 'say', text: 'TourFuchs liest die Datei und sagt, was drinsteht: sechs Kunden, sechs Spalten.', sel: '#mapping-file-info', ms: 3000 },
-            { t: 'say', text: 'Vieles erkennt es von selbst – Straße, PLZ, Ort, Vertriebsbezirk und Umsatz sind schon zugeordnet.', sel: '#mapping-rows select[data-field="plz"]', ms: 3600 },
-            { t: 'say', text: '„Firmenbezeichnung" kennt es nicht – das Pflichtfeld Kundenname ist noch leer.', sel: '#mapping-rows select[data-field="name"]', ms: 3200 },
-            { t: 'select', sel: '#mapping-rows select[data-field="name"]', value: 'Firmenbezeichnung' },
-            { t: 'say', text: 'Einmal auswählen – die Beispielwerte daneben zeigen sofort, ob es passt.', sel: '#mapping-rows select[data-field="name"]', ms: 3000 },   // nicht die Beispielzelle: deren Anscrollen schob am Handy die Feldnamen aus dem Bild
-            { t: 'say', text: 'Für die Karte reicht schon die PLZ, die Straße macht die Position genauer. Kontakt, Besuchsrhythmus und mehr liegen unter „Weitere Felder".', sel: '#mapping-more', ms: 4000 },
-            { t: 'say', text: 'Jetzt würdest du „Importieren" tippen – und deine Kunden stehen auf der Karte.', sel: '#mapping-confirm', ms: 3000 },
-            { t: 'run', key: 'closeImportDemo' },
-            { t: 'say', text: 'Für die Vorführung brechen wir hier ab – deine Daten rührt die Demo nicht an.', ms: 2800 }
+            { t: 'run', key: 'ensureDemo' },
+            { t: 'run', key: 'focusDemoTourArea' },
+            { t: 'say', text: 'Wir starten in einer Region mit Kunden für eine sichtbare, sinnvolle Tagestour.', ms: 2400, pos: 'bottom' },
+            { t: 'run', key: 'gotoTour' },
+            // Kein Bezirks-Schritt mehr: Geplant wird ab Werk über alle Bezirke.
+            // Der Lauf stellt den Standard nur still sicher.
+            { t: 'run', key: 'pickBezirkAll' },
+            { t: 'say', text: 'Jetzt einen Startpunkt setzen …', sel: '#start-search', ms: 1500 },
+            { t: 'run', key: 'pickStart' },
+            // Aussuchen ist der Kern dieses Produkts: Der automatische
+            // Tourvorschlag wurde am 10.07.2026 nach Nutzerfeedback gestrichen –
+            // „die Tour plant der Mensch". Die Vorführung muss deshalb zeigen,
+            // wie jemand die Vorschläge aufschlägt und selbst auswählt, statt
+            // die Stopps erscheinen zu lassen.
+            { t: 'say', text: 'Jetzt schlägt TourFuchs vor, wen du in der Nähe noch mitnehmen könntest.', sel: '#suggest-head', ms: 2200 },
+            { t: 'run', key: 'showSuggestions' },
+            { t: 'say', text: 'Aussuchen tust du: Ein Tipp auf das Plus nimmt einen Kunden mit.', sel: '#tour-suggestions', ms: 2600 },
+            { t: 'run', key: 'addTwoSuggestions' },
+            { t: 'run', key: 'showMyTour' },
+            { t: 'say', text: 'Die Stopps stehen. Jetzt sortiert TourFuchs sie in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
+            { t: 'click', sel: '#btn-optimize' },
+            { t: 'say', text: 'Eine kurze, sinnvolle Reihenfolge – anhand der Luftlinienentfernungen optimiert.', ms: 2800 },
+            { t: 'say', text: 'Ein Klick bringt die geplante Tour zurück auf die Karte.', sel: '#btn-route-focus', ms: 2200 },
+            { t: 'click', sel: '#btn-route-focus' },
+            { t: 'wait', ms: 1500 },
+            { t: 'run', key: 'focusTourRoute' },
+            { t: 'say', text: 'Die Route liegt auf der Karte – zuerst als Luftlinie.', ms: 2200, pos: 'bottom' },
+            { t: 'say', text: 'Die Straßenroute nutzt den externen Dienst OSRM und benötigt deine Zustimmung zur Übertragung der Koordinaten. Die Demo aktiviert sie nicht.', sel: '#btn-route-mode', ms: 5000 },
+            { t: 'say', text: 'Reihenfolge und Strecke als Luftlinie stehen. Die Straßenroute kannst du nach der Demo selbst aktivieren.', ms: 3400, pos: 'bottom' },
+            { t: 'say', text: 'Und wie kommt die fertige Tour aufs Handy? Genau das zeigt die nächste Demo.', ms: 2800, desktopOnly: true }
+        ]
+    },
+    {
+        id: 'handy-qr',
+        icon: '📲',
+        title: 'Aufs Handy – ohne Kabel, ohne Cloud',
+        blurb: 'Tour per QR-Code an dein Smartphone.',
+        duration: 53,
+        desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
+        needsData: true,
+        mutatesTour: true,
+        steps: [
+            { t: 'run', key: 'ensureDemo' },
+            { t: 'say', text: 'Im Schnelldurchlauf entsteht erst eine kleine Tour – Startpunkt und zwei Stopps. Wie in der Tour-Demo.', ms: 2800 },
+            { t: 'run', key: 'gotoTour' },
+            { t: 'run', key: 'pickBezirkAll' },
+            { t: 'run', key: 'pickStart' },
+            { t: 'say', text: 'Noch zwei Stopps aus den Vorschlägen …', ms: 1800 },
+            { t: 'run', key: 'addTwoSuggestions' },
+            { t: 'say', text: 'So sieht das Ganze auf dem Handy aus …', sel: '#btn-mobile-preview', ms: 1900 },
+            { t: 'click', sel: '#btn-mobile-preview' },
+            { t: 'wait', ms: 3200 },
+            { t: 'say', text: 'Dieselbe App, im Taschenformat.', ms: 1900 },
+            { t: 'click', sel: '#btn-mobile-preview' },
+            { t: 'wait', ms: 700 },
+            { t: 'say', text: 'Und jetzt die geplante Tour aufs Handy geben …', sel: '#btn-tour-qr', ms: 2000 },
+            { t: 'run', key: 'shareTourQr' },
+            { t: 'wait', ms: 3200 },
+            { t: 'run', key: 'closeQr' },
+            { t: 'say', text: 'Mit der Handy-Kamera scannen – die Tour ist drüben. Kein Server, kein Kabel.', ms: 3200 }
         ]
     },
     {
@@ -230,75 +245,117 @@ export const STORIES = [
         ]
     },
     {
-        id: 'tour',
-        icon: '🚗',
-        title: 'Deine Tour, Schritt für Schritt',
-        blurb: 'Startpunkt, Vorschläge, optimierte Route.',
-        duration: 70,
-        durationMobile: 65,
+        id: 'chancen',
+        icon: '🎯',
+        title: 'Spontaner Termin? Briefing vorbereiten',
+        blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
+        duration: 55,
+        durationMobile: 45,
         needsData: true,
         mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
-            { t: 'run', key: 'focusDemoTourArea' },
-            { t: 'say', text: 'Wir starten in einer Region mit Kunden für eine sichtbare, sinnvolle Tagestour.', ms: 2400, pos: 'bottom' },
             { t: 'run', key: 'gotoTour' },
-            // Kein Bezirks-Schritt mehr: Geplant wird ab Werk über alle Bezirke.
-            // Der Lauf stellt den Standard nur still sicher.
+            { t: 'say', text: 'Du bist unterwegs und ein spontaner Kundentermin wird möglich.', ms: 2200 },
+            // Die Karten-Einfärbung „Chancen" gibt es bewusst nur am Desktop (dort ist
+            // die Karte sichtbar). Am Handy übersprungen – der Tour-Flow findet fällige
+            // Kunden ohnehin über „Nähe" und „Überfällige zuerst".
+            { t: 'say', text: '„Chancen" zeigt dir dafür nur fällige und überfällige Kunden.', sel: '.seg[data-view="chancen"]', ms: 2400, desktopOnly: true },
+            { t: 'run', key: 'chancenOn', desktopOnly: true },
+            { t: 'wait', ms: 1400 },
+            { t: 'say', text: 'Der Startpunkt ist schnell gesetzt …', ms: 1800 },
             { t: 'run', key: 'pickBezirkAll' },
-            { t: 'say', text: 'Jetzt einen Startpunkt setzen …', sel: '#start-search', ms: 1500 },
             { t: 'run', key: 'pickStart' },
-            // Aussuchen ist der Kern dieses Produkts: Der automatische
-            // Tourvorschlag wurde am 10.07.2026 nach Nutzerfeedback gestrichen –
-            // „die Tour plant der Mensch". Die Vorführung muss deshalb zeigen,
-            // wie jemand die Vorschläge aufschlägt und selbst auswählt, statt
-            // die Stopps erscheinen zu lassen.
-            { t: 'say', text: 'Jetzt schlägt TourFuchs vor, wen du in der Nähe noch mitnehmen könntest.', sel: '#suggest-head', ms: 2200 },
-            { t: 'run', key: 'showSuggestions' },
-            { t: 'say', text: 'Aussuchen tust du: Ein Tipp auf das Plus nimmt einen Kunden mit.', sel: '#tour-suggestions', ms: 2600 },
-            { t: 'run', key: 'addTwoSuggestions' },
-            { t: 'run', key: 'showMyTour' },
-            { t: 'say', text: 'Die Stopps stehen. Jetzt sortiert TourFuchs sie in eine sinnvolle Reihenfolge.', sel: '#btn-optimize', ms: 2300 },
-            { t: 'click', sel: '#btn-optimize' },
-            { t: 'say', text: 'Eine kurze, sinnvolle Reihenfolge – anhand der Luftlinienentfernungen optimiert.', ms: 2800 },
-            { t: 'say', text: 'Ein Klick bringt die geplante Tour zurück auf die Karte.', sel: '#btn-route-focus', ms: 2200 },
-            { t: 'click', sel: '#btn-route-focus' },
-            { t: 'wait', ms: 1500 },
-            { t: 'run', key: 'focusTourRoute' },
-            { t: 'say', text: 'Die Route liegt auf der Karte – zuerst als Luftlinie.', ms: 2200, pos: 'bottom' },
-            { t: 'say', text: 'Die Straßenroute nutzt den externen Dienst OSRM und benötigt deine Zustimmung zur Übertragung der Koordinaten. Die Demo aktiviert sie nicht.', sel: '#btn-route-mode', ms: 5000 },
-            { t: 'say', text: 'Reihenfolge und Strecke als Luftlinie stehen. Die Straßenroute kannst du nach der Demo selbst aktivieren.', ms: 3400, pos: 'bottom' },
-            { t: 'say', text: 'Und wie kommt die fertige Tour aufs Handy? Genau das zeigt die nächste Demo.', ms: 2800, desktopOnly: true }
+            { t: 'run', key: 'addOneSuggestion' },
+            { t: 'say', text: 'Einen passenden Kunden in der Nähe ausgesucht. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
+            { t: 'run', key: 'openCustomerBriefing' },
+            { t: 'say', text: 'Hier bereitest du den Prompt vor. Die Demo ruft keinen KI-Bericht ab und sendet nichts an einen Assistenten.', sel: '#customer-briefing-dialog', ms: 3600 },
+            { t: 'say', text: 'Mit echten Kunden: kopieren, Kopierbestätigung abwarten, im freigegebenen Assistenten einfügen und selbst absenden.', sel: '#customer-briefing-dialog', ms: 4400 },
+            { t: 'run', key: 'closeCustomerBriefing' },
+            { t: 'say', text: 'Der nächste Kunde steht fest. Die KI-Antwort prüfst du danach. Eigene Quellen benötigt die KI als freigegebene Anbindung.', ms: 4100 }
         ]
     },
     {
-        id: 'handy-qr',
-        icon: '📲',
-        title: 'Aufs Handy – ohne Kabel, ohne Cloud',
-        blurb: 'Tour per QR-Code an dein Smartphone.',
-        duration: 53,
-        desktopOnly: true,   // Übergabe Desktop -> Handy; auf dem Handy selbst sinnlos
-        needsData: true,
-        mutatesTour: true,
+        id: 'excel-karte',
+        icon: '🗺️',
+        title: 'Von der Excel-Liste zur Kundenkarte',
+        blurb: 'Liste einfügen, Stapel verstehen, bis zum Detail aufzoomen.',
+        duration: 54,
+        durationMobile: 34,   // am Handy entfallen die Einfüge-Schritte
+        minRuntimeMs: 15000,
         steps: [
-            { t: 'run', key: 'ensureDemo' },
-            { t: 'say', text: 'Im Schnelldurchlauf entsteht erst eine kleine Tour – Startpunkt und zwei Stopps. Wie in der Tour-Demo.', ms: 2800 },
-            { t: 'run', key: 'gotoTour' },
-            { t: 'run', key: 'pickBezirkAll' },
-            { t: 'run', key: 'pickStart' },
-            { t: 'say', text: 'Noch zwei Stopps aus den Vorschlägen …', ms: 1800 },
-            { t: 'run', key: 'addTwoSuggestions' },
-            { t: 'say', text: 'So sieht das Ganze auf dem Handy aus …', sel: '#btn-mobile-preview', ms: 1900 },
-            { t: 'click', sel: '#btn-mobile-preview' },
-            { t: 'wait', ms: 3200 },
-            { t: 'say', text: 'Dieselbe App, im Taschenformat.', ms: 1900 },
-            { t: 'click', sel: '#btn-mobile-preview' },
-            { t: 'wait', ms: 700 },
-            { t: 'say', text: 'Und jetzt die geplante Tour aufs Handy geben …', sel: '#btn-tour-qr', ms: 2000 },
-            { t: 'run', key: 'shareTourQr' },
-            { t: 'wait', ms: 3200 },
-            { t: 'run', key: 'closeQr' },
-            { t: 'say', text: 'Mit der Handy-Kamera scannen – die Tour ist drüben. Kein Server, kein Kabel.', ms: 3200 }
+            { t: 'say', text: 'TourFuchs macht aus einer Kundenliste eine verständliche Deutschlandkarte.', sel: '#map', ms: 2400 },
+            // Der schnellste Weg zu eigenen Daten findet sich nicht von selbst –
+            // also wird er vorgeführt. Am Handy übersprungen: Dort ist die
+            // Kundenliste selten in einer Tabellen-App offen.
+            { t: 'say', text: 'Und wie kommen deine Kunden hinein? Meist ist die Liste ohnehin in Excel offen – dann braucht es nicht einmal eine Datei.', ms: 3400, desktopOnly: true },
+            { t: 'run', key: 'openPasteDemo', desktopOnly: true },
+            { t: 'say', text: 'In Excel markieren, Strg+C – und hier einfügen.', sel: '#paste-input', ms: 2600, desktopOnly: true },
+            { t: 'run', key: 'pasteDemoTable', desktopOnly: true },
+            { t: 'say', text: 'TourFuchs sagt sofort, was es erkannt hat. Danach nur noch die Spalten prüfen – fertig.', sel: '#paste-status', ms: 3200, desktopOnly: true },
+            { t: 'run', key: 'closePasteDemo', desktopOnly: true },
+            { t: 'say', text: 'Für diese Vorführung bleiben wir bei Beispielkunden – deine Daten rührt die Demo nicht an.', ms: 2800, desktopOnly: true },
+            { t: 'run', key: 'excelToMap' },
+            { t: 'say', text: 'Jeder Stapel sagt sofort, wie viele Kunden hier liegen. Antippen bedeutet: eine Ebene näher.', sel: '.customer-stack-card', ms: 3200 },
+            { t: 'run', key: 'zoomToCustomerCards' },
+            { t: 'say', text: 'Näher dran wird aus dem Stapel jede einzelne Kundenkachel – die Farbe zeigt den Vertriebsbezirk.', sel: '.customer-marker-card', ms: 2800 },
+            { t: 'run', key: 'openCustomerCard' },
+            { t: 'say', text: 'So entsteht der Zusammenhang ganz natürlich: Region, Kundenkarte, Details – Adresse, Kontakt und Umsatz auf einen Blick.', sel: '.leaflet-popup-content', ms: 3600, pos: 'bottom' },
+            { t: 'say', text: 'Und von hier ist alles einen Tipp entfernt: anrufen, zur Tour hinzufügen, Gesprächs-Briefing.', sel: '.leaflet-popup-content', ms: 3000, pos: 'bottom' }
+        ]
+    },
+    {
+        // Der Weg einer echten Excel-Datei – mit dem Schritt, an dem Neue
+        // unsicher werden: „Meine Spalte heißt anders – geht das trotzdem?"
+        // Die Beispieldatei trägt deshalb eigene Spaltennamen; „Firmenbezeichnung"
+        // erkennt TourFuchs nicht und wird sichtbar von Hand zugeordnet.
+        // Importiert wird nichts: Die Vorführung bricht vor „Importieren" ab.
+        id: 'import-zuordnung',
+        icon: '📊',
+        title: 'Deine Excel-Liste importieren',
+        blurb: 'Datei wählen, Spalten zuordnen – auch wenn sie anders heißen.',
+        duration: 40,   // gemessen 26.09.2026: 39–40 s in allen vier Formaten
+        steps: [
+            { t: 'say', text: 'Deine Kundenliste liegt als Excel-Datei vor? So kommt sie hinein – auch wenn die Spalten anders heißen als bei uns.', ms: 3400 },
+            { t: 'run', key: 'openImportDemo' },
+            { t: 'say', text: 'Hier wählst du deine Excel- oder CSV-Datei. Für die Vorführung nehmen wir eine Beispieldatei.', sel: '#btn-upload', ms: 3200 },
+            { t: 'run', key: 'importDemoFile' },
+            { t: 'say', text: 'TourFuchs liest die Datei und sagt, was drinsteht: sechs Kunden, sechs Spalten.', sel: '#mapping-file-info', ms: 3000 },
+            { t: 'say', text: 'Vieles erkennt es von selbst – Straße, PLZ, Ort, Vertriebsbezirk und Umsatz sind schon zugeordnet.', sel: '#mapping-rows select[data-field="plz"]', ms: 3600 },
+            { t: 'say', text: '„Firmenbezeichnung" kennt es nicht – das Pflichtfeld Kundenname ist noch leer.', sel: '#mapping-rows select[data-field="name"]', ms: 3200 },
+            { t: 'select', sel: '#mapping-rows select[data-field="name"]', value: 'Firmenbezeichnung' },
+            { t: 'say', text: 'Einmal auswählen – die Beispielwerte daneben zeigen sofort, ob es passt.', sel: '#mapping-rows select[data-field="name"]', ms: 3000 },   // nicht die Beispielzelle: deren Anscrollen schob am Handy die Feldnamen aus dem Bild
+            { t: 'say', text: 'Für die Karte reicht schon die PLZ, die Straße macht die Position genauer. Kontakt, Besuchsrhythmus und mehr liegen unter „Weitere Felder".', sel: '#mapping-more', ms: 4000 },
+            { t: 'say', text: 'Jetzt würdest du „Importieren" tippen – und deine Kunden stehen auf der Karte.', sel: '#mapping-confirm', ms: 3000 },
+            { t: 'run', key: 'closeImportDemo' },
+            { t: 'say', text: 'Für die Vorführung brechen wir hier ab – deine Daten rührt die Demo nicht an.', ms: 2800 }
+        ]
+    },
+    {
+        id: 'gebietsueberblick',
+        optionalModule: 'territoryPlanning',
+        icon: '🧭',
+        title: 'Mein Gebiet im Überblick',
+        blurb: 'Bezirk filtern, Umsatz eingrenzen, Kunden und große Kacheln ansehen.',
+        duration: 75,
+        desktopOnly: true,
+        needsData: true,
+        steps: [
+            { t: 'run', key: 'overviewSetup' },
+            { t: 'say', text: 'Erst Übersicht gewinnen: Die Flächen zeigen Landkreise, die Farben deine Vertriebsbezirke.', sel: '#colormode-select', ms: 3000 },
+            { t: 'run', key: 'overviewDistrict' },
+            { t: 'say', text: 'Alle abwählen, einen Bezirk anhaken: Die Karte zeigt jetzt nur diese Auswahl.', sel: '[data-toggle="bezirk"]', ms: 3200 },
+            { t: 'run', key: 'overviewRevenue' },
+            { t: 'say', text: 'Von und Bis begrenzen den Umsatz. Bei aktivem Filter fehlen Kunden ohne Umsatzangabe; 0 Euro ist ein gültiger Wert.', sel: '#revenue-filter-summary', ms: 4600 },
+            { t: 'say', text: 'Auch Kundentyp ist hier filterbar, sofern du diese Spalte importiert hast.', sel: '#team-filters', ms: 3000 },
+            { t: 'run', key: 'overviewMinimum' },
+            { t: 'say', text: 'Zum Beispiel drei sichtbare Kunden: Erst dann wird der Landkreis eingefärbt. Einzelne Ausreißer bleiben neutral.', sel: '#min-region-customers', ms: 4200 },
+            { t: 'say', text: 'Für die Detailansicht setzen wir die Mindestzahl wieder auf eins und öffnen die Bezirkskachel.', ms: 3000 },
+            { t: 'run', key: 'overviewDetail' },
+            { t: 'say', text: 'Groß und lesbar: Kundenanzahl, vorhandener Umsatz und die stärksten Standorte des ausgewählten Bezirks.', sel: '#territory-summary-body', ms: 3600 },
+            { t: 'run', key: 'overviewZoom' },
+            { t: 'say', text: 'Hineinzoomen, Flächen ausblenden, Kunden ansehen: Hier steht auch der Umsatz, sofern vorhanden.', sel: '.leaflet-popup-content', ms: 3800, pos: 'bottom' },
+            { t: 'say', text: 'Deine bisherigen Filter werden danach wiederhergestellt. Die Simulation findest du in einer eigenen Schulung.', ms: 2800 }
         ]
     },
     {
@@ -354,34 +411,25 @@ export const STORIES = [
         ]
     },
     {
-        id: 'chancen',
-        icon: '🎯',
-        title: 'Spontaner Termin? Briefing vorbereiten',
-        blurb: 'Passenden Kunden finden und mit fertigem Briefing-Prompt starten.',
-        duration: 55,
-        durationMobile: 45,
+        id: 'empfang',
+        icon: '📥',
+        title: 'Verschlüsselte Daten aufs Handy holen',
+        blurb: 'Datei wählen, Schlüssel scannen, fertig.',
+        duration: 29,
+        mobileOnly: true,     // Gegenstück zur Desktop-QR-Story; nur am Handy sinnvoll
         needsData: true,
-        mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
-            { t: 'run', key: 'gotoTour' },
-            { t: 'say', text: 'Du bist unterwegs und ein spontaner Kundentermin wird möglich.', ms: 2200 },
-            // Die Karten-Einfärbung „Chancen" gibt es bewusst nur am Desktop (dort ist
-            // die Karte sichtbar). Am Handy übersprungen – der Tour-Flow findet fällige
-            // Kunden ohnehin über „Nähe" und „Überfällige zuerst".
-            { t: 'say', text: '„Chancen" zeigt dir dafür nur fällige und überfällige Kunden.', sel: '.seg[data-view="chancen"]', ms: 2400, desktopOnly: true },
-            { t: 'run', key: 'chancenOn', desktopOnly: true },
-            { t: 'wait', ms: 1400 },
-            { t: 'say', text: 'Der Startpunkt ist schnell gesetzt …', ms: 1800 },
-            { t: 'run', key: 'pickBezirkAll' },
-            { t: 'run', key: 'pickStart' },
-            { t: 'run', key: 'addOneSuggestion' },
-            { t: 'say', text: 'Einen passenden Kunden in der Nähe ausgesucht. Jetzt kurz vorbereiten.', sel: '#tour-stops', ms: 2600 },
-            { t: 'run', key: 'openCustomerBriefing' },
-            { t: 'say', text: 'Hier bereitest du den Prompt vor. Die Demo ruft keinen KI-Bericht ab und sendet nichts an einen Assistenten.', sel: '#customer-briefing-dialog', ms: 3600 },
-            { t: 'say', text: 'Mit echten Kunden: kopieren, Kopierbestätigung abwarten, im freigegebenen Assistenten einfügen und selbst absenden.', sel: '#customer-briefing-dialog', ms: 4400 },
-            { t: 'run', key: 'closeCustomerBriefing' },
-            { t: 'say', text: 'Der nächste Kunde steht fest. Die KI-Antwort prüfst du danach. Eigene Quellen benötigt die KI als freigegebene Anbindung.', ms: 4100 }
+            { t: 'run', key: 'openReceive' },
+            { t: 'say', text: 'Am Desktop hast du deine Daten verschlüsselt exportiert – so holst du sie sicher aufs Handy.', ms: 2600 },
+            { t: 'say', text: 'Schritt 1: die verschlüsselte Datei (.tfsafe) wählen, die du dir geschickt hast.', sel: '#safe-file-input', ms: 2800 },
+            { t: 'run', key: 'showReceiveKeyStep' },
+            { t: 'say', text: 'Schritt 2: den Schlüssel-QR mit der Kamera scannen – der Schlüssel reist getrennt von der Datei.', sel: '#safe-scan-video', ms: 3000 },
+            { t: 'say', text: 'Kamera klappt nicht? Dann den Schlüssel einfach eintippen – so:', sel: '#safe-key-input', ms: 2200 },
+            { t: 'run', key: 'typeReceiveKeyDemo' },
+            { t: 'say', text: 'Danach noch eine eigene PIN festlegen – ab dann liegen die Daten verschlüsselt auf diesem Handy.', sel: '#safe-key-input', ms: 3000 },
+            { t: 'run', key: 'closeReceive' },
+            { t: 'say', text: 'Fertig: dieselben Kunden wie am Desktop – sicher in deiner Tasche, ganz ohne Cloud.', sel: '#map', ms: 3200, pos: 'bottom' }
         ]
     },
     {
@@ -404,28 +452,6 @@ export const STORIES = [
             { t: 'say', text: 'Geht das Gerät verloren, bleiben die Daten unlesbar. Das ist der Tresor.', ms: 2400 },
             { t: 'run', key: 'finishVaultDemo' },
             { t: 'say', text: 'Ab jetzt wacht das Schloss hier oben: Ein Tipp sperrt sofort – entsperrt wird per PIN oder Face-ID.', sel: '#btn-vault-toggle', ms: 3400 }
-        ]
-    },
-    {
-        id: 'empfang',
-        icon: '📥',
-        title: 'Verschlüsselte Daten aufs Handy holen',
-        blurb: 'Datei wählen, Schlüssel scannen, fertig.',
-        duration: 29,
-        mobileOnly: true,     // Gegenstück zur Desktop-QR-Story; nur am Handy sinnvoll
-        needsData: true,
-        steps: [
-            { t: 'run', key: 'ensureDemo' },
-            { t: 'run', key: 'openReceive' },
-            { t: 'say', text: 'Am Desktop hast du deine Daten verschlüsselt exportiert – so holst du sie sicher aufs Handy.', ms: 2600 },
-            { t: 'say', text: 'Schritt 1: die verschlüsselte Datei (.tfsafe) wählen, die du dir geschickt hast.', sel: '#safe-file-input', ms: 2800 },
-            { t: 'run', key: 'showReceiveKeyStep' },
-            { t: 'say', text: 'Schritt 2: den Schlüssel-QR mit der Kamera scannen – der Schlüssel reist getrennt von der Datei.', sel: '#safe-scan-video', ms: 3000 },
-            { t: 'say', text: 'Kamera klappt nicht? Dann den Schlüssel einfach eintippen – so:', sel: '#safe-key-input', ms: 2200 },
-            { t: 'run', key: 'typeReceiveKeyDemo' },
-            { t: 'say', text: 'Danach noch eine eigene PIN festlegen – ab dann liegen die Daten verschlüsselt auf diesem Handy.', sel: '#safe-key-input', ms: 3000 },
-            { t: 'run', key: 'closeReceive' },
-            { t: 'say', text: 'Fertig: dieselben Kunden wie am Desktop – sicher in deiner Tasche, ganz ohne Cloud.', sel: '#map', ms: 3200, pos: 'bottom' }
         ]
     }
 ];
