@@ -36,6 +36,7 @@ import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
+import { initExactGeocoding } from './ui/exactGeocoding.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
 import { initBriefingSources } from './ui/briefingSources.js';
 import { initAreaBriefing } from './ui/areaBriefing.js';
@@ -244,6 +245,7 @@ async function init() {
     initFirstSteps();
     initOfferAutoHide();
     initDemoWelcome();
+    initExactGeocoding();
     initSafeTransfer();
 
     // Die operative Serviceplanung ist eine Profi-Funktion. Code, Styles und
