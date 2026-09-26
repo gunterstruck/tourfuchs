@@ -52,6 +52,19 @@
 // dem Schwerpunkt im Prompt). Vier Formate mit Beispieldaten je 42 s, 4 Klicks,
 // alle sauber → 41. Mit eigener Liste 68 s: Dort kommt das Durchscrollen des
 // Prompts dazu, und genau das ist der Unterschied zur Lasso-Demo.
+/**
+ * Der Weg vom Prompt zum Briefing – in Lasso- und Briefing-Demo gleich
+ * erzählt, in mehreren kurzen Blasen statt einem langen Satz. Gezeigt wird
+ * nur: Die Vorführung kopiert nichts und öffnet keinen Assistenten.
+ */
+const PROMPT_WAY = [
+    { t: 'say', text: '① Ein Klick legt den Prompt in die Zwischenablage.', sel: '#area-briefing-footer', ms: 3000 },
+    { t: 'say', text: '② Dann öffnest du die KI, die deine Firma freigegeben hat – zum Beispiel Microsoft 365 Copilot. Kundendaten gehören aus Datenschutzgründen nur dorthin.', ms: 5200 },
+    { t: 'say', text: '③ Einfügen und selbst absenden – TourFuchs ruft keine KI-Schnittstelle auf. Zurück kommt dein Briefing: wen zuerst und warum.', ms: 4600 },
+    { t: 'say', text: '④ Mit dem Briefing zurück zu TourFuchs und die Tour planen.', ms: 3000 },
+    { t: 'say', text: 'In dieser Vorführung wird nichts kopiert und kein Assistent geöffnet. Prüfe die Antwort der KI, bevor du entscheidest.', ms: 4000 }
+];
+
 export const STORIES = [
     {
         // Der Film für Vertriebsbeauftragte: von ganz Deutschland über den
@@ -165,8 +178,7 @@ export const STORIES = [
         icon: '🖊️',
         title: 'Fläche umfahren, Briefing bekommen',
         blurb: 'Einkreisen, fragen „Wen zuerst?", die richtigen in die Tour.',
-        duration: 58,
-        durationOwnData: 76,
+        duration: 77,   // 26.09.2026: Desktop 78 s, Handy 79 s – Prompt jetzt in beiden Datenlagen
         needsData: true,
         mutatesTour: true,   // am Ende wandern zwei Kunden in die Tour
         steps: [
@@ -178,14 +190,11 @@ export const STORIES = [
             { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – Anzahl, fällige Kunden, Orte. Erst sehen, dann entscheiden.', sel: '.popup-lasso', ms: 3400, pos: 'top' },
 
             // ---- Der zweite Handgriff: das Briefing über genau diese Kunden ----
-            { t: 'say', text: 'Und jetzt die Frage, die TourFuchs allein nicht beantworten kann: Was ist bei diesen Kunden gerade los?', sel: '#btn-lasso-brief', ms: 3400, realOnly: true },
+            { t: 'say', text: 'Und jetzt die Frage, die TourFuchs allein nicht beantworten kann: Was ist bei diesen Kunden gerade los?', sel: '.popup-lasso', ms: 3400, pos: 'top' },
             { t: 'run', key: 'openLassoBriefing' },
-            { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3200, demoOnly: true },
-            { t: 'say', text: 'Mit echten Kunden: Prompt kopieren, die Kopierbestätigung abwarten und im freigegebenen KI-Assistenten einfügen. Du sendest ab und prüfst seine Antwort.', ms: 5200, demoOnly: true },
-            { t: 'run', key: 'revealAreaPrompt', realOnly: true },
-            { t: 'say', text: 'Das ist der fertige Prompt. Er entsteht hier auf deinem Gerät – aus Name, Kundennummer, Ort und Fälligkeit. Umsatz, Telefon und Straße bleiben draußen.', sel: '.briefing-prompt-visible', ms: 4600, realOnly: true },
-            { t: 'say', text: 'Prompt in die Zwischenablage kopieren, Kopierbestätigung abwarten, im freigegebenen Assistenten einfügen und selbst absenden. Hier wird nichts automatisch versendet.', sel: '#area-briefing-footer', ms: 5400, realOnly: true },
-            { t: 'say', text: 'Eigene Quellen kann die KI nur mit passender Anbindung und Berechtigung nutzen. Prüfe ihre Antwort, bevor du entscheidest.', ms: 4600, realOnly: true },
+            { t: 'run', key: 'revealAreaPrompt' },
+            { t: 'say', text: 'Das ist der fertige Prompt. Er entsteht hier auf deinem Gerät – aus Name, Kundennummer, Ort und Fälligkeit. Umsatz, Telefon und Straße bleiben draußen.', sel: '.briefing-prompt-visible', ms: 4600 },
+            ...PROMPT_WAY,
             { t: 'run', key: 'closeLassoBriefing' },
 
             // ---- Der Rückweg: entscheiden. Die Auswahl liegt noch da. ----
@@ -212,8 +221,7 @@ export const STORIES = [
         icon: '📋',
         title: 'Ein Prompt, deine KI',
         blurb: 'Was im Briefing steht – und was bewusst nicht.',
-        duration: 51,
-        durationOwnData: 75,
+        duration: 83,   // 26.09.2026: Desktop 84 s, Handy 85 s
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -225,18 +233,13 @@ export const STORIES = [
             { t: 'run', key: 'openLassoBriefing' },
 
             // ---- Ab hier liegt der Schwerpunkt ----
-            { t: 'say', text: 'Für Beispielkunden bleibt es bei dieser Vorschau – erfundene Firmen gehen an keinen Assistenten.', sel: '.briefing-demo', ms: 3400, demoOnly: true },
-            { t: 'say', text: 'Mit echten Kunden: Prompt prüfen, kopieren, Kopierbestätigung abwarten. Dann im freigegebenen Assistenten einfügen und selbst absenden.', ms: 5000, demoOnly: true },
-            { t: 'say', text: 'Eigene Quellen braucht die KI als Anbindung mit Berechtigung. Diese Demo ruft keinen KI-Bericht ab – die spätere Antwort prüfst du.', ms: 4600, demoOnly: true },
-            { t: 'say', text: 'Deshalb baut TourFuchs hier keinen Bericht, sondern eine Frage – als fertigen Prompt.', ms: 3200, realOnly: true },
-            { t: 'run', key: 'revealAreaPrompt', realOnly: true },
-            { t: 'say', text: 'Er entsteht auf deinem Gerät. Und du siehst ihn vollständig, bevor irgendetwas kopiert wird.', sel: '.briefing-prompt-visible', ms: 3800, realOnly: true },
-            { t: 'run', key: 'scrollPromptThrough', realOnly: true },
-            { t: 'say', text: 'Das ist alles: Gebiet, die Kunden mit Nummer, Ort und Fälligkeit – und die Aufgabe, eine Reihenfolge zu begründen.', ms: 4200, realOnly: true },
-            { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: kein Umsatz, keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600, realOnly: true },
-            { t: 'say', text: 'Ein Klick kopiert ihn und öffnet deinen Assistenten – Copilot, Gemini, ChatGPT oder den eurer Firma. Warte die Kopierbestätigung ab, dann füge ihn dort ein.', sel: '#area-briefing-footer', ms: 5200, realOnly: true },
-            { t: 'say', text: 'Abgesendet wird von dir. TourFuchs meldet sich an keinem KI-Dienst an und ruft keine Schnittstelle auf.', ms: 4000, realOnly: true },
-            { t: 'say', text: 'Eigene Quellen kann der Assistent nur mit passender Anbindung und Berechtigung nutzen. Prüfe seine Antwort; hier wird kein KI-Bericht abgerufen.', ms: 4800, realOnly: true },
+            { t: 'say', text: 'Deshalb baut TourFuchs hier keinen Bericht, sondern eine Frage – als fertigen Prompt.', ms: 3200 },
+            { t: 'run', key: 'revealAreaPrompt' },
+            { t: 'say', text: 'Er entsteht auf deinem Gerät. Und du siehst ihn vollständig, bevor irgendetwas kopiert wird.', sel: '.briefing-prompt-visible', ms: 3800 },
+            { t: 'run', key: 'scrollPromptThrough' },
+            { t: 'say', text: 'Das ist alles: Gebiet, die Kunden mit Nummer, Ort und Fälligkeit – und die Aufgabe, eine Reihenfolge zu begründen.', ms: 4200 },
+            { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: kein Umsatz, keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600 },
+            ...PROMPT_WAY,
             { t: 'run', key: 'closeLassoBriefing' },
             { t: 'say', text: 'Und dann entscheidest du.', sel: '.popup-lasso', ms: 2400, pos: 'top' },
             { t: 'run', key: 'pickLassoCustomers' },

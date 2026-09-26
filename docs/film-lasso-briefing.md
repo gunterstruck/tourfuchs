@@ -224,14 +224,13 @@ TourFuchs den Prompt nur kopiert und nichts sendet.
 **Niemals echte Kundendaten aufnehmen.** Und es gibt einen zweiten Grund, der
 für diesen Film entscheidend ist:
 
-> **Mit Beispielkunden baut TourFuchs bewusst keinen Prompt.** Das Briefing
-> zeigt dann die geschützte Vorschau („Für Beispielkunden wird kein Briefing
-> erzeugt"). Der Film würde also genau die Hälfte verlieren, auf die es ankommt.
+> **Mit Beispielkunden zeigt die Demo den Prompt nur als Ansicht** („Beispiel ·
+> nur zur Ansicht", der Kopier-Knopf ist gesperrt), und die Kunden heißen
+> „TourFuchs Demo · …". Für den Film sehen echt klingende Namen besser aus.
 
 Eine eingefügte Fantasieliste gilt für die App als **eigene Daten** – damit ist
-der Prompt echt, der Beispieldaten-Streifen verschwindet, und die Demo schaltet
-selbsttätig auf ihre `realOnly`-Sätze um (der Prompt wird aufgeklappt und
-erklärt, statt der Demo-Sperre).
+der Prompt echt, der Beispieldaten-Streifen verschwindet, und der Kopier-Knopf
+ist aktiv (die Vorführung drückt ihn trotzdem nicht).
 
 **`npm run film` fügt diese Liste selbst ein** – sie steht als `KUNDENLISTE` in
 `tools/film.mjs`. Hier steht sie für den Fall, dass von Hand gedreht oder etwas
@@ -484,10 +483,9 @@ danach kommen – oder gar nicht.
 
 1. **Der Prompt ist lesbar** (etwa ab 0:30). Ist er zu klein, im Schnitt auf den
    oberen Teil zoomen – dort stehen Gebiet, Kundenliste und Aufgabe.
-2. **Die Sätze sprechen vom echten Prompt**, nicht von der Demo-Sperre. Die
-   Schnittliste zeigt sie alle; taucht dort „Für Beispielkunden bleibt es bei
-   dieser Vorschau" auf, hat das Einfügen nicht geklappt und der Film ist
-   unbrauchbar. Der Lauf meldet in dem Fall auch weniger geladene Kunden.
+2. **Im Prompt stehen die Fantasiekunden**, nicht „TourFuchs Demo · …". Stehen
+   dort Demo-Namen, hat das Einfügen nicht geklappt; der Lauf meldet in dem
+   Fall auch weniger geladene Kunden.
 3. **Am Ende stehen zwei Kunden mit ✓ „in Tour"** in der Auswahlkarte.
 4. Der Lauf endet mit `Vorführung ok`. Steht dort `FEHLER`, ist die Demo
    unterwegs hängengeblieben – dann `npm run demo-check -- --story=lasso`

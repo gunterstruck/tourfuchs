@@ -401,8 +401,8 @@ describe('Showcase-Stories: Guardrail', () => {
         // Was NICHT im Prompt steht, ist die Frage, die im Konzern als zweite
         // kommt – sie wird am zuständigen Absatz beantwortet.
         expect(mitDaten.some((step) => step.sel === '.briefing-manual-note')).toBe(true);
-        // Und die freie Wahl des Assistenten wird benannt, nicht vorausgesetzt.
-        expect(mitDaten.some((step) => /Gemini/.test(step.text || ''))).toBe(true);
+        // Und wohin der Prompt gehört: in die KI, die die Firma freigegeben hat.
+        expect(mitDaten.some((step) => /freigegeben/.test(step.text || '') && /Copilot/.test(step.text || ''))).toBe(true);
         expect(mitDaten.some((step) => /keine Schnittstelle|ruft keine/.test(step.text || ''))).toBe(true);
 
         // Der Anlauf bleibt kurz: vor dem Briefing höchstens ein erklärender Satz.
@@ -415,27 +415,27 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(briefing.mutatesTour).toBe(true);
     });
 
-    it('sagt beim Briefing die Wahrheit – je nach Datenlage einen anderen Satz', () => {
-        // Mit Beispielkunden baut TourFuchs bewusst keinen Prompt; mit eigenen
-        // Kunden steht er vollständig da. Ein Satz für beide Fälle wäre in
-        // einem der beiden gelogen – und ausgerechnet der Fall mit echten Daten
-        // ist der, den man filmt (docs/film-lasso-briefing.md).
-        const lasso = STORIES.find((story) => story.id === 'lasso');
-        const mitDaten = visibleStorySteps(lasso, { hasOwnData: true });
-        const ohneDaten = visibleStorySteps(lasso, { hasOwnData: false });
-
-        // Die Demo-Sperre wird nur ohne eigene Daten erklärt …
-        expect(ohneDaten.some((step) => /Für Beispielkunden/.test(step.text || ''))).toBe(true);
-        expect(mitDaten.some((step) => /Für Beispielkunden/.test(step.text || ''))).toBe(false);
-        // … und der echte Prompt nur mit.
-        expect(mitDaten.some((step) => step.key === 'revealAreaPrompt')).toBe(true);
-        expect(ohneDaten.some((step) => step.key === 'revealAreaPrompt')).toBe(false);
-        expect(mitDaten.some((step) => /Zwischenablage/.test(step.text || ''))).toBe(true);
-
-        // Der Rückweg gehört in beide Fassungen: Aussuchen kann man immer.
-        for (const steps of [mitDaten, ohneDaten]) {
-            expect(steps.some((step) => step.key === 'lassoPickedToTour')).toBe(true);
+    it('zeigt den Prompt in Lasso- und Briefing-Demo auch mit Beispielkunden – nur zur Ansicht', () => {
+        // Früher sah man mit Beispielkunden nur die Sperre. Jetzt öffnet die
+        // Vorführung das Briefing als Ansicht (`preview`): Prompt sichtbar,
+        // Kopier-Knopf gesperrt. Der Weg danach wird in Schritten erzählt.
+        for (const id of ['lasso', 'briefing']) {
+            const story = STORIES.find((s) => s.id === id);
+            for (const hasOwnData of [false, true]) {
+                const steps = visibleStorySteps(story, { hasOwnData });
+                const texts = steps.map((step) => step.text || '').join(' ');
+                expect(steps.some((step) => step.key === 'revealAreaPrompt')).toBe(true);
+                expect(texts).toContain('Zwischenablage');
+                expect(texts).toMatch(/freigegeben.*Microsoft 365 Copilot/);
+                expect(texts).toContain('Datenschutz');
+                expect(texts).toContain('Tour planen');
+                expect(texts).toContain('nichts kopiert und kein Assistent geöffnet');
+                expect(steps.some((step) => step.key === 'lassoPickedToTour')).toBe(true);
+            }
         }
+        expect(showcaseSource).toContain("areaLabelFor({ mode: 'lasso' }), { preview: true }");
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/areaBriefing.js'), 'utf8');
+        expect(ui).toContain('data-area-open disabled');
     });
 
     it('lässt die Auswahl für den Rückweg liegen, statt sie mit dem Dialog wegzuräumen', () => {
