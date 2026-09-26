@@ -259,3 +259,20 @@ describe('Tippen während einer Vorführung', () => {
         expect(showcase).toContain('dialogShieldEl ||= createShield();');
     });
 });
+
+describe('Ende einer Schulungsrunde am Handy', () => {
+    const showcase = readFileSync('src/ui/showcase.js', 'utf8');
+    const sidebar = readFileSync('src/ui/sidebar.js', 'utf8');
+    const responsive = readFileSync('src/styles/responsive.css', 'utf8');
+    const html = readFileSync('index.html', 'utf8');
+    it('klappt das Blatt im Takt der ausklingenden Musik langsam ein', () => {
+        expect(sidebar).toContain('export function settleSheetAfterShowcase()');
+        expect(responsive).toContain('.sidebar.sheet-settling { transition: transform 2s ease-in-out, height 2s ease-in-out; }');
+        // Nach bewusstem Beenden und beim Schließen des Fensters nach einem Film.
+        expect(showcase).toContain('else endRound();');
+        expect(showcase).toMatch(/music\.setPlayback\(\{ onBreak: false \}\);\s*endRound\(\);/);
+    });
+    it('blendet „Erste Schritte anzeigen" in der Handy-Ansicht aus', () => {
+        expect(html).toContain('id="btn-first-steps-restore" class="only-desktop"');
+    });
+});

@@ -30,7 +30,7 @@ import { isDemoCustomer } from '../core/demoSafety.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
-import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, applyDepth, applyMode } from './sidebar.js';
+import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyDepth, applyMode } from './sidebar.js';
 import { showKeyStepForDemo } from './safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog } from './customerBriefing.js';
 import { clearLassoSelection, lassoSelection, setLassoActive } from './lasso.js';
@@ -83,6 +83,7 @@ let shieldEl = null;
 let toolbarEl = null;
 let dialog = null;
 let running = false;
+let inRound = false;   // eine Schulungsrunde läuft (Film oder Fenster dazwischen)
 let aborted = false;
 let playback = null;
 let restoreFilters = null;
@@ -1643,6 +1644,8 @@ async function play(story) {
         showStoryCompletion(story);
     }
     else if (failure) showStoryFailure(story, failure);
+    // Bewusst beendet („Beenden", „Selbst ausprobieren", Escape): Runde vorbei.
+    else endRound();
 }
 
 function currentVisibleStories() {
@@ -1658,8 +1661,16 @@ function showShowcaseDialog() {
     if (!dialog.open) dialog.showModal();
 }
 
+/** Ende einer Runde: Musik klingt aus (dort geregelt), das Blatt klappt mit ein. */
+function endRound() {
+    if (!inRound) return;
+    inRound = false;
+    settleSheetAfterShowcase();
+}
+
 function startStory(story) {
     if (!story || running) return;
+    inRound = true;
     clearAutoAdvance();
     // Noch im Klick: Die Musik fährt ohne Neustart auf volle Lautstärke hoch
     // (und darf als erste Wiedergabe dieser Nutzergeste starten).
@@ -1895,7 +1906,9 @@ export function initShowcase() {
     // hier der nächste Film, läuft `running` schon und die Musik spielt weiter.
     dialog.addEventListener('close', () => {
         clearAutoAdvance();
-        if (!running) music.setPlayback({ onBreak: false });
+        if (running) return;
+        music.setPlayback({ onBreak: false });
+        endRound();
     });
     // Jede Bedienung im Fenster zählt als „noch da" für den Minuten-Leerlauf.
     // Wer eingreift, entscheidet selbst: Das hält auch den Countdown an – außer
