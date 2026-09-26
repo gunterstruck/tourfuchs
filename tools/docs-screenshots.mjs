@@ -278,7 +278,6 @@ async function desktopShots(browser, baseUrl) {
     await screenshot(page, 'BILD-LASSO-06-basis-copilot.png');
     await page.locator('#area-briefing-dialog [data-area-header-close]').click();
 
-    await page.locator('[data-depth="profi"]').click();
     await openCustomer(page);
     await screenshot(page, 'BILD-KUNDE-01-marker-mit-briefing.png');
     await page.locator('.popup-customer [data-action="customer-briefing"]').click();

@@ -118,30 +118,13 @@ export function isSheetUi() {
     return isPhoneUi();
 }
 
-/**
- * Auf dem Handy die Ansichtstiefe (Basis/Profi) aus dem Bottom-Sheet in den
- * fixen Kopf-Streifen heben – so bleibt sie immer sichtbar „oben aufgehängt".
- * Auf dem Desktop wandert sie an ihre ursprüngliche Stelle in der Sidebar
- * zurück. Das Element behält ID und Klassen, daher greifen alle bestehenden
- * Event-Handler unverändert.
- *
- * Die Reiterleiste zog früher mit nach oben. Sie führte mobil nur noch „Karte"
- * und „Tour" – zwei Namen für „Blatt zu" und „Blatt auf" – und ist deshalb
- * weggefallen. Der Streifen ist damit einzeilig: eine Pille, eine Aussage.
+/*
+ * Hier stand `syncTopnavPlacement()`: Es hob die Basis/Profi-Pille auf dem
+ * Handy in einen eigenen Kopf-Streifen über der Karte. Den Umschalter gibt es
+ * seit dem 26.09.2026 nicht mehr – TourFuchs zeigt überall den vollen Umfang.
+ * Der Streifen kostete am Handy eine ganze Zeile Karte für eine Entscheidung,
+ * deren Nutzen beim Einstieg niemand erkennen konnte.
  */
-function syncTopnavPlacement() {
-    const topnav = document.getElementById('mobile-topnav');
-    const sidebar = document.getElementById('sidebar');
-    const depth = document.getElementById('depth-switch');
-    if (!topnav || !sidebar || !depth) return;
-    if (isMobileUi()) {
-        if (depth.parentElement !== topnav) topnav.appendChild(depth);
-    } else {
-        // Zurück in die Sidebar an den ursprünglichen Ankerpunkt.
-        const desktopAnchor = sidebar.querySelector('.optional-modules') || sidebar.querySelector('.mode-switch');
-        if (depth.parentElement !== sidebar && desktopAnchor) sidebar.insertBefore(depth, desktopAnchor);
-    }
-}
 
 /*
  * Hier stand `syncTopnavMetrics()`: Es maß die Unterkante des Kopf-Streifens und
@@ -1201,39 +1184,33 @@ function syncRegionMinimumControl() {
 }
 
 /**
- * Ansichtstiefe global setzen: 'basis' (nur Kernnutzen) oder 'profi' (alle
- * Werkzeuge). Steuert per Body-Klasse alle .expert-only/.profi-only Elemente.
+ * Ansichtstiefe setzen. Seit dem 26.09.2026 gibt es nur noch 'profi' (den
+ * vollen Umfang); die Body-Klasse `depth-profi` schaltet weiterhin alle
+ * .expert-only/.profi-only Elemente frei.
  */
-export function applyDepth(depth, persist = true) {
-    const profi = depth === 'profi';
-    state.ui.depth = profi ? 'profi' : 'basis';
-    document.body.classList.toggle('depth-profi', profi);
-    document.querySelectorAll('#depth-switch .seg').forEach((b) =>
-        b.classList.toggle('active', b.dataset.depth === state.ui.depth));
+function applyDepth() {
+    state.ui.depth = 'profi';
+    document.body.classList.add('depth-profi');
     syncLevelControl();
-    if (!profi && state.ui.mode !== 'aussendienst') applyMode('aussendienst', true, persist);
-    if (persist) { try { localStorage.setItem(DEPTH_KEY, state.ui.depth); } catch (e) { /* egal */ } }
     emit('depth:changed');
 }
 
-/** Beim Start: gespeicherte Tiefe laden bzw. aus dem alten Tour-Experten-Flag migrieren. */
+/**
+ * Beim Start: immer der volle Umfang.
+ *
+ * Bis zum 26.09.2026 gab es den Umschalter „Basis | Profi"; das Handy startete
+ * bei jedem Öffnen erzwungen in Basis. Die Live-Demos zeigten aber stets den
+ * Profi-Umfang – wer „🏁 Als Ziel" im Film gesehen hatte, fand es danach am
+ * Handy nicht. Seitdem gibt es nur noch eine Ansicht. `state.ui.depth` bleibt
+ * als 'profi' stehen, damit die bestehenden Abfragen unverändert greifen;
+ * eine früher gespeicherte Wahl wird entfernt.
+ */
 function initDepth() {
-    let depth = null;
-    try { depth = localStorage.getItem(DEPTH_KEY); } catch (e) { /* egal */ }
-    if (depth !== 'basis' && depth !== 'profi') {
-        // Migration: wer früher den Tour-Experten-Modus aktiv hatte, startet in Profi.
-        let legacy = null;
-        try { legacy = localStorage.getItem('gf_tour_expert'); } catch (e) { /* egal */ }
-        depth = legacy === '1' || optionalModuleEnabled('territoryPlanning') ? 'profi' : 'basis';
-    }
-    // Das Smartphone ist der schnelle Außendienst-Einstieg: bei jedem neuen
-    // Öffnen bewusst ruhig in Basis starten. Profi bleibt danach anwählbar.
-    // Das hochkante Tablet startet genauso ruhig – aus demselben Grund und mit
-    // derselben Umkehrbarkeit (ein Tipp auf „Profi").
-    if (isMobileUi()) depth = 'basis';
-    applyDepth(depth, false);
-    document.querySelectorAll('#depth-switch .seg').forEach((btn) =>
-        btn.addEventListener('click', () => applyDepth(btn.dataset.depth)));
+    try {
+        localStorage.removeItem(DEPTH_KEY);
+        localStorage.removeItem('gf_tour_expert');
+    } catch (e) { /* egal */ }
+    applyDepth();
 }
 
 export function applyMode(mode, userInitiated = true, persist = true) {
@@ -1339,13 +1316,11 @@ export function initSidebar() {
     initMobileNextStep();
     initOptionalModuleOptIns();
     initDepth();
-    syncTopnavPlacement();
     applyDataPanelLayout();
     // Bei Wechsel Desktop <-> Handy (Drehen/Resize) Elemente umhängen.
     const syncViewport = () => {
         if (isMobileUi() && state.ui.mode === 'service') applyMode('aussendienst', false);
         syncSidebarPositionForViewport();
-        syncTopnavPlacement();
         applyDataPanelLayout();
         applySidebar();
         syncLevelControl();
@@ -1354,11 +1329,10 @@ export function initSidebar() {
     // Ein Wechsel des Gesichts – am Tablet also eine Drehung – setzt die
     // **Darstellung** zurück, nicht die Arbeit.
     //
-    // Zurückgesetzt werden Modus, Tab, Ansichtstiefe und Panel-Geometrie: genau
-    // die Dinge, aus denen sonst der Zwitter entsteht (quer in der
-    // Gebietsplanung, drehen, und hochkant steht ein Desktop-Modus im Blatt).
-    // `applyMode` und `applyDepth` erzwingen die Grenzen der Touransicht von
-    // selbst, sobald `isMobileUi()` gilt.
+    // Zurückgesetzt werden Modus, Tab und Panel-Geometrie: genau die Dinge,
+    // aus denen sonst der Zwitter entsteht (quer in der Gebietsplanung,
+    // drehen, und hochkant steht ein Desktop-Modus im Blatt). `applyMode`
+    // erzwingt die Grenzen der Touransicht von selbst, sobald `isMobileUi()` gilt.
     //
     // Erhalten bleiben Datensatz, laufende Tour und gewählter Bezirk. Eine
     // Drehung passiert oft unabsichtlich – Tablet ablegen, weiterreichen –, und
@@ -1366,11 +1340,9 @@ export function initSidebar() {
     // nicht). Sie dabei zu verwerfen wäre die feindseligste Interaktion, die
     // diese App anbieten könnte.
     onFaceChange((face) => {
-        // In die Touransicht gedreht: derselbe ruhige Einstieg wie beim Öffnen
-        // am Handy (Basis, Außendienst, Karte/Tour). Ein Tipp auf „Profi" holt
-        // die Tiefe zurück. In den Schreibtisch gedreht wird nichts erzwungen –
-        // dort ist alles erlaubt, was hochkant erlaubt war.
-        if (face === 'phone') applyDepth('basis', false);
+        // In die Touransicht gedreht: derselbe Einstieg wie beim Öffnen am
+        // Handy (Außendienst, Karte/Tour). In den Schreibtisch gedreht wird
+        // nichts erzwungen – dort ist alles erlaubt, was hochkant erlaubt war.
         applyMode(state.ui.mode, false, false);
         syncViewport();
     });

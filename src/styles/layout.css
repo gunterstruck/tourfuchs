@@ -224,12 +224,11 @@
     user-select: none;
 }
 
-/* Mobiler Kopf-Streifen (Basis/Profi + Tabs) – nur auf dem Handy sichtbar.
-   Auf dem Desktop bleibt der Container leer und ausgeblendet. */
+/* Mobiler Kopf-Streifen – seit dem Wegfall von Basis/Profi (26.09.2026) leer.
+   Er bleibt im DOM, ist aber überall ausgeblendet. */
 .mobile-topnav { display: none; }
 
-/* Desktop: Ansichtstiefe und Fokus als zwei identische Segment-Schalter. */
-.sidebar > .depth-switch,
+/* Desktop: Fokus-Umschalter (Außendienst · Gebietsplanung · Service). */
 .sidebar > .mode-switch {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -253,7 +252,6 @@ body:not(.service-on) .service-module-only { display: none !important; }
 body.depth-profi:not(.territory-planning-on):not(.service-on) .sidebar > .mode-switch { display: none; }
 body.depth-profi .sidebar > .mode-switch .mode-btn { font-size: 0.76rem; }
 
-.sidebar > .depth-switch .seg,
 .sidebar > .mode-switch .mode-btn {
     border: none;
     border-radius: var(--radius-pill);
@@ -267,21 +265,17 @@ body.depth-profi .sidebar > .mode-switch .mode-btn { font-size: 0.76rem; }
     transition: background 0.12s, color 0.12s, box-shadow 0.12s;
 }
 
-.sidebar > .depth-switch .seg:not(.active):hover,
 .sidebar > .mode-switch .mode-btn:not(.active):hover {
     background: rgba(255, 255, 255, 0.78);
 }
 
-.sidebar > .depth-switch .seg.active,
 .sidebar > .mode-switch .mode-btn.active,
-.sidebar > .depth-switch .seg.active:hover,
 .sidebar > .mode-switch .mode-btn.active:hover {
     background: var(--color-primary);
     color: #fff;
     box-shadow: 0 1px 4px rgba(0, 0, 0, 0.14);
 }
 
-.sidebar > .depth-switch .seg:focus-visible,
 .sidebar > .mode-switch .mode-btn:focus-visible {
     outline: 2px solid rgba(13, 148, 136, 0.38);
     outline-offset: 1px;
@@ -328,7 +322,6 @@ body.depth-profi .sidebar > .mode-switch .mode-btn { font-size: 0.76rem; }
 
 /* Onboarding (keine Daten): Modus-Umschalter, Hinweis und Tab-Leiste ausblenden
    – der Einstieg zeigt nur Willkommen + Demo. */
-.sidebar.onboarding .depth-switch,
 .sidebar.onboarding .optional-modules,
 .sidebar.onboarding .mode-switch,
 .sidebar.onboarding .mode-hint,

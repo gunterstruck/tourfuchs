@@ -32,11 +32,10 @@ describe('Handy: ein Bereich statt Karte/Tour-Reiter', () => {
         expect(html).toContain('data-tab="daten"');
     });
 
-    it('hebt nur noch die Ansichtstiefe in den Kopf-Streifen', () => {
-        const sync = sidebar.slice(sidebar.indexOf('function syncTopnavPlacement'),
-            sidebar.indexOf('function syncTopnavPlacement') + 700);
-        expect(sync).toContain("document.getElementById('depth-switch')");
-        expect(sync).not.toContain(".tabs");
+    it('braucht keinen Kopf-Streifen mehr – die Zeile gehört der Karte', () => {
+        // Früher trug der Streifen die Basis/Profi-Pille. Die gibt es nicht mehr.
+        expect(sidebar).not.toContain('function syncTopnavPlacement');
+        expect(html).not.toContain('id="depth-switch"');
     });
 
     it('trennt „Panel aktivieren" von „Blatt öffnen"', () => {

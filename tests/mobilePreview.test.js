@@ -47,7 +47,7 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         expect(sidebar).toContain('sheetMaxHeight() * 0.88');
     });
 
-    it('startet mobil in Basis – mit Daten auf der Karte, ohne Daten im Daten-Tab', () => {
+    it('startet mobil mit vollem Umfang – mit Daten auf der Karte, ohne Daten im Daten-Tab', () => {
         const main = readFileSync(resolve(process.cwd(), 'src/main.js'), 'utf8');
         const sidebar = readFileSync(resolve(process.cwd(), 'src/ui/sidebar.js'), 'utf8');
 
@@ -58,7 +58,9 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         expect(main).toContain("state.ui.activeTab = state.customers.length === 0 ? 'daten' : 'tour'");
         expect(main).toContain("if (state.customers.length === 0) showDataView(false)");
         expect(main).toContain('else showMapView(false)');
-        expect(sidebar).toContain("if (isMobileUi()) depth = 'basis'");
+        // Kein erzwungenes Basis mehr: überall derselbe, volle Umfang.
+        expect(sidebar).not.toContain("depth = 'basis'");
+        expect(sidebar).toContain('localStorage.removeItem(DEPTH_KEY);');
     });
 
     it('zeigt nach dem Laden von Beispieldaten mobil die Karte mit eingeklapptem Blatt', () => {
@@ -97,8 +99,8 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         expect(sidebar).toContain("const MOBILE_EMPTY_TABS = new Set(['daten'])");
         // Ein Bereich braucht keine Reiterleiste.
         expect(responsiveCss).toContain('.sidebar .tabs { display: none; }');
-        // Der Kopf-Streifen trägt nur noch die Ansichtstiefe – einzeilig.
-        expect(responsiveCss).toContain('.mobile-topnav .depth-switch {');
+        // Der Kopf-Streifen ist leer, seit Basis/Profi weggefallen ist.
+        expect(responsiveCss).not.toContain('.mobile-topnav .depth-switch');
         expect(responsiveCss).not.toContain('.mobile-topnav .tabs');
         expect(responsiveCss).not.toContain('.mobile-topnav .tab-button');
         // Die Blatt-Höhe folgt der Geometrie (Handy und Tablet hochkant).

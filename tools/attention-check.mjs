@@ -73,19 +73,20 @@ const FORMATS = [
         viewport: { width: 390, height: 844 },
         touch: true,
         erstbildBudget: 20,
-        // Mobil gibt es genau einen Bereich (Tour) – gemessen je Tiefe.
+        // Mobil gibt es genau einen Bereich (Tour). Seit dem Wegfall von
+        // Basis/Profi (26.09.2026) wird er einmal gemessen, nicht je Tiefe.
         // Der zweite Reiter „Karte" war nie ein Bereich, sondern ein
         // Blatt-Schalter; mit ihm fiel auch seine Messung weg.
-        erwarteteMessungen: 2
+        erwarteteMessungen: 1
     },
     {
         name: 'desktop',
         viewport: { width: 1440, height: 900 },
         touch: false,
         erstbildBudget: 36,
-        // Basis/Profi im Außendienst (je Daten, Filter, Tour) plus das bewusst
-        // aktivierte Gebietsmodul in Profi (Daten, Filter, Gebiete).
-        erwarteteMessungen: 9
+        // Außendienst (Daten, Filter, Tour) plus das aktivierte Gebietsmodul
+        // (Daten, Filter, Gebiete). Bis 26.09.2026 kam Basis/Außendienst dazu.
+        erwarteteMessungen: 6
     }
 ];
 
@@ -195,7 +196,7 @@ const PROBE = `(() => {
     };
 
     const panel = document.querySelector('#sidebar .tab-panel.active');
-    const rahmen = ['.mode-switch', '.depth-switch', '.tab-bar', '.app-header', 'header']
+    const rahmen = ['.mode-switch', '.tab-bar', '.app-header', 'header']
         .map((sel) => document.querySelector(sel))
         .filter((el, i, all) => el && all.indexOf(el) === i);
 
@@ -396,14 +397,13 @@ async function inspect(browser, format, baseUrl) {
     const messungen = [];
     let rahmen = null;
 
-    for (const tiefe of ['basis', 'profi']) {
-        await klicke(page, `[data-depth="${tiefe}"]`);
-        if (!format.touch && tiefe === 'profi') await aktiviereGebietsmodul(page);
+    // Basis/Profi gibt es seit dem 26.09.2026 nicht mehr – eine Tiefe, der
+    // volle Umfang. Gemessen wird nur noch nach Modus.
+    for (const tiefe of ['profi']) {
+        if (!format.touch) await aktiviereGebietsmodul(page);
         // Modi sind am Handy nicht wählbar. Am Desktop ist Außendienst der
-        // vollständige Standard; Gebietsplanung kommt nur in Profi nach Opt-in.
-        const modi = format.touch ? [null] : (tiefe === 'profi'
-            ? ['aussendienst', 'gebietsplanung']
-            : ['aussendienst']);
+        // Standard; Gebietsplanung kommt nach Opt-in dazu.
+        const modi = format.touch ? [null] : ['aussendienst', 'gebietsplanung'];
 
         for (const modus of modi) {
             if (modus && !await waehleModus(page, modus)) continue;
@@ -419,7 +419,6 @@ async function inspect(browser, format, baseUrl) {
     // Zweite Frage: Kostet die Vertiefung den Rückweg? Dazu in den Tour-Reiter,
     // dort in Schritt 1 tippen (= Fokus) und nachsehen, ob „☰ Übersicht" steht.
     let vertiefung = null;
-    await klicke(page, '[data-depth="basis"]');
     if (!format.touch) await waehleModus(page, 'aussendienst');
     if (await oeffneReiter(page, 'tour')) {
         const uebersicht = await page.evaluate(PROBE);

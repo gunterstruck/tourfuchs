@@ -239,7 +239,8 @@ describe('Kein drittes Gesicht im JavaScript', () => {
     it('setzt beim Drehen die Darstellung zurück, aber nicht die Arbeit', () => {
         const sidebar = read('src/ui/sidebar.js');
         expect(sidebar).toContain('onFaceChange((face) => {');
-        expect(sidebar).toContain("if (face === 'phone') applyDepth('basis', false);");
+        // Seit dem Wegfall von Basis/Profi erzwingt das Drehen keine Tiefe mehr.
+        expect(sidebar).not.toContain("applyDepth('basis'");
         const handler = sidebar.slice(sidebar.indexOf('onFaceChange((face) => {'), sidebar.indexOf('onFaceChange((face) => {') + 400);
         expect(handler).not.toContain('state.tour');
         expect(handler).not.toContain('setCustomers');

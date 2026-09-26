@@ -577,7 +577,7 @@ function closeRadar() {
 
 export function openContractRadar(payload = {}) {
     if (state.ui?.depth !== 'profi') {
-        emit('toast', { type: 'info', text: 'Das Vertragsradar steht im Profi-Modus zur Verfügung.' });
+        emit('toast', { type: 'info', text: 'Das Vertragsradar steht mit aktiviertem Service-Modul zur Verfügung.' });
         return false;
     }
     if (isPhoneUi()) {

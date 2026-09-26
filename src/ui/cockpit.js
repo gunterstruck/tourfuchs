@@ -78,8 +78,8 @@ function expertPlanningAvailable() {
 
 function showPlanningHint() {
     const text = desktopPlanningAvailable()
-        ? 'Aktiviere unter „Optionale Profi-Module“ die Gebietsplanung.'
-        : 'Gebietsplanung und Simulation sind im aktivierten Profi-Modul am Desktop verfügbar.';
+        ? 'Aktiviere unter „Optionale Module“ die Gebietsplanung.'
+        : 'Gebietsplanung und Simulation sind mit aktiviertem Modul am Desktop verfügbar.';
     showToast(text, 'info');
 }
 

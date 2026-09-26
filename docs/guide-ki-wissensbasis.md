@@ -22,6 +22,16 @@ mobilen Klickpfaden das Tab-Glied deshalb weg und schreibt stattdessen
 „Blatt aufziehen" bzw. „Blatt einklappen", z. B.
 `"Außendienst" -> Blatt aufziehen -> "In der Nähe"`.
 
+**Basis/Profi gibt es nicht mehr (seit 26.09.2026):** Der Umschalter
+„🌱 Basis | 🛠️ Profi" ist auf Desktop und Smartphone entfallen. TourFuchs zeigt
+überall den vollen Umfang, den früher „Profi" freischaltete – zum Beispiel
+„🏁 Als Ziel", „Entlang der Tour", Häkchen im Lasso und die Wahl des
+Zielassistenten. Wo dieses Dokument noch „Basis", „Profi" oder „im
+Profi-Modus" sagt, gilt: Die Funktion ist immer da; niemand muss etwas
+umschalten. Der Guide empfiehlt nie, auf „Profi" umzuschalten. Die optionalen
+Module (Gebietsplanung, Service) bleiben davon getrennt und heißen jetzt
+„⚙️ Optionale Module".
+
 **Begriffsregel:** Die aktuelle App verwendet sichtbar **Vertriebsbezirk**. Der
 Import akzeptiert **Betriebsbezirk** als Synonym. Der Guide soll in Antworten den
 aktuellen UI-Begriff **Vertriebsbezirk** verwenden und den alten Begriff nur bei
@@ -105,13 +115,13 @@ Der Guide soll:
 - Nutzen und Bedienkonzept verständlich erklären.
 - sichtbare Bedienelemente mit ihren aktuellen Namen nennen.
 - kurze, eindeutige Klickpfade ausgeben.
-- Desktop und Smartphone sowie Basis und Profi unterscheiden.
+- Desktop und Smartphone unterscheiden.
 - Screenshots anhand tatsächlich sichtbarer Elemente einordnen.
 - typische Bedienfehler systematisch diagnostizieren.
 - lokale Verarbeitung und bewusst ausgelöste externe Datenflüsse trennen.
 - vor dauerhaften oder löschenden Aktionen warnen.
-- beim Kundenbriefing den manuellen Basisweg und den optionalen Profiweg korrekt
-  auseinanderhalten.
+- beim Kundenbriefing den Weg (Prompt prüfen, kopieren, in der freigegebenen KI
+  einfügen und selbst absenden) und die Wahl des Zielassistenten erklären.
 - bei Bedarf eine kurze, rollenbezogene Mini-Schulung anbieten.
 
 Der Guide soll nicht:
@@ -153,7 +163,6 @@ Beispiel:
 Nur fragen, wenn die Antwort davon abhängt:
 
 - Desktop/Laptop oder Smartphone?
-- Basis oder Profi?
 - Außendienst oder Gebietsplanung?
 - Demo-Daten oder eigene Daten?
 - Nur prüfen oder dauerhaft übernehmen?
@@ -257,7 +266,7 @@ ist beides, je nachdem, wie man es hält:
 
 | Gerät / Haltung | Ansicht | Panel | Einstieg | Funktionsumfang |
 |---|---|---|---|---|
-| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte (Blatt eingeklappt), Basis | Basis-Tiefe, Außendienst, ein Bereich: Tour |
+| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte (Blatt eingeklappt) | voller Umfang, Außendienst, ein Bereich: Tour |
 | **Tablet hochkant** (bis 1200px) | **Touransicht** | unten als Blatt | **exakt wie Handy** | **exakt wie Handy** |
 | Tablet quer | **Schreibtisch** | seitlich | gespeicherter Modus/Tab | voll |
 | Schreibtisch (ab 1201px oder quer) | **Schreibtisch** | seitlich, ziehbar | gespeicherter Modus/Tab | voll |
@@ -356,35 +365,27 @@ findet: hineinzoomen, oder er steht ohnehin schon als Start/Ziel im Bild.
 die beiden vorhandenen Gesichter, und die **Haltung** entscheidet, welches:
 **quer** den Schreibtisch (Seitenleiste, gespeicherter Modus/Tab, voller
 Umfang), **hochkant** die Touransicht – dann verhält es sich in jedem Punkt wie
-ein Smartphone, einschließlich des reduzierten Umfangs (Basis-Tiefe,
-Außendienst, ein Bereich: Tour). Gebietsplanung, Cockpit und Simulation sind
+ein Smartphone (Außendienst, ein Bereich: Tour). Gebietsplanung, Cockpit und Simulation sind
 hochkant **nicht** erreichbar; sie sind eine Drehung entfernt. Siehe 3.0.
 
-### 3.3 Basis gegen Profi
+### 3.3 Eine Ansicht, voller Umfang
 
-**"Basis"** ist der vollständige tägliche Außendienstmodus. Auch erfahrene
-Außendienstmitarbeitende brauchen für Karte, Suche, Nähe, Tour und Briefing
-nicht auf Profi umzuschalten.
+Bis zum 26.09.2026 gab es den Umschalter **„Basis | Profi"**; das Smartphone
+startete bei jedem Öffnen in Basis. Er ist entfallen. Den Ausschlag gab ein
+Widerspruch: Die Live-Demos zeigten den vollen Umfang (etwa „🏁 Als Ziel" in der
+Kundenkarte), am Handy fand man diesen Knopf danach aber nicht. Dazu kostete die
+Pille am Handy eine ganze Zeile Karte.
 
-**"Profi"** bedeutet nicht „besserer Außendienst", sondern öffnet zusätzliche
-Spezial-, Konfigurations- und Verwaltungswerkzeuge. Dort werden auch die beiden
-optionalen Module aktiviert.
+Heute gilt überall, was früher „Profi" freischaltete:
 
-| Bereich | Basis | Profi zusätzlich |
-|---|---|---|
-| Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, "Heute besucht", "Als Start", "Zur Tour", "Briefing" | Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Als Ziel" |
-| Tour | Bezirk, Start, Datum/Zeit/Dauer, Umkreis, Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan | Kartenansicht Kunden/Status/Chancen, Ziel, Entlang der Tour, Rundreise, Druck, ICS, Text, gespeicherte Touren |
-| Gebiets-Popup | Kennzahlen und Verteilung | zusätzliche namentliche Kundenliste |
-| Kundenbriefing | Prompt kopieren und Microsoft 365 Copilot öffnen | zusätzlich wählbarer Zielassistent (Gemini, ChatGPT, eigene https-Adresse) |
-| Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl | derselbe operative Weg; das Ziel folgt der im Kundenbriefing getroffenen Wahl |
-| Optionale Module | nicht sichtbar und für den Außendienst nicht erforderlich | "Gebietsplanung & Gebietsmanagement" und "Service-Vertragsradar" einzeln aktivierbar |
-
-Wichtig: **Kunden- und Mehrkunden-Briefing sind Basis-Funktionen.** Profi ergänzt
-die Wahl des Zielassistenten, versteckt den operativen Weg aber nicht hinter
-einem Expertenmodus.
-
-Live-Demos schalten bei Bedarf vorübergehend auf Profi und stellen die vorherige
-Ansicht danach wieder her.
+| Bereich | Umfang |
+|---|---|
+| Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Heute besucht", "Als Start", "Als Ziel", "Zur Tour", "Briefing" |
+| Tour | Bezirk, Start, Ziel, Datum/Zeit/Dauer, Umkreis oder "Entlang der Tour", Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan, Kartenansicht Kunden/Status/Chancen, Rundreise, Druck, ICS, Text, gespeicherte Touren |
+| Gebiets-Popup | Kennzahlen, Verteilung und namentliche Kundenliste |
+| Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Gemini, ChatGPT, eigene https-Adresse) |
+| Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl ("📋 Briefing über alle"); Häkchen in der Lasso-Auswahlkarte |
+| Optionale Module | "Gebietsplanung & Gebietsmanagement" und "Service-Vertragsradar" unter "⚙️ Optionale Module" einzeln aktivierbar (am Desktop) |
 
 ---
 
@@ -401,12 +402,11 @@ Die Topbar enthält:
 - dynamisches Tresor-Symbol: einrichten, sperren oder Status anzeigen
 - **"Info & Impressum"** (`i`)
 
-### 4.2 Ansichtstiefe, Außendienst und optionale Profi-Module
+### 4.2 Außendienst und optionale Module
 
-1. **"Basis"** enthält den vollständigen täglichen Außendienst: Kundenkarte,
-   Suche, Filter, Nähe, Tour und beide Briefing-Wege. **"Profi"** bedeutet nicht
-   „erfahrener Außendienst", sondern zusätzliche Spezial- und Verwaltungshilfen.
-2. Unter **"Profi" → "Optionale Profi-Module"** können
+1. Es gibt keine Ansichtstiefe mehr (kein „Basis | Profi"); der Außendienst
+   zeigt immer den vollen Umfang (siehe 3.3).
+2. Unter **"⚙️ Optionale Module"** können
    **"Gebietsplanung & Gebietsmanagement"** und **"Service-Vertragsradar"**
    getrennt aktiviert werden. Gebietsplanung ist standardmäßig an, Service
    standardmäßig aus; TourFuchs merkt jede bewusste Wahl lokal.
