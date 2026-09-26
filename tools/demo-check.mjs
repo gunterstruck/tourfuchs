@@ -109,9 +109,15 @@ async function startPreview(port) {
     throw new Error('Vorschau-Server ist nicht gestartet. Vorher `npm run build` ausführen?');
 }
 
-/** Demo-Auswahl öffnen – je nach Zustand über Willkommen, Onboarding oder Info. */
+/**
+ * Demo-Auswahl öffnen – über „🎬 Alle Demos" im Beispieldaten-Streifen, das
+ * Onboarding oder die Info. Nicht über „In Aktion sehen" der Begrüßung: Der
+ * startet seit der Schleife direkt die erste Demo statt der Auswahl.
+ */
 async function openPanel(page) {
-    for (const sel of ['#btn-demo-welcome-demos', '#btn-showcase-ob', '#btn-showcase']) {
+    // Die Begrüßung zählt sonst ab und startet nach zehn Sekunden von selbst.
+    await page.locator('#btn-demo-welcome-ack').click({ timeout: 2000 }).catch(() => {});
+    for (const sel of ['#btn-demo-overview', '#btn-showcase-ob', '#btn-showcase']) {
         const el = page.locator(sel).first();
         if (await el.count() && await el.isVisible().catch(() => false)) {
             await el.click({ timeout: 5000 }).catch(() => {});

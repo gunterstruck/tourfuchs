@@ -110,6 +110,33 @@ export const STORIES = [
         ]
     },
     {
+        // Der Weg einer echten Excel-Datei – mit dem Schritt, an dem Neue
+        // unsicher werden: „Meine Spalte heißt anders – geht das trotzdem?"
+        // Die Beispieldatei trägt deshalb eigene Spaltennamen; „Firmenbezeichnung"
+        // erkennt TourFuchs nicht und wird sichtbar von Hand zugeordnet.
+        // Importiert wird nichts: Die Vorführung bricht vor „Importieren" ab.
+        id: 'import-zuordnung',
+        icon: '📊',
+        title: 'Deine Excel-Liste importieren',
+        blurb: 'Datei wählen, Spalten zuordnen – auch wenn sie anders heißen.',
+        duration: 40,   // gemessen 26.09.2026: 39–40 s in allen vier Formaten
+        steps: [
+            { t: 'say', text: 'Deine Kundenliste liegt als Excel-Datei vor? So kommt sie hinein – auch wenn die Spalten anders heißen als bei uns.', ms: 3400 },
+            { t: 'run', key: 'openImportDemo' },
+            { t: 'say', text: 'Hier wählst du deine Excel- oder CSV-Datei. Für die Vorführung nehmen wir eine Beispieldatei.', sel: '#btn-upload', ms: 3200 },
+            { t: 'run', key: 'importDemoFile' },
+            { t: 'say', text: 'TourFuchs liest die Datei und sagt, was drinsteht: sechs Kunden, sechs Spalten.', sel: '#mapping-file-info', ms: 3000 },
+            { t: 'say', text: 'Vieles erkennt es von selbst – Straße, PLZ, Ort, Vertriebsbezirk und Umsatz sind schon zugeordnet.', sel: '#mapping-rows select[data-field="plz"]', ms: 3600 },
+            { t: 'say', text: '„Firmenbezeichnung" kennt es nicht – das Pflichtfeld Kundenname ist noch leer.', sel: '#mapping-rows select[data-field="name"]', ms: 3200 },
+            { t: 'select', sel: '#mapping-rows select[data-field="name"]', value: 'Firmenbezeichnung' },
+            { t: 'say', text: 'Einmal auswählen – die Beispielwerte daneben zeigen sofort, ob es passt.', sel: '#mapping-rows select[data-field="name"]', ms: 3000 },   // nicht die Beispielzelle: deren Anscrollen schob am Handy die Feldnamen aus dem Bild
+            { t: 'say', text: 'Für die Karte reicht schon die PLZ, die Straße macht die Position genauer. Kontakt, Besuchsrhythmus und mehr liegen unter „Weitere Felder".', sel: '#mapping-more', ms: 4000 },
+            { t: 'say', text: 'Jetzt würdest du „Importieren" tippen – und deine Kunden stehen auf der Karte.', sel: '#mapping-confirm', ms: 3000 },
+            { t: 'run', key: 'closeImportDemo' },
+            { t: 'say', text: 'Für die Vorführung brechen wir hier ab – deine Daten rührt die Demo nicht an.', ms: 2800 }
+        ]
+    },
+    {
         // Das Hauptgericht – und die einzige Demo, die den ganzen Bogen zeigt:
         // umfahren, briefen lassen, entscheiden. Eine Geste statt eines
         // Formulars, danach ein Prompt statt eines Berichts, am Ende eine Tour
