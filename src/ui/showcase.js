@@ -28,6 +28,7 @@ import {
 import { distanceKm } from '../services/geocode.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { isPhoneUi } from '../core/viewport.js';
+import { CONFIG } from '../core/config.js';
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
 import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyDepth, applyMode } from './sidebar.js';
@@ -224,6 +225,11 @@ function pickMostCentral(sel) {
         if (score < bestScore) { bestScore = score; best = el; }
     }
     return best;
+}
+
+function distanceToCenter(el) {
+    const r = el.getBoundingClientRect();
+    return Math.hypot(r.left + r.width / 2 - window.innerWidth / 2, r.top + r.height / 2 - window.innerHeight / 2);
 }
 
 /**
@@ -775,7 +781,10 @@ const HELPERS = {
         // dann in einen einzelnen Kunden zoomen und seine Infos zeigen.
         showMapView();
         await sleep(700);
-        const located = scopedWithCoords();
+        // Wer gerade einen Bezirk gefiltert hat, soll auch einen Kunden daraus
+        // sehen – nicht irgendeinen aus dem ganzen Bestand.
+        const inView = visibleCustomers().filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng));
+        const located = inView.length ? inView : scopedWithCoords();
         if (located.length === 0) return;
         const c = located.find((x) => x.umsatz && x.telefon) || located.find((x) => x.umsatz) || located[Math.floor(located.length / 2)];
         flyToCustomer(c, true);
@@ -1108,6 +1117,51 @@ const HELPERS = {
         if (!customer) throw new Error('In der Auswahl ist kein verorteter Kunde vorhanden.');
         flyToCustomer(customer, true);
         await sleep(2400);
+    },
+    // ---- Film „Vom Bezirk zum Kunden" ----
+    // Wie der Schluss von „Mein Gebiet im Überblick", aber ohne Flug: Der
+    // Cursor tippt sich von der Bezirksfläche über die Stapel bis zur
+    // Kundenkachel – der Weg, den man später selbst geht.
+    async districtFocus() {
+        await clickEl('#territory-summary-focus');
+        moveOverlaysInto(document.body);
+        await sleep(1300);
+        // Im Farbmodus „Vertriebsbezirk" zeichnet die Karte nur Flächen, nie
+        // Kunden. „Automatisch" zeigt ab der Kundenebene beides: die Bezirks-
+        // farbe als Orientierung, darauf die Kundenstapel. Die Auswahl liegt im
+        // Reiter „Gebiete"; der Film steht nach der Bezirkswahl noch im Filter.
+        await clickEl('.tab-button[data-tab="gebiete"]');
+        await sleep(300);
+        await selectValue('#colormode-select', 'auto');
+        // Auf die Kundenebene – dort, wo im Bezirk die meisten Kunden liegen.
+        const located = visibleCustomers().filter((c) => Number.isFinite(c.lat) && Number.isFinite(c.lng));
+        const map = getMap();
+        if (map && located.length && map.getZoom() < CONFIG.map.lodCustomerZoom) {
+            const byLat = [...located].sort((a, b) => a.lat - b.lat);
+            const byLng = [...located].sort((a, b) => a.lng - b.lng);
+            const mid = Math.floor(located.length / 2);
+            focusMapArea(byLat[mid].lat, byLng[mid].lng, CONFIG.map.lodCustomerZoom);
+        }
+        await sleep(1800);
+        // Die Sprechblase soll auf einen Stapel im Bild zeigen – Leaflet hält
+        // auch Stapel knapp außerhalb im DOM, der erste ist oft einer davon.
+        pickMostCentral('.customer-stack-card')?.classList.add('sc-focus-stack');
+    },
+    async districtStackToCustomer() {
+        // Mittige Stapel antippen, bis Kundenkacheln die Mitte übernehmen –
+        // höchstens dreimal, falls der Bestand dicht ist.
+        for (let tap = 0; tap < 3; tap += 1) {
+            const stack = document.querySelector('.sc-focus-stack') || pickMostCentral('.customer-stack-card');
+            if (!stack) break;
+            document.querySelectorAll('.sc-focus-stack').forEach((el) => el.classList.remove('sc-focus-stack'));
+            stack.classList.add('sc-focus-stack');
+            await clickEl('.customer-stack-card.sc-focus-stack');
+            stack.classList.remove('sc-focus-stack');
+            await sleep(1300);
+            const card = pickMostCentral('.customer-marker-card');
+            const next = pickMostCentral('.customer-stack-card');
+            if (card && (!next || distanceToCenter(card) < distanceToCenter(next))) break;
+        }
     },
     async gotoGebiete() {
         await clickEl('.mode-btn[data-mode="gebietsplanung"]');
