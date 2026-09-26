@@ -7,6 +7,9 @@ Die Mini-Schulungen zeigen echte Bedienhandlungen direkt in TourFuchs. Sie sind 
 - **Pause / Fortsetzen** unterbricht die Wiedergabe. Eine bereits gestartete Kartenanimation kann noch zu Ende laufen; weitere Demo-Schritte warten.
 - **Weiter** beendet die aktuelle Lesepause. Während einer Bedienhandlung ist die Schaltfläche deaktiviert, damit notwendige Schritte nicht übersprungen werden.
 - **Beenden** oder **Escape** bricht die Demo ab.
+- **♫ Musik an/aus** schaltet „Tropical Island House 2024“ von Sascha Ende freiwillig hinzu. Beim Neuladen ist Musik aus; die Auswahl gilt nur für die aktuelle Sitzung. Ohne Einschalten wird keine Musikdatei geladen.
+- Bei eingeschalteter Musik erscheint ein Lautstärkeregler (Standard 18 %, maximal 50 %). Pause hält auch die Musik an. Beenden, Escape, Fehler und reguläres Ende stoppen sie; beim Verlassen des Tabs wird sie sofort stummgeschaltet. Zurück im sichtbaren Tab läuft sie nur bei aktiver, nicht pausierter Schulung weiter.
+- Die Musik kommt vom TourFuchs-Server, nicht von externen Musikdiensten. Ohne verfügbare Datei oder bei blockierter Wiedergabe erscheint ein Hinweis; die Schulung bleibt ohne Musik benutzbar. Offline-Musik wird nicht zugesichert.
 - Die Systemeinstellung „Bewegung reduzieren“ verkürzt Animationen, nicht die Lesedauer der Erklärungstexte.
 
 ## Gebietsübersicht
@@ -35,6 +38,7 @@ Briefing-Schulungen erklären: Prompt prüfen → in die Zwischenablage kopieren
 ## Wartung und Prüfung
 
 Story-Definitionen: `src/features/stories.js`. Wiedergabesteuerung: `src/features/showcasePlayback.js`. UI-Engine: `src/ui/showcase.js`.
+Musiksteuerung: `src/features/showcaseMusic.js`; Quelldatei: `public/audio/tropical-island-house-2024.mp3`. Lizenzbelege unter `docs/licenses/tropical-island-house-2024/`; sichtbare Attribution in Informationen und `public/license.html`.
 
 Nach Ablaufänderungen die angezeigten ungefähren Dauern nachmessen. Die Zeiten gelten ohne manuelle Pausen; Kartenladezeiten und Umfang des eigenen Bestands können sie verändern.
 

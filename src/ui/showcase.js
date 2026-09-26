@@ -37,6 +37,7 @@ import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo } from './importWizard.js';
 import { ShowcasePlayback, ShowcaseAbortError as AbortError } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
+import { ShowcaseMusic } from '../features/showcaseMusic.js';
 
 // Beispieltabelle für die Einfüge-Vorführung: bewusst klein, mit
 // Überschriftenzeile und Tabulatoren – genau das, was Excel beim Kopieren in
@@ -90,6 +91,7 @@ let priorDepth = null;        // Ansichtstiefe vor der Demo (zum Zurücksetzen)
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
+const music = new ShowcaseMusic({ onChange: syncMusicControls });
 
 // ---- DOM der Show ----
 function ensureDom() {
@@ -115,6 +117,7 @@ function guard() { if (aborted) throw new AbortError(); }
 function abortNow() {
     if (!running) return;
     aborted = true;
+    music.setPlayback({ active: false });
     playback?.abort();
 }
 
@@ -1201,9 +1204,12 @@ function showChrome(story) {
     toolbarEl.setAttribute('aria-label', 'Live-Demo steuern');
     toolbarEl.innerHTML = `<span class="sc-story-label">${story.icon} <b>${story.title}</b></span>
         <span class="sc-progress"></span>
+        <button type="button" class="sc-music" aria-pressed="false" title="Optionale Hintergrundmusik: Tropical Island House 2024">♫ Musik aus</button>
         <button type="button" class="sc-pause" aria-pressed="false">Pause</button>
         <button type="button" class="sc-next" disabled title="Zum nächsten Erklärungsschritt">Weiter</button>
-        <button type="button" class="sc-cancel">Beenden</button>`;
+        <button type="button" class="sc-cancel">Beenden</button>
+        <label class="sc-music-volume" hidden>Lautstärke <input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /> <output>18 %</output></label>
+        <span class="sc-music-status" role="status" hidden></span>`;
     document.body.append(shieldEl, toolbarEl);
     // Während einer Vorführung ruht die schwebende „nächster Schritt"-Hilfe –
     // sie würde sonst über der Karte mitlaufen und die Demo überlagern.
@@ -1212,10 +1218,14 @@ function showChrome(story) {
     toolbarEl.querySelector('.sc-cancel').addEventListener('click', abortNow);
     toolbarEl.querySelector('.sc-pause').addEventListener('click', () => playback.togglePause());
     toolbarEl.querySelector('.sc-next').addEventListener('click', () => playback.next());
+    toolbarEl.querySelector('.sc-music').addEventListener('click', () => music.setEnabled(!music.enabled));
+    toolbarEl.querySelector('.sc-music-volume input').addEventListener('input', (event) => music.setVolume(Number(event.target.value) / 100));
+    music.setPlayback({ active: true, paused: false, hidden: document.hidden });
     cursorEl.hidden = false;
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
 }
 function syncPlaybackControls() {
+    music.setPlayback({ paused: playback?.paused ?? false });
     if (!toolbarEl || !playback) return;
     const pause = toolbarEl.querySelector('.sc-pause');
     pause.textContent = playback.paused ? 'Fortsetzen' : 'Pause';
@@ -1223,11 +1233,26 @@ function syncPlaybackControls() {
     toolbarEl.querySelector('.sc-next').disabled = !playback.pending?.reading;
     document.body.classList.toggle('sc-paused', playback.paused);
 }
+function syncMusicControls() {
+    if (!toolbarEl) return;
+    const button = toolbarEl.querySelector('.sc-music');
+    button.textContent = music.loading ? '♫ Musik lädt …' : music.enabled ? '♫ Musik an' : '♫ Musik aus';
+    button.setAttribute('aria-pressed', String(music.enabled));
+    button.title = music.enabled ? 'Hintergrundmusik ausschalten' : 'Tropical Island House 2024 von Sascha Ende einschalten';
+    const volume = toolbarEl.querySelector('.sc-music-volume');
+    volume.hidden = !music.enabled;
+    volume.querySelector('input').value = String(Math.round(music.volume * 100));
+    volume.querySelector('output').textContent = `${Math.round(music.volume * 100)} %`;
+    const status = toolbarEl.querySelector('.sc-music-status');
+    status.textContent = music.error;
+    status.hidden = !music.error;
+}
 function setProgress(i, n) {
     const el = toolbarEl?.querySelector('.sc-progress');
     if (el) el.textContent = `${Math.min(i + 1, n)} / ${n}`;
 }
 function cleanup(story) {
+    music.setPlayback({ active: false });
     hideBubble();
     // Overlays zurück in den Body holen (falls sie in einem Dialog hingen)
     if (cursorEl) { document.body.append(cursorEl, bubbleEl); cursorEl.hidden = true; cursorEl.classList.remove('sc-click', 'sc-press'); }
@@ -1534,6 +1559,8 @@ export function initShowcase() {
 
     // ESC bricht eine laufende Vorführung ab (statt nur den Dialog zu schließen)
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && running) { e.preventDefault(); abortNow(); } }, true);
+    document.addEventListener('visibilitychange', () => music.setPlayback({ hidden: document.hidden }));
+    window.addEventListener('pagehide', () => music.dispose());
 
     // Nach bewusstem Datenlöschen zählt der Demo-Fortschritt neu.
     on('dataset:cleared', () => resetShowcaseAfterDataClear());
