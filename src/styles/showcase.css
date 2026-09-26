@@ -71,6 +71,59 @@
     cursor: progress;
 }
 
+/* Frage-Karte nach einem Tipp auf die Fläche: mittig, über Sperre und Leiste. */
+.sc-pause-card {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    z-index: 100003;
+    display: grid;
+    gap: 10px;
+    width: min(320px, calc(100vw - 32px));
+    box-sizing: border-box;
+    padding: 18px 18px 14px;
+    transform: translate(-50%, -50%);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 16px;
+    background: var(--color-surface, #fff);
+    box-shadow: 0 18px 48px rgba(15, 23, 42, 0.3);
+    text-align: center;
+    animation: sc-pause-card-in 180ms ease-out both;
+}
+.sc-pause-card > b { font-size: 1.05rem; }
+.sc-pause-card p { margin: 0 0 4px; color: var(--color-text-muted, #64748b); font-size: 0.9rem; }
+.sc-pause-card button { min-height: 44px; border-radius: 999px; font-weight: 700; }
+.sc-pause-resume {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+}
+.sc-pause-resume.is-counting::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background: #ccfbf1;
+    transform-origin: left center;
+    animation: sc-resume-fill var(--sc-resume-s, 8s) linear forwards;
+}
+.sc-pause-resume.is-waiting::before { animation-play-state: paused; }
+.sc-pause-hint { color: var(--color-text-muted, #64748b); font-size: 0.78rem; }
+.sc-pause-hint b { color: #0f766e; font-variant-numeric: tabular-nums; }
+.sc-pause-hint[hidden] { display: none; }
+@keyframes sc-resume-fill {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+}
+@keyframes sc-pause-card-in {
+    from { opacity: 0; transform: translate(-50%, -46%); }
+    to { opacity: 1; transform: translate(-50%, -50%); }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sc-pause-card { animation: none; }
+    .sc-pause-resume.is-counting::before { animation: none; }
+}
+
 /* Laufleiste: Titel, Fortschritt, Musik, Pause, Weiter, Beenden.
    Wo sie steht, entscheidet placeToolbar() in src/ui/showcase.js – vor jedem
    Schritt dort, wo sie am wenigsten verdeckt. Hier nur Form und Kompaktform. */

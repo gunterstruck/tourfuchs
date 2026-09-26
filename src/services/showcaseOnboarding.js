@@ -138,6 +138,9 @@ export function nextUnseenShowcaseStory(stories, seenIds = [], currentId = '') {
     return null;
 }
 
+/** Tipp während einer Vorführung: So lange steht die Frage, dann geht es weiter. */
+export const SHOWCASE_TOUCH_RESUME_SECONDS = 8;
+
 /** Begrüßung ohne eigene Daten: So lange ohne Bedienung, dann startet die Vorführung. */
 export const DEMO_WELCOME_AUTOSTART_SECONDS = 10;
 
