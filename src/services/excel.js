@@ -880,13 +880,15 @@ export function exportReassignments(rows, { demo = false } = {}) {
 }
 
 /** Aktuelle Kundenliste als Excel exportieren (inkl. Besuchsdaten) */
-export function exportCustomers(customers) {
+export function exportCustomers(customers, { fileLabel = '' } = {}) {
     const demo = hasDemoCustomers(customers);
     const rows = customerExportRows(customers);
     const ws = XLSX.utils.json_to_sheet(rows);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, demo ? 'DEMO-Kunden' : 'Kunden');
-    const prefix = demo ? 'tourfuchs-DEMO-nicht-produktiv' : 'tourfuchs-kunden';
+    // Gebietsexport: „tourfuchs-kunden-bezirk-west-2026-09-26.xlsx"
+    const base = demo ? 'tourfuchs-DEMO-nicht-produktiv' : 'tourfuchs-kunden';
+    const prefix = fileLabel ? `${base}-${fileLabel}` : base;
     XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
 }
 
