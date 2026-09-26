@@ -69,6 +69,42 @@ describe('Zentraler Willkommens-Hinweis bei Beispieldaten', () => {
     });
 });
 
+describe('Begrüßung ohne eigene Daten: Vorführung zuerst, Selbststart', () => {
+    const html = read('index.html');
+    const welcome = read('src/ui/demoWelcome.js');
+    const showcase = read('src/ui/showcase.js');
+    const onboarding = read('src/services/showcaseOnboarding.js');
+
+    it('stellt „In Aktion sehen" vor „Eigene Daten laden"', () => {
+        expect(html).toContain('Willkommen bei TourFuchs');
+        expect(html.indexOf('id="btn-demo-welcome-demos"')).toBeLessThan(html.indexOf('id="btn-demo-welcome-own"'));
+        expect(html).toMatch(/id="btn-demo-welcome-demos" class="primary demo-welcome-show"/);
+        expect(html).toContain('mit Musik ♫');
+    });
+
+    it('begrüßt bei jedem Start ohne eigene Daten: Quittung nur für den Besuch', () => {
+        expect(welcome).toContain('globalThis.sessionStorage');
+        expect(welcome).not.toContain('globalThis.localStorage');
+    });
+
+    it('startet die Vorführung nach zehn Sekunden ohne Bedienung', () => {
+        expect(onboarding).toContain('export const DEMO_WELCOME_AUTOSTART_SECONDS = 10;');
+        expect(welcome).toContain("emit('demo-welcome:autostart')");
+        expect(showcase).toContain("on('demo-welcome:autostart', () => startShowcaseLoop());");
+    });
+
+    it('bricht den Selbststart bei jeder Bedienung ab und zählt nur sichtbare Zeit', () => {
+        expect(welcome).toContain("['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => {\n        document.addEventListener(type, cancelAutostart, { capture: true, passive: true });");
+        expect(welcome).toContain('if (!document.hidden) left -= now - last;');
+        // Ein offenes Fenster ist eine Bedienung – nicht dazwischenfahren.
+        expect(welcome).toContain("if (document.querySelector('dialog[open]')) return;");
+    });
+
+    it('startet mit „In Aktion sehen" direkt die erste Demo statt der Auswahl', () => {
+        expect(showcase).toContain("getElementById('btn-demo-welcome-demos')?.addEventListener('click', () => startShowcaseLoop());");
+    });
+});
+
 describe('Entdeck-Hinweise bei Beispieldaten wieder scharf', () => {
     const map = read('src/features/map.js');
     const sidebar = read('src/ui/sidebar.js');

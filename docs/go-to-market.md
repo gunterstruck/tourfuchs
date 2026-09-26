@@ -32,7 +32,7 @@ sieht, ist gewonnen. Die Demos sind Mittel, nicht Zweck.
 *schnelleres*. TourFuchs hat inzwischen viel Onboarding-Maschinerie:
 
 - Willkommens-Choreografie (leere Karte → Beispielkunden erscheinen)
-- zentrale Hinweiskarte „Das sind Beispieldaten"
+- zentrale Begrüßung „Willkommen bei TourFuchs" mit „TourFuchs in Aktion sehen" (Selbststart nach 10 s)
 - Demo-Streifen
 - „Erste Schritte"-Checkliste
 - **acht** Live-Demos mit Geister-Cursor

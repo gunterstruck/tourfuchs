@@ -638,23 +638,27 @@
             </form>
         </dialog>
 
-        <!-- Zentraler, nicht-blockierender Willkommens-Hinweis über der Karte.
-             Erscheint, solange Beispieldaten laufen und noch nicht quittiert
-             wurde. Bündelt die drei Kernbotschaften – „das sind Beispieldaten",
-             „eigene Daten jetzt oder später laden", „es gibt Live-Demos" – in
-             einer Karte mit einer Quittung. Die Karte dahinter bleibt bedienbar. -->
+        <!-- Zentrale, nicht-blockierende Begrüßung über der Karte.
+             Erscheint bei jedem Start, solange nur Beispieldaten laufen. Zwei
+             gleichwertige Wege: TourFuchs in Aktion sehen (startet nach zehn
+             Sekunden ohne Bedienung von selbst) oder eigene Daten laden. Die
+             Karte dahinter bleibt bedienbar. -->
         <div id="demo-welcome" class="demo-welcome" role="dialog" aria-labelledby="demo-welcome-title" aria-describedby="demo-welcome-lead" hidden>
             <div class="demo-welcome-card">
                 <button type="button" id="btn-demo-welcome-close" class="demo-welcome-x" aria-label="Hinweis schließen">✕</button>
                 <div class="demo-welcome-fox" aria-hidden="true">🦊</div>
-                <h2 id="demo-welcome-title">🧪 Das sind Beispieldaten</h2>
-                <p id="demo-welcome-lead" class="demo-welcome-lead">Sieh dich in Ruhe um – oder leg direkt mit deinen <b>eigenen Daten</b> los. Beides geht jederzeit.</p>
+                <h2 id="demo-welcome-title">Willkommen bei TourFuchs</h2>
+                <p id="demo-welcome-lead" class="demo-welcome-lead">Lass dir zeigen, was TourFuchs kann – oder leg direkt mit deinen <b>eigenen Daten</b> los. Die Kunden auf der Karte sind <b>Beispieldaten</b>.</p>
                 <div class="demo-welcome-actions">
-                    <button type="button" id="btn-demo-welcome-own" class="primary">📂 Eigene Daten laden</button>
+                    <button type="button" id="btn-demo-welcome-demos" class="primary demo-welcome-show">
+                        <span class="demo-welcome-show-title">▶ TourFuchs in Aktion sehen</span>
+                        <small>Live in der echten App · mit Musik ♫ · jederzeit beenden</small>
+                    </button>
+                    <p id="demo-welcome-countdown" class="demo-welcome-countdown" hidden>Startet von selbst in <b>10</b> s</p>
+                    <button type="button" id="btn-demo-welcome-own" class="demo-welcome-secondary demo-welcome-own">📂 Eigene Daten laden</button>
                     <!-- Der schnellste Weg gehört sichtbar ins Willkommen, nicht in ein
                          Untermenü. Am Handy ist Excel selten offen – dort ausgeblendet. -->
                     <button type="button" id="btn-demo-welcome-paste" class="demo-welcome-secondary only-desktop">📋 Liste ist in Excel offen? Direkt einfügen</button>
-                    <button type="button" id="btn-demo-welcome-demos" class="demo-welcome-secondary">▶ Kurze Live-Demos ansehen</button>
                 </div>
                 <button type="button" id="btn-demo-welcome-ack" class="demo-welcome-ack">Verstanden – erst umsehen</button>
                 <p class="demo-welcome-foot muted small">Excel/CSV oder verschlüsselte TourFuchs-Datei · später jederzeit über 📂 im Daten-Bereich.</p>
