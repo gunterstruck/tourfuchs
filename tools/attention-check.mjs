@@ -73,19 +73,20 @@ const FORMATS = [
         viewport: { width: 390, height: 844 },
         touch: true,
         erstbildBudget: 20,
-        // Mobil gibt es genau einen Bereich (Tour) – gemessen je Tiefe.
+        // Mobil gibt es genau einen Bereich (Tour). Seit dem Wegfall von
+        // Basis/Profi (26.09.2026) wird er einmal gemessen, nicht je Tiefe.
         // Der zweite Reiter „Karte" war nie ein Bereich, sondern ein
         // Blatt-Schalter; mit ihm fiel auch seine Messung weg.
-        erwarteteMessungen: 2
+        erwarteteMessungen: 1
     },
     {
         name: 'desktop',
         viewport: { width: 1440, height: 900 },
         touch: false,
         erstbildBudget: 36,
-        // Basis/Profi im Außendienst (je Daten, Filter, Tour) plus das bewusst
-        // aktivierte Gebietsmodul in Profi (Daten, Filter, Gebiete).
-        erwarteteMessungen: 9
+        // Außendienst (Daten, Filter, Tour) plus das aktivierte Gebietsmodul
+        // (Daten, Filter, Gebiete). Bis 26.09.2026 kam Basis/Außendienst dazu.
+        erwarteteMessungen: 6
     }
 ];
 
