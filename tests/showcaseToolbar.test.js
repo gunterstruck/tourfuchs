@@ -94,7 +94,19 @@ describe('Steuerleiste der Live-Schulungen: Einbindung', () => {
     });
 
     it('behält in der Kompaktform zugängliche Namen für die Symbolknöpfe', () => {
-        for (const name of ['Pause', 'Weiter', 'Beenden']) expect(showcase).toContain(`aria-label="${name}"`);
+        for (const name of ['Pause', 'Beenden']) expect(showcase).toContain(`aria-label="${name}"`);
         expect(css).toContain('.sc-toolbar.sc-compact .sc-txt { display: none; }');
+    });
+});
+
+describe('Steuerleiste ohne „Weiter“-Knopf', () => {
+    const showcase = readFileSync(resolve(process.cwd(), 'src/ui/showcase.js'), 'utf8');
+    it('bietet nur Musik, Pause und Beenden an', () => {
+        // „»“ übersprang nur Lesepausen, war die meiste Zeit gesperrt und
+        // verkürzte den Film wegen der Mindestlaufzeit nicht – ein Knopf, bei
+        // dem scheinbar nichts passiert. Eingreifen geht per Tipp auf die Fläche.
+        const toolbar = showcase.slice(showcase.indexOf("toolbarEl.innerHTML = `"), showcase.indexOf('document.body.append(shieldEl, toolbarEl);'));
+        expect(toolbar).not.toContain('sc-next');
+        expect(toolbar).not.toContain('»');
     });
 });

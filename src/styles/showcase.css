@@ -169,7 +169,6 @@
 .sc-toolbar .sc-music[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
 .sc-toolbar .sc-ico { font-size: 0.8em; line-height: 1; }
 .sc-toolbar .sc-pause .sc-ico,
-.sc-toolbar .sc-next .sc-ico,
 .sc-toolbar .sc-cancel .sc-ico { display: none; }
 .sc-sr {
     position: absolute;

@@ -4,6 +4,8 @@ export const SHOWCASE_MUSIC_URL = '/audio/tropical-island-house-2024.mp3';
 export const MUSIC_FADE_MS = 350;
 /** Ende einer Schulungsrunde: sanft ausklingen statt abreißen. */
 export const MUSIC_STOP_FADE_MS = 2000;
+/** Leiser in die Pause zwischen zwei Filmen und wieder lauter in den nächsten: weich, nicht abrupt. */
+export const MUSIC_BREAK_FADE_MS = 2500;
 /** Zwischen zwei Filmen läuft die Musik leiser weiter … */
 export const MUSIC_BREAK_VOLUME_FACTOR = 0.6;
 /** … und klingt aus, wenn so lange niemand etwas im Auswahlfenster tut. */
@@ -101,7 +103,7 @@ export class ShowcaseMusic {
         } else if (this.hidden && this.audio) this.silence();
         // Wechsel Film <-> Pause: gleiche Aufnahme, nur die Lautstärke gleitet.
         else if (wanted && !this.loading && this.audio && Math.abs(this.audio.volume - this.targetVolume()) > 0.001) {
-            this.fade(this.targetVolume(), undefined, MUSIC_STOP_FADE_MS / 2);
+            this.fade(this.targetVolume(), undefined, MUSIC_BREAK_FADE_MS);
         }
         if (!this.active && !this.onBreak && this.audio?.paused) this.audio.currentTime = 0;
         this.onChange();
@@ -174,10 +176,21 @@ export class ShowcaseMusic {
         this.fadeTimer = null;
         if (!this.audio) { done?.(); return; }
         const start = this.audio.volume;
-        const started = Date.now();
+        let elapsed = 0;
+        let last = Date.now();
         this.fadeTimer = setInterval(() => {
-            const fraction = Math.min(1, (Date.now() - started) / ms);
-            this.audio.volume = start + (target - start) * fraction;
+            // Höchstens 50 ms je Takt: Ist die Seite kurz beschäftigt (etwa
+            // beim Aufräumen nach einem Film), pausiert die Blende, statt danach
+            // auf den Stand zu springen, den sie inzwischen haben „sollte“ –
+            // genau so ein Sprung klang wie abruptes Leiserwerden.
+            const now = Date.now();
+            elapsed += Math.min(now - last, 50);
+            last = now;
+            const fraction = Math.min(1, elapsed / ms);
+            // Weich beginnen und weich enden (smoothstep) statt linear: Das Ohr
+            // hört den Anfang und das Ende einer Blende, nicht die Mitte.
+            const eased = fraction * fraction * (3 - 2 * fraction);
+            this.audio.volume = start + (target - start) * eased;
             if (fraction === 1) {
                 clearInterval(this.fadeTimer);
                 this.fadeTimer = null;

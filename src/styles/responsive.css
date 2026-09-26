@@ -549,6 +549,8 @@
     }
     /* Während des Ziehens keine Transition, damit das Blatt dem Finger folgt. */
     .sheet-resizing .sidebar { transition: none; }
+    /* Ende einer Schulungsrunde: langsam einklappen, im Takt der ausklingenden Musik. */
+    .sidebar.sheet-settling { transition: transform 2s ease-in-out, height 2s ease-in-out; }
 
     /* Eine am Schreibtisch abgelegte Panel-Position darf das Blatt nicht oben
        festnageln – `.sidebar.floating-sidebar` ist spezifischer als `.sidebar`

@@ -769,6 +769,20 @@ export function restoreSheetAfterDemo() {
 }
 
 /**
+ * Ende einer Schulungsrunde am Handy: das Blatt langsam einklappen, damit die
+ * Karte mit den Beispieldaten wieder frei liegt – im Takt der Musik, die
+ * gleichzeitig über zwei Sekunden ausklingt.
+ */
+export function settleSheetAfterShowcase() {
+    if (!isSheetUi() || !state.ui.sidebarOpen) return;
+    const sidebar = document.getElementById('sidebar');
+    sidebar?.classList.add('sheet-settling');
+    state.ui.sidebarOpen = false;
+    applySidebar();
+    setTimeout(() => sidebar?.classList.remove('sheet-settling'), 2200);
+}
+
+/**
  * Handy während einer Demo: das Blatt auf die Guckhöhe zurückziehen, damit die
  * Karte (Route/Tour) frei liegt und nicht nach oben gequetscht wird. Der vom
  * Nutzer gewählte Zustand ist über den Demo-Schnappschuss gesichert und kommt
