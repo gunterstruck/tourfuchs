@@ -342,6 +342,74 @@ body.sc-running dialog[open] {
     color: var(--color-text-muted, #64748b);
     font-size: 0.82rem;
 }
+/* Countdown zur nächsten Demo: Der Ring leert sich in --sc-countdown-s. */
+.sc-countdown-wrap {
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    margin-top: 22px;
+}
+.sc-countdown {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 112px;
+    height: 112px;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: #f0fdfa;
+    color: #0f766e;
+    cursor: pointer;
+}
+.sc-countdown svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transform: rotate(-90deg);
+}
+.sc-countdown circle { fill: none; stroke-width: 6; }
+.sc-countdown-track { stroke: #ccfbf1; }
+.sc-countdown-ring {
+    stroke: #0d9488;
+    stroke-linecap: round;
+    stroke-dasharray: 276.46;
+    stroke-dashoffset: 0;
+    animation: sc-countdown var(--sc-countdown-s, 8s) linear forwards;
+}
+.sc-countdown[data-state="stopped"] .sc-countdown-ring { animation: none; stroke-dashoffset: 0; opacity: 0.35; }
+.sc-countdown-num {
+    position: relative;
+    font-size: 2.4rem;
+    font-weight: 800;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+}
+.sc-countdown[data-state="stopped"] .sc-countdown-num { font-size: 2rem; padding-left: 6px; }
+.sc-countdown:focus-visible { outline: 3px solid #0d9488; outline-offset: 3px; }
+.sc-countdown-label {
+    margin: 0;
+    color: var(--color-text-muted, #64748b);
+    font-size: 0.85rem;
+    text-align: center;
+}
+.sc-countdown-label b { color: #0f766e; font-variant-numeric: tabular-nums; }
+@keyframes sc-countdown {
+    to { stroke-dashoffset: 276.46; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .sc-countdown-ring { animation: none; }
+}
+/* Schreibtisch: Das Fenster dockt schmal am Rand an – kleinerer Kreis. */
+@media (min-width: 1201px),
+       (min-width: 901px) and (orientation: landscape),
+       (min-width: 769px) and (orientation: landscape) and (min-height: 521px) {
+    .sc-countdown { width: 88px; height: 88px; }
+    .sc-countdown-num { font-size: 1.9rem; }
+    .sc-countdown-wrap { margin-top: 16px; }
+}
+
 .sc-outcome-actions {
     display: flex;
     justify-content: flex-end;
