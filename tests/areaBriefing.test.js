@@ -61,6 +61,13 @@ describe('Gebiets-Briefing: Auswahl', () => {
         expect(demoCount).toBe(1);
     });
 
+    it('nimmt Beispielkunden nur für die Ansicht in der Vorführung auf', () => {
+        const { included } = areaBriefingSelection([customers[0], demoCustomer], { includeDemo: true });
+        expect(included).toHaveLength(2);
+        expect(() => buildAreaBriefingPrompt([demoCustomer], { areaLabel: 'Lasso' })).toThrow();
+        expect(buildAreaBriefingPrompt([demoCustomer], { areaLabel: 'Lasso', preview: true })).toContain(demoCustomer.name);
+    });
+
     it('deckelt lange Listen – ein Gebiet ist kein Bestand', () => {
         const { included, total, truncated } = areaBriefingSelection(many(40));
         expect(included).toHaveLength(AREA_BRIEFING_LIMIT);

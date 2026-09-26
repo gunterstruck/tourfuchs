@@ -67,7 +67,7 @@ Die Tour-Demo zeigt eine **Luftlinie** und erklärt lediglich, wo später die St
 
 Die Optimierung sucht eine kurze, sinnvolle Reihenfolge anhand von Luftlinienentfernungen; sie garantiert weder die global kürzeste Strecke noch die kürzeste Straßenroute.
 
-Briefing-Schulungen erklären: Prompt prüfen → in die Zwischenablage kopieren → Kopierbestätigung beachten → im freigegebenen KI-Assistenten einfügen und selbst absenden → Antwort prüfen. Die Schulung ruft keinen KI-Bericht ab. Zugriff auf eigene Quellen setzt beim gewählten Assistenten passende Anbindungen und Berechtigungen voraus.
+Lasso- und Briefing-Schulung zeigen den **fertigen Prompt** – mit eigenen Kunden den echten, mit Beispielkunden als reine Ansicht („Beispiel · nur zur Ansicht", Kopier-Knopf gesperrt). Danach erklären sie den Weg in kurzen Blasen: ① Ein Klick legt den Prompt in die Zwischenablage. ② Die KI öffnen, die die Firma freigegeben hat – zum Beispiel Microsoft 365 Copilot; Kundendaten gehören aus Datenschutzgründen nur dorthin. ③ Einfügen und selbst absenden, zurück kommt das Briefing. ④ Mit dem Briefing zurück zu TourFuchs und die Tour planen. Die Vorführung kopiert nichts, öffnet keinen Assistenten und ruft keinen KI-Bericht ab. Zugriff auf eigene Quellen setzt beim gewählten Assistenten passende Anbindungen und Berechtigungen voraus. Außerhalb der Vorführung bleibt es dabei: Mit Beispielkunden baut TourFuchs keinen Prompt zum Kopieren.
 
 ## Wartung und Prüfung
 

@@ -50,7 +50,7 @@ function renderDemoOnly() {
     footer.querySelector('[data-area-close]')?.addEventListener('click', () => dialog.close());
 }
 
-function render(selection, areaLabel) {
+function render(selection, areaLabel, { preview = false } = {}) {
     const { included, total, truncated } = selection;
     body.innerHTML = `
         <div class="briefing-customer">
@@ -58,7 +58,7 @@ function render(selection, areaLabel) {
             <span>${included.length} von ${total} ${total === 1 ? 'Kunde' : 'Kunden'}</span>
         </div>
         <div class="briefing-state briefing-manual">
-            <span class="briefing-kicker">Direkt nutzbar</span>
+            <span class="briefing-kicker">${preview ? 'Beispiel · nur zur Ansicht' : 'Direkt nutzbar'}</span>
             <h3>Wen zuerst besuchen?</h3>
             ${truncated ? `<p class="area-truncated">Der Prompt enthält die ${AREA_BRIEFING_LIMIT} nächstgelegenen Kunden. Eine längere Liste macht das Briefing nicht besser, nur unschärfer.</p>` : ''}
             <details class="area-customers">
@@ -88,13 +88,19 @@ function render(selection, areaLabel) {
     wireBriefingSources(body, () => {
         currentPrompt = buildAreaBriefingPrompt(
             included,
-            { areaLabel, plannedDate: plannedDate(), total },
+            { areaLabel, plannedDate: plannedDate(), total, preview },
             currentAssistant,
             loadBriefingSources()
         );
         fillPrompt();
     });
 
+    if (preview) {
+        // Derselbe Knopf, aber ohne Wirkung: Die Vorführung zeigt, wo er sitzt,
+        // kopiert aber nichts und öffnet keinen Assistenten.
+        footer.innerHTML = `<button type="button" class="primary" data-area-open disabled title="In der Vorführung wird nichts kopiert">Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`;
+        return;
+    }
     footer.innerHTML = `<button type="button" class="primary" data-area-open>Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`;
     footer.querySelector('[data-area-open]')?.addEventListener('click', openAssistant);
 }
@@ -126,11 +132,15 @@ async function openAssistant() {
  * @param {object[]} customers  Kunden des Gebiets, bereits sinnvoll sortiert
  * @param {string} areaLabel    Beschreibung des Gebiets („Umkreis von 25 km …")
  */
-export function openAreaBriefing(customers, areaLabel) {
+export function openAreaBriefing(customers, areaLabel, { preview = false } = {}) {
     if (!dialog) initAreaBriefing();
     if (!dialog) return;
 
-    const selection = areaBriefingSelection(customers);
+    // `preview` nur für die Live-Demos: Dort darf auch mit Beispielkunden
+    // sichtbar werden, wie der Prompt aussieht – kopiert wird dabei nichts.
+    const selection = preview
+        ? areaBriefingSelection(customers, { includeDemo: true })
+        : areaBriefingSelection(customers);
     currentAssistant = assistantForDepth(state.ui.depth);
     dialog.showModal();
 
@@ -141,11 +151,11 @@ export function openAreaBriefing(customers, areaLabel) {
     }
     currentPrompt = buildAreaBriefingPrompt(
         selection.included,
-        { areaLabel, plannedDate: plannedDate(), total: selection.total },
+        { areaLabel, plannedDate: plannedDate(), total: selection.total, preview },
         currentAssistant,
         loadBriefingSources()
     );
-    render(selection, areaLabel);
+    render(selection, areaLabel, { preview });
 }
 
 export function initAreaBriefing() {

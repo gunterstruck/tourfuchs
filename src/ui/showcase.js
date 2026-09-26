@@ -1289,10 +1289,10 @@ const HELPERS = {
     async openLassoBriefing() {
         // Mit Beispielkunden bietet der Streifen bewusst kein „Briefing
         // erstellen" an – genau dieselbe Sperre wie beim Kundenbriefing. Die
-        // Vorführung geht den Weg trotzdem zu Ende und zeigt die geschützte
-        // Vorschau, statt vor der Sperre abzubrechen.
+        // Vorführung öffnet das Briefing dann als reine Ansicht: Der Prompt
+        // aus den Beispielkunden ist zu sehen, der Kopier-Knopf ist gesperrt.
         const opened = await clickEl('#btn-lasso-brief');
-        if (!opened) openAreaBriefingDialog(lassoSelection(), areaLabelFor({ mode: 'lasso' }));
+        if (!opened) openAreaBriefingDialog(lassoSelection(), areaLabelFor({ mode: 'lasso' }), { preview: true });
         const dialog = document.getElementById('area-briefing-dialog');
         if (!dialog?.open) throw new Error('Das Gebiets-Briefing konnte nicht geöffnet werden.');
         await sleep(500);
@@ -1304,9 +1304,8 @@ const HELPERS = {
      * bevor irgendetwas kopiert wird" ist behauptet, solange sie niemand sieht.
      * Der Klick auf „🔍 Vollständigen Prompt ansehen" macht sie nachprüfbar.
      *
-     * Mit Beispielkunden gibt es diesen Block nicht (geschützte Vorschau) –
-     * dann tut der Helfer nichts. Die begleitenden Sätze sind über `realOnly`
-     * ohnehin an dieselbe Bedingung geknüpft.
+     * Mit Beispielkunden zeigt die Vorführung denselben Block als Ansicht
+     * (`preview`); fehlt er trotzdem, tut der Helfer nichts.
      */
     async revealAreaPrompt() {
         const sel = '#area-briefing-dialog .briefing-prompt-visible';
