@@ -4,7 +4,9 @@ import {
     DEMO_DATA_ORIGIN,
     demoEmail,
     demoPhone,
+    applyDemoStreets,
     demoCustomersNeedNormalization,
+    demoStreetName,
     isDemoCustomer,
     normalizeDemoCustomer
 } from '../src/core/demoSafety.js';
@@ -82,5 +84,32 @@ describe('Demo-Sicherheitsnetz', () => {
         expect(customerExportRows([demo])[0].Datenstatus).toBe(DEMO_DATA_LABEL);
         expect(customerText(demo)).toContain(DEMO_DATA_LABEL);
         expect(tourText({ ...demo, label: demo.name }, [demo], null)).toContain(DEMO_DATA_LABEL);
+    });
+
+    it('erlaubt Beispielkunden einen Straßennamen, aber nie eine Hausnummer', () => {
+        expect(demoStreetName('Greifswalder Straße')).toBe('Greifswalder Straße');
+        expect(demoStreetName('Straße des 17. Juni')).toBe('Straße des 17. Juni');
+        expect(demoStreetName('Hauptstraße 99')).toBe('');
+        expect(demoStreetName('Ringstr. 12a')).toBe('');
+        expect(demoStreetName('Am Markt 3-5')).toBe('');
+
+        const withNumber = normalizeDemoCustomer({ id: 'demo-7', name: 'TourFuchs Demo · Optik 0008', strasse: 'Hauptstraße 99', geo: 'strasse', lat: 52.5, lng: 13.4 });
+        expect(withNumber.strasse).toBe('');
+        expect(withNumber.geo).toBe('none');
+        const withStreet = normalizeDemoCustomer({ id: 'demo-8', name: 'TourFuchs Demo · Optik 0009', strasse: 'Greifswalder Straße' });
+        expect(withStreet.strasse).toBe('Greifswalder Straße');
+    });
+
+    it('setzt Beispielkunden an vorberechnete Straßen – eigene Kunden bleiben unberührt', async () => {
+        const streets = { '10407': [['Greifswalder Straße', 52.5321, 13.4312], ['Hufelandstraße', 52.531, 13.428]] };
+        const demo = [0, 1, 2].map((i) => ({ id: `demo-${i}`, name: `TourFuchs Demo · Optik 000${i + 1}`, plz: '10407' }));
+        const own = { id: 'k-1', name: 'Echt GmbH', plz: '10407', strasse: '' };
+        expect(applyDemoStreets([...demo, own], streets)).toBe(3);
+        expect(demo.map((c) => c.strasse)).toEqual(['Greifswalder Straße', 'Hufelandstraße', 'Greifswalder Straße']);
+        expect(demo[2].lat).not.toBe(demo[0].lat);   // wiederverwendete Straße, leicht versetzt
+        expect(own.strasse).toBe('');
+        expect(demo.every((c) => c.geo === 'strasse')).toBe(true);
+        // Sie gehen nie an die adressgenaue Verortung.
+        expect(exactGeocodeCandidates(demo)).toEqual([]);
     });
 });
