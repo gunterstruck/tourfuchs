@@ -154,15 +154,44 @@ describe('Optional tutorial music', () => {
     });
     it('keeps playing, quieter, while the choice dialog is open after a film', async () => {
         await start(); audio.currentTime = 30;
-        music.setPlayback({ active: false, onBreak: true }); await vi.advanceTimersByTimeAsync(1100);
+        music.setPlayback({ active: false, onBreak: true }); await vi.advanceTimersByTimeAsync(2600);
         expect(audio.paused).toBe(false);
         expect(audio.volume).toBeCloseTo(0.18 * 0.6);
         expect(audio.currentTime).toBe(30);
         // Nächster Film: dieselbe Aufnahme läuft weiter, wieder in voller Lautstärke.
-        music.setPlayback({ active: true, onBreak: false }); await vi.advanceTimersByTimeAsync(1100);
+        music.setPlayback({ active: true, onBreak: false }); await vi.advanceTimersByTimeAsync(2600);
         expect(audio.play).toHaveBeenCalledOnce();
         expect(audio.volume).toBeCloseTo(0.18);
         expect(audio.currentTime).toBe(30);
+    });
+    it('lowers and raises the volume softly between film and break, not abruptly', async () => {
+        await start();
+        music.setPlayback({ active: false, onBreak: true });
+        await vi.advanceTimersByTimeAsync(300);
+        // Nach 0,3 s hat die Blende kaum begonnen (weicher Anfang) …
+        expect(audio.volume).toBeGreaterThan(0.17);
+        await vi.advanceTimersByTimeAsync(950);
+        // … zur Hälfte liegt sie mittig zwischen 18 % und 10,8 % …
+        expect(audio.volume).toBeGreaterThan(0.13);
+        expect(audio.volume).toBeLessThan(0.16);
+        await vi.advanceTimersByTimeAsync(1350);
+        // … und kommt nach 2,5 s sanft an.
+        expect(audio.volume).toBeCloseTo(0.108);
+        music.setPlayback({ active: true, onBreak: false });
+        await vi.advanceTimersByTimeAsync(300);
+        expect(audio.volume).toBeLessThan(0.12);
+        await vi.advanceTimersByTimeAsync(2300);
+        expect(audio.volume).toBeCloseTo(0.18);
+    });
+    it('does not jump after the page was busy for a moment, it continues from where it paused', async () => {
+        await start();
+        music.setPlayback({ active: false, onBreak: true });
+        await vi.advanceTimersByTimeAsync(100);
+        const before = audio.volume;
+        // Seite eine Sekunde beschäftigt: die Uhr läuft, die Takte nicht.
+        vi.setSystemTime(Date.now() + 1000);
+        await vi.advanceTimersByTimeAsync(25);
+        expect(before - audio.volume).toBeLessThan(0.01);
     });
     it('fades out gently when the choice dialog is left', async () => {
         await start();

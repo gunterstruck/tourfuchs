@@ -1414,7 +1414,6 @@ function showChrome(story) {
         <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten"><span class="sc-ico" aria-hidden="true">♫</span><span class="sc-txt">Musik aus</span></button>
         <label class="sc-music-volume" hidden><span class="sc-sr">Lautstärke</span><input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /><output>18 %</output></label>
         <button type="button" class="sc-pause" aria-pressed="false" aria-label="Pause"><span class="sc-ico" aria-hidden="true">❚❚</span><span class="sc-txt">Pause</span></button>
-        <button type="button" class="sc-next" disabled title="Zum nächsten Erklärungsschritt" aria-label="Weiter"><span class="sc-ico" aria-hidden="true">»</span><span class="sc-txt">Weiter</span></button>
         <button type="button" class="sc-cancel" aria-label="Beenden"><span class="sc-ico" aria-hidden="true">✕</span><span class="sc-txt">Beenden</span></button>
         <span class="sc-music-status" role="status" hidden></span>`;
     document.body.append(shieldEl, toolbarEl);
@@ -1428,10 +1427,6 @@ function showChrome(story) {
         // Steht die Frage-Karte, heißt der Knopf „Fortsetzen" und meint: weiter.
         if (pauseCardEl) { hidePauseCard({ resume: true }); return; }
         playback.togglePause();
-    });
-    toolbarEl.querySelector('.sc-next').addEventListener('click', () => {
-        hidePauseCard({ resume: false });
-        playback.next();
     });
     toolbarEl.querySelector('.sc-music').addEventListener('click', () => music.setEnabled(!music.enabled));
     toolbarEl.querySelector('.sc-music-volume input').addEventListener('input', (event) => music.setVolume(Number(event.target.value) / 100));
@@ -1449,7 +1444,6 @@ function syncPlaybackControls() {
     pause.querySelector('.sc-ico').textContent = playback.paused ? '▶' : '❚❚';
     pause.setAttribute('aria-label', playback.paused ? 'Fortsetzen' : 'Pause');
     pause.setAttribute('aria-pressed', String(playback.paused));
-    toolbarEl.querySelector('.sc-next').disabled = !playback.pending?.reading;
     document.body.classList.toggle('sc-paused', playback.paused);
 }
 function syncMusicControls() {
