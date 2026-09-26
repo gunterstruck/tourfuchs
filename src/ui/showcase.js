@@ -1204,7 +1204,7 @@ function showChrome(story) {
     toolbarEl.setAttribute('aria-label', 'Live-Demo steuern');
     toolbarEl.innerHTML = `<span class="sc-story-label">${story.icon} <b>${story.title}</b></span>
         <span class="sc-progress"></span>
-        <button type="button" class="sc-music" aria-pressed="false" title="Optionale Hintergrundmusik: Tropical Island House 2024">♫ Musik aus</button>
+        <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten">♫ Musik aus</button>
         <button type="button" class="sc-pause" aria-pressed="false">Pause</button>
         <button type="button" class="sc-next" disabled title="Zum nächsten Erklärungsschritt">Weiter</button>
         <button type="button" class="sc-cancel">Beenden</button>
@@ -1236,8 +1236,10 @@ function syncPlaybackControls() {
 function syncMusicControls() {
     if (!toolbarEl) return;
     const button = toolbarEl.querySelector('.sc-music');
-    button.textContent = music.loading ? '♫ Musik lädt …' : music.enabled ? '♫ Musik an' : '♫ Musik aus';
+    // Button text names the action, not the current state.
+    button.textContent = music.loading ? '♫ Musik lädt …' : music.enabled ? '♫ Musik aus' : '♫ Musik ein';
     button.setAttribute('aria-pressed', String(music.enabled));
+    button.setAttribute('aria-label', music.enabled ? 'Hintergrundmusik ausschalten' : 'Hintergrundmusik einschalten');
     button.title = music.enabled ? 'Hintergrundmusik ausschalten' : 'Tropical Island House 2024 von Sascha Ende einschalten';
     const volume = toolbarEl.querySelector('.sc-music-volume');
     volume.hidden = !music.enabled;

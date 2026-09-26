@@ -1,12 +1,15 @@
 export const SHOWCASE_MUSIC_URL = '/audio/tropical-island-house-2024.mp3';
 
-/** One opt-in player shared by all live tutorials; no storage or third-party requests. */
+/** One player shared by all live tutorials; enabled by default, without storage or third-party requests. */
 export class ShowcaseMusic {
     constructor({ createAudio = () => new Audio(), onChange = () => {} } = {}) {
         this.createAudio = createAudio;
         this.onChange = onChange;
         this.audio = null;
-        this.enabled = false;
+        // The click that starts a tutorial also starts playback. This remains a
+        // user gesture, while a deliberate switch-off is kept for later demos
+        // in the same page session.
+        this.enabled = true;
         this.active = false;
         this.paused = false;
         this.hidden = false;
