@@ -22,6 +22,7 @@ import {
     nextShowcaseStoryInLoop,
     resetShowcaseAfterDataClear,
     SHOWCASE_AUTO_ADVANCE_SECONDS,
+    SHOWCASE_TOUCH_RESUME_SECONDS,
     seenShowcaseIds
 } from '../services/showcaseOnboarding.js';
 import { distanceKm } from '../services/geocode.js';
@@ -119,7 +120,10 @@ function guard() { if (aborted) throw new AbortError(); }
 function abortNow() {
     if (!running) return;
     aborted = true;
+    // Erst die Runde beenden (Musik klingt über zwei Sekunden aus), dann die
+    // Frage-Karte schließen – andersherum würde sie als „Pause" kurz abreißen.
     music.setPlayback({ active: false });
+    if (pauseCardEl) hidePauseCard({ resume: false });
     playback?.abort();
 }
 
@@ -151,8 +155,17 @@ function centerOf(el) {
 // Dialog rendern darüber – also die Overlays dorthin verschieben.
 function moveOverlaysInto(layer) {
     if (!layer || cursorEl?.parentElement === layer) return;
+    // Ein offener Dialog liegt über der Sperre im Body – ohne eigene Sperre
+    // lösten Tipps dort mitten in der Vorführung echte Knöpfe aus.
+    if (running && layer !== document.body) {
+        dialogShieldEl ||= createShield();
+        layer.prepend(dialogShieldEl);
+    } else {
+        dialogShieldEl?.remove();
+    }
     layer.append(cursorEl, bubbleEl);
     if (toolbarEl) layer.append(toolbarEl);
+    if (pauseCardEl) layer.append(pauseCardEl);
     scheduleToolbarPlacement();
 }
 function layerFor(el) {
@@ -262,6 +275,7 @@ function toolbarObstacles() {
         add(toolbarFocus, 10, focusWeight(r.width * r.height, window.innerWidth * window.innerHeight));
     }
     if (bubbleEl && !bubbleEl.hidden && bubbleEl.classList.contains('sc-show')) add(bubbleEl, 8, 40);
+    if (pauseCardEl) add(pauseCardEl, 8, 40);
     for (const dialog of document.querySelectorAll('dialog[open]')) {
         add(dialog, 6, 1);
         for (const el of dialog.querySelectorAll(TOOLBAR_CONTENT)) {
@@ -1305,10 +1319,89 @@ async function runStep(step) {
     }
 }
 
+// ---- Tippen während der Vorführung: anhalten und nachfragen ----
+//
+// Die Sperre fängt echte Tipps ab, damit niemand die Vorführung versehentlich
+// bedient. Früher schluckte sie sie wortlos – wer auf „Eigene Daten laden"
+// tippte, erlebte: nichts. Jetzt hält ein Tipp an und fragt: selbst
+// ausprobieren oder weiter ansehen? Die Musik läuft dabei weiter; die Karte
+// ist eine Frage, kein Ende. Antwortet niemand, geht es nach acht Sekunden von
+// selbst weiter – am Messestand bemerkt einen versehentlichen Tipp oft keiner.
+// Den Tipp an das Element darunter durchzureichen, ginge schief: Beim Beenden
+// stellt die Vorführung den alten Zustand wieder her, und die angetippte Stelle
+// gibt es danach oft nicht mehr.
+let dialogShieldEl = null;
+let pauseCardEl = null;
+let pausedByTouch = false;
+let touchResume = null;   // { timer }
+
+function createShield() {
+    const el = document.createElement('div');
+    el.className = 'sc-shield';
+    el.addEventListener('click', (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        showPauseCard();
+    });
+    return el;
+}
+function showPauseCard() {
+    if (!running || aborted || pauseCardEl) return;
+    const wasPaused = playback.paused;
+    if (!wasPaused) {
+        pausedByTouch = true;
+        playback.togglePause();
+    }
+    const s = SHOWCASE_TOUCH_RESUME_SECONDS;
+    pauseCardEl = document.createElement('div');
+    pauseCardEl.className = 'sc-pause-card';
+    pauseCardEl.setAttribute('role', 'dialog');
+    pauseCardEl.setAttribute('aria-label', 'Vorführung angehalten');
+    pauseCardEl.innerHTML = `<b>Vorführung angehalten</b>
+        <p>Möchtest du TourFuchs selbst ausprobieren?</p>
+        <button type="button" class="primary sc-pause-self">✋ Selbst ausprobieren</button>
+        <button type="button" class="sc-pause-resume" style="--sc-resume-s: ${s}s">▶ Weiter ansehen</button>
+        <small class="sc-pause-hint"${wasPaused ? ' hidden' : ''}>Geht in <b>${s}</b> s von selbst weiter</small>`;
+    (toolbarEl?.parentElement || document.body).append(pauseCardEl);
+    pauseCardEl.querySelector('.sc-pause-self').addEventListener('click', abortNow);
+    pauseCardEl.querySelector('.sc-pause-resume').addEventListener('click', () => hidePauseCard({ resume: true }));
+    // Nach einem bewussten Pause-Knopf kein Selbstlauf: Wer „Pause" drückt, meint es.
+    if (!wasPaused) startTouchResume();
+    scheduleToolbarPlacement();
+}
+function startTouchResume() {
+    const button = pauseCardEl.querySelector('.sc-pause-resume');
+    const count = pauseCardEl.querySelector('.sc-pause-hint b');
+    button.classList.add('is-counting');
+    let left = SHOWCASE_TOUCH_RESUME_SECONDS * 1000;
+    let last = Date.now();
+    touchResume = {
+        timer: setInterval(() => {
+            const now = Date.now();
+            // Nur sichtbare Zeit zählt.
+            if (!document.hidden) left -= now - last;
+            last = now;
+            button.classList.toggle('is-waiting', document.hidden);
+            if (count) count.textContent = String(Math.max(1, Math.ceil(left / 1000)));
+            if (left <= 0) hidePauseCard({ resume: true });
+        }, 100)
+    };
+}
+function hidePauseCard({ resume = false } = {}) {
+    if (touchResume) clearInterval(touchResume.timer);
+    touchResume = null;
+    pauseCardEl?.remove();
+    pauseCardEl = null;
+    const resumeNow = resume && playback?.paused;
+    pausedByTouch = false;
+    if (resumeNow) playback.togglePause();
+    else syncPlaybackControls();
+    scheduleToolbarPlacement();
+}
+
 // ---- Chrome (Shield + Toolbar) ----
 function showChrome(story) {
-    shieldEl = document.createElement('div');
-    shieldEl.className = 'sc-shield';
+    shieldEl = createShield();
     toolbarEl = document.createElement('div');
     toolbarEl.className = 'sc-toolbar';
     toolbarEl.setAttribute('role', 'group');
@@ -1330,8 +1423,15 @@ function showChrome(story) {
     document.body.classList.add('sc-running');
     emit('showcase:running', true);
     toolbarEl.querySelector('.sc-cancel').addEventListener('click', abortNow);
-    toolbarEl.querySelector('.sc-pause').addEventListener('click', () => playback.togglePause());
-    toolbarEl.querySelector('.sc-next').addEventListener('click', () => playback.next());
+    toolbarEl.querySelector('.sc-pause').addEventListener('click', () => {
+        // Steht die Frage-Karte, heißt der Knopf „Fortsetzen" und meint: weiter.
+        if (pauseCardEl) { hidePauseCard({ resume: true }); return; }
+        playback.togglePause();
+    });
+    toolbarEl.querySelector('.sc-next').addEventListener('click', () => {
+        hidePauseCard({ resume: false });
+        playback.next();
+    });
     toolbarEl.querySelector('.sc-music').addEventListener('click', () => music.setEnabled(!music.enabled));
     toolbarEl.querySelector('.sc-music-volume input').addEventListener('input', (event) => music.setVolume(Number(event.target.value) / 100));
     music.setPlayback({ active: true, paused: false, hidden: document.hidden });
@@ -1339,7 +1439,9 @@ function showChrome(story) {
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
 }
 function syncPlaybackControls() {
-    music.setPlayback({ paused: playback?.paused ?? false });
+    // Nach einem Tipp auf die Fläche läuft die Musik weiter – erst „Selbst
+    // ausprobieren" lässt sie ausklingen.
+    music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch });
     if (!toolbarEl || !playback) return;
     const pause = toolbarEl.querySelector('.sc-pause');
     pause.querySelector('.sc-txt').textContent = playback.paused ? 'Fortsetzen' : 'Pause';
@@ -1377,7 +1479,9 @@ function cleanup(story) {
     hideBubble();
     // Overlays zurück in den Body holen (falls sie in einem Dialog hingen)
     if (cursorEl) { document.body.append(cursorEl, bubbleEl); cursorEl.hidden = true; cursorEl.classList.remove('sc-click', 'sc-press'); }
+    hidePauseCard({ resume: false });
     shieldEl?.remove(); shieldEl = null;
+    dialogShieldEl?.remove(); dialogShieldEl = null;
     stopToolbarPlacement();
     toolbarEl?.remove(); toolbarEl = null;
     document.body.classList.remove('sc-running');

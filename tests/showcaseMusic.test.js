@@ -235,3 +235,27 @@ describe('Schleife der Mini-Schulungen', () => {
         expect(css).toMatch(/prefers-reduced-motion: reduce\) \{\s*\.sc-countdown-ring \{ animation: none; \}/);
     });
 });
+
+describe('Tippen während einer Vorführung', () => {
+    const showcase = readFileSync('src/ui/showcase.js', 'utf8');
+    const onboarding = readFileSync('src/services/showcaseOnboarding.js', 'utf8');
+    it('hält an und fragt nach, statt den Tipp wortlos zu schlucken', () => {
+        expect(showcase).toMatch(/function createShield\(\) \{[\s\S]*?showPauseCard\(\);/);
+        expect(showcase).toContain('✋ Selbst ausprobieren');
+        expect(showcase).toContain('▶ Weiter ansehen');
+    });
+    it('lässt die Musik während der Frage weiterlaufen', () => {
+        expect(showcase).toContain('music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch });');
+    });
+    it('geht nach acht Sekunden ohne Antwort von selbst weiter', () => {
+        expect(onboarding).toContain('export const SHOWCASE_TOUCH_RESUME_SECONDS = 8;');
+        expect(showcase).toContain('if (left <= 0) hidePauseCard({ resume: true });');
+    });
+    it('beendet mit „Selbst ausprobieren" die Runde, bevor die Karte schließt', () => {
+        const abort = showcase.slice(showcase.indexOf('function abortNow()'), showcase.indexOf('// ---- Element-Auflösung'));
+        expect(abort.indexOf('music.setPlayback({ active: false });')).toBeLessThan(abort.indexOf('hidePauseCard'));
+    });
+    it('sperrt auch offene Dialoge, damit Tipps dort keine echten Knöpfe auslösen', () => {
+        expect(showcase).toContain('dialogShieldEl ||= createShield();');
+    });
+});
