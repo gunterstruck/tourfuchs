@@ -128,7 +128,9 @@ export default defineConfig({
                 // /share-target zuerst greift.
                 importScripts: ['share-target.js'],
                 // Der Handler wird importiert, nicht als Seite geladen.
-                globIgnores: ['share-target.js'],
+                // Die Doku-Screenshots (~17 MB) braucht die App nicht – ohne
+                // Ausschluss lüde jede Installation sie mit, auch im Mobilfunk.
+                globIgnores: ['share-target.js', 'docs/**'],
                 // App-Shell + kleine Gebietsdaten vorab cachen (offline-fähig ab dem ersten Besuch)
                 globPatterns: [
                     '**/*.{js,css,html,svg,png,woff2,xlsx,csv}',

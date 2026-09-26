@@ -8,9 +8,10 @@ Die Mini-Schulungen zeigen echte Bedienhandlungen direkt in TourFuchs. Sie sind 
 - **Weiter** beendet die aktuelle Lesepause. Während einer Bedienhandlung ist die Schaltfläche deaktiviert, damit notwendige Schritte nicht übersprungen werden.
 - **Beenden** oder **Escape** bricht die Demo ab.
 - **♫ Musik aus/ein** schaltet „Tropical Island House 2024“ von Sascha Ende aus oder wieder ein. Die Musik startet mit der ersten bewusst gestarteten Schulung; der Startknopf ist zugleich die dafür notwendige Nutzerinteraktion. Eine bewusste Ausschaltung gilt für weitere Schulungen der aktuellen Sitzung.
-- Bei eingeschalteter Musik erscheint ein Lautstärkeregler (Standard 18 %, maximal 50 %). Pause hält auch die Musik an. Beenden, Escape, Fehler und reguläres Ende stoppen sie; beim Verlassen des Tabs wird sie sofort stummgeschaltet. Zurück im sichtbaren Tab läuft sie nur bei aktiver, nicht pausierter Schulung weiter.
+- Bei eingeschalteter Musik erscheint auf breiten Bildschirmen ein Lautstärkeregler in der Leiste (Standard 18 %, maximal 50 %); am Handy regeln die Lautstärketasten. Pause hält auch die Musik an. Beenden, Escape, Fehler und reguläres Ende stoppen sie; beim Verlassen des Tabs wird sie sofort stummgeschaltet. Zurück im sichtbaren Tab läuft sie nur bei aktiver, nicht pausierter Schulung weiter.
 - Die Musik kommt vom TourFuchs-Server, nicht von externen Musikdiensten. Ohne verfügbare Datei oder bei blockierter Wiedergabe erscheint ein Hinweis; die Schulung bleibt ohne Musik benutzbar. Offline-Musik wird nicht zugesichert.
 - Die Systemeinstellung „Bewegung reduzieren“ verkürzt Animationen, nicht die Lesedauer der Erklärungstexte.
+- **Die Steuerleiste weicht aus.** Sie steht nicht fest oben, sondern sucht vor jedem Schritt den Platz, an dem sie am wenigsten verdeckt: Das gerade gezeigte Element und die Sprechblase bleiben immer frei, Überschriften, Felder und Knöpfe eines offenen Fensters möglichst auch. Geht ein Fenster auf, rückt die Leiste daneben, darüber oder darunter. Ist nirgends genug Platz – am Handy mit bildschirmfüllendem Fenster die Regel –, schrumpft sie zur Symbol-Pille (Fortschritt · ♫ · ❚❚/▶ · » · ✕). Umsetzung: `src/features/showcaseToolbar.js` (Platzwahl) und `placeToolbar()` in `src/ui/showcase.js` (Messen und Setzen).
 
 ## Gebietsübersicht
 
