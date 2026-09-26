@@ -37,6 +37,7 @@ import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo } from './importWizard.js';
 import { ShowcasePlayback, ShowcaseAbortError as AbortError } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
+import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
 import { ShowcaseMusic } from '../features/showcaseMusic.js';
 
 // Beispieltabelle für die Einfüge-Vorführung: bewusst klein, mit
@@ -151,6 +152,7 @@ function moveOverlaysInto(layer) {
     if (!layer || cursorEl?.parentElement === layer) return;
     layer.append(cursorEl, bubbleEl);
     if (toolbarEl) layer.append(toolbarEl);
+    scheduleToolbarPlacement();
 }
 function layerFor(el) {
     return (el && el.closest('dialog[open]')) || document.body;
@@ -220,6 +222,111 @@ function fixedFrame(el) {
 }
 const frameOffset = (rect) => ({ x: rect?.left ?? 0, y: rect?.top ?? 0 });
 
+// ---- Steuerleiste: Platz suchen, statt oben mittig festzukleben ----
+//
+// Früher stand die Leiste fest oben mittig. Das ging schief, sobald ein Dialog
+// aufging: Die Leiste muss in den Dialog umziehen (sonst liegt sie unter dessen
+// Hintergrund und ist nicht klickbar), und dort bezog sich `fixed` auf den
+// Dialog – sie saß genau auf seinem Kopf und brach auf Dialogbreite in drei
+// Zeilen um. Auch ohne Dialog verdeckte sie gelegentlich das, was die Vorführung
+// gerade zeigt, etwa das Suchfeld oben.
+//
+// Jetzt wird vor jedem Schritt der Platz gewählt, der am wenigsten verdeckt.
+// Das vorgeführte Element und die Sprechblase sind tabu, Dialog-Inhalte
+// (Überschriften, Felder, Knöpfe) sehr teuer, leere Dialogfläche nur wenig.
+// Findet die volle Leiste keinen freien Platz – am Handy mit bildschirmfüllendem
+// Dialog die Regel –, schrumpft sie zur Symbol-Pille.
+const TOOLBAR_CONTENT = 'h1,h2,h3,h4,p,li,label,button,input,textarea,select,pre,table,canvas,img,[role="status"]';
+let toolbarFocus = null;   // das Element, das die Vorführung gerade zeigt
+let toolbarFrame = 0;
+let toolbarObserver = null;
+
+function paddedRect(el, pad) {
+    const r = el.getBoundingClientRect();
+    return { left: r.left - pad, top: r.top - pad, right: r.right + pad, bottom: r.bottom + pad };
+}
+function ownOverlay(el) {
+    return toolbarEl?.contains(el) || bubbleEl?.contains(el) || cursorEl?.contains(el);
+}
+/** Was die Leiste nicht verdecken soll – mit Gewicht je Pixel. */
+function toolbarObstacles() {
+    const list = [];
+    const add = (el, pad, weight) => {
+        if (!el?.isConnected || !el.getClientRects().length) return;
+        const r = paddedRect(el, pad);
+        if (r.right - r.left > 2 && r.bottom - r.top > 2) list.push({ r, weight });
+    };
+    if (toolbarFocus?.isConnected && !ownOverlay(toolbarFocus)) {
+        const r = toolbarFocus.getBoundingClientRect();
+        add(toolbarFocus, 10, focusWeight(r.width * r.height, window.innerWidth * window.innerHeight));
+    }
+    if (bubbleEl && !bubbleEl.hidden && bubbleEl.classList.contains('sc-show')) add(bubbleEl, 8, 40);
+    for (const dialog of document.querySelectorAll('dialog[open]')) {
+        add(dialog, 6, 1);
+        for (const el of dialog.querySelectorAll(TOOLBAR_CONTENT)) {
+            if (!ownOverlay(el)) add(el, 2, 6);
+        }
+    }
+    const preview = document.querySelector('.mobile-preview:not([hidden]) .mp-frame');
+    if (preview) add(preview, 6, 3);
+    return list;
+}
+function placeToolbar() {
+    if (!toolbarEl) return;
+    // Natürliche Größe messen: Mit dem max-width-Deckel quetschte sich die volle
+    // Leiste am Handy scheinbar „passend" ins Fenster – Fortschritt umgebrochen,
+    // „Beenden" abgeschnitten.
+    const measure = (compact) => {
+        toolbarEl.classList.toggle('sc-compact', compact);
+        toolbarEl.style.maxWidth = 'none';
+        const size = { w: toolbarEl.offsetWidth, h: toolbarEl.offsetHeight };
+        toolbarEl.style.maxWidth = '';
+        return size;
+    };
+    const wasCompact = toolbarEl.classList.contains('sc-compact');
+    const spot = chooseToolbarLayout({
+        full: measure(false),
+        compact: measure(true),
+        vw: document.documentElement.clientWidth || window.innerWidth,
+        vh: window.visualViewport?.height ?? window.innerHeight,
+        obstacles: toolbarObstacles(),
+        current: toolbarEl.dataset.x ? { x: Number(toolbarEl.dataset.x), y: Number(toolbarEl.dataset.y) } : null,
+        wasCompact
+    });
+    measure(spot.compact);
+
+    // `fixed` bezieht sich auf einen evtl. transformierten Rahmen, nicht aufs Fenster.
+    const off = frameOffset(fixedFrame(toolbarEl));
+    toolbarEl.style.left = `${Math.round(spot.x - off.x)}px`;
+    toolbarEl.style.top = `${Math.round(spot.y - off.y)}px`;
+    toolbarEl.dataset.x = String(Math.round(spot.x));
+    toolbarEl.dataset.y = String(Math.round(spot.y));
+}
+function scheduleToolbarPlacement() {
+    if (!toolbarEl || toolbarFrame) return;
+    toolbarFrame = requestAnimationFrame(() => { toolbarFrame = 0; placeToolbar(); });
+}
+function setToolbarFocus(el) {
+    toolbarFocus = el || null;
+    scheduleToolbarPlacement();
+}
+function startToolbarPlacement() {
+    placeToolbar();
+    window.addEventListener('resize', scheduleToolbarPlacement);
+    // Dialoge gehen auch ohne Zutun der Vorführung auf und zu (Ergebnis-Dialog,
+    // Import-Assistent) – das soll die Leiste sofort bemerken.
+    toolbarObserver = new MutationObserver(scheduleToolbarPlacement);
+    toolbarObserver.observe(document.body, { subtree: true, attributes: true, attributeFilter: ['open', 'hidden'] });
+}
+function stopToolbarPlacement() {
+    window.removeEventListener('resize', scheduleToolbarPlacement);
+    toolbarObserver?.disconnect();
+    toolbarObserver = null;
+    if (toolbarFrame) cancelAnimationFrame(toolbarFrame);
+    toolbarFrame = 0;
+    toolbarFocus = null;
+}
+
 // ---- Cursor-Bewegung / Klick ----
 function placeCursor(x, y) {
     const { x: ox, y: oy } = frameOffset(fixedFrame(cursorEl));
@@ -268,6 +375,7 @@ async function moveToEl(sel) {
     const el = await resolveEl(sel);
     if (!el) return null;
     moveOverlaysInto(layerFor(el));
+    setToolbarFocus(el);
     // „nearest" statt „center": schon sichtbare Ziele (Kartenmarker, Blatt-Knöpfe)
     // NICHT ins Fenster scrollen – sonst schiebt sich auf dem Handy die feste App
     // samt Kopfleiste nach oben aus dem Bild.
@@ -419,6 +527,8 @@ async function say(text, sel, pos) {
     bubbleEl.style.left = `${x - off.x}px`;
     bubbleEl.style.top = `${y - off.y}px`;
     bubbleEl.classList.add('sc-show');
+    // Erklärt die Blase etwas anderes als den letzten Klick, gilt ab jetzt das.
+    if (anchor) setToolbarFocus(anchor); else scheduleToolbarPlacement();
 }
 function hideBubble() {
     if (!bubbleEl) return;
@@ -1202,15 +1312,18 @@ function showChrome(story) {
     toolbarEl.className = 'sc-toolbar';
     toolbarEl.setAttribute('role', 'group');
     toolbarEl.setAttribute('aria-label', 'Live-Demo steuern');
+    // Jeder Knopf trägt Symbol UND Wort: In der Kompaktform (siehe
+    // placeToolbar) bleibt nur das Symbol stehen, der Name bleibt als aria-label.
     toolbarEl.innerHTML = `<span class="sc-story-label">${story.icon} <b>${story.title}</b></span>
         <span class="sc-progress"></span>
-        <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten">♫ Musik aus</button>
-        <button type="button" class="sc-pause" aria-pressed="false">Pause</button>
-        <button type="button" class="sc-next" disabled title="Zum nächsten Erklärungsschritt">Weiter</button>
-        <button type="button" class="sc-cancel">Beenden</button>
-        <label class="sc-music-volume" hidden>Lautstärke <input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /> <output>18 %</output></label>
+        <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten"><span class="sc-ico" aria-hidden="true">♫</span><span class="sc-txt">Musik aus</span></button>
+        <label class="sc-music-volume" hidden><span class="sc-sr">Lautstärke</span><input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /><output>18 %</output></label>
+        <button type="button" class="sc-pause" aria-pressed="false" aria-label="Pause"><span class="sc-ico" aria-hidden="true">❚❚</span><span class="sc-txt">Pause</span></button>
+        <button type="button" class="sc-next" disabled title="Zum nächsten Erklärungsschritt" aria-label="Weiter"><span class="sc-ico" aria-hidden="true">»</span><span class="sc-txt">Weiter</span></button>
+        <button type="button" class="sc-cancel" aria-label="Beenden"><span class="sc-ico" aria-hidden="true">✕</span><span class="sc-txt">Beenden</span></button>
         <span class="sc-music-status" role="status" hidden></span>`;
     document.body.append(shieldEl, toolbarEl);
+    startToolbarPlacement();
     // Während einer Vorführung ruht die schwebende „nächster Schritt"-Hilfe –
     // sie würde sonst über der Karte mitlaufen und die Demo überlagern.
     document.body.classList.add('sc-running');
@@ -1228,7 +1341,9 @@ function syncPlaybackControls() {
     music.setPlayback({ paused: playback?.paused ?? false });
     if (!toolbarEl || !playback) return;
     const pause = toolbarEl.querySelector('.sc-pause');
-    pause.textContent = playback.paused ? 'Fortsetzen' : 'Pause';
+    pause.querySelector('.sc-txt').textContent = playback.paused ? 'Fortsetzen' : 'Pause';
+    pause.querySelector('.sc-ico').textContent = playback.paused ? '▶' : '❚❚';
+    pause.setAttribute('aria-label', playback.paused ? 'Fortsetzen' : 'Pause');
     pause.setAttribute('aria-pressed', String(playback.paused));
     toolbarEl.querySelector('.sc-next').disabled = !playback.pending?.reading;
     document.body.classList.toggle('sc-paused', playback.paused);
@@ -1237,7 +1352,8 @@ function syncMusicControls() {
     if (!toolbarEl) return;
     const button = toolbarEl.querySelector('.sc-music');
     // Button text names the action, not the current state.
-    button.textContent = music.loading ? '♫ Musik lädt …' : music.enabled ? '♫ Musik aus' : '♫ Musik ein';
+    const label = music.loading ? '♫ Musik lädt …' : music.enabled ? '♫ Musik aus' : '♫ Musik ein';
+    button.querySelector('.sc-txt').textContent = label.replace(/^♫ /, '');
     button.setAttribute('aria-pressed', String(music.enabled));
     button.setAttribute('aria-label', music.enabled ? 'Hintergrundmusik ausschalten' : 'Hintergrundmusik einschalten');
     button.title = music.enabled ? 'Hintergrundmusik ausschalten' : 'Tropical Island House 2024 von Sascha Ende einschalten';
@@ -1248,6 +1364,7 @@ function syncMusicControls() {
     const status = toolbarEl.querySelector('.sc-music-status');
     status.textContent = music.error;
     status.hidden = !music.error;
+    scheduleToolbarPlacement();
 }
 function setProgress(i, n) {
     const el = toolbarEl?.querySelector('.sc-progress');
@@ -1259,6 +1376,7 @@ function cleanup(story) {
     // Overlays zurück in den Body holen (falls sie in einem Dialog hingen)
     if (cursorEl) { document.body.append(cursorEl, bubbleEl); cursorEl.hidden = true; cursorEl.classList.remove('sc-click', 'sc-press'); }
     shieldEl?.remove(); shieldEl = null;
+    stopToolbarPlacement();
     toolbarEl?.remove(); toolbarEl = null;
     document.body.classList.remove('sc-running');
     emit('showcase:running', false);

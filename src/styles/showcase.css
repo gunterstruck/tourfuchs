@@ -71,53 +71,106 @@
     cursor: progress;
 }
 
-/* Laufleiste oben: Titel + Abbrechen */
+/* Laufleiste: Titel, Fortschritt, Musik, Pause, Weiter, Beenden.
+   Wo sie steht, entscheidet placeToolbar() in src/ui/showcase.js – vor jedem
+   Schritt dort, wo sie am wenigsten verdeckt. Hier nur Form und Kompaktform. */
 .sc-toolbar {
     position: fixed;
     top: 12px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 12px;
     z-index: 100002;
     display: flex;
+    flex-wrap: nowrap;
     align-items: center;
-    gap: 12px;
-    padding: 7px 8px 7px 15px;
+    gap: 8px;
+    width: max-content;
+    max-width: calc(100vw - 24px);
+    box-sizing: border-box;
+    padding: 6px 7px 6px 14px;
     background: var(--color-surface, #fff);
     border: 1px solid var(--color-border, #e2e8f0);
     border-radius: 999px;
     box-shadow: 0 8px 26px rgba(15, 23, 42, 0.24);
     font-size: 0.88rem;
     font-weight: 600;
+    transition: left 0.28s ease, top 0.28s ease;
 }
-.sc-toolbar { width: max-content; max-width: calc(100% - 24px); box-sizing: border-box; flex-wrap: wrap; }
-.sc-toolbar .sc-music[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
-.sc-music-volume { flex: 1 1 100%; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 0.8rem; }
-.sc-music-volume input { width: 110px; min-height: 28px; accent-color: #0d9488; }
-.sc-music-volume output { min-width: 36px; font-variant-numeric: tabular-nums; }
-.sc-music-status { flex: 1 1 100%; max-width: 540px; font-size: 0.8rem; font-weight: 400; }
-.sc-music-volume[hidden], .sc-music-status[hidden] { display: none; }
 .sc-toolbar b { color: var(--color-primary-dark, #0f766e); }
 .sc-story-label {
-    max-width: min(46vw, 360px);
+    max-width: min(34vw, 320px);
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
 .sc-toolbar button {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
     min-height: 32px;
-    padding: 5px 13px;
+    padding: 5px 12px;
     border-radius: 999px;
     font-weight: 700;
+    white-space: nowrap;
 }
 .sc-toolbar button:disabled { opacity: 0.45; }
-.sc-paused .sc-cursor { transition: none; }
-@media (max-width: 600px) {
-    .sc-toolbar { width: calc(100% - 24px); box-sizing: border-box; flex-wrap: wrap; gap: 5px; border-radius: 18px; padding: 7px 10px; }
-    .sc-toolbar .sc-story-label { max-width: none; flex: 1 1 75%; }
-    .sc-toolbar .sc-progress { white-space: nowrap; }
-    .sc-toolbar button { flex: 1; min-height: 36px; padding-inline: 7px; white-space: nowrap; }
+.sc-toolbar .sc-music[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
+.sc-toolbar .sc-ico { font-size: 0.8em; line-height: 1; }
+.sc-toolbar .sc-pause .sc-ico,
+.sc-toolbar .sc-next .sc-ico,
+.sc-toolbar .sc-cancel .sc-ico { display: none; }
+.sc-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
+.sc-music-volume { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; }
+.sc-music-volume input { width: 72px; min-height: 28px; accent-color: #0d9488; }
+.sc-music-volume output { min-width: 34px; font-variant-numeric: tabular-nums; }
+.sc-music-status { flex: 1 1 100%; max-width: 420px; font-size: 0.8rem; font-weight: 400; }
+.sc-toolbar:has(.sc-music-status:not([hidden])) { flex-wrap: wrap; border-radius: 18px; }
+.sc-music-volume[hidden], .sc-music-status[hidden] { display: none; }
+.sc-paused .sc-cursor { transition: none; }
+
+/* Kompaktform: nur Fortschritt und Symbole. Wenn kein Platz frei ist, soll die
+   Leiste so wenig wie möglich vom Gezeigten verdecken. */
+.sc-toolbar.sc-compact { gap: 4px; padding: 4px 5px 4px 10px; }
+.sc-toolbar.sc-compact .sc-story-label,
+.sc-toolbar.sc-compact .sc-music-volume,
+.sc-toolbar.sc-compact .sc-txt { display: none; }
+.sc-toolbar.sc-compact .sc-ico { display: inline; font-size: 0.95rem; }
+.sc-toolbar.sc-compact button {
+    justify-content: center;
+    min-width: 34px;
+    min-height: 34px;
+    padding: 4px 8px;
+}
+
+/* Am Handy regeln die Lautstärketasten; der Regler kostete dort eine Zeile. */
+@media (max-width: 600px) {
+    .sc-toolbar .sc-music-volume { display: none; }
+}
+
+/* Offene Dialoge tragen durch ihre Einblend-Animation ein transform und würden
+   damit zum Bezugsrahmen für `position: fixed` – Leiste, Blase und Cursor, die
+   während der Vorführung in den Dialog umziehen, klebten dann an ihm und
+   würden an seinem Rand abgeschnitten. `transform: none` allein genügt nicht:
+   Chrome behandelt schon die laufende bzw. per fill-mode stehende
+   Transform-Animation als Bezugsrahmen. Während einer Schulung blendet der
+   Dialog deshalb nur über die Deckkraft ein. */
+body.sc-running dialog[open] {
+    animation-name: sc-dialog-fade !important;
+    transform: none !important;
+}
+@keyframes sc-dialog-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
 .sc-progress {
+    white-space: nowrap;
     color: var(--color-text-muted, #64748b);
     font-weight: 700;
     font-variant-numeric: tabular-nums;

@@ -154,6 +154,10 @@ describe('Manifest-Haken ins Betriebssystem', () => {
 
     it('bindet den Teilen-Handler in den Service Worker ein', () => {
         expect(config).toContain("importScripts: ['share-target.js']");
-        expect(config).toContain("globIgnores: ['share-target.js']");
+        expect(config).toMatch(/globIgnores: \[[^\]]*'share-target\.js'/);
+    });
+
+    it('lädt die Doku-Screenshots nicht mit jeder Installation vorab', () => {
+        expect(config).toMatch(/globIgnores: \[[^\]]*'docs\/\*\*'/);
     });
 });
