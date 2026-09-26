@@ -1938,6 +1938,18 @@ function startImportHelp(storyId) {
     startStory(story);
 }
 
+/** Demo-Übersicht öffnen – für die Pille „🎬 Live-Demos" über der Karte. */
+export function openShowcaseOverview() {
+    openPanel();
+}
+
+/** Wie viele der hier sichtbaren Demos noch nicht angesehen wurden. */
+export function unseenShowcaseCount() {
+    if (!dialog) return 0;
+    const seen = new Set(seenShowcaseIds());
+    return currentVisibleStories().filter((story) => !seen.has(story.id)).length;
+}
+
 /** Startet eine konkrete Live-Demo aus einem kontextuellen Einstieg. */
 export function startShowcaseStory(storyId) {
     if (insideMobilePreview || !dialog || running) return false;

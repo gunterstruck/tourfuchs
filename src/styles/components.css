@@ -2699,6 +2699,17 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
 }
 
 .map-fab-row:empty { display: none; }
+/* Live-Demos: ruhiger als die Arbeits-Pillen, mit kleinem Zähler für Ungesehenes. */
+.map-fab.demos-fab { border-left-color: #f59e0b; font-weight: 600; }
+.demos-fab-new {
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: #fef3c7;
+    color: #92400e;
+    font-size: 0.74rem;
+    font-weight: 700;
+}
+.demos-fab-new[hidden] { display: none; }
 
 .map-fab {
     pointer-events: auto;
