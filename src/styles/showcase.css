@@ -176,6 +176,20 @@ body.sc-running dialog[open] {
     font-variant-numeric: tabular-nums;
 }
 
+/* Musik-Knopf im Auswahlfenster zwischen zwei Filmen (oben rechts). */
+.sc-dialog-music:not([hidden]) {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 1;
+    min-height: 30px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+.sc-dialog-music[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
+
 /* ===== Intro-Panel mit Story-Kacheln ===== */
 #showcase-dialog {
     border: none;

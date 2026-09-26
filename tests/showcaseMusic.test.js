@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { ShowcaseMusic, SHOWCASE_MUSIC_URL } from '../src/features/showcaseMusic.js';
+import { ShowcaseMusic, SHOWCASE_MUSIC_URL, MUSIC_BREAK_IDLE_MS } from '../src/features/showcaseMusic.js';
 
 let music, audio, createAudio;
 function fakeAudio() {
@@ -58,6 +58,11 @@ describe('Optional tutorial music', () => {
     it('stops at completion/abort and resets for the next tutorial', async () => {
         await start(); audio.currentTime = 42;
         music.setPlayback({ active: false }); await settle();
+        // Klingt aus statt abzureißen …
+        expect(audio.paused).toBe(false);
+        expect(audio.volume).toBeGreaterThan(0);
+        await vi.advanceTimersByTimeAsync(1700);
+        // … und ist nach zwei Sekunden still und zurückgespult.
         expect(audio.paused).toBe(true);
         expect(audio.currentTime).toBe(0);
         expect(vi.getTimerCount()).toBe(0);
@@ -134,6 +139,45 @@ describe('Optional tutorial music', () => {
         music.setVolume(5); await settle(); expect(audio.volume).toBe(0.5);
         music.setVolume(-1); await settle(); expect(audio.volume).toBe(0);
         music.setVolume(NaN); expect(music.volume).toBe(0);
+    });
+    it('keeps playing, quieter, while the choice dialog is open after a film', async () => {
+        await start(); audio.currentTime = 30;
+        music.setPlayback({ active: false, onBreak: true }); await vi.advanceTimersByTimeAsync(1100);
+        expect(audio.paused).toBe(false);
+        expect(audio.volume).toBeCloseTo(0.18 * 0.6);
+        expect(audio.currentTime).toBe(30);
+        // Nächster Film: dieselbe Aufnahme läuft weiter, wieder in voller Lautstärke.
+        music.setPlayback({ active: true, onBreak: false }); await vi.advanceTimersByTimeAsync(1100);
+        expect(audio.play).toHaveBeenCalledOnce();
+        expect(audio.volume).toBeCloseTo(0.18);
+        expect(audio.currentTime).toBe(30);
+    });
+    it('fades out gently when the choice dialog is left', async () => {
+        await start();
+        music.setPlayback({ active: false, onBreak: true }); await vi.advanceTimersByTimeAsync(1100);
+        music.setPlayback({ onBreak: false }); await settle();
+        expect(audio.paused).toBe(false);
+        await vi.advanceTimersByTimeAsync(1700);
+        expect(audio.paused).toBe(true);
+        expect(audio.currentTime).toBe(0);
+        expect(vi.getTimerCount()).toBe(0);
+    });
+    it('fades out after a minute without interaction; any interaction restarts the minute', async () => {
+        await start();
+        music.setPlayback({ active: false, onBreak: true });
+        await vi.advanceTimersByTimeAsync(MUSIC_BREAK_IDLE_MS - 5000);
+        music.touch();
+        await vi.advanceTimersByTimeAsync(MUSIC_BREAK_IDLE_MS - 5000);
+        expect(music.onBreak).toBe(true);
+        expect(audio.paused).toBe(false);
+        await vi.advanceTimersByTimeAsync(5000 + 2100);
+        expect(music.onBreak).toBe(false);
+        expect(audio.paused).toBe(true);
+    });
+    it('does not start music on the break when it was switched off', async () => {
+        music.setEnabled(false);
+        music.setPlayback({ onBreak: true }); await settle();
+        expect(createAudio).not.toHaveBeenCalled();
     });
     it('releases playback and timers on page exit', async () => {
         await start(); music.dispose();
