@@ -99,6 +99,9 @@ export const CONFIG = {
 
     plzCentroidsUrl: '/geodata/plz-centroids.json',
     plzPlacesUrl: '/geodata/plz-places.json',
+    // Straßennamen (ohne Hausnummer) für die Beispielkunden, vorberechnet mit
+    // tools/demo-streets.mjs – zur Laufzeit keine Anfrage an OpenStreetMap.
+    demoStreetsUrl: '/geodata/demo-streets.json',
 
     regionStyle: {
         default: {

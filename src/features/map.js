@@ -1788,7 +1788,7 @@ export function customerPopupHtml(customer) {
     const demoBadge = isDemoCustomer(customer) ? '<span class="popup-demo-badge">Demo</span>' : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}${nr}</h3>
-        ${addr ? `<p class="popup-addr">${addr}${customer.geo === 'plz' ? ' <span class="muted small">· 📍 ca. (PLZ-Mitte)</span>' : ''}</p>` : ''}
+        ${addr ? `<p class="popup-addr">${addr}${customer.geo === 'plz' ? ' <span class="muted small">· 📍 ca. (PLZ-Mitte)</span>' : customer.geo === 'strasse' ? ' <span class="muted small">· 📍 Straße, ohne Hausnummer</span>' : ''}</p>` : ''}
         ${revenueHtml}
         ${profi && hierarchy ? `<p class="muted small popup-meta">${hierarchy}</p>` : ''}
         ${contactBlockHtml(customer)}

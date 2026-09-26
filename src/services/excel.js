@@ -5,9 +5,10 @@
  */
 
 import * as XLSX from 'xlsx';
-import { loadPlzCentroids, loadPlzPlaces } from './geocode.js';
+import { loadDemoStreets, loadPlzCentroids, loadPlzPlaces } from './geocode.js';
 import {
     DEMO_DATA_LABEL,
+    applyDemoStreets,
     demoCustomerIdentity,
     hasDemoCustomers,
     isDemoCustomer
@@ -987,6 +988,8 @@ export function createDemoCustomers(centroids, places) {
 }
 
 export async function demoCustomers() {
-    const [centroids, places] = await Promise.all([loadPlzCentroids(), loadPlzPlaces()]);
-    return createDemoCustomers(centroids, places);
+    const [centroids, places, streets] = await Promise.all([loadPlzCentroids(), loadPlzPlaces(), loadDemoStreets()]);
+    const customers = createDemoCustomers(centroids, places);
+    applyDemoStreets(customers, streets);
+    return customers;
 }
