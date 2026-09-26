@@ -156,18 +156,6 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(block).toContain('(frisch && isVisible(frisch) ? frisch : el).click();');
     });
 
-    it('teilt Lasso-Auswahl und Tourplanung in kurze getrennte Schulungen', () => {
-        const lasso = STORIES.find((story) => story.id === 'lasso');
-        const keys = lasso.steps.filter((step) => step.t === 'run').map((step) => step.key);
-
-        expect(keys.indexOf('openLassoBriefing')).toBeLessThan(keys.indexOf('pickLassoCustomers'));
-        expect(keys.indexOf('pickLassoCustomers')).toBeLessThan(keys.indexOf('lassoPickedToTour'));
-        expect(keys).not.toContain('showRoadRoute');
-        expect(keys).not.toContain('gotoTour');
-        expect(lasso.steps.at(-1)?.text).toContain('Deine Tour, Schritt für Schritt');
-        expect(lasso.steps.at(-1)?.text).toContain('keinen KI-Bericht');
-    });
-
     it('zählt den Tourprozess in jeder Tiefe als drei Stufen', () => {
         // „1. Startpunkt · 3. Vorschläge · 4. Meine Tour" ließ in der Übersicht
         // eine Lücke: Die 2 lag im Startpunkt-Block und war zugeklappt nicht zu
@@ -181,14 +169,15 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('die Stories in fester Reihenfolge', () => {
-        // Erst was fängt (Gebiet, Tour, Lasso, Briefing), dann das Handwerk,
-        // zum Schluss die Verschlüsselung.
-        expect(STORIES.map((s) => s.id)).toEqual(['bezirk-zum-kunden', 'tour', 'handy-qr', 'lasso', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'gebietsueberblick', 'simulation', 'service-tag', 'empfang', 'tresor']);
+        // Erst was fängt (Gebiet, Tour, Briefing), dann das Handwerk,
+        // zum Schluss die Verschlüsselung. Lasso und Briefing sind seit dem
+        // 26.09.2026 eine Demo – inhaltlich waren sie fast gleich.
+        expect(STORIES.map((s) => s.id)).toEqual(['bezirk-zum-kunden', 'tour', 'handy-qr', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'gebietsueberblick', 'simulation', 'service-tag', 'empfang', 'tresor']);
     });
 
     it('am fokussierten Desktop entfallen Empfangs- und deaktivierte Modul-Stories', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['tour', 'handy-qr', 'lasso', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'tresor']);
+        expect(ids).toEqual(['tour', 'handy-qr', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'tresor']);
         expect(ids).not.toContain('empfang');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -207,7 +196,7 @@ describe('Showcase-Stories: Guardrail', () => {
 
     it('am Smartphone entfallen die desktop-only Stories, dafür kommt die Empfangs-Story', () => {
         const ids = visibleStories({ isDesktop: false }).map((s) => s.id);
-        expect(ids).toEqual(['tour', 'lasso', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'empfang', 'tresor']);
+        expect(ids).toEqual(['tour', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'empfang', 'tresor']);
         expect(ids).not.toContain('handy-qr');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
@@ -377,13 +366,13 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(bubble).not.toContain('`${Math.max(58, y)}px`');
     });
 
-    it('zeigt die Lasso-Demo den ganzen Bogen: umfahren, briefen, entscheiden', () => {
+    it('zeigt die Briefing-Demo den ganzen Bogen: umfahren, briefen, entscheiden', () => {
         // Das Hauptargument des Produkts sind zwei Hälften: die Geste UND der
         // Prompt, den man in eine KI seiner Wahl trägt. Eine Vorführung, die
         // nach der Auswahlkarte aufhört, zeigt die hübsche Hälfte und lässt die
         // neue weg. Der Rückweg gehört dazu: Erst „welche zwei nehme ich
         // wirklich mit?" macht aus dem Briefing eine Entscheidung.
-        const lasso = STORIES.find((story) => story.id === 'lasso');
+        const lasso = STORIES.find((story) => story.id === 'briefing');
         const keys = lasso.steps.filter((step) => step.t === 'run').map((step) => step.key);
 
         expect(keys).toContain('drawLasso');
@@ -404,17 +393,14 @@ describe('Showcase-Stories: Guardrail', () => {
     });
 
     it('legt die Briefing-Demo den Schwerpunkt wirklich auf den Prompt', () => {
-        // Zwei Demos zum selben Weg sind Absicht – aber nur, wenn sie sich
-        // unterscheiden. „lasso" trägt die Geste, „briefing" den Prompt: Es
-        // wird durchgescrollt, benannt was drinsteht UND was nicht, und die
-        // Wahl des Assistenten ausgesprochen. Fällt das weg, ist es eine
-        // Dublette.
+        // Der Prompt wird durchgescrollt, benannt was drinsteht UND was nicht,
+        // und gesagt, wohin er gehört. Die frühere Lasso-Demo ist darin
+        // aufgegangen – es gibt nur noch diese eine.
         const briefing = STORIES.find((story) => story.id === 'briefing');
-        const lasso = STORIES.find((story) => story.id === 'lasso');
         const mitDaten = visibleStorySteps(briefing, { hasOwnData: true });
 
+        expect(STORIES.some((story) => story.id === 'lasso')).toBe(false);
         expect(mitDaten.some((step) => step.key === 'scrollPromptThrough')).toBe(true);
-        expect(lasso.steps.some((step) => step.key === 'scrollPromptThrough')).toBe(false);
         // Was NICHT im Prompt steht, ist die Frage, die im Konzern als zweite
         // kommt – sie wird am zuständigen Absatz beantwortet.
         expect(mitDaten.some((step) => step.sel === '.briefing-manual-note')).toBe(true);
@@ -422,9 +408,12 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(mitDaten.some((step) => /freigegeben/.test(step.text || '') && /Copilot/.test(step.text || ''))).toBe(true);
         expect(mitDaten.some((step) => /keine Schnittstelle|ruft keine/.test(step.text || ''))).toBe(true);
 
-        // Der Anlauf bleibt kurz: vor dem Briefing höchstens ein erklärender Satz.
+        // Der Anlauf bleibt kurz: umfahren, „wer ist dran?", der Knopf.
         const bisBriefing = mitDaten.slice(0, mitDaten.findIndex((step) => step.key === 'openLassoBriefing'));
-        expect(bisBriefing.filter((step) => step.t === 'say').length).toBeLessThanOrEqual(2);
+        expect(bisBriefing.filter((step) => step.t === 'say').length).toBeLessThanOrEqual(3);
+        // Der Knopf, der zum Prompt führt, wird gezeigt – und angetippt.
+        expect(bisBriefing.some((step) => step.sel === '#btn-lasso-brief')).toBe(true);
+        expect(showcaseSource).toContain("await clickEl('#btn-lasso-brief')");
 
         // Auch diese Demo endet in der Entscheidung, nicht im Dialog.
         expect(mitDaten.at(-1)?.text).toContain('Entscheidung');
@@ -432,11 +421,11 @@ describe('Showcase-Stories: Guardrail', () => {
         expect(briefing.mutatesTour).toBe(true);
     });
 
-    it('zeigt den Prompt in Lasso- und Briefing-Demo auch mit Beispielkunden – nur zur Ansicht', () => {
+    it('zeigt den Prompt in der Briefing-Demo auch mit Beispielkunden – nur zur Ansicht', () => {
         // Früher sah man mit Beispielkunden nur die Sperre. Jetzt öffnet die
         // Vorführung das Briefing als Ansicht (`preview`): Prompt sichtbar,
         // Kopier-Knopf gesperrt. Der Weg danach wird in Schritten erzählt.
-        for (const id of ['lasso', 'briefing']) {
+        for (const id of ['briefing']) {
             const story = STORIES.find((s) => s.id === id);
             for (const hasOwnData of [false, true]) {
                 const steps = visibleStorySteps(story, { hasOwnData });

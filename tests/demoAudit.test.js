@@ -132,9 +132,9 @@ describe('Versprochene Laufzeiten', () => {
     });
 
     it('verspricht mit eigenen Daten die Laufzeit, die dann wirklich gilt', () => {
-        // Lasso und Briefing zeigen den Prompt seit dem 26.09.2026 in beiden
+        // Die Briefing-Demo zeigt den Prompt seit dem 26.09.2026 in beiden
         // Datenlagen (mit Beispielkunden als reine Ansicht) – also gilt eine Zahl.
-        const lasso = STORIES.find((story) => story.id === 'lasso');
+        const lasso = STORIES.find((story) => story.id === 'briefing');
         expect(lasso.durationOwnData).toBeUndefined();
         expect(storyDuration(lasso, { hasOwnData: true })).toBe(lasso.duration);
         expect(storyDuration({ duration: 50, durationOwnData: 60, steps: [] }, { hasOwnData: true })).toBe(60);

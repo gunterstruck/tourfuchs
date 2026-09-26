@@ -427,7 +427,7 @@ describe('Lasso-Demo', () => {
     });
 
     it('nutzt nur Helfer, die es wirklich gibt', () => {
-        const story = stories.slice(stories.indexOf("id: 'lasso'"), stories.indexOf("id: 'briefing'"));
+        const story = stories.slice(stories.indexOf("id: 'briefing'"), stories.indexOf("id: 'chancen'"));
         const keys = [...story.matchAll(/key: '([^']+)'/g)].map((match) => match[1]);
         expect(keys.length).toBeGreaterThan(0);
         for (const key of keys) expect(showcase).toContain(`async ${key}(`);
@@ -522,5 +522,19 @@ describe('„In der Nähe" sieht dieselbe Menge wie die Karte', () => {
     it('nimmt die gezeichneten Kunden, nicht die global sichtbaren', () => {
         expect(nearby).toContain('const pool = customersOnMap();');
         expect(nearby).not.toContain('visibleCustomers');
+    });
+});
+
+describe('Briefing-Knopf in der Vorführung', () => {
+    const lassoSource = readFileSync(resolve(process.cwd(), 'src/ui/lasso.js'), 'utf8');
+    const showcaseSource = readFileSync(resolve(process.cwd(), 'src/ui/showcase.js'), 'utf8');
+
+    it('zeigt „📋 Briefing über alle" in der Demo auch mit Beispielkunden – als reine Ansicht', () => {
+        // Gemeldet: In der Demo fehlte der Knopf, und das Briefing ging ohne
+        // sichtbaren Klick auf. Außerhalb der Demo bleibt die Sperre bestehen.
+        expect(lassoSource).toContain('real.length >= 2 || previewBrief');
+        expect(lassoSource).toContain('{ preview: briefingPreview && onlyDemo }');
+        expect(showcaseSource).toContain('setLassoBriefingPreview(true);');
+        expect(showcaseSource).toContain('setLassoBriefingPreview(false);');
     });
 });

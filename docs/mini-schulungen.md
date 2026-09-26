@@ -20,7 +20,7 @@ Die Mini-Schulungen zeigen echte Bedienhandlungen direkt in TourFuchs. Sie sind 
 
 ## Reihenfolge
 
-Erst was fängt, dann das Handwerk, zum Schluss die Verschlüsselung. Am Schreibtisch (mit aktivierter Gebietsplanung): Vom Bezirk zum Kunden · Tour · Tour aufs Handy · Lasso · Briefing · Chancen · Von der Excel-Liste zur Kundenkarte · Excel-Liste importieren · Mein Gebiet im Überblick · Simulation · (Service-Tag mit Service-Modul) · Tresor. Am Handy dieselbe Reihenfolge ohne die Schreibtisch-Filme, dafür mit „Tour empfangen“ vor dem Tresor. Die Schleife und der Selbststart der Begrüßung beginnen mit dem ersten noch nicht gesehenen Film dieser Liste.
+Erst was fängt, dann das Handwerk, zum Schluss die Verschlüsselung. Am Schreibtisch (mit aktivierter Gebietsplanung): Vom Bezirk zum Kunden · Tour · Tour aufs Handy · Kunde(n) wählen / Briefing / Entscheiden / Tour wählen · Chancen · Von der Excel-Liste zur Kundenkarte · Excel-Liste importieren · Mein Gebiet im Überblick · Simulation · (Service-Tag mit Service-Modul) · Tresor. Am Handy dieselbe Reihenfolge ohne die Schreibtisch-Filme, dafür mit „Tour empfangen“ vor dem Tresor. Die Schleife und der Selbststart der Begrüßung beginnen mit dem ersten noch nicht gesehenen Film dieser Liste.
 
 ## Vom Bezirk zum Kunden
 
@@ -69,7 +69,7 @@ Diese Straßenroute ist **vorberechnet** (`tools/demo-route.mjs` → `public/geo
 
 Die Optimierung sucht eine kurze, sinnvolle Reihenfolge anhand von Luftlinienentfernungen; sie garantiert weder die global kürzeste Strecke noch die kürzeste Straßenroute.
 
-Lasso- und Briefing-Schulung zeigen den **fertigen Prompt** – mit eigenen Kunden den echten, mit Beispielkunden als reine Ansicht („Beispiel · nur zur Ansicht", Kopier-Knopf gesperrt). Danach erklären sie den Weg in kurzen Blasen: ① Ein Klick legt den Prompt in die Zwischenablage. ② Die KI öffnen, die die Firma freigegeben hat – zum Beispiel Microsoft 365 Copilot; Kundendaten gehören aus Datenschutzgründen nur dorthin. ③ Einfügen und selbst absenden, zurück kommt das Briefing. ④ Mit dem Briefing zurück zu TourFuchs und die Tour planen. Die Vorführung kopiert nichts, öffnet keinen Assistenten und ruft keinen KI-Bericht ab. Zugriff auf eigene Quellen setzt beim gewählten Assistenten passende Anbindungen und Berechtigungen voraus. Außerhalb der Vorführung bleibt es dabei: Mit Beispielkunden baut TourFuchs keinen Prompt zum Kopieren.
+Die Schulung „Kunde(n) wählen / Briefing / Entscheiden / Tour wählen“ tippt „📋 Briefing über alle“ sichtbar an (in der Vorführung auch mit Beispielkunden) und zeigt den **fertigen Prompt** – mit eigenen Kunden den echten, mit Beispielkunden als reine Ansicht („Beispiel · nur zur Ansicht", Kopier-Knopf gesperrt). Danach erklären sie den Weg in kurzen Blasen: ① Ein Klick legt den Prompt in die Zwischenablage. ② Die KI öffnen, die die Firma freigegeben hat – zum Beispiel Microsoft 365 Copilot; Kundendaten gehören aus Datenschutzgründen nur dorthin. ③ Einfügen und selbst absenden, zurück kommt das Briefing. ④ Mit dem Briefing zurück zu TourFuchs und die Tour planen. Die Vorführung kopiert nichts, öffnet keinen Assistenten und ruft keinen KI-Bericht ab. Zugriff auf eigene Quellen setzt beim gewählten Assistenten passende Anbindungen und Berechtigungen voraus. Außerhalb der Vorführung bleibt es dabei: Mit Beispielkunden baut TourFuchs keinen Prompt zum Kopieren.
 
 ## Wartung und Prüfung
 

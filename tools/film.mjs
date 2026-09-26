@@ -282,7 +282,7 @@ const FASSUNGEN = {
 // ---- Hauptlauf ------------------------------------------------------------
 const arg = (name, fallback) => (process.argv.slice(2).find((a) => a.startsWith(`--${name}=`)) || '').split('=')[1] || fallback;
 const argFormat = arg('format', 'quer');
-const demoId = arg('demo', 'lasso');
+const demoId = arg('demo', 'briefing');
 const captureMobileFrames = process.argv.includes('--capture-mobile-frames');
 const format = FORMATE[argFormat];
 const fassung = FASSUNGEN[demoId];
