@@ -462,10 +462,16 @@ describe('Showcase-Stories: Guardrail', () => {
 
         expect(briefing.title).toContain('Briefing vorbereiten');
         expect(briefing.steps.some((step) => step.key === 'openCustomerBriefing')).toBe(true);
-        expect(briefing.steps.some((step) => step.sel === '#customer-briefing-dialog')).toBe(true);
-        expect(briefing.steps.some((step) => step.text?.includes('keinen KI-Bericht'))).toBe(true);
-        expect(briefing.steps.some((step) => step.text?.includes('Kopierbestätigung'))).toBe(true);
-        expect(briefing.steps.at(-1).text).toContain('KI-Antwort prüfst du');
+        // Seit 26.09.2026: der Prompt wird gezeigt (mit Beispielkunden als reine
+        // Ansicht), danach derselbe Weg zur freigegebenen Firmen-KI wie im Briefing-Film.
+        expect(briefing.steps.some((step) => step.key === 'revealCustomerPrompt')).toBe(true);
+        const texts = briefing.steps.map((step) => step.text || '').join(' ');
+        expect(texts).toContain('Zwischenablage');
+        expect(texts).toMatch(/freigegeben.*Microsoft 365 Copilot/);
+        expect(texts).toContain('nichts kopiert und kein Assistent geöffnet');
+        expect(briefing.steps.some((step) => step.sel === '#customer-briefing-footer')).toBe(true);
+        // Start zu Hause in Dortmund – wie in der Tour-Demo.
+        expect(briefing.steps.some((step) => step.key === 'pickHome')).toBe(true);
         expect(briefing.steps.some((step) => step.sel === '[data-briefing-fallback]')).toBe(false);
         expect(briefing.steps.some((step) => step.key === 'closeCustomerBriefing')).toBe(true);
         expect(briefing.steps.some((step) => step.key === 'checkVisit')).toBe(false);
@@ -540,5 +546,27 @@ describe('Live-Demos direkt im Fenster „Eigene Daten laden"', () => {
         expect(showcase).toContain('if (backToImport && !failure) {');
         expect(showcase).toContain("onBreak: !backToImport && (completed || Boolean(failure))");
         expect(showcase).toMatch(/if \(backToImport && !failure\) \{[\s\S]*?openOwnDataDialog\(\);\s*return;/);
+    });
+});
+
+describe('Aufs Handy schließt an die Tour-Demo an', () => {
+    const showcase = readFileSync(resolve(process.cwd(), 'src/ui/showcase.js'), 'utf8');
+
+    it('übergibt dieselbe Tour (Dortmund → Duisburg) und endet mit ihr auf der Karte', () => {
+        const story = STORIES.find((s) => s.id === 'handy-qr');
+        const keys = story.steps.filter((s) => s.t === 'run').map((s) => s.key);
+        expect(keys).toContain('buildDemoTourQuietly');
+        expect(keys).not.toContain('pickStart');
+        expect(keys.indexOf('closeQr')).toBeLessThan(keys.indexOf('focusTourRoute'));
+        for (const key of keys) expect(showcase, `Helfer fehlt: ${key}`).toContain(`async ${key}(`);
+        expect(story.steps.some((s) => /Dortmund.*Duisburg/.test(s.text || ''))).toBe(true);
+    });
+
+    it('zeigt das Kundenbriefing in der Demo als Vorschau, außerhalb bleibt die Sperre', () => {
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/customerBriefing.js'), 'utf8');
+        expect(ui).toContain("if (isDemoCustomer(customer) && !briefingPreview)");
+        expect(ui).toContain('data-briefing-open disabled');
+        expect(showcase).toContain('setCustomerBriefingPreview(true);');
+        expect(showcase).toContain('setCustomerBriefingPreview(false);');
     });
 });

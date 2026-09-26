@@ -62,12 +62,14 @@ function tourLines(context) {
 
 /**
  * @param {object} customer
- * @param {object} context    TourFuchs-Kontext (Tour, geplanter Tag, letzter Besuch)
+ * @param {object} context    TourFuchs-Kontext (Tour, geplanter Tag, letzter Besuch);
+ *                            `preview: true` nur für die Ansicht in der Live-Demo –
+ *                            dann darf ein Beispielkunde im Text stehen
  * @param {object} assistant  liefert die Quellenzeile des Ziels
  * @param {object[]} sources  eigene Nachschlagequellen des Nutzers (optional)
  */
 export function buildCustomerBriefingPrompt(customer, context = {}, assistant = null, sources = []) {
-    if (isDemoCustomer(customer)) {
+    if (isDemoCustomer(customer) && context.preview !== true) {
         throw new Error('Für Demo-Kunden wird kein externer Assistenten-Prompt erzeugt.');
     }
     const sourceInstruction = value(assistant?.promptSources) || DEFAULT_SOURCE_INSTRUCTION;
