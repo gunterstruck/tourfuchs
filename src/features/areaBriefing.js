@@ -62,8 +62,9 @@ function referenceDate(context = {}) {
  * Die Reihenfolge der Eingabe bleibt erhalten – sie ist bereits sinnvoll
  * sortiert (Entfernung bzw. „Überfällige zuerst").
  */
-export function areaBriefingSelection(customers = [], { limit = AREA_BRIEFING_LIMIT } = {}) {
-    const real = customers.filter((customer) => customer && !isDemoCustomer(customer));
+export function areaBriefingSelection(customers = [], { limit = AREA_BRIEFING_LIMIT, includeDemo = false } = {}) {
+    // Beispielkunden nur für die reine Ansicht in der Vorführung (`includeDemo`).
+    const real = customers.filter((customer) => customer && (includeDemo || !isDemoCustomer(customer)));
     return {
         included: real.slice(0, Math.max(1, limit)),
         total: real.length,
@@ -91,12 +92,14 @@ function customerLine(customer, index, now) {
 
 /**
  * @param {object[]} customers  bereits ausgewählte Kunden (siehe areaBriefingSelection)
- * @param {object} context      { areaLabel, plannedDate, total }
+ * @param {object} context      { areaLabel, plannedDate, total, preview }
+ *                              `preview`: nur für die Ansicht in der Vorführung –
+ *                              dann dürfen Beispielkunden im Text stehen.
  * @param {object} assistant    optional, liefert die Quellenzeile
  * @param {object[]} sources    eigene Nachschlagequellen des Nutzers (optional)
  */
 export function buildAreaBriefingPrompt(customers = [], context = {}, assistant = null, sources = []) {
-    const list = customers.filter((customer) => customer && !isDemoCustomer(customer));
+    const list = customers.filter((customer) => customer && (context.preview === true || !isDemoCustomer(customer)));
     if (list.length === 0) {
         throw new Error('Für Beispielkunden wird kein Gebiets-Briefing erzeugt.');
     }

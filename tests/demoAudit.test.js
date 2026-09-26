@@ -132,14 +132,12 @@ describe('Versprochene Laufzeiten', () => {
     });
 
     it('verspricht mit eigenen Daten die Laufzeit, die dann wirklich gilt', () => {
-        // Die Lasso-Demo zeigt mit eigenen Kunden zusätzlich den echten Prompt
-        // (`realOnly`) – gemessen 61 s gegen 51 s mit der Kulisse. Ohne eigene
-        // Zahl verspräche das Panel ausgerechnet dem Nutzer mit Daten zehn
-        // Sekunden zu wenig.
+        // Lasso und Briefing zeigen den Prompt seit dem 26.09.2026 in beiden
+        // Datenlagen (mit Beispielkunden als reine Ansicht) – also gilt eine Zahl.
         const lasso = STORIES.find((story) => story.id === 'lasso');
-        expect(lasso.durationOwnData).toBeGreaterThan(lasso.duration);
-        expect(storyDuration(lasso, { hasOwnData: true })).toBe(lasso.durationOwnData);
-        expect(storyDuration(lasso, { hasOwnData: false })).toBe(lasso.duration);
+        expect(lasso.durationOwnData).toBeUndefined();
+        expect(storyDuration(lasso, { hasOwnData: true })).toBe(lasso.duration);
+        expect(storyDuration({ duration: 50, durationOwnData: 60, steps: [] }, { hasOwnData: true })).toBe(60);
 
         // Wo Schritte an der Datenlage hängen, MUSS es die zweite Zahl geben.
         for (const story of STORIES) {
