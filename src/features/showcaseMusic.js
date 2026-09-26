@@ -1,5 +1,14 @@
 export const SHOWCASE_MUSIC_URL = '/audio/tropical-island-house-2024.mp3';
 
+/** Kurzes Ein-/Ausblenden, etwa beim Musik-Knopf. */
+export const MUSIC_FADE_MS = 350;
+/** Ende einer Schulungsrunde: sanft ausklingen statt abreißen. */
+export const MUSIC_STOP_FADE_MS = 2000;
+/** Zwischen zwei Filmen läuft die Musik leiser weiter … */
+export const MUSIC_BREAK_VOLUME_FACTOR = 0.6;
+/** … und klingt aus, wenn so lange niemand etwas im Auswahlfenster tut. */
+export const MUSIC_BREAK_IDLE_MS = 60_000;
+
 /** One player shared by all live tutorials; enabled by default, without storage or third-party requests. */
 export class ShowcaseMusic {
     constructor({ createAudio = () => new Audio(), onChange = () => {} } = {}) {
@@ -19,30 +28,63 @@ export class ShowcaseMusic {
         this.wanted = false;
         this.generation = 0;
         this.fadeTimer = null;
+        // Pause zwischen zwei Filmen: Das Auswahlfenster ist offen, die Runde
+        // läuft noch. Die Musik spielt dann leiser weiter, statt abzureißen.
+        this.onBreak = false;
+        this.breakTimer = null;
     }
 
     setEnabled(enabled) {
         this.enabled = Boolean(enabled);
         this.error = '';
-        this.sync();
+        this.sync({ fadeOutMs: MUSIC_FADE_MS });
     }
 
-    setPlayback({ active = this.active, paused = this.paused, hidden = this.hidden } = {}) {
+    setPlayback({ active = this.active, paused = this.paused, hidden = this.hidden, onBreak = this.onBreak } = {}) {
+        // Pause soll sofort still sein; nur das Ende einer Runde klingt lang aus.
+        const pausing = paused && !this.paused;
         this.active = active;
         this.paused = paused;
         this.hidden = hidden;
-        this.sync();
+        this.onBreak = onBreak;
+        this.syncBreakTimer();
+        this.sync({ fadeOutMs: pausing ? MUSIC_FADE_MS : MUSIC_STOP_FADE_MS });
+    }
+
+    /** Jemand bedient das Auswahlfenster: Der Leerlauf beginnt von vorn. */
+    touch() {
+        if (!this.onBreak || this.active) return;
+        clearTimeout(this.breakTimer);
+        this.breakTimer = null;
+        this.syncBreakTimer();
+    }
+
+    syncBreakTimer() {
+        const idle = this.onBreak && !this.active;
+        if (!idle) {
+            clearTimeout(this.breakTimer);
+            this.breakTimer = null;
+        } else if (!this.breakTimer) {
+            this.breakTimer = setTimeout(() => {
+                this.breakTimer = null;
+                this.setPlayback({ onBreak: false });
+            }, MUSIC_BREAK_IDLE_MS);
+        }
+    }
+
+    targetVolume() {
+        return this.active ? this.volume : this.volume * MUSIC_BREAK_VOLUME_FACTOR;
     }
 
     setVolume(value) {
         if (!Number.isFinite(Number(value))) return;
         this.volume = Math.max(0, Math.min(0.5, Number(value)));
-        if (this.wanted && !this.loading) this.fade(this.volume);
+        if (this.wanted && !this.loading) this.fade(this.targetVolume());
         this.onChange();
     }
 
-    sync() {
-        const wanted = this.enabled && this.active && !this.paused && !this.hidden;
+    sync({ fadeOutMs = MUSIC_STOP_FADE_MS } = {}) {
+        const wanted = this.enabled && (this.active || this.onBreak) && !this.paused && !this.hidden;
         if (wanted !== this.wanted) {
             this.wanted = wanted;
             const generation = ++this.generation;
@@ -53,11 +95,15 @@ export class ShowcaseMusic {
                 if (this.hidden) this.silence();
                 else this.fade(0, () => {
                     this.audio?.pause();
-                    if (!this.active && this.audio) this.audio.currentTime = 0;
-                });
+                    if (!this.active && !this.onBreak && this.audio) this.audio.currentTime = 0;
+                }, fadeOutMs);
             }
         } else if (this.hidden && this.audio) this.silence();
-        if (!this.active && this.audio?.paused) this.audio.currentTime = 0;
+        // Wechsel Film <-> Pause: gleiche Aufnahme, nur die Lautstärke gleitet.
+        else if (wanted && !this.loading && this.audio && Math.abs(this.audio.volume - this.targetVolume()) > 0.001) {
+            this.fade(this.targetVolume(), undefined, MUSIC_STOP_FADE_MS / 2);
+        }
+        if (!this.active && !this.onBreak && this.audio?.paused) this.audio.currentTime = 0;
         this.onChange();
     }
 
@@ -85,7 +131,7 @@ export class ShowcaseMusic {
                     return;
                 }
                 this.loading = false;
-                this.fade(this.volume);
+                this.fade(this.targetVolume());
                 this.onChange();
             }).catch(() => {
                 if (generation === this.generation) this.fail();
@@ -108,14 +154,14 @@ export class ShowcaseMusic {
         this.onChange();
     }
 
-    fade(target, done) {
+    fade(target, done, ms = MUSIC_FADE_MS) {
         clearInterval(this.fadeTimer);
         this.fadeTimer = null;
         if (!this.audio) { done?.(); return; }
         const start = this.audio.volume;
         const started = Date.now();
         this.fadeTimer = setInterval(() => {
-            const fraction = Math.min(1, (Date.now() - started) / 350);
+            const fraction = Math.min(1, (Date.now() - started) / ms);
             this.audio.volume = start + (target - start) * fraction;
             if (fraction === 1) {
                 clearInterval(this.fadeTimer);
@@ -133,6 +179,9 @@ export class ShowcaseMusic {
 
     dispose() {
         ++this.generation;
+        clearTimeout(this.breakTimer);
+        this.breakTimer = null;
+        this.onBreak = false;
         this.active = false;
         this.enabled = false;
         this.wanted = false;
