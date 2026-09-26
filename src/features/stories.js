@@ -167,75 +167,35 @@ export const STORIES = [
         ]
     },
     {
-        // Das Hauptgericht – und die einzige Demo, die den ganzen Bogen zeigt:
-        // umfahren, briefen lassen, entscheiden. Eine Geste statt eines
-        // Formulars, danach ein Prompt statt eines Berichts, am Ende eine Tour
-        // statt einer Liste. Genau deshalb steht sie weit vorn.
+        // Der Weg vom Gebiet zur Entscheidung: umfahren, den Prompt ansehen,
+        // die freigegebene Firmen-KI fragen, zurück und aussuchen.
         //
-        // Sie ist zugleich die Vorlage für den LinkedIn-Film
-        // (docs/film-lasso-briefing.md): Wer eigene Daten geladen hat, sieht
-        // hier den echten Prompt – die Schritte mit `realOnly` treten dann an
-        // die Stelle der Demo-Vorschau.
-        id: 'lasso',
-        icon: '🖊️',
-        title: 'Fläche umfahren, Briefing bekommen',
-        blurb: 'Einkreisen, fragen „Wen zuerst?", die richtigen in die Tour.',
-        duration: 77,   // 26.09.2026: Desktop 78 s, Handy 79 s – Prompt jetzt in beiden Datenlagen
-        needsData: true,
-        mutatesTour: true,   // am Ende wandern zwei Kunden in die Tour
-        steps: [
-            { t: 'run', key: 'ensureDemo' },
-            { t: 'run', key: 'focusDemoTourArea' },
-            { t: 'say', text: 'Du bist in einer Gegend unterwegs und siehst deine Kunden auf der Karte.', ms: 2400 },
-            { t: 'say', text: 'Statt Regler zu schieben: einfach die Fläche umfahren, die dich interessiert.', sel: '#btn-lasso', ms: 2800 },
-            { t: 'run', key: 'drawLasso' },
-            { t: 'say', text: 'TourFuchs zeigt dir sofort, wen du erwischt hast – Anzahl, fällige Kunden, Orte. Erst sehen, dann entscheiden.', sel: '.popup-lasso', ms: 3400, pos: 'top' },
-
-            // ---- Der zweite Handgriff: das Briefing über genau diese Kunden ----
-            { t: 'say', text: 'Und jetzt die Frage, die TourFuchs allein nicht beantworten kann: Was ist bei diesen Kunden gerade los?', sel: '.popup-lasso', ms: 3400, pos: 'top' },
-            { t: 'run', key: 'openLassoBriefing' },
-            { t: 'run', key: 'revealAreaPrompt' },
-            { t: 'say', text: 'Das ist der fertige Prompt. Er entsteht hier auf deinem Gerät – aus Name, Kundennummer, Ort und Fälligkeit. Umsatz, Telefon und Straße bleiben draußen.', sel: '.briefing-prompt-visible', ms: 4600 },
-            ...PROMPT_WAY,
-            { t: 'run', key: 'closeLassoBriefing' },
-
-            // ---- Der Rückweg: entscheiden. Die Auswahl liegt noch da. ----
-            { t: 'say', text: 'Zurück auf der Karte liegt deine Auswahl noch genau so da. Jetzt entscheidest du: Wen fährst du wirklich an?', sel: '.popup-lasso', ms: 3600, pos: 'top' },
-            { t: 'run', key: 'pickLassoCustomers' },
-            { t: 'say', text: 'Zwei angehakt – und der Knopf meint jetzt genau die zwei.', sel: '.popup-lasso [data-lasso="tour"]', ms: 2800 },
-            { t: 'run', key: 'lassoPickedToTour' },
-
-            { t: 'say', text: 'Die ausgewählten Kunden sind vorgemerkt. Startpunkt und Reihenfolge erklärt die eigene Schulung „Deine Tour, Schritt für Schritt“. Diese Demo hat keinen KI-Bericht abgerufen.', ms: 5000, pos: 'bottom' }
-        ]
-    },
-    {
-        // Dieselben zwei Handgriffe wie in „lasso" – aber mit umgekehrtem
-        // Schwerpunkt. Dort ist die Geste die Hauptsache und das Briefing die
-        // Fortsetzung; hier ist die Fläche nur der Anlauf, und die Zeit liegt
-        // im Prompt: was drinsteht, was bewusst nicht, wo er entsteht und wer
-        // ihn absendet.
+        // Früher gab es dazu zwei Demos („lasso" mit der Geste im Mittelpunkt,
+        // „briefing" mit dem Prompt). Inhaltlich waren sie fast gleich – seit
+        // 26.09.2026 bleibt nur diese, mit dem Hinweis, was NICHT im Prompt
+        // steht. Die Frage kommt in jedem Konzern als zweite.
         //
-        // Zwei Demos zum selben Weg sind Absicht. Die Frage „was kann das?"
-        // beantwortet die Geste in zehn Sekunden. Die Frage „was schickt ihr da
-        // eigentlich weg?" – die in jedem Konzern als zweite kommt – beantwortet
-        // nur der sichtbare Prompt, und dafür muss man ihn durchscrollen dürfen.
+        // Der Knopf „📋 Briefing über alle" wird sichtbar angetippt – auch mit
+        // Beispielkunden (in der Vorführung als reine Ansicht, siehe
+        // setLassoBriefingPreview).
         id: 'briefing',
         icon: '📋',
-        title: 'Ein Prompt, deine KI',
-        blurb: 'Was im Briefing steht – und was bewusst nicht.',
-        duration: 83,   // 26.09.2026: Desktop 84 s, Handy 85 s
+        title: 'Wen zuerst? Frag deine KI',
+        blurb: 'Fläche umfahren, Prompt ansehen, mit deiner Firmen-KI entscheiden.',
+        duration: 88,   // 26.09.2026: Desktop und Handy je 89 s, 6 Klicks, alle sauber
         needsData: true,
         mutatesTour: true,
         steps: [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'focusDemoTourArea' },
-            { t: 'say', text: 'Eine Fläche umfahren – das ist der schnelle Teil.', ms: 2000 },
+            { t: 'say', text: 'Du bist in einer Gegend unterwegs. Statt Regler zu schieben: einfach die Fläche umfahren.', sel: '#btn-lasso', ms: 2800 },
             { t: 'run', key: 'drawLasso' },
             { t: 'say', text: 'Die Kunden stehen da. Wer davon ist wirklich dran? Das weiß TourFuchs nicht – das weiß deine Ablage.', sel: '.popup-lasso', ms: 3600, pos: 'top' },
+            { t: 'say', text: 'Deshalb: „📋 Briefing über alle".', sel: '#btn-lasso-brief', ms: 2000 },
             { t: 'run', key: 'openLassoBriefing' },
 
-            // ---- Ab hier liegt der Schwerpunkt ----
-            { t: 'say', text: 'Deshalb baut TourFuchs hier keinen Bericht, sondern eine Frage – als fertigen Prompt.', ms: 3200 },
+            // ---- Ab hier liegt der Schwerpunkt: der Prompt ----
+            { t: 'say', text: 'TourFuchs baut keinen Bericht, sondern eine Frage – als fertigen Prompt.', ms: 3000 },
             { t: 'run', key: 'revealAreaPrompt' },
             { t: 'say', text: 'Er entsteht auf deinem Gerät. Und du siehst ihn vollständig, bevor irgendetwas kopiert wird.', sel: '.briefing-prompt-visible', ms: 3800 },
             { t: 'run', key: 'scrollPromptThrough' },
@@ -243,8 +203,11 @@ export const STORIES = [
             { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: kein Umsatz, keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600 },
             ...PROMPT_WAY,
             { t: 'run', key: 'closeLassoBriefing' },
-            { t: 'say', text: 'Und dann entscheidest du.', sel: '.popup-lasso', ms: 2400, pos: 'top' },
+
+            // ---- Der Rückweg: entscheiden. Die Auswahl liegt noch da. ----
+            { t: 'say', text: 'Zurück auf der Karte liegt deine Auswahl noch genau so da. Jetzt entscheidest du: Wen fährst du wirklich an?', sel: '.popup-lasso', ms: 3600, pos: 'top' },
             { t: 'run', key: 'pickLassoCustomers' },
+            { t: 'say', text: 'Zwei angehakt – und der Knopf meint jetzt genau die zwei.', sel: '.popup-lasso [data-lasso="tour"]', ms: 2800 },
             { t: 'run', key: 'lassoPickedToTour' },
             { t: 'say', text: 'Ein Prompt. Deine KI. Deine Entscheidung.', ms: 3000, pos: 'bottom' }
         ]

@@ -488,7 +488,7 @@ danach kommen – oder gar nicht.
    Fall auch weniger geladene Kunden.
 3. **Am Ende stehen zwei Kunden mit ✓ „in Tour"** in der Auswahlkarte.
 4. Der Lauf endet mit `Vorführung ok`. Steht dort `FEHLER`, ist die Demo
-   unterwegs hängengeblieben – dann `npm run demo-check -- --story=lasso`
+   unterwegs hängengeblieben – dann `npm run demo-check -- --story=briefing`
    laufen lassen, das sagt, an welchem Schritt.
 
 ### Beim Drehen von Hand

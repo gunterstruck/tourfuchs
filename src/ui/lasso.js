@@ -57,6 +57,14 @@ let selection = [];
 let picked = new Set();        // angehakte Kunden auf der Auswahlkarte
 let pointerId = null;
 let sheetCollapsed = false;    // haben WIR das Blatt zusammengeschoben?
+// Nur in der Live-Demo: Mit Beispielkunden steht der Briefing-Knopf trotzdem
+// da und öffnet das Briefing als reine Ansicht (Prompt sichtbar, nichts kopierbar).
+// Sonst sähe man in der Vorführung den Schritt nicht, der zum Prompt führt.
+let briefingPreview = false;
+
+export function setLassoBriefingPreview(on) {
+    briefingPreview = Boolean(on);
+}
 
 /**
  * Höchstzahl der Leuchtpunkte. Ein weit aufgezogenes Lasso kann über tausend
@@ -300,7 +308,8 @@ function cardHtml() {
     const targets = tourTargets();
     const tourLabel = tourAdditionLabel(targets.length, picked.size > 0);
 
-    const demoNote = real.length < 2
+    const previewBrief = briefingPreview && real.length === 0 && selection.length >= 2;
+    const demoNote = real.length < 2 && !previewBrief
         ? `<p class="popup-lasso-note">${real.length === 0
             ? 'Hier liegen nur Beispielkunden – dafür wird bewusst kein Briefing erzeugt.'
             : 'Für einen einzelnen Kunden führt das Kundenbriefing weiter: einfach seinen Marker antippen.'}</p>`
@@ -315,7 +324,7 @@ function cardHtml() {
             : ''}
         ${demoNote}
         <div class="popup-actions">
-            ${real.length >= 2
+            ${real.length >= 2 || previewBrief
                 ? '<button data-lasso="brief" id="btn-lasso-brief" title="Prompt für ein Briefing über diese Kunden vorbereiten">📋 Briefing über alle</button>'
                 : ''}
             ${profi && targets.length > 0
@@ -389,7 +398,8 @@ function wireCard() {
     if (!root) return;
 
     root.querySelector('[data-lasso="brief"]')?.addEventListener('click', () => {
-        openAreaBriefing(selection, areaLabelFor({ mode: 'lasso' }));
+        const onlyDemo = selection.every((customer) => isDemoCustomer(customer));
+        openAreaBriefing(selection, areaLabelFor({ mode: 'lasso' }), { preview: briefingPreview && onlyDemo });
     });
     root.querySelector('[data-lasso="clear"]')?.addEventListener('click', clearLassoSelection);
     root.querySelector('[data-lasso="tour"]')?.addEventListener('click', () => {
