@@ -220,6 +220,7 @@
     margin: 10px auto 0;
     text-align: center;
 }
+.own-data-option .own-data-demo { font-weight: 700; }
 
 /* Feierabend-Rückblick */
 .btn-day-review[hidden] { display: none; }
