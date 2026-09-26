@@ -41,6 +41,8 @@ Die Simulation bleibt eine separate Schulung für Fortgeschrittene. Die Lasso-Sc
 3. Straße, PLZ, Ort, Vertriebsbezirk und Umsatz erkennt TourFuchs selbst; „Firmenbezeichnung“ nicht – der Zeiger ordnet sie dem Pflichtfeld Kundenname zu, die Beispielwerte erscheinen sofort.
 4. Vor „Importieren“ bricht die Vorführung ab: Es wird nichts importiert, der Bestand bleibt unberührt – auch bei vorzeitigem Beenden.
 
+Im Fenster „Eigene Daten laden“ steht die passende Demo direkt beim jeweiligen Weg: „▶ Wie läuft der Import ab?“ beim Excel-/CSV-Import, „▶ Wie geht das?“ bei der verschlüsselten `.tfsafe`-Datei (nur am Handy, wo es die Empfangs-Demo gibt). Von dort gestartet, gibt es danach keine Schleife: TourFuchs öffnet wieder „Eigene Daten laden“ – auch nach „Beenden“ oder „Selbst ausprobieren“. Nur eine hängengebliebene Demo zeigt ihren Hinweis.
+
 ## Routing und KI: klare Grenzen
 
 Die Tour-Demo zeigt eine **Luftlinie** und erklärt lediglich, wo später die Straßenroute aktiviert werden kann. Sie setzt keine Routing-Zustimmung und schaltet nicht automatisch auf den externen OSRM-Dienst um. Außerhalb der Schulung gilt weiterhin der reguläre Zustimmungsdialog vor einer erstmaligen Straßenroutenanfrage.

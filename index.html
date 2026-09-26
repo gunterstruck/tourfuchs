@@ -710,12 +710,18 @@
                         <button id="btn-paste">📋 Liste aus Excel einfügen</button>
                     </div>
                     <p id="own-data-way-hint" class="muted small own-data-way-hint"></p>
+                    <!-- Hilfe dort, wo man unsicher wird: die passende Live-Demo. Danach
+                         kehrt TourFuchs hierher zurück (keine Demo-Schleife). -->
+                    <button type="button" class="linklike own-data-demo" data-demo-story="import-zuordnung">▶ Wie läuft der Import ab? Live-Demo ansehen (40 s)</button>
                     <button id="btn-template" class="linklike">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
                 </section>
                 <section class="own-data-option" aria-labelledby="own-data-safe-title">
                     <h3 id="own-data-safe-title">🔐 Verschlüsselte TourFuchs-Datei</h3>
                     <p class="muted small">Für eine <b>.tfsafe</b>-Datei von einem anderen Gerät. Danach scannst du den getrennten Schlüssel-QR.</p>
                     <button id="btn-safe-receive-ob" class="primary">Verschlüsselte Datei öffnen</button>
+                    <!-- Die Empfangs-Demo gibt es nur am Handy; am Schreibtisch keine
+                         Zeile statt einer unpassenden Demo. -->
+                    <button type="button" class="linklike own-data-demo only-mobile" data-demo-story="empfang">▶ Wie geht das? Live-Demo ansehen (30 s)</button>
                 </section>
             </div>
         </dialog>
