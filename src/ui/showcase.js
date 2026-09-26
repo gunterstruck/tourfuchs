@@ -1893,6 +1893,9 @@ export function initShowcase() {
     // Demo der Schleife – ohne Umweg über die Auswahl. Der Selbststart nach
     // zehn Sekunden nimmt denselben Weg.
     document.getElementById('btn-demo-welcome-demos')?.addEventListener('click', () => startShowcaseLoop());
+    // Beispieldaten-Streifen im Panel: dieselben Wege, jederzeit erreichbar.
+    document.getElementById('btn-demo-show')?.addEventListener('click', () => startShowcaseLoop());
+    document.getElementById('btn-demo-overview')?.addEventListener('click', () => openPanel());
     on('demo-welcome:autostart', () => startShowcaseLoop());
 
     // Pause zwischen zwei Filmen: Wer das Auswahlfenster verlässt (Beenden,

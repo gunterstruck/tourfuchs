@@ -1825,12 +1825,12 @@ function renderDataStatus() {
     const demoActive = !empty && isDemoDataset(state.customers);
     if (demoBanner) demoBanner.hidden = !demoActive;
     // Der Hinweis „das sind Demo-Kunden" bleibt immer stehen – er ist die
-    // Ehrlichkeit des Streifens. Sein Knopf dagegen trägt dieselbe Beschriftung
-    // wie der Hauptknopf der Willkommenskarte; zweimal dasselbe Angebot im
-    // selben Bild ist keine Wahl, sondern Rauschen. Solange die Karte steht,
-    // gehört das Angebot ihr.
-    const demoCta = document.getElementById('btn-demo-own-data');
-    if (demoCta) demoCta.hidden = demoActive && isDemoWelcomeOpen();
+    // Ehrlichkeit des Streifens. Seine zwei Knöpfe dagegen tragen dieselben
+    // Beschriftungen wie die Begrüßung; zweimal dasselbe Angebot im selben Bild
+    // ist keine Wahl, sondern Rauschen. Solange die Begrüßung steht, gehören die
+    // Angebote ihr. Die Demo-Übersicht bietet sie nicht an – die bleibt.
+    const demoActions = document.getElementById('demo-banner-actions');
+    if (demoActions) demoActions.hidden = demoActive && isDemoWelcomeOpen();
     // Solange Beispieldaten laufen, darf der eingeklappte mobile Peek etwas höher
     // stehen, damit der Beispieldaten-/Upload-Streifen vollständig sichtbar ist
     // (statt nur als Ansatz am unteren Rand). Steuert per CSS die Peek-Höhe.

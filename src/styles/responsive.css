@@ -458,11 +458,12 @@
     }
 
     /* Beispieldaten-Betrieb: der eingeklappte Peek zeigt zusätzlich zum Griff den
-       vollständigen „Beispieldaten – eigene Daten laden"-Streifen, damit dieser
+       vollständigen Beispieldaten-Streifen (Hinweis · „In Aktion sehen" ·
+       „Eigene Daten laden"), damit dieser
        Hinweis nicht nur als Ansatz am unteren Rand (bzw. hinter der System-Leiste)
        erscheint. Alle Peek-abhängigen Overlays steigen automatisch mit. */
     body.demo-data-active {
-        --mobile-sheet-peek: 100px;
+        --mobile-sheet-peek: 124px;
     }
 
     /* Fixer Kopf-Streifen unter der Topbar: die Ansichtstiefe bleibt immer
