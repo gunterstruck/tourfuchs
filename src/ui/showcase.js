@@ -1349,6 +1349,7 @@ function syncPlaybackControls() {
     document.body.classList.toggle('sc-paused', playback.paused);
 }
 function syncMusicControls() {
+    syncBreakMusicButton();
     if (!toolbarEl) return;
     const button = toolbarEl.querySelector('.sc-music');
     // Button text names the action, not the current state.
@@ -1525,6 +1526,10 @@ async function play(story) {
             console.warn('Showcase-Story abgebrochen:', err);
         }
     } finally {
+        // Film zu Ende (oder hängengeblieben): Das Auswahlfenster folgt, die
+        // Runde läuft weiter – die Musik also auch, nur leiser. Ein bewusster
+        // Abbruch beendet die Runde und lässt sie ausklingen.
+        music.setPlayback({ active: false, onBreak: completed || Boolean(failure) });
         cleanup(story);
         running = false;
     }
@@ -1550,8 +1555,27 @@ function showShowcaseDialog() {
 
 function startStory(story) {
     if (!story || running) return;
+    // Noch im Klick: Die Musik fährt ohne Neustart auf volle Lautstärke hoch
+    // (und darf als erste Wiedergabe dieser Nutzergeste starten).
+    music.setPlayback({ active: true, paused: false, onBreak: false });
     if (dialog.open) dialog.close();
     void play(story);
+}
+
+/**
+ * Musik-Knopf im Auswahlfenster: Die Leiste mit „♫ Musik aus" ist nach dem
+ * Film weg, die Musik aber nicht – abschalten muss trotzdem gehen.
+ */
+function breakMusicButton() {
+    return '<button type="button" class="sc-dialog-music" hidden></button>';
+}
+function syncBreakMusicButton() {
+    const button = dialog?.querySelector('.sc-dialog-music');
+    if (!button) return;
+    button.hidden = !music.onBreak || music.active;
+    button.textContent = music.enabled ? '♫ Musik aus' : '♫ Musik ein';
+    button.setAttribute('aria-pressed', String(music.enabled));
+    button.title = music.enabled ? 'Hintergrundmusik ausschalten' : 'Hintergrundmusik wieder einschalten';
 }
 
 function wireOutcomeActions({ next = null, retry = null } = {}) {
@@ -1569,7 +1593,7 @@ function showStoryCompletion(story) {
     if (allDone) markShowcaseCompleted();
 
     dialog.dataset.view = 'outcome';
-    dialog.innerHTML = `
+    dialog.innerHTML = `${breakMusicButton()}
         <div class="sc-outcome-head">
             <div class="sc-outcome-icon" aria-hidden="true">✓</div>
             <span>Live-Demo abgeschlossen</span>
@@ -1590,6 +1614,7 @@ function showStoryCompletion(story) {
                 : '<button type="button" class="sc-finish">Für jetzt beenden</button><button type="button" class="sc-overview">Demo-Auswahl</button><button type="button" class="primary sc-next">Nächste Demo starten</button>'}
         </div>`;
     wireOutcomeActions({ next });
+    syncBreakMusicButton();
     showShowcaseDialog();
 }
 
@@ -1598,7 +1623,7 @@ function showStoryFailure(story, failure) {
     const total = Number(failure?.showcaseStepCount) || 0;
     const reason = String(failure?.message || 'Der nächste Demo-Schritt war nicht erreichbar.');
     dialog.dataset.view = 'outcome';
-    dialog.innerHTML = `
+    dialog.innerHTML = `${breakMusicButton()}
         <div class="sc-outcome-head sc-outcome-failed">
             <div class="sc-outcome-icon" aria-hidden="true">!</div>
             <span>Live-Demo unterbrochen</span>
@@ -1614,6 +1639,7 @@ function showStoryFailure(story, failure) {
             <button type="button" class="primary sc-retry">Erneut versuchen</button>
         </div>`;
     wireOutcomeActions({ retry: story });
+    syncBreakMusicButton();
     showShowcaseDialog();
 }
 
@@ -1627,7 +1653,7 @@ function buildPanel() {
             ${seen.has(s.id) ? '<span class="sc-tile-seen" title="schon gesehen">✓</span>' : '<span class="sc-tile-play">▶</span>'}
         </button>`).join('');
     dialog.dataset.view = 'intro';
-    dialog.innerHTML = `
+    dialog.innerHTML = `${breakMusicButton()}
         <div class="sc-panel-head">
             <div class="sc-panel-fox">🦊</div>
             <h2>Soll ich dir kurz zeigen, was ich kann?</h2>
@@ -1644,6 +1670,7 @@ function buildPanel() {
         });
     });
     dialog.querySelector('.sc-later').addEventListener('click', () => dialog.close());
+    syncBreakMusicButton();
 }
 function openPanel() {
     // In der Handy-Vorschau (iframe) keine Vorführungen starten.
@@ -1675,6 +1702,16 @@ export function initShowcase() {
     });
     ['btn-showcase-ob', 'btn-demo-welcome-demos'].forEach((id) => {
         document.getElementById(id)?.addEventListener('click', () => openPanel());
+    });
+
+    // Pause zwischen zwei Filmen: Wer das Auswahlfenster verlässt (Beenden,
+    // Später, Escape), beendet die Runde – die Musik klingt aus. Startet von
+    // hier der nächste Film, läuft `running` schon und die Musik spielt weiter.
+    dialog.addEventListener('close', () => { if (!running) music.setPlayback({ onBreak: false }); });
+    // Jede Bedienung im Fenster zählt als „noch da" für den Minuten-Leerlauf.
+    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => dialog.addEventListener(type, () => music.touch(), { passive: true }));
+    dialog.addEventListener('click', (event) => {
+        if (event.target.closest('.sc-dialog-music')) music.setEnabled(!music.enabled);
     });
 
     // ESC bricht eine laufende Vorführung ab (statt nur den Dialog zu schließen)
