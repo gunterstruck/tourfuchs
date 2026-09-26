@@ -5,7 +5,8 @@
 
 import { CONFIG } from '../core/config.js';
 import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, setPlaces, clearServiceContracts, clearServiceVisits, filterDimensionDefs, datasetSnapshot } from '../core/state.js';
-import { exactGeocodeCandidates, groupExactGeocodeCandidates, geocodeExact } from '../services/geocode.js';
+import { exactGeocodeCandidates, groupExactGeocodeCandidates } from '../services/geocode.js';
+import { runExactGeocoding, cancelExactGeocoding, isExactGeocodingRunning, exactGeocodePreference } from './exactGeocoding.js';
 import { isDemoDataset, isDemoCustomer } from '../core/demoSafety.js';
 import { saveDataset, clearDataset, saveSettings } from '../services/storage.js';
 import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
@@ -36,7 +37,6 @@ function toHexColor(value) {
     return '#94a3b8';
 }
 
-let geocodeHandle = null;
 let autoRevealTimer = null;
 let demoSheetSnapshot = null;
 let levelBeforeHide = null;
@@ -1542,6 +1542,7 @@ export function initSidebar() {
 
     // Exakte Geocodierung (Nominatim)
     document.getElementById('btn-geocode').addEventListener('click', toggleExactGeocoding);
+    on('geocode:progress', syncGeocodeButton);
 
     restoreOptionalFilterSections();
     initRevenueFilterControls();
@@ -1865,7 +1866,7 @@ function renderDataStatus() {
         <p class="muted small">📍 ${located} verortet (davon ${exact} adressgenau)</p>
     `;
     const geocodeButton = document.getElementById('btn-geocode');
-    if (geocodeButton && !geocodeHandle) {
+    if (geocodeButton && !isExactGeocodingRunning()) {
         geocodeButton.disabled = demo;
         geocodeButton.textContent = demo ? '📍 Demo sicher per PLZ verortet' : '🎯 Adressen exakt verorten';
         geocodeButton.title = demo
@@ -1875,11 +1876,8 @@ function renderDataStatus() {
 }
 
 async function toggleExactGeocoding() {
-    const btn = document.getElementById('btn-geocode');
-    const progress = document.getElementById('geocode-progress');
-
-    if (geocodeHandle) {
-        geocodeHandle.cancel();
+    if (isExactGeocodingRunning()) {
+        cancelExactGeocoding();
         return;
     }
     const candidates = exactGeocodeCandidates(state.customers);
@@ -1898,37 +1896,32 @@ async function toggleExactGeocoding() {
         }
         return;
     }
-    // Identische Adressen werden nur einmal angefragt – das kürzt die Wartezeit.
-    const uniqueCount = groupExactGeocodeCandidates(state.customers).length;
-    const dedupeHint = uniqueCount < candidates.length
-        ? ` Davon sind ${uniqueCount} eindeutige Adressen – nur diese werden angefragt.`
-        : '';
-    if (!confirm(
-        `${candidates.length} Kunden werden über OpenStreetMap (Nominatim) exakt geocodiert.${dedupeHint}\n` +
-        'Der freie Dienst erlaubt ca. 1 Adresse/Sekunde; Ergebnisse werden dauerhaft gespeichert, '
-        + 'sodass ein erneuter Lauf sofort geht. Benötigt Internet. Fortfahren?'
-    )) return;
+    // Wer „immer genau verorten" gewählt hat, wurde schon gefragt.
+    if (exactGeocodePreference() !== 'yes') {
+        // Identische Adressen werden nur einmal angefragt – das kürzt die Wartezeit.
+        const uniqueCount = groupExactGeocodeCandidates(state.customers).length;
+        const dedupeHint = uniqueCount < candidates.length
+            ? ` Davon sind ${uniqueCount} eindeutige Adressen – nur diese werden angefragt.`
+            : '';
+        if (!confirm(
+            `${candidates.length} Kunden werden über OpenStreetMap (Nominatim) exakt geocodiert.${dedupeHint}\n` +
+            'Der freie Dienst erlaubt ca. 1 Adresse/Sekunde; Ergebnisse werden dauerhaft gespeichert, '
+            + 'sodass ein erneuter Lauf sofort geht. Benötigt Internet. Fortfahren?'
+        )) return;
+    }
+    await runExactGeocoding({ manual: true });
+}
 
-    btn.textContent = '⏸ Abbrechen';
-    progress.style.display = 'block';
-
-    geocodeHandle = geocodeExact(state.customers, (done, totalCount) => {
-        progress.textContent = `Geocodiere… ${done}/${totalCount}`;
-    });
-
-    const result = await geocodeHandle.run;
-    geocodeHandle = null;
-    btn.textContent = '🎯 Adressen exakt verorten';
-    progress.style.display = 'none';
-
-    await saveDataset(datasetSnapshot());
-    emit('customers:changed');
-    showToast(
-        result.cancelled
-            ? `Abgebrochen – ${result.updated} Adressen exakt verortet.`
-            : `${result.updated} Adressen exakt verortet${result.failed ? `, ${result.failed} nicht gefunden` : ''}.`,
-        'success', 6000
-    );
+/** Knopf und Fortschritt im Daten-Reiter folgen dem gemeinsamen Lauf. */
+function syncGeocodeButton({ running, done, total }) {
+    const btn = document.getElementById('btn-geocode');
+    const progress = document.getElementById('geocode-progress');
+    if (btn && running) btn.textContent = '⏸ Abbrechen';
+    if (progress) {
+        progress.style.display = running ? 'block' : 'none';
+        progress.textContent = running ? `Geocodiere… ${done}/${total}` : '';
+    }
+    if (!running) renderDataStatus();
 }
 
 // ---- Team-Tab (Filter) ----

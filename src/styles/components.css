@@ -525,6 +525,8 @@
        (max-width: 1200px) and (orientation: portrait),
        (max-width: 900px) and (max-height: 520px) {
     .only-desktop { display: none !important; }
+    /* Unter den Basis/Profi-Umschalter, nicht darauf. */
+    body .geocode-status { top: calc(var(--topbar-height, 56px) + 58px); }
     .own-data-dialog {
         width: calc(100vw - 16px);
         max-width: calc(100vw - 16px);
@@ -1852,6 +1854,50 @@ body.offers-receded #demo-banner {
     cursor: pointer;
 }
 .demo-banner-cta:hover { background: var(--color-primary-dark, #0f766e); }
+
+/* Adressgenaue Verortung: Rückfrage und Fortschritt im Hintergrund */
+.geocode-offer-dialog { max-width: min(440px, calc(100vw - 24px)); }
+.geocode-offer-dialog h2 { margin: 0 0 8px; font-size: 1.15rem; }
+.geocode-offer-dialog p { margin: 0 0 10px; line-height: 1.45; }
+.geocode-offer-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 6px;
+}
+.geocode-offer-actions button { min-height: 44px; font-weight: 700; }
+.geocode-offer-foot { margin: 10px 0 0 !important; text-align: center; }
+.geocode-status {
+    position: fixed;
+    top: calc(var(--topbar-height, 56px) + 8px);
+    left: 50%;
+    z-index: 1200;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 6px 8px 6px 14px;
+    transform: translateX(-50%);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 999px;
+    background: var(--color-surface, #fff);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.18);
+    font-size: 0.82rem;
+    white-space: nowrap;
+}
+.geocode-status[hidden] { display: none; }
+.geocode-status b { font-variant-numeric: tabular-nums; }
+.geocode-status button { min-height: 30px; padding: 3px 12px; border-radius: 999px; font-size: 0.8rem; }
+.info-setting {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: var(--radius-l, 12px);
+    cursor: pointer;
+}
+.info-setting input { margin-top: 3px; }
 
 /* Zentraler Willkommens-Hinweis über der Karte (nicht blockierend): liegt über
    dem Kartenbereich rechts der Sidebar, lässt die Karte darunter aber bedienbar
