@@ -155,19 +155,40 @@ function makeErr(code, extra = {}) {
 }
 
 // ---- Sperren / Auto-Lock ----
+// Während eine Live-Demo gerade einen Film abspielt, wird die automatische
+// Sperre aufgeschoben: Der Geister-Cursor klickt per Programm, das zählt nicht
+// als Nutzeraktivität – nach fünf Minuten sperrte der Tresor mitten im Film,
+// die Kunden verschwanden, und der nächste Schritt fand sein Feld nicht mehr.
+// Aufgeschoben heißt nicht aufgehoben: Ist die Zeit abgelaufen, sperrt der
+// Tresor, sobald der Film endet (oder pausiert wird).
+let autoLockHeld = false;
+let lockDue = false;
+
 export function lock() {
     dek = null;
+    lockDue = false;
     clearTimeout(autoLockTimer);
     emit('locked');
 }
 function scheduleAutoLock() {
     clearTimeout(autoLockTimer);
+    lockDue = false;
     const ms = autoLockMs();
-    if (ms > 0 && isUnlocked()) autoLockTimer = setTimeout(() => lock(), ms);
+    if (ms > 0 && isUnlocked()) {
+        autoLockTimer = setTimeout(() => {
+            if (autoLockHeld) { lockDue = true; return; }
+            lock();
+        }, ms);
+    }
 }
 /** Bei Nutzeraktivität aufrufen, um den Auto-Lock zu verschieben. */
 export function noteActivity() {
     if (isUnlocked()) scheduleAutoLock();
+}
+/** Auto-Lock für die Dauer eines laufenden Demo-Films aufschieben (true) bzw. freigeben (false). */
+export function holdAutoLock(on) {
+    autoLockHeld = Boolean(on);
+    if (!autoLockHeld && lockDue && isUnlocked()) lock();
 }
 
 /** Auto-Lock-Zeit ändern (ms; 0 = nie automatisch sperren). */
