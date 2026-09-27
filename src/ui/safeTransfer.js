@@ -18,7 +18,7 @@ import { isEnabled } from '../services/vault.js';
 import { geocodeByPlz } from '../services/geocode.js';
 import { fitToCustomers } from '../features/map.js';
 import {
-    createSafeTransfer, parseSafeContainer, parseKeyQr,
+    createSafeTransfer, readSafeFile, parseKeyQr,
     keyMatchesContainer, decryptSafeTransfer, SAFE_FILE_EXT
 } from '../features/safeTransfer.js';
 import { openSetupDialog } from './lockVault.js';
@@ -101,7 +101,9 @@ function downloadContainer(container) {
     a.href = url;
     a.download = `TourFuchs-Umzug-${new Date().toISOString().slice(0, 10)}${SAFE_FILE_EXT}`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Nicht sofort freigeben: Manche Browser lesen den Blob erst nach dem
+    // Klick – sofort freigegeben, landet dort eine leere oder keine Datei.
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 function transferCountText(meta) {
@@ -157,15 +159,42 @@ export function showKeyStepForDemo() {
     // Kamera bewusst NICHT starten (kein getUserMedia in der Demo).
 }
 
+/**
+ * Was mit der Datei los ist – in Worten, die beim Weiterkommen helfen.
+ * Name und Größe stehen dabei: So sieht man sofort, ob es überhaupt die
+ * richtige Datei ist und ob sie vollständig angekommen ist.
+ */
+export function safeFileProblemText(problem, file) {
+    const size = Number(file?.size) || 0;
+    const sizeText = size < 1024 ? `${size} Byte` : `${Math.round(size / 1024).toLocaleString('de-DE')} KB`;
+    const which = `„${file?.name || 'Datei'}" (${sizeText})`;
+    const again = 'Am besten die Datei am Desktop neu erzeugen und auf einem anderen Weg aufs Handy bringen (z. B. USB oder Cloud statt Mail).';
+    switch (problem) {
+        case 'empty':
+            return `${which} ist leer – sie ist nicht vollständig angekommen. Liegt sie in einer Cloud, dort erst ganz herunterladen und dann wählen.`;
+        case 'truncated':
+            return `${which} ist unvollständig angekommen – das Ende fehlt. ${again}`;
+        case 'zip':
+            return `${which} ist gepackt (ZIP). Bitte erst entpacken und die .tfsafe-Datei darin wählen.`;
+        case 'html':
+            return `${which} enthält eine Webseite statt der Umzugsdaten – meist die Hinweisseite eines Mail- oder Cloud-Filters. ${again}`;
+        case 'pdf':
+        case 'binary':
+            return `${which} wurde unterwegs verändert oder zusätzlich verschlüsselt – z. B. von einem Firmen-Schutz für Anhänge. ${again}`;
+        default:
+            return `${which} ist keine TourFuchs-Umzugsdatei (.tfsafe). Bitte die Datei wählen, die TourFuchs am Desktop unter „Sicherer Umzug" heruntergeladen hat.`;
+    }
+}
+
 async function onFileChosen(e) {
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
-    let text;
-    try { text = await file.text(); } catch { showToast('Datei konnte nicht gelesen werden.', 'error'); return; }
-    const container = parseSafeContainer(text);
+    let bytes;
+    try { bytes = await file.arrayBuffer(); } catch { showToast('Datei konnte nicht gelesen werden.', 'error'); return; }
+    const { container, problem } = readSafeFile(bytes);
     if (!container) {
-        showToast('Das ist keine gültige TourFuchs-Umzugsdatei (.tfsafe).', 'error');
+        showToast(safeFileProblemText(problem, file), 'error', 12000);
         return;
     }
     pendingContainer = container;
