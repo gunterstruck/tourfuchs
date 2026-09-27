@@ -42,7 +42,7 @@ import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPr
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo, openMappingForShowcase, openOwnDataDialog } from './importWizard.js';
-import { ShowcasePlayback, ShowcaseAbortError as AbortError, showcaseTempo, nextShowcaseTempo, showcaseTempoForRate } from '../features/showcasePlayback.js';
+import { ShowcasePlayback, ShowcaseAbortError as AbortError, showcaseTempo, showcaseTempoForRate, TEMPO_ORDER } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
 import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
 import { ShowcaseMusic } from '../features/showcaseMusic.js';
@@ -131,10 +131,45 @@ function applyTempo(tempo) {
     document.documentElement.style.setProperty('--sc-slow', String(Math.round((1 / tempo.rate) * 100) / 100));
     playback?.setRate(tempo.rate);
 }
-function toggleTempo() {
-    const next = nextShowcaseTempo(storedTempo().id);
+function setTempo(id) {
+    const next = showcaseTempo(id);
     try { localStorage.setItem(TEMPO_KEY, next.id); } catch { /* nur für diese Sitzung */ }
     applyTempo(next);
+}
+
+// Tempo-Menü: Tacho-Symbol mit aktueller Stufe; ein Tipp klappt alle Stufen
+// auf – wie man es aus Video-Apps kennt. Es hängt an der Leiste und kostet dort
+// keinen Platz.
+const GAUGE_SVG = '<svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true" focusable="false"><path d="M4.2 17.5a9 9 0 1 1 15.6 0" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><path d="M12 14.5 16.2 9" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><circle cx="12" cy="14.5" r="1.9" fill="currentColor"/></svg>';
+function tempoMenuHtml() {
+    return TEMPO_ORDER.map((id) => {
+        const tempo = showcaseTempo(id);
+        const hint = id === 'normal' ? ' <small>normal</small>' : '';
+        return `<button type="button" role="menuitemradio" aria-checked="false" data-tempo="${id}">${tempo.label}${hint}</button>`;
+    }).join('');
+}
+function tempoMenuOpen() {
+    return Boolean(toolbarEl?.querySelector('.sc-tempo-menu:not([hidden])'));
+}
+function setTempoMenu(open) {
+    const menu = toolbarEl?.querySelector('.sc-tempo-menu');
+    const button = toolbarEl?.querySelector('.sc-tempo');
+    if (!menu || !button) return;
+    menu.hidden = !open;
+    button.setAttribute('aria-expanded', String(open));
+    if (!open) return;
+    // Steht die Leiste unten im Bild, klappt das Menü nach oben auf.
+    const rect = toolbarEl.getBoundingClientRect();
+    const below = rect.bottom + 190 <= (window.visualViewport?.height ?? window.innerHeight);
+    menu.classList.toggle('sc-up', !below);
+    const b = button.getBoundingClientRect();
+    menu.style.left = `${Math.round(b.left - rect.left)}px`;
+    menu.querySelector('[aria-checked="true"]')?.focus({ preventScroll: true });
+}
+function onTempoOutside(event) {
+    if (!tempoMenuOpen()) return;
+    if (event.target.closest?.('.sc-tempo, .sc-tempo-menu')) return;
+    setTempoMenu(false);
 }
 
 // ---- DOM der Show ----
@@ -1831,7 +1866,8 @@ function showChrome(story) {
         <span class="sc-progress"></span>
         <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten"><span class="sc-ico" aria-hidden="true">♫</span><span class="sc-txt">Musik aus</span></button>
         <label class="sc-music-volume" hidden><span class="sc-sr">Lautstärke</span><input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /><output>18 %</output></label>
-        <button type="button" class="sc-tempo"><span class="sc-ico sc-tempo-value" aria-hidden="true">1,2×</span><span class="sc-txt">Tempo <span class="sc-tempo-value">1,2×</span></span></button>
+        <button type="button" class="sc-tempo" aria-haspopup="menu" aria-expanded="false">${GAUGE_SVG}<span class="sc-tempo-value">1,2×</span></button>
+        <div class="sc-tempo-menu" role="menu" aria-label="Abspieltempo" hidden>${tempoMenuHtml()}</div>
         <button type="button" class="sc-replay" aria-label="Zurück" title="Einen Schritt zurück: vorige Erklärung zeigen und anhalten"><span class="sc-ico" aria-hidden="true">↺</span><span class="sc-txt">Zurück</span></button>
         <button type="button" class="sc-pause" aria-pressed="false" aria-label="Pause"><span class="sc-ico" aria-hidden="true">❚❚</span><span class="sc-txt">Pause</span></button>
         <button type="button" class="sc-skip" aria-label="Weiter" title="Erklärung überspringen – Klicks laufen immer vollständig"><span class="sc-ico" aria-hidden="true">⏭</span><span class="sc-txt">Weiter</span></button>
@@ -1850,7 +1886,17 @@ function showChrome(story) {
         playback.togglePause();
         if (!playback.paused) leaveReplay();
     });
-    toolbarEl.querySelector('.sc-tempo').addEventListener('click', toggleTempo);
+    toolbarEl.querySelector('.sc-tempo').addEventListener('click', () => setTempoMenu(!tempoMenuOpen()));
+    toolbarEl.querySelector('.sc-tempo-menu').addEventListener('click', (event) => {
+        const item = event.target.closest('[data-tempo]');
+        if (!item) return;
+        setTempo(item.dataset.tempo);
+        setTempoMenu(false);
+    });
+    toolbarEl.querySelector('.sc-tempo-menu').addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') { event.stopPropagation(); setTempoMenu(false); toolbarEl.querySelector('.sc-tempo')?.focus(); }
+    });
+    document.addEventListener('pointerdown', onTempoOutside, true);
     toolbarEl.querySelector('.sc-replay').addEventListener('click', () => {
         if (pauseCardEl) hidePauseCard({ resume: false });
         replayBack();
@@ -1885,8 +1931,11 @@ function syncPlaybackControls() {
     const tempo = showcaseTempoForRate(playback.rate);
     const tempoButton = toolbarEl.querySelector('.sc-tempo');
     tempoButton.querySelectorAll('.sc-tempo-value').forEach((el) => { el.textContent = tempo.label; });
-    tempoButton.setAttribute('aria-pressed', String(tempo.id !== 'normal'));
-    const tempoLabel = `Tempo ${tempo.label} – tippen für ${nextShowcaseTempo(tempo.id).label}`;
+    tempoButton.classList.toggle('is-slow', tempo.id !== 'normal');
+    toolbarEl.querySelectorAll('.sc-tempo-menu [data-tempo]').forEach((item) => {
+        item.setAttribute('aria-checked', String(item.dataset.tempo === tempo.id));
+    });
+    const tempoLabel = `Abspieltempo ${tempo.label} – Stufe wählen`;
     tempoButton.setAttribute('aria-label', tempoLabel);
     tempoButton.title = tempoLabel;
     // „Weiter" überspringt nur Lesezeiten – nie einen Klick oder Ladevorgang.
@@ -1925,6 +1974,7 @@ function cleanup(story) {
     shieldEl?.remove(); shieldEl = null;
     dialogShieldEl?.remove(); dialogShieldEl = null;
     stopToolbarPlacement();
+    document.removeEventListener('pointerdown', onTempoOutside, true);
     toolbarEl?.remove(); toolbarEl = null;
     document.body.classList.remove('sc-running');
     emit('showcase:running', false);
