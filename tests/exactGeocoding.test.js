@@ -143,3 +143,23 @@ describe('Fortschritts-Pille', () => {
         expect(css).toMatch(/\.geocode-status button \{ flex: 0 0 auto;/);
     });
 });
+
+describe('Verortung und Live-Demo / Lasso', () => {
+    it('meldet Zwischenstände als „nur Positionen" und ruht während einer Demo', async () => {
+        const { readFileSync } = await import('node:fs');
+        const ui = readFileSync('src/ui/exactGeocoding.js', 'utf8');
+        expect(ui).toContain("emit('customers:changed', POSITIONS_ONLY);");
+        expect(ui).not.toMatch(/emit\('customers:changed'\);/);
+        expect(ui).toContain("on('showcase:running', onShowcaseRunning);");
+        expect(ui).toContain("if (showcaseRunning) { heldForShowcase = exactGeocodePreference() === 'yes' || manual; return null; }");
+        // Kein „Angehalten"-Hinweis mitten im Film
+        expect(ui).toContain('if (result.cancelled && heldForShowcase) return result;');
+    });
+
+    it('lässt die Lasso-Auswahl stehen, wenn nur Positionen verschoben wurden', async () => {
+        const { readFileSync } = await import('node:fs');
+        const lasso = readFileSync('src/ui/lasso.js', 'utf8');
+        expect(lasso).toContain("if (info?.reason === 'positions' && keepSelectionAfterMove())");
+        expect(lasso).toContain('byId.get(customer.id) === customer');
+    });
+});
