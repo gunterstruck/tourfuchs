@@ -126,6 +126,9 @@ function renderInfoState() {
     if (now) now.hidden = !offerNow;
 }
 
+/** Zwischenstand höchstens so oft zeigen und sichern. */
+const CHECKPOINT_MS = 60000;
+
 /**
  * Verortung starten. Läuft höchstens einmal gleichzeitig – der Knopf am
  * Schreibtisch und der Hintergrundlauf teilen sich diesen einen Lauf.
@@ -145,13 +148,17 @@ export async function runExactGeocoding({ manual = false } = {}) {
 
     const customers = state.customers;
     let result = { updated: 0, failed: 0, cancelled: true, serviceDown: false };
+    let lastCheckpoint = Date.now();
     try {
         handle = geocodeExact(customers, (done, total) => {
             renderStatus(done, total);
             // Unterwegs sichtbar machen, was schon sitzt – und sichern: Wird
             // der Lauf unterbrochen (Tresor sperrt, App geschlossen), ist der
-            // Fortschritt nicht verloren.
-            if (done % 20 === 0) {
+            // Fortschritt nicht verloren. Nicht zu oft: Jede Zwischenstation
+            // zeichnet die Karte neu und verschlüsselt beim Tresor den ganzen
+            // Bestand – bei vielen Kunden spürt man das am Handy.
+            if (Date.now() - lastCheckpoint >= CHECKPOINT_MS) {
+                lastCheckpoint = Date.now();
                 emit('customers:changed');
                 if (customers === state.customers) saveDataset(datasetSnapshot());
             }
