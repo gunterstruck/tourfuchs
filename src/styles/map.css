@@ -833,3 +833,9 @@ button.contact-link {
     .customer-stack-discovery-label { transition: none; }
 }
 body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
+
+/* Kartenart „Hell": OpenStreetMap-Kacheln, blass gezeichnet – ruhiger
+   Hintergrund, auf dem Kunden und Gebiete hervortreten. */
+.leaflet-layer.basemap-light {
+    filter: grayscale(0.9) brightness(1.06) contrast(0.82);
+}

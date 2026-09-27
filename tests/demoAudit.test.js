@@ -58,6 +58,17 @@ describe('Schwellenwerte passen zueinander', () => {
     });
 });
 
+describe('Kartenquellen ohne Schlüssel', () => {
+    it('nutzt keine Kacheln, die einen API-Schlüssel verlangen', () => {
+        // Befund: CARTO liefert ohne API-Schlüssel nur noch Kacheln mit dem
+        // Schriftzug „API KEY REQUIRED" – die Kartenart „Hell" war unbrauchbar.
+        const config = read('src/core/config.js');
+        expect(config).not.toMatch(/url: 'https:\/\/[^']*cartocdn/);
+        expect(config).toContain("className: 'basemap-light'");
+        expect(read('src/styles/map.css')).toContain('.leaflet-layer.basemap-light');
+    });
+});
+
 describe('Offenlegung der Kartenquellen', () => {
     it('nennt jede anwählbare Kartenebene in Datenschutz und README', () => {
         // Befund: Die Kartenauswahl bietet auch „Satellit" von Esri an; die

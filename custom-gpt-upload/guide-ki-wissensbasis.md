@@ -2366,7 +2366,7 @@ Dienste übergeben.
 | PLZ-Verortung | automatisch beim Import | keine externe Übertragung | lokale PLZ-Tabelle |
 | Ortssuche für Start/Ziel | Tippen im Suchfeld | keine externe Übertragung | dieselbe lokale PLZ-Tabelle |
 | Eigene Orte merken | Klick auf "★ merken" | keine externe Übertragung; lokal gespeichert (im Tresor verschlüsselt) | nur TourFuchs im Browser |
-| Kartenanzeige | Karte betrachten | technische Zugriffsdaten, Kachelkoordinaten | OSM/CARTO/Esri-Kacheldienste |
+| Kartenanzeige | Karte betrachten | technische Zugriffsdaten, Kachelkoordinaten | OSM/Esri-Kacheldienste |
 | Adressen exakt verorten | bewusster Klick bei Echtdaten | Straße, PLZ, Ort | Nominatim/OpenStreetMap |
 | Straßenroute/Korridor | nach Zustimmung | Koordinaten der Routenpunkte | OSRM |
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |

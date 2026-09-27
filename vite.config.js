@@ -156,11 +156,11 @@ export default defineConfig({
                     },
                     {
                         // Karten-Tiles: zuletzt gesehene Ausschnitte offline verfügbar.
-                        // WICHTIG: alle drei im Kartenwähler angebotenen Quellen, nicht
-                        // nur CARTO. Die Standardebene ist OpenStreetMap – ausgerechnet
-                        // die war nicht abgedeckt, womit das Offline-Versprechen für den
-                        // Normalfall ins Leere lief.
-                        urlPattern: /^https:\/\/([a-z]\.basemaps\.cartocdn\.com|[a-z]\.tile\.openstreetmap\.org|server\.arcgisonline\.com)\/.*/,
+                        // WICHTIG: alle im Kartenwähler angebotenen Quellen. Die
+                        // Standardebene ist OpenStreetMap – ausgerechnet die war
+                        // früher nicht abgedeckt, womit das Offline-Versprechen für
+                        // den Normalfall ins Leere lief.
+                        urlPattern: /^https:\/\/([a-z]\.tile\.openstreetmap\.org|server\.arcgisonline\.com)\/.*/,
                         handler: 'CacheFirst',
                         options: {
                             cacheName: 'map-tiles',

@@ -299,7 +299,7 @@ Alternativ per CLI: `npx vercel`
 | PLZ-Gebiete (vereinfacht, aus OSM) | [Esri Deutschland Open Data](https://opendata-esridede.opendata.arcgis.com/) / © OpenStreetMap-Mitwirkende | [ODbL](https://opendatacommons.org/licenses/odbl/) |
 | PLZ-Koordinaten | [WZB plz_geocoord](https://github.com/WZBSocialScienceCenter/plz_geocoord) / © OpenStreetMap-Mitwirkende | ODbL |
 | Kartendarstellung „Standard" (Voreinstellung) | © [OpenStreetMap](https://www.openstreetmap.org/copyright)-Mitwirkende | ODbL |
-| Kartendarstellung „Hell" | © OpenStreetMap & [CARTO](https://carto.com/attributions) | – |
+| Kartendarstellung „Hell" | © OpenStreetMap (blass gezeichnet) | – |
 | Kartendarstellung „Satellit" (nur bei bewusster Wahl) | © [Esri](https://www.esri.com/), Maxar, Earthstar Geographics | Esri-Nutzungsbedingungen |
 | Geocoding (optional) | [Nominatim](https://nominatim.org/) | [Usage Policy](https://operations.osmfoundation.org/policies/nominatim/) |
 
