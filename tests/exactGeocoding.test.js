@@ -75,3 +75,56 @@ describe('Adressgenaue Verortung auf allen Geräten', () => {
         expect(sidebar).not.toContain('geocodeExact(');
     });
 });
+
+describe('Verortung: Status, Anhalten und Dienstfehler', () => {
+    const own = (i) => ({ id: `k-${i}`, name: `Kunde ${i}`, strasse: `Weg ${i}`, plz: '45127', ort: 'Essen', geo: 'plz' });
+
+    it('speichert „Dienst nicht bereit" (429/5xx) nicht als „nicht gefunden" und hört nach drei Fehlern auf', async () => {
+        const { CONFIG } = await import('../src/core/config.js');
+        const { geocodeExact } = await import('../src/services/geocode.js');
+        const delay = CONFIG.nominatim.delayMs;
+        CONFIG.nominatim.delayMs = 0;
+        let calls = 0;
+        const realFetch = globalThis.fetch;
+        globalThis.fetch = async () => { calls += 1; return { ok: false, status: 503, json: async () => [] }; };
+        try {
+            const customers = [own(1), own(2), own(3), own(4), own(5)];
+            const result = await geocodeExact(customers).run;
+            expect(result.serviceDown).toBe(true);
+            expect(calls).toBe(3);
+            expect(result.failed).toBe(0);            // nichts fälschlich als „nicht gefunden"
+            expect(customers.every((c) => c.geo === 'plz')).toBe(true);
+        } finally {
+            globalThis.fetch = realFetch;
+            CONFIG.nominatim.delayMs = delay;
+        }
+    });
+
+    it('bricht beim Anhalten auch eine laufende Anfrage sofort ab', async () => {
+        const { geocodeExact } = await import('../src/services/geocode.js');
+        const realFetch = globalThis.fetch;
+        globalThis.fetch = (_url, { signal }) => new Promise((_resolve, reject) => {
+            signal.addEventListener('abort', () => reject(new Error('aborted')));
+        });
+        try {
+            const handle = geocodeExact([own(1), own(2)]);
+            setTimeout(() => handle.cancel(), 20);
+            const started = Date.now();
+            const result = await handle.run;
+            expect(result.cancelled).toBe(true);
+            expect(Date.now() - started).toBeLessThan(2000);
+        } finally {
+            globalThis.fetch = realFetch;
+        }
+    });
+
+    it('räumt immer auf, stoppt beim Sperren des Tresors und zeigt den Stand in der Info', () => {
+        const module = read('src/ui/exactGeocoding.js');
+        expect(module).toContain('} finally {');
+        expect(module).toContain("onVault('locked'");
+        expect(module).toContain('function renderInfoState()');
+        const html = read('index.html');
+        expect(html).toContain('id="exact-geocode-state" class="geocode-state" role="status"');
+        expect(html).toContain('id="exact-geocode-now"');
+    });
+});
