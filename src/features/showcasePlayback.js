@@ -1,10 +1,25 @@
 /** Playback waits distinguish readable narration from optional motion. */
 export class ShowcaseAbortError extends Error {}
 
+/**
+ * Tempo der Vorführung. „1,2×" ist das gewohnte Tempo der Filme; „1,0×"
+ * spielt dieselben Filme ruhiger ab (alle Pausen, Lesezeiten und
+ * Zeigerwege um den Faktor 1,2 länger). Die Musik läuft davon unberührt.
+ */
+export const SHOWCASE_TEMPI = Object.freeze({
+    normal: Object.freeze({ id: 'normal', rate: 1, label: '1,2×' }),
+    slow: Object.freeze({ id: 'slow', rate: 1 / 1.2, label: '1,0×' })
+});
+
+export function showcaseTempo(id) {
+    return SHOWCASE_TEMPI[id] || SHOWCASE_TEMPI.normal;
+}
+
 export class ShowcasePlayback {
-    constructor({ reducedMotion = false, onChange = () => {} } = {}) {
+    constructor({ reducedMotion = false, onChange = () => {}, rate = 1 } = {}) {
         this.reducedMotion = reducedMotion;
         this.onChange = onChange;
+        this.rate = rate > 0 ? rate : 1;
         this.paused = false;
         this.aborted = false;
         this.pending = null;
@@ -24,13 +39,29 @@ export class ShowcasePlayback {
             };
             const timer = setInterval(() => {
                 const now = Date.now();
-                if (!this.paused) remaining -= now - last;
+                // Langsameres Tempo: Die Zeit vergeht für die Vorführung langsamer.
+                if (!this.paused) remaining -= (now - last) * this.rate;
                 last = now;
                 if (!this.paused && remaining <= 0) finish();
             }, 20);
-            this.pending = { reading, finish };
+            this.pending = { reading, finish, restart: () => { remaining = Math.max(0, duration); } };
             this.onChange();
         });
+    }
+
+    setRate(rate) {
+        if (rate > 0) this.rate = rate;
+        this.onChange();
+    }
+
+    /** Läuft gerade eine Lesezeit, die „Weiter" überspringen darf? */
+    get canSkip() {
+        return Boolean(this.pending?.reading);
+    }
+
+    /** Die laufende Lesezeit von vorn beginnen (nach „Nochmal lesen"). */
+    restartReading() {
+        if (this.pending?.reading) this.pending.restart();
     }
 
     togglePause() {

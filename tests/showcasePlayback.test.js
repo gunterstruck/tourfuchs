@@ -58,3 +58,47 @@ describe('Live-Demo playback', () => {
         expect(vi.getTimerCount()).toBe(0);
     });
 });
+
+describe('Tempo, Weiter und Nochmal lesen', () => {
+    it('spielt mit 1,0× um den Faktor 1,2 langsamer', async () => {
+        const { SHOWCASE_TEMPI, showcaseTempo } = await import('../src/features/showcasePlayback.js');
+        expect(showcaseTempo('slow').label).toBe('1,0×');
+        expect(showcaseTempo('unbekannt')).toBe(SHOWCASE_TEMPI.normal);
+        const slow = new ShowcasePlayback({ rate: SHOWCASE_TEMPI.slow.rate });
+        const fast = new ShowcasePlayback();
+        const t0 = Date.now();
+        await fast.wait(240);
+        const tFast = Date.now() - t0;
+        const t1 = Date.now();
+        await slow.wait(240);
+        const tSlow = Date.now() - t1;
+        expect(tSlow).toBeGreaterThan(tFast + 20);
+        expect(tSlow).toBeGreaterThanOrEqual(270);
+    });
+
+    it('überspringt nur Lesezeiten, nie Aktionen', async () => {
+        const playback = new ShowcasePlayback();
+        const action = playback.wait(5000);
+        expect(playback.canSkip).toBe(false);
+        playback.next();
+        expect(playback.pending).not.toBeNull();
+        playback.abort();
+        await expect(action).rejects.toBeInstanceOf(ShowcaseAbortError);
+
+        const reading = new ShowcasePlayback();
+        const text = reading.wait(5000, { reading: true });
+        expect(reading.canSkip).toBe(true);
+        reading.next();
+        await expect(text).resolves.toBeUndefined();
+    });
+
+    it('gibt einer Erklärung nach „Nochmal lesen" die volle Zeit zurück', async () => {
+        const playback = new ShowcasePlayback();
+        const start = Date.now();
+        const text = playback.wait(200, { reading: true });
+        await new Promise((r) => setTimeout(r, 150));
+        playback.restartReading();
+        await text;
+        expect(Date.now() - start).toBeGreaterThanOrEqual(330);
+    });
+});
