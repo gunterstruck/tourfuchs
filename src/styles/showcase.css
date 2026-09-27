@@ -182,12 +182,44 @@
 .sc-toolbar button:disabled { opacity: 0.45; }
 /* „Weiter" gibt es nur während einer Erklärung; „Nochmal" erst nach der ersten. */
 .sc-toolbar button[aria-disabled="true"] { opacity: 0.4; }
-.sc-toolbar .sc-tempo { font-variant-numeric: tabular-nums; }
-.sc-toolbar .sc-tempo[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
-.sc-toolbar .sc-tempo .sc-ico,
+.sc-toolbar .sc-tempo { gap: 4px; font-variant-numeric: tabular-nums; }
+.sc-toolbar .sc-tempo svg { flex: 0 0 auto; }
+.sc-toolbar .sc-tempo.is-slow { background: #ccfbf1; color: #115e59; }
 .sc-toolbar .sc-replay .sc-ico,
 .sc-toolbar .sc-skip .sc-ico { font-size: 0.95em; }
-.sc-toolbar .sc-tempo .sc-ico { display: none; }
+/* Tempo-Menü: klappt unter (oder über) dem Tacho auf. */
+.sc-toolbar { --sc-menu-gap: 8px; }
+.sc-tempo-menu {
+    position: absolute;
+    top: calc(100% + var(--sc-menu-gap));
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 116px;
+    padding: 6px;
+    background: var(--color-surface, #fff);
+    border: 1px solid var(--color-border, #e2e8f0);
+    border-radius: 14px;
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.24);
+}
+.sc-tempo-menu.sc-up { top: auto; bottom: calc(100% + var(--sc-menu-gap)); }
+.sc-tempo-menu[hidden] { display: none; }
+.sc-toolbar .sc-tempo-menu button[data-tempo] {
+    justify-content: flex-start;
+    gap: 6px;
+    min-width: 0;
+    min-height: 40px;
+    padding: 6px 12px;
+    border: 0;
+    border-radius: 10px;
+    background: transparent;
+    font-variant-numeric: tabular-nums;
+    text-align: left;
+}
+.sc-tempo-menu button small { color: var(--color-text-muted, #64748b); font-weight: 600; }
+.sc-tempo-menu button[aria-checked="true"] { background: #ccfbf1; color: #115e59; }
+.sc-tempo-menu button[aria-checked="true"]::after { content: '✓'; margin-left: auto; padding-left: 10px; }
 .sc-toolbar .sc-music[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
 .sc-toolbar .sc-ico { font-size: 0.8em; line-height: 1; }
 .sc-toolbar .sc-pause .sc-ico,
@@ -215,7 +247,7 @@
 .sc-toolbar.sc-compact .sc-music-volume,
 .sc-toolbar.sc-compact .sc-txt { display: none; }
 .sc-toolbar.sc-compact .sc-ico { display: inline; font-size: 0.95rem; }
-.sc-toolbar.sc-compact .sc-tempo .sc-ico { display: inline; font-size: 0.8rem; font-weight: 800; }
+.sc-toolbar.sc-compact .sc-tempo { gap: 3px; padding: 4px 7px; font-size: 0.8rem; font-weight: 800; }
 .sc-toolbar.sc-compact button {
     justify-content: center;
     min-width: 34px;
