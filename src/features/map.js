@@ -1860,10 +1860,36 @@ export function customersOnMap() {
     ));
 }
 
+/**
+ * Kundenmarker neu zeichnen – höchstens einmal je Durchlauf.
+ *
+ * Viele Ereignisse zeichnen die Marker neu (Filter, Reiter, Tour, Kunden …),
+ * und oft kommen mehrere direkt nacheinander: Nach dem Entsperren des Tresors
+ * stellt die App ihren Zustand wieder her und löst dabei ein gutes Dutzend
+ * davon aus. Jedes zeichnete alle Kunden von vorn – bei 2000 Kunden stand das
+ * Handy so viele Sekunden still, dass es eingefroren wirkte. Deshalb merkt
+ * sich jeder Aufruf nur, dass neu gezeichnet werden muss; gezeichnet wird
+ * einmal, sobald der laufende Code fertig ist.
+ */
+let markersQueued = false;
 function renderMarkers() {
+    if (markersQueued) return;
+    markersQueued = true;
+    queueMicrotask(() => {
+        markersQueued = false;
+        drawMarkers();
+    });
+}
+
+function drawMarkers() {
+    if (!clusterGroup) return;
     clusterGroup.clearLayers();
     customerMarkers = [];
     const markers = [];
+    // Einmal für alle: Die Popup-Abstände messen das Layout. Je Marker gemessen,
+    // kostete das bei vielen Kunden Sekunden – und beim Öffnen wird ohnehin neu
+    // gemessen (popupopen).
+    const popupOptionsForCustomers = customerPopupOptions();
     for (const customer of customersOnMap()) {
         const marker = L.marker([customer.lat, customer.lng], {
             icon: customerIcon(customer),
@@ -1871,7 +1897,7 @@ function renderMarkers() {
             title: `${customer.name} – Details öffnen`,
             alt: `${customer.name} – Details öffnen`
         });
-        marker.bindPopup(() => customerPopupHtml(customer), customerPopupOptions());
+        marker.bindPopup(() => customerPopupHtml(customer), popupOptionsForCustomers);
         marker.on('click', () => {
             animateCustomerMarkerOpen(marker);
             emit('customer:detail-opened', customer.id);
