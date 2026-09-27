@@ -11,15 +11,17 @@ export const SHOWCASE_TEMPI = Object.freeze({
     slow: Object.freeze({ id: 'slow', rate: 1 / 1.2, label: '1,0×' }),
     // „1,0×" ist nur 20 % langsamer – im Test kaum spürbar. Für wirklich
     // ruhiges Zusehen gibt es eine dritte Stufe (Faktor 1,5).
-    slower: Object.freeze({ id: 'slower', rate: 1 / 1.5, label: '0,8×' })
+    slower: Object.freeze({ id: 'slower', rate: 1 / 1.5, label: '0,8×' }),
+    slowest: Object.freeze({ id: 'slowest', rate: 1 / 2, label: '0,6×' })
 });
-const TEMPO_ORDER = ['normal', 'slow', 'slower'];
+/** Reihenfolge im Tempo-Menü: von schnell nach langsam. */
+export const TEMPO_ORDER = Object.freeze(['normal', 'slow', 'slower', 'slowest']);
 
 export function showcaseTempo(id) {
     return SHOWCASE_TEMPI[id] || SHOWCASE_TEMPI.normal;
 }
 
-/** Nächste Stufe beim Tippen: 1,2× → 1,0× → 0,8× → 1,2×. */
+/** Nächste Stufe: 1,2× → 1,0× → 0,8× → 0,6× → 1,2×. */
 export function nextShowcaseTempo(id) {
     const index = TEMPO_ORDER.indexOf(showcaseTempo(id).id);
     return SHOWCASE_TEMPI[TEMPO_ORDER[(index + 1) % TEMPO_ORDER.length]];
