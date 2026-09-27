@@ -70,10 +70,22 @@ function renderStatus(done, total) {
     if (box) {
         box.hidden = !handle;
         const count = box.querySelector('b');
-        if (count) count.textContent = `${done}/${total}`;
+        if (count) {
+            // „427 von 3.441" statt „427/3441": Mit Tausenderpunkt und „von"
+            // liest niemand die erste Zahl als abgeschnittene vierstellige.
+            count.textContent = exactGeocodeCountText(done, total);
+            // Platz für den Endstand reservieren – die Pille springt beim Zählen nicht.
+            count.style.minWidth = `${exactGeocodeCountText(total, total).length}ch`;
+        }
     }
     renderInfoState();
     emit('geocode:progress', { running: !!handle, done, total });
+}
+
+/** Fortschritt als „427 von 3.441". */
+export function exactGeocodeCountText(done, total) {
+    const fmt = (n) => (Number(n) || 0).toLocaleString('de-DE');
+    return `${fmt(done)} von ${fmt(total)}`;
 }
 
 /** Zahlen für die Statuszeile: nur eigene Kunden mit Straße. */
