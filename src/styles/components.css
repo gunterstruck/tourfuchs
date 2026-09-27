@@ -1883,8 +1883,21 @@ body.offers-receded #demo-banner {
     white-space: nowrap;
 }
 .geocode-status[hidden] { display: none; }
-.geocode-status b { font-variant-numeric: tabular-nums; }
-.geocode-status button { min-height: 30px; padding: 3px 12px; border-radius: 999px; font-size: 0.8rem; }
+/* Platz für bis zu „10000/10000" reservieren: Die Pille springt beim Zählen
+   nicht, und die Zahl stößt nie an „Anhalten" – auch nicht mit breiterer
+   Systemschrift (Windows, Android). */
+.geocode-status span { flex: 0 0 auto; }
+.geocode-status b {
+    display: inline-block;
+    min-width: 11ch;
+    margin-right: 2px;
+    font-variant-numeric: tabular-nums;
+    text-align: left;
+}
+.geocode-status button { flex: 0 0 auto; min-height: 30px; padding: 3px 12px; border-radius: 999px; font-size: 0.8rem; }
+@media (max-width: 380px) {
+    .geocode-status { gap: 6px; padding-left: 10px; font-size: 0.78rem; }
+}
 .info-setting {
     display: flex;
     align-items: flex-start;

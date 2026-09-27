@@ -128,3 +128,14 @@ describe('Verortung: Status, Anhalten und Dienstfehler', () => {
         expect(html).toContain('id="exact-geocode-now"');
     });
 });
+
+describe('Fortschritts-Pille', () => {
+    it('hält Platz für fünfstellige Zahlen frei („10000/10000")', async () => {
+        const { readFileSync } = await import('node:fs');
+        const css = readFileSync('src/styles/components.css', 'utf8');
+        const rule = css.slice(css.indexOf('.geocode-status b {'), css.indexOf('}', css.indexOf('.geocode-status b {')));
+        expect(rule).toContain('min-width: 11ch');
+        expect(rule).toContain('tabular-nums');
+        expect(css).toMatch(/\.geocode-status button \{ flex: 0 0 auto;/);
+    });
+});
