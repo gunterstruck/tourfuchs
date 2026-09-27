@@ -151,14 +151,31 @@ export function groupExactGeocodeCandidates(customers) {
 export function geocodeExact(customers, onProgress) {
     const groups = groupExactGeocodeCandidates(customers);
     let cancelled = false;
-    const handle = { cancel: () => { cancelled = true; }, total: groups.length };
+    let controller = null;          // laufende Anfrage – „Anhalten" bricht sie sofort ab
+    let wake = null;                // wartende Pause – „Anhalten" beendet sie sofort
+    const handle = {
+        cancel: () => {
+            cancelled = true;
+            controller?.abort();
+            wake?.();
+        },
+        total: groups.length
+    };
+    // Unterbrechbare Pause: Ein Tipp auf „Anhalten" soll nicht bis zu einer
+    // halben Minute auf das Ende einer Wartezeit warten müssen.
+    const pause = (ms) => new Promise((resolve) => {
+        const timer = setTimeout(() => { wake = null; resolve(); }, ms);
+        wake = () => { clearTimeout(timer); wake = null; resolve(); };
+    });
 
     handle.run = (async () => {
-        if (groups.length === 0) return { updated: 0, failed: 0, cancelled: false };
+        if (groups.length === 0) return { updated: 0, failed: 0, cancelled: false, serviceDown: false };
         const cache = await loadGeocodeCache();
         let updated = 0;
         let failed = 0;
         let requestsMade = 0;
+        let errorsInRow = 0;
+        let serviceDown = false;
 
         for (let i = 0; i < groups.length; i++) {
             if (cancelled) break;
@@ -166,7 +183,8 @@ export function geocodeExact(customers, onProgress) {
 
             let result = cache[group.key];
             if (result === undefined) {
-                if (requestsMade > 0) await sleep(CONFIG.nominatim.delayMs);
+                if (requestsMade > 0) await pause(CONFIG.nominatim.delayMs);
+                if (cancelled) break;
                 requestsMade++;
                 try {
                     const addressParams = nominatimAddressParams(group.sample);
@@ -176,19 +194,38 @@ export function geocodeExact(customers, onProgress) {
                         limit: '1',
                         ...addressParams
                     });
-                    const controller = new AbortController();
-                    const timer = setTimeout(() => controller.abort(), CONFIG.nominatim.timeout);
+                    controller = new AbortController();
+                    const timer = setTimeout(() => controller?.abort(), CONFIG.nominatim.timeout);
                     const response = await fetch(`${CONFIG.nominatim.url}?${params}`, {
                         signal: controller.signal,
                         headers: { 'Accept-Language': 'de' }
                     });
                     clearTimeout(timer);
-                    const json = response.ok ? await response.json() : [];
+                    if (!response.ok) {
+                        // 429 (zu viele Anfragen), 403 oder 5xx heißt „Dienst gerade
+                        // nicht bereit" – nicht „Adresse unbekannt". Früher wurde das
+                        // als „nicht gefunden" gespeichert und nie wieder versucht.
+                        const error = new Error(`Nominatim ${response.status}`);
+                        error.status = response.status;
+                        throw error;
+                    }
+                    const json = await response.json();
                     result = json[0] ? { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) } : null;
                     cache[group.key] = result;
+                    errorsInRow = 0;
                     if (i % 10 === 0) await saveGeocodeCache(cache);
-                } catch {
-                    result = undefined; // Netzfehler: nicht als "nicht gefunden" cachen
+                } catch (error) {
+                    result = undefined; // Netz- oder Dienstfehler: nicht als "nicht gefunden" cachen
+                    if (cancelled) break;
+                    errorsInRow += 1;
+                    // Dreimal hintereinander keine Antwort: aufhören statt weiter zu
+                    // klopfen. Beim nächsten Start oder nach einem Funkloch geht es
+                    // weiter; der Cache hält alles bisher Gefundene.
+                    if (errorsInRow >= 3) { serviceDown = true; break; }
+                    // Bei „zu viele Anfragen" deutlich länger warten.
+                    if (error?.status === 429) await pause(30000);
+                } finally {
+                    controller = null;
                 }
             }
 
@@ -200,14 +237,14 @@ export function geocodeExact(customers, onProgress) {
                     c.geo = 'exakt';
                 }
                 updated += group.customers.length;
-            } else {
+            } else if (result === null) {
                 failed += group.customers.length;
             }
             onProgress?.(i + 1, groups.length);
         }
 
         await saveGeocodeCache(cache);
-        return { updated, failed, cancelled };
+        return { updated, failed, cancelled, serviceDown };
     })();
 
     return handle;
