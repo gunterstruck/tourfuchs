@@ -93,11 +93,15 @@ describe('Begrüßung ohne eigene Daten: Vorführung zuerst, Selbststart', () =>
         expect(showcase).toContain("on('demo-welcome:autostart', () => startShowcaseLoop());");
     });
 
-    it('bricht den Selbststart bei jeder Bedienung ab und zählt nur sichtbare Zeit', () => {
-        expect(welcome).toContain("['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => {\n        document.addEventListener(type, cancelAutostart, { capture: true, passive: true });");
-        expect(welcome).toContain('if (!document.hidden) left -= now - last;');
-        // Ein offenes Fenster ist eine Bedienung – nicht dazwischenfahren.
-        expect(welcome).toContain("if (document.querySelector('dialog[open]')) return;");
+    it('bricht den Selbststart nur bei echter Bedienung ab und zählt nur sichtbare Zeit', () => {
+        // Bloßes Berühren (touchstart/pointerdown irgendwo) zählt nicht mehr –
+        // auf manchen Handys startete die Vorführung sonst praktisch nie.
+        expect(welcome).not.toContain("['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach");
+        expect(welcome).toContain('watchDeliberateUse();');
+        expect(welcome).toContain('if (!waiting) left -= now - last;');
+        // Ein offenes Fenster hält den Countdown an, statt ihn still aufzugeben.
+        expect(welcome).toContain("const waiting = document.hidden || Boolean(document.querySelector('dialog[open]'));");
+        expect(welcome).toContain('if (left > 0 || waiting) return;');
     });
 
     it('startet mit „In Aktion sehen" direkt die erste Demo statt der Auswahl', () => {
@@ -124,5 +128,18 @@ describe('Entdeck-Hinweise bei Beispieldaten wieder scharf', () => {
         expect(responsive).toContain('(min-width: 769px) and (orientation: landscape)');
         const desktopBlock = responsive.slice(responsive.indexOf('@media (min-width: 1201px)'));
         expect(desktopBlock).toContain('.mobile-next-step');
+    });
+});
+
+describe('Selbststart: was als Bedienung zählt', () => {
+    it('zählt Tipps auf Bedienelemente und echte Tasten, nicht die Karte oder Umschalt', async () => {
+        const { isDeliberateTap, isDeliberateKey } = await import('../src/ui/demoWelcome.js');
+        document.body.innerHTML = '<div id="map"><div class="plain"><span id="bg">x</span></div></div><button id="b"><span id="inner">Los</span></button><a href="#" id="l">Link</a>';
+        expect(isDeliberateTap(document.getElementById('inner'))).toBe(true);
+        expect(isDeliberateTap(document.getElementById('l'))).toBe(true);
+        expect(isDeliberateTap(document.getElementById('bg'))).toBe(false);
+        expect(isDeliberateTap(document.body)).toBe(false);
+        expect(isDeliberateKey({ key: 'a' })).toBe(true);
+        expect(isDeliberateKey({ key: 'Shift' })).toBe(false);
     });
 });

@@ -9,9 +9,10 @@
  * (sessionStorage).
  *
  * Tut niemand etwas, startet die Vorführung nach zehn Sekunden von selbst. Die
- * erste Bedienung irgendwo in der App bricht das endgültig ab (wer sich bewegt,
- * will sich selbst umsehen), und gezählt wird nur, solange der Tab sichtbar
- * ist. Ton gibt es dann erst nach einem Tipp – der Browser erlaubt Musik nur
+ * erste echte Bedienung bricht das endgültig ab (wer etwas antippt oder die
+ * Karte bewegt, will sich selbst umsehen) – bloßes Berühren, Scrollen oder das
+ * Handy-in-der-Hand-Zurechtrücken nicht. Gezählt wird nur, solange der Tab
+ * sichtbar und kein Fenster offen ist. Ton gibt es dann erst nach einem Tipp – der Browser erlaubt Musik nur
  * nach einer Nutzergeste.
  *
  * Die Karte blockiert nicht: Daneben bleibt die Landkarte bedienbar. Jeder
@@ -96,17 +97,19 @@ function startAutostart() {
     autostart = {
         timer: setInterval(() => {
             const now = Date.now();
-            // Nur sichtbare Zeit zählt: im Hintergrund geöffnet heißt nicht angesehen.
-            if (!document.hidden) left -= now - last;
+            // Nur sichtbare Zeit zählt: im Hintergrund geöffnet heißt nicht
+            // angesehen. Ein offenes Fenster (auch eines, das sich von selbst
+            // geöffnet hat) hält die Zeit an – danach geht es weiter. Früher
+            // lief der Countdown durch und gab dann still auf: Der Knopf war
+            // voll, aber nichts startete.
+            const waiting = document.hidden || Boolean(document.querySelector('dialog[open]'));
+            if (!waiting) left -= now - last;
             last = now;
-            button.classList.toggle('is-waiting', document.hidden);
+            button.classList.toggle('is-waiting', waiting);
             if (count) count.textContent = String(Math.max(1, Math.ceil(left / 1000)));
-            if (left > 0) return;
+            if (left > 0 || waiting) return;
             stopAutostart();
             autostartCancelled = true;
-            // Ein offenes Fenster (Import, Info …) ist eine Bedienung, die nur
-            // noch nicht als Tipp ankam – dann nicht dazwischenfahren.
-            if (document.querySelector('dialog[open]')) return;
             markAcknowledged();
             render();
             emit('demo-welcome:autostart');
@@ -124,6 +127,55 @@ function stopAutostart() {
 function cancelAutostart() {
     autostartCancelled = true;
     stopAutostart();
+}
+
+// ---- Was als Bedienung zählt ----
+//
+// Früher brach schon das bloße Aufsetzen eines Fingers (touchstart,
+// pointerdown) den Selbststart ab – irgendwo, auch beim Scrollen oder beim
+// Zurechtrücken des Handys. Auf manchen Geräten startete die Vorführung
+// deshalb praktisch nie von selbst. Jetzt zählt nur, was wirklich etwas tut:
+// ein Tipp auf ein Bedienelement, die Karte ziehen oder zoomen, eine Taste.
+const CONTROL = 'button, a[href], input, select, textarea, label, summary, [role="button"], [contenteditable="true"], .leaflet-marker-icon, .leaflet-interactive';
+const DRAG_PX = 12;
+
+/** Tipp auf ein Bedienelement? */
+export function isDeliberateTap(target) {
+    return Boolean(target?.closest?.(CONTROL));
+}
+
+/** Taste, die etwas tut – nicht bloß Umschalt, Strg & Co. */
+export function isDeliberateKey(event) {
+    return !['Shift', 'Control', 'Alt', 'Meta', 'CapsLock', 'Fn'].includes(event?.key);
+}
+
+function watchDeliberateUse() {
+    const onMap = (target) => Boolean(target?.closest?.('#map'));
+    const pointers = new Map(); // pointerId -> { x, y, map }
+    document.addEventListener('click', (event) => {
+        if (isDeliberateTap(event.target)) cancelAutostart();
+    }, { capture: true, passive: true });
+    document.addEventListener('keydown', (event) => {
+        if (isDeliberateKey(event)) cancelAutostart();
+    }, { capture: true, passive: true });
+    // Mausrad über der Karte ist Zoomen; anderswo nur Scrollen.
+    document.addEventListener('wheel', (event) => {
+        if (onMap(event.target)) cancelAutostart();
+    }, { capture: true, passive: true });
+    // Karte ziehen oder mit zwei Fingern zoomen – bloßes Antippen nicht.
+    document.addEventListener('pointerdown', (event) => {
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY, map: onMap(event.target) });
+        const onMapNow = [...pointers.values()].filter((p) => p.map).length;
+        if (onMapNow >= 2) cancelAutostart();
+    }, { capture: true, passive: true });
+    document.addEventListener('pointermove', (event) => {
+        const start = pointers.get(event.pointerId);
+        if (!start?.map) return;
+        if (Math.hypot(event.clientX - start.x, event.clientY - start.y) > DRAG_PX) cancelAutostart();
+    }, { capture: true, passive: true });
+    const release = (event) => pointers.delete(event.pointerId);
+    document.addEventListener('pointerup', release, { capture: true, passive: true });
+    document.addEventListener('pointercancel', release, { capture: true, passive: true });
 }
 
 export function initDemoWelcome() {
@@ -159,12 +211,10 @@ export function initDemoWelcome() {
         dismiss();
     });
 
-    // Jede Bedienung irgendwo in der App bricht den Selbststart ab – Karte
-    // schieben und zoomen eingeschlossen. Erfasst in der Einfangphase, damit
-    // Leaflet oder ein Knopf das Ereignis nicht vorher verschluckt.
-    ['pointerdown', 'keydown', 'wheel', 'touchstart'].forEach((type) => {
-        document.addEventListener(type, cancelAutostart, { capture: true, passive: true });
-    });
+    // Echte Bedienung bricht den Selbststart ab – Karte schieben und zoomen
+    // eingeschlossen. Erfasst in der Einfangphase, damit Leaflet oder ein
+    // Knopf das Ereignis nicht vorher verschluckt.
+    watchDeliberateUse();
 
     on('app:ready', render);
     on('showcase:running', render);
