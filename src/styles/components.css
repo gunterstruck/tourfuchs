@@ -1883,13 +1883,13 @@ body.offers-receded #demo-banner {
     white-space: nowrap;
 }
 .geocode-status[hidden] { display: none; }
-/* Platz für bis zu „10000/10000" reservieren: Die Pille springt beim Zählen
-   nicht, und die Zahl stößt nie an „Anhalten" – auch nicht mit breiterer
-   Systemschrift (Windows, Android). */
+/* Die Zahl („427 von 3.441") bekommt ihren Platz: Die Breite für den
+   Endstand setzt exactGeocoding.js, Text und Knopf schrumpfen nicht – so
+   stößt die Zahl nie an „Anhalten". */
 .geocode-status span { flex: 0 0 auto; }
 .geocode-status b {
     display: inline-block;
-    min-width: 11ch;
+    margin-left: 2px;
     margin-right: 2px;
     font-variant-numeric: tabular-nums;
     text-align: left;

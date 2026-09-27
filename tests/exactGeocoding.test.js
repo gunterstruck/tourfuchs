@@ -130,11 +130,15 @@ describe('Verortung: Status, Anhalten und Dienstfehler', () => {
 });
 
 describe('Fortschritts-Pille', () => {
-    it('hält Platz für fünfstellige Zahlen frei („10000/10000")', async () => {
+    it('zeigt „427 von 3.441" und hält Platz für den Endstand frei', async () => {
+        const { exactGeocodeCountText } = await import('../src/ui/exactGeocoding.js');
+        expect(exactGeocodeCountText(427, 3441)).toBe('427 von 3.441');
+        expect(exactGeocodeCountText(10000, 10000)).toBe('10.000 von 10.000');
         const { readFileSync } = await import('node:fs');
+        const ui = readFileSync('src/ui/exactGeocoding.js', 'utf8');
+        expect(ui).toContain('count.style.minWidth = `${exactGeocodeCountText(total, total).length}ch`');
         const css = readFileSync('src/styles/components.css', 'utf8');
         const rule = css.slice(css.indexOf('.geocode-status b {'), css.indexOf('}', css.indexOf('.geocode-status b {')));
-        expect(rule).toContain('min-width: 11ch');
         expect(rule).toContain('tabular-nums');
         expect(css).toMatch(/\.geocode-status button \{ flex: 0 0 auto;/);
     });
