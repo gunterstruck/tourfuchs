@@ -181,3 +181,21 @@ describe('Vault: Auto-Lock-Zeit', () => {
         expect(vault.autoLockMs()).toBe(0);
     });
 });
+
+describe('Vault: Auto-Sperre während eines Demo-Films', () => {
+    it('schiebt die fällige Sperre auf, solange ein Film läuft – und sperrt, sobald er endet', async () => {
+        await vault.setup('1234', { iterations: 1000, autoLockMs: 40 });
+        vault.holdAutoLock(true);
+        await new Promise((resolve) => setTimeout(resolve, 90));
+        expect(vault.isUnlocked()).toBe(true);     // mitten im Film: nicht gesperrt
+        vault.holdAutoLock(false);
+        expect(vault.isUnlocked()).toBe(false);    // Film vorbei: fällige Sperre greift
+    });
+
+    it('sperrt ohne laufenden Film wie gewohnt', async () => {
+        await vault.setup('1234', { iterations: 1000, autoLockMs: 40 });
+        vault.holdAutoLock(false);
+        await new Promise((resolve) => setTimeout(resolve, 90));
+        expect(vault.isUnlocked()).toBe(false);
+    });
+});

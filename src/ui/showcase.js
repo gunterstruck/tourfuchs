@@ -13,7 +13,7 @@
 
 import { STORIES, visibleStories, visibleStorySteps, prepareShowcaseTour, selectShowcaseTour, storyDuration } from '../features/stories.js';
 import { state, emit, markDirty, datasetSnapshot, on, visibleCustomers } from '../core/state.js';
-import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
+import { isEnabled as vaultEnabled, isUnlocked as vaultUnlocked, holdAutoLock, onVault, removeVaultMeta } from '../services/vault.js';
 import { saveDataset } from '../services/storage.js';
 import {
     allShowcaseStoriesSeen,
@@ -1763,6 +1763,9 @@ function showChrome(story) {
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
 }
 function syncPlaybackControls() {
+    // Solange ein Film läuft, sperrt der Tresor nicht mittendrin; pausiert
+    // jemand und geht weg, gilt die normale Auto-Sperre wieder.
+    holdAutoLock(running && !(playback?.paused ?? false));
     // Nach einem Tipp auf die Fläche läuft die Musik weiter – erst „Selbst
     // ausprobieren" lässt sie ausklingen.
     music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch });
@@ -1918,6 +1921,7 @@ async function play(story) {
     restoreFilters = captureShowcaseFilters();
     setLassoBriefingPreview(true);
     setCustomerBriefingPreview(true);
+    holdAutoLock(true);
     let completed = false;
     let failure = null;
     ensureDom();
@@ -1968,6 +1972,15 @@ async function play(story) {
         music.setPlayback({ active: false, onBreak: !backToImport && (completed || Boolean(failure)) });
         cleanup(story);
         running = false;
+        // Film vorbei: War die Auto-Sperre inzwischen fällig, greift sie jetzt.
+        holdAutoLock(false);
+    }
+    // Tresor gerade gesperrt (fällige Auto-Sperre oder Tipp aufs Schloss):
+    // Kundendaten sind weg, der Sperrbildschirm steht. Kein Abschlussfenster,
+    // kein Countdown, keine Fehlermeldung – die Runde ist einfach zu Ende.
+    if (vaultEnabled() && !vaultUnlocked()) {
+        endRound();
+        return;
     }
     // Hilfe aus dem Import-Fenster: Wer von dort kam, will danach importieren –
     // nicht acht Sekunden später in die nächste Demo. Also zurück, auch nach
@@ -2248,6 +2261,15 @@ export function initShowcase() {
     dialog = document.getElementById('showcase-dialog');
     if (!dialog) return;
     ensureDom();
+
+    // Tresor sperrt (Schloss angetippt, oder Auto-Sperre nach einer Pause):
+    // Die Kundendaten sind dann aus dem Speicher – ein laufender Film endet
+    // still, ein offenes Auswahlfenster samt Countdown schließt sich.
+    onVault('locked', () => {
+        abortNow();
+        clearAutoAdvance();
+        if (dialog.open) dialog.close();
+    });
 
     // Ein Trichter statt konkurrierender Auto-Dialoge: Der Showcase öffnet nur
     // noch auf bewussten Klick – aus dem Willkommens-Panel oder der Info.
