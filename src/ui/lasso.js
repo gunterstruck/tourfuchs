@@ -230,6 +230,28 @@ function dropSelectionIfStale() {
 }
 
 /**
+ * Nach verschobenen Positionen: Auswahl behalten, wenn es noch dieselben
+ * Kunden sind, und die Leuchtpunkte an die neuen Stellen setzen.
+ * @returns {boolean} true, wenn die Auswahl bleibt
+ */
+function keepSelectionAfterMove() {
+    if (!selection.length) return true;
+    const byId = new Map(state.customers.map((customer) => [customer.id, customer]));
+    if (!selection.every((customer) => byId.get(customer.id) === customer)) return false;
+    const map = getMap();
+    if (hitLayer && map) {
+        map.removeLayer(hitLayer);
+        hitLayer = L.layerGroup(
+            selection
+                .filter((customer) => Number.isFinite(Number(customer.lat)) && Number.isFinite(Number(customer.lng)))
+                .slice(0, MAX_HIGHLIGHTS)
+                .map((customer) => L.circleMarker([customer.lat, customer.lng], { ...HIT_STYLE, interactive: false }))
+        ).addTo(map);
+    }
+    return true;
+}
+
+/**
  * Auswahl sichtbar machen.
  *
  * Die Leuchtpunkte liegen auf einer eigenen Ebene über den Clustern: Ein
@@ -644,7 +666,14 @@ export function initLasso() {
     // Zoom (Flächenansicht = keine Marker) und am Chancen-Filter. Ohne dieses
     // Ereignis bliebe der Knopf stehen, wo er nichts mehr treffen kann.
     on('map:markers-rendered', () => { dropSelectionIfStale(); syncButtonVisibility(); });
-    on('customers:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
+    on('customers:changed', (info) => {
+        // Nur Positionen verschoben (Hintergrund-Verortung): Die Auswahl bleibt,
+        // ihre Leuchtpunkte ziehen mit. Sonst schloss sich die Liste mitten in
+        // der Bedienung – und in der Briefing-Demo fehlten die Häkchen.
+        if (info?.reason === 'positions' && keepSelectionAfterMove()) { syncButtonVisibility(); return; }
+        clearLassoSelection();
+        syncButtonVisibility();
+    });
     on('filters:changed', () => { clearLassoSelection(); syncButtonVisibility(); });
     on('mode:changed', syncButtonVisibility);
     // Das Blatt auf- und zuziehen ändert, ob die Karte überhaupt sichtbar ist.

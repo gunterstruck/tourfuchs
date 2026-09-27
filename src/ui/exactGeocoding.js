@@ -138,6 +138,29 @@ function renderInfoState() {
     if (now) now.hidden = !offerNow;
 }
 
+/**
+ * Die Verortung verschiebt nur Punkte – die Kunden bleiben dieselben. Wer an
+ * `customers:changed` eine Auswahl verwirft (Lasso), darf sie dann behalten.
+ * Früher schloss jede Zwischenstation die Lasso-Liste – mitten in der
+ * Briefing-Demo fehlten dadurch die Häkchen.
+ */
+export const POSITIONS_ONLY = Object.freeze({ reason: 'positions' });
+
+// Live-Demo: Verortung anhalten und danach fortsetzen. Die Demo braucht die
+// Karte ruhig, und das Handy seine Rechenzeit für den Film.
+let showcaseRunning = false;
+let heldForShowcase = false;
+function onShowcaseRunning(running) {
+    showcaseRunning = Boolean(running);
+    if (showcaseRunning) {
+        if (handle) { heldForShowcase = true; cancelExactGeocoding(); }
+        return;
+    }
+    if (!heldForShowcase) return;
+    heldForShowcase = false;
+    runExactGeocoding();
+}
+
 /** Zwischenstand höchstens so oft zeigen und sichern. */
 const CHECKPOINT_MS = 60000;
 
@@ -147,6 +170,8 @@ const CHECKPOINT_MS = 60000;
  */
 export async function runExactGeocoding({ manual = false } = {}) {
     if (handle || insideMobilePreview) return null;
+    // Während einer Live-Demo ruht die Verortung und läuft danach weiter.
+    if (showcaseRunning) { heldForShowcase = exactGeocodePreference() === 'yes' || manual; return null; }
     if (!manual && (pausedThisVisit || exactGeocodePreference() !== 'yes')) return null;
     if (typeof navigator !== 'undefined' && navigator.onLine === false) {
         lastOutcome = 'offline';
@@ -171,7 +196,7 @@ export async function runExactGeocoding({ manual = false } = {}) {
             // Bestand – bei vielen Kunden spürt man das am Handy.
             if (Date.now() - lastCheckpoint >= CHECKPOINT_MS) {
                 lastCheckpoint = Date.now();
-                emit('customers:changed');
+                emit('customers:changed', POSITIONS_ONLY);
                 if (customers === state.customers) saveDataset(datasetSnapshot());
             }
         });
@@ -195,7 +220,9 @@ export async function runExactGeocoding({ manual = false } = {}) {
     // Sperre oder einem neuen Import).
     if (customers !== state.customers) return result;
     await saveDataset(datasetSnapshot());
-    emit('customers:changed');
+    emit('customers:changed', POSITIONS_ONLY);
+    // Für eine Live-Demo angehalten: kein „Angehalten"-Hinweis mitten im Film.
+    if (result.cancelled && heldForShowcase) return result;
     if (result.serviceDown) {
         showToast('OpenStreetMap antwortet gerade nicht. TourFuchs versucht es beim nächsten Start erneut – Gefundenes bleibt erhalten.', 'info', 7000);
     } else if (manual || result.updated > 0) {
@@ -288,4 +315,5 @@ export function initExactGeocoding() {
     // obwohl die App gesperrt ist, und blockierte den Neustart nach dem Entsperren.
     onVault('locked', () => { if (handle) { lockedDuringRun = true; cancelExactGeocoding(); } });
     on('customers:changed', renderInfoState);
+    on('showcase:running', onShowcaseRunning);
 }
