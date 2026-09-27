@@ -1896,6 +1896,24 @@ body.offers-receded #demo-banner {
     cursor: pointer;
 }
 .info-setting input { margin-top: 3px; }
+.info-setting-group { margin: 0 0 12px; }
+.info-setting-group .info-setting { margin: 0; }
+/* Statuszeile unter „Adressen genau verorten": tut sich etwas, wie weit ist es? */
+.geocode-state {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 6px;
+    padding: 8px 12px;
+    border-radius: var(--radius-l, 12px);
+    background: var(--color-surface-2, #f8fafc);
+    font-size: 0.86rem;
+    line-height: 1.4;
+}
+.geocode-state[hidden] { display: none; }
+.geocode-state-text { flex: 1 1 200px; }
+.geocode-state button { min-height: 32px; padding: 4px 12px; border-radius: 999px; font-size: 0.82rem; }
 
 /* Zentraler Willkommens-Hinweis über der Karte (nicht blockierend): liegt über
    dem Kartenbereich rechts der Sidebar, lässt die Karte darunter aber bedienbar
