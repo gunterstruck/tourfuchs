@@ -82,6 +82,70 @@ export function parseSafeContainer(input) {
 }
 
 /**
+ * Eine gewählte Datei lesen – tolerant und mit Befund, falls es nicht klappt.
+ *
+ * Unterwegs (Mail, Cloud, Firmenfilter) kommt eine .tfsafe-Datei nicht immer
+ * unverändert an: leer, weil die Cloud nur einen Platzhalter geliefert hat;
+ * als UTF-16 neu gespeichert; mit vorangestelltem Text; Base64-verpackt; oder
+ * ganz ersetzt durch die Hinweisseite eines Filters. Was sich retten lässt,
+ * wird gerettet – sonst sagt der Befund, was mit der Datei los ist, statt nur
+ * „ungültig".
+ *
+ * @param {ArrayBuffer|Uint8Array} input  Dateiinhalt
+ * @returns {{container:object}|{problem:'empty'|'zip'|'pdf'|'html'|'binary'|'truncated'|'foreign'}}
+ */
+export function readSafeFile(input) {
+    const bytes = input instanceof Uint8Array ? input : new Uint8Array(input || new ArrayBuffer(0));
+    if (bytes.length === 0) return { problem: 'empty' };
+    const text = decodeText(bytes).trim();
+    if (!text) return { problem: 'empty' };
+    for (const candidate of containerCandidates(text)) {
+        const container = parseSafeContainer(candidate);
+        if (container) return { container };
+    }
+    if (bytes[0] === 0x50 && bytes[1] === 0x4b) return { problem: 'zip' };
+    if (text.startsWith('%PDF')) return { problem: 'pdf' };
+    if (/^<(!doctype|html|\?xml|head|body|div|p\b|meta)/i.test(text)) return { problem: 'html' };
+    if (text.includes(SAFE_MAGIC)) return { problem: 'truncated' };
+    if (looksBinary(bytes)) return { problem: 'binary' };
+    return { problem: 'foreign' };
+}
+
+function decodeText(bytes) {
+    const le = bytes[0] === 0xff && bytes[1] === 0xfe;
+    const be = bytes[0] === 0xfe && bytes[1] === 0xff;
+    // UTF-16 ohne BOM: jedes zweite Byte ist bei JSON-Text eine Null.
+    const zeros = bytes.length > 8 && bytes[1] === 0 && bytes[3] === 0 && bytes[5] === 0;
+    const encoding = be ? 'utf-16be' : (le || zeros) ? 'utf-16le' : 'utf-8';
+    try { return new TextDecoder(encoding).decode(bytes); } catch { return ''; }
+}
+
+function* containerCandidates(text) {
+    yield text;
+    // Text davor oder danach (Signatur, Hinweiszeile): den JSON-Kern herausschneiden.
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start > 0 || (end >= 0 && end < text.length - 1)) {
+        if (start >= 0 && end > start) yield text.slice(start, end + 1);
+    }
+    // Base64-verpackt (manche Mail- oder Cloudwege)
+    const compact = text.replace(/\s+/g, '');
+    if (compact.length >= 16 && /^[A-Za-z0-9+/_-]+={0,2}$/.test(compact)) {
+        try {
+            const decoded = new TextDecoder().decode(fromB64(compact.replace(/-/g, '+').replace(/_/g, '/')));
+            if (decoded.trim().startsWith('{')) yield decoded.trim();
+        } catch { /* kein Base64 */ }
+    }
+}
+
+function looksBinary(bytes) {
+    const sample = bytes.subarray(0, 512);
+    let control = 0;
+    for (const b of sample) if (b === 0 || (b < 9) || (b > 13 && b < 32)) control += 1;
+    return control > sample.length * 0.05;
+}
+
+/**
  * Schlüssel-QR „TFK1:<id>:<base64key>" zerlegen.
  * @returns {{id:string, keyB64:string}|null}
  */

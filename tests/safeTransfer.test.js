@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
     createSafeTransfer, parseSafeContainer, isSafeContainer,
-    parseKeyQr, keyMatchesContainer, decryptSafeTransfer,
+    parseKeyQr, keyMatchesContainer, decryptSafeTransfer, readSafeFile,
     SAFE_MAGIC, SAFE_KEY_PREFIX
 } from '../src/features/safeTransfer.js';
 
@@ -121,5 +121,47 @@ describe('parseSafeContainer', () => {
         expect(parseSafeContainer('{"foo":1}')).toBeNull();
         expect(parseSafeContainer({ iv: 'x', ct: 'y' })).toBeNull(); // ohne Magic/ID
         expect(parseSafeContainer(null)).toBeNull();
+    });
+});
+
+describe('readSafeFile: Datei vom Handy lesen', () => {
+    // Unterwegs (Mail, Cloud, Firmenfilter) kommt die Datei nicht immer
+    // unverändert an. Was sich retten lässt, wird gerettet – sonst gibt es
+    // einen Befund statt nur „ungültig".
+    const enc = (text) => new TextEncoder().encode(text);
+    const utf16 = (text, bom) => {
+        const out = new Uint8Array((bom ? 2 : 0) + text.length * 2);
+        if (bom) { out[0] = 0xff; out[1] = 0xfe; }
+        for (let i = 0; i < text.length; i += 1) out[(bom ? 2 : 0) + i * 2] = text.charCodeAt(i);
+        return out;
+    };
+
+    it('liest die unveränderte Datei und rettet übliche Verpackungen', async () => {
+        const { container } = await createSafeTransfer(DATASET);
+        const json = JSON.stringify(container);
+        const b64 = Buffer.from(json).toString('base64');
+        for (const bytes of [
+            enc(json),
+            enc(`\ufeff${json}\n`),
+            enc(`Anhang:\r\n${json}\r\n-- \r\nGesendet von meinem Handy`),
+            utf16(json, true),
+            utf16(json, false),
+            enc(b64.replace(/(.{76})/g, '$1\r\n'))
+        ]) {
+            expect(readSafeFile(bytes).container?.id).toBe(container.id);
+        }
+    });
+
+    it('sagt, was mit einer kaputten Datei los ist', async () => {
+        const { container } = await createSafeTransfer(DATASET);
+        const json = JSON.stringify(container);
+        expect(readSafeFile(new Uint8Array(0))).toEqual({ problem: 'empty' });
+        expect(readSafeFile(enc('   '))).toEqual({ problem: 'empty' });
+        expect(readSafeFile(enc(json.slice(0, json.length / 2)))).toEqual({ problem: 'truncated' });
+        expect(readSafeFile(enc('<!DOCTYPE html><p>Anhang blockiert</p>'))).toEqual({ problem: 'html' });
+        expect(readSafeFile(enc('%PDF-1.7 ...'))).toEqual({ problem: 'pdf' });
+        expect(readSafeFile(new Uint8Array([0x50, 0x4b, 3, 4, 0, 0, 0, 0]))).toEqual({ problem: 'zip' });
+        expect(readSafeFile(new Uint8Array([0xd0, 0xcf, 0x11, 0xe0, 0, 1, 2, 3, 0, 0, 5, 6]))).toEqual({ problem: 'binary' });
+        expect(readSafeFile(enc('Name;PLZ\nMüller;45127'))).toEqual({ problem: 'foreign' });
     });
 });
