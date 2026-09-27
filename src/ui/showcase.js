@@ -42,7 +42,7 @@ import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPr
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { loadDemo, openMappingForShowcase, openOwnDataDialog } from './importWizard.js';
-import { ShowcasePlayback, ShowcaseAbortError as AbortError, showcaseTempo } from '../features/showcasePlayback.js';
+import { ShowcasePlayback, ShowcaseAbortError as AbortError, showcaseTempo, nextShowcaseTempo, showcaseTempoForRate } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
 import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
 import { ShowcaseMusic } from '../features/showcaseMusic.js';
@@ -115,8 +115,8 @@ let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let demoTour = null;          // Tour-Demo: Zuhause, Ziel, Kunden auf dem Weg
 let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
-let lastSay = null;           // letzte Sprechblase – für „Nochmal lesen"
-let replayShown = false;      // steht die Blase gerade wegen „Nochmal lesen"?
+let sayHistory = [];          // bisherige Erklärungen – für „Zurück"
+let replayAt = -1;            // Index in sayHistory beim Zurückblättern, -1 = live
 const music = new ShowcaseMusic({ onChange: syncMusicControls });
 
 // ---- Tempo ----
@@ -132,7 +132,7 @@ function applyTempo(tempo) {
     playback?.setRate(tempo.rate);
 }
 function toggleTempo() {
-    const next = storedTempo().id === 'slow' ? showcaseTempo('normal') : showcaseTempo('slow');
+    const next = nextShowcaseTempo(storedTempo().id);
     try { localStorage.setItem(TEMPO_KEY, next.id); } catch { /* nur für diese Sitzung */ }
     applyTempo(next);
 }
@@ -570,6 +570,20 @@ async function say(text, sel, pos) {
         const target = centerOf(anchor);
         await moveTo(target.x, target.y);
     }
+    // Zwischendurch zurückgeblättert? Dann steht dort ein älterer Text.
+    bubbleEl.textContent = text;
+    bubbleEl.classList.remove('sc-replaying');
+    placeBubble(anchor, pos);
+    sayHistory.push({ text, sel, pos, progress: toolbarEl?.querySelector('.sc-progress')?.textContent || '' });
+    if (sayHistory.length > 60) sayHistory.shift();
+    replayAt = -1;
+    bubbleEl.classList.remove('sc-replaying');
+    // Erklärt die Blase etwas anderes als den letzten Klick, gilt ab jetzt das.
+    if (anchor) setToolbarFocus(anchor); else scheduleToolbarPlacement();
+}
+/** Blase neben ihr Ziel (oder mittig) setzen – ohne Warten. */
+function placeBubble(anchor, pos) {
+    bubbleEl.hidden = false;
     // Erst JETZT messen: Zwischen dem Setzen des Textes und hier ist die Blase
     // womöglich in einen Dialog umgehängt worden.
     const bw = bubbleEl.offsetWidth;
@@ -612,50 +626,69 @@ async function say(text, sel, pos) {
     bubbleEl.style.left = `${x - off.x}px`;
     bubbleEl.style.top = `${y - off.y}px`;
     bubbleEl.classList.add('sc-show');
-    lastSay = { text, left: bubbleEl.style.left, top: bubbleEl.style.top, parent: bubbleEl.parentNode };
-    replayShown = false;
-    // Erklärt die Blase etwas anderes als den letzten Klick, gilt ab jetzt das.
-    if (anchor) setToolbarFocus(anchor); else scheduleToolbarPlacement();
 }
 function hideBubble() {
     if (!bubbleEl) return;
-    replayShown = false;
+    bubbleEl.classList.remove('sc-replaying');
     bubbleEl.classList.remove('sc-show');
     bubbleEl.hidden = true;
 }
 
 /**
- * „Nochmal lesen": die letzte Erklärung zurückholen und anhalten.
+ * „Zurück": Schritt für Schritt durch die bisherigen Erklärungen blättern.
  *
- * Zurückspulen geht in einer Live-Vorführung nicht – die App hat sich durch
- * die Klicks wirklich verändert. Gewollt ist ohnehin meist der Satz, der zu
- * schnell weg war. Er erscheint wieder an seiner Stelle, der Film hält an;
- * „Fortsetzen" oder „Weiter" geht von dort aus weiter.
+ * Echtes Zurückspulen geht in einer Live-Vorführung nicht – die App hat sich
+ * durch die Klicks wirklich verändert. Zurück geht aber jede Erklärung: Der
+ * Film hält an, der Zeiger zeigt wieder auf das, worum es ging, die Blase
+ * steht dort, und der Zähler zeigt den Schritt (↺ 4 / 23). Jeder weitere Tipp
+ * geht einen Schritt weiter zurück; „Fortsetzen" oder „Weiter" kehrt zur
+ * laufenden Stelle zurück.
  */
-function replayLastSay() {
-    if (!lastSay || !playback || !bubbleEl) return;
+function replayBack() {
+    if (!sayHistory.length || !playback || !bubbleEl) return;
     if (!playback.paused) playback.togglePause();
-    // Steht die Blase noch (Lesezeit läuft), bekommt sie ihre volle Zeit zurück.
-    playback.restartReading();
-    const showing = !bubbleEl.hidden && bubbleEl.classList.contains('sc-show') && bubbleEl.textContent === lastSay.text;
-    if (showing) return;
-    const home = lastSay.parent?.isConnected ? lastSay.parent : document.body;
-    if (bubbleEl.parentNode !== home) home.append(bubbleEl);
-    bubbleEl.textContent = lastSay.text;
-    if (home === lastSay.parent) {
-        bubbleEl.style.left = lastSay.left;
-        bubbleEl.style.top = lastSay.top;
-    } else {
-        bubbleEl.style.left = `${Math.max(12, window.innerWidth / 2 - bubbleEl.offsetWidth / 2)}px`;
-        bubbleEl.style.top = `${Math.max(64, window.innerHeight * 0.16)}px`;
-    }
-    bubbleEl.hidden = false;
-    bubbleEl.classList.add('sc-show');
-    replayShown = true;
+    const newest = sayHistory.length - 1;
+    const liveShowing = replayAt < 0 && !bubbleEl.hidden && bubbleEl.classList.contains('sc-show')
+        && bubbleEl.textContent === sayHistory[newest].text;
+    const target = replayAt >= 0 ? Math.max(0, replayAt - 1) : Math.max(0, liveShowing ? newest - 1 : newest);
+    replayAt = target;
+    showSayEntry(sayHistory[target], { replay: true });
 }
-/** Nach „Nochmal lesen" weiterlaufen: Eine zurückgeholte Blase räumt das Feld. */
-function resumeAfterReplay() {
-    if (replayShown && !playback?.canSkip) hideBubble();
+function showSayEntry(entry, { replay = false } = {}) {
+    const found = entry.sel ? document.querySelector(entry.sel) : null;
+    // Liegt das Ziel unter einem inzwischen offenen Fenster, wäre die Blase
+    // dort unsichtbar – dann mittig in der aktuellen Ebene.
+    const openDialog = document.querySelector('dialog[open]');
+    const reachable = found && isVisible(found) && (layerFor(found) !== document.body || !openDialog);
+    const anchor = reachable ? found : null;
+    bubbleEl.textContent = entry.text;
+    bubbleEl.classList.toggle('sc-replaying', replay);
+    if (anchor) moveOverlaysInto(layerFor(anchor));
+    bubbleEl.hidden = false;
+    if (anchor) {
+        const c = centerOf(anchor);
+        cursorEl.hidden = false;
+        placeCursor(c.x, c.y);
+    }
+    placeBubble(anchor, entry.pos);
+    bubbleEl.classList.add('sc-show');
+    const progress = toolbarEl?.querySelector('.sc-progress');
+    if (progress && replay) {
+        if (!progress.dataset.live) progress.dataset.live = progress.textContent;
+        progress.textContent = `↺ ${entry.progress}`;
+    }
+}
+/** Zurückblättern beenden: wieder zur laufenden Stelle. */
+function leaveReplay() {
+    if (replayAt < 0) return;
+    replayAt = -1;
+    const progress = toolbarEl?.querySelector('.sc-progress');
+    if (progress?.dataset.live) { progress.textContent = progress.dataset.live; delete progress.dataset.live; }
+    // Läuft gerade eine Erklärung, steht sie wieder da – mit voller Lesezeit.
+    if (playback?.canSkip && sayHistory.length) {
+        showSayEntry(sayHistory[sayHistory.length - 1]);
+        playback.restartReading();
+    } else hideBubble();
 }
 
 // ---- benannte Helfer (aus den Stories referenziert) ----
@@ -1780,7 +1813,7 @@ function hidePauseCard({ resume = false } = {}) {
     pauseCardEl = null;
     const resumeNow = resume && playback?.paused;
     pausedByTouch = false;
-    if (resumeNow) { playback.togglePause(); resumeAfterReplay(); }
+    if (resumeNow) { playback.togglePause(); leaveReplay(); }
     else syncPlaybackControls();
     scheduleToolbarPlacement();
 }
@@ -1799,7 +1832,7 @@ function showChrome(story) {
         <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten"><span class="sc-ico" aria-hidden="true">♫</span><span class="sc-txt">Musik aus</span></button>
         <label class="sc-music-volume" hidden><span class="sc-sr">Lautstärke</span><input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /><output>18 %</output></label>
         <button type="button" class="sc-tempo"><span class="sc-ico sc-tempo-value" aria-hidden="true">1,2×</span><span class="sc-txt">Tempo <span class="sc-tempo-value">1,2×</span></span></button>
-        <button type="button" class="sc-replay" aria-label="Nochmal lesen" title="Letzte Erklärung nochmal zeigen und anhalten"><span class="sc-ico" aria-hidden="true">↺</span><span class="sc-txt">Nochmal</span></button>
+        <button type="button" class="sc-replay" aria-label="Zurück" title="Einen Schritt zurück: vorige Erklärung zeigen und anhalten"><span class="sc-ico" aria-hidden="true">↺</span><span class="sc-txt">Zurück</span></button>
         <button type="button" class="sc-pause" aria-pressed="false" aria-label="Pause"><span class="sc-ico" aria-hidden="true">❚❚</span><span class="sc-txt">Pause</span></button>
         <button type="button" class="sc-skip" aria-label="Weiter" title="Erklärung überspringen – Klicks laufen immer vollständig"><span class="sc-ico" aria-hidden="true">⏭</span><span class="sc-txt">Weiter</span></button>
         <button type="button" class="sc-cancel" aria-label="Beenden"><span class="sc-ico" aria-hidden="true">✕</span><span class="sc-txt">Beenden</span></button>
@@ -1815,15 +1848,17 @@ function showChrome(story) {
         // Steht die Frage-Karte, heißt der Knopf „Fortsetzen" und meint: weiter.
         if (pauseCardEl) { hidePauseCard({ resume: true }); return; }
         playback.togglePause();
-        if (!playback.paused) resumeAfterReplay();
+        if (!playback.paused) leaveReplay();
     });
     toolbarEl.querySelector('.sc-tempo').addEventListener('click', toggleTempo);
     toolbarEl.querySelector('.sc-replay').addEventListener('click', () => {
         if (pauseCardEl) hidePauseCard({ resume: false });
-        replayLastSay();
+        replayBack();
     });
     toolbarEl.querySelector('.sc-skip').addEventListener('click', () => {
         if (pauseCardEl) hidePauseCard({ resume: false });
+        // Beim Zurückblättern heißt „Weiter": zurück zur laufenden Stelle.
+        if (replayAt >= 0) { leaveReplay(); if (playback.paused) playback.togglePause(); return; }
         if (!playback.canSkip) return;
         playback.next();
     });
@@ -1847,16 +1882,16 @@ function syncPlaybackControls() {
     pause.setAttribute('aria-label', playback.paused ? 'Fortsetzen' : 'Pause');
     pause.setAttribute('aria-pressed', String(playback.paused));
     document.body.classList.toggle('sc-paused', playback.paused);
-    const tempo = playback.rate < 1 ? showcaseTempo('slow') : showcaseTempo('normal');
+    const tempo = showcaseTempoForRate(playback.rate);
     const tempoButton = toolbarEl.querySelector('.sc-tempo');
     tempoButton.querySelectorAll('.sc-tempo-value').forEach((el) => { el.textContent = tempo.label; });
-    tempoButton.setAttribute('aria-pressed', String(tempo.id === 'slow'));
-    const tempoLabel = tempo.id === 'slow' ? 'Tempo 1,0× – zurück auf 1,2×' : 'Tempo 1,2× – langsamer abspielen (1,0×)';
+    tempoButton.setAttribute('aria-pressed', String(tempo.id !== 'normal'));
+    const tempoLabel = `Tempo ${tempo.label} – tippen für ${nextShowcaseTempo(tempo.id).label}`;
     tempoButton.setAttribute('aria-label', tempoLabel);
     tempoButton.title = tempoLabel;
     // „Weiter" überspringt nur Lesezeiten – nie einen Klick oder Ladevorgang.
-    toolbarEl.querySelector('.sc-skip').setAttribute('aria-disabled', String(!playback.canSkip));
-    toolbarEl.querySelector('.sc-replay').setAttribute('aria-disabled', String(!lastSay));
+    toolbarEl.querySelector('.sc-skip').setAttribute('aria-disabled', String(!playback.canSkip && replayAt < 0));
+    toolbarEl.querySelector('.sc-replay').setAttribute('aria-disabled', String(!sayHistory.length || replayAt === 0));
 }
 function syncMusicControls() {
     syncBreakMusicButton();
@@ -1895,7 +1930,8 @@ function cleanup(story) {
     emit('showcase:running', false);
     document.body.classList.remove('sc-paused');
     document.documentElement.style.removeProperty('--sc-slow');
-    lastSay = null;
+    sayHistory = [];
+    replayAt = -1;
     document.getElementById('territory-summary-dialog')?.close();
 
     // Simulation gefahrlos verwerfen (auch bei Abbruch) – confirm dabei bejahen
@@ -2000,8 +2036,8 @@ async function play(story) {
     aborted = false;
     const backToImport = returnToImport;
     returnToImport = false;
-    lastSay = null;
-    replayShown = false;
+    sayHistory = [];
+    replayAt = -1;
     const tempo = storedTempo();
     playback = new ShowcasePlayback({ reducedMotion: prefersReduced, onChange: syncPlaybackControls, rate: tempo.rate });
     applyTempo(tempo);

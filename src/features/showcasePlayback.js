@@ -8,11 +8,27 @@ export class ShowcaseAbortError extends Error {}
  */
 export const SHOWCASE_TEMPI = Object.freeze({
     normal: Object.freeze({ id: 'normal', rate: 1, label: '1,2×' }),
-    slow: Object.freeze({ id: 'slow', rate: 1 / 1.2, label: '1,0×' })
+    slow: Object.freeze({ id: 'slow', rate: 1 / 1.2, label: '1,0×' }),
+    // „1,0×" ist nur 20 % langsamer – im Test kaum spürbar. Für wirklich
+    // ruhiges Zusehen gibt es eine dritte Stufe (Faktor 1,5).
+    slower: Object.freeze({ id: 'slower', rate: 1 / 1.5, label: '0,8×' })
 });
+const TEMPO_ORDER = ['normal', 'slow', 'slower'];
 
 export function showcaseTempo(id) {
     return SHOWCASE_TEMPI[id] || SHOWCASE_TEMPI.normal;
+}
+
+/** Nächste Stufe beim Tippen: 1,2× → 1,0× → 0,8× → 1,2×. */
+export function nextShowcaseTempo(id) {
+    const index = TEMPO_ORDER.indexOf(showcaseTempo(id).id);
+    return SHOWCASE_TEMPI[TEMPO_ORDER[(index + 1) % TEMPO_ORDER.length]];
+}
+
+/** Stufe zu einer laufenden Rate (die Wiedergabe kennt nur die Zahl). */
+export function showcaseTempoForRate(rate) {
+    return Object.values(SHOWCASE_TEMPI)
+        .reduce((best, tempo) => (Math.abs(tempo.rate - rate) < Math.abs(best.rate - rate) ? tempo : best));
 }
 
 export class ShowcasePlayback {

@@ -61,8 +61,13 @@ describe('Live-Demo playback', () => {
 
 describe('Tempo, Weiter und Nochmal lesen', () => {
     it('spielt mit 1,0× um den Faktor 1,2 langsamer', async () => {
-        const { SHOWCASE_TEMPI, showcaseTempo } = await import('../src/features/showcasePlayback.js');
+        const { SHOWCASE_TEMPI, showcaseTempo, nextShowcaseTempo, showcaseTempoForRate } = await import('../src/features/showcasePlayback.js');
         expect(showcaseTempo('slow').label).toBe('1,0×');
+        expect(nextShowcaseTempo('normal').id).toBe('slow');
+        expect(nextShowcaseTempo('slow').id).toBe('slower');
+        expect(nextShowcaseTempo('slower').id).toBe('normal');
+        expect(showcaseTempo('slower').rate).toBeCloseTo(1 / 1.5);
+        expect(showcaseTempoForRate(1 / 1.2).id).toBe('slow');
         expect(showcaseTempo('unbekannt')).toBe(SHOWCASE_TEMPI.normal);
         const slow = new ShowcasePlayback({ rate: SHOWCASE_TEMPI.slow.rate });
         const fast = new ShowcasePlayback();
