@@ -10,7 +10,7 @@
     z-index: 100000;
     pointer-events: none;
     transform: translate(-100px, -100px);
-    transition: transform 0.62s cubic-bezier(0.5, 0, 0.2, 1);
+    transition: transform calc(0.62s * var(--sc-slow, 1)) cubic-bezier(0.5, 0, 0.2, 1);
     filter: drop-shadow(0 2px 3px rgba(15, 23, 42, 0.45));
     will-change: transform;
 }
@@ -166,6 +166,14 @@
     white-space: nowrap;
 }
 .sc-toolbar button:disabled { opacity: 0.45; }
+/* „Weiter" gibt es nur während einer Erklärung; „Nochmal" erst nach der ersten. */
+.sc-toolbar button[aria-disabled="true"] { opacity: 0.4; }
+.sc-toolbar .sc-tempo { font-variant-numeric: tabular-nums; }
+.sc-toolbar .sc-tempo[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
+.sc-toolbar .sc-tempo .sc-ico,
+.sc-toolbar .sc-replay .sc-ico,
+.sc-toolbar .sc-skip .sc-ico { font-size: 0.95em; }
+.sc-toolbar .sc-tempo .sc-ico { display: none; }
 .sc-toolbar .sc-music[aria-pressed="true"] { background: #ccfbf1; color: #115e59; }
 .sc-toolbar .sc-ico { font-size: 0.8em; line-height: 1; }
 .sc-toolbar .sc-pause .sc-ico,
@@ -193,6 +201,7 @@
 .sc-toolbar.sc-compact .sc-music-volume,
 .sc-toolbar.sc-compact .sc-txt { display: none; }
 .sc-toolbar.sc-compact .sc-ico { display: inline; font-size: 0.95rem; }
+.sc-toolbar.sc-compact .sc-tempo .sc-ico { display: inline; font-size: 0.8rem; font-weight: 800; }
 .sc-toolbar.sc-compact button {
     justify-content: center;
     min-width: 34px;
