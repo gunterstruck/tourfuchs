@@ -182,6 +182,8 @@
 .sc-toolbar button:disabled { opacity: 0.45; }
 /* „Weiter" gibt es nur während einer Erklärung; „Nochmal" erst nach der ersten. */
 .sc-toolbar button[aria-disabled="true"] { opacity: 0.4; }
+/* Schritt-Modus: „⏭“ bleibt markiert, solange er gilt. */
+.sc-toolbar .sc-skip.is-stepping { background: #ccfbf1; color: #115e59; }
 .sc-toolbar .sc-tempo { gap: 4px; font-variant-numeric: tabular-nums; }
 .sc-toolbar .sc-tempo svg { flex: 0 0 auto; }
 .sc-toolbar .sc-tempo.is-slow { background: #ccfbf1; color: #115e59; }
