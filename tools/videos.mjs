@@ -10,7 +10,8 @@
  *
  * Ergebnis in `videos/` (nicht im Git – Videos blähen das Projekt auf):
  *   tourfuchs-<demo>-desktop.mp4   1920×1080
- *   tourfuchs-<demo>-handy.mp4     Hochformat, 1080 breit
+ *   tourfuchs-<demo>-handy.mp4     Hochformat, 1080 breit, mit Steuerleiste
+ *   tourfuchs-<demo>-handy-rahmen.mp4  dasselbe im Smartphone-Rahmen auf 16:9
  *
  * Aufruf:
  *   npm run build && npm run videos
@@ -40,7 +41,9 @@ const FORMATE = {
     desktop: { name: 'desktop', viewport: { width: 1920, height: 1080 }, scale: 1, hasTouch: false, isMobile: false },
     // Handy: 390 × 844 CSS-Pixel wie ein übliches Smartphone, doppelt so
     // scharf aufgenommen und auf 1080 Pixel Breite gebracht.
-    handy: { name: 'handy', viewport: { width: 390, height: 844 }, scale: 2, hasTouch: true, isMobile: true }
+    // Handy zusätzlich im gezeichneten Smartphone-Rahmen auf 16:9 – für
+    // Präsentationen auf Querbildschirmen (Teams, Beamer).
+    handy: { name: 'handy', viewport: { width: 390, height: 844 }, scale: 2, hasTouch: true, isMobile: true, leiste: true, rahmen: true }
 };
 const MUSIK = resolve('public', 'audio', 'tropical-island-house-2024.mp3');
 const MUSIK_LAUTSTAERKE = 0.32;
@@ -62,9 +65,10 @@ const KARTEN_CSS = `
 #film-card .url { font-size: 2.8vh; color: #3bc7b4; font-weight: 600; }
 #film-card .fine { font-size: 1.6vh; color: #6b807b; }
 body.film-karte dialog { opacity: 0 !important; }
-/* Die Steuerleiste gehört ins Live-Erlebnis, nicht ins Video. */
-.sc-toolbar { display: none !important; }
 `;
+/* Am Desktop gehört die Steuerleiste ins Live-Erlebnis, nicht ins Video. Im
+   Handy-Rahmen zeigt sie dagegen, dass hier die echte App läuft. */
+const OHNE_LEISTE_CSS = '.sc-toolbar { display: none !important; }';
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
@@ -178,11 +182,12 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     page.on('pageerror', (e) => fehler.push(String(e).slice(0, 300)));
     let filmStart = 0;
     let filmEnde = 0;
+    let story = { icon: '🦊', title: storyId, blurb: '' };
     let ergebnis = 'FEHLER';
     try {
         await page.goto(`http://localhost:${port}/`, { waitUntil: 'domcontentloaded' });
         await page.waitForSelector('#map', { timeout: 20000 });
-        await page.addStyleTag({ content: KARTEN_CSS });
+        await page.addStyleTag({ content: KARTEN_CSS + (format.leiste ? '' : OHNE_LEISTE_CSS) });
         // Erst eine leere Karte, dahinter Begrüßung quittieren und die
         // Demo-Auswahl öffnen; Titel und Kurztext kommen aus deren Kachel.
         await zeigeKarte(page, '<span class="kicker">TourFuchs · Live-Demo</span>');
@@ -193,7 +198,8 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
             (document.getElementById('btn-demo-overview') || document.getElementById('btn-showcase') || document.getElementById('btn-demos-pill'))?.click();
         });
         await page.waitForSelector(`#showcase-dialog .sc-tile[data-story="${storyId}"]`, { timeout: 10000 });
-        await zeigeKarte(page, titelKarte(await storyVonKachel(page, storyId)));
+        story = await storyVonKachel(page, storyId);
+        await zeigeKarte(page, titelKarte(story));
 
         // Kartenkacheln fertig laden lassen – hinter der Titelkarte.
         await page.waitForFunction(() => {
@@ -248,7 +254,9 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
         ziel
     ]);
     rmSync(rohOrdner, { recursive: true, force: true });
-    return { ziel, ergebnis, sekunden: Math.round(dauer), fehler };
+    const extra = [];
+    if (format.rahmen) extra.push(await imRahmen({ browser, ffmpeg, video: ziel, story, zielOrdner, storyId }));
+    return { ziel: [ziel, ...extra].join(' + '), ergebnis, sekunden: Math.round(dauer), fehler };
 }
 
 /**
@@ -273,6 +281,75 @@ function bildListe(bilder, startSek, dauer, ordner) {
     const liste = resolve(ordner, 'bilder.txt');
     writeFileSync(liste, `${zeilen.join('\n')}\n`);
     return liste;
+}
+
+// ---- Handy im Rahmen -------------------------------------------------------
+// Eine 16:9-Fläche mit Titel links und einem gezeichneten Smartphone rechts,
+// in dessen Bildschirm das Handy-Video läuft. Hintergrund und Rahmen werden
+// als Bilder im Browser gezeichnet (HTML/SVG), ffmpeg legt sie übereinander.
+const RAHMEN = { breite: 1920, hoehe: 1080, bildH: 960, rand: 16, radius: 58 };
+
+async function zeichne(browser, html, pfad, { transparent = false } = {}) {
+    const page = await browser.newPage({ viewport: { width: RAHMEN.breite, height: RAHMEN.hoehe } });
+    await page.setContent(html);
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: pfad, omitBackground: transparent });
+    await page.close();
+}
+
+async function imRahmen({ browser, ffmpeg, video, story, zielOrdner, storyId }) {
+    const ordner = resolve('tmp', 'videos-roh', `rahmen-${storyId}`);
+    mkdirSync(ordner, { recursive: true });
+    // Bildschirm: Seitenverhältnis des Handy-Videos (390 × 844).
+    const bildH = RAHMEN.bildH;
+    const bildB = Math.round(bildH * 390 / 844 / 2) * 2;
+    const r = RAHMEN.rand;
+    const aussenB = bildB + 2 * r;
+    const aussenH = bildH + 2 * r;
+    const x = Math.round(RAHMEN.breite * 0.66 - aussenB / 2);
+    const y = Math.round((RAHMEN.hoehe - aussenH) / 2);
+    const hintergrund = resolve(ordner, 'hintergrund.png');
+    const geraet = resolve(ordner, 'geraet.png');
+    await zeichne(browser, `<!doctype html><meta charset="utf-8"><style>
+        html,body{margin:0;width:100%;height:100%}
+        body{background:radial-gradient(1200px 700px at 70% 45%,#17423b 0%,#0d1513 60%);font-family:"Segoe UI",system-ui,sans-serif;color:#f2f7f5}
+        .text{position:absolute;left:150px;top:50%;transform:translateY(-50%);width:640px}
+        .kicker{font-size:22px;letter-spacing:.22em;text-transform:uppercase;color:#3bc7b4;font-weight:600}
+        .icon{font-size:72px;margin:26px 0 8px}
+        h1{font-size:64px;line-height:1.1;margin:0 0 22px;font-weight:650;letter-spacing:-.02em}
+        p{font-size:30px;line-height:1.35;color:#a2b5b0;margin:0}
+        .url{position:absolute;left:150px;bottom:70px;font-size:26px;color:#3bc7b4;font-weight:600}
+        </style><div class="text"><div class="kicker">TourFuchs · Live-Demo am Handy</div>
+        <div class="icon">${escapeHtml(story.icon)}</div><h1>${escapeHtml(story.title)}</h1><p>${escapeHtml(story.blurb)}</p></div>
+        <div class="url">tourfuchs.vercel.app</div>`, hintergrund);
+    // Gehäuse: außen abgerundet, innen der Bildschirm ausgespart (evenodd),
+    // dazu Seitentasten und eine Kamera im oberen Rand.
+    const R = RAHMEN.radius;
+    const ri = R - r + 4;
+    await zeichne(browser, `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:transparent}</style>
+        <svg width="${RAHMEN.breite}" height="${RAHMEN.hoehe}" xmlns="http://www.w3.org/2000/svg">
+          <defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#2b2f33"/><stop offset=".5" stop-color="#15181b"/><stop offset="1" stop-color="#2b2f33"/></linearGradient></defs>
+          <rect x="${x - 4}" y="${y + 150}" width="6" height="70" rx="3" fill="#2b2f33"/>
+          <rect x="${x + aussenB - 2}" y="${y + 190}" width="6" height="110" rx="3" fill="#2b2f33"/>
+          <path fill-rule="evenodd" fill="url(#g)" d="
+            M${x + R},${y} h${aussenB - 2 * R} a${R},${R} 0 0 1 ${R},${R} v${aussenH - 2 * R} a${R},${R} 0 0 1 -${R},${R} h-${aussenB - 2 * R} a${R},${R} 0 0 1 -${R},-${R} v-${aussenH - 2 * R} a${R},${R} 0 0 1 ${R},-${R} z
+            M${x + r + ri},${y + r} h${bildB - 2 * ri} a${ri},${ri} 0 0 1 ${ri},${ri} v${bildH - 2 * ri} a${ri},${ri} 0 0 1 -${ri},${ri} h-${bildB - 2 * ri} a${ri},${ri} 0 0 1 -${ri},-${ri} v-${bildH - 2 * ri} a${ri},${ri} 0 0 1 ${ri},-${ri} z"/>
+          <rect x="${x + 0.5}" y="${y + 0.5}" width="${aussenB - 1}" height="${aussenH - 1}" rx="${R}" fill="none" stroke="#4a5055" stroke-width="1.5"/>
+        </svg>`, geraet, { transparent: true });
+    const ziel = resolve(zielOrdner, `tourfuchs-${storyId}-handy-rahmen.mp4`);
+    await run(ffmpeg, [
+        '-y',
+        '-loop', '1', '-i', hintergrund,
+        '-i', video,
+        '-loop', '1', '-i', geraet,
+        '-filter_complex', `[1:v]scale=${bildB}:${bildH}:flags=lanczos,setsar=1[v];[0:v][v]overlay=${x + r}:${y + r}:shortest=1[b];[b][2:v]overlay=0:0:shortest=1,format=yuv420p[out]`,
+        '-map', '[out]', '-map', '1:a:0',
+        '-r', '30', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20',
+        '-c:a', 'copy', '-movflags', '+faststart',
+        ziel
+    ]);
+    rmSync(ordner, { recursive: true, force: true });
+    return ziel;
 }
 
 /** Titel und Kurztext aus der Kachel der Demo-Auswahl. */
