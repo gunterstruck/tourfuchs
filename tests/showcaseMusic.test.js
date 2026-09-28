@@ -274,7 +274,7 @@ describe('Tippen während einer Vorführung', () => {
         expect(showcase).toContain('▶ Weiter ansehen');
     });
     it('lässt die Musik während der Frage weiterlaufen', () => {
-        expect(showcase).toContain('music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch });');
+        expect(showcase).toContain('music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch && !stepMode });');
     });
     it('geht nach acht Sekunden ohne Antwort von selbst weiter', () => {
         expect(onboarding).toContain('export const SHOWCASE_TOUCH_RESUME_SECONDS = 8;');
