@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.5 · Stand: 29.08.2026 · App-Version: 3.5.0**
+**Version 3.6 · Stand: 28.09.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -22,6 +22,16 @@ mobilen Klickpfaden das Tab-Glied deshalb weg und schreibt stattdessen
 „Blatt aufziehen" bzw. „Blatt einklappen", z. B.
 `"Außendienst" -> Blatt aufziehen -> "In der Nähe"`.
 
+**Basis/Profi gibt es nicht mehr (seit 26.09.2026):** Der Umschalter
+„🌱 Basis | 🛠️ Profi" ist auf Desktop und Smartphone entfallen. TourFuchs zeigt
+überall den vollen Umfang, den früher „Profi" freischaltete – zum Beispiel
+„🏁 Als Ziel", „Entlang der Tour", Häkchen im Lasso und die Wahl des
+Zielassistenten. Wo dieses Dokument noch „Basis", „Profi" oder „im
+Profi-Modus" sagt, gilt: Die Funktion ist immer da; niemand muss etwas
+umschalten. Der Guide empfiehlt nie, auf „Profi" umzuschalten. Die optionalen
+Module (Gebietsplanung, Service) bleiben davon getrennt und heißen jetzt
+„⚙️ Optionale Module".
+
 **Begriffsregel:** Die aktuelle App verwendet sichtbar **Vertriebsbezirk**. Der
 Import akzeptiert **Betriebsbezirk** als Synonym. Der Guide soll in Antworten den
 aktuellen UI-Begriff **Vertriebsbezirk** verwenden und den alten Begriff nur bei
@@ -35,7 +45,8 @@ der Einordnung fremder Dateien erwähnen.
 die Kundenlisten aus Excel auf die Karte bringt und den täglichen Außendienst
 auf drei Aufgaben fokussiert: **Kunden sehen, Tour planen, gut vorbereitet
 hinfahren.** Strategische Gebietsplanung und Service bleiben vollständig
-erhalten, sind aber standardmäßig ausgeschaltete optionale Profi-Module. Alle
+erhalten und bleiben optionale Profi-Module. Die Gebietsplanung ist
+standardmäßig aktiviert, Service standardmäßig ausgeschaltet. Alle
 Kundendaten bleiben **lokal im Browser des jeweiligen Geräts** - es gibt keinen
 TourFuchs-Datenserver und kein Benutzerkonto.
 
@@ -104,13 +115,13 @@ Der Guide soll:
 - Nutzen und Bedienkonzept verständlich erklären.
 - sichtbare Bedienelemente mit ihren aktuellen Namen nennen.
 - kurze, eindeutige Klickpfade ausgeben.
-- Desktop und Smartphone sowie Basis und Profi unterscheiden.
+- Desktop und Smartphone unterscheiden.
 - Screenshots anhand tatsächlich sichtbarer Elemente einordnen.
 - typische Bedienfehler systematisch diagnostizieren.
 - lokale Verarbeitung und bewusst ausgelöste externe Datenflüsse trennen.
 - vor dauerhaften oder löschenden Aktionen warnen.
-- beim Kundenbriefing den manuellen Basisweg und den optionalen Profiweg korrekt
-  auseinanderhalten.
+- beim Kundenbriefing den Weg (Prompt prüfen, kopieren, in der freigegebenen KI
+  einfügen und selbst absenden) und die Wahl des Zielassistenten erklären.
 - bei Bedarf eine kurze, rollenbezogene Mini-Schulung anbieten.
 
 Der Guide soll nicht:
@@ -152,7 +163,6 @@ Beispiel:
 Nur fragen, wenn die Antwort davon abhängt:
 
 - Desktop/Laptop oder Smartphone?
-- Basis oder Profi?
 - Außendienst oder Gebietsplanung?
 - Demo-Daten oder eigene Daten?
 - Nur prüfen oder dauerhaft übernehmen?
@@ -256,7 +266,7 @@ ist beides, je nachdem, wie man es hält:
 
 | Gerät / Haltung | Ansicht | Panel | Einstieg | Funktionsumfang |
 |---|---|---|---|---|
-| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte (Blatt eingeklappt), Basis | Basis-Tiefe, Außendienst, ein Bereich: Tour |
+| Handy (bis 768px) | **Touransicht** | unten als Blatt | Außendienst, Karte (Blatt eingeklappt) | voller Umfang, Außendienst, ein Bereich: Tour |
 | **Tablet hochkant** (bis 1200px) | **Touransicht** | unten als Blatt | **exakt wie Handy** | **exakt wie Handy** |
 | Tablet quer | **Schreibtisch** | seitlich | gespeicherter Modus/Tab | voll |
 | Schreibtisch (ab 1201px oder quer) | **Schreibtisch** | seitlich, ziehbar | gespeicherter Modus/Tab | voll |
@@ -355,35 +365,27 @@ findet: hineinzoomen, oder er steht ohnehin schon als Start/Ziel im Bild.
 die beiden vorhandenen Gesichter, und die **Haltung** entscheidet, welches:
 **quer** den Schreibtisch (Seitenleiste, gespeicherter Modus/Tab, voller
 Umfang), **hochkant** die Touransicht – dann verhält es sich in jedem Punkt wie
-ein Smartphone, einschließlich des reduzierten Umfangs (Basis-Tiefe,
-Außendienst, ein Bereich: Tour). Gebietsplanung, Cockpit und Simulation sind
+ein Smartphone (Außendienst, ein Bereich: Tour). Gebietsplanung, Cockpit und Simulation sind
 hochkant **nicht** erreichbar; sie sind eine Drehung entfernt. Siehe 3.0.
 
-### 3.3 Basis gegen Profi
+### 3.3 Eine Ansicht, voller Umfang
 
-**"Basis"** ist der vollständige tägliche Außendienstmodus. Auch erfahrene
-Außendienstmitarbeitende brauchen für Karte, Suche, Nähe, Tour und Briefing
-nicht auf Profi umzuschalten.
+Bis zum 26.09.2026 gab es den Umschalter **„Basis | Profi"**; das Smartphone
+startete bei jedem Öffnen in Basis. Er ist entfallen. Den Ausschlag gab ein
+Widerspruch: Die Live-Demos zeigten den vollen Umfang (etwa „🏁 Als Ziel" in der
+Kundenkarte), am Handy fand man diesen Knopf danach aber nicht. Dazu kostete die
+Pille am Handy eine ganze Zeile Karte.
 
-**"Profi"** bedeutet nicht „besserer Außendienst", sondern öffnet zusätzliche
-Spezial-, Konfigurations- und Verwaltungswerkzeuge. Dort werden auch die beiden
-optionalen Module aktiviert.
+Heute gilt überall, was früher „Profi" freischaltete:
 
-| Bereich | Basis | Profi zusätzlich |
-|---|---|---|
-| Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, "Heute besucht", "Als Start", "Zur Tour", "Briefing" | Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Als Ziel" |
-| Tour | Bezirk, Start, Datum/Zeit/Dauer, Umkreis, Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan | Kartenansicht Kunden/Status/Chancen, Ziel, Entlang der Tour, Rundreise, Druck, ICS, Text, gespeicherte Touren |
-| Gebiets-Popup | Kennzahlen und Verteilung | zusätzliche namentliche Kundenliste |
-| Kundenbriefing | Prompt kopieren und Microsoft 365 Copilot öffnen | zusätzlich wählbarer Zielassistent (Gemini, ChatGPT, eigene https-Adresse) |
-| Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl | derselbe operative Weg; das Ziel folgt der im Kundenbriefing getroffenen Wahl |
-| Optionale Module | nicht sichtbar und für den Außendienst nicht erforderlich | "Gebietsplanung & Gebietsmanagement" und "Service-Vertragsradar" einzeln aktivierbar |
-
-Wichtig: **Kunden- und Mehrkunden-Briefing sind Basis-Funktionen.** Profi ergänzt
-die Wahl des Zielassistenten, versteckt den operativen Weg aber nicht hinter
-einem Expertenmodus.
-
-Live-Demos schalten bei Bedarf vorübergehend auf Profi und stellen die vorherige
-Ansicht danach wieder her.
+| Bereich | Umfang |
+|---|---|
+| Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Heute besucht", "Als Start", "Als Ziel", "Zur Tour", "Briefing" |
+| Tour | Bezirk, Start, Ziel, Datum/Zeit/Dauer, Umkreis oder "Entlang der Tour", Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan, Kartenansicht Kunden/Status/Chancen, Rundreise, Druck, ICS, Text, gespeicherte Touren |
+| Gebiets-Popup | Kennzahlen, Verteilung und namentliche Kundenliste |
+| Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Gemini, ChatGPT, eigene https-Adresse) |
+| Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl ("📋 Briefing über alle"); Häkchen in der Lasso-Auswahlkarte |
+| Optionale Module | "Gebietsplanung & Gebietsmanagement" und "Service-Vertragsradar" unter "⚙️ Optionale Module" einzeln aktivierbar (am Desktop) |
 
 ---
 
@@ -400,15 +402,14 @@ Die Topbar enthält:
 - dynamisches Tresor-Symbol: einrichten, sperren oder Status anzeigen
 - **"Info & Impressum"** (`i`)
 
-### 4.2 Ansichtstiefe, Außendienst und optionale Profi-Module
+### 4.2 Außendienst und optionale Module
 
-1. **"Basis"** enthält den vollständigen täglichen Außendienst: Kundenkarte,
-   Suche, Filter, Nähe, Tour und beide Briefing-Wege. **"Profi"** bedeutet nicht
-   „erfahrener Außendienst", sondern zusätzliche Spezial- und Verwaltungshilfen.
-2. Unter **"Profi" → "Optionale Profi-Module"** können
+1. Es gibt keine Ansichtstiefe mehr (kein „Basis | Profi"); der Außendienst
+   zeigt immer den vollen Umfang (siehe 3.3).
+2. Unter **"⚙️ Optionale Module"** können
    **"Gebietsplanung & Gebietsmanagement"** und **"Service-Vertragsradar"**
-   getrennt aktiviert werden. Beide sind standardmäßig aus; TourFuchs merkt die
-   Wahl lokal.
+   getrennt aktiviert werden. Gebietsplanung ist standardmäßig an, Service
+   standardmäßig aus; TourFuchs merkt jede bewusste Wahl lokal.
 3. Erst danach erscheinen neben **"Außendienst"** die zusätzlichen Arbeitsfoki
    **"Gebietsplanung"** beziehungsweise **"Service"**.
 
@@ -533,10 +534,26 @@ Sidebar sichtbar. Das ist die einzige automatische Bewegung beim Start: **Die
 Live-Demo-Auswahl öffnet sich nicht mehr von selbst**, sondern ausschließlich auf
 Klick (Willkommens-Panel oder Info-Dialog).
 
-Solange Beispieldaten laufen, liegt zusätzlich **mittig über der Karte** eine
-ruhige, nicht-blockierende Hinweiskarte („🧪 Das sind Beispieldaten" · **Eigene
-Daten laden** · **Kurze Live-Demos ansehen** · Quittung **"Verstanden – erst
-umsehen"**). Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
+Solange nur Beispieldaten laufen, liegt bei **jedem Start** zusätzlich **mittig
+über der Karte** eine ruhige, nicht-blockierende Begrüßung („Willkommen bei
+TourFuchs") mit zwei gleichwertigen Wegen: **▶ TourFuchs in Aktion sehen**
+(startet die Live-Demos direkt als Schleife, mit Musik) und **📂 Eigene Daten
+laden**, dazu die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
+Besuch). Tut niemand etwas, startet die Vorführung nach **zehn Sekunden** von
+selbst – ohne Ton, bis jemand auf „♫ Musik ein" tippt, weil Browser Musik erst
+nach einem Tipp erlauben. Sichtbar ist der Countdown daran, dass sich der grüne
+Knopf **„▶ TourFuchs in Aktion sehen" von links nach rechts einfärbt**.
+
+**Was den Selbststart abbricht (seit 27.09.2026):** nur eine **echte Bedienung** –
+ein Tipp auf einen Knopf, ein Feld, einen Link oder einen Kundenmarker, das
+Verschieben oder Zoomen der Karte (Ziehen, zwei Finger, Mausrad über der Karte)
+oder eine Tastatureingabe. **Bloßes Berühren, Scrollen oder ein Tipp ins Leere
+brechen ihn nicht ab.** Vorher genügte jedes Aufsetzen eines Fingers irgendwo –
+auf manchen Handys startete die Vorführung dadurch praktisch nie von selbst.
+Gezählt wird nur, solange der Tab sichtbar ist **und kein Fenster offen ist**:
+Öffnet sich ein Fenster, **hält der Countdown an** und läuft nach dem Schließen
+weiter (früher lief er durch und startete dann still gar nicht).
+Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
 Tipp auf die Hinweiskarte selbst lässt sie zurücktreten** (gilt als Quittung).
 Damit beantwortet jeder Tipp etwas: Neben der Karte zoomt die Landkarte, auf der
 Karte verschwindet das Angebot. Ein dezenter Streifen im Panel („🧪
@@ -660,22 +677,54 @@ Die Vorführung:
 - fragt aktiv, ob die nächste ungesehene Demo gestartet werden soll.
 - bietet bei einem Fehler **"Erneut versuchen"** und **"Demo-Auswahl"** an.
 
+#### 6.1.1 Die Steuerleiste während eines Films
+
+Oben steht während jeder Live-Demo eine Steuerleiste. Am Desktop tragen die
+Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
+
+| Element | Wirkung |
+|---|---|
+| **Zähler „3 / 24"** | aktueller Schritt; „↺ 3 / 24" beim Zurückblättern, „⏭ 5 / 24" im Schritt-Modus |
+| **♫ Musik** | Hintergrundmusik ein/aus; am Desktop mit Lautstärkeregler |
+| **Tacho + Tempo („1,2×")** | öffnet ein Menü mit **1,2× (normal) · 1,0× · 0,8× · 0,6×**; die gewählte Stufe hat einen Haken und wird pro Gerät gemerkt. Langsamer heißt: alle Pausen, Lesezeiten, Tipp- und Zeigerbewegungen werden länger (1,0× = +20 %, 0,8× = +50 %, 0,6× = doppelt so lang). **Die Musik läuft unverändert weiter.** |
+| **↺ Zurück** | hält an und zeigt die **vorige Erklärung** wieder an ihrer Stelle (Blase gestrichelt, Marke „↺ vorige Erklärung"); jeder weitere Tipp geht eine Erklärung weiter zurück |
+| **❚❚ Pause / ▶ Fortsetzen** | anhalten bzw. **normal durchlaufen lassen** (beendet auch den Schritt-Modus und das Zurückblättern) |
+| **⏭ Weiter (Schritt für Schritt)** | schaltet den **Schritt-Modus** ein: Der Film läuft mit allen Animationen und Klicks bis zur **nächsten Erklärung** und **hält dort an**. Jeder weitere Tipp geht einen Schritt weiter; ▶ lässt wieder durchlaufen |
+| **✕ Beenden** | bricht die Vorführung ab und stellt den vorherigen Zustand wieder her |
+
+**Wichtige Grenzen für Guide-Antworten:**
+
+- **Zurückspulen gibt es nicht.** Eine Live-Demo bedient die echte App – nach
+  einem Klick hat sich die App wirklich verändert. „↺ Zurück" blättert deshalb
+  durch die **Erklärungen**, nicht durch die App-Zustände.
+- **„⏭" überspringt nie einen Klick oder Ladevorgang**, nur Wartezeit.
+- **Schritt-Modus für Vorführungen vor Publikum:** Er gilt für die ganze Runde
+  (auch im nächsten Film). Am Filmende startet im Schritt-Modus der nächste Film
+  **nicht** von selbst; der Countdown-Kreis bleibt als ▶ stehen. Die Musik läuft
+  im Schritt-Modus weiter.
+- Ein Tipp irgendwo auf die Fläche hält an und fragt „Selbst ausprobieren" oder
+  „Weiter ansehen"; ohne Antwort geht es nach acht Sekunden weiter.
+- Während einer Live-Demo **ruht die adressgenaue Verortung** (siehe 8.1) und
+  läuft danach von selbst weiter.
+
 ### 6.2 Verfügbare Geschichten
 
 | Live-Demo | Desktop | Smartphone | Kernaussage |
 |---|---:|---:|---|
-| **"Von der Excel-Liste zur Kundenkarte"** | Ja | Ja | **am Schreibtisch zuerst das Einfügen vorführen** (siehe 6.2.1), dann Demo-Liste laden, Kundenstapel antippen bis zur einzelnen Kundenkachel, Details öffnen |
-| **"Fläche umfahren, Briefing bekommen"** | Ja | Ja | Lasso-Auswahl, Mehrkunden-Briefing, Auswahl zur Tour, Start, Optimierung, Luftlinie und Straßenroute |
-| **"Ein Prompt, deine KI"** | Ja | Ja | Prompt-Inhalt, ausgeschlossene Daten, bewusste Übergabe und Entscheidung |
-| **"Deine Tour, Schritt für Schritt"** | Ja | Ja | ins Ruhrgebiet zoomen, Start und Kunden wählen, optimieren, Luftlinie und Straßenroute |
-| **"Aufs Handy - ohne Kabel, ohne Cloud"** | Ja | Nein | Desktop-Tour per QR ans Smartphone übergeben |
-| **"Was wäre wenn? Gebiete umbauen - ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
+| **"Vom Bezirk zum Kunden"** | Ja | Nein | ganz Deutschland, den eigenen Bezirk filtern, bis zum einzelnen Kunden aufzoomen |
+| **"Deine Tour, Schritt für Schritt"** | Ja | Ja | Kunden auf der Karte als **Ziel** setzen, **zu Hause in Dortmund** starten (sichtbar eingetippt), „Entlang der Tour" zwei Kunden mitnehmen, optimieren, **echte Straßenroute** (vorberechnet) |
+| **"Aufs Handy – ohne Kabel, ohne Cloud"** | Ja | Nein | dieselbe Tour per QR-Code ans Smartphone übergeben |
+| **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** | Ja | Ja | Lasso-Auswahl, „Briefing über alle", Prompt-Inhalt und ausgeschlossene Daten, Weg zur freigegebenen Firmen-KI, zurück auf der Karte zwei Kunden anhaken und zur Tour nehmen |
+| **"Spontaner Termin? Briefing vorbereiten"** | Ja | Ja | Start zu Hause (sichtbar eingetippt), passenden Kunden in der Nähe wählen, fertigen Kunden-Prompt ansehen |
+| **"Von der Excel-Liste zur Kundenkarte"** | Ja | Ja | **am Schreibtisch zuerst das Einfügen vorführen** (siehe 6.2.1), dann Kundenstapel antippen bis zur einzelnen Kundenkachel |
+| **"Deine Excel-Liste importieren"** | Ja | Ja | Datei wählen, Spalten zuordnen – auch wenn sie anders heißen |
+| **"Mein Gebiet im Überblick"** | Ja | Nein | Bezirk filtern, Umsatz einordnen, Kunden und große Kacheln ansehen |
+| **"Was wäre wenn? Gebiete umbauen – ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
 | **"Dein Service-Tag, verständlich geplant"** | Ja, nach Aktivierung des Service-Moduls | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
-| **"Spontaner Termin? Sofort gebrieft"** | Ja | Ja | passenden Kunden finden und eine sichere Briefing-Ergebnisvorschau erleben |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
 | **"Verschlüsselte Daten aufs Handy holen"** | Nein | Ja | `.tfsafe`-Datei wählen und getrennten Schlüssel scannen |
 
-Im Code existieren damit zehn Geschichten. In der normalen Demo-Auswahl sieht
+Im Code existieren damit zwölf Geschichten. In der normalen Demo-Auswahl sieht
 der Nutzer nur die für Gerät und aktivierte Module passenden Geschichten. Die
 seltenen Gebiets- und Service-Demos konkurrieren nicht mit dem operativen
 Außendienst-Einstieg.
@@ -702,19 +751,26 @@ Beispieldaten.
 
 ### 6.3 Besondere Regeln der Tour-Demo
 
-- Die Demo zoomt zuerst in den Raum Oberhausen/Essen/West-Dortmund, damit Kunden
-  und Route erkennbar bleiben.
-- Sie zeigt zuerst die Luftlinie und danach die Straßenroute.
-- Nur am Desktop folgt der QR-Schritt.
-- Auf dem Smartphone wird **kein** QR-Code zum Teilen an dasselbe Smartphone
-  gezeigt; diese Funktion ist dort bewusst ausgeblendet.
+- Die Demo erzählt eine Tagestour: einen Kunden im Westen des Ruhrgebiets auf
+  der Karte finden und als **Ziel** setzen, **zu Hause in Dortmund** starten,
+  in „Entlang der Tour" **zwei Kunden auf dem Weg** mitnehmen, optimieren und
+  am Ende die **echte Straßenroute** zeigen.
+- Die Straßenroute der Demo ist **vorberechnet** und wird mit der App
+  ausgeliefert (`public/geodata/demo-routes.json`) – die Demo schickt nichts an
+  OSRM und braucht keine Zustimmung.
+- Den Start tippt die Demo **auch am Handy sichtbar ein** („Dortmund",
+  Trefferliste, Auswahl) – am Handy, ohne das Feld zu aktivieren, damit sich auf
+  echten Geräten keine Bildschirmtastatur öffnet. (Bis 28.09.2026 wurde der
+  Start am Handy still gesetzt.)
+- Die QR-Übergabe ist ein eigener Film und läuft nur am Desktop; auf dem
+  Smartphone gibt es keinen QR-Code zum Teilen an dasselbe Smartphone.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
-Die Geschichten **"Fläche umfahren, Briefing bekommen"** und **"Ein Prompt,
-deine KI"** zeigen den vollständigen Mehrkunden-Bogen. Die erste betont den Weg
-von der räumlichen Auswahl bis zur Route, die zweite Inhalt, Datenminimierung und
-bewusste Übergabe des Prompts. **"Spontaner Termin? Sofort gebrieft"** zeigt den
+Die Geschichte **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"**
+zeigt den vollständigen Mehrkunden-Bogen: räumliche Auswahl, Inhalt und
+Datenminimierung des Prompts, bewusste Übergabe an die freigegebene Firmen-KI und
+die Entscheidung zurück auf der Karte. (Bis 26.09.2026 waren das zwei Demos.) **"Spontaner Termin? Briefing vorbereiten"** zeigt den
 Einzelkunden-Weg. Mit reinen Demo-Kunden bleibt jede Geschichte bei einer lokalen
 Vorschau; erst eigene Kundendaten erzeugen einen echten Prompt.
 
@@ -723,7 +779,33 @@ Vorschau; erst eigene Kundendaten erzeugen einen echten Prompt.
 Die Demo gibt eine Beispiel-PIN ein und zeigt danach sichtbar einen
 Wiederherstellungscode. Ein bereits vorhandener echter Tresor wird nicht
 überschrieben. Nach der Demo wird ein nur für die Demo erzeugter Tresor wieder
-entfernt.
+entfernt. Ist der Tresor aktiv, sperrt er **nicht mitten in einem Film**: Die
+automatische Sperre wartet, bis der Film zu Ende ist oder angehalten wurde.
+
+### 6.6 Die Live-Demos als Videos (für Präsentationen)
+
+Wer TourFuchs in einer Besprechung (z. B. Teams) oder auf LinkedIn zeigt, kann
+nicht erwarten, dass die Zuschauer die App öffnen. Dafür gibt es jede Live-Demo
+auch als **MP4-Video** (H.264/AAC; spielt in Teams, PowerPoint, LinkedIn und auf
+jedem Handy) – aufgenommen mit den **Beispieldaten**, mit Titelkarte, Abspann
+und der Film-Musik.
+
+| Fassung | Format | Wofür |
+|---|---|---|
+| `…-desktop-rahmen.mp4` | 16:9, 1920×1080 – **Monitor** rechts (gut zwei Drittel der Breite), **Thema links** | Präsentationen, Teams |
+| `…-handy-rahmen.mp4` | 16:9, 1920×1080 – **Smartphone** rechts, **Thema links** | Präsentationen, Teams |
+| `…-desktop.mp4` | 16:9, 1920×1080, Vollbild ohne Steuerleiste | Einbetten, Website |
+| `…-handy.mp4` | Hochformat, 1080 breit, mit Steuerleiste | Stories, Anschauen am Handy |
+
+Es gibt so viele Videos wie Filme je Gerät: Desktop 10, Handy 7 (Tablet wird
+nicht eigens erzeugt). Erzeugt werden sie mit `npm run build && npm run videos`
+(Werkzeug `tools/videos.mjs`); die Dateien liegen in `videos/` und gehören
+bewusst nicht ins Git. Nach Änderungen an der App erzeugt derselbe Befehl alle
+Fassungen neu.
+
+**Musik:** „Tropical Island House 2024" von Sascha Ende (ende.app), CC BY 4.0 –
+die Namensnennung steht im Abspann jedes Videos; damit dürfen die Videos auch
+für Marketing verwendet werden.
 
 ---
 
@@ -1113,7 +1195,21 @@ Begründung wird nicht automatisch zur Tour oder zum Besuchsstatus.
 
 ### 7.12 Export und Löschen
 
-- **"Als Excel exportieren"** exportiert den aktuellen Kundenbestand.
+- **"Als Excel exportieren"** (`"Daten" -> "Als Excel exportieren"`) ist der
+  **eine** Excel-Export. Ist gerade ein Filter aktiv (Bezirk, Umsatz …), fragt
+  er: **„Nur die N gefilterten"** oder **„Alle M Kunden"**. Ohne Filter
+  exportiert er direkt alles. Die gefilterte Datei trägt das Gebiet im Namen
+  (z. B. `tourfuchs-kunden-bezirk-west-2026-09-28.xlsx`).
+- Der Export enthält **alle Spalten**: die bekannten Felder (Kundennummer, Name,
+  Adresse, Vertrieb, Kontakt, Umsatz, Rhythmus, letzter Besuch, Lat/Lng), dazu
+  **„Verortung"** (adressgenau / PLZ-Mitte / nicht verortet), **„Anzahl
+  Besuche"** und **„Alle Besuche"** (ganze Besuchshistorie),
+  **„Weitere Ansprechpartner"** und **jede Originalspalte der Importdatei**, die
+  keinem Feld zugeordnet war (heißt sie wie eine TourFuchs-Spalte, erscheint sie
+  als „… (Original)"). Die Kernspalten sind so benannt, dass die Datei wieder
+  importiert werden kann – auch in ein CRM oder eine KI.
+- Die frühere Pille **„⬇ Gebiet exportieren"** über der Karte gibt es seit
+  28.09.2026 nicht mehr; ihren Zweck erfüllt die Abfrage „nur die gefilterten".
 - **"Daten löschen"** entfernt lokale Daten nach Bestätigung und deaktiviert
   auch den Tresor.
 - mobil gibt es im Tour-Panel **"Datenbank zurücksetzen"**.
@@ -1136,11 +1232,31 @@ steht **"ca. (PLZ-Mitte)"**.
 
 **Stufe 2: optional adressgenau**
 
-**Klickpfad:** `"Daten" -> "Adressen exakt verorten"`.
+**Klickpfade:** nach einem Import die Rückfrage **„📍 Adressgenau verorten?"**
+(„Ja, immer genau verorten" / „Nein, PLZ reicht"), jederzeit änderbar unter
+`ⓘ Info -> "📍 Adressen genau verorten"`; einmalig auch
+`"Daten" -> "🎯 Adressen exakt verorten"`.
 
-Nur nach bewusstem Start werden Straße, PLZ und Ort einzeln und gedrosselt an
-Nominatim/OpenStreetMap gesendet. Kundenname, Umsatz, Kontakte und
-Vertriebsinformationen werden nicht mitgesendet.
+Nur nach bewusster Zustimmung werden Straße, PLZ und Ort einzeln und gedrosselt
+(etwa eine Adresse pro Sekunde) an Nominatim/OpenStreetMap gesendet.
+Kundenname, Umsatz, Kontakte und Vertriebsinformationen werden nicht
+mitgesendet.
+
+- Die Verortung läuft **im Hintergrund**; oben zeigt eine Pille den
+  Fortschritt, z. B. **„📍 Verorte Adressen 427 von 3.441"**, mit
+  **„Anhalten"**. Die erste Zahl ist der Fortschritt, die zweite die
+  Gesamtzahl (seit 27.09.2026 mit „von" und Tausenderpunkt, weil „427/3441" als
+  abgeschnittene Zahl gelesen wurde). Im Info-Dialog steht der Stand dauerhaft.
+- Zwischenstände werden **höchstens einmal pro Minute** gespeichert und auf der
+  Karte gezeigt – so bleibt die App auch mit vielen tausend Kunden flüssig.
+- Eine **Lasso-Auswahl bleibt dabei stehen**; ihre Leuchtpunkte wandern an die
+  neuen Positionen (bis 27.09.2026 schloss jede Zwischenstation die Liste).
+- **Während einer Live-Demo ruht die Verortung** und läuft danach weiter.
+- Bei gesperrtem Tresor, ohne Internet oder wenn OpenStreetMap nicht antwortet,
+  hält sie an und setzt später fort; Gefundenes bleibt gespeichert.
+- **Große Bestände und Tresor:** Nach dem Entsperren zeichnet die Karte die
+  Kunden nur noch einmal (bis 27.09.2026 mehrfach – mit einigen tausend Kunden
+  wirkte das Handy danach sekundenlang eingefroren).
 
 ### 8.2 Globale Suche in der Kopfleiste
 
@@ -1197,9 +1313,13 @@ einem Ort überschrieben.
 
 Im Panel unter **"Kartenstil"** stehen:
 
-- **"Hell"**
-- **"Standard"**
-- **"Satellit"**
+- **"Hell"** – dieselben OpenStreetMap-Kacheln wie „Standard", nur blass
+  gezeichnet (ruhiger Hintergrund). Bis 27.09.2026 kam „Hell" von CARTO; dort
+  verlangen die Kacheln inzwischen einen API-Schlüssel und zeigten nur noch
+  „API KEY REQUIRED". Sieht jemand diesen Schriftzug noch, hat das Gerät die
+  neue Version noch nicht geladen: App einmal schließen und neu öffnen.
+- **"Standard"** (OpenStreetMap, Voreinstellung)
+- **"Satellit"** (Esri)
 
 Die Kartenwahl wird gespeichert. Das Mausrad zoomt in kleinen Viertelstufen, um
 ruckartige Sprünge zu vermeiden. Das Mausrad über der Sidebar scrollt dagegen
@@ -1230,7 +1350,8 @@ Das Popup zeigt je nach vorhandenen Daten:
 - Kundenname
 - Straße sowie **PLZ + Ort**
 - Hinweis `ca. (PLZ-Mitte)` bei näherungsweiser Position
-- Umsatz
+- Umsatz – sofern vorhanden als eigene hervorgehobene Zeile; auch ein expliziter
+  Wert von `0 €` gilt als vorhanden
 - Hauptansprechpartner
 - **"Anrufen"** und **"E-Mail"**
 - **"Heute besucht"**
@@ -1513,7 +1634,7 @@ Verhalten in Randfällen:
 | Karte verschieben oder zoomen | Auswahl wird verworfen |
 | Sehr große Auswahl | Zahl vollständig, hervorgehoben höchstens 250 Punkte |
 
-Die Live-Demo "Fläche umfahren, Briefing bekommen" führt die Geste in der echten
+Die Live-Demo "Kunde(n) wählen / Briefing / Entscheiden / Tour wählen" führt die Geste in der echten
 App vor - mit echten Zeigerereignissen, nicht als Animation.
 
 ### 9.8 Bewusst entfernte Funktion: automatische Microsoft-Anmeldung
@@ -2024,11 +2145,13 @@ Desktop-only Geschichten und der QR-Sendeschritt werden ausgeblendet.
 
 ### 13.1 Gebietsansicht
 
-**Klickpfad:** `Profi -> Optionale Profi-Module -> Gebietsplanung & Gebietsmanagement aktivieren -> Gebietsplanung -> Tab Gebiete`.
+**Klickpfad im Standard:** `Profi -> Gebietsplanung -> Tab Gebiete`.
 
-Die Aktivierung ist standardmäßig aus. Bezirke, Bezirksfarben und operative
-Filter bleiben im Außendienst sichtbar; nur strukturelle Analyse und Änderung
-liegen hinter diesem Modul.
+Die Moduloption **"Gebietsplanung & Gebietsmanagement"** ist standardmäßig
+aktiviert. Sie kann unter `Profi -> Optionale Profi-Module` bewusst ausgeschaltet
+und später wieder eingeschaltet werden. Bezirke, Bezirksfarben und operative
+Filter bleiben auch dann im Außendienst sichtbar; nur strukturelle Analyse und
+Änderung liegen hinter diesem Modul.
 
 Gebietsebenen:
 
@@ -2037,6 +2160,9 @@ Gebietsebenen:
 - PLZ 2-stellig
 - PLZ 3-stellig
 - PLZ 5-stellig
+- **"Gebietsflächen ausblenden"** zeigt nur die Kundenkarte. Mit
+  **"Gebietsflächen einblenden"** kehrt die Karte zur vorherigen oder zur
+  automatischen Gebietsebene zurück.
 
 Anzeigearten:
 
@@ -2049,11 +2175,42 @@ Anzeigearten:
 Bei automatischer Anzeige gilt: weit herausgezoomt Vertriebsgruppen, mittlerer
 Zoom Vertriebsbezirke, nah Kundenmarker.
 
-### 13.2 Umsatzlabels
+### 13.2 Filter und Umsatzlabels
 
-Flächenlabels zeigen die fachliche Gesamtsumme einer Einheit, unabhängig von
-aktiven Kundenfiltern. `T EUR` bedeutet Tausend Euro. Der exakte Betrag steht im
-Tooltip.
+Die Fläche bezeichnet die gewählte geografische Gebietsebene, zum Beispiel
+einen Landkreis. Farbe und Kürzel darauf zeigen den Vertriebsbezirk oder die
+Vertriebsgruppe.
+
+Ein Filter im Tab **"Filter"** gilt auch für die Gebietskarte: Abgewählte
+Einheiten verschwinden mitsamt Fläche, Hoverziel, Beschriftung und
+Legendeneintrag. Wird nur ein Vertriebsbezirk gewählt, bleibt damit nur dessen
+räumlicher Ausschnitt sichtbar.
+
+Der aktivierbare Filter **"Umsatz von-bis"** besitzt zwei offene Grenzen. Eine
+leere Von- oder Bis-Grenze bedeutet kein Limit in diese Richtung. Bei aktivem
+Filter werden Kunden ohne gültigen Umsatzwert ausgeschlossen; ein ausdrücklich
+vorhandener Wert von `0 EUR` bleibt dagegen ein echter Wert. Vertauschte Grenzen
+ordnet TourFuchs automatisch von klein nach groß. Der Filter wirkt auf
+Kundenpunkte, Zähler, Tourvorschläge sowie Gebietsflächen und -summen.
+
+Unter **"Fläche einfärben ab"** legt eine ganze Zahl fest, wie viele aktuell
+sichtbare Kunden mindestens in einem Landkreis oder PLZ-Gebiet liegen müssen,
+damit es eine Vertriebsfarbe erhält. `0` schaltet die Mindestzahl aus. Dünner
+besetzte Gebiete bleiben als neutrale, weiterhin anklickbare Orientierung
+erhalten; ihre Kunden fließen nicht in die sichtbaren Gebietskacheln ein. Die
+Ansicht **"Weiße Flecken"** bleibt von dieser Farbschwelle unberührt.
+
+Die eingeblendeten Flächenlabels zeigen die fachliche Summe des sichtbaren
+Ausschnitts. Ohne aktiven Filter zeigen sie die Gesamtsumme der Einheit.
+`T EUR` bedeutet Tausend Euro. Der exakte Betrag steht im Tooltip.
+
+Jede Organisationskachel auf der Karte ist selbst anklickbar und liegt als
+eigenes Klickziel vor der Gebietsfläche. Der Klick öffnet eine große
+Detailkarte für die Einheit mit sichtbarer Kundenzahl, Umsatzsumme,
+Durchschnitt je Kunde mit Umsatzangabe, Zahl der betroffenen Landkreis-/PLZ-
+Teilgebiete, Vertriebsgruppe, Vertriebshauptgruppe und den vier stärksten
+Kundenstandorten nach Anzahl. **"Gebiet auf Karte zeigen"** schließt die
+Detailkarte und passt den Kartenausschnitt an alle Teilflächen der Einheit an.
 
 ### 13.3 Gebietspopup
 
@@ -2302,6 +2459,25 @@ Alternativ bei geladenen Daten:
 4. direkt einen neuen lokalen Datentresor einrichten.
 
 Falscher Schlüssel und beschädigte Datei werden erkannt.
+
+**Wenn die Datei abgelehnt wird (seit 28.09.2026 mit Befund):** Die Meldung
+nennt Dateiname und Größe und sagt, was los ist – statt nur „keine gültige
+Datei":
+
+| Befund | Bedeutung / Rat |
+|---|---|
+| **leer (0 Byte)** | nicht vollständig angekommen, z. B. nur ein Cloud-Platzhalter – in der Cloud erst ganz herunterladen |
+| **unvollständig** | das Ende fehlt – Datei am Desktop neu erzeugen, anderen Weg wählen |
+| **gepackt (ZIP)** | erst entpacken, dann die `.tfsafe` wählen |
+| **Webseite statt Daten** | meist die Hinweisseite eines Mail- oder Cloud-Filters |
+| **verändert/verschlüsselt** | z. B. durch einen Firmen-Schutz für Anhänge – per USB oder Cloud statt Mail übertragen |
+| **keine TourFuchs-Umzugsdatei** | falsche Datei gewählt |
+
+Leicht veränderte Dateien (neu gespeichert als UTF-16, Text davor oder danach,
+Base64-verpackt) werden **trotzdem gelesen**. Dieselbe Datei darf **beliebig
+oft** erneut gewählt werden; TourFuchs merkt sich keine „verbrauchten" Dateien –
+vor dem Übernehmen fragt es nur, ob die Daten auf dem Gerät ersetzt werden
+sollen.
 
 ---
 
@@ -2666,9 +2842,11 @@ altem Namen alte PWA entfernen und neu installieren.
 
 ### Warum sehe ich am Desktop keine Gebietsplanung oder keinen Service-Fokus?
 
-> Beide Bereiche sind optionale Profi-Module und standardmäßig aus. Öffne
-> `Profi -> Optionale Profi-Module` und aktiviere dort „Gebietsplanung &
-> Gebietsmanagement" beziehungsweise „Service-Vertragsradar". Der normale
+> Beide Bereiche sind optionale Profi-Module. Die Gebietsplanung ist im Standard
+> bereits aktiviert und erscheint am Desktop nach dem Wechsel auf `Profi`.
+> Wurde sie früher bewusst ausgeschaltet, lässt sie sich unter
+> `Profi -> Optionale Profi-Module` wieder aktivieren. Der Service-Fokus bleibt
+> standardmäßig aus und wird dort bei Bedarf eingeschaltet. Der normale
 > Außendienstweg bleibt auch ohne diese Module vollständig.
 
 ### Kann ich CSV statt Excel verwenden?
@@ -3121,8 +3299,9 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 20. **Welche Scrollwege hat das Desktop-Panel?**
     Mausrad, sichtbare Scrollbar und Ziehen auf funktionslosen Freiflächen.
 21. **Ist Gebietsplanung standardmäßig sichtbar?**
-    Nein. Sie ist ein optionales Profi-Modul und wird am Desktop unter
-    „Optionale Profi-Module" aktiviert.
+    Als Modul ist sie standardmäßig aktiviert. Der Arbeitsfokus erscheint am
+    Desktop nach dem Wechsel auf „Profi". Unter „Optionale Profi-Module" kann
+    die Gebietsplanung bewusst aus- und wieder eingeschaltet werden.
 22. **Ist Basis nur für Anfänger gedacht?**
     Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi ergänzt
     Spezial-, Konfigurations- und Administrationswerkzeuge.
@@ -3191,14 +3370,39 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
+### 26.3a Änderungen in Version 3.6 (28.09.2026)
+
+- **Live-Demo-Steuerleiste** (6.1.1): Tempo-Menü mit Tacho (1,2× · 1,0× · 0,8×
+  · 0,6×, Musik unverändert), **↺ Zurück** blättert durch die Erklärungen,
+  **⏭ Schritt für Schritt** hält an jeder Erklärung, **▶** lässt durchlaufen;
+  im Schritt-Modus kein automatischer Start des nächsten Films.
+- **Selbststart beim ersten Start** (5.1): nur echte Bedienung bricht ab;
+  offene Fenster pausieren den Countdown.
+- **Filme**: zwölf Geschichten, u. a. „Vom Bezirk zum Kunden", „Mein Gebiet im
+  Überblick", „Deine Excel-Liste importieren"; die Tour-Demo neu mit Ziel,
+  Start zu Hause und echter (vorberechneter) Straßenroute; am Handy wird der
+  Start sichtbar eingetippt (6.2, 6.3).
+- **Videos der Live-Demos** für Präsentationen: Desktop im Monitor-Rahmen, Handy
+  im Smartphone-Rahmen, jeweils mit Thema links (6.6).
+- **Excel-Export** mit allen Spalten und Abfrage „nur gefilterte / alle"; Pille
+  „Gebiet exportieren" entfällt (7.12).
+- **Adressgenaue Verortung**: Fortschritt „427 von 3.441", Zwischenstand einmal
+  pro Minute, Lasso-Auswahl bleibt stehen, Pause während Live-Demos; kein
+  Einfrieren mehr nach dem Entsperren großer Bestände (8.1).
+- **Kartenstil „Hell"** ohne API-Schlüssel (blasse OpenStreetMap-Kacheln statt
+  CARTO) (8.3).
+- **Sicherer Umzug**: klarer Befund, wenn eine `.tfsafe`-Datei abgelehnt wird;
+  leicht veränderte Dateien werden trotzdem gelesen (14.7).
+
 ### 26.3 Änderungen in Version 3.5
 
 - TourFuchs ist in Oberfläche und Schulung konsequent auf den täglichen
   Außendienst fokussiert: **Kunden sehen. Tour planen. Gut vorbereitet
   hinfahren.**
 - **Gebietsplanung & Gebietsmanagement** und **Service-Vertragsradar** sind
-  optionale Profi-Module, standardmäßig aus und am Desktop einzeln aktivierbar.
-  Bestehende Fachfunktionen und Daten bleiben erhalten.
+  optionale Profi-Module und am Desktop einzeln schaltbar. Gebietsplanung ist
+  standardmäßig aktiv, Service standardmäßig aus. Bestehende Fachfunktionen und
+  Daten bleiben erhalten.
 - Basis ist ausdrücklich der vollständige tägliche Arbeitsmodus, nicht ein
   Anfängermodus. Profi bündelt Spezial-, Konfigurations- und
   Administrationswerkzeuge.
@@ -3710,7 +3914,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Desktop-Handyvorschau | "Mobile Außendienst & Tour"; startet tourfokussiert, zeigt aber den vollständigen mobilen Außendienstweg |
 | Basis | ruhiger Kernweg, Briefing inklusive |
 | Profi | Spezial-, Konfigurations- und Administrationswerkzeuge; kein „besserer Außendienstmodus" |
-| Optionale Module | Gebietsplanung & Gebietsmanagement sowie Service-Vertragsradar; standardmäßig aus, am Desktop unter Profi aktivierbar |
+| Optionale Module | Gebietsplanung & Gebietsmanagement sowie Service-Vertragsradar; Gebietsplanung standardmäßig an, Service aus, am Desktop unter Profi einzeln schaltbar |
 | Suche | eigene Orte, Kunden, lokale PLZ-Ortszentren und Koordinaten; keine freie Straßenadresssuche im Netz |
 | Briefing Basis | Prompt anzeigen/kopieren, Copilot öffnen, Nutzer sendet selbst |
 | Briefing Profi | derselbe Weg, zusätzlich Zielassistent wählbar |

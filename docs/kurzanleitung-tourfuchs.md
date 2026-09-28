@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Kurzanleitung
 
-Stand: 29.08.2026 · App-Version 3.5.0
+Stand: 28.09.2026 · App-Version 3.5.0
 
 ## 1. App starten
 
@@ -40,6 +40,20 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 - Im Tab **Filter** bei Bedarf **"Umsatz von-bis"** aktivieren. Ohne gültigen
   Umsatzwert wird ein Kunde dann ausgeblendet; `0 EUR` ist ein eigener Wert.
 - Strategische Flächenwerkzeuge nur bei aktiviertem Profi-Modul verwenden.
+
+### Live-Demos steuern
+
+Während einer Live-Demo steht oben eine Steuerleiste:
+
+- **Tacho „1,2×"**: Tempo wählen (1,2× · 1,0× · 0,8× · 0,6×) – die Musik läuft
+  unverändert weiter.
+- **↺ Zurück**: vorige Erklärung noch einmal zeigen.
+- **⏭ Weiter**: Schritt für Schritt – bis zur nächsten Erklärung, dort anhalten.
+  Ideal, um die App live vorzuführen und dabei zu erzählen.
+- **▶**: wieder normal durchlaufen lassen. **✕**: beenden.
+
+Für Präsentationen ohne App gibt es jede Live-Demo auch als Video (Desktop im
+Monitor-, Handy im Smartphone-Rahmen).
 
 ## 4. Lasso und Mehrkunden-Briefing
 
@@ -197,7 +211,9 @@ Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 - Google Maps erhält Daten erst bei bewusster Übergabe.
 - Beim Briefing erzeugt und kopiert TourFuchs den Prompt lokal. Übertragen wird
   er erst, wenn der Nutzer ihn im Assistenten selbst einfügt und absendet.
-- Vor Daten löschen bei Bedarf Excel-Export erstellen.
+- Vor Daten löschen bei Bedarf Excel-Export erstellen. Der Export enthält alle
+  Spalten (auch Originalspalten der Importdatei, alle Besuche, Verortung); bei
+  aktivem Filter fragt er „nur die gefilterten" oder „alle Kunden".
 
 ![Daten-Reiter mit Export und vollständigem Ersatzweg](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
 
