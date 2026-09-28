@@ -38,7 +38,10 @@ describe('Pillen über der Karte', () => {
         expect(pills).toContain('demos.hidden = !hasData || isDemoDataset(state.customers);');
         expect(html).toContain('id="btn-demos-pill" class="map-fab demos-fab only-desktop"');
         expect(html).toContain('id="btn-territory-briefing"');
-        expect(html).toContain('id="btn-territory-export"');
+        // „Gebiet exportieren" ist entfallen – der eine Excel-Export fragt
+        // bei aktivem Filter „alle oder nur die gefilterten?".
+        expect(html).not.toContain('id="btn-territory-export"');
+        expect(html).toContain('id="export-choice-dialog"');
     });
 
     it('vergibt jede id in index.html nur einmal', () => {
@@ -46,8 +49,10 @@ describe('Pillen über der Karte', () => {
         expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
     });
 
-    it('exportiert die sichtbaren Kunden mit Gebiet im Dateinamen', () => {
+    it('exportiert gefilterte Kunden mit Gebiet im Dateinamen – über den einen Excel-Export', () => {
         expect(read('src/services/excel.js')).toContain("const prefix = fileLabel ? `${base}-${fileLabel}` : base;");
-        expect(read('src/ui/mapPills.js')).toContain("exportCustomers(customers, { fileLabel: fileSlug(label.replace(/ im aktuellen Kartenausschnitt$/, '')) });");
+        const sidebar = read('src/ui/sidebar.js');
+        expect(sidebar).toContain("runExport(visibleCustomers(), { filtered: true });");
+        expect(sidebar).toContain('if (!dialog || visible.length === 0 || visible.length >= all.length) { runExport(all); return; }');
     });
 });

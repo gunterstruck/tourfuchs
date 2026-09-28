@@ -583,10 +583,6 @@
                 <span class="mns-icon" aria-hidden="true">📋</span>
                 <span class="mns-label">Briefing für mein Gebiet</span>
             </button>
-            <button id="btn-territory-export" class="map-fab area-fab" type="button" hidden title="Sichtbare Kunden als Excel – mit Kundennummer und Besuchsstand, auch fürs CRM">
-                <span class="mns-icon" aria-hidden="true">⬇</span>
-                <span class="mns-label">Gebiet exportieren</span>
-            </button>
             <!-- Live-Demos auch mit eigenen Daten erreichbar (Schreibtisch). -->
             <button id="btn-demos-pill" class="map-fab demos-fab only-desktop" type="button" hidden>
                 <span class="mns-icon" aria-hidden="true">🎬</span>
@@ -695,6 +691,17 @@
                 <button type="button" id="geocode-offer-yes" class="primary">Ja, immer genau verorten</button>
             </div>
             <p class="muted small geocode-offer-foot">Jederzeit änderbar unter ⓘ Info.</p>
+        </dialog>
+
+        <!-- Excel-Export: alle Kunden oder nur die gefilterten? -->
+        <dialog id="export-choice-dialog" class="geocode-offer-dialog" aria-labelledby="export-choice-title">
+            <h2 id="export-choice-title">⬇ Excel exportieren</h2>
+            <p id="export-choice-lead"></p>
+            <div class="geocode-offer-actions">
+                <button type="button" id="export-choice-filtered">Nur gefilterte</button>
+                <button type="button" id="export-choice-all" class="primary">Alle Kunden</button>
+            </div>
+            <p class="muted small geocode-offer-foot">Mit allen Spalten: Originalspalten der Importdatei, Besuche, Verortung und Ansprechpartner. <button type="button" id="export-choice-cancel" class="export-choice-cancel">Abbrechen</button></p>
         </dialog>
 
         <!-- Fortschritt der Verortung im Hintergrund -->
