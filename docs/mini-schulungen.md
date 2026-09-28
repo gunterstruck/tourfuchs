@@ -31,7 +31,7 @@ Der Einstiegsfilm am Schreibtisch – und der Knopf im aufgeklappten Bereich „
 3. Die Bezirkskachel groß öffnen: Kunden, Umsatz, stärkste Standorte.
 4. „Auf Karte zeigen“, Anzeige auf „Automatisch (nach Zoom)“ – auf Kundenebene bleibt die Bezirksfarbe als Orientierung, darauf erscheinen die Kundenstapel.
 5. Den mittigsten Stapel antippen, bis Kundenkacheln die Mitte übernehmen, und die Kachel öffnen: Adresse, Kontakt, Umsatz, letzter Besuch.
-6. Zum Schluss der Hinweis auf die Pillen „Briefing für mein Gebiet“ und „Gebiet exportieren“.
+6. Zum Schluss der Hinweis auf die Pille „Briefing für mein Gebiet“.
 
 Filter, Gebietsebene und Anzeige werden am Ende oder bei Abbruch wiederhergestellt.
 

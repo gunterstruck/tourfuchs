@@ -831,28 +831,79 @@ export function downloadTemplate() {
     XLSX.writeFile(wb, 'tourfuchs-kundenliste-vorlage.xlsx');
 }
 
+/** Wie ein Kunde auf die Karte kam – für die Spalte „Verortung". */
+const GEO_EXPORT_LABEL = {
+    exakt: 'adressgenau',
+    plz: 'PLZ-Mitte',
+    strasse: 'Straße (Beispieldaten)',
+    none: 'nicht verortet'
+};
+
+function contactExportText(contact) {
+    return [contact?.name, contact?.telefon, contact?.email]
+        .map((value) => String(value ?? '').trim())
+        .filter(Boolean)
+        .join(' · ');
+}
+
+/**
+ * Eine Zeile je Kunde – **alles**, was TourFuchs über ihn weiß.
+ *
+ * Neben den bekannten Feldern gehören dazu: jede Spalte der Originaldatei,
+ * die keinem Feld zugeordnet war (`extra` – sonst ginge sie beim Weitergeben
+ * ins CRM verloren), die ganze Besuchshistorie statt nur des letzten Besuchs,
+ * wie genau der Kunde verortet ist (nach der Hintergrund-Verortung
+ * „adressgenau") und weitere Ansprechpartner aus einer Kontaktdatei.
+ *
+ * Die ersten Spaltennamen sind bewusst die, die der Import wiedererkennt: Die
+ * Datei lässt sich wieder einlesen.
+ */
 export function customerExportRows(customers) {
-    return customers.map((c) => ({
-        'Datenstatus': isDemoCustomer(c) ? DEMO_DATA_LABEL : '',
-        'Kundennummer': c.nummer,
-        'Kundenname': c.name,
-        'Straße': c.strasse,
-        'PLZ': c.plz,
-        'Ort': c.ort,
-        'Vertriebsbeauftragter': c.vb,
-        'Vertriebschannel': c.channel ?? '',
-        'Vertriebsgruppe': c.gruppe,
-        'Vertriebsbezirk': c.bezirk ?? '',
-        'Kundentyp': c.kundentyp ?? '',
-        'Hauptansprechpartner': c.ansprechpartner ?? '',
-        'Telefon': c.telefon ?? '',
-        'E-Mail': c.email ?? '',
-        'Umsatz': c.umsatz ?? '',
-        'Besuchsrhythmus (Wochen)': c.rhythmusWochen ?? '',
-        'Letzter Besuch': (c.besuche && c.besuche.length) ? c.besuche[c.besuche.length - 1] : '',
-        'Lat': c.lat ?? '',
-        'Lng': c.lng ?? ''
-    }));
+    const list = customers || [];
+    // Originalspalten: Vereinigung über alle Kunden, in der Reihenfolge ihres
+    // ersten Auftretens – jede Zeile bekommt jede Spalte (leer, wo nichts steht).
+    const extraHeaders = [];
+    const seenHeaders = new Set();
+    for (const c of list) {
+        for (const header of Object.keys(c?.extra || {})) {
+            if (!seenHeaders.has(header)) { seenHeaders.add(header); extraHeaders.push(header); }
+        }
+    }
+    return list.map((c) => {
+        const visits = [...new Set((c.besuche || []).filter(Boolean))].sort();
+        const others = (c.contacts || []).filter((contact) => contact && !contact.primary).map(contactExportText).filter(Boolean);
+        const row = {
+            'Datenstatus': isDemoCustomer(c) ? DEMO_DATA_LABEL : '',
+            'Kundennummer': c.nummer,
+            'Kundenname': c.name,
+            'Straße': c.strasse,
+            'PLZ': c.plz,
+            'Ort': c.ort,
+            'Vertriebsbeauftragter': c.vb,
+            'Vertriebschannel': c.channel ?? '',
+            'Vertriebsgruppe': c.gruppe,
+            'Vertriebsbezirk': c.bezirk ?? '',
+            'Kundentyp': c.kundentyp ?? '',
+            'Hauptansprechpartner': c.ansprechpartner ?? '',
+            'Telefon': c.telefon ?? '',
+            'E-Mail': c.email ?? '',
+            'Umsatz': c.umsatz ?? '',
+            'Besuchsrhythmus (Wochen)': c.rhythmusWochen ?? '',
+            'Letzter Besuch': visits.length ? visits[visits.length - 1] : '',
+            'Lat': c.lat ?? '',
+            'Lng': c.lng ?? '',
+            'Verortung': GEO_EXPORT_LABEL[c.geo] || (c.lat !== null && c.lat !== undefined ? 'verortet' : 'nicht verortet'),
+            'Anzahl Besuche': visits.length,
+            'Alle Besuche': visits.join('; '),
+            'Weitere Ansprechpartner': others.join(' | ')
+        };
+        for (const header of extraHeaders) {
+            // Eine Originalspalte, die wie eine TourFuchs-Spalte heißt, überschreibt sie nicht.
+            const key = header in row ? `${header} (Original)` : header;
+            row[key] = c.extra?.[header] ?? '';
+        }
+        return row;
+    });
 }
 
 /**
