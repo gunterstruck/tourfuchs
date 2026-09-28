@@ -32,7 +32,7 @@
  */
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { createHash, X509Certificate } from 'node:crypto';
 import { resolve } from 'node:path';
 
@@ -131,7 +131,8 @@ const titelKarte = (story) => `<span class="kicker">TourFuchs · Live-Demo</span
     <p>${escapeHtml(story.blurb)}</p>`;
 
 const ABSPANN = `<span class="fox">🦊</span>
-    <h1>TourFuchs – Kunden, Touren, Gebiete. Auf einer Karte.</h1>
+    <span class="kicker">TourFuchs</span>
+    <h1>Kunden, Touren, Gebiete.<br>Auf einer Karte.</h1>
     <p class="url">tourfuchs.vercel.app</p>
     <p class="fine">Alle Kunden in diesem Film sind Beispieldaten und erfunden.<br>
     Musik: „Tropical Island House 2024" von Sascha Ende (ende.app), CC BY 4.0</p>`;
@@ -141,7 +142,12 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     const rohOrdner = resolve('tmp', 'videos-roh', `${storyId}-${format.name}`);
     rmSync(rohOrdner, { recursive: true, force: true });
     mkdirSync(rohOrdner, { recursive: true });
-    const size = { width: format.viewport.width * format.scale, height: format.viewport.height * format.scale };
+    // Playwrights Videoaufnahme filmt in CSS-Pixeln: Beim Handy (doppelte
+    // Pixeldichte) landete nur ein Viertel des Bildes im Video. Dort nehmen
+    // wir deshalb Einzelbilder direkt vom Browser ab (Screencast) – scharf,
+    // in voller Geräteauflösung – und setzen sie mit ihren echten Zeitstempeln
+    // zusammen.
+    const screencast = format.scale > 1;
     const context = await browser.newContext({
         viewport: format.viewport,
         deviceScaleFactor: format.scale,
@@ -150,12 +156,24 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
         locale: 'de-DE',
         timezoneId: 'Europe/Berlin',
         reducedMotion: 'no-preference',
-        recordVideo: { dir: rohOrdner, size }
+        ...(screencast ? {} : { recordVideo: { dir: rohOrdner, size: format.viewport } })
     });
     // Normales Tempo, egal was auf diesem Rechner zuletzt eingestellt war.
     await context.addInitScript(() => { try { localStorage.removeItem('tf_showcase_tempo'); } catch { /* egal */ } });
     const page = await context.newPage();
     const aufnahmeStart = Date.now();
+    const bilder = [];   // { t: Sekunden (Wanduhr), datei }
+    let cdp = null;
+    if (screencast) {
+        cdp = await context.newCDPSession(page);
+        cdp.on('Page.screencastFrame', ({ data, metadata, sessionId }) => {
+            const datei = resolve(rohOrdner, `b${String(bilder.length).padStart(6, '0')}.jpg`);
+            writeFileSync(datei, Buffer.from(data, 'base64'));
+            bilder.push({ t: metadata.timestamp ?? Date.now() / 1000, datei });
+            cdp.send('Page.screencastFrameAck', { sessionId }).catch(() => {});
+        });
+        await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: 2400, maxHeight: 4000, everyNthFrame: 1 });
+    }
     const fehler = [];
     page.on('pageerror', (e) => fehler.push(String(e).slice(0, 300)));
     let filmStart = 0;
@@ -198,24 +216,31 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
         await sleep(5600);
         filmEnde = Date.now() - filmStart;
     } finally {
+        if (cdp) await cdp.send('Page.stopScreencast').catch(() => {});
         await context.close().catch(() => {});
     }
-    const roh = readdirSync(rohOrdner).find((f) => f.endsWith('.webm'));
-    if (!roh) throw new Error('Playwright hat keine Aufnahme abgelegt.');
 
     const ziel = resolve(zielOrdner, `tourfuchs-${storyId}-${format.name}.mp4`);
     const dauer = (filmEnde + 300) / 1000;
     const vorlauf = (filmStart - aufnahmeStart) / 1000;
+    let eingabe;
+    if (screencast) {
+        eingabe = ['-f', 'concat', '-safe', '0', '-i', bildListe(bilder, filmStart / 1000, dauer, rohOrdner)];
+    } else {
+        const roh = readdirSync(rohOrdner).find((f) => f.endsWith('.webm'));
+        if (!roh) throw new Error('Playwright hat keine Aufnahme abgelegt.');
+        eingabe = ['-ss', vorlauf.toFixed(2), '-i', resolve(rohOrdner, roh)];
+    }
     // Handy auf 1080 Pixel Breite, Desktop bleibt 1920 × 1080; gerade Maße für H.264.
     const skalieren = format.name === 'handy' ? 'scale=1080:-2:flags=lanczos' : 'scale=1920:1080:flags=lanczos';
     const fadeOut = Math.max(0, dauer - 2.5).toFixed(2);
     await run(ffmpeg, [
         '-y',
-        '-ss', vorlauf.toFixed(2), '-i', resolve(rohOrdner, roh),
+        ...eingabe,
         '-stream_loop', '-1', '-i', MUSIK,
         '-t', dauer.toFixed(2),
         '-map', '0:v:0', '-map', '1:a:0',
-        '-vf', `${skalieren},fps=30,fade=t=in:st=0:d=0.6,fade=t=out:st=${Math.max(0, dauer - 0.8).toFixed(2)}:d=0.8`,
+        '-vf', `${skalieren},setsar=1,fps=30,fade=t=in:st=0:d=0.6,fade=t=out:st=${Math.max(0, dauer - 0.8).toFixed(2)}:d=0.8`,
         '-af', `volume=${MUSIK_LAUTSTAERKE},afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOut}:d=2.5`,
         '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p',
         '-c:a', 'aac', '-b:a', '160k',
@@ -224,6 +249,30 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     ]);
     rmSync(rohOrdner, { recursive: true, force: true });
     return { ziel, ergebnis, sekunden: Math.round(dauer), fehler };
+}
+
+/**
+ * Einzelbilder als ffmpeg-Concat-Liste: jedes Bild so lange, bis das nächste
+ * kam – ab dem Filmbeginn, bis zum Filmende. (Der Screencast liefert nur
+ * Bilder, wenn sich etwas ändert.)
+ */
+function bildListe(bilder, startSek, dauer, ordner) {
+    const ende = startSek + dauer;
+    const ab = Math.max(0, bilder.findLastIndex((b) => b.t <= startSek));
+    const zeilen = [];
+    let letztes = null;
+    for (let i = ab; i < bilder.length && bilder[i].t < ende; i += 1) {
+        const von = Math.max(bilder[i].t, startSek);
+        const bis = Math.min(bilder[i + 1]?.t ?? ende, ende);
+        if (bis <= von) continue;
+        zeilen.push(`file '${bilder[i].datei}'`, `duration ${(bis - von).toFixed(4)}`);
+        letztes = bilder[i].datei;
+    }
+    if (!letztes) throw new Error('Keine Bilder aufgenommen.');
+    zeilen.push(`file '${letztes}'`);   // Concat verlangt das letzte Bild doppelt
+    const liste = resolve(ordner, 'bilder.txt');
+    writeFileSync(liste, `${zeilen.join('\n')}\n`);
+    return liste;
 }
 
 /** Titel und Kurztext aus der Kachel der Demo-Auswahl. */
@@ -290,8 +339,10 @@ function proxyCaArgs() {
 }
 
 // `--lang`: Datums- und Zeitfelder deutsch (28.09.2026, 08:00 statt 09/28/2026, 08:00 AM).
+// Unter Linux richtet sich das Datumsfeld nach LANG/LANGUAGE, nicht nach --lang.
 const browser = await chromium.launch({
     args: ['--lang=de-DE', ...proxyCaArgs()],
+    env: { ...process.env, LANG: 'de_DE.UTF-8', LANGUAGE: 'de' },
     ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {})
 });
 let code = 0;
