@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.5 · Stand: 29.08.2026 · App-Version: 3.5.0**
+**Version 3.6 · Stand: 28.09.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -541,8 +541,19 @@ TourFuchs") mit zwei gleichwertigen Wegen: **▶ TourFuchs in Aktion sehen**
 laden**, dazu die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
 Besuch). Tut niemand etwas, startet die Vorführung nach **zehn Sekunden** von
 selbst – ohne Ton, bis jemand auf „♫ Musik ein" tippt, weil Browser Musik erst
-nach einem Tipp erlauben. Die erste Bedienung irgendwo in der App bricht den
-Selbststart ab; gezählt wird nur, solange der Tab sichtbar ist. Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
+nach einem Tipp erlauben. Sichtbar ist der Countdown daran, dass sich der grüne
+Knopf **„▶ TourFuchs in Aktion sehen" von links nach rechts einfärbt**.
+
+**Was den Selbststart abbricht (seit 27.09.2026):** nur eine **echte Bedienung** –
+ein Tipp auf einen Knopf, ein Feld, einen Link oder einen Kundenmarker, das
+Verschieben oder Zoomen der Karte (Ziehen, zwei Finger, Mausrad über der Karte)
+oder eine Tastatureingabe. **Bloßes Berühren, Scrollen oder ein Tipp ins Leere
+brechen ihn nicht ab.** Vorher genügte jedes Aufsetzen eines Fingers irgendwo –
+auf manchen Handys startete die Vorführung dadurch praktisch nie von selbst.
+Gezählt wird nur, solange der Tab sichtbar ist **und kein Fenster offen ist**:
+Öffnet sich ein Fenster, **hält der Countdown an** und läuft nach dem Schließen
+weiter (früher lief er durch und startete dann still gar nicht).
+Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
 Tipp auf die Hinweiskarte selbst lässt sie zurücktreten** (gilt als Quittung).
 Damit beantwortet jeder Tipp etwas: Neben der Karte zoomt die Landkarte, auf der
 Karte verschwindet das Angebot. Ein dezenter Streifen im Panel („🧪
@@ -666,21 +677,54 @@ Die Vorführung:
 - fragt aktiv, ob die nächste ungesehene Demo gestartet werden soll.
 - bietet bei einem Fehler **"Erneut versuchen"** und **"Demo-Auswahl"** an.
 
+#### 6.1.1 Die Steuerleiste während eines Films
+
+Oben steht während jeder Live-Demo eine Steuerleiste. Am Desktop tragen die
+Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
+
+| Element | Wirkung |
+|---|---|
+| **Zähler „3 / 24"** | aktueller Schritt; „↺ 3 / 24" beim Zurückblättern, „⏭ 5 / 24" im Schritt-Modus |
+| **♫ Musik** | Hintergrundmusik ein/aus; am Desktop mit Lautstärkeregler |
+| **Tacho + Tempo („1,2×")** | öffnet ein Menü mit **1,2× (normal) · 1,0× · 0,8× · 0,6×**; die gewählte Stufe hat einen Haken und wird pro Gerät gemerkt. Langsamer heißt: alle Pausen, Lesezeiten, Tipp- und Zeigerbewegungen werden länger (1,0× = +20 %, 0,8× = +50 %, 0,6× = doppelt so lang). **Die Musik läuft unverändert weiter.** |
+| **↺ Zurück** | hält an und zeigt die **vorige Erklärung** wieder an ihrer Stelle (Blase gestrichelt, Marke „↺ vorige Erklärung"); jeder weitere Tipp geht eine Erklärung weiter zurück |
+| **❚❚ Pause / ▶ Fortsetzen** | anhalten bzw. **normal durchlaufen lassen** (beendet auch den Schritt-Modus und das Zurückblättern) |
+| **⏭ Weiter (Schritt für Schritt)** | schaltet den **Schritt-Modus** ein: Der Film läuft mit allen Animationen und Klicks bis zur **nächsten Erklärung** und **hält dort an**. Jeder weitere Tipp geht einen Schritt weiter; ▶ lässt wieder durchlaufen |
+| **✕ Beenden** | bricht die Vorführung ab und stellt den vorherigen Zustand wieder her |
+
+**Wichtige Grenzen für Guide-Antworten:**
+
+- **Zurückspulen gibt es nicht.** Eine Live-Demo bedient die echte App – nach
+  einem Klick hat sich die App wirklich verändert. „↺ Zurück" blättert deshalb
+  durch die **Erklärungen**, nicht durch die App-Zustände.
+- **„⏭" überspringt nie einen Klick oder Ladevorgang**, nur Wartezeit.
+- **Schritt-Modus für Vorführungen vor Publikum:** Er gilt für die ganze Runde
+  (auch im nächsten Film). Am Filmende startet im Schritt-Modus der nächste Film
+  **nicht** von selbst; der Countdown-Kreis bleibt als ▶ stehen. Die Musik läuft
+  im Schritt-Modus weiter.
+- Ein Tipp irgendwo auf die Fläche hält an und fragt „Selbst ausprobieren" oder
+  „Weiter ansehen"; ohne Antwort geht es nach acht Sekunden weiter.
+- Während einer Live-Demo **ruht die adressgenaue Verortung** (siehe 8.1) und
+  läuft danach von selbst weiter.
+
 ### 6.2 Verfügbare Geschichten
 
 | Live-Demo | Desktop | Smartphone | Kernaussage |
 |---|---:|---:|---|
-| **"Von der Excel-Liste zur Kundenkarte"** | Ja | Ja | **am Schreibtisch zuerst das Einfügen vorführen** (siehe 6.2.1), dann Demo-Liste laden, Kundenstapel antippen bis zur einzelnen Kundenkachel, Details öffnen |
-| **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** | Ja | Ja | Lasso-Auswahl, „Briefing über alle", Prompt-Inhalt und ausgeschlossene Daten, Weg zur freigegebenen Firmen-KI, Auswahl zur Tour |
-| **"Deine Tour, Schritt für Schritt"** | Ja | Ja | ins Ruhrgebiet zoomen, Start und Kunden wählen, optimieren, Luftlinie und Straßenroute |
-| **"Aufs Handy - ohne Kabel, ohne Cloud"** | Ja | Nein | Desktop-Tour per QR ans Smartphone übergeben |
-| **"Was wäre wenn? Gebiete umbauen - ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
+| **"Vom Bezirk zum Kunden"** | Ja | Nein | ganz Deutschland, den eigenen Bezirk filtern, bis zum einzelnen Kunden aufzoomen |
+| **"Deine Tour, Schritt für Schritt"** | Ja | Ja | Kunden auf der Karte als **Ziel** setzen, **zu Hause in Dortmund** starten (sichtbar eingetippt), „Entlang der Tour" zwei Kunden mitnehmen, optimieren, **echte Straßenroute** (vorberechnet) |
+| **"Aufs Handy – ohne Kabel, ohne Cloud"** | Ja | Nein | dieselbe Tour per QR-Code ans Smartphone übergeben |
+| **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"** | Ja | Ja | Lasso-Auswahl, „Briefing über alle", Prompt-Inhalt und ausgeschlossene Daten, Weg zur freigegebenen Firmen-KI, zurück auf der Karte zwei Kunden anhaken und zur Tour nehmen |
+| **"Spontaner Termin? Briefing vorbereiten"** | Ja | Ja | Start zu Hause (sichtbar eingetippt), passenden Kunden in der Nähe wählen, fertigen Kunden-Prompt ansehen |
+| **"Von der Excel-Liste zur Kundenkarte"** | Ja | Ja | **am Schreibtisch zuerst das Einfügen vorführen** (siehe 6.2.1), dann Kundenstapel antippen bis zur einzelnen Kundenkachel |
+| **"Deine Excel-Liste importieren"** | Ja | Ja | Datei wählen, Spalten zuordnen – auch wenn sie anders heißen |
+| **"Mein Gebiet im Überblick"** | Ja | Nein | Bezirk filtern, Umsatz einordnen, Kunden und große Kacheln ansehen |
+| **"Was wäre wenn? Gebiete umbauen – ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
 | **"Dein Service-Tag, verständlich geplant"** | Ja, nach Aktivierung des Service-Moduls | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
-| **"Spontaner Termin? Sofort gebrieft"** | Ja | Ja | passenden Kunden finden und eine sichere Briefing-Ergebnisvorschau erleben |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
 | **"Verschlüsselte Daten aufs Handy holen"** | Nein | Ja | `.tfsafe`-Datei wählen und getrennten Schlüssel scannen |
 
-Im Code existieren damit zehn Geschichten. In der normalen Demo-Auswahl sieht
+Im Code existieren damit zwölf Geschichten. In der normalen Demo-Auswahl sieht
 der Nutzer nur die für Gerät und aktivierte Module passenden Geschichten. Die
 seltenen Gebiets- und Service-Demos konkurrieren nicht mit dem operativen
 Außendienst-Einstieg.
@@ -707,19 +751,26 @@ Beispieldaten.
 
 ### 6.3 Besondere Regeln der Tour-Demo
 
-- Die Demo zoomt zuerst in den Raum Oberhausen/Essen/West-Dortmund, damit Kunden
-  und Route erkennbar bleiben.
-- Sie zeigt zuerst die Luftlinie und danach die Straßenroute.
-- Nur am Desktop folgt der QR-Schritt.
-- Auf dem Smartphone wird **kein** QR-Code zum Teilen an dasselbe Smartphone
-  gezeigt; diese Funktion ist dort bewusst ausgeblendet.
+- Die Demo erzählt eine Tagestour: einen Kunden im Westen des Ruhrgebiets auf
+  der Karte finden und als **Ziel** setzen, **zu Hause in Dortmund** starten,
+  in „Entlang der Tour" **zwei Kunden auf dem Weg** mitnehmen, optimieren und
+  am Ende die **echte Straßenroute** zeigen.
+- Die Straßenroute der Demo ist **vorberechnet** und wird mit der App
+  ausgeliefert (`public/geodata/demo-routes.json`) – die Demo schickt nichts an
+  OSRM und braucht keine Zustimmung.
+- Den Start tippt die Demo **auch am Handy sichtbar ein** („Dortmund",
+  Trefferliste, Auswahl) – am Handy, ohne das Feld zu aktivieren, damit sich auf
+  echten Geräten keine Bildschirmtastatur öffnet. (Bis 28.09.2026 wurde der
+  Start am Handy still gesetzt.)
+- Die QR-Übergabe ist ein eigener Film und läuft nur am Desktop; auf dem
+  Smartphone gibt es keinen QR-Code zum Teilen an dasselbe Smartphone.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
 Die Geschichte **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"**
 zeigt den vollständigen Mehrkunden-Bogen: räumliche Auswahl, Inhalt und
 Datenminimierung des Prompts, bewusste Übergabe an die freigegebene Firmen-KI und
-die Entscheidung zurück auf der Karte. (Bis 26.09.2026 waren das zwei Demos.) **"Spontaner Termin? Sofort gebrieft"** zeigt den
+die Entscheidung zurück auf der Karte. (Bis 26.09.2026 waren das zwei Demos.) **"Spontaner Termin? Briefing vorbereiten"** zeigt den
 Einzelkunden-Weg. Mit reinen Demo-Kunden bleibt jede Geschichte bei einer lokalen
 Vorschau; erst eigene Kundendaten erzeugen einen echten Prompt.
 
@@ -728,7 +779,33 @@ Vorschau; erst eigene Kundendaten erzeugen einen echten Prompt.
 Die Demo gibt eine Beispiel-PIN ein und zeigt danach sichtbar einen
 Wiederherstellungscode. Ein bereits vorhandener echter Tresor wird nicht
 überschrieben. Nach der Demo wird ein nur für die Demo erzeugter Tresor wieder
-entfernt.
+entfernt. Ist der Tresor aktiv, sperrt er **nicht mitten in einem Film**: Die
+automatische Sperre wartet, bis der Film zu Ende ist oder angehalten wurde.
+
+### 6.6 Die Live-Demos als Videos (für Präsentationen)
+
+Wer TourFuchs in einer Besprechung (z. B. Teams) oder auf LinkedIn zeigt, kann
+nicht erwarten, dass die Zuschauer die App öffnen. Dafür gibt es jede Live-Demo
+auch als **MP4-Video** (H.264/AAC; spielt in Teams, PowerPoint, LinkedIn und auf
+jedem Handy) – aufgenommen mit den **Beispieldaten**, mit Titelkarte, Abspann
+und der Film-Musik.
+
+| Fassung | Format | Wofür |
+|---|---|---|
+| `…-desktop-rahmen.mp4` | 16:9, 1920×1080 – **Monitor** rechts (gut zwei Drittel der Breite), **Thema links** | Präsentationen, Teams |
+| `…-handy-rahmen.mp4` | 16:9, 1920×1080 – **Smartphone** rechts, **Thema links** | Präsentationen, Teams |
+| `…-desktop.mp4` | 16:9, 1920×1080, Vollbild ohne Steuerleiste | Einbetten, Website |
+| `…-handy.mp4` | Hochformat, 1080 breit, mit Steuerleiste | Stories, Anschauen am Handy |
+
+Es gibt so viele Videos wie Filme je Gerät: Desktop 10, Handy 7 (Tablet wird
+nicht eigens erzeugt). Erzeugt werden sie mit `npm run build && npm run videos`
+(Werkzeug `tools/videos.mjs`); die Dateien liegen in `videos/` und gehören
+bewusst nicht ins Git. Nach Änderungen an der App erzeugt derselbe Befehl alle
+Fassungen neu.
+
+**Musik:** „Tropical Island House 2024" von Sascha Ende (ende.app), CC BY 4.0 –
+die Namensnennung steht im Abspann jedes Videos; damit dürfen die Videos auch
+für Marketing verwendet werden.
 
 ---
 
@@ -1118,7 +1195,21 @@ Begründung wird nicht automatisch zur Tour oder zum Besuchsstatus.
 
 ### 7.12 Export und Löschen
 
-- **"Als Excel exportieren"** exportiert den aktuellen Kundenbestand.
+- **"Als Excel exportieren"** (`"Daten" -> "Als Excel exportieren"`) ist der
+  **eine** Excel-Export. Ist gerade ein Filter aktiv (Bezirk, Umsatz …), fragt
+  er: **„Nur die N gefilterten"** oder **„Alle M Kunden"**. Ohne Filter
+  exportiert er direkt alles. Die gefilterte Datei trägt das Gebiet im Namen
+  (z. B. `tourfuchs-kunden-bezirk-west-2026-09-28.xlsx`).
+- Der Export enthält **alle Spalten**: die bekannten Felder (Kundennummer, Name,
+  Adresse, Vertrieb, Kontakt, Umsatz, Rhythmus, letzter Besuch, Lat/Lng), dazu
+  **„Verortung"** (adressgenau / PLZ-Mitte / nicht verortet), **„Anzahl
+  Besuche"** und **„Alle Besuche"** (ganze Besuchshistorie),
+  **„Weitere Ansprechpartner"** und **jede Originalspalte der Importdatei**, die
+  keinem Feld zugeordnet war (heißt sie wie eine TourFuchs-Spalte, erscheint sie
+  als „… (Original)"). Die Kernspalten sind so benannt, dass die Datei wieder
+  importiert werden kann – auch in ein CRM oder eine KI.
+- Die frühere Pille **„⬇ Gebiet exportieren"** über der Karte gibt es seit
+  28.09.2026 nicht mehr; ihren Zweck erfüllt die Abfrage „nur die gefilterten".
 - **"Daten löschen"** entfernt lokale Daten nach Bestätigung und deaktiviert
   auch den Tresor.
 - mobil gibt es im Tour-Panel **"Datenbank zurücksetzen"**.
@@ -1141,11 +1232,31 @@ steht **"ca. (PLZ-Mitte)"**.
 
 **Stufe 2: optional adressgenau**
 
-**Klickpfad:** `"Daten" -> "Adressen exakt verorten"`.
+**Klickpfade:** nach einem Import die Rückfrage **„📍 Adressgenau verorten?"**
+(„Ja, immer genau verorten" / „Nein, PLZ reicht"), jederzeit änderbar unter
+`ⓘ Info -> "📍 Adressen genau verorten"`; einmalig auch
+`"Daten" -> "🎯 Adressen exakt verorten"`.
 
-Nur nach bewusstem Start werden Straße, PLZ und Ort einzeln und gedrosselt an
-Nominatim/OpenStreetMap gesendet. Kundenname, Umsatz, Kontakte und
-Vertriebsinformationen werden nicht mitgesendet.
+Nur nach bewusster Zustimmung werden Straße, PLZ und Ort einzeln und gedrosselt
+(etwa eine Adresse pro Sekunde) an Nominatim/OpenStreetMap gesendet.
+Kundenname, Umsatz, Kontakte und Vertriebsinformationen werden nicht
+mitgesendet.
+
+- Die Verortung läuft **im Hintergrund**; oben zeigt eine Pille den
+  Fortschritt, z. B. **„📍 Verorte Adressen 427 von 3.441"**, mit
+  **„Anhalten"**. Die erste Zahl ist der Fortschritt, die zweite die
+  Gesamtzahl (seit 27.09.2026 mit „von" und Tausenderpunkt, weil „427/3441" als
+  abgeschnittene Zahl gelesen wurde). Im Info-Dialog steht der Stand dauerhaft.
+- Zwischenstände werden **höchstens einmal pro Minute** gespeichert und auf der
+  Karte gezeigt – so bleibt die App auch mit vielen tausend Kunden flüssig.
+- Eine **Lasso-Auswahl bleibt dabei stehen**; ihre Leuchtpunkte wandern an die
+  neuen Positionen (bis 27.09.2026 schloss jede Zwischenstation die Liste).
+- **Während einer Live-Demo ruht die Verortung** und läuft danach weiter.
+- Bei gesperrtem Tresor, ohne Internet oder wenn OpenStreetMap nicht antwortet,
+  hält sie an und setzt später fort; Gefundenes bleibt gespeichert.
+- **Große Bestände und Tresor:** Nach dem Entsperren zeichnet die Karte die
+  Kunden nur noch einmal (bis 27.09.2026 mehrfach – mit einigen tausend Kunden
+  wirkte das Handy danach sekundenlang eingefroren).
 
 ### 8.2 Globale Suche in der Kopfleiste
 
@@ -1202,9 +1313,13 @@ einem Ort überschrieben.
 
 Im Panel unter **"Kartenstil"** stehen:
 
-- **"Hell"**
-- **"Standard"**
-- **"Satellit"**
+- **"Hell"** – dieselben OpenStreetMap-Kacheln wie „Standard", nur blass
+  gezeichnet (ruhiger Hintergrund). Bis 27.09.2026 kam „Hell" von CARTO; dort
+  verlangen die Kacheln inzwischen einen API-Schlüssel und zeigten nur noch
+  „API KEY REQUIRED". Sieht jemand diesen Schriftzug noch, hat das Gerät die
+  neue Version noch nicht geladen: App einmal schließen und neu öffnen.
+- **"Standard"** (OpenStreetMap, Voreinstellung)
+- **"Satellit"** (Esri)
 
 Die Kartenwahl wird gespeichert. Das Mausrad zoomt in kleinen Viertelstufen, um
 ruckartige Sprünge zu vermeiden. Das Mausrad über der Sidebar scrollt dagegen
@@ -2345,6 +2460,25 @@ Alternativ bei geladenen Daten:
 
 Falscher Schlüssel und beschädigte Datei werden erkannt.
 
+**Wenn die Datei abgelehnt wird (seit 28.09.2026 mit Befund):** Die Meldung
+nennt Dateiname und Größe und sagt, was los ist – statt nur „keine gültige
+Datei":
+
+| Befund | Bedeutung / Rat |
+|---|---|
+| **leer (0 Byte)** | nicht vollständig angekommen, z. B. nur ein Cloud-Platzhalter – in der Cloud erst ganz herunterladen |
+| **unvollständig** | das Ende fehlt – Datei am Desktop neu erzeugen, anderen Weg wählen |
+| **gepackt (ZIP)** | erst entpacken, dann die `.tfsafe` wählen |
+| **Webseite statt Daten** | meist die Hinweisseite eines Mail- oder Cloud-Filters |
+| **verändert/verschlüsselt** | z. B. durch einen Firmen-Schutz für Anhänge – per USB oder Cloud statt Mail übertragen |
+| **keine TourFuchs-Umzugsdatei** | falsche Datei gewählt |
+
+Leicht veränderte Dateien (neu gespeichert als UTF-16, Text davor oder danach,
+Base64-verpackt) werden **trotzdem gelesen**. Dieselbe Datei darf **beliebig
+oft** erneut gewählt werden; TourFuchs merkt sich keine „verbrauchten" Dateien –
+vor dem Übernehmen fragt es nur, ob die Daten auf dem Gerät ersetzt werden
+sollen.
+
 ---
 
 ## 15. PWA-Installation und Updates
@@ -3235,6 +3369,30 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3a Änderungen in Version 3.6 (28.09.2026)
+
+- **Live-Demo-Steuerleiste** (6.1.1): Tempo-Menü mit Tacho (1,2× · 1,0× · 0,8×
+  · 0,6×, Musik unverändert), **↺ Zurück** blättert durch die Erklärungen,
+  **⏭ Schritt für Schritt** hält an jeder Erklärung, **▶** lässt durchlaufen;
+  im Schritt-Modus kein automatischer Start des nächsten Films.
+- **Selbststart beim ersten Start** (5.1): nur echte Bedienung bricht ab;
+  offene Fenster pausieren den Countdown.
+- **Filme**: zwölf Geschichten, u. a. „Vom Bezirk zum Kunden", „Mein Gebiet im
+  Überblick", „Deine Excel-Liste importieren"; die Tour-Demo neu mit Ziel,
+  Start zu Hause und echter (vorberechneter) Straßenroute; am Handy wird der
+  Start sichtbar eingetippt (6.2, 6.3).
+- **Videos der Live-Demos** für Präsentationen: Desktop im Monitor-Rahmen, Handy
+  im Smartphone-Rahmen, jeweils mit Thema links (6.6).
+- **Excel-Export** mit allen Spalten und Abfrage „nur gefilterte / alle"; Pille
+  „Gebiet exportieren" entfällt (7.12).
+- **Adressgenaue Verortung**: Fortschritt „427 von 3.441", Zwischenstand einmal
+  pro Minute, Lasso-Auswahl bleibt stehen, Pause während Live-Demos; kein
+  Einfrieren mehr nach dem Entsperren großer Bestände (8.1).
+- **Kartenstil „Hell"** ohne API-Schlüssel (blasse OpenStreetMap-Kacheln statt
+  CARTO) (8.3).
+- **Sicherer Umzug**: klarer Befund, wenn eine `.tfsafe`-Datei abgelehnt wird;
+  leicht veränderte Dateien werden trotzdem gelesen (14.7).
 
 ### 26.3 Änderungen in Version 3.5
 
