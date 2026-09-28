@@ -41,6 +41,7 @@ tmp/
 # Gedrehte Filme (npm run film) – Videodateien gehören nicht ins Repository,
 # sie entstehen jederzeit neu aus der Live-Demo.
 film/
+videos/
 
 # Temporäre Arbeitsdateien der Dokumentationserzeugung
 work/

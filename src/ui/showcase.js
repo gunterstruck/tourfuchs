@@ -555,7 +555,11 @@ async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
 async function typeInto(sel, text) {
     const el = await moveToEl(sel);
     if (!el) return false;
-    el.focus();
+    // Am Handy nicht fokussieren: Sonst öffnet sich auf echten Geräten die
+    // Bildschirmtastatur und verdeckt das halbe Panel. Getippt wird trotzdem
+    // sichtbar – früher wurde am Handy deshalb gar nicht getippt, und der
+    // Start „zu Hause" stand plötzlich einfach da.
+    if (!isMobileView()) el.focus();
     el.value = '';
     for (const ch of text) {
         guard();
@@ -1084,7 +1088,7 @@ const HELPERS = {
     async pickHome() {
         const home = demoTour?.start;
         if (!home) return;
-        if (demoTour.fromHome && !isMobileView()) {
+        if (demoTour.fromHome) {
             await typeInto('#start-search', DEMO_HOME_QUERY);
             const row = await resolveEl('#start-results [data-point]', 2500);
             const match = [...document.querySelectorAll('#start-results [data-point]')]
@@ -1097,7 +1101,7 @@ const HELPERS = {
                 return;
             }
         }
-        // Handy (keine Bildschirmtastatur) oder kein Treffer: derselbe Punkt direkt.
+        // Kein Treffer: derselbe Punkt direkt.
         const [hit] = demoTour.fromHome ? searchGeoPlaces(DEMO_HOME_QUERY, await loadPlaceIndex(), 1) : [];
         state.tour.start = hit ? tourPointFromResult(hit) : { ...home };
         emit('tour:changed');
@@ -1192,14 +1196,14 @@ const HELPERS = {
     },
     async pickStart() {
         const planned = showcaseTourPlan?.start;
-        // Auf dem Handy NICHT ins Suchfeld tippen – das würde die Bildschirm-
-        // tastatur öffnen und das halbe Panel verdecken. Dort Start direkt setzen.
-        if (!isMobileView() && planned) {
+        // Sichtbar ins Suchfeld tippen – am Handy ohne Fokus (typeInto), also
+        // ohne Bildschirmtastatur.
+        if (planned) {
             await typeInto('#start-search', showcaseSearchTerm(planned));
             const selector = `#start-results [data-id="${CSS.escape(String(planned.id))}"]`;
             const res = await resolveEl(selector, 2200);
             if (res) { await clickEl(selector); await sleep(500); return; }
-        } else if (!isMobileView()) {
+        } else {
             await typeInto('#start-search', 'au');
             const res = await resolveEl('#start-results .result-row', 2200);
             if (res) { await clickEl('#start-results .result-row'); await sleep(500); return; }

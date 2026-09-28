@@ -1,0 +1,474 @@
+/**
+ * Alle Live-Demos als Videos – für Präsentationen (Teams, PowerPoint) und
+ * Social Media.
+ *
+ * Wer TourFuchs in einer Besprechung zeigt, kann nicht erwarten, dass die
+ * Zuschauer die App öffnen. Dieses Werkzeug nimmt jede Live-Demo so auf, wie
+ * sie in der App läuft – mit den Beispieldaten, ohne Steuerleiste, mit Vor-
+ * und Abspann und der Film-Musik darunter – und legt sie einzeln als MP4
+ * (H.264/AAC) ab. Das spielt jedes Teams, PowerPoint, LinkedIn und Handy ab.
+ *
+ * Ergebnis in `videos/` (nicht im Git – Videos blähen das Projekt auf):
+ *   tourfuchs-<demo>-desktop.mp4   1920×1080 (aus 1440×810 hochgerechnet)
+ *   tourfuchs-<demo>-desktop-rahmen.mp4  im Monitor-Rahmen auf 16:9, Thema links
+ *   tourfuchs-<demo>-handy.mp4     Hochformat, 1080 breit, mit Steuerleiste
+ *   tourfuchs-<demo>-handy-rahmen.mp4  dasselbe im Smartphone-Rahmen auf 16:9
+ *
+ * Aufruf:
+ *   npm run build && npm run videos
+ *   npm run videos -- --format=desktop            (nur Desktop)
+ *   npm run videos -- --format=handy --demo=tour  (ein Film, Handy)
+ *
+ * Voraussetzungen (bewusst nicht in package.json):
+ *   npm i -D playwright ffmpeg-static && npx playwright install chromium
+ * Ist bereits ein Chromium da, genügt PLAYWRIGHT_CHROMIUM_PATH=/pfad/zu/chrome;
+ * ein systemweites ffmpeg mit libx264 über FFMPEG_PATH.
+ *
+ * Hinter einem Firmen-Proxy, der TLS selbst neu signiert, lädt der Browser
+ * sonst keine Kartenkacheln – das Video zeigte dann eine leere Fläche. Mit
+ * VIDEO_PROXY_CA=/pfad/zur/proxy-ca.crt vertraut der Aufnahme-Browser genau
+ * diesem einen Zertifikat (SPKI-Pin), ohne die Prüfung abzuschalten.
+ *
+ * Musik: „Tropical Island House 2024" von Sascha Ende (ende.app), CC BY 4.0 –
+ * die Namensnennung steht im Abspann jedes Videos.
+ */
+import { spawn } from 'node:child_process';
+import { createServer } from 'node:net';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
+import { createHash, X509Certificate } from 'node:crypto';
+import { resolve } from 'node:path';
+
+const FORMATE = {
+    // Desktop: aufgenommen in 1440 × 810 (16:9) – im Monitor-Rahmen wird das
+    // Bild auf gut 1230 Pixel verkleinert; aus 1920 wäre die Schrift dort zu
+    // klein. Zusätzlich im Monitor-Rahmen, mit Steuerleiste wie am Handy.
+    desktop: { name: 'desktop', viewport: { width: 1440, height: 810 }, scale: 1, hasTouch: false, isMobile: false, leiste: true, rahmen: 'monitor' },
+    // Handy: 390 × 844 CSS-Pixel wie ein übliches Smartphone, doppelt so
+    // scharf aufgenommen und auf 1080 Pixel Breite gebracht.
+    // Handy zusätzlich im gezeichneten Smartphone-Rahmen auf 16:9 – für
+    // Präsentationen auf Querbildschirmen (Teams, Beamer).
+    handy: { name: 'handy', viewport: { width: 390, height: 844 }, scale: 2, hasTouch: true, isMobile: true, leiste: true, rahmen: 'handy' }
+};
+const MUSIK = resolve('public', 'audio', 'tropical-island-house-2024.mp3');
+const MUSIK_LAUTSTAERKE = 0.32;
+
+const KARTEN_CSS = `
+#film-card {
+    position: fixed; inset: 0; z-index: 2147483647;
+    display: grid; place-content: center; justify-items: center;
+    gap: 2.2vh; padding: 8vw; text-align: center;
+    background: #0d1513; color: #f2f7f5;
+    font-family: "Segoe UI", system-ui, sans-serif;
+    opacity: 0; transition: opacity .5s ease;
+}
+#film-card[data-on="1"] { opacity: 1; }
+#film-card .kicker { font-size: 1.8vh; letter-spacing: .22em; text-transform: uppercase; color: #3bc7b4; font-weight: 600; }
+#film-card h1 { font-size: 5vh; line-height: 1.15; margin: 0; font-weight: 650; letter-spacing: -.02em; max-width: 22ch; text-wrap: balance; }
+#film-card p { font-size: 2.4vh; margin: 0; color: #a2b5b0; max-width: 36ch; text-wrap: balance; }
+#film-card .fox { font-size: 8vh; line-height: 1; }
+#film-card .url { font-size: 2.8vh; color: #3bc7b4; font-weight: 600; }
+#film-card .fine { font-size: 1.6vh; color: #6b807b; }
+body.film-karte dialog { opacity: 0 !important; }
+`;
+/* Am Desktop gehört die Steuerleiste ins Live-Erlebnis, nicht ins Video. Im
+   Handy-Rahmen zeigt sie dagegen, dass hier die echte App läuft. */
+const OHNE_LEISTE_CSS = '.sc-toolbar { display: none !important; }';
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+const escapeHtml = (s) => String(s ?? '').replace(/[&<>"]/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+
+function freePort() {
+    return new Promise((resolve_, reject) => {
+        const server = createServer();
+        server.on('error', reject);
+        server.listen(0, () => {
+            const { port } = server.address();
+            server.close(() => resolve_(port));
+        });
+    });
+}
+
+async function startPreview(port) {
+    const viteCli = resolve('node_modules', 'vite', 'bin', 'vite.js');
+    const child = spawn(process.execPath, [viteCli, 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    for (let i = 0; i < 40; i++) {
+        await sleep(500);
+        try { if ((await fetch(`http://localhost:${port}/`)).ok) return child; } catch { /* noch nicht bereit */ }
+    }
+    child.kill();
+    throw new Error('Vorschau-Server ist nicht gestartet. Vorher `npm run build` ausführen?');
+}
+
+function run(bin, args) {
+    return new Promise((resolve_, reject) => {
+        const child = spawn(bin, args, { stdio: ['ignore', 'ignore', 'pipe'] });
+        let stderr = '';
+        child.stderr.on('data', (chunk) => { stderr += chunk; });
+        child.on('close', (code) => (code === 0 ? resolve_() : reject(new Error(stderr.slice(-800)))));
+    });
+}
+
+async function zeigeKarte(page, html) {
+    await page.evaluate((inner) => {
+        let card = document.getElementById('film-card');
+        if (!card) {
+            card = document.createElement('div');
+            card.id = 'film-card';
+            document.body.appendChild(card);
+        }
+        card.innerHTML = inner;
+        void card.offsetWidth;
+        card.dataset.on = '1';
+        document.body.classList.add('film-karte');
+    }, html);
+    await sleep(600);
+}
+
+async function blendeKarteAus(page) {
+    await page.evaluate(() => {
+        const card = document.getElementById('film-card');
+        if (card) card.dataset.on = '0';
+    });
+    await sleep(700);
+    await page.evaluate(() => document.body.classList.remove('film-karte'));
+}
+
+const titelKarte = (story) => `<span class="kicker">TourFuchs · Live-Demo</span>
+    <span class="fox">${escapeHtml(story.icon)}</span>
+    <h1>${escapeHtml(story.title)}</h1>
+    <p>${escapeHtml(story.blurb)}</p>`;
+
+const ABSPANN = `<span class="fox">🦊</span>
+    <span class="kicker">TourFuchs</span>
+    <h1>Kunden, Touren, Gebiete.<br>Auf einer Karte.</h1>
+    <p class="url">tourfuchs.vercel.app</p>
+    <p class="fine">Alle Kunden in diesem Film sind Beispieldaten und erfunden.<br>
+    Musik: „Tropical Island House 2024" von Sascha Ende (ende.app), CC BY 4.0</p>`;
+
+/** Einen Film aufnehmen und als MP4 ablegen. */
+async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
+    const rohOrdner = resolve('tmp', 'videos-roh', `${storyId}-${format.name}`);
+    rmSync(rohOrdner, { recursive: true, force: true });
+    mkdirSync(rohOrdner, { recursive: true });
+    // Playwrights Videoaufnahme filmt in CSS-Pixeln: Beim Handy (doppelte
+    // Pixeldichte) landete nur ein Viertel des Bildes im Video. Dort nehmen
+    // wir deshalb Einzelbilder direkt vom Browser ab (Screencast) – scharf,
+    // in voller Geräteauflösung – und setzen sie mit ihren echten Zeitstempeln
+    // zusammen.
+    const screencast = format.scale > 1;
+    const context = await browser.newContext({
+        viewport: format.viewport,
+        deviceScaleFactor: format.scale,
+        hasTouch: format.hasTouch,
+        isMobile: format.isMobile,
+        locale: 'de-DE',
+        timezoneId: 'Europe/Berlin',
+        reducedMotion: 'no-preference',
+        ...(screencast ? {} : { recordVideo: { dir: rohOrdner, size: format.viewport } })
+    });
+    // Normales Tempo, egal was auf diesem Rechner zuletzt eingestellt war.
+    await context.addInitScript(() => { try { localStorage.removeItem('tf_showcase_tempo'); } catch { /* egal */ } });
+    const page = await context.newPage();
+    const aufnahmeStart = Date.now();
+    const bilder = [];   // { t: Sekunden (Wanduhr), datei }
+    let cdp = null;
+    if (screencast) {
+        cdp = await context.newCDPSession(page);
+        cdp.on('Page.screencastFrame', ({ data, metadata, sessionId }) => {
+            const datei = resolve(rohOrdner, `b${String(bilder.length).padStart(6, '0')}.jpg`);
+            writeFileSync(datei, Buffer.from(data, 'base64'));
+            bilder.push({ t: metadata.timestamp ?? Date.now() / 1000, datei });
+            cdp.send('Page.screencastFrameAck', { sessionId }).catch(() => {});
+        });
+        await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: 2400, maxHeight: 4000, everyNthFrame: 1 });
+    }
+    const fehler = [];
+    page.on('pageerror', (e) => fehler.push(String(e).slice(0, 300)));
+    let filmStart = 0;
+    let filmEnde = 0;
+    let story = { icon: '🦊', title: storyId, blurb: '' };
+    let ergebnis = 'FEHLER';
+    try {
+        await page.goto(`http://localhost:${port}/`, { waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('#map', { timeout: 20000 });
+        await page.addStyleTag({ content: KARTEN_CSS + (format.leiste ? '' : OHNE_LEISTE_CSS) });
+        // Erst eine leere Karte, dahinter Begrüßung quittieren und die
+        // Demo-Auswahl öffnen; Titel und Kurztext kommen aus deren Kachel.
+        await zeigeKarte(page, '<span class="kicker">TourFuchs · Live-Demo</span>');
+        await page.waitForSelector('#demo-welcome:not([hidden])', { timeout: 30000 }).catch(() => {});
+        await page.locator('#btn-demo-welcome-ack').click({ timeout: 3000 }).catch(() => {});
+        await sleep(800);
+        await page.evaluate(() => {
+            (document.getElementById('btn-demo-overview') || document.getElementById('btn-showcase') || document.getElementById('btn-demos-pill'))?.click();
+        });
+        await page.waitForSelector(`#showcase-dialog .sc-tile[data-story="${storyId}"]`, { timeout: 10000 });
+        story = await storyVonKachel(page, storyId);
+        await zeigeKarte(page, titelKarte(story));
+
+        // Kartenkacheln fertig laden lassen – hinter der Titelkarte.
+        await page.waitForFunction(() => {
+            const tiles = [...document.querySelectorAll('.leaflet-tile')];
+            return tiles.length > 0 && tiles.every((t) => t.classList.contains('leaflet-tile-loaded'));
+        }, null, { timeout: 15000 }).catch(() => console.warn('  Hinweis: Kartenkacheln nicht vollständig geladen.'));
+        filmStart = Date.now();
+        await sleep(3200);                     // Titelkarte stehen lassen
+        await page.locator(`#showcase-dialog .sc-tile[data-story="${storyId}"]`).click();
+        await blendeKarteAus(page);
+        try {
+            await page.waitForSelector('#showcase-dialog .sc-outcome-head', { timeout: 300000 });
+            ergebnis = await page.locator('#showcase-dialog .sc-outcome-failed').count() ? 'FEHLER' : 'ok';
+        } catch { /* Abspann kommt trotzdem */ }
+        // Erst den Abspann über das Bild legen, DANN die Demo-Auswahl schließen:
+        // Andersherum räumte die App sichtbar auf (Blatt, Karte, Hinweise),
+        // während der Abspann einblendete – das Ende wirkte unruhig.
+        await zeigeKarte(page, ABSPANN);
+        await page.evaluate(() => document.getElementById('showcase-dialog')?.close());
+        await sleep(5600);
+        filmEnde = Date.now() - filmStart;
+    } finally {
+        if (cdp) await cdp.send('Page.stopScreencast').catch(() => {});
+        await context.close().catch(() => {});
+    }
+
+    const ziel = resolve(zielOrdner, `tourfuchs-${storyId}-${format.name}.mp4`);
+    const dauer = (filmEnde + 300) / 1000;
+    const vorlauf = (filmStart - aufnahmeStart) / 1000;
+    let eingabe;
+    if (screencast) {
+        eingabe = ['-f', 'concat', '-safe', '0', '-i', bildListe(bilder, filmStart / 1000, dauer, rohOrdner)];
+    } else {
+        const roh = readdirSync(rohOrdner).find((f) => f.endsWith('.webm'));
+        if (!roh) throw new Error('Playwright hat keine Aufnahme abgelegt.');
+        eingabe = ['-ss', vorlauf.toFixed(2), '-i', resolve(rohOrdner, roh)];
+    }
+    // Handy auf 1080 Pixel Breite, Desktop bleibt 1920 × 1080; gerade Maße für H.264.
+    const skalieren = format.name === 'handy' ? 'scale=1080:-2:flags=lanczos' : 'scale=1920:1080:flags=lanczos';
+    const fadeOut = Math.max(0, dauer - 2.5).toFixed(2);
+    await run(ffmpeg, [
+        '-y',
+        ...eingabe,
+        '-stream_loop', '-1', '-i', MUSIK,
+        '-t', dauer.toFixed(2),
+        '-map', '0:v:0', '-map', '1:a:0',
+        '-vf', `${skalieren},setsar=1,fps=30,fade=t=in:st=0:d=0.6,fade=t=out:st=${Math.max(0, dauer - 0.8).toFixed(2)}:d=0.8`,
+        '-af', `volume=${MUSIK_LAUTSTAERKE},afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOut}:d=2.5`,
+        '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p',
+        '-c:a', 'aac', '-b:a', '160k',
+        '-movflags', '+faststart',
+        ziel
+    ]);
+    rmSync(rohOrdner, { recursive: true, force: true });
+    const extra = [];
+    if (format.rahmen) extra.push(await imRahmen({ browser, ffmpeg, video: ziel, story, zielOrdner, storyId, art: format.rahmen }));
+    return { ziel: [ziel, ...extra].join(' + '), ergebnis, sekunden: Math.round(dauer), fehler };
+}
+
+/**
+ * Einzelbilder als ffmpeg-Concat-Liste: jedes Bild so lange, bis das nächste
+ * kam – ab dem Filmbeginn, bis zum Filmende. (Der Screencast liefert nur
+ * Bilder, wenn sich etwas ändert.)
+ */
+function bildListe(bilder, startSek, dauer, ordner) {
+    const ende = startSek + dauer;
+    const ab = Math.max(0, bilder.findLastIndex((b) => b.t <= startSek));
+    const zeilen = [];
+    let letztes = null;
+    for (let i = ab; i < bilder.length && bilder[i].t < ende; i += 1) {
+        const von = Math.max(bilder[i].t, startSek);
+        const bis = Math.min(bilder[i + 1]?.t ?? ende, ende);
+        if (bis <= von) continue;
+        zeilen.push(`file '${bilder[i].datei}'`, `duration ${(bis - von).toFixed(4)}`);
+        letztes = bilder[i].datei;
+    }
+    if (!letztes) throw new Error('Keine Bilder aufgenommen.');
+    zeilen.push(`file '${letztes}'`);   // Concat verlangt das letzte Bild doppelt
+    const liste = resolve(ordner, 'bilder.txt');
+    writeFileSync(liste, `${zeilen.join('\n')}\n`);
+    return liste;
+}
+
+// ---- Im Geräte-Rahmen --------------------------------------------------------
+// Eine 16:9-Fläche mit dem Thema links und einem gezeichneten Gerät rechts, in
+// dessen Bildschirm das Video läuft: am Handy ein Smartphone, am Desktop ein
+// Monitor (gut zwei Drittel der Breite). Hintergrund und Gerät werden als
+// Bilder im Browser gezeichnet (HTML/SVG), ffmpeg legt sie übereinander.
+const FLAECHE = { breite: 1920, hoehe: 1080 };
+
+async function zeichne(browser, html, pfad, { transparent = false } = {}) {
+    const page = await browser.newPage({ viewport: { width: FLAECHE.breite, height: FLAECHE.hoehe } });
+    await page.setContent(html);
+    await page.waitForTimeout(200);
+    await page.screenshot({ path: pfad, omitBackground: transparent });
+    await page.close();
+}
+
+/** Abgerundetes Rechteck als SVG-Pfad (für evenodd-Aussparungen). */
+const rrect = (x, y, w, h, r) => `M${x + r},${y} h${w - 2 * r} a${r},${r} 0 0 1 ${r},${r} v${h - 2 * r} a${r},${r} 0 0 1 -${r},${r} h-${w - 2 * r} a${r},${r} 0 0 1 -${r},-${r} v-${h - 2 * r} a${r},${r} 0 0 1 ${r},-${r} z`;
+
+const GEHAEUSE_VERLAUF = '<defs><linearGradient id="g" x1="0" x2="1"><stop offset="0" stop-color="#2b2f33"/><stop offset=".5" stop-color="#15181b"/><stop offset="1" stop-color="#2b2f33"/></linearGradient><linearGradient id="fuss" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#3a3f44"/><stop offset="1" stop-color="#1c1f22"/></linearGradient></defs>';
+
+/** Lage von Bildschirm und Gehäuse je Gerät. */
+function geraeteLayout(art) {
+    if (art === 'monitor') {
+        // 16:9-Bildschirm, rund 1230 breit; schmaler Rand, Kinn unten, Standfuß.
+        const bildB = 1232;
+        const bildH = 693;
+        const rand = 18;
+        const kinn = 46;
+        const aussenB = bildB + 2 * rand;
+        const aussenH = bildH + rand + kinn;
+        const fussH = 118;
+        const x = FLAECHE.breite - aussenB - 96;
+        const y = Math.round((FLAECHE.hoehe - aussenH - fussH) / 2);
+        const mitte = x + aussenB / 2;
+        const svg = `${GEHAEUSE_VERLAUF}
+          <path d="M${mitte - 70},${y + aussenH} L${mitte + 70},${y + aussenH} L${mitte + 92},${y + aussenH + fussH - 18} L${mitte - 92},${y + aussenH + fussH - 18} Z" fill="url(#fuss)"/>
+          <rect x="${mitte - 190}" y="${y + aussenH + fussH - 22}" width="380" height="16" rx="8" fill="#2b2f33"/>
+          <path fill-rule="evenodd" fill="url(#g)" d="${rrect(x, y, aussenB, aussenH, 18)} ${rrect(x + rand, y + rand, bildB, bildH, 4)}"/>
+          <rect x="${x + 0.5}" y="${y + 0.5}" width="${aussenB - 1}" height="${aussenH - 1}" rx="18" fill="none" stroke="#4a5055" stroke-width="1.5"/>
+          <circle cx="${mitte}" cy="${y + rand + bildH + kinn / 2}" r="5" fill="#3bc7b4" opacity=".75"/>`;
+        return { bildB, bildH, bildX: x + rand, bildY: y + rand, svg, textB: 400, h1: 46, p: 26, kickerPx: 17, kicker: 'TourFuchs · Live-Demo am Desktop' };
+    }
+    // Smartphone im Seitenverhältnis des Handy-Videos (390 × 844).
+    const bildH = 960;
+    const bildB = Math.round(bildH * 390 / 844 / 2) * 2;
+    const r = 16;
+    const R = 58;
+    const ri = R - r + 4;
+    const aussenB = bildB + 2 * r;
+    const aussenH = bildH + 2 * r;
+    const x = Math.round(FLAECHE.breite * 0.66 - aussenB / 2);
+    const y = Math.round((FLAECHE.hoehe - aussenH) / 2);
+    const svg = `${GEHAEUSE_VERLAUF}
+          <rect x="${x - 4}" y="${y + 150}" width="6" height="70" rx="3" fill="#2b2f33"/>
+          <rect x="${x + aussenB - 2}" y="${y + 190}" width="6" height="110" rx="3" fill="#2b2f33"/>
+          <path fill-rule="evenodd" fill="url(#g)" d="${rrect(x, y, aussenB, aussenH, R)} ${rrect(x + r, y + r, bildB, bildH, ri)}"/>
+          <rect x="${x + 0.5}" y="${y + 0.5}" width="${aussenB - 1}" height="${aussenH - 1}" rx="${R}" fill="none" stroke="#4a5055" stroke-width="1.5"/>`;
+    return { bildB, bildH, bildX: x + r, bildY: y + r, svg, textB: 640, h1: 64, p: 30, kickerPx: 22, kicker: 'TourFuchs · Live-Demo am Handy' };
+}
+
+async function imRahmen({ browser, ffmpeg, video, story, zielOrdner, storyId, art }) {
+    const ordner = resolve('tmp', 'videos-roh', `rahmen-${art}-${storyId}`);
+    mkdirSync(ordner, { recursive: true });
+    const lage = geraeteLayout(art);
+    const links = art === 'monitor' ? 80 : 150;
+    const hintergrund = resolve(ordner, 'hintergrund.png');
+    const geraet = resolve(ordner, 'geraet.png');
+    await zeichne(browser, `<!doctype html><meta charset="utf-8"><style>
+        html,body{margin:0;width:100%;height:100%}
+        body{background:radial-gradient(1200px 700px at 70% 45%,#17423b 0%,#0d1513 60%);font-family:"Segoe UI",system-ui,sans-serif;color:#f2f7f5}
+        .text{position:absolute;left:${links}px;top:50%;transform:translateY(-50%);width:${lage.textB}px}
+        .kicker{font-size:${lage.kickerPx}px;letter-spacing:.2em;text-transform:uppercase;color:#3bc7b4;font-weight:600}
+        .icon{font-size:72px;margin:26px 0 8px}
+        h1{font-size:${lage.h1}px;line-height:1.1;margin:0 0 22px;font-weight:650;letter-spacing:-.02em;text-wrap:balance}
+        p{font-size:${lage.p}px;line-height:1.35;color:#a2b5b0;margin:0}
+        .url{position:absolute;left:${links}px;bottom:70px;font-size:26px;color:#3bc7b4;font-weight:600}
+        </style><div class="text"><div class="kicker">${lage.kicker}</div>
+        <div class="icon">${escapeHtml(story.icon)}</div><h1>${escapeHtml(story.title)}</h1><p>${escapeHtml(story.blurb)}</p></div>
+        <div class="url">tourfuchs.vercel.app</div>`, hintergrund);
+    await zeichne(browser, `<!doctype html><meta charset="utf-8"><style>html,body{margin:0;background:transparent}</style>
+        <svg width="${FLAECHE.breite}" height="${FLAECHE.hoehe}" xmlns="http://www.w3.org/2000/svg">${lage.svg}</svg>`, geraet, { transparent: true });
+    const name = art === 'monitor' ? 'desktop-rahmen' : 'handy-rahmen';
+    const ziel = resolve(zielOrdner, `tourfuchs-${storyId}-${name}.mp4`);
+    await run(ffmpeg, [
+        '-y',
+        '-loop', '1', '-i', hintergrund,
+        '-i', video,
+        '-loop', '1', '-i', geraet,
+        '-filter_complex', `[1:v]scale=${lage.bildB}:${lage.bildH}:flags=lanczos,setsar=1[v];[0:v][v]overlay=${lage.bildX}:${lage.bildY}:shortest=1[b];[b][2:v]overlay=0:0:shortest=1,format=yuv420p[out]`,
+        '-map', '[out]', '-map', '1:a:0',
+        '-r', '30', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20',
+        '-c:a', 'copy', '-movflags', '+faststart',
+        ziel
+    ]);
+    rmSync(ordner, { recursive: true, force: true });
+    return ziel;
+}
+
+/** Titel und Kurztext aus der Kachel der Demo-Auswahl. */
+async function storyVonKachel(page, storyId) {
+    return page.evaluate((id) => {
+        const tile = document.querySelector(`#showcase-dialog .sc-tile[data-story="${id}"]`);
+        return {
+            icon: tile?.querySelector('.sc-tile-icon')?.textContent?.trim() || '🦊',
+            title: tile?.querySelector('.sc-tile-body > b')?.textContent?.trim() || id,
+            blurb: tile?.querySelector('.sc-tile-body > span')?.textContent?.trim() || ''
+        };
+    }, storyId);
+}
+
+/** Welche Filme gibt es in diesem Format? Genau die Kacheln der Demo-Auswahl. */
+async function filmeImFormat(browser, port, format) {
+    const context = await browser.newContext({ viewport: format.viewport, hasTouch: format.hasTouch, isMobile: format.isMobile, locale: 'de-DE' });
+    const page = await context.newPage();
+    try {
+        await page.goto(`http://localhost:${port}/`, { waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('#demo-welcome:not([hidden])', { timeout: 30000 }).catch(() => {});
+        await page.locator('#btn-demo-welcome-ack').click({ timeout: 3000 }).catch(() => {});
+        await sleep(800);
+        await page.evaluate(() => {
+            (document.getElementById('btn-demo-overview') || document.getElementById('btn-showcase') || document.getElementById('btn-demos-pill'))?.click();
+        });
+        await page.waitForSelector('#showcase-dialog .sc-tile', { timeout: 10000 });
+        return await page.evaluate(() => [...document.querySelectorAll('#showcase-dialog .sc-tile')].map((t) => t.dataset.story));
+    } finally {
+        await context.close();
+    }
+}
+
+// ---- Hauptlauf ------------------------------------------------------------
+const args = process.argv.slice(2);
+const werte = (name) => args.filter((a) => a.startsWith(`--${name}=`)).map((a) => a.split('=')[1]);
+const formate = (werte('format').length ? werte('format') : Object.keys(FORMATE)).map((f) => FORMATE[f]).filter(Boolean);
+const gewuenscht = werte('demo');
+
+let chromium;
+let ffmpeg;
+try {
+    ({ chromium } = await import('playwright'));
+} catch {
+    console.error('Playwright fehlt. Einmalig einrichten:\n  npm i -D playwright && npx playwright install chromium');
+    process.exit(2);
+}
+try {
+    ffmpeg = process.env.FFMPEG_PATH || (await import('ffmpeg-static')).default;
+} catch {
+    ffmpeg = '/opt/homebrew/bin/ffmpeg';
+}
+
+const zielOrdner = resolve('videos');
+mkdirSync(zielOrdner, { recursive: true });
+const port = await freePort();
+const server = await startPreview(port);
+/** SPKI-Pin eines Proxy-Zertifikats (siehe oben): nur ihm wird zusätzlich vertraut. */
+function proxyCaArgs() {
+    const path = process.env.VIDEO_PROXY_CA;
+    if (!path || !existsSync(path)) return [];
+    const spki = new X509Certificate(readFileSync(path)).publicKey.export({ type: 'spki', format: 'der' });
+    return [`--ignore-certificate-errors-spki-list=${createHash('sha256').update(spki).digest('base64')}`];
+}
+
+// `--lang`: Datums- und Zeitfelder deutsch (28.09.2026, 08:00 statt 09/28/2026, 08:00 AM).
+// Unter Linux richtet sich das Datumsfeld nach LANG/LANGUAGE, nicht nach --lang.
+const browser = await chromium.launch({
+    args: ['--lang=de-DE', ...proxyCaArgs()],
+    env: { ...process.env, LANG: 'de_DE.UTF-8', LANGUAGE: 'de' },
+    ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {})
+});
+let code = 0;
+try {
+    for (const format of formate) {
+        const alle = await filmeImFormat(browser, port, format);
+        const filme = gewuenscht.length ? alle.filter((id) => gewuenscht.includes(id)) : alle;
+        console.log(`\n=== ${format.name}: ${filme.join(', ')} ===`);
+        for (const storyId of filme) {
+            const { ziel, ergebnis, sekunden, fehler } = await nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner });
+            console.log(`  ${storyId}: ${ergebnis} · ${sekunden} s → ${ziel}${fehler.length ? ` · Skriptfehler: ${fehler[0]}` : ''}`);
+            if (ergebnis !== 'ok') code = 1;
+        }
+    }
+} finally {
+    await browser.close().catch(() => {});
+    server.kill();
+}
+process.exit(code);
