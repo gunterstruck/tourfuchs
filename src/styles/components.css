@@ -3012,3 +3012,13 @@ body.lasso-active .mobile-next-step { display: none; }
     border: 1px solid var(--color-border); border-radius: 999px; padding: 1px 7px; white-space: nowrap;
 }
 .omitted-list dd { margin: 3px 0 0; font-size: 0.82rem; line-height: 1.45; color: var(--color-text); }
+.export-choice-cancel {
+    min-height: 0;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: inherit;
+    font: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}

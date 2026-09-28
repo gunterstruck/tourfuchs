@@ -19,6 +19,7 @@ import { normalizeMinimumRegionCustomers, normalizeRevenueFilter } from '../core
 import { formatRevenueFull } from '../core/format.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
+import { fileSlug, territoryLabel } from '../features/territoryPills.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 
@@ -1503,12 +1504,12 @@ export function initSidebar() {
     });
 
     // Daten-Aktionen
-    document.getElementById('btn-export').addEventListener('click', async () => {
+    document.getElementById('btn-export').addEventListener('click', () => {
         if (state.customers.length === 0) return showToast('Keine Kundendaten vorhanden.', 'info');
-        const { exportCustomers } = await import('../services/excel.js');
-        exportCustomers(state.customers);
+        chooseExportScope();
     });
     document.getElementById('btn-clear').addEventListener('click', clearAllData);
+    initExportChoice();
 
     document.getElementById('btn-mobile-clear-data')?.addEventListener('click', clearAllData);
 
@@ -2213,4 +2214,44 @@ function initTeamFilters() {
             renderSectionRows(se.dataset.search);
         }
     });
+}
+
+// ---- Excel-Export: alle oder nur die gefilterten? ----
+//
+// Es gibt genau einen Export. Ist ein Filter aktiv (Bezirk, Umsatz …), fragt
+// er, was gemeint ist – so ersetzt er die frühere Pille „Gebiet exportieren",
+// ohne dass ein zweiter Weg zum selben Ziel auf der Karte steht.
+async function runExport(customers, { filtered = false } = {}) {
+    const { exportCustomers } = await import('../services/excel.js');
+    const label = filtered ? fileSlug(territoryLabel(customers).replace(/ im aktuellen Kartenausschnitt$/, '')) : '';
+    exportCustomers(customers, { fileLabel: label });
+    showToast(`⬇ ${customers.length.toLocaleString('de-DE')} Kunden als Excel exportiert – mit allen Spalten.`, 'success', 5000);
+}
+
+function chooseExportScope() {
+    const all = state.customers;
+    const visible = visibleCustomers();
+    const dialog = document.getElementById('export-choice-dialog');
+    // Kein Filter aktiv (oder nichts sichtbar): ohne Rückfrage alles.
+    if (!dialog || visible.length === 0 || visible.length >= all.length) { runExport(all); return; }
+    const fmt = (n) => n.toLocaleString('de-DE');
+    document.getElementById('export-choice-lead').innerHTML = `Ein Filter ist aktiv: <b>${fmt(visible.length)}</b> von ${fmt(all.length)} Kunden sind sichtbar. Was soll in die Excel-Datei?`;
+    document.getElementById('export-choice-filtered').textContent = `Nur die ${fmt(visible.length)} gefilterten`;
+    document.getElementById('export-choice-all').textContent = `Alle ${fmt(all.length)} Kunden`;
+    dialog.showModal();
+}
+
+function initExportChoice() {
+    const dialog = document.getElementById('export-choice-dialog');
+    if (!dialog || dialog.dataset.wired) return;
+    dialog.dataset.wired = '1';
+    document.getElementById('export-choice-filtered')?.addEventListener('click', () => {
+        dialog.close();
+        runExport(visibleCustomers(), { filtered: true });
+    });
+    document.getElementById('export-choice-all')?.addEventListener('click', () => {
+        dialog.close();
+        runExport(state.customers);
+    });
+    document.getElementById('export-choice-cancel')?.addEventListener('click', () => dialog.close());
 }
