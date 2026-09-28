@@ -108,3 +108,33 @@ describe('Tempo, Weiter und Nochmal lesen', () => {
         expect(Date.now() - start).toBeGreaterThanOrEqual(330);
     });
 });
+
+describe('Schritt für Schritt', () => {
+    it('hält im Schritt-Modus an jeder Erklärung, bis „Weiter" kommt', async () => {
+        const playback = new ShowcasePlayback();
+        playback.stepMode = true;
+        let done = false;
+        const text = playback.wait(30, { reading: true }).then(() => { done = true; });
+        await new Promise((r) => setTimeout(r, 120));
+        expect(playback.paused).toBe(true);
+        expect(done).toBe(false);
+        playback.stepForward();
+        await text;
+        expect(done).toBe(true);
+        expect(playback.paused).toBe(false);
+    });
+
+    it('lässt Aktionen laufen und hält erst an der nächsten Erklärung', async () => {
+        const playback = new ShowcasePlayback();
+        playback.stepForward();
+        expect(playback.stepMode).toBe(true);
+        await playback.wait(30); // Klick/Animation: läuft durch
+        expect(playback.paused).toBe(false);
+        const text = playback.wait(30, { reading: true });
+        expect(playback.paused).toBe(true);
+        playback.playThrough();
+        expect(playback.stepMode).toBe(false);
+        await text;
+        expect(playback.paused).toBe(false);
+    });
+});

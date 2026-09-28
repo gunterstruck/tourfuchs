@@ -41,11 +41,15 @@ export class ShowcasePlayback {
         this.paused = false;
         this.aborted = false;
         this.pending = null;
+        // Schritt für Schritt: Jede Erklärung hält an, bis „Weiter" kommt.
+        this.stepMode = false;
     }
 
     wait(ms, { reading = false, exact = false } = {}) {
         if (this.aborted) return Promise.reject(new ShowcaseAbortError());
         const duration = reading || exact || !this.reducedMotion ? ms : Math.min(ms, 250);
+        // Im Schritt-Modus bleibt jede Erklärung stehen, bis man weitertippt.
+        if (reading && this.stepMode) this.paused = true;
         return new Promise((resolve, reject) => {
             let remaining = Math.max(0, duration);
             let last = Date.now();
@@ -80,6 +84,22 @@ export class ShowcasePlayback {
     /** Die laufende Lesezeit von vorn beginnen (nach „Nochmal lesen"). */
     restartReading() {
         if (this.pending?.reading) this.pending.restart();
+    }
+
+    /**
+     * „Weiter" im Schritt-Modus: die laufende Erklärung beenden (falls eine
+     * steht) und bis zur nächsten laufen – dort hält `wait` wieder an.
+     */
+    stepForward() {
+        this.stepMode = true;
+        if (this.pending?.reading) { this.next(); return; }
+        if (this.paused) this.togglePause(); else this.onChange();
+    }
+
+    /** Wieder durchlaufen lassen. */
+    playThrough() {
+        this.stepMode = false;
+        if (this.paused) this.togglePause(); else this.onChange();
     }
 
     togglePause() {

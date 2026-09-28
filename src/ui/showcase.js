@@ -115,6 +115,8 @@ let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let demoTour = null;          // Tour-Demo: Zuhause, Ziel, Kunden auf dem Weg
 let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
+let stepMode = false;         // „⏭": Schritt für Schritt, gilt für die ganze Runde
+let progressAt = null;        // { i, n } – für die Anzeige des Schritt-Modus
 let sayHistory = [];          // bisherige Erklärungen – für „Zurück"
 let replayAt = -1;            // Index in sayHistory beim Zurückblättern, -1 = live
 const music = new ShowcaseMusic({ onChange: syncMusicControls });
@@ -1848,7 +1850,7 @@ function hidePauseCard({ resume = false } = {}) {
     pauseCardEl = null;
     const resumeNow = resume && playback?.paused;
     pausedByTouch = false;
-    if (resumeNow) { playback.togglePause(); leaveReplay(); }
+    if (resumeNow) { setStepMode(false); playback.playThrough(); leaveReplay(); }
     else syncPlaybackControls();
     scheduleToolbarPlacement();
 }
@@ -1870,7 +1872,7 @@ function showChrome(story) {
         <div class="sc-tempo-menu" role="menu" aria-label="Abspieltempo" hidden>${tempoMenuHtml()}</div>
         <button type="button" class="sc-replay" aria-label="Zurück" title="Einen Schritt zurück: vorige Erklärung zeigen und anhalten"><span class="sc-ico" aria-hidden="true">↺</span><span class="sc-txt">Zurück</span></button>
         <button type="button" class="sc-pause" aria-pressed="false" aria-label="Pause"><span class="sc-ico" aria-hidden="true">❚❚</span><span class="sc-txt">Pause</span></button>
-        <button type="button" class="sc-skip" aria-label="Weiter" title="Erklärung überspringen – Klicks laufen immer vollständig"><span class="sc-ico" aria-hidden="true">⏭</span><span class="sc-txt">Weiter</span></button>
+        <button type="button" class="sc-skip" aria-label="Nächster Schritt" title="Zum nächsten Schritt und dort anhalten – ▶ lässt wieder durchlaufen"><span class="sc-ico" aria-hidden="true">⏭</span><span class="sc-txt">Weiter</span></button>
         <button type="button" class="sc-cancel" aria-label="Beenden"><span class="sc-ico" aria-hidden="true">✕</span><span class="sc-txt">Beenden</span></button>
         <span class="sc-music-status" role="status" hidden></span>`;
     document.body.append(shieldEl, toolbarEl);
@@ -1883,8 +1885,9 @@ function showChrome(story) {
     toolbarEl.querySelector('.sc-pause').addEventListener('click', () => {
         // Steht die Frage-Karte, heißt der Knopf „Fortsetzen" und meint: weiter.
         if (pauseCardEl) { hidePauseCard({ resume: true }); return; }
+        // ▶ heißt immer: wieder durchlaufen – auch aus dem Schritt-Modus.
+        if (playback.paused) { setStepMode(false); playback.playThrough(); leaveReplay(); return; }
         playback.togglePause();
-        if (!playback.paused) leaveReplay();
     });
     toolbarEl.querySelector('.sc-tempo').addEventListener('click', () => setTempoMenu(!tempoMenuOpen()));
     toolbarEl.querySelector('.sc-tempo-menu').addEventListener('click', (event) => {
@@ -1903,10 +1906,12 @@ function showChrome(story) {
     });
     toolbarEl.querySelector('.sc-skip').addEventListener('click', () => {
         if (pauseCardEl) hidePauseCard({ resume: false });
-        // Beim Zurückblättern heißt „Weiter": zurück zur laufenden Stelle.
-        if (replayAt >= 0) { leaveReplay(); if (playback.paused) playback.togglePause(); return; }
-        if (!playback.canSkip) return;
-        playback.next();
+        // Beim Zurückblättern heißt „Weiter": zurück zur laufenden Stelle –
+        // dort steht die Erklärung wieder, der nächste Tipp geht weiter.
+        if (replayAt >= 0) { setStepMode(true); playback.stepMode = true; leaveReplay(); return; }
+        // Schritt für Schritt: bis zur nächsten Erklärung laufen, dort halten.
+        setStepMode(true);
+        playback.stepForward();
     });
     toolbarEl.querySelector('.sc-music').addEventListener('click', () => music.setEnabled(!music.enabled));
     toolbarEl.querySelector('.sc-music-volume input').addEventListener('input', (event) => music.setVolume(Number(event.target.value) / 100));
@@ -1920,7 +1925,8 @@ function syncPlaybackControls() {
     holdAutoLock(running && !(playback?.paused ?? false));
     // Nach einem Tipp auf die Fläche läuft die Musik weiter – erst „Selbst
     // ausprobieren" lässt sie ausklingen.
-    music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch });
+    // Im Schritt-Modus ist Anhalten der Normalfall – die Musik läuft weiter.
+    music.setPlayback({ paused: (playback?.paused ?? false) && !pausedByTouch && !stepMode });
     if (!toolbarEl || !playback) return;
     const pause = toolbarEl.querySelector('.sc-pause');
     pause.querySelector('.sc-txt').textContent = playback.paused ? 'Fortsetzen' : 'Pause';
@@ -1938,8 +1944,10 @@ function syncPlaybackControls() {
     const tempoLabel = `Abspieltempo ${tempo.label} – Stufe wählen`;
     tempoButton.setAttribute('aria-label', tempoLabel);
     tempoButton.title = tempoLabel;
-    // „Weiter" überspringt nur Lesezeiten – nie einen Klick oder Ladevorgang.
-    toolbarEl.querySelector('.sc-skip').setAttribute('aria-disabled', String(!playback.canSkip && replayAt < 0));
+    // „Weiter" geht immer: zur nächsten Erklärung, Klicks laufen dabei vollständig.
+    const skip = toolbarEl.querySelector('.sc-skip');
+    skip.setAttribute('aria-disabled', 'false');
+    skip.classList.toggle('is-stepping', stepMode);
     toolbarEl.querySelector('.sc-replay').setAttribute('aria-disabled', String(!sayHistory.length || replayAt === 0));
 }
 function syncMusicControls() {
@@ -1962,8 +1970,19 @@ function syncMusicControls() {
     scheduleToolbarPlacement();
 }
 function setProgress(i, n) {
+    progressAt = { i, n };
     const el = toolbarEl?.querySelector('.sc-progress');
-    if (el) el.textContent = `${Math.min(i + 1, n)} / ${n}`;
+    if (!el) return;
+    const text = `${stepMode ? '⏭ ' : ''}${Math.min(i + 1, n)} / ${n}`;
+    // Beim Zurückblättern zeigt der Zähler den alten Schritt – die laufende
+    // Stelle wird nur vorgemerkt.
+    if (el.dataset.live) el.dataset.live = text; else el.textContent = text;
+}
+/** Schritt-Modus ein/aus – gilt bis ▶ oder bis zum Ende der Runde. */
+function setStepMode(on) {
+    stepMode = Boolean(on);
+    if (playback) playback.stepMode = stepMode;
+    if (progressAt) setProgress(progressAt.i, progressAt.n);
 }
 function cleanup(story) {
     music.setPlayback({ active: false });
@@ -2090,6 +2109,9 @@ async function play(story) {
     replayAt = -1;
     const tempo = storedTempo();
     playback = new ShowcasePlayback({ reducedMotion: prefersReduced, onChange: syncPlaybackControls, rate: tempo.rate });
+    // Wer schrittweise vorführt, will das auch im nächsten Film der Runde.
+    playback.stepMode = stepMode;
+    progressAt = null;
     applyTempo(tempo);
     restoreFilters = captureShowcaseFilters();
     setLassoBriefingPreview(true);
@@ -2190,6 +2212,7 @@ function showShowcaseDialog() {
 function endRound() {
     if (!inRound) return;
     inRound = false;
+    stepMode = false;
     settleSheetAfterShowcase();
 }
 
@@ -2326,6 +2349,8 @@ function showStoryCompletion(story) {
     syncBreakMusicButton();
     showShowcaseDialog();
     startAutoAdvance(next);
+    // Schrittweise vorgeführt: nicht von selbst weiter – der Kreis steht als ▶.
+    if (stepMode) stopAutoAdvance();
 }
 
 function showStoryFailure(story, failure) {
