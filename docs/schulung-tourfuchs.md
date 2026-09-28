@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 29.08.2026 · App-Version 3.5.0
+Stand: 28.09.2026 · App-Version 3.5.0
 
 ## 1. Ziel der Schulung
 
@@ -340,7 +340,23 @@ Der Kartenstil kann gewechselt werden:
 - Standard
 - Satellit
 
-Hell ist am besten für Datenanalyse. Standard und Satellit helfen bei realer Orientierung.
+Hell ist am besten für Datenanalyse (blass gezeichnete OpenStreetMap-Karte, ohne API-Schlüssel). Standard und Satellit helfen bei realer Orientierung.
+
+### Live-Demos in der Schulung einsetzen
+
+Die Live-Demos bedienen die echte App mit Beispieldaten. Für Schulungen und
+Vorführungen hilft die Steuerleiste oben:
+
+- **Tacho „1,2×"**: Tempo 1,2× · 1,0× · 0,8× · 0,6× – langsamer zum Mitlesen;
+  die Musik läuft unverändert.
+- **⏭ Schritt für Schritt**: Der Film läuft bis zur nächsten Erklärung und hält
+  dort an. So erzählt die Trainerin oder der Trainer zu jedem Schritt; ▶ lässt
+  wieder durchlaufen. Am Filmende startet dann kein Film von selbst.
+- **↺ Zurück**: die vorige Erklärung noch einmal zeigen (die App selbst wird
+  nicht zurückgespult).
+
+Ohne App – etwa in Teams – eignen sich die Videos der Live-Demos: Desktop im
+Monitor-Rahmen, Handy im Smartphone-Rahmen, jeweils mit dem Thema daneben.
 
 ### Zentraler Workflow: Lasso -> Auswahl -> Mehrkunden-Briefing
 

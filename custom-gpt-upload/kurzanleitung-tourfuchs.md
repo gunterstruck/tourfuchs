@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Kurzanleitung
 
-Stand: 29.08.2026 · App-Version 3.5.0
+Stand: 28.09.2026 · App-Version 3.5.0
 
 ## 1. App starten
 
@@ -37,7 +37,23 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 - Marker anklicken, um Kundendetails zu sehen.
 - Kartenstil wechseln: Hell, Standard oder Satellit.
 - Bezirkszuordnung und Bezirksfarben als Orientierung nutzen.
+- Im Tab **Filter** bei Bedarf **"Umsatz von-bis"** aktivieren. Ohne gültigen
+  Umsatzwert wird ein Kunde dann ausgeblendet; `0 EUR` ist ein eigener Wert.
 - Strategische Flächenwerkzeuge nur bei aktiviertem Profi-Modul verwenden.
+
+### Live-Demos steuern
+
+Während einer Live-Demo steht oben eine Steuerleiste:
+
+- **Tacho „1,2×"**: Tempo wählen (1,2× · 1,0× · 0,8× · 0,6×) – die Musik läuft
+  unverändert weiter.
+- **↺ Zurück**: vorige Erklärung noch einmal zeigen.
+- **⏭ Weiter**: Schritt für Schritt – bis zur nächsten Erklärung, dort anhalten.
+  Ideal, um die App live vorzuführen und dabei zu erzählen.
+- **▶**: wieder normal durchlaufen lassen. **✕**: beenden.
+
+Für Präsentationen ohne App gibt es jede Live-Demo auch als Video (Desktop im
+Monitor-, Handy im Smartphone-Rahmen).
 
 ## 4. Lasso und Mehrkunden-Briefing
 
@@ -113,6 +129,17 @@ Merksatz:
 
 > Erst Zuweisung übernehmen schreibt dauerhaft.
 
+Zur Orientierung: Die gewählte Gebietsebene bestimmt die Flächen, zum Beispiel
+Landkreise. Farbe und Kürzel zeigen Vertriebsbezirk oder Vertriebsgruppe. Ein
+Filter blendet unpassende Flächen und Beschriftungen vollständig aus; bei nur
+einem gewählten Vertriebsbezirk bleibt deshalb genau dessen Ausschnitt stehen.
+Mit **"Gebietsflächen ausblenden"** lässt sich ganz auf die Kundenkarte wechseln.
+Mit **"Fläche einfärben ab"** bleiben Landkreise oder PLZ-Flächen unter einer
+frei wählbaren Mindestzahl sichtbarer Kunden neutral; `0` schaltet die Schwelle aus.
+Ein Klick auf eine kleine Bezirks-/Gruppenkachel öffnet die große Detailkarte mit
+Kunden, Umsatz, Durchschnitt, Teilgebieten und stärksten Standorten. **"Gebiet auf
+Karte zeigen"** zoomt anschließend auf die vollständige räumliche Ausdehnung.
+
 ## 7. Tour planen
 
 Der Tourplaner öffnet zuerst als Übersicht: die drei Schritte **Startpunkt ·
@@ -149,8 +176,10 @@ Auf dem Smartphone stehen Karte und Tour im Mittelpunkt.
 - Eine eingeblendete Android/iOS-**System-Navigationsleiste** verdeckt das Blatt
   nicht mehr – Hinweise und Bedienelemente liegen darüber.
 
-Gebietsmanagement und Service-Vertragsradar sind optionale Module. Sie werden
-am Desktop unter **Profi → Optionale Profi-Module** einzeln aktiviert.
+Gebietsmanagement und Service-Vertragsradar sind optionale Module. Die
+Gebietsplanung ist standardmäßig aktiviert; das Service-Vertragsradar bleibt
+zunächst aus. Beide werden am Desktop unter **Profi → Optionale Profi-Module**
+einzeln ein- oder ausgeschaltet.
 
 Karte, Kunden, Briefing und Tour bleiben der normale Basis-Ablauf. Komplexe
 Gebietsplanung bitte am Desktop durchführen.
@@ -182,7 +211,9 @@ Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 - Google Maps erhält Daten erst bei bewusster Übergabe.
 - Beim Briefing erzeugt und kopiert TourFuchs den Prompt lokal. Übertragen wird
   er erst, wenn der Nutzer ihn im Assistenten selbst einfügt und absendet.
-- Vor Daten löschen bei Bedarf Excel-Export erstellen.
+- Vor Daten löschen bei Bedarf Excel-Export erstellen. Der Export enthält alle
+  Spalten (auch Originalspalten der Importdatei, alle Besuche, Verortung); bei
+  aktivem Filter fragt er „nur die gefilterten" oder „alle Kunden".
 
 ![Daten-Reiter mit Export und vollständigem Ersatzweg](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
 
