@@ -22,12 +22,18 @@
  * Ist bereits ein Chromium da, genügt PLAYWRIGHT_CHROMIUM_PATH=/pfad/zu/chrome;
  * ein systemweites ffmpeg mit libx264 über FFMPEG_PATH.
  *
+ * Hinter einem Firmen-Proxy, der TLS selbst neu signiert, lädt der Browser
+ * sonst keine Kartenkacheln – das Video zeigte dann eine leere Fläche. Mit
+ * VIDEO_PROXY_CA=/pfad/zur/proxy-ca.crt vertraut der Aufnahme-Browser genau
+ * diesem einen Zertifikat (SPKI-Pin), ohne die Prüfung abzuschalten.
+ *
  * Musik: „Tropical Island House 2024" von Sascha Ende (ende.app), CC BY 4.0 –
  * die Namensnennung steht im Abspann jedes Videos.
  */
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdirSync, readdirSync, rmSync } from 'node:fs';
+import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { createHash, X509Certificate } from 'node:crypto';
 import { resolve } from 'node:path';
 
 const FORMATE = {
@@ -171,6 +177,11 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
         await page.waitForSelector(`#showcase-dialog .sc-tile[data-story="${storyId}"]`, { timeout: 10000 });
         await zeigeKarte(page, titelKarte(await storyVonKachel(page, storyId)));
 
+        // Kartenkacheln fertig laden lassen – hinter der Titelkarte.
+        await page.waitForFunction(() => {
+            const tiles = [...document.querySelectorAll('.leaflet-tile')];
+            return tiles.length > 0 && tiles.every((t) => t.classList.contains('leaflet-tile-loaded'));
+        }, null, { timeout: 15000 }).catch(() => console.warn('  Hinweis: Kartenkacheln nicht vollständig geladen.'));
         filmStart = Date.now();
         await sleep(3200);                     // Titelkarte stehen lassen
         await page.locator(`#showcase-dialog .sc-tile[data-story="${storyId}"]`).click();
@@ -179,10 +190,12 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
             await page.waitForSelector('#showcase-dialog .sc-outcome-head', { timeout: 300000 });
             ergebnis = await page.locator('#showcase-dialog .sc-outcome-failed').count() ? 'FEHLER' : 'ok';
         } catch { /* Abspann kommt trotzdem */ }
-        await page.evaluate(() => document.getElementById('showcase-dialog')?.close());
-        await sleep(300);
+        // Erst den Abspann über das Bild legen, DANN die Demo-Auswahl schließen:
+        // Andersherum räumte die App sichtbar auf (Blatt, Karte, Hinweise),
+        // während der Abspann einblendete – das Ende wirkte unruhig.
         await zeigeKarte(page, ABSPANN);
-        await sleep(5200);
+        await page.evaluate(() => document.getElementById('showcase-dialog')?.close());
+        await sleep(5600);
         filmEnde = Date.now() - filmStart;
     } finally {
         await context.close().catch(() => {});
@@ -268,9 +281,17 @@ const zielOrdner = resolve('videos');
 mkdirSync(zielOrdner, { recursive: true });
 const port = await freePort();
 const server = await startPreview(port);
+/** SPKI-Pin eines Proxy-Zertifikats (siehe oben): nur ihm wird zusätzlich vertraut. */
+function proxyCaArgs() {
+    const path = process.env.VIDEO_PROXY_CA;
+    if (!path || !existsSync(path)) return [];
+    const spki = new X509Certificate(readFileSync(path)).publicKey.export({ type: 'spki', format: 'der' });
+    return [`--ignore-certificate-errors-spki-list=${createHash('sha256').update(spki).digest('base64')}`];
+}
+
 // `--lang`: Datums- und Zeitfelder deutsch (28.09.2026, 08:00 statt 09/28/2026, 08:00 AM).
 const browser = await chromium.launch({
-    args: ['--lang=de-DE'],
+    args: ['--lang=de-DE', ...proxyCaArgs()],
     ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {})
 });
 let code = 0;
