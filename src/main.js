@@ -36,6 +36,7 @@ import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
+import { initGuide } from './ui/guide.js';
 import { initExactGeocoding } from './ui/exactGeocoding.js';
 import { initMapPills } from './ui/mapPills.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
@@ -250,6 +251,7 @@ async function init() {
     initFirstSteps();
     initOfferAutoHide();
     initDemoWelcome();
+    initGuide();
     initExactGeocoding();
     initMapPills();
     initSafeTransfer();

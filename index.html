@@ -682,6 +682,24 @@
 
         <!-- Adressgenaue Verortung: einmalige Rückfrage nach einem Import mit
              Straßenadressen. Die Antwort wird gemerkt (änderbar in ⓘ Info). -->
+        <!-- TourFuchs-Guide: externer GPT bei ChatGPT. Vor jedem Öffnen der Hinweis,
+             dass der Chat außerhalb der Organisation läuft. -->
+        <dialog id="guide-dialog" class="geocode-offer-dialog guide-dialog" aria-labelledby="guide-title">
+            <h2 id="guide-title">🦊 TourFuchs-Guide</h2>
+            <p>Der Guide beantwortet Fragen zur Bedienung von TourFuchs – mit der offiziellen Anleitung als Wissen.</p>
+            <div class="guide-warning" role="note">
+                <b>⚠️ Achtung: Der Chat läuft außerhalb deiner Organisation.</b>
+                Der Guide ist ein GPT bei <b>ChatGPT (OpenAI)</b>, nicht Teil von TourFuchs und nicht deiner Firmen-KI.
+                Alles, was du dort eintippst, geht an OpenAI.
+                <b>Keine Kundendaten, keine internen Informationen, keine Firmendokumente eingeben</b> – nur allgemeine Fragen zur Bedienung.
+            </div>
+            <p class="muted small">Du brauchst ein ChatGPT-Konto. TourFuchs übergibt dabei keine Daten, es öffnet nur den Link.</p>
+            <div class="geocode-offer-actions">
+                <button type="button" id="guide-cancel">Abbrechen</button>
+                <a id="guide-open" class="button primary" href="https://chatgpt.com/g/g-6a782d7e7e9c8191a551f64905b5f184-tourfuchs-guide" target="_blank" rel="noopener noreferrer">Verstanden – Guide öffnen</a>
+            </div>
+        </dialog>
+
         <dialog id="geocode-offer-dialog" class="geocode-offer-dialog" aria-labelledby="geocode-offer-title">
             <h2 id="geocode-offer-title">📍 Adressgenau verorten?</h2>
             <p id="geocode-offer-lead"></p>
@@ -918,6 +936,7 @@
             </header>
             <div class="info-content">
                 <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;">🎬 Funktionen entdecken (Live-Demos)</button>
+                <button type="button" class="js-open-guide guide-open" style="width:100%;margin-bottom:8px;">🦊 Frag den TourFuchs-Guide <small>(ChatGPT – extern)</small></button>
                 <button type="button" id="btn-first-steps-restore" class="only-desktop" style="width:100%;margin-bottom:12px;">🦊 Erste Schritte anzeigen</button>
                 <div class="info-setting-group">
                     <label class="info-setting">
