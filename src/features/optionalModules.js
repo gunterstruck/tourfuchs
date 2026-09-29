@@ -14,6 +14,14 @@ export const OPTIONAL_MODULES = Object.freeze({
         storageKey: 'gf_service_enabled',
         bodyClass: 'service-on',
         defaultEnabled: false
+    }),
+    // Externer TourFuchs-Guide (GPT bei ChatGPT). Ab Werk AUS: In Konzern-
+    // Evaluierungen soll nirgends ein nicht freigegebener externer KI-Dienst
+    // auftauchen. Eingeschaltet erscheint der Knopf nur im Info-Dialog.
+    guide: Object.freeze({
+        storageKey: 'tf_guide_enabled',
+        bodyClass: 'guide-on',
+        defaultEnabled: false
     })
 });
 

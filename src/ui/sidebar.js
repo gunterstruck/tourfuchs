@@ -1145,9 +1145,33 @@ export function applyServiceEnabled(on, persist = true) {
     }, persist);
 }
 
+/** Externer Guide (ChatGPT): nur ein Zugang im Info-Dialog, kein Arbeitsbereich. */
+export function applyGuideEnabled(on, persist = true) {
+    applyOptionalModule('guide', on, { checkboxId: 'chk-guide-enabled', mode: null }, persist);
+}
+
 function initOptionalModuleOptIns() {
     applyTerritoryPlanningEnabled(optionalModuleEnabled('territoryPlanning'), false);
     applyServiceEnabled(optionalModuleEnabled('service'), false);
+    // Für Vorführungen: ?guide=1 schaltet den Guide ein, ?guide=0 wieder aus.
+    const guideParam = new URLSearchParams(location.search).get('guide');
+    if (guideParam === '1' || guideParam === '0') applyGuideEnabled(guideParam === '1', true);
+    else applyGuideEnabled(optionalModuleEnabled('guide'), false);
+    // Einschalten nur bewusst: Erst die ausführliche Erklärung (was der Guide
+    // ist, was nicht, Datenschutz, Firmenrichtlinien), dann „Verstanden".
+    // Ausschalten geht sofort.
+    const guideOptin = document.getElementById('guide-optin-dialog');
+    document.getElementById('chk-guide-enabled')?.addEventListener('change', (event) => {
+        if (!event.target.checked) { applyGuideEnabled(false, true); return; }
+        event.target.checked = false;
+        if (guideOptin) guideOptin.showModal(); else applyGuideEnabled(true, true);
+    });
+    document.getElementById('guide-optin-confirm')?.addEventListener('click', () => {
+        guideOptin?.close();
+        applyGuideEnabled(true, true);
+        showToast('🦊 Guide eingeschaltet – der Knopf steht im Info-Dialog (ⓘ).', 'success', 5000);
+    });
+    document.getElementById('guide-optin-cancel')?.addEventListener('click', () => guideOptin?.close());
     document.getElementById('chk-territory-planning-enabled')?.addEventListener('change', (event) => {
         applyTerritoryPlanningEnabled(event.target.checked, true);
     });

@@ -13,12 +13,16 @@
  * Kundendaten noch eine vorbereitete Frage.
  */
 import { CONFIG } from '../core/config.js';
+import { optionalModuleActive } from '../features/optionalModules.js';
 
 let dialog = null;
 
-/** Hinweis zeigen; von dort geht es mit einem Tipp zum Guide. */
+/**
+ * Hinweis zeigen; von dort geht es mit einem Tipp zum Guide. Nur, wenn der
+ * Guide unter „⚙️ Optionale Module" eingeschaltet ist (ab Werk aus).
+ */
 export function openGuide() {
-    if (!dialog) return;
+    if (!dialog || !optionalModuleActive('guide')) return;
     if (!dialog.open) dialog.showModal();
 }
 
