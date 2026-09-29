@@ -1157,9 +1157,21 @@ function initOptionalModuleOptIns() {
     const guideParam = new URLSearchParams(location.search).get('guide');
     if (guideParam === '1' || guideParam === '0') applyGuideEnabled(guideParam === '1', true);
     else applyGuideEnabled(optionalModuleEnabled('guide'), false);
+    // Einschalten nur bewusst: Erst die ausführliche Erklärung (was der Guide
+    // ist, was nicht, Datenschutz, Firmenrichtlinien), dann „Verstanden".
+    // Ausschalten geht sofort.
+    const guideOptin = document.getElementById('guide-optin-dialog');
     document.getElementById('chk-guide-enabled')?.addEventListener('change', (event) => {
-        applyGuideEnabled(event.target.checked, true);
+        if (!event.target.checked) { applyGuideEnabled(false, true); return; }
+        event.target.checked = false;
+        if (guideOptin) guideOptin.showModal(); else applyGuideEnabled(true, true);
     });
+    document.getElementById('guide-optin-confirm')?.addEventListener('click', () => {
+        guideOptin?.close();
+        applyGuideEnabled(true, true);
+        showToast('🦊 Guide eingeschaltet – der Knopf steht im Info-Dialog (ⓘ).', 'success', 5000);
+    });
+    document.getElementById('guide-optin-cancel')?.addEventListener('click', () => guideOptin?.close());
     document.getElementById('chk-territory-planning-enabled')?.addEventListener('change', (event) => {
         applyTerritoryPlanningEnabled(event.target.checked, true);
     });

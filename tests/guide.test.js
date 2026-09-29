@@ -41,6 +41,17 @@ describe('TourFuchs-Guide (externer GPT)', () => {
         expect(privacy).toContain('ab Werk ausgeschaltet');
     });
 
+    it('schaltet sich nur nach ausführlicher Erklärung ein', () => {
+        const sidebar = read('src/ui/sidebar.js');
+        expect(html).toContain('id="guide-optin-dialog"');
+        for (const text of ['Was ist der TourFuchs-Guide?', 'Was er nicht ist', 'Der Chat läuft außerhalb deiner Organisation', 'Richtlinien deiner Organisation', 'Verstanden – Guide einschalten']) {
+            expect(html).toContain(text);
+        }
+        // Häkchen setzen schaltet NICHT direkt ein – erst die Bestätigung.
+        expect(sidebar).toContain("event.target.checked = false;\n        if (guideOptin) guideOptin.showModal();");
+        expect(sidebar).toContain("document.getElementById('guide-optin-confirm')?.addEventListener('click', () => {\n        guideOptin?.close();\n        applyGuideEnabled(true, true);");
+    });
+
     it('übergibt keine Daten und ist im Datenschutz genannt', () => {
         expect(guide).not.toMatch(/[?&]q=|encodeURIComponent|state\.customers/);
         expect(privacy).toContain('außerhalb Ihrer\nOrganisation');

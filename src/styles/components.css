@@ -3026,6 +3026,11 @@ body.lasso-active .mobile-next-step { display: none; }
 /* TourFuchs-Guide (externer GPT bei ChatGPT) – nur sichtbar, wenn unter
    „Optionale Module" eingeschaltet (ab Werk aus). */
 body:not(.guide-on) .guide-open { display: none !important; }
+.guide-optin-dialog { max-width: min(560px, calc(100vw - 24px)); }
+.guide-optin-body { max-height: min(62vh, 560px); overflow-y: auto; padding-right: 4px; }
+.guide-optin-body h3 { margin: 14px 0 4px; font-size: 0.98rem; }
+.guide-optin-body p, .guide-optin-body li { font-size: 0.9rem; line-height: 1.45; }
+.guide-optin-body ul { margin: 4px 0; padding-left: 20px; }
 .guide-open small { font-weight: 500; opacity: .75; }
 .guide-warning {
     margin: 10px 0;

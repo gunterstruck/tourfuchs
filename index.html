@@ -91,7 +91,7 @@
                 </label>
                 <label class="check-inline module-optin" id="guide-optin">
                     <input type="checkbox" id="chk-guide-enabled">
-                    <span>🦊 Externer Guide (ChatGPT) <small class="muted">– Hilfe-Chat bei OpenAI, außerhalb deiner Organisation; Knopf im Info-Dialog</small></span>
+                    <span>🦊 Externer TourFuchs-Guide <small class="muted">– KI-Hilfe-Chat zur Bedienung, läuft außerhalb deiner Organisation. Vor dem Einschalten erklärt TourFuchs ausführlich, was das ist und was es für den Datenschutz bedeutet.</small></span>
                 </label>
             </details>
             <div class="mode-switch expert-only" role="group" aria-label="Zusätzlichen Arbeitsbereich wählen">
@@ -701,6 +701,42 @@
             <div class="geocode-offer-actions">
                 <button type="button" id="guide-cancel">Abbrechen</button>
                 <a id="guide-open" class="button primary" href="https://chatgpt.com/g/g-6a782d7e7e9c8191a551f64905b5f184-tourfuchs-guide" target="_blank" rel="noopener noreferrer">Verstanden – Guide öffnen</a>
+            </div>
+        </dialog>
+
+        <!-- Bewusstes Einschalten des externen Guides: ausführliche Erklärung zuerst. -->
+        <dialog id="guide-optin-dialog" class="geocode-offer-dialog guide-dialog guide-optin-dialog" aria-labelledby="guide-optin-title">
+            <h2 id="guide-optin-title">🦊 Externen TourFuchs-Guide einschalten?</h2>
+            <div class="guide-optin-body">
+                <h3>Was ist der TourFuchs-Guide?</h3>
+                <p>Ein KI-Assistent, der Fragen zur <b>Bedienung von TourFuchs</b> beantwortet: Wo finde ich was, wie plane ich eine Tour, wie importiere ich meine Liste, was bedeutet eine Meldung? Er kennt die offizielle Anleitung – Wissensbasis, Kurzanleitung, Schulung und Bildanleitung – und kann Klickpfade erklären, Bilder aus der Anleitung zeigen und kurze Mini-Schulungen geben.</p>
+                <p>Technisch ist er ein eigener „GPT" bei <b>ChatGPT</b>, einem Dienst der Firma <b>OpenAI</b>.</p>
+
+                <h3>Was er nicht ist</h3>
+                <ul>
+                    <li><b>Nicht Teil von TourFuchs</b> und <b>nicht deine Firmen-KI</b>. Das Kunden- und Gebiets-Briefing geht weiterhin nur an den Assistenten, den deine Organisation freigegeben hat.</li>
+                    <li>Er hat <b>keine Verbindung zu deinen Daten</b>. Er kennt weder deine Kunden noch deine Touren und sieht nicht, was in TourFuchs passiert.</li>
+                    <li>TourFuchs <b>übergibt nichts</b> – keine Kundendaten, keine Frage, keinen Bildschirminhalt. Es öffnet nur den Link zum Guide.</li>
+                </ul>
+
+                <div class="guide-warning" role="note">
+                    <b>⚠️ Datenschutz: Der Chat läuft außerhalb deiner Organisation.</b>
+                    Alles, was du im Guide eintippst oder hochlädst, geht an OpenAI und wird dort verarbeitet – möglicherweise auch außerhalb der EU. Es gelten die Bedingungen von OpenAI; je nach Kontoeinstellung können Eingaben dort gespeichert oder zum Training verwendet werden.
+                    <b>Gib dort deshalb niemals Kundendaten, interne Informationen, Firmendokumente oder Screenshots mit Kundendaten ein</b> – nur allgemeine Fragen zur Bedienung.
+                </div>
+
+                <h3>Voraussetzungen</h3>
+                <ul>
+                    <li>Ein <b>ChatGPT-Konto</b> (kostenlos möglich, mit Nutzungsgrenzen).</li>
+                    <li>Die <b>Richtlinien deiner Organisation</b>: In vielen Unternehmen ist ChatGPT nicht freigegeben. Im Zweifel vorher IT oder Datenschutz fragen.</li>
+                </ul>
+
+                <h3>Was sich ändert</h3>
+                <p>Im Info-Dialog (ⓘ) erscheint der Knopf „🦊 Frag den TourFuchs-Guide". Vor jedem Öffnen zeigt TourFuchs noch einmal den Datenschutzhinweis. Ausschalten kannst du den Guide jederzeit hier unter „⚙️ Optionale Module". Mehr dazu in der <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+            </div>
+            <div class="geocode-offer-actions">
+                <button type="button" id="guide-optin-cancel" autofocus>Nicht einschalten</button>
+                <button type="button" id="guide-optin-confirm" class="primary">Verstanden – Guide einschalten</button>
             </div>
         </dialog>
 
