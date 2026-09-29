@@ -1145,9 +1145,21 @@ export function applyServiceEnabled(on, persist = true) {
     }, persist);
 }
 
+/** Externer Guide (ChatGPT): nur ein Zugang im Info-Dialog, kein Arbeitsbereich. */
+export function applyGuideEnabled(on, persist = true) {
+    applyOptionalModule('guide', on, { checkboxId: 'chk-guide-enabled', mode: null }, persist);
+}
+
 function initOptionalModuleOptIns() {
     applyTerritoryPlanningEnabled(optionalModuleEnabled('territoryPlanning'), false);
     applyServiceEnabled(optionalModuleEnabled('service'), false);
+    // Für Vorführungen: ?guide=1 schaltet den Guide ein, ?guide=0 wieder aus.
+    const guideParam = new URLSearchParams(location.search).get('guide');
+    if (guideParam === '1' || guideParam === '0') applyGuideEnabled(guideParam === '1', true);
+    else applyGuideEnabled(optionalModuleEnabled('guide'), false);
+    document.getElementById('chk-guide-enabled')?.addEventListener('change', (event) => {
+        applyGuideEnabled(event.target.checked, true);
+    });
     document.getElementById('chk-territory-planning-enabled')?.addEventListener('change', (event) => {
         applyTerritoryPlanningEnabled(event.target.checked, true);
     });

@@ -3023,7 +3023,9 @@ body.lasso-active .mobile-next-step { display: none; }
     cursor: pointer;
 }
 
-/* TourFuchs-Guide (externer GPT bei ChatGPT) */
+/* TourFuchs-Guide (externer GPT bei ChatGPT) – nur sichtbar, wenn unter
+   „Optionale Module" eingeschaltet (ab Werk aus). */
+body:not(.guide-on) .guide-open { display: none !important; }
 .guide-open small { font-weight: 500; opacity: .75; }
 .guide-warning {
     margin: 10px 0;
