@@ -28,6 +28,30 @@ describe('TourFuchs-Guide (externer GPT)', () => {
         expect(guide).toContain("event.target.closest?.('.js-open-guide')");
     });
 
+    it('ist ab Werk aus und nur über „Optionale Module" (oder ?guide=1) einschaltbar', async () => {
+        const { OPTIONAL_MODULES, optionalModuleEnabled } = await import('../src/features/optionalModules.js');
+        expect(OPTIONAL_MODULES.guide.defaultEnabled).toBe(false);
+        const leer = { getItem: () => null };
+        expect(optionalModuleEnabled('guide', leer)).toBe(false);
+        expect(optionalModuleEnabled('guide', { getItem: () => '1' })).toBe(true);
+        expect(html).toContain('id="chk-guide-enabled"');
+        expect(read('src/styles/components.css')).toContain('body:not(.guide-on) .guide-open { display: none !important; }');
+        expect(guide).toContain("if (!dialog || !optionalModuleActive('guide')) return;");
+        expect(read('src/ui/sidebar.js')).toContain("new URLSearchParams(location.search).get('guide')");
+        expect(privacy).toContain('ab Werk ausgeschaltet');
+    });
+
+    it('schaltet sich nur nach ausführlicher Erklärung ein', () => {
+        const sidebar = read('src/ui/sidebar.js');
+        expect(html).toContain('id="guide-optin-dialog"');
+        for (const text of ['Was ist der TourFuchs-Guide?', 'Was er nicht ist', 'Der Chat läuft außerhalb deiner Organisation', 'Richtlinien deiner Organisation', 'Verstanden – Guide einschalten']) {
+            expect(html).toContain(text);
+        }
+        // Häkchen setzen schaltet NICHT direkt ein – erst die Bestätigung.
+        expect(sidebar).toContain("event.target.checked = false;\n        if (guideOptin) guideOptin.showModal();");
+        expect(sidebar).toContain("document.getElementById('guide-optin-confirm')?.addEventListener('click', () => {\n        guideOptin?.close();\n        applyGuideEnabled(true, true);");
+    });
+
     it('übergibt keine Daten und ist im Datenschutz genannt', () => {
         expect(guide).not.toMatch(/[?&]q=|encodeURIComponent|state\.customers/);
         expect(privacy).toContain('außerhalb Ihrer\nOrganisation');
