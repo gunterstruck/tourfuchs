@@ -31,6 +31,7 @@ import { initVault } from './ui/lockVault.js';
 import { initPwaUpdates } from './ui/pwaUpdate.js';
 import { initPwaLaunch } from './ui/pwaLaunch.js';
 import { initDayReview } from './ui/dayReview.js';
+import { initVisitReport } from './ui/visitReport.js';
 import { initImportInsight } from './ui/importInsight.js';
 import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
@@ -246,6 +247,7 @@ async function init() {
     initPwaUpdates();
     initPwaLaunch();
     initDayReview();
+    initVisitReport();
     initImportInsight();
     initContextHelp();
     initFirstSteps();

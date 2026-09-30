@@ -78,8 +78,8 @@ function expertPlanningAvailable() {
 
 function showPlanningHint() {
     const text = desktopPlanningAvailable()
-        ? 'Aktiviere unter „Optionale Module“ die Gebietsplanung.'
-        : 'Gebietsplanung und Simulation sind mit aktiviertem Modul am Desktop verfügbar.';
+        ? 'Schalte unter „🧩 Erweiterungen“ GeoFuchs ein.'
+        : 'Gebietsplanung und Simulation gibt es mit GeoFuchs am Desktop.';
     showToast(text, 'info');
 }
 

@@ -36,7 +36,7 @@ const mobilePlanningQuery = mobilePlanningMediaQuery();
 function closeUnavailableEditor() {
     if (!dialog?.open) return;
     dialog.close();
-    showToast('Der Gebiets-Editor wurde geschlossen. Bearbeitung ist mit aktivierter Gebietsplanung am Desktop verfügbar.', 'info');
+    showToast('Der Gebiets-Editor wurde geschlossen. Bearbeiten geht mit GeoFuchs am Desktop.', 'info');
 }
 
 export function initRegionEditor() {
@@ -82,8 +82,8 @@ function customersInRegion() {
 export function openRegionEditor(context) {
     if (!desktopPlanningAvailable() || state.ui.depth !== 'profi' || !optionalModuleActive('territoryPlanning')) {
         const text = desktopPlanningAvailable()
-            ? 'Aktiviere unter „Optionale Module“ die Gebietsplanung.'
-            : 'Der Gebiets-Editor ist mit aktivierter Gebietsplanung am Desktop verfügbar.';
+            ? 'Schalte unter „🧩 Erweiterungen“ GeoFuchs ein.'
+            : 'Den Gebiets-Editor gibt es mit GeoFuchs am Desktop.';
         showToast(text, 'info');
         return;
     }

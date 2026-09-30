@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.6 · Stand: 28.09.2026 · App-Version: 3.5.0**
+**Version 3.7 · Stand: 30.09.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -29,8 +29,12 @@ mobilen Klickpfaden das Tab-Glied deshalb weg und schreibt stattdessen
 Zielassistenten. Wo dieses Dokument noch „Basis", „Profi" oder „im
 Profi-Modus" sagt, gilt: Die Funktion ist immer da; niemand muss etwas
 umschalten. Der Guide empfiehlt nie, auf „Profi" umzuschalten. Die optionalen
-Module (Gebietsplanung, Service) bleiben davon getrennt und heißen jetzt
-„⚙️ Optionale Module".
+Pakete bleiben davon getrennt: **GeoFuchs** (Gebietsplanung & -management) und
+**ServiceFuchs** (Serviceverträge & Einsatzplanung), am Desktop unter
+„🧩 Erweiterungen". Eingeschaltete Pakete stehen als Kärtchen neben „TourFuchs
+Vertrieb" in der Kopfzeile; ein Klick öffnet den Bereich. Am Handy gibt es die
+Pakete nicht. Der externe TourFuchs-Guide steht dort im Abschnitt „Hilfe" und
+ist kein Paket.
 
 **Begriffsregel:** Die aktuelle App verwendet sichtbar **Vertriebsbezirk**. Der
 Import akzeptiert **Betriebsbezirk** als Synonym. Der Guide soll in Antworten den
@@ -385,7 +389,7 @@ Heute gilt überall, was früher „Profi" freischaltete:
 | Gebiets-Popup | Kennzahlen, Verteilung und namentliche Kundenliste |
 | Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Gemini, ChatGPT, eigene https-Adresse) |
 | Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl ("📋 Briefing über alle"); Häkchen in der Lasso-Auswahlkarte |
-| Optionale Module | "Gebietsplanung & Gebietsmanagement" und "Service-Vertragsradar" unter "⚙️ Optionale Module" einzeln aktivierbar (am Desktop) |
+| Erweiterungen | "GeoFuchs (Gebietsplanung & -management)" und "ServiceFuchs (Vertragsradar & Einsätze)" unter "🧩 Erweiterungen" einzeln aktivierbar (am Desktop) |
 
 ---
 
@@ -402,16 +406,21 @@ Die Topbar enthält:
 - dynamisches Tresor-Symbol: einrichten, sperren oder Status anzeigen
 - **"Info & Impressum"** (`i`)
 
-### 4.2 Außendienst und optionale Module
+### 4.2 Außendienst und Erweiterungen (GeoFuchs, ServiceFuchs)
 
 1. Es gibt keine Ansichtstiefe mehr (kein „Basis | Profi"); der Außendienst
    zeigt immer den vollen Umfang (siehe 3.3).
-2. Unter **"⚙️ Optionale Module"** können
-   **"Gebietsplanung & Gebietsmanagement"** und **"Service-Vertragsradar"**
+2. Unter **"🧩 Erweiterungen"** können
+   **"GeoFuchs (Gebietsplanung & -management)"** und **"ServiceFuchs (Vertragsradar & Einsätze)"**
    getrennt aktiviert werden. Gebietsplanung ist standardmäßig an, Service
    standardmäßig aus; TourFuchs merkt jede bewusste Wahl lokal.
-3. Erst danach erscheinen neben **"Außendienst"** die zusätzlichen Arbeitsfoki
-   **"Gebietsplanung"** beziehungsweise **"Service"**.
+3. Erst danach erscheinen neben **"Außendienst"** die zusätzlichen Bereiche
+   **"🗺️ GeoFuchs"** beziehungsweise **"🛡️ ServiceFuchs"**.
+4. Eingeschaltete Pakete stehen am Desktop oben als Kärtchen neben
+   **„TourFuchs Vertrieb"**: Fuchs mit Abzeichen (🗺️ bzw. 🛡️), Name und – auf
+   breiten Bildschirmen – Kurzbeschreibung. Das Kärtchen des offenen Bereichs
+   ist hervorgehoben. Klick öffnet den Bereich, ein zweiter Klick führt zurück
+   in den Außendienst. Am Handy werden die Pakete nicht angezeigt.
 
 Tabs im Außendienst: **"Daten"**, **"Filter"**, **"Tour"**.
 
@@ -1917,11 +1926,42 @@ Der Rückblick zeigt:
 Zwischenablage – für Wochenbericht, Notiz oder Mail. Der Rückblick öffnet sich
 nie von selbst: Wann Feierabend ist, entscheidet der Nutzer.
 
+#### 10.10.2 Besuche weitergeben (Besuchsbericht)
+
+TourFuchs synchronisiert nichts über einen Server. Besuche, die am Handy mit
+„✓ Heute" eingetragen wurden, verlassen das Gerät deshalb bewusst als **kleine
+Excel-Datei**. **Klickpfad Handy:** `Tab "Tour" -> "Meine Tour" -> "📤 Besuche
+weitergeben (n)"` oder im Feierabend-Rückblick **"📤 Besuche weitergeben"**.
+Am Desktop: `Daten -> "📤 Besuchsbericht (Excel)"`.
+
+- **Zeitraum:** „Seit dem letzten Bericht" (Standard), „Heute" oder „Diese
+  Woche" (ab Montag), jeweils mit Anzahl. „Seit dem letzten Bericht" merkt
+  sich lokal, was schon weitergegeben wurde (60 Tage) – nichts doppelt,
+  nichts vergessen. Besuche aus einem Import oder aus Beispieldaten gelten als
+  schon bekannt.
+- **Datei:** eine Zeile je Besuch – Besuchsdatum, Kundennummer, Name, Adresse,
+  Vertriebsbezirk, Vertriebsbeauftragter, Hauptansprechpartner plus die
+  Originalspalten der Kundenliste (z. B. CRM-Schlüssel). Beispieldaten sind
+  als DEMO markiert.
+- **Weitergeben:** Am Handy öffnet sich das Teilen-Menü des Geräts (Mail,
+  Teams, OneDrive …); wo das nicht geht, wird die Datei heruntergeladen. Wird
+  das Teilen abgebrochen, gilt nichts als weitergegeben.
+- **Verwendung:** ins CRM importieren, einer KI anhängen („trag das ein",
+  „schreib meinen Wochenbericht") oder am Desktop in TourFuchs öffnen.
+- **Am Desktop übernehmen:** Die Datei über „Eigene Daten laden" (oder per
+  Drag & Drop) öffnen. TourFuchs erkennt den Besuchsbericht an den Spalten
+  **„Besuchsdatum"** und **„Kundennummer"** und trägt nur die Besuche nach –
+  Kunden, Gebiete und Touren bleiben unverändert. Meldung z. B.: „8 Besuche
+  übernommen · 1 Kunde nicht gefunden (12345)". Unbekannte Kundennummern werden
+  nicht angelegt.
+- **Datenschutz:** Die Datei enthält Kundennamen. Nur über die Wege der eigenen
+  Organisation teilen. Das CRM bleibt die führende Quelle.
+
 ### 10.11 Service-Fokus (Profi): Einsätze, Verträge und Tagesvorschlag
 
 Der Arbeitsfokus **"Service"** ist ein **optionales Profi-Modul** mit den Tabs
 **"Einsätze"**, **"Verträge"** und **"Tour"**. Er ist standardmäßig ausgeblendet
-und wird unter **Profi → Optionale Profi-Module → Service-Vertragsradar**
+und wird unter **🧩 Erweiterungen → ServiceFuchs**
 aktiviert (die Wahl wird lokal gemerkt). Er hält zwei getrennte Zusatzbestände
 neben den Kundendaten:
 
@@ -2147,8 +2187,8 @@ Desktop-only Geschichten und der QR-Sendeschritt werden ausgeblendet.
 
 **Klickpfad im Standard:** `Profi -> Gebietsplanung -> Tab Gebiete`.
 
-Die Moduloption **"Gebietsplanung & Gebietsmanagement"** ist standardmäßig
-aktiviert. Sie kann unter `Profi -> Optionale Profi-Module` bewusst ausgeschaltet
+Die Moduloption **"GeoFuchs (Gebietsplanung & -management)"** ist standardmäßig
+aktiviert. Sie kann unter `🧩 Erweiterungen` bewusst ausgeschaltet
 und später wieder eingeschaltet werden. Bezirke, Bezirksfarben und operative
 Filter bleiben auch dann im Außendienst sichtbar; nur strukturelle Analyse und
 Änderung liegen hinter diesem Modul.
@@ -2241,7 +2281,7 @@ werden am Desktop durchgeführt.
 
 ### 13.4 Gebiets-Cockpit
 
-**Klickpfad:** `"Gebietsplanung" -> "Gebiete" -> "Gebiets-Cockpit öffnen"`.
+**Klickpfad:** `"GeoFuchs" -> "Gebiete" -> "Gebiets-Cockpit öffnen"`.
 
 Das Cockpit beantwortet:
 
@@ -2600,7 +2640,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Vollständigen Briefing-Prompt lesen | `Briefing-Dialog -> "🔍 Vollständigen Prompt ansehen"` |
 | Erste Schritte abwählen | `Erste-Schritte-Karte -> "Nicht mehr zeigen"` |
 | Erste Schritte zurückholen | `Info & Impressum -> "Erste Schritte anzeigen"` |
-| Service-Fokus öffnen | `Profi -> Optionale Profi-Module -> "Service-Vertragsradar" aktivieren -> Fokus "Service"` |
+| Service-Fokus öffnen | `🧩 Erweiterungen -> "ServiceFuchs" einschalten -> Bereich "ServiceFuchs"` |
 | Verträge importieren | `Service -> Verträge -> Vertragsdatei laden` |
 | Einsätze importieren | `Service -> Einsätze -> Einsatzdatei laden` |
 | Service-Tagesvorschlag | `Service -> Tour -> Bezirk + Start -> Tagesvorschlag prüfen -> "Übernehmen"` |
@@ -2634,7 +2674,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Google Maps | `Tour -> "In Google Maps navigieren"` |
 | Desktop-QR | `Tour -> "An Handy übergeben (QR)"` |
 | Tour scannen | `Tour -> "Tour vom Desktop scannen"` |
-| Cockpit | `Profi -> Optionale Profi-Module -> "Gebietsplanung & Gebietsmanagement" aktivieren -> Gebietsplanung -> Gebiete -> "Gebiets-Cockpit öffnen"` |
+| Cockpit | `🧩 Erweiterungen -> "GeoFuchs" einschalten -> GeoFuchs -> Gebiete -> "Gebiets-Cockpit öffnen"` |
 | Simulation | `Cockpit -> Ebene -> Gebiete markieren -> Ziel -> "Auswahl zuweisen"` |
 | Simulationskarte | `Cockpit -> "Simulation auf Karte prüfen" -> Alt/Neu/Änderungen` |
 | Entscheidungsvorlage | `Simulation -> "📄 Entscheidungsvorlage" -> Drucken / als PDF sichern` |
@@ -2838,14 +2878,14 @@ altem Namen alte PWA entfernen und neu installieren.
 > Das ist eine bewusste Produktentscheidung. Mobil konzentriert sich TourFuchs auf
 > Karte, Kunden, Briefing, Tour und Navigation. Cockpit und Simulation sind für
 > den größeren Desktop-Arbeitsraum ausgelegt und gehören zum optionalen Modul
-> „Gebietsplanung & Gebietsmanagement".
+> „GeoFuchs (Gebietsplanung & -management)".
 
 ### Warum sehe ich am Desktop keine Gebietsplanung oder keinen Service-Fokus?
 
 > Beide Bereiche sind optionale Profi-Module. Die Gebietsplanung ist im Standard
 > bereits aktiviert und erscheint am Desktop nach dem Wechsel auf `Profi`.
 > Wurde sie früher bewusst ausgeschaltet, lässt sie sich unter
-> `Profi -> Optionale Profi-Module` wieder aktivieren. Der Service-Fokus bleibt
+> `🧩 Erweiterungen` wieder aktivieren. Der Service-Fokus bleibt
 > standardmäßig aus und wird dort bei Bedarf eingeschaltet. Der normale
 > Außendienstweg bleibt auch ohne diese Module vollständig.
 
@@ -3058,8 +3098,8 @@ wieder; die Installation bleibt über das Browsermenü möglich.
 **Ziel:** einen Vertriebsbezirk bewerten.
 
 1. Am Desktop **„Profi"** wählen.
-2. **„Optionale Profi-Module"** öffnen.
-3. **„Gebietsplanung & Gebietsmanagement"** aktivieren.
+2. **„🧩 Erweiterungen"** öffnen.
+3. **„GeoFuchs (Gebietsplanung & -management)"** aktivieren.
 4. **„Gebietsplanung" -> „Gebiete"**.
 5. **„Gebiets-Cockpit öffnen"**.
 6. Vertriebsgruppe wählen.
@@ -3071,7 +3111,7 @@ wieder; die Installation bleibt über das Browsermenü möglich.
 **Ziel:** eine Gebietsverschiebung sicher testen.
 
 **Voraussetzung:** Desktop, Profi und aktiviertes Modul
-**„Gebietsplanung & Gebietsmanagement"**.
+**„GeoFuchs (Gebietsplanung & -management)"**.
 
 1. Landkreis-Ebene wählen.
 2. Gebiet markieren.
@@ -3143,7 +3183,7 @@ Danach:
 > Nutze zuerst den Gruppenfokus im Cockpit. Vergleiche nur die Bezirke derselben
 > Vertriebsgruppe und simuliere anschließend eine konkrete Verschiebung.
 
-**Klickpfad:** `Profi -> Optionale Profi-Module -> Gebietsplanung & Gebietsmanagement aktivieren -> Gebietsplanung -> Gebiete -> Gebiets-Cockpit -> Vertriebsgruppe -> Simulation`.
+**Klickpfad:** `🧩 Erweiterungen -> GeoFuchs einschalten -> GeoFuchs -> Gebiete -> Gebiets-Cockpit -> Vertriebsgruppe -> Simulation`.
 
 ### 21.5 "Ich möchte nichts kaputtmachen"
 
@@ -3300,7 +3340,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
     Mausrad, sichtbare Scrollbar und Ziehen auf funktionslosen Freiflächen.
 21. **Ist Gebietsplanung standardmäßig sichtbar?**
     Als Modul ist sie standardmäßig aktiviert. Der Arbeitsfokus erscheint am
-    Desktop nach dem Wechsel auf „Profi". Unter „Optionale Profi-Module" kann
+    Desktop nach dem Wechsel auf „Profi". Unter „🧩 Erweiterungen" kann
     die Gebietsplanung bewusst aus- und wieder eingeschaltet werden.
 22. **Ist Basis nur für Anfänger gedacht?**
     Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi ergänzt
@@ -3314,8 +3354,10 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
   Produktversprechen: „Kunden sehen. Tour planen. Gut vorbereitet hinfahren."
 - **Basis:** vollständiger ruhiger Außendienstweg, auch für erfahrene Nutzer.
 - **Profi:** zusätzliche Spezial-, Konfigurations- und Administrationswerkzeuge.
-- **Optionales Profi-Modul:** am Desktop einzeln aktivierbarer Spezialbereich;
-  derzeit Gebietsplanung & Gebietsmanagement sowie Service-Vertragsradar.
+- **Erweiterung (Paket):** am Desktop einzeln einschaltbarer Zusatzbereich mit
+  eigenem Namen: **GeoFuchs** (Gebietsplanung & -management) und **ServiceFuchs**
+  (Serviceverträge & Einsatzplanung). Eingeschaltete Pakete stehen am Desktop
+  als Kärtchen neben „TourFuchs Vertrieb“ in der Kopfzeile; am Handy nicht.
 - **Mehrkunden-Briefing:** lokal vorbereiteter Prompt für mehrere geografisch
   ausgewählte Kunden mit der Leitfrage „Wen zuerst?".
 - **Vertriebsbezirk:** führende operative Ebene; beim Import empfohlen, keine
@@ -3324,7 +3366,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - **Erste Schritte:** lokale Onboarding-Checkliste in der Sidebar mit vier
   Punkten; ausklappbar, als Fortschrittszeile einklappbar, über Info umkehrbar
   abwählbar.
-- **Service-Fokus:** optionaler Profi-Arbeitsfokus mit Vertragsradar, operativen
+- **ServiceFuchs (früher Service-Fokus):** Arbeitsbereich mit Vertragsradar, operativen
   Serviceeinsätzen und erklärbarem Tagesvorschlag.
 - **Vertriebsgruppe:** übergeordneter Vergleichsrahmen.
 - **Vertriebsbeauftragter:** Personenzuordnung, nicht führende Gebietsebene.
@@ -3370,6 +3412,20 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
+### 26.3 Änderungen in Version 3.7 (30.09.2026)
+
+- **Erweiterungen mit Produktnamen** (4.2): „⚙️ Optionale Module" heißt jetzt
+  **„🧩 Erweiterungen"**. Die Pakete heißen **GeoFuchs** (Gebietsplanung &
+  -management) und **ServiceFuchs** (Serviceverträge & Einsatzplanung), jeweils
+  mit Fuchs und Abzeichen (🗺️ bzw. 🛡️). Die Bereichsknöpfe heißen „🗺️ GeoFuchs"
+  und „🛡️ ServiceFuchs". Der externe Guide steht getrennt im Abschnitt „Hilfe".
+- **Paket-Kärtchen in der Kopfzeile** (nur Desktop): eingeschaltete Pakete
+  neben „TourFuchs Vertrieb", Kurzbeschreibung auf breiten Bildschirmen, das
+  Paket des offenen Bereichs hervorgehoben, Klick öffnet den Bereich. Am Handy
+  unsichtbar.
+- **Besuche weitergeben** (10.10.2): Besuchsbericht als kleine Excel-Datei vom
+  Handy (Teilen-Menü) und Übernahme am Desktop über die Kundennummer.
+
 ### 26.3a Änderungen in Version 3.6 (28.09.2026)
 
 - **Live-Demo-Steuerleiste** (6.1.1): Tempo-Menü mit Tacho (1,2× · 1,0× · 0,8×
@@ -3399,7 +3455,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - TourFuchs ist in Oberfläche und Schulung konsequent auf den täglichen
   Außendienst fokussiert: **Kunden sehen. Tour planen. Gut vorbereitet
   hinfahren.**
-- **Gebietsplanung & Gebietsmanagement** und **Service-Vertragsradar** sind
+- **GeoFuchs (Gebietsplanung & -management)** und **ServiceFuchs (Vertragsradar & Einsätze)** sind
   optionale Profi-Module und am Desktop einzeln schaltbar. Gebietsplanung ist
   standardmäßig aktiv, Service standardmäßig aus. Bestehende Fachfunktionen und
   Daten bleiben erhalten.
@@ -3914,7 +3970,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Desktop-Handyvorschau | "Mobile Außendienst & Tour"; startet tourfokussiert, zeigt aber den vollständigen mobilen Außendienstweg |
 | Basis | ruhiger Kernweg, Briefing inklusive |
 | Profi | Spezial-, Konfigurations- und Administrationswerkzeuge; kein „besserer Außendienstmodus" |
-| Optionale Module | Gebietsplanung & Gebietsmanagement sowie Service-Vertragsradar; Gebietsplanung standardmäßig an, Service aus, am Desktop unter Profi einzeln schaltbar |
+| Erweiterungen | GeoFuchs (Gebietsplanung & -management) sowie ServiceFuchs (Vertragsradar & Einsätze); Gebietsplanung standardmäßig an, Service aus, am Desktop unter Profi einzeln schaltbar |
 | Suche | eigene Orte, Kunden, lokale PLZ-Ortszentren und Koordinaten; keine freie Straßenadresssuche im Netz |
 | Briefing Basis | Prompt anzeigen/kopieren, Copilot öffnen, Nutzer sendet selbst |
 | Briefing Profi | derselbe Weg, zusätzlich Zielassistent wählbar |
