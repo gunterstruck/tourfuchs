@@ -66,6 +66,42 @@ export function attemptsLeft() {
 }
 export function autoLockMs() { return readMeta()?.autoLockMs ?? DEFAULT_AUTOLOCK_MS; }
 export function hasBiometric() { return Boolean(readMeta()?.bio); }
+/**
+ * Besteht die PIN nur aus Ziffern? Steuert die Handy-Tastatur am
+ * Sperrbildschirm (Ziffernblock vs. volle Tastatur für Passphrasen).
+ * Tresore von vor der Passphrase-Unterstützung hatten nur Ziffern-Eingaben.
+ */
+export function pinIsNumeric() { return readMeta()?.pinNumeric !== false; }
+
+// ---- PIN-Regeln ----
+// Die Fehlversuchssperre schützt nur in der App. Wer die gespeicherten Daten
+// kopiert, probiert ohne Sperre – dort zählt allein die Länge der PIN (und die
+// PBKDF2-Runden). Neue PINs brauchen deshalb mindestens 6 Zeichen; empfohlen
+// ist eine Passphrase.
+export const PIN_MIN_LENGTH = 6;
+
+/**
+ * Grobe, ehrliche Einschätzung – keine Scheingenauigkeit.
+ * @returns {{ level: 'zu-kurz'|'schwach'|'mittel'|'stark', label: string, hint: string, ok: boolean }}
+ */
+export function pinStrength(pin) {
+    const value = String(pin ?? '');
+    const length = [...value].length;
+    const digitsOnly = /^\d+$/.test(value);
+    const classes = [/[a-zäöüß]/, /[A-ZÄÖÜ]/, /\d/, /[^A-Za-zÄÖÜäöüß\d]/].filter((re) => re.test(value)).length;
+    if (length < PIN_MIN_LENGTH) {
+        return { level: 'zu-kurz', label: 'Zu kurz', hint: `Mindestens ${PIN_MIN_LENGTH} Zeichen.`, ok: false };
+    }
+    if (digitsOnly) {
+        if (length >= 12) return { level: 'stark', label: 'Stark', hint: 'Lange Ziffernfolge – gut.', ok: true };
+        if (length >= 8) return { level: 'mittel', label: 'Mittel', hint: 'Besser: eine Passphrase aus mehreren Wörtern.', ok: true };
+        return { level: 'schwach', label: 'Schwach', hint: 'Nur Ziffern: lieber 8+ Ziffern oder eine Passphrase (z. B. „Fuchs-fährt-nach-Köln").', ok: true };
+    }
+    if (length >= 14 || (length >= 10 && classes >= 3)) {
+        return { level: 'stark', label: 'Stark', hint: 'Gute Passphrase.', ok: true };
+    }
+    return { level: 'mittel', label: 'Mittel', hint: 'Länger ist besser – mehrere Wörter mit Bindestrich.', ok: true };
+}
 /** Angaben, die die WebAuthn-Abfrage zum Entsperren braucht (oder null). */
 export function getBiometricRequest() {
     const bio = readMeta()?.bio;
@@ -85,6 +121,7 @@ export async function setup(pin, { recovery = true, iterations = PBKDF2_ITERATIO
         attempts: 0,
         maxAttempts,
         autoLockMs,
+        pinNumeric: /^\d+$/.test(String(pin)),
         createdAt: new Date().toISOString()
     };
     let recoveryCode = null;
@@ -263,6 +300,7 @@ export async function changePin(oldPin, newPin) {
     meta.salt = toB64(salt);
     meta.wrapPin = await wrapDek(kek, raw);
     meta.attempts = 0;
+    meta.pinNumeric = /^\d+$/.test(String(newPin));
     writeMeta(meta);
     return true;
 }
@@ -280,6 +318,7 @@ export async function resetPinWithRecovery(recoveryCode, newPin) {
     meta.salt = toB64(salt);
     meta.wrapPin = await wrapDek(kek, raw);
     meta.attempts = 0;
+    meta.pinNumeric = /^\d+$/.test(String(newPin));
     writeMeta(meta);
     if (!dek) {
         dek = await importDek(raw);
