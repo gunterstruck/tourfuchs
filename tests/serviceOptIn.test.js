@@ -59,12 +59,25 @@ describe('Optionale Profi-Module', () => {
     it('führt beide Schalter in einem gemeinsamen, eingeklappten Profi-Block', () => {
         const modules = html.slice(html.indexOf('id="optional-modules"'), html.indexOf('class="mode-switch'));
         expect(modules).toContain('optional-modules expert-only');
-        expect(modules).toContain('Optionale Module');
+        expect(modules).toContain('🧩 Erweiterungen');
         expect(modules).toContain('id="chk-territory-planning-enabled"');
         expect(modules).toContain('id="chk-territory-planning-enabled" checked');
-        expect(modules).toContain('Gebietsplanung &amp; Gebietsmanagement');
+        expect(modules).toContain('<b>GeoFuchs</b>');
+        expect(modules).toContain('Gebietsplanung &amp; -management');
         expect(modules).toContain('id="chk-service-enabled"');
-        expect(modules).toContain('Service-Vertragsradar');
+        expect(modules).toContain('<b>ServiceFuchs</b>');
+        expect(modules).toContain('Serviceverträge und Einsatzplanung');
+    });
+
+    it('zeigt eingeschaltete Pakete am Desktop in der Kopfzeile – am Handy nicht', () => {
+        const header = html.slice(html.indexOf('class="topbar"'), html.indexOf('</header>'));
+        expect(header).toContain('pkg-chip expert-only territory-module-only" data-mode="gebietsplanung"');
+        expect(header).toContain('pkg-chip expert-only service-module-only" data-mode="service"');
+        expect(header).toContain('<b>GeoFuchs</b><small>Gebietsplanung &amp; -management</small>');
+        expect(header).toContain('<b>ServiceFuchs</b><small>Serviceverträge &amp; Einsatzplanung</small>');
+        expect(responsive).toContain('.pkg-chips { display: none !important; }');
+        expect(sidebar).toContain("document.querySelectorAll('.pkg-chip').forEach((chip) => {");
+        expect(sidebar).toContain("chip.classList.toggle('active', active);");
     });
 
     it('blendet die Spezialmodi nur mit ihrer jeweiligen Body-Klasse ein', () => {

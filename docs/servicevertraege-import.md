@@ -1,8 +1,8 @@
 # Serviceverträge in TourFuchs importieren
 
-Der Service-Vertragsradar ist eine lokale Entscheidungs- und Frühwarnansicht. SAP, SieSales/Salesforce oder ein anderes Quellsystem bleiben führend. TourFuchs verändert keine Verträge und leitet keine rechtlich verbindlichen Fristen aus Freitext ab.
+Der Vertragsradar im **ServiceFuchs** ist eine lokale Entscheidungs- und Frühwarnansicht. SAP, SieSales/Salesforce oder ein anderes Quellsystem bleiben führend. TourFuchs verändert keine Verträge und leitet keine rechtlich verbindlichen Fristen aus Freitext ab.
 
-Der Service-Fokus ist ein optionales Modul. Er ist standardmäßig ausgeblendet und wird unter **Profi → Optionale Profi-Module → Service-Vertragsradar** aktiviert.
+Der Service-Fokus ist ein optionales Modul. Er ist standardmäßig ausgeblendet und wird unter **🧩 Erweiterungen → ServiceFuchs** aktiviert.
 
 ## Grundprinzip
 

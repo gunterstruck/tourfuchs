@@ -371,7 +371,7 @@ export const STORIES = [
             { t: 'run', key: 'ensureDemo' },
             { t: 'say', text: 'TourFuchs kann auch Service: Verträge und Einsatzaufträge – getrennt importiert, exakt über die Kundennummer verknüpft.', ms: 3000 },
             { t: 'run', key: 'gotoService' },
-            { t: 'say', text: 'Im Service-Fokus zählen nur Vertragskunden und offene Einsätze – die Zähler zeigen den Handlungsbedarf.', sel: '#service-customer-scope', ms: 3000 },
+            { t: 'say', text: 'Im ServiceFuchs zählen nur Vertragskunden und offene Einsätze – die Zähler zeigen den Handlungsbedarf.', sel: '#service-customer-scope', ms: 3000 },
             { t: 'run', key: 'gotoServiceTour' },
             { t: 'say', text: 'Startpunkt – schnell gesetzt …', ms: 1800 },
             { t: 'run', key: 'pickBezirkAll' },

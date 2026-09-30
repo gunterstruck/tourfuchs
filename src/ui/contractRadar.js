@@ -577,7 +577,7 @@ function closeRadar() {
 
 export function openContractRadar(payload = {}) {
     if (state.ui?.depth !== 'profi') {
-        emit('toast', { type: 'info', text: 'Das Vertragsradar steht mit aktiviertem Service-Modul zur Verfügung.' });
+        emit('toast', { type: 'info', text: 'Das Vertragsradar gehört zu ServiceFuchs – einschalten unter „🧩 Erweiterungen“.' });
         return false;
     }
     if (isPhoneUi()) {
