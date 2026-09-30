@@ -32,7 +32,7 @@ export const ASSISTANTS = Object.freeze([
     {
         id: 'copilot',
         label: 'Microsoft 365 Copilot',
-        hint: 'Firmenwissen aus Ihrem Microsoft-365-Konto',
+        hint: 'Firmenwissen aus deinem Microsoft-365-Konto',
         url: 'https://m365.cloud.microsoft/chat',
         preferEdge: true,
         promptSources: 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.'
@@ -54,7 +54,7 @@ export const ASSISTANTS = Object.freeze([
     {
         id: 'custom',
         label: 'Eigener Assistent',
-        hint: 'Adresse des Assistenten Ihrer Organisation',
+        hint: 'Adresse des Assistenten deiner Organisation',
         url: '',
         promptSources: 'Nutze ausschließlich die internen Quellen, auf die du in meinem Auftrag zugreifen darfst (z. B. verbundene Postfächer, Kalender und Dateiablagen).'
     }

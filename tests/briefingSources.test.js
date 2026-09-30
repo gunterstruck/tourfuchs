@@ -188,7 +188,9 @@ describe('Nachschlagequellen: Einbau in die Oberfläche', () => {
     it('bleibt in beiden Ansichtstiefen erreichbar, anders als die Zielwahl', () => {
         const kunde = source('src/ui/customerBriefing.js');
         // Die Zielwahl hängt an `withChooser` (Profi), die Quellen nicht.
-        expect(kunde).toContain("${withChooser ? assistantChooserHtml() : ''}\n            ${briefingSourcesHtml()}");
+        expect(kunde).toContain("${withChooser ? assistantChooserHtml(currentAssistant, 'customer-briefing') : ''}\n            ${briefingSourcesHtml()}");
+        const gebiet = source('src/ui/areaBriefing.js');
+        expect(gebiet).toContain("${withChooser ? assistantChooserHtml(currentAssistant, 'area-briefing') : ''}\n            ${briefingSourcesHtml()}");
     });
 
     it('sagt im Dialog zu, dass nichts abgerufen und nichts gesendet wird', () => {
