@@ -182,7 +182,12 @@ export function initTourPanel() {
     });
     document.getElementById('btn-tour-save').addEventListener('click', saveCurrentTour);
 
-    loadTours().then((tours) => { savedTours = tours; renderSavedTours(); });
+    // Gespeicherte Touren liegen bei aktivem Tresor verschlüsselt: nach dem
+    // Entsperren (app:ready) neu laden, beim Sperren aus dem Speicher nehmen.
+    const reloadTours = () => loadTours().then((tours) => { savedTours = tours; renderSavedTours(); });
+    reloadTours();
+    on('app:ready', reloadTours);
+    on('vault:locked', () => { savedTours = []; renderSavedTours(); });
 
     // Startpunkt per Suchfeld: Kunde, eigener Ort, Ortsverzeichnis, Koordinaten
     const setStart = (point) => {

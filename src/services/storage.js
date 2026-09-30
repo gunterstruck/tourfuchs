@@ -106,11 +106,66 @@ export async function hasStoredDataset() {
     }
 }
 
+// ---- Geschützte Nebenspeicher ----
+//
+// Der Tresor verschlüsselt nicht nur den Kundenbestand: Auch der Adress-Cache
+// der Verortung (vollständige Kundenadressen mit Koordinaten), gespeicherte
+// Touren (Start/Ziel mit Adresse – oft die Heimatadresse) und
+// Simulations-Szenarien (Kunden-IDs) liegen bei aktivem Tresor nur
+// verschlüsselt. Gleiche Regeln wie beim Datensatz: gesperrt wird nichts
+// geschrieben, und ein Altbestand im Klartext bleibt lesbar, bis er beim
+// nächsten Speichern (oder `reprotectStores()`) verschlüsselt wird.
+
+export const PROTECTED_KEYS = Object.freeze(['geocodeCache', 'tours', 'scenarios']);
+
+async function saveProtected(key, value) {
+    if (isEnabled() && !isUnlocked()) return false;
+    const payload = (isEnabled() && isUnlocked()) ? await encryptForStore(value) : value;
+    await saveToCache(KEYS[key], payload);
+    return true;
+}
+
+async function loadProtected(key, fallback) {
+    const raw = (await loadFromCache(KEYS[key])) ?? null;
+    if (raw == null) return fallback;
+    if (isEncryptedPayload(raw)) return isUnlocked() ? await decryptFromStore(raw) : fallback;
+    return raw;
+}
+
+/**
+ * Nebenspeicher im aktuellen Tresor-Zustand neu schreiben: nach dem
+ * Einrichten bzw. Entsperren verschlüsselt, nach dem Deaktivieren (DEK noch im
+ * Speicher, Metadaten schon weg) im Klartext.
+ */
+export async function reprotectStores() {
+    for (const key of PROTECTED_KEYS) {
+        try {
+            const raw = (await loadFromCache(KEYS[key])) ?? null;
+            if (raw == null) continue;
+            const encrypted = isEncryptedPayload(raw);
+            const shouldEncrypt = isEnabled() && isUnlocked();
+            if (encrypted === shouldEncrypt) continue;
+            if (encrypted && !isUnlocked()) continue;
+            const value = encrypted ? await decryptFromStore(raw) : raw;
+            await saveToCache(KEYS[key], shouldEncrypt ? await encryptForStore(value) : value);
+        } catch (error) {
+            console.warn(`Speicher „${key}" konnte nicht umgeschlüsselt werden:`, error);
+        }
+    }
+}
+
+/** Nach einem Tresor-Wipe: verschlüsselte Nebenspeicher sind ohne Schlüssel wertlos. */
+export async function clearProtectedStores() {
+    for (const key of PROTECTED_KEYS) {
+        try { await removeFromCache(KEYS[key]); } catch { /* IndexedDB evtl. nicht verfügbar */ }
+    }
+}
+
 // ---- Geocode-Cache (Nominatim-Ergebnisse) ----
 
 export async function loadGeocodeCache() {
     try {
-        return (await loadFromCache(KEYS.geocodeCache)) ?? {};
+        return await loadProtected('geocodeCache', {});
     } catch {
         return {};
     }
@@ -118,7 +173,7 @@ export async function loadGeocodeCache() {
 
 export async function saveGeocodeCache(cache) {
     try {
-        await saveToCache(KEYS.geocodeCache, cache);
+        await saveProtected('geocodeCache', cache);
     } catch (error) {
         console.warn('Geocode-Cache konnte nicht gespeichert werden:', error);
     }
@@ -146,7 +201,7 @@ export async function loadSettings() {
 
 export async function loadTours() {
     try {
-        return (await loadFromCache(KEYS.tours)) ?? [];
+        return await loadProtected('tours', []);
     } catch {
         return [];
     }
@@ -154,7 +209,7 @@ export async function loadTours() {
 
 export async function saveTours(tours) {
     try {
-        await saveToCache(KEYS.tours, tours);
+        await saveProtected('tours', tours);
     } catch (error) {
         console.warn('Touren konnten nicht gespeichert werden:', error);
     }
@@ -163,13 +218,13 @@ export async function saveTours(tours) {
 // ---- Simulations-Szenarien ----
 //
 // Ein Szenario ist ein benannter Schnappschuss einer laufenden Was-wäre-wenn-
-// Simulation. Es enthält ausschließlich Zuordnungen (Kunden-ID -> Zielwert),
-// keine Kundendaten – daher braucht es weder den Tresor noch eine Migration:
-// Der Objektstore ist schemalos, ein neuer Schlüssel kostet nichts.
+// Simulation: Zuordnungen (Kunden-ID -> Zielwert), keine Adressen. Weil die
+// Kunden-IDs aber Kundennummern sein können, liegt es wie Touren und
+// Adress-Cache bei aktivem Tresor verschlüsselt.
 
 export async function loadScenarios() {
     try {
-        return (await loadFromCache(KEYS.scenarios)) ?? [];
+        return await loadProtected('scenarios', []);
     } catch {
         return [];
     }
@@ -177,8 +232,7 @@ export async function loadScenarios() {
 
 export async function saveScenarios(scenarios) {
     try {
-        await saveToCache(KEYS.scenarios, scenarios);
-        return true;
+        return await saveProtected('scenarios', scenarios);
     } catch (error) {
         console.warn('Szenarien konnten nicht gespeichert werden:', error);
         return false;

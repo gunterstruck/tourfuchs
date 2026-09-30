@@ -18,7 +18,7 @@ import {
     encryptJson, decryptJson, toB64, fromB64,
     generateRecoveryCode, normalizeRecoveryCode
 } from './crypto.js';
-import { clearDataset } from './storage.js';
+import { clearDataset, clearProtectedStores } from './storage.js';
 
 const VAULT_KEY = 'tf_vault';
 const DEFAULT_MAX_ATTEMPTS = 10;
@@ -303,6 +303,7 @@ export async function wipe() {
     dek = null;
     clearTimeout(autoLockTimer);
     try { await clearDataset(); } catch { /* IndexedDB evtl. nicht verfügbar */ }
+    await clearProtectedStores();
     emit('wiped');
 }
 

@@ -10,7 +10,7 @@ import * as vault from '../services/vault.js';
 import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot
 } from '../core/state.js';
-import { saveDataset } from '../services/storage.js';
+import { saveDataset, reprotectStores } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
@@ -167,6 +167,8 @@ function handleUnlockError(err) {
 async function afterUnlock() {
     hideError();
     hideLockScreen();
+    // Altbestand aus Versionen vor dem erweiterten Tresorschutz verschlüsseln.
+    await reprotectStores();
     try { await bootData(); } catch (e) { console.warn('Nachladen nach Entsperren fehlgeschlagen:', e); }
     renderControls();
 }
@@ -174,6 +176,7 @@ async function afterUnlock() {
 // ---- Reaktion auf Sperren / Wipe ----
 function onLocked() {
     // Sensible Daten aus dem Arbeitsspeicher entfernen und Sperre zeigen.
+    emit('vault:locked');
     state.territories = {};
     clearServiceContracts({ dirty: false });
     clearServiceVisits({ dirty: false });
@@ -409,6 +412,8 @@ export function openSetupDialog(opts = {}) {
             const { recoveryCode } = await vault.setup(pin, { recovery: true });
             // Bereits geladene Daten sofort verschlüsselt neu speichern
             await saveDataset(datasetSnapshot());
+            // Adress-Cache, Touren und Szenarien gleich mit verschlüsseln.
+            await reprotectStores();
             emit('dataset:dirty');
             renderControls();
             done = true;
@@ -545,6 +550,7 @@ async function disableVault() {
         await vault.verifyPin(pin);
         vault.removeVaultMeta();                 // Tresor aus – DEK bleibt noch im Speicher
         await saveDataset(datasetSnapshot());    // jetzt im Klartext neu speichern
+        await reprotectStores();                 // Nebenspeicher ebenso
         emit('dataset:dirty');
         vault.lock();                            // DEK aus dem Speicher entfernen
         renderControls();

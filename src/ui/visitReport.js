@@ -12,7 +12,7 @@
 import { state, on, emit, markDirty } from '../core/state.js';
 import { hasDemoCustomers } from '../core/demoSafety.js';
 import {
-    VISIT_REPORT_RANGES, loadSentVisits, rememberSentVisits, sentVisitsInitialized, visitReportEntries, visitReportRows,
+    VISIT_REPORT_RANGES, loadSentVisits, rememberSentVisits, sentVisitsInitialized, clearSentVisits, visitReportEntries, visitReportRows,
     mergeVisitReport, mergeSummary
 } from '../features/visitReport.js';
 import { todayIso } from '../features/visits.js';
@@ -168,6 +168,7 @@ export function initVisitReport() {
 
     on('data:imported', (payload) => { if (!payload?.type) markImportedVisitsSent(); });
     on('demo:loaded', markImportedVisitsSent);
+    on('dataset:cleared', () => { clearSentVisits(); syncButton(); });
     on('app:ready', syncButton);
     on('visits:changed', syncButton);
     on('customers:changed', syncButton);

@@ -299,10 +299,13 @@ export function initCockpit() {
     document.getElementById('sim-scenario-name')?.addEventListener('keydown', (event) => {
         if (event.key === 'Enter') { event.preventDefault(); storeScenario(); }
     });
-    loadScenarios().then((stored) => {
+    const reloadScenarios = () => loadScenarios().then((stored) => {
         scenarios = Array.isArray(stored) ? stored : [];
         renderScenarios();
     });
+    reloadScenarios();
+    on('app:ready', reloadScenarios);
+    on('vault:locked', () => { scenarios = []; renderScenarios(); });
     document.getElementById('sim-reset').addEventListener('click', resetSimulation);
     document.getElementById('sim-commit').addEventListener('click', commitSimulation);
     document.getElementById('simulation-map-edit').addEventListener('click', editSimulation);
