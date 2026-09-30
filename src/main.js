@@ -213,17 +213,31 @@ function scheduleSave() {
     saveTimer = setTimeout(() => saveDataset(datasetSnapshot()), 400);
 }
 
-function handleSharedTourFromUrl() {
+// Gescannter Tour-Link (#t=…): Das Fragment trägt Kundennamen und Adressen.
+// Es wird sofort beim Start aus der Adresszeile genommen – auch wenn der
+// Tresor noch gesperrt ist – und erst nach dem Entsperren geöffnet. So steht
+// es weder in der Adresszeile noch beim Neuladen noch in einem Lesezeichen.
+let pendingSharedTour = null;
+
+function takeSharedTourFromUrl() {
     const hash = window.location.hash || '';
     if (!hash.includes(`${TOUR_HASH_KEY}=`)) return;
-    const payload = decodeTourPayload(window.location.href);
-    // Fragment entfernen, damit ein Reload die Tour nicht erneut öffnet
+    pendingSharedTour = { payload: decodeTourPayload(window.location.href) };
     history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
+function handleSharedTourFromUrl() {
+    takeSharedTourFromUrl();
+    // Gesperrt: aufbewahren, bootData öffnet die Tour nach dem Entsperren.
+    if (!pendingSharedTour || vaultLocked()) return;
+    const { payload } = pendingSharedTour;
+    pendingSharedTour = null;
     if (payload) openReceivedFromUrl(payload);
     else emit('toast', { type: 'error', text: 'Der gescannte Tour-Link konnte nicht gelesen werden.' });
 }
 
 async function init() {
+    takeSharedTourFromUrl();
     // Zuerst: Geräte befreien, die noch die alte Manifest-Sperre tragen.
     releaseInheritedOrientationLock();
     initToasts();
