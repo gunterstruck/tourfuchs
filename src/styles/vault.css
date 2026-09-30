@@ -217,3 +217,11 @@
     cursor: pointer;
 }
 .vault-bio-btn[hidden] { display: none; }
+
+/* Neue PIN: Hinweis und Stärkeanzeige */
+.vault-field-sub { display: block; font-weight: 400; font-size: 0.76rem; margin: 1px 0 3px; }
+.pin-strength { margin: -2px 0 8px; font-size: 0.8rem; text-align: left; }
+.pin-strength[hidden] { display: none; }
+.pin-strength[data-level="zu-kurz"], .pin-strength[data-level="schwach"] { color: #b45309; }
+.pin-strength[data-level="mittel"] { color: var(--color-text-muted, #64748b); }
+.pin-strength[data-level="stark"] { color: var(--color-primary-dark, #0f766e); }

@@ -2429,13 +2429,25 @@ Ausnahme: Beim **sicheren Umzug** (14.4) bleibt das Tresor-Setup erzwungen –
 wer Daten verschlüsselt von einem anderen Gerät empfängt, hat sich für Schutz
 bereits entschieden. Demo-Daten verlangen nie eine PIN.
 
-Der Nutzer vergibt eine PIN mit mindestens vier Zeichen. Danach zeigt TourFuchs
+Der Nutzer vergibt eine **PIN oder Passphrase mit mindestens sechs Zeichen**
+(gilt für Einrichten, PIN ändern und neue PIN nach Wiederherstellung). Eine
+Anzeige bewertet sie ehrlich: nur Ziffern unter 8 Stellen „Schwach", 8–11
+Ziffern „Mittel", Passphrasen aus mehreren Wörtern „Stark". Empfohlen ist eine
+Passphrase wie „Fuchs-fährt-nach-Köln". Grund: Die Sperre nach Fehlversuchen
+wirkt nur in der App; wer die gespeicherten Daten kopiert, kann ohne Sperre
+probieren – dann schützt nur die Länge. Bestehende kürzere PINs funktionieren
+weiter; die neue Regel greift beim nächsten PIN-Wechsel. Am Sperrbildschirm
+erscheint bei einer Ziffern-PIN der Ziffernblock, bei einer Passphrase die
+volle Tastatur. Danach zeigt TourFuchs
 einen **Wiederherstellungscode**, der nur einmal sichtbar ist. Er muss getrennt und
 sicher aufbewahrt werden.
 
 ### 14.2 Schutzmodell
 
-- Kundendaten werden lokal mit AES-256 verschlüsselt.
+- Kundendaten werden lokal mit AES-256 verschlüsselt – ebenso der
+  Adress-Cache der Verortung, gespeicherte Touren und Simulations-Szenarien.
+  Das Gedächtnis „Besuche weitergeben" speichert Kundennummern nur als
+  Prüfsumme.
 - ein zufälliger Datenschlüssel wird mit einem aus der PIN abgeleiteten
   Schlüssel geschützt.
 - die PIN und der ungeschützte Datenschlüssel werden nicht dauerhaft
@@ -3413,6 +3425,11 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
 ### 26.3 Änderungen in Version 3.7 (30.09.2026)
+
+- **Tresor schützt alle Kundenbezüge** (14.2): auch Adress-Cache, gespeicherte
+  Touren und Szenarien; Altbestand wird beim nächsten Entsperren verschlüsselt.
+- **Stärkere PIN** (14.1): mindestens 6 Zeichen für neue PINs, Stärkeanzeige,
+  Empfehlung Passphrase; passende Tastatur am Sperrbildschirm.
 
 - **Erweiterungen mit Produktnamen** (4.2): „⚙️ Optionale Module" heißt jetzt
   **„🧩 Erweiterungen"**. Die Pakete heißen **GeoFuchs** (Gebietsplanung &
