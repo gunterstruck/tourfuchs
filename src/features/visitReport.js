@@ -45,10 +45,30 @@ export function weekStartIso(iso) {
     return todayIso(date);
 }
 
-/** Schlüssel eines Besuchs: Kundennummer (sonst interne ID) plus Datum. */
+/**
+ * Kundennummer als kurze Prüfsumme (FNV-1a, 32 Bit). Das Gedächtnis liegt im
+ * localStorage und damit außerhalb des Tresors – Kundennummern stehen dort
+ * deshalb nicht im Klartext, nur „h…|Datum".
+ */
+function fingerprint(text) {
+    let hash = 0x811c9dc5;
+    for (let i = 0; i < text.length; i++) {
+        hash ^= text.charCodeAt(i);
+        hash = Math.imul(hash, 0x01000193) >>> 0;
+    }
+    return `h${hash.toString(16).padStart(8, '0')}`;
+}
+const HASHED = /^h[0-9a-f]{8}$/;
+
+/** Schlüssel eines Besuchs: Prüfsumme der Kundennummer (sonst interne ID) plus Datum. */
 export function visitKey(customer, date) {
     const who = String(customer?.nummer ?? '').trim() || `id:${customer?.id ?? ''}`;
-    return `${who}|${date}`;
+    return `${fingerprint(who)}|${date}`;
+}
+
+/** Bewusstes „Daten löschen" / Tresor-Wipe: auch das Gedächtnis gehört dazu. */
+export function clearSentVisits(storage = globalThis.localStorage) {
+    try { storage?.removeItem(SENT_KEY); } catch { /* Speicher optional */ }
 }
 
 /** Gibt es schon ein Gedächtnis „weitergegeben"? (Sonst Ausgangsbasis anlegen.) */
@@ -59,7 +79,13 @@ export function sentVisitsInitialized(storage = globalThis.localStorage) {
 export function loadSentVisits(storage = globalThis.localStorage) {
     try {
         const list = JSON.parse(storage?.getItem(SENT_KEY) || '[]');
-        return new Set(Array.isArray(list) ? list : []);
+        // Frühe Einträge (Version vom 30.09.2026) trugen die Kundennummer im
+        // Klartext: beim Lesen in die Prüfsummen-Form bringen.
+        return new Set((Array.isArray(list) ? list : []).map((key) => {
+            const cut = String(key).lastIndexOf('|');
+            const who = String(key).slice(0, cut);
+            return HASHED.test(who) ? key : `${fingerprint(who)}${String(key).slice(cut)}`;
+        }));
     } catch {
         return new Set();
     }
