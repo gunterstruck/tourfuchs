@@ -51,6 +51,8 @@ jobs:
   # und niemand weiß mehr, welcher der zwanzig PRs sie gefüllt hat.
   attention:
     runs-on: ubuntu-latest
+    # Ein hängender Browser soll schnell rot werden, nicht sechs Stunden laufen.
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
@@ -72,3 +74,26 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run attention-check
+
+  # Schnelltest der echten Bedienwege (Import, Tresor sperren/entsperren,
+  # Tour am Handy, Besuch weitergeben). Er wartet nur auf Zustände – nicht auf
+  # Zeitabläufe – und ist damit so stabil wie `attention`. Die zeitbasierten
+  # Vorführungen (`demo-check`) laufen dafür nachts (nightly.yml).
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm i --no-save playwright@1.62.1
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.62.1
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run smoke-check
