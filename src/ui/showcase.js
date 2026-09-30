@@ -1319,9 +1319,9 @@ const HELPERS = {
     },
     // ---- Tresor: PIN wirklich eingeben und Wiederherstellungscode zeigen ----
     async typePinDemo() {
-        await fillNoFocus('#setup-pin', '2468');
+        await fillNoFocus('#setup-pin', 'Fuchs-fährt-los');
         await sleep(400);
-        await fillNoFocus('#setup-pin2', '2468');
+        await fillNoFocus('#setup-pin2', 'Fuchs-fährt-los');
         await sleep(400);
     },
     async submitVaultSetup() {

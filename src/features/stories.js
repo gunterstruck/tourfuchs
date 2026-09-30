@@ -417,9 +417,9 @@ export const STORIES = [
         steps: [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'openVaultSetup' },
-            { t: 'say', text: 'Ein Tipp aufs 🔓-Symbol oben – und du legst eine PIN fest.', sel: '#setup-pin', ms: 2400 },
+            { t: 'say', text: 'Ein Tipp aufs 🔓-Symbol oben – und du legst eine PIN fest. Am besten eine Passphrase aus mehreren Wörtern.', sel: '#setup-pin', ms: 3000 },
             { t: 'run', key: 'typePinDemo' },
-            { t: 'say', text: 'PIN zweimal eingeben – ab dann sind deine Daten AES-256-verschlüsselt.', sel: '#setup-pin2', ms: 2600 },
+            { t: 'say', text: 'Die Anzeige sagt, wie stark sie ist. Zweimal eingeben – ab dann sind deine Daten AES-256-verschlüsselt.', sel: '#setup-pin-strength', ms: 3200 },
             { t: 'run', key: 'submitVaultSetup' },
             { t: 'say', text: 'In der echten Einrichtung erscheint jetzt dieser einmalige Wiederherstellungscode. Er gehört getrennt vom Gerät aufbewahrt.', sel: '#recovery-code', ms: 3400 },
             { t: 'say', text: 'Entsperrt wird künftig per PIN – oder per Face-/Touch-ID, wenn dein Gerät das kann.', ms: 2600 },

@@ -19,6 +19,30 @@ const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
 ));
 
+// ---- Neue PIN: Feld mit Stärkeanzeige ----
+function newPinField(id, label) {
+    return `<label class="vault-field">${label}
+                <small class="muted vault-field-sub">PIN oder Passphrase, mindestens ${vault.PIN_MIN_LENGTH} Zeichen</small>
+                <input id="${id}" type="password" autocomplete="new-password" required minlength="${vault.PIN_MIN_LENGTH}" autocapitalize="off" spellcheck="false"></label>
+            <p class="pin-strength" id="${id}-strength" aria-live="polite" hidden></p>`;
+}
+function wirePinStrength(id) {
+    const input = dialog.querySelector(`#${id}`);
+    const out = dialog.querySelector(`#${id}-strength`);
+    if (!input || !out) return;
+    input.addEventListener('input', () => {
+        if (!input.value) { out.hidden = true; return; }
+        const { level, label, hint } = vault.pinStrength(input.value);
+        out.hidden = false;
+        out.dataset.level = level;
+        out.innerHTML = `<b>${escapeHtml(label)}</b> – ${escapeHtml(hint)}`;
+    });
+}
+function pinTooShort(pin) {
+    return [...String(pin)].length < vault.PIN_MIN_LENGTH;
+}
+const PIN_TOO_SHORT = `Bitte mindestens ${vault.PIN_MIN_LENGTH} Zeichen – am besten eine Passphrase aus mehreren Wörtern.`;
+
 let bootData = null;      // Nachladefunktion (Daten laden) nach dem Entsperren
 let lockEl = null;
 let dialog = null;
@@ -84,6 +108,10 @@ function showLockScreen() {
     hideError();
     const pin = document.getElementById('vault-pin');
     pin.value = '';
+    // Ziffern-PIN: Ziffernblock; Passphrase: volle Tastatur.
+    const numeric = vault.pinIsNumeric();
+    pin.inputMode = numeric ? 'numeric' : 'text';
+    pin.placeholder = numeric ? 'PIN' : 'PIN / Passphrase';
     setTimeout(() => pin.focus(), 50);
 }
 
@@ -381,7 +409,7 @@ function removeBiometric() {
 export function openSetupDialog(opts = {}) {
     const forced = opts.forced === true;
     const title = opts.title || 'Datentresor aktivieren';
-    const intro = opts.intro || 'Deine Kundendaten werden ab dann <b>AES-256-verschlüsselt</b> auf diesem Gerät gespeichert und beim Öffnen per PIN entsperrt. Wähle eine PIN, die du dir merkst – ohne sie sind die Daten nicht wiederherstellbar (außer per Wiederherstellungscode).';
+    const intro = opts.intro || 'Deine Kundendaten werden ab dann <b>AES-256-verschlüsselt</b> auf diesem Gerät gespeichert und beim Öffnen per PIN entsperrt. Wähle eine PIN mit mindestens 6 Zeichen – besser noch eine <b>Passphrase</b> aus mehreren Wörtern (z. B. „Fuchs-fährt-nach-Köln“). Merke sie dir gut: Ohne sie sind die Daten nicht wiederherstellbar (außer per Wiederherstellungscode).';
     let done = false;
 
     dialog.innerHTML = `
@@ -389,10 +417,9 @@ export function openSetupDialog(opts = {}) {
             <div class="vault-fox">🦊🔐</div>
             <h2>${escapeHtml(title)}</h2>
             <p class="muted small">${intro}</p>
-            <label class="vault-field">PIN (mind. 4 Zeichen)
-                <input id="setup-pin" type="password" inputmode="numeric" autocomplete="new-password" required minlength="4"></label>
+            ${newPinField('setup-pin', 'PIN')}
             <label class="vault-field">PIN wiederholen
-                <input id="setup-pin2" type="password" inputmode="numeric" autocomplete="new-password" required></label>
+                <input id="setup-pin2" type="password" autocomplete="new-password" required autocapitalize="off" spellcheck="false"></label>
             <p id="setup-error" class="vault-error" hidden></p>
             <div class="vault-actions">
                 ${forced ? '' : '<button type="button" class="vault-cancel">Abbrechen</button>'}
@@ -400,13 +427,14 @@ export function openSetupDialog(opts = {}) {
             </div>
         </form>`;
     dialog.querySelector('.vault-cancel')?.addEventListener('click', () => dialog.close());
+    wirePinStrength('setup-pin');
     dialog.querySelector('#vault-setup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const pin = dialog.querySelector('#setup-pin').value;
         const pin2 = dialog.querySelector('#setup-pin2').value;
         const err = dialog.querySelector('#setup-error');
         err.hidden = true;
-        if (pin.length < 4) { err.textContent = 'Die PIN sollte mindestens 4 Zeichen haben.'; err.hidden = false; return; }
+        if (pinTooShort(pin)) { err.textContent = PIN_TOO_SHORT; err.hidden = false; return; }
         if (pin !== pin2) { err.textContent = 'Die PINs stimmen nicht überein.'; err.hidden = false; return; }
         try {
             const { recoveryCode } = await vault.setup(pin, { recovery: true });
@@ -470,11 +498,10 @@ function openChangePinDialog() {
             <div class="vault-fox">🔐</div>
             <h2>PIN ändern</h2>
             <label class="vault-field">Aktuelle PIN
-                <input id="cp-old" type="password" inputmode="numeric" autocomplete="off" required></label>
-            <label class="vault-field">Neue PIN (mind. 4 Zeichen)
-                <input id="cp-new" type="password" inputmode="numeric" autocomplete="new-password" required minlength="4"></label>
+                <input id="cp-old" type="password" inputmode="${vault.pinIsNumeric() ? 'numeric' : 'text'}" autocomplete="off" required></label>
+            ${newPinField('cp-new', 'Neue PIN')}
             <label class="vault-field">Neue PIN wiederholen
-                <input id="cp-new2" type="password" inputmode="numeric" autocomplete="new-password" required></label>
+                <input id="cp-new2" type="password" autocomplete="new-password" required autocapitalize="off" spellcheck="false"></label>
             <p id="cp-error" class="vault-error" hidden></p>
             <div class="vault-actions">
                 <button type="button" class="vault-cancel">Abbrechen</button>
@@ -482,6 +509,7 @@ function openChangePinDialog() {
             </div>
         </form>`;
     dialog.querySelector('.vault-cancel').addEventListener('click', () => dialog.close());
+    wirePinStrength('cp-new');
     dialog.querySelector('#vault-change-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const err = dialog.querySelector('#cp-error');
@@ -489,7 +517,7 @@ function openChangePinDialog() {
         const oldPin = dialog.querySelector('#cp-old').value;
         const nw = dialog.querySelector('#cp-new').value;
         const nw2 = dialog.querySelector('#cp-new2').value;
-        if (nw.length < 4) { err.textContent = 'Die neue PIN sollte mindestens 4 Zeichen haben.'; err.hidden = false; return; }
+        if (pinTooShort(nw)) { err.textContent = PIN_TOO_SHORT; err.hidden = false; return; }
         if (nw !== nw2) { err.textContent = 'Die neuen PINs stimmen nicht überein.'; err.hidden = false; return; }
         try {
             await vault.changePin(oldPin, nw);
@@ -510,22 +538,22 @@ function openResetPinDialog(recoveryCode) {
             <div class="vault-fox">🔑➡️🔐</div>
             <h2>Neue PIN festlegen</h2>
             <p class="muted small">Du hast dich mit dem <b>Wiederherstellungscode</b> angemeldet. Lege jetzt eine <b>neue PIN</b> fest, mit der du den Tresor künftig entsperrst.</p>
-            <label class="vault-field">Neue PIN (mind. 4 Zeichen)
-                <input id="rp-new" type="password" inputmode="numeric" autocomplete="new-password" required minlength="4"></label>
+            ${newPinField('rp-new', 'Neue PIN')}
             <label class="vault-field">Neue PIN wiederholen
-                <input id="rp-new2" type="password" inputmode="numeric" autocomplete="new-password" required></label>
+                <input id="rp-new2" type="password" autocomplete="new-password" required autocapitalize="off" spellcheck="false"></label>
             <p id="rp-error" class="vault-error" hidden></p>
             <div class="vault-actions">
                 <button type="submit" class="primary">Neue PIN speichern</button>
             </div>
         </form>`;
+    wirePinStrength('rp-new');
     dialog.querySelector('#vault-reset-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const err = dialog.querySelector('#rp-error');
         err.hidden = true;
         const nw = dialog.querySelector('#rp-new').value;
         const nw2 = dialog.querySelector('#rp-new2').value;
-        if (nw.length < 4) { err.textContent = 'Die neue PIN sollte mindestens 4 Zeichen haben.'; err.hidden = false; return; }
+        if (pinTooShort(nw)) { err.textContent = PIN_TOO_SHORT; err.hidden = false; return; }
         if (nw !== nw2) { err.textContent = 'Die PINs stimmen nicht überein.'; err.hidden = false; return; }
         try {
             await vault.resetPinWithRecovery(recoveryCode, nw);
