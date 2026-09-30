@@ -19,7 +19,8 @@
  */
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:net';
-import { mkdirSync, readFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { X509Certificate, createHash } from 'node:crypto';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -263,6 +264,10 @@ async function desktopShots(browser, baseUrl) {
     page.on('pageerror', (error) => console.error(`  Browserfehler: ${error.message}`));
     await openFreshApp(page, baseUrl);
     await importFixture(page, { captureImport: true });
+    // Die Doku zeigt den Alltag: Außendienst statt GeoFuchs-Bereich.
+    const fieldMode = page.locator('.mode-btn[data-mode="aussendienst"]');
+    if (await fieldMode.isVisible().catch(() => false)) await fieldMode.click();
+    await sleep(600);
 
     await screenshot(page, 'BILD-LASSO-01-kartenansicht-mit-lasso.png');
     await page.locator('#btn-lasso').click();
@@ -325,7 +330,18 @@ mkdirSync(OUTPUT, { recursive: true });
 const { chromium } = await loadPlaywright();
 const port = await freePort();
 const server = await startPreview(port);
-const launchOptions = { headless: true };
+/**
+ * Hinter einem TLS-prüfenden Proxy (wie bei `npm run videos`): Nur dem
+ * Zertifikat aus DOCS_PROXY_CA (bzw. VIDEO_PROXY_CA) wird per SPKI-Pin
+ * zusätzlich vertraut – sonst fehlen die Kartenkacheln.
+ */
+function proxyCaArgs() {
+    const path = process.env.DOCS_PROXY_CA || process.env.VIDEO_PROXY_CA;
+    if (!path || !existsSync(path)) return [];
+    const spki = new X509Certificate(readFileSync(path)).publicKey.export({ type: 'spki', format: 'der' });
+    return [`--ignore-certificate-errors-spki-list=${createHash('sha256').update(spki).digest('base64')}`];
+}
+const launchOptions = { headless: true, args: ['--lang=de-DE', ...proxyCaArgs()] };
 if (process.env.PLAYWRIGHT_CHROMIUM_PATH) launchOptions.executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
 const browser = await chromium.launch(launchOptions);
 try {
