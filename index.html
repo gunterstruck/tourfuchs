@@ -34,6 +34,17 @@
                 <span class="brand-icon">🦊</span>
                 <span class="brand-name">TourFuchs <em>Vertrieb</em></span>
             </div>
+            <!-- Eingeschaltete Erweiterungen (nur Desktop): Name, Kurzbeschreibung, Klick öffnet den Bereich. -->
+            <nav id="pkg-chips" class="pkg-chips" aria-label="Eingeschaltete Erweiterungen">
+                <button type="button" class="pkg-chip expert-only territory-module-only" data-mode="gebietsplanung" title="GeoFuchs – Gebietsplanung &amp; -management: Editor, Simulation und strategische Analyse. Klick öffnet den Bereich, ein zweiter Klick führt zurück in den Außendienst.">
+                    <span class="pkg-icon" aria-hidden="true">🦊<span class="pkg-badge">🗺️</span></span>
+                    <span class="pkg-text"><b>GeoFuchs</b><small>Gebietsplanung &amp; -management</small></span>
+                </button>
+                <button type="button" class="pkg-chip expert-only service-module-only" data-mode="service" title="ServiceFuchs – Serviceverträge und Einsatzplanung. Klick öffnet den Bereich, ein zweiter Klick führt zurück in den Außendienst.">
+                    <span class="pkg-icon" aria-hidden="true">🦊<span class="pkg-badge">🛡️</span></span>
+                    <span class="pkg-text"><b>ServiceFuchs</b><small>Serviceverträge &amp; Einsatzplanung</small></span>
+                </button>
+            </nav>
             <div class="search-wrap">
                 <input id="global-search" type="search" placeholder="Kunde, Ort, PLZ suchen…" autocomplete="off">
                 <div id="search-results" class="search-results"></div>
@@ -79,16 +90,19 @@
                 </div>
             </div>
             <details id="optional-modules" class="optional-modules expert-only">
-                <summary>⚙️ Optionale Module</summary>
-                <p>Nur für zusätzliche Planungs- und Verwaltungsaufgaben. Der Außendienst braucht sie nicht.</p>
+                <summary>🧩 Erweiterungen</summary>
+                <p>Zusatzpakete für Planung und Verwaltung. Der Außendienst braucht sie nicht. Eingeschaltete Pakete stehen oben neben „TourFuchs“.</p>
                 <label class="check-inline module-optin" id="territory-planning-optin">
                     <input type="checkbox" id="chk-territory-planning-enabled" checked>
-                    <span>🗺️ Gebietsplanung &amp; Gebietsmanagement <small class="muted">– Editor, Simulation und strategische Analyse</small></span>
+                    <span class="pkg-icon" aria-hidden="true">🦊<span class="pkg-badge">🗺️</span></span>
+                    <span><b>GeoFuchs</b> <small class="muted">– Gebietsplanung &amp; -management: Editor, Simulation und strategische Analyse</small></span>
                 </label>
                 <label class="check-inline module-optin" id="service-optin">
                     <input type="checkbox" id="chk-service-enabled">
-                    <span>🛡️ Service-Vertragsradar <small class="muted">– Serviceverträge und Einsatzplanung</small></span>
+                    <span class="pkg-icon" aria-hidden="true">🦊<span class="pkg-badge">🛡️</span></span>
+                    <span><b>ServiceFuchs</b> <small class="muted">– Serviceverträge und Einsatzplanung (Vertragsradar, Einsätze, Service-Tag)</small></span>
                 </label>
+                <p class="modules-subhead">Hilfe</p>
                 <label class="check-inline module-optin" id="guide-optin">
                     <input type="checkbox" id="chk-guide-enabled">
                     <span>🦊 Externer TourFuchs-Guide <small class="muted">– KI-Hilfe-Chat zur Bedienung, läuft außerhalb deiner Organisation. Vor dem Einschalten erklärt TourFuchs ausführlich, was das ist und was es für den Datenschutz bedeutet.</small></span>
@@ -96,8 +110,8 @@
             </details>
             <div class="mode-switch expert-only" role="group" aria-label="Zusätzlichen Arbeitsbereich wählen">
                 <button type="button" class="mode-btn active" data-mode="aussendienst">🚗 Außendienst</button>
-                <button type="button" class="mode-btn expert-only territory-module-only" data-mode="gebietsplanung">🗺️ Gebietsplanung</button>
-                <button type="button" class="mode-btn expert-only service-module-only" data-mode="service">🛡️ Service</button>
+                <button type="button" class="mode-btn expert-only territory-module-only" data-mode="gebietsplanung">🗺️ GeoFuchs</button>
+                <button type="button" class="mode-btn expert-only service-module-only" data-mode="service">🛡️ ServiceFuchs</button>
             </div>
             <p id="mode-hint" class="mode-hint"></p>
             <section id="service-customer-scope" class="service-customer-scope expert-only" hidden>
@@ -190,6 +204,7 @@
                             <button id="btn-geocode">🎯 Adressen exakt verorten</button>
                             <div id="geocode-progress" class="muted small" style="display:none"></div>
                             <button id="btn-export">💾 Als Excel exportieren</button>
+                            <button id="btn-visit-report-data" type="button" title="Nur die besuchten Kunden, eine Zeile je Besuch">📤 Besuchsbericht (Excel)</button>
                             <button id="btn-clear" class="danger">🗑 Daten löschen</button>
                         </div>
                     </div>
@@ -537,6 +552,7 @@
                     <button id="btn-tour-ics" data-expert-section="tour-ics" disabled>📅 Kalender-Export (.ics)</button>
                     <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
                     <button id="btn-day-review" class="btn-day-review" hidden>🌙 Feierabend-Rückblick</button>
+                    <button id="btn-visit-report" class="btn-visit-report" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
                     <button id="btn-tour-clear" class="danger" disabled>✕ Tour leeren</button>
                 </div>
                 </div><!-- /.acc-body -->
@@ -732,7 +748,7 @@
                 </ul>
 
                 <h3>Was sich ändert</h3>
-                <p>Im Info-Dialog (ⓘ) erscheint der Knopf „🦊 Frag den TourFuchs-Guide". Vor jedem Öffnen zeigt TourFuchs noch einmal den Datenschutzhinweis. Ausschalten kannst du den Guide jederzeit hier unter „⚙️ Optionale Module". Mehr dazu in der <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
+                <p>Im Info-Dialog (ⓘ) erscheint der Knopf „🦊 Frag den TourFuchs-Guide". Vor jedem Öffnen zeigt TourFuchs noch einmal den Datenschutzhinweis. Ausschalten kannst du den Guide jederzeit unter „🧩 Erweiterungen" (Abschnitt „Hilfe"). Mehr dazu in der <a href="/datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a>.</p>
             </div>
             <div class="geocode-offer-actions">
                 <button type="button" id="guide-optin-cancel" autofocus>Nicht einschalten</button>
@@ -844,7 +860,30 @@
             <div id="day-review-body"></div>
             <footer>
                 <button type="button" id="day-review-copy">📋 Als Text kopieren</button>
+                <button type="button" id="day-review-share">📤 Besuche weitergeben</button>
                 <button type="button" id="day-review-close" class="primary">Fertig</button>
+            </footer>
+        </dialog>
+
+        <!-- Besuchsbericht: Besuche vom Handy als kleine Excel-Datei weitergeben -->
+        <dialog id="visit-report-dialog" class="visit-report-dialog" aria-label="Besuche weitergeben">
+            <header>
+                <h2>📤 Besuche weitergeben</h2>
+                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+            </header>
+            <div class="visit-report-body">
+                <p>TourFuchs synchronisiert nichts über das Internet. Deine Besuche gehen deshalb als <b>kleine Excel-Datei</b> weiter: nur die besuchten Kunden, eine Zeile je Besuch – mit Kundennummer, Datum und Adresse.</p>
+                <div id="visit-report-ranges" class="visit-report-ranges" role="radiogroup" aria-label="Zeitraum"></div>
+                <ul class="visit-report-uses">
+                    <li><b>CRM:</b> Datei importieren oder die Besuche dort nachtragen.</li>
+                    <li><b>KI:</b> Datei anhängen – „trag das ein" oder „schreib meinen Wochenbericht".</li>
+                    <li><b>Desktop:</b> In TourFuchs über „Eigene Daten laden" öffnen – die Besuche werden über die Kundennummer nachgetragen, sonst ändert sich nichts.</li>
+                </ul>
+                <p class="muted small">Die Datei enthält Kundennamen. Teile sie nur über die Wege deiner Organisation (Firmen-Mail, Teams, OneDrive).</p>
+            </div>
+            <footer>
+                <button type="button" id="visit-report-cancel">Abbrechen</button>
+                <button type="button" id="visit-report-share" class="primary">📤 Weitergeben</button>
             </footer>
         </dialog>
 

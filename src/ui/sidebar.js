@@ -921,18 +921,18 @@ const MODE_CONFIG = {
         hint: 'Alltag: Kundenkarte, Tour planen, Kunden in der Nähe, Übergabe an Maps.'
     },
     gebietsplanung: {
-        label: 'Gebietsplanung',
+        label: 'GeoFuchs',
         primaryTab: 'gebiete',
         markerColorModes: ['rep', 'status'],
         defaultColorMode: 'auto',
-        hint: 'Optionales Spezialmodul: Gebiete schneiden, Zuständigkeiten, Cockpit, Simulation.'
+        hint: 'GeoFuchs: Gebiete schneiden, Zuständigkeiten, Cockpit, Simulation.'
     },
     service: {
-        label: 'Service',
+        label: 'ServiceFuchs',
         primaryTab: 'einsaetze',
         markerColorModes: ['auto', 'channel', 'bezirk', 'gruppe', 'luecken'],
         defaultColorMode: 'rep',
-        hint: 'Optionales Spezialmodul: Einsätze planen und Verträge getrennt im Blick behalten.'
+        hint: 'ServiceFuchs: Einsätze planen und Verträge getrennt im Blick behalten.'
     }
 };
 
@@ -1260,6 +1260,12 @@ export function applyMode(mode, userInitiated = true, persist = true) {
 
     document.querySelectorAll('.mode-btn').forEach((b) =>
         b.classList.toggle('active', b.dataset.mode === mode));
+    // Kopfzeile: das Paket des gerade offenen Bereichs leuchtet.
+    document.querySelectorAll('.pkg-chip').forEach((chip) => {
+        const active = chip.dataset.mode === mode;
+        chip.classList.toggle('active', active);
+        chip.setAttribute('aria-pressed', String(active));
+    });
     const hintEl = document.getElementById('mode-hint');
     if (hintEl) hintEl.textContent = cfg.hint;
     syncServiceCustomerScope();
@@ -1377,6 +1383,15 @@ export function initSidebar() {
     // Fokus-Umschalter
     document.querySelectorAll('.mode-btn').forEach((btn) => {
         btn.addEventListener('click', () => applyMode(btn.dataset.mode, true));
+    });
+    // Paket-Kärtchen in der Kopfzeile: öffnen den Bereich; ein zweiter Klick
+    // auf das leuchtende Kärtchen führt zurück in den Außendienst.
+    document.querySelectorAll('.pkg-chip').forEach((chip) => {
+        chip.addEventListener('click', () => {
+            const target = state.ui.mode === chip.dataset.mode ? 'aussendienst' : chip.dataset.mode;
+            if (!state.ui.sidebarOpen) { state.ui.sidebarOpen = true; applySidebar(); }
+            applyMode(target, true);
+        });
     });
 
     document.querySelectorAll('[data-service-customer-scope]').forEach((btn) => {

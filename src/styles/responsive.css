@@ -32,6 +32,8 @@
     :root { --sidebar-width: min(88vw, 340px); }
 
     .brand-name { display: none; }
+    /* Erweiterungen sind am Handy nicht gewünscht. */
+    .pkg-chips { display: none !important; }
     .search-wrap { max-width: none; }
 
     .sidebar { box-shadow: var(--shadow-2); }

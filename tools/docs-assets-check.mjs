@@ -144,8 +144,8 @@ const guide = knowledgeDocs[0];
 requireCondition(guide.includes(`App-Version: ${appVersion}`), `Guide nennt nicht App-Version ${appVersion}`);
 requireCondition(knowledgeDocs[1].includes(`App-Version ${appVersion}`), `Schulung nennt nicht App-Version ${appVersion}`);
 requireCondition(knowledgeDocs[2].includes(`App-Version ${appVersion}`), `Kurzanleitung nennt nicht App-Version ${appVersion}`);
-requireCondition(guide.includes('Gebietsplanung & Gebietsmanagement'), 'Guide: optionales Gebietsmodul fehlt');
-requireCondition(guide.includes('standardmäßig') && guide.includes('Optionale Profi-Module'), 'Guide: Default-/Aktivierungsregel der Module fehlt');
+requireCondition(guide.includes('GeoFuchs (Gebietsplanung & -management)'), 'Guide: Erweiterung GeoFuchs fehlt');
+requireCondition(guide.includes('standardmäßig') && guide.includes('🧩 Erweiterungen'), 'Guide: Default-/Aktivierungsregel der Module fehlt');
 requireCondition(guide.includes('Mehrkunden-Briefing'), 'Guide: operative Mehrkunden-Bezeichnung fehlt');
 
 const prompt = readFileSync(join(root, 'docs/custom-gpt-systemprompt.txt'), 'utf8');

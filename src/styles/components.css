@@ -224,6 +224,25 @@
 
 /* Feierabend-Rückblick */
 .btn-day-review[hidden] { display: none; }
+.btn-visit-report[hidden] { display: none; }
+.visit-report-dialog { max-width: min(460px, 94vw); }
+.visit-report-body { padding: 4px 18px 8px; font-size: 0.9rem; line-height: 1.45; }
+.visit-report-body p { margin: 6px 0 10px; }
+.visit-report-ranges { display: grid; gap: 6px; margin: 8px 0 12px; }
+.visit-report-range {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s, 8px);
+    cursor: pointer;
+}
+.visit-report-range:has(input:checked) { border-color: var(--color-primary); background: color-mix(in srgb, var(--color-primary) 8%, var(--color-surface)); }
+.visit-report-range span { flex: 1; }
+.visit-report-range b { font-size: 0.84rem; color: var(--color-text-muted); font-weight: 600; }
+.visit-report-uses { margin: 0 0 8px; padding-left: 18px; font-size: 0.84rem; }
+.visit-report-uses li { margin: 3px 0; }
 .day-review-dialog {
     width: min(600px, calc(100vw - 24px));
     max-height: calc(100dvh - 24px);
@@ -1403,6 +1422,8 @@ body:not(.depth-profi) .profi-only { display: none !important; }
 .module-optin input { margin-top: 2px; }
 .module-optin span { min-width: 0; line-height: 1.3; }
 .module-optin small { display: block; margin-top: 2px; font-weight: 400; }
+.module-optin .pkg-icon { margin: 0 8px 0 2px; }
+.optional-modules .modules-subhead { margin: 10px 0 2px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted, #64748b); }
 .tour-mode { display: flex; align-items: center; gap: 8px; margin: 18px 0 4px; padding-top: 10px; border-top: 1px solid var(--color-surface-2); }
 .tour-mode .seg-toggle { flex: 1; margin: 0; }
 .expert-reset {

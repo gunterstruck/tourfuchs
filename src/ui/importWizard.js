@@ -38,6 +38,8 @@ import {
 import { confirmDatasetReplacement, hasExistingDataset, onlyDemoDataPresent } from './datasetReplacement.js';
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 import { confirmImportWithDiff } from './importDiff.js';
+import { isVisitReportHeaders } from '../features/visitReport.js';
+import { applyVisitReport } from './visitReport.js';
 import { showImportInsight } from './importInsight.js';
 
 let dialog = null;
@@ -360,6 +362,12 @@ async function handleFile(file) {
     try {
         const { readWorkbook } = await excel();
         const workbook = await readWorkbook(file);
+        // Besuchsbericht vom Handy: nur Besuche nachtragen, keine neue Kundenliste.
+        if (isVisitReportHeaders(workbook.headers)) {
+            ownDataDialog?.close();
+            applyVisitReport(workbook.rows);
+            return;
+        }
         // Die Datei bleibt greifbar: Blatt und Überschriftenzeile lassen sich im
         // Zuordnungsschritt umstellen, ohne die Datei erneut auszuwählen.
         parsed = { ...workbook, fileName: file.name, file };

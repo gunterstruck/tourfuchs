@@ -931,6 +931,21 @@ export function exportReassignments(rows, { demo = false } = {}) {
     return true;
 }
 
+/**
+ * Besuchsbericht als Excel-Datei im Speicher (zum Teilen oder Herunterladen).
+ * @param {Array<object>} rows  aus `visitReportRows()`
+ * @returns {{ file: File, fileName: string }}
+ */
+export function visitReportFile(rows, { demo = false, today = new Date().toISOString().slice(0, 10) } = {}) {
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Besuchsbericht');
+    const fileName = `${demo ? 'tourfuchs-DEMO-nicht-produktiv-besuche' : 'tourfuchs-besuche'}-${today}.xlsx`;
+    const data = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+    const file = new File([data], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    return { file, fileName };
+}
+
 /** Aktuelle Kundenliste als Excel exportieren (inkl. Besuchsdaten) */
 export function exportCustomers(customers, { fileLabel = '' } = {}) {
     const demo = hasDemoCustomers(customers);
