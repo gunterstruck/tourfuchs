@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Kurzanleitung
 
-Stand: 28.09.2026 · App-Version 3.5.0
+Stand: 30.09.2026 · App-Version 3.5.0
 
 ## 1. App starten
 
@@ -10,7 +10,7 @@ Wichtig:
 
 - Desktop: Kundenkarte, Suche, Briefing, Tour und Daten
 - Smartphone: Kundenkarte, „In der Nähe", Briefing, Tour und Navigation
-- Optional am Desktop: Gebietsplanung und Service-Vertragsradar nach Aktivierung
+- Optional am Desktop: Gebietsplanung und ServiceFuchs (Vertragsradar & Einsätze) nach Aktivierung
 
 ## 2. Daten laden
 
@@ -100,8 +100,8 @@ Wichtig:
 
 Voraussetzung: Desktop und aktiviertes Profi-Modul.
 
-1. `Profi -> Optionale Profi-Module` öffnen.
-2. `Gebietsplanung & Gebietsmanagement` aktivieren.
+1. `🧩 Erweiterungen` öffnen.
+2. `GeoFuchs (Gebietsplanung & -management)` aktivieren.
 3. Modus Gebietsplanung wählen.
 4. Tab Gebiete öffnen.
 5. Gebiets-Cockpit öffnen.
@@ -116,7 +116,7 @@ Voraussetzung: Desktop und aktiviertes Profi-Modul.
 
 ## 6. Was-wäre-wenn-Simulation
 
-Diese Spezialfunktion gehört zum aktivierten Modul `Gebietsplanung & Gebietsmanagement`.
+Diese Spezialfunktion gehört zum aktivierten Modul `GeoFuchs (Gebietsplanung & -management)`.
 
 1. Ebene wählen, zum Beispiel Landkreise.
 2. Gebiet suchen oder auswählen.
@@ -175,11 +175,16 @@ Auf dem Smartphone stehen Karte und Tour im Mittelpunkt.
   Tourlinie; Reihenfolge per **Halten & Ziehen** ändern.
 - Eine eingeblendete Android/iOS-**System-Navigationsleiste** verdeckt das Blatt
   nicht mehr – Hinweise und Bedienelemente liegen darüber.
+- **📤 Besuche weitergeben** (in „Meine Tour" und im Feierabend-Rückblick):
+  die unterwegs abgehakten Besuche als kleine Excel-Datei übers Teilen-Menü
+  (Mail, Teams, OneDrive) – fürs CRM, eine KI oder den Desktop. Am Desktop die
+  Datei über „Eigene Daten laden" öffnen: TourFuchs trägt nur die Besuche nach.
 
-Gebietsmanagement und Service-Vertragsradar sind optionale Module. Die
-Gebietsplanung ist standardmäßig aktiviert; das Service-Vertragsradar bleibt
-zunächst aus. Beide werden am Desktop unter **Profi → Optionale Profi-Module**
-einzeln ein- oder ausgeschaltet.
+**GeoFuchs** (Gebietsplanung & -management) und **ServiceFuchs**
+(Serviceverträge & Einsatzplanung) sind Erweiterungen. GeoFuchs ist
+standardmäßig eingeschaltet, ServiceFuchs zunächst aus. Beide werden am Desktop
+unter **🧩 Erweiterungen** einzeln ein- oder ausgeschaltet und stehen dann als
+Kärtchen neben „TourFuchs Vertrieb" in der Kopfzeile. Am Handy gibt es sie nicht.
 
 Karte, Kunden, Briefing und Tour bleiben der normale Basis-Ablauf. Komplexe
 Gebietsplanung bitte am Desktop durchführen.
