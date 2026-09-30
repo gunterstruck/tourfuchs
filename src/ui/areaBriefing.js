@@ -16,6 +16,8 @@ import {
     buildAreaBriefingPrompt
 } from '../features/areaBriefing.js';
 import { assistantForDepth } from '../services/assistant.js';
+import { customerBriefingFlow } from '../features/customerBriefing.js';
+import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
 import { copyText } from '../features/handoff.js';
 import { showBriefingCopyResult } from './briefingFeedback.js';
 import { loadBriefingSources } from '../services/briefingSources.js';
@@ -44,7 +46,7 @@ function renderDemoOnly() {
     body.innerHTML = `<div class="briefing-state briefing-demo">
         <span class="briefing-kicker">Geschützte Demo</span>
         <h3>Für Beispielkunden wird kein Briefing erzeugt</h3>
-        <p class="briefing-demo-note">In der Auswahl liegen ausschließlich Beispielkunden. TourFuchs baut dafür bewusst keinen Prompt und öffnet keinen Assistenten. Mit Ihren eigenen Kunden steht das Mehrkunden-Briefing sofort zur Verfügung.</p>
+        <p class="briefing-demo-note">In der Auswahl liegen ausschließlich Beispielkunden. TourFuchs baut dafür bewusst keinen Prompt und öffnet keinen Assistenten. Mit deinen eigenen Kunden steht das Mehrkunden-Briefing sofort zur Verfügung.</p>
     </div>`;
     footer.innerHTML = '<button type="button" class="primary" data-area-close>Verstanden</button>';
     footer.querySelector('[data-area-close]')?.addEventListener('click', () => dialog.close());
@@ -52,6 +54,8 @@ function renderDemoOnly() {
 
 function render(selection, areaLabel, { preview = false } = {}) {
     const { included, total, truncated } = selection;
+    // Dieselbe Zielwahl wie im Kundenbriefing, dieselbe gespeicherte Wahl.
+    const withChooser = customerBriefingFlow(state.ui.depth) === 'choice';
     body.innerHTML = `
         <div class="briefing-customer">
             <b>${escapeHtml(areaLabel)}</b>
@@ -65,7 +69,8 @@ function render(selection, areaLabel, { preview = false } = {}) {
                 <summary>Diese Kunden stehen im Prompt <span class="muted small">(${included.length})</span></summary>
                 <ul class="area-customer-list">${included.map(customerItem).join('')}</ul>
             </details>
-            <p class="briefing-manual-note"><b>Nicht enthalten:</b> Umsatz, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn Sie den Prompt absenden.</p>
+            <p class="briefing-manual-note"><b>Nicht enthalten:</b> Umsatz, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn du den Prompt absendest.</p>
+            ${withChooser ? assistantChooserHtml(currentAssistant, 'area-briefing') : ''}
             ${briefingSourcesHtml()}
             <details class="briefing-prompt-visible">
                 <summary><b>🔍 Vollständigen Prompt ansehen</b><span></span></summary>
@@ -79,13 +84,11 @@ function render(selection, areaLabel, { preview = false } = {}) {
         const note = block?.querySelector('summary span');
         if (note) {
             const lines = String(currentPrompt || '').split('\n').length;
-            note.textContent = `${lines} Zeilen · geht erst raus, wenn Sie ihn im Assistenten absenden`;
+            note.textContent = `${lines} Zeilen · geht erst raus, wenn du ihn im Assistenten absendest`;
         }
     };
     fillPrompt();
-    // Dasselbe Fragment wie im Kundenbriefing, derselbe gespeicherte Zustand –
-    // geändert wird er dort, wo er gerade auffällt.
-    wireBriefingSources(body, () => {
+    const rebuild = () => {
         currentPrompt = buildAreaBriefingPrompt(
             included,
             { areaLabel, plannedDate: plannedDate(), total, preview },
@@ -93,8 +96,21 @@ function render(selection, areaLabel, { preview = false } = {}) {
             loadBriefingSources()
         );
         fillPrompt();
-    });
+    };
+    // Dasselbe Fragment wie im Kundenbriefing, derselbe gespeicherte Zustand –
+    // geändert wird er dort, wo er gerade auffällt.
+    wireBriefingSources(body, rebuild);
+    if (withChooser) {
+        wireAssistantChooser(body, 'area-briefing', (assistant) => {
+            currentAssistant = assistant;
+            rebuild();
+            renderFooter(preview);
+        });
+    }
+    renderFooter(preview);
+}
 
+function renderFooter(preview) {
     if (preview) {
         // Derselbe Knopf, aber ohne Wirkung: Die Vorführung zeigt, wo er sitzt,
         // kopiert aber nichts und öffnet keinen Assistenten.
@@ -103,20 +119,6 @@ function render(selection, areaLabel, { preview = false } = {}) {
     }
     footer.innerHTML = `<button type="button" class="primary" data-area-open>Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`;
     footer.querySelector('[data-area-open]')?.addEventListener('click', openAssistant);
-}
-
-/** Wie beim Kundenbriefing: Copilot unter Windows bevorzugt als installierte App. */
-function launchAssistant(assistant) {
-    if (assistant.preferEdge && /Windows/i.test(navigator.userAgent)) {
-        const link = document.createElement('a');
-        link.href = `microsoft-edge:${assistant.url}`;
-        link.hidden = true;
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        return;
-    }
-    window.open(assistant.url, '_blank', 'noopener');
 }
 
 async function openAssistant() {
