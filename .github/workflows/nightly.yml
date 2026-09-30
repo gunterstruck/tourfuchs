@@ -1,0 +1,40 @@
+name: Nightly
+
+# Die zeitbasierten Prüfstrecken laufen nachts statt in jedem PR: Auf einem
+# geteilten Runner schwanken Vorführungen und Gesten gelegentlich – als Tor
+# vor jedem Merge wäre das schlimmer als keines (siehe ci.yml). Nachts sind
+# sie ein Frühwarnsystem: Ein roter Lauf zeigt am nächsten Morgen, dass eine
+# Demo oder Geste gebrochen ist, ohne tagsüber Merges zu blockieren.
+# Von Hand startbar über „Run workflow".
+on:
+  schedule:
+    - cron: '17 2 * * *'   # 04:17 MESZ
+  workflow_dispatch:
+
+jobs:
+  demo-and-touch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm i --no-save playwright@1.62.1
+      - uses: actions/cache@v6
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-chromium-1.62.1
+      - run: npx playwright install --with-deps chromium
+      - run: npm run build
+      - run: npm run smoke-check
+      - run: npm run demo-check
+      - run: npm run touch-check
+      - if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: demo-check
+          path: tmp/demo-check.json
+          if-no-files-found: ignore
