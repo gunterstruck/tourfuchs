@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 28.09.2026 · App-Version 3.5.0
+Stand: 30.09.2026 · App-Version 3.5.0
 
 ## 1. Ziel der Schulung
 
@@ -111,20 +111,20 @@ Oben befinden sich:
 - Mobile-Vorschau
 - Info und Rechtliches
 
-### Arbeitsfokus und optionale Module
+### Arbeitsfokus und Erweiterungen (GeoFuchs, ServiceFuchs)
 
 TourFuchs startet im Arbeitsfokus **Außendienst**. Dieser Fokus enthält den
 vollständigen täglichen Kern: Kunden sehen und finden, Tour planen und Briefing
 vorbereiten. Strategische Spezialbereiche konkurrieren standardmäßig nicht mit
 diesem Ablauf.
 
-Unter **Profi -> Optionale Profi-Module** können am Desktop einzeln geschaltet
+Unter **🧩 Erweiterungen** können am Desktop einzeln geschaltet
 werden:
 
-- **Gebietsplanung & Gebietsmanagement**
-- **Service-Vertragsradar**
+- **GeoFuchs (Gebietsplanung & -management)**
+- **ServiceFuchs (Vertragsradar & Einsätze)**
 
-Die Gebietsplanung ist standardmäßig aktiviert; das Service-Vertragsradar ist
+Die Gebietsplanung ist standardmäßig aktiviert; das ServiceFuchs (Vertragsradar & Einsätze) ist
 standardmäßig aus. Ein aktiviertes Modul zeigt den entsprechenden zusätzlichen
 Arbeitsfokus. Das Deaktivieren blendet ihn wieder aus; Kunden- und Tourdaten
 werden dadurch nicht gelöscht.
@@ -321,8 +321,7 @@ Klick auf einen Kunden zeigt:
 
 ### Gebietsflächen (optionale Vertiefung)
 
-Nach Aktivierung von **Profi -> Optionale Profi-Module -> Gebietsplanung &
-Gebietsmanagement** können am Desktop Flächen eingeblendet werden:
+Nach Aktivierung von **🧩 Erweiterungen -> GeoFuchs** können am Desktop Flächen eingeblendet werden:
 
 - Landkreise
 - PLZ 1-stellig
@@ -423,7 +422,7 @@ Für den Alltag ist besonders wichtig:
 ## 11. Gebietsplanung am Desktop
 
 Dieses Kapitel ist eine optionale Vertiefung. Voraussetzung ist:
-`Profi -> Optionale Profi-Module -> Gebietsplanung & Gebietsmanagement
+`🧩 Erweiterungen -> GeoFuchs
 aktivieren`. Die täglichen Außendienstaufgaben benötigen das Modul nicht.
 
 ### Gebietsebene wählen
@@ -462,7 +461,7 @@ Die automatische Ansicht reduziert visuelle Überladung:
 
 ## 12. Gebiets-Cockpit
 
-Das Cockpit gehört zum optionalen Modul **Gebietsplanung & Gebietsmanagement**.
+Das Cockpit gehört zum optionalen Modul **GeoFuchs (Gebietsplanung & -management)**.
 
 Das Gebiets-Cockpit ist das Analysezentrum für die Gebietsplanung. Es öffnet als reine KPI-Analyse; die Was-wäre-wenn-Simulation darunter ist eingeklappt und wird bei Bedarf aufgeklappt (erst der Überblick, dann die Details).
 
@@ -805,8 +804,8 @@ Inhalte:
 
 ### Modul 4: Gebietsplanung (optionale Vertiefung, 45 Minuten)
 
-Voraussetzung: Am Desktop unter `Profi -> Optionale Profi-Module` das Modul
-**Gebietsplanung & Gebietsmanagement** aktivieren.
+Voraussetzung: Am Desktop unter `🧩 Erweiterungen` das Modul
+**GeoFuchs (Gebietsplanung & -management)** aktivieren.
 
 Inhalte:
 
@@ -946,7 +945,7 @@ Plane eine Tour:
 6. Was ist der Unterschied zwischen Auswahl zuweisen und Zuweisung übernehmen?
 7. Welche Daten werden bei optionaler OSM-Geocodierung gesendet?
 8. Was sollte vor dem Löschen lokaler Daten gemacht werden?
-9. Wo werden Gebietsplanung und Service-Vertragsradar aktiviert?
+9. Wo werden Gebietsplanung und ServiceFuchs (Vertragsradar & Einsätze) aktiviert?
 10. Ist Basis nur für unerfahrene Außendienstmitarbeitende gedacht?
 
 ## 26. Antworten zu den Prüfungsfragen
@@ -959,7 +958,7 @@ Plane eine Tour:
 6. Auswahl zuweisen ist Simulation; Zuweisung übernehmen schreibt dauerhaft.
 7. Nur Straße, PLZ und Ort; keine Kundenidentität oder Geschäftsdaten.
 8. Bei Bedarf einen Excel-Export erstellen.
-9. Am Desktop unter `Profi -> Optionale Profi-Module`.
+9. Am Desktop unter `🧩 Erweiterungen`.
 10. Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi
     ergänzt Spezial-, Konfigurations- und Administrationswerkzeuge.
 7. Nur neutrale Adressdaten wie Straße, PLZ und Ort.
