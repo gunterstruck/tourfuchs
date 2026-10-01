@@ -12,9 +12,8 @@
  */
 
 import { STORIES, visibleStories, visibleStorySteps, prepareShowcaseTour, selectShowcaseTour, storyDuration } from '../features/stories.js';
-import { state, emit, markDirty, datasetSnapshot, on, visibleCustomers } from '../core/state.js';
-import { isEnabled as vaultEnabled, isUnlocked as vaultUnlocked, holdAutoLock, onVault, removeVaultMeta } from '../services/vault.js';
-import { saveDataset } from '../services/storage.js';
+import { state, emit, markDirty, on, visibleCustomers } from '../core/state.js';
+import { isEnabled as vaultEnabled, isUnlocked as vaultUnlocked, holdAutoLock, onVault } from '../services/vault.js';
 import {
     allShowcaseStoriesSeen,
     markShowcaseCompleted,
@@ -110,7 +109,6 @@ let restoreFilters = null;
 let tourSnapshot = null;
 let visitRestore = null;      // { id, besuche } zum Zurücksetzen von „Heute besucht"
 let origConfirm = null;       // Originales window.confirm während patchConfirm
-let demoVaultCreated = false; // hat DIESE Demo den Tresor angelegt? (nur dann abbauen)
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let demoTour = null;          // Tour-Demo: Zuhause, Ziel, Kunden auf dem Weg
@@ -1325,18 +1323,16 @@ const HELPERS = {
         await sleep(400);
     },
     async submitVaultSetup() {
-        // Nur wirklich anlegen, wenn noch KEIN Tresor existiert – sonst würde ein
-        // bestehender (echter) Tresor überschrieben. Bei vorhandenem Tresor wird
-        // nur die Eingabe-UI gezeigt, ohne etwas anzulegen.
-        if (vaultEnabled()) {
-            moveOverlaysInto(document.body);
-            showRecoveryCodeForDemo();
-            await resolveEl('#recovery-code', 3000);
-            await sleep(600);
-            return;
-        }
-        await clickEl('#vault-setup-form button[type="submit"]', { keepOverlaysOutside: true });
-        if (await resolveEl('#recovery-code', 12000)) demoVaultCreated = true;
+        // Die Vorführung legt NIE einen echten Tresor an. Früher tat sie das und
+        // baute ihn am Filmende wieder ab – nur: Das Abbauen stand im
+        // Arbeitsspeicher. Wurde die App mitten im Film geschlossen (Handy
+        // gesperrt, Android beendet sie im Hintergrund), blieb ein Tresor mit
+        // Demo-PIN stehen, und am nächsten Morgen fragte TourFuchs nach einer
+        // PIN, die niemand gesetzt hatte. Jetzt: Eingabe und Stärkeanzeige sind
+        // echt, Absenden und Wiederherstellungscode nur Vorführung.
+        moveOverlaysInto(document.body);
+        showRecoveryCodeForDemo();
+        await resolveEl('#recovery-code', 3000);
         await sleep(600);
     },
     async finishVaultDemo() {
@@ -1379,7 +1375,6 @@ const HELPERS = {
         await sleep(400);
     },
     async openVaultSetup() {
-        demoVaultCreated = false;
         // Setup-Formular garantiert öffnen (unabhängig von Tresor-Status/Topbar) –
         // sonst wäre das PIN-Modal in der Demo evtl. nicht sichtbar. Angelegt wird
         // erst beim Absenden, und nur wenn noch kein Tresor existiert.
@@ -2072,11 +2067,6 @@ function cleanup(story) {
 
     // Nur einen von DIESER Demo angelegten Tresor wieder abbauen – ein bereits
     // vorhandener (echter) Tresor bleibt unangetastet.
-    if (story?.mutatesVault && demoVaultCreated && vaultEnabled()) {
-        removeVaultMeta();
-        saveDataset(datasetSnapshot()); // wieder im Klartext speichern (kein await nötig)
-    }
-    demoVaultCreated = false;
 
     // Blatt-Höhe (Handy) auf den Nutzerzustand zurücksetzen und Kartenausschnitt
     // auf die definierte Ausgangslage bringen (nicht dort stehen bleiben, wo die

@@ -346,6 +346,13 @@ export async function wipe() {
     emit('wiped');
 }
 
+/** Schlüssel aus dem Speicher nehmen, ohne „gesperrt" zu melden – nach dem
+ *  Deaktivieren gibt es keinen Sperrbildschirm mehr, den jemand zeigen müsste. */
+export function discardKey() {
+    dek = null;
+    clearTimeout(autoLockTimer);
+}
+
 /** Tresor-Metadaten entfernen (DEK bleibt im Speicher, damit der Aufrufer die
  *  Daten noch entschlüsselt im Klartext neu speichern kann). */
 export function removeVaultMeta() {

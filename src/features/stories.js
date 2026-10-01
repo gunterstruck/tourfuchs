@@ -413,7 +413,6 @@ export const STORIES = [
         blurb: 'Verschlüsselt, PIN-geschützt, sicher aufs Handy.',
         duration: 30,
         needsData: true,
-        mutatesVault: true,   // Demo legt einen Tresor an – cleanup baut ihn wieder ab
         steps: [
             { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'openVaultSetup' },
@@ -425,7 +424,7 @@ export const STORIES = [
             { t: 'say', text: 'Entsperrt wird künftig per PIN – oder per Face-/Touch-ID, wenn dein Gerät das kann.', ms: 2600 },
             { t: 'say', text: 'Geht das Gerät verloren, bleiben die Daten unlesbar. Das ist der Tresor.', ms: 2400 },
             { t: 'run', key: 'finishVaultDemo' },
-            { t: 'say', text: 'Ab jetzt wacht das Schloss hier oben: Ein Tipp sperrt sofort – entsperrt wird per PIN oder Face-ID.', sel: '#btn-vault-toggle', ms: 3400 }
+            { t: 'say', text: 'Hier oben sitzt das Schloss: Ein Tipp richtet den Tresor ein – danach sperrt ein Tipp sofort, entsperrt wird per PIN oder Face-ID.', sel: '#btn-vault-toggle', ms: 3800 }
         ]
     }
 ];

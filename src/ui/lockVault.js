@@ -10,7 +10,7 @@ import * as vault from '../services/vault.js';
 import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot
 } from '../core/state.js';
-import { saveDataset, reprotectStores } from '../services/storage.js';
+import { saveDataset, loadDataset, reprotectStores } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
@@ -94,8 +94,53 @@ export function initVault(options = {}) {
 
     // Beim Start gesperrt? Sperrbildschirm zeigen und Daten erst nach Entsperren laden.
     const gated = vault.isEnabled() && vault.isLocked();
-    if (gated) showLockScreen();
+    if (gated) {
+        showLockScreen();
+        healLeftoverDemoVault().catch((e) => console.warn('Prüfung auf Demo-Tresor fehlgeschlagen:', e));
+    }
     return gated;
+}
+
+// ---- Selbstheilung: übrig gebliebener Tresor aus der Live-Demo ----
+// Bis 01.10.2026 legte der Tresor-Film einen echten Tresor mit Demo-PIN an und
+// baute ihn am Filmende wieder ab. Wurde die App mitten im Film beendet, blieb
+// er stehen – und TourFuchs fragte nach einer PIN, die niemand gesetzt hatte.
+// Passt eine der Demo-PINs und liegen darin nur Beispieldaten, wird der Tresor
+// still entfernt. Echte Kundendaten bleiben immer geschützt.
+const LEFTOVER_DEMO_PINS = ['2468', 'Fuchs-fährt-los'];
+
+/** Nur Beispieldaten (oder gar nichts) im Datensatz? */
+export function isLeftoverDemoDataset(dataset) {
+    if (!dataset) return true;
+    const customers = dataset.customers || [];
+    if (customers.length > 0 && !isDemoDataset(customers)) return false;
+    const own = (rows) => (rows || []).some((row) => row && row.sourceSystem !== 'DEMO');
+    return !own(dataset.serviceContracts) && !own(dataset.serviceVisits);
+}
+
+async function healLeftoverDemoVault() {
+    for (const pin of LEFTOVER_DEMO_PINS) {
+        try { await vault.verifyPin(pin); } catch { continue; }   // zählt nicht als Fehlversuch
+        if (vault.isUnlocked() || !vault.isEnabled()) return false; // inzwischen selbst entsperrt
+        await vault.unlock(pin);
+        const dataset = await loadDataset();
+        if (!isLeftoverDemoDataset(dataset)) {
+            // Echte Daten mit zufällig gleicher PIN: Tresor bleibt, Sperre bleibt.
+            vault.lock();
+            return false;
+        }
+        vault.removeVaultMeta();
+        if (dataset) await saveDataset(dataset);   // jetzt im Klartext
+        await reprotectStores();
+        vault.discardKey();
+        hideError();
+        hideLockScreen();
+        try { await bootData(); } catch (e) { console.warn('Nachladen fehlgeschlagen:', e); }
+        renderControls();
+        showToast('Ein von der Tresor-Live-Demo übrig gebliebener Tresor wurde entfernt. Es war keine eigene PIN gesetzt.', 'info', 7000);
+        return true;
+    }
+    return false;
 }
 
 // ---- Sperrbildschirm ----
@@ -189,7 +234,15 @@ function handleUnlockError(err) {
         document.getElementById('vault-pin').focus();
         return;
     }
+    if (err?.message === 'no-vault') {
+        // Der Tresor ist inzwischen weg (z. B. in einem anderen Fenster
+        // deaktiviert) – dann gibt es nichts mehr zu entsperren.
+        showError('Hier ist kein Tresor mehr aktiv. TourFuchs lädt neu …');
+        setTimeout(() => location.reload(), 1500);
+        return;
+    }
     showError('Entsperren nicht möglich.');
+    console.warn('Entsperren fehlgeschlagen:', err);
 }
 
 async function afterUnlock() {

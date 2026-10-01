@@ -3430,6 +3430,10 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
   Touren und Szenarien; Altbestand wird beim nächsten Entsperren verschlüsselt.
 - **Stärkere PIN** (14.1): mindestens 6 Zeichen für neue PINs, Stärkeanzeige,
   Empfehlung Passphrase; passende Tastatur am Sperrbildschirm.
+- **Tresor-Live-Demo legt keinen echten Tresor mehr an.** Früher blieb nach
+  einem unterbrochenen Film ein Tresor mit Demo-PIN stehen („Entsperren nicht
+  möglich" am nächsten Morgen). Ein solcher Rest mit nur Beispieldaten wird
+  beim Start erkannt und entfernt; echte Kundendaten bleiben gesperrt.
 
 - **Erweiterungen mit Produktnamen** (4.2): „⚙️ Optionale Module" heißt jetzt
   **„🧩 Erweiterungen"**. Die Pakete heißen **GeoFuchs** (Gebietsplanung &
