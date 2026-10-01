@@ -99,7 +99,7 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
 
     it('ist in der Oberfläche angebunden (Einrichten, Entsperren, Deaktivieren, Nachladen)', () => {
         const ui = readFileSync(resolve(process.cwd(), 'src/ui/lockVault.js'), 'utf8');
-        expect(ui.match(/await reprotectStores\(\);/g)).toHaveLength(3);
+        expect(ui.match(/await reprotectStores\(\);/g)).toHaveLength(4); // Einrichten, Entsperren, Deaktivieren, Demo-Rest entfernen
         const tourPanel = readFileSync(resolve(process.cwd(), 'src/ui/tourPanel.js'), 'utf8');
         expect(tourPanel).toContain("on('app:ready', reloadTours);");
         expect(tourPanel).toContain("on('vault:locked', () => { savedTours = []; renderSavedTours(); });");
