@@ -1,0 +1,1027 @@
+/*
+ * Aurora-Farbtöne – automatisch erzeugt von tools/aurora-tones.mjs.
+ * Nicht von Hand bearbeiten: Werkzeug erneut laufen lassen.
+ * Nur Farben (Fläche, Schrift, Rahmen) – keine Abstände, keine Sichtbarkeit.
+ */
+
+/* ── base.css ── */
+button:hover:not(:disabled) {
+    border-color: rgba(132, 156, 184, 0.4);
+}
+button.danger:hover:not(:disabled) {
+    background: rgba(240, 76, 76, 0.18);
+    border-color: rgba(240, 76, 76, 0.4);
+}
+
+/* ── briefing.css ── */
+.briefing-customer {
+    background: rgba(119, 158, 197, 0.18);
+}
+.briefing-kicker {
+    color: var(--color-primary-dark);
+}
+.briefing-manual-note {
+    border-left: 3px solid rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.briefing-assistant-error {
+    background: rgba(240, 76, 76, 0.18);
+    color: rgb(237, 151, 151);
+}
+.briefing-prompt-visible pre {
+    background: rgba(119, 158, 197, 0.18);
+}
+.briefing-demo-note {
+    border-left: 3px solid rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+}
+.briefing-copy-status.is-success {
+    color: var(--color-primary-dark);
+    background: rgba(108, 208, 161, 0.18);
+}
+.briefing-copy-status.is-error {
+    color: rgb(232, 162, 155);
+    background: rgba(240, 103, 76, 0.18);
+}
+
+/* ── components.css ── */
+#btn-mobile-preview {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+#btn-mobile-preview:hover {
+    background: rgba(134, 85, 246, 0.2);
+}
+.mobile-preview-hint {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: var(--color-surface, var(--color-surface));
+}
+.mp-btn {
+    background: rgba(22, 20, 46, 0.5);
+}
+.mp-btn:hover {
+    background: rgba(22, 20, 46, 0.5);
+}
+.mp-screen {
+    background: var(--color-surface);
+}
+.ob-greeting {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.ob-secondary-action {
+    border-color: rgba(152, 113, 244, 0.42);
+}
+.ob-preview-status {
+    border: 1px solid rgba(152, 113, 244, 0.24);
+    background: linear-gradient(135deg, rgba(134, 85, 246, 0.184), rgba(22, 20, 46, 0.96));
+}
+.compliance-optin:has(input:checked) {
+    border-color: rgba(152, 113, 244, 0.38);
+}
+.review-stat-good b {
+    color: rgb(150, 238, 183);
+}
+.review-stat-open b {
+    color: rgb(249, 186, 139);
+}
+.review-list-done li {
+    background: rgba(84, 232, 130, 0.18);
+}
+.review-mark-overdue {
+    background: rgba(240, 76, 76, 0.18);
+    color: rgb(239, 149, 149);
+}
+.review-empty {
+    border-left: 3px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+    background: rgba(119, 158, 197, 0.18);
+}
+.diff-stat-up b {
+    color: var(--color-primary-dark);
+}
+.diff-stat-down b {
+    color: rgb(249, 186, 139);
+}
+.diff-totals {
+    border-left: 3px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+    background: rgba(119, 158, 197, 0.18);
+}
+.diff-up {
+    color: var(--color-primary-dark);
+}
+.diff-down {
+    color: rgb(249, 186, 139);
+}
+.diff-warning {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+.insight-notable {
+    border-left-color: rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+}
+.insight-warn {
+    background: rgba(240, 208, 76, 0.18);
+}
+.paste-status-ok {
+    color: var(--color-primary-dark);
+}
+.paste-status-error {
+    color: rgb(239, 149, 149);
+}
+.data-section-label {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.saved-tour-load:hover {
+    background: rgba(127, 154, 189, 0.18);
+}
+.territory-summary-dialog > header {
+    background: linear-gradient(135deg, color-mix(in srgb, var(--territory-summary-color) 13%, var(--color-surface)), var(--color-surface) 68%);
+}
+.territory-summary-context > div {
+    border-left: 4px solid color-mix(in srgb, var(--territory-summary-color) 55%, var(--color-border));
+    background: color-mix(in srgb, var(--territory-summary-color) 6%, var(--color-surface));
+}
+.cockpit-kpi-card {
+    background: linear-gradient(180deg, var(--color-surface) 0%, rgba(119, 158, 197, 0.18) 100%);
+}
+.cockpit-kpi-card.ok {
+    background: linear-gradient(180deg, rgba(84, 232, 130, 0.18) 0%, var(--color-surface) 100%);
+}
+.cockpit-kpi-card.warn {
+    background: linear-gradient(180deg, rgba(240, 208, 76, 0.18) 0%, var(--color-surface) 100%);
+}
+.balance-note.ok {
+    background: rgba(76, 240, 133, 0.18);
+    color: rgb(154, 233, 184);
+}
+.balance-note.warn {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+.simulation-panel {
+    background: var(--color-surface);
+    border: 1px solid rgba(76, 146, 240, 0.4);
+}
+.simulation-panel[open] > summary::after {
+    color: var(--color-primary, var(--color-primary-dark));
+}
+.sim-options {
+    background: rgba(22, 20, 46, 0.72);
+}
+.sim-assign .secondary {
+    background: var(--color-surface);
+}
+.simulation-panel #sim-commit:hover:not(:disabled) {
+    background: rgb(92, 39, 216);
+    border-color: rgba(152, 113, 244, 0.7);
+}
+#sim-undo {
+    background: var(--color-surface);
+}
+.route-mode-toggle:hover {
+    background: var(--color-surface);
+}
+.simulation-map-bar {
+    background: rgba(22, 20, 46, 0.97);
+}
+.simulation-region-popup .simulation-popup-state {
+    color: rgb(249, 186, 139);
+}
+.territory-filter-summary.is-active {
+    border-color: rgba(152, 113, 244, 0.34);
+}
+.level-status {
+    border: 1px solid rgba(152, 113, 244, 0.24);
+}
+.level-status strong {
+    background: rgba(22, 20, 46, 0.72);
+}
+.privacy-faq details {
+    border: 1px solid var(--color-border, var(--color-border));
+}
+.privacy-faq summary:focus-visible {
+    outline: 2px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+}
+.optional-modules .modules-subhead {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.start-chip .chip-x:hover {
+    color: rgb(239, 149, 149);
+}
+.result-row-x:hover {
+    color: rgb(239, 149, 149);
+}
+.stop-row.dest-row {
+    background: rgba(240, 76, 76, 0.18);
+}
+.stop-row.final-row {
+    background: rgba(119, 158, 197, 0.18);
+}
+.stop-row.return-row {
+    background: rgba(76, 148, 240, 0.18);
+}
+.route-role {
+    background: rgba(240, 76, 76, 0.18);
+    color: rgb(237, 151, 151);
+}
+.tour-empty-guide {
+    border: 1px dashed rgba(152, 113, 244, 0.34);
+    background: rgba(134, 85, 246, 0.11);
+}
+.stop-row.stop-dragging {
+    background: var(--color-surface, var(--color-surface));
+}
+body.tour-focus #tour-stepper {
+    background: var(--color-surface, var(--color-surface));
+}
+.tour-step {
+    border: 1px solid rgba(127, 154, 189, 0.4);
+    background: rgba(119, 158, 197, 0.18);
+    color: var(--color-text-muted);
+}
+.tour-step .ts-num {
+    background: rgba(127, 154, 189, 0.18);
+    color: var(--color-text-muted);
+}
+.tour-step.active {
+    border-color: color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 45%, rgba(127, 154, 189, 0.4));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.tour-step.active .ts-num {
+    background: var(--color-primary, rgb(85, 21, 234));
+}
+.tour-focus-exit {
+    border: 1px solid rgba(127, 154, 189, 0.4);
+    background: var(--color-surface, var(--color-surface));
+}
+.demo-banner {
+    border: 1px solid color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 30%, #fcd34d);
+    background: linear-gradient(135deg, rgba(240, 208, 76, 0.18), var(--color-primary-light));
+}
+.demo-banner-text b {
+    color: rgb(244, 182, 143);
+}
+.demo-banner-link {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.demo-banner-cta:hover {
+    background: var(--color-primary-dark, rgb(88, 29, 226));
+}
+.geocode-status {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface, var(--color-surface));
+}
+.info-setting {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+}
+.geocode-state {
+    background: var(--color-surface-2, rgba(119, 158, 197, 0.18));
+}
+.demo-welcome-card {
+    border: 1px solid color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 32%, #fcd34d);
+    background: linear-gradient(160deg, rgba(240, 208, 76, 0.18), var(--color-surface, var(--color-surface)) 60%);
+}
+.demo-welcome-show.is-counting::before {
+    background: rgba(22, 20, 46, 0.5);
+}
+.demo-welcome-countdown {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.demo-welcome-countdown b {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.demo-welcome-secondary {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.demo-welcome-ack {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.demo-welcome-x {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.mapping-source-warning {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+.mapping-more[open] > summary {
+    color: var(--color-primary, var(--color-primary-dark));
+}
+.req {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+.dropzone {
+    background: rgba(85, 21, 234, 0.14);
+}
+.pwa-update-banner,
+.install-offer {
+    border: 1px solid rgba(152, 113, 244, 0.24);
+    background: rgba(22, 20, 46, 0.98);
+}
+.plan-day-box {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: rgba(119, 158, 197, 0.18);
+}
+.plan-field {
+    color: var(--color-text-muted);
+}
+.plan-field input {
+    border: 1px solid var(--color-border, rgba(132, 156, 184, 0.4));
+    color: rgb(165, 182, 223);
+    background: var(--color-surface);
+}
+.qr-scan-fallback {
+    color: var(--color-text-muted);
+}
+.qr-stop-row {
+    border-bottom: 1px solid rgba(127, 154, 189, 0.4);
+}
+.stop-visit {
+    color: rgb(147, 240, 182);
+    background: var(--color-surface);
+}
+.demos-fab-new {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+.map-fab {
+    border-left: 3px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+    background: rgba(22, 20, 46, 0.97);
+    color: var(--color-text, rgb(165, 182, 223));
+}
+.popup-lasso .popup-actions {
+    border-top: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface);
+}
+.popup-lasso-picks {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface);
+}
+.popup-pick label:hover {
+    background: rgba(119, 158, 197, 0.18);
+}
+.popup-pick-done .pick-check {
+    color: var(--color-primary-dark);
+}
+.popup-pick-done .pick-badge {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.popup-lasso-note {
+    border-left: 3px solid rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.sim-scenario-row button.active {
+    outline: 2px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+}
+.sim-scenario-compare {
+    border-left: 3px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+}
+.sim-compare-conflict {
+    color: var(--color-danger, rgb(238, 150, 150));
+}
+.guide-warning {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(241, 181, 146);
+}
+.guide-dialog .geocode-offer-actions a.button {
+    background: var(--color-primary, rgb(85, 21, 234));
+}
+
+/* ── contracts.css ── */
+:root .service-customer-scope {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: linear-gradient(180deg, rgba(134, 85, 246, 0.2) 0%, var(--color-surface) 100%);
+}
+:root .tour-scope-warning {
+    border: 1px solid rgba(240, 164, 76, 0.4);
+    background: rgba(240, 167, 76, 0.18);
+    color: rgb(242, 170, 145);
+}
+:root .route-role.scope-exception {
+    background: rgba(240, 170, 76, 0.18);
+    color: rgb(242, 170, 145);
+}
+:root .contract-source-card small strong {
+    color: rgb(244, 182, 143);
+}
+:root .contract-source-age.ok {
+    color: rgb(154, 233, 184);
+    background: rgba(76, 240, 133, 0.18);
+}
+:root .contract-source-age.warn,
+:root .contract-source-age.stale {
+    color: rgb(244, 182, 143);
+    background: rgba(240, 208, 76, 0.18);
+}
+:root .contract-kpi:hover:not(:disabled) {
+    background: rgba(134, 85, 246, 0.2);
+}
+:root .contract-kpi.danger {
+    border-color: rgba(240, 76, 76, 0.4);
+    background: linear-gradient(180deg, rgba(240, 76, 76, 0.18) 0%, var(--color-surface) 100%);
+}
+:root .contract-kpi.warn {
+    border-color: rgba(240, 164, 76, 0.4);
+    background: linear-gradient(180deg, rgba(240, 167, 76, 0.18) 0%, var(--color-surface) 100%);
+}
+:root .contract-kpi.attention {
+    border-color: rgba(240, 208, 76, 0.4);
+    background: linear-gradient(180deg, rgba(240, 208, 76, 0.18) 0%, var(--color-surface) 100%);
+}
+:root .contract-urgency.overdue {
+    color: rgb(237, 151, 151);
+    background: rgba(240, 76, 76, 0.18);
+}
+:root .contract-urgency.due30 {
+    color: rgb(242, 170, 145);
+    background: rgba(240, 170, 76, 0.18);
+}
+:root .contract-urgency.due60,
+:root .contract-urgency.due90,
+:root .contract-urgency.due180 {
+    color: rgb(243, 197, 144);
+    background: rgba(240, 227, 76, 0.18);
+}
+:root .contract-urgency.later {
+    color: rgb(154, 233, 184);
+    background: rgba(76, 240, 133, 0.18);
+}
+:root .contract-urgency.missing,
+:root .contract-urgency.inactive {
+    color: var(--color-text-muted);
+    background: rgba(127, 154, 189, 0.18);
+}
+:root .contract-match-warning {
+    color: rgb(244, 182, 143);
+    background: rgba(240, 208, 76, 0.18);
+}
+:root .contract-source-link {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+}
+:root .contract-empty.warning {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+:root .contract-import-feedback.error {
+    border: 1px solid rgba(240, 76, 76, 0.4);
+    background: rgba(240, 76, 76, 0.18);
+    color: rgb(237, 151, 151);
+}
+:root .contract-import-feedback.warning {
+    border: 1px solid rgba(240, 208, 76, 0.4);
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+:root .contract-freshness-warning {
+    border: 1px solid rgba(240, 208, 76, 0.4);
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(244, 182, 143);
+}
+
+/* ── layout.css ── */
+.pkg-text small {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.icon-button.unprotected {
+    background: rgba(240, 167, 76, 0.18);
+}
+.sheet-grip span {
+    background: rgba(132, 156, 184, 0.18);
+}
+.panel-zoom {
+    background: var(--color-surface, var(--color-surface));
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+}
+.sidebar-resize:hover::after,
+.sidebar-resizing .sidebar-resize::after {
+    background: rgba(85, 21, 234, 0.45);
+}
+.sidebar > .mode-switch .mode-btn:not(.active):hover {
+    background: rgba(22, 20, 46, 0.78);
+}
+.sidebar > .mode-switch .mode-btn:focus-visible {
+    outline: 2px solid rgba(152, 113, 244, 0.38);
+}
+#map {
+    background: rgba(76, 146, 240, 0.18);
+}
+
+/* ── map.css ── */
+.own-place-marker {
+    border: 2px solid var(--color-border);
+}
+.popup-place .popup-place-kind {
+    color: rgb(184, 151, 237);
+}
+.place-picker-marker {
+    border: 3px solid var(--color-border);
+}
+.place-picker-controls {
+    background: rgba(22, 20, 46, 0.97);
+}
+.customer-marker-card {
+    color: var(--color-text, rgb(165, 182, 223));
+}
+.customer-marker-symbol {
+    border: 2px solid var(--color-border);
+}
+.customer-marker-copy small {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.customer-marker-mode-card .customer-marker-card,
+.customer-marker-mode-label .customer-marker-card,
+.customer-marker-mode-detail .customer-marker-card {
+    background: rgba(22, 20, 46, 0.97);
+}
+.customer-marker-mode-card .customer-marker-symbol,
+.customer-marker-mode-label .customer-marker-symbol,
+.customer-marker-mode-detail .customer-marker-symbol {
+    border: 1px solid color-mix(in srgb, var(--marker-color) 52%, rgba(132, 156, 184, 0.4));
+    background: linear-gradient(to bottom, var(--marker-color) 0 5px, var(--color-surface) 5px 100%);
+}
+.customer-marker-mode-label .customer-marker-card,
+.customer-marker-mode-detail .customer-marker-card {
+    background: rgba(22, 20, 46, 0.98);
+}
+.customer-marker-mode-label .customer-marker-card::after,
+.customer-marker-mode-detail .customer-marker-card::after {
+    border-top: 9px solid var(--color-border);
+}
+.customer-marker-mode-label .customer-marker-copy small,
+.customer-marker-mode-detail .customer-marker-copy small {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.customer-marker-card.approx .customer-marker-symbol {
+    outline: 1px dashed var(--color-border);
+}
+.customer-marker-card.in-tour {
+    outline: 3px solid rgba(152, 113, 244, 0.7);
+}
+.customer-marker-discovery {
+    border: 1px solid rgba(152, 113, 244, 0.35);
+    background: var(--color-surface);
+    color: var(--color-primary-dark);
+}
+.customer-marker-discovery::before {
+    border-top-color: var(--color-border);
+}
+.customer-stack-card {
+    background: rgba(22, 20, 46, 0.98);
+    color: rgb(165, 182, 223);
+}
+.customer-stack-card::before {
+    background: rgba(119, 158, 197, 0.17);
+}
+.customer-stack-card small {
+    color: var(--color-text-muted);
+}
+.customer-stack-discovery-label {
+    border: 1px solid rgba(152, 113, 244, 0.42);
+    background: rgba(22, 20, 46, 0.97);
+    color: var(--color-primary-dark);
+}
+.customer-stack-discovery-label::after {
+    border-right: 1px solid rgba(152, 113, 244, 0.42);
+    border-bottom: 1px solid rgba(152, 113, 244, 0.42);
+    background: var(--color-surface);
+}
+.tour-marker {
+    background: var(--route-step, rgb(85, 21, 234));
+    border: 2px solid var(--color-border);
+}
+.territory-stack-card {
+    background: rgba(22, 20, 46, 0.96);
+    color: rgb(165, 182, 223);
+}
+.territory-label-wrapper:focus-visible .territory-stack-card {
+    outline: 3px solid color-mix(in srgb, var(--territory-color) 45%, var(--color-border));
+}
+.territory-stack-card::before {
+    background: rgba(119, 158, 197, 0.161);
+}
+.territory-stack-card .tl-dimension {
+    color: var(--color-text-muted);
+}
+.territory-stack-card .tl-metrics {
+    border-top: 1px solid rgba(127, 154, 189, 0.4);
+}
+.territory-stack-card .tl-count {
+    color: var(--color-text-muted);
+}
+.territory-stack-card .tl-rev {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.popup-nr {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.popup-umsatz {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.popup-contract-summary {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+}
+.contact-link {
+    background: var(--color-surface-2, rgba(119, 158, 197, 0.18));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.popup-demo-badge {
+    color: rgb(244, 182, 143);
+    background: rgba(240, 208, 76, 0.18);
+}
+.visit-block {
+    background: var(--color-surface-2, rgba(119, 158, 197, 0.18));
+}
+.terr-assign {
+    border-top: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+}
+.popup-edit-btn {
+    border: 1px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+    background: var(--color-primary-light, rgba(134, 85, 246, 0.2));
+}
+.terr-row span {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    .customer-marker-wrapper::before {
+        background: rgba(85, 21, 234, 0.001);
+    }
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    .popup-toolbar {
+        background: linear-gradient(var(--color-surface, var(--color-surface)) 70%, rgba(22, 20, 46, 0.5));
+    }
+}
+
+/* ── responsive.css ── */
+.help-dot {
+    border: 1px solid rgba(152, 113, 244, 0.28);
+}
+.tour-acc {
+    border: 1px solid rgba(127, 154, 189, 0.4);
+    background: var(--color-surface);
+}
+.tour-acc.open {
+    border-color: color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 40%, rgba(127, 154, 189, 0.4));
+}
+.tour-acc .acc-head:active {
+    background: rgba(119, 158, 197, 0.18);
+}
+.tour-acc.open .acc-head {
+    border-bottom: 1px solid rgba(119, 158, 197, 0.4);
+}
+.tour-acc .acc-summary {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.tour-acc.open .acc-caret {
+    color: var(--color-primary, var(--color-primary-dark));
+}
+.nearby-card {
+    border: 1px solid rgba(127, 154, 189, 0.4);
+    background: var(--color-surface);
+}
+.nearby-card.open {
+    border-color: color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 40%, rgba(127, 154, 189, 0.4));
+}
+.nearby-card .acc-head:active {
+    background: rgba(119, 158, 197, 0.18);
+}
+.nearby-card.open .acc-head {
+    border-bottom: 1px solid rgba(119, 158, 197, 0.4);
+}
+.nearby-card .acc-summary {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.nearby-card.open .acc-caret {
+    color: var(--color-primary, var(--color-primary-dark));
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    #tour-stops .stop-row::before {
+        background: var(--color-primary, rgb(85, 21, 234));
+    }
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    #tour-stops .stop-remove {
+        color: rgb(239, 149, 149);
+        border-color: rgba(240, 76, 76, 0.4);
+    }
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    #tour-stops .stop-row.stop-dragging {
+        background: var(--color-surface);
+    }
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    .btn-scan-entry {
+        background: var(--color-surface);
+        color: var(--color-primary-dark, var(--color-primary-dark));
+        border: 1px solid color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 40%, rgba(127, 154, 189, 0.4));
+    }
+}
+
+/* ── serviceVisits.css ── */
+:root .service-day-start {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: linear-gradient(145deg, rgba(80, 237, 163, 0.18), rgba(134, 85, 246, 0.2) 58%, var(--color-surface));
+}
+:root .service-visit-kpi.danger {
+    border-color: rgba(240, 76, 76, 0.4);
+    background: rgba(240, 76, 76, 0.18);
+}
+:root .service-visit-kpi.warn {
+    border-color: rgba(240, 164, 76, 0.4);
+    background: rgba(240, 177, 76, 0.18);
+}
+:root .service-visit-kpi.info {
+    border-color: rgba(76, 184, 240, 0.4);
+    background: rgba(76, 175, 240, 0.18);
+}
+:root .service-visit-badge {
+    background: rgba(76, 175, 240, 0.18);
+    color: rgb(139, 210, 249);
+}
+:root .service-visit-badge.danger {
+    background: rgba(240, 76, 76, 0.18);
+    color: rgb(237, 151, 151);
+}
+:root .service-visit-badge.warn {
+    background: rgba(240, 170, 76, 0.18);
+    color: rgb(242, 170, 145);
+}
+:root .service-visit-match-warning {
+    color: rgb(249, 186, 139);
+}
+:root .service-day-planner {
+    border: 1px solid rgba(152, 113, 244, 0.7);
+    background: linear-gradient(160deg, rgba(134, 85, 246, 0.2), var(--color-surface));
+}
+:root .service-day-preview-card {
+    border-top: 1px solid rgba(152, 113, 244, 0.7);
+}
+:root .service-day-preview-stop {
+    background: var(--color-surface);
+}
+:root .service-day-unscheduled {
+    background: rgba(240, 167, 76, 0.18);
+    color: rgb(242, 170, 145);
+}
+:root .service-plan-badge {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+:root .service-stop-plan {
+    color: var(--color-primary-dark);
+}
+:root .popup-service-visits {
+    border: 1px solid rgba(76, 184, 240, 0.4);
+    background: rgba(76, 175, 240, 0.18);
+}
+:root .popup-service-visits b {
+    color: rgb(139, 210, 249);
+}
+:root .popup-service-visits small {
+    color: var(--color-text-muted);
+}
+
+/* ── showcase.css ── */
+.sc-cursor::after {
+    background: rgba(85, 21, 234, 0.5);
+}
+.sc-bubble {
+    background: var(--color-surface, var(--color-surface));
+    color: var(--color-text, rgb(165, 182, 223));
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+}
+.sc-bubble.sc-replaying {
+    border: 2px dashed rgba(152, 113, 244, 0.7);
+    background: rgba(134, 85, 246, 0.2);
+}
+.sc-bubble.sc-replaying::after {
+    background: rgb(85, 21, 234);
+}
+.sc-pause-card {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface, var(--color-surface));
+}
+.sc-pause-card p {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-pause-resume.is-counting::before {
+    background: rgba(134, 85, 246, 0.2);
+}
+.sc-pause-hint {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-pause-hint b {
+    color: var(--color-primary-dark);
+}
+.sc-toolbar {
+    background: var(--color-surface, var(--color-surface));
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+}
+.sc-toolbar b {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.sc-toolbar .sc-skip.is-stepping {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.sc-toolbar .sc-tempo.is-slow {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.sc-tempo-menu {
+    background: var(--color-surface, var(--color-surface));
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+}
+.sc-tempo-menu button small {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-tempo-menu button[aria-checked="true"] {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.sc-toolbar .sc-music[aria-pressed="true"] {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.sc-progress {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-dialog-music[aria-pressed="true"] {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+#showcase-dialog {
+    background: var(--color-surface, var(--color-surface));
+    color: var(--color-text, rgb(165, 182, 223));
+}
+.sc-panel-head p {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-tile {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface, var(--color-surface));
+}
+.sc-tile:hover {
+    border-color: var(--color-primary, rgba(152, 113, 244, 0.7));
+    background: var(--color-primary-light, rgba(134, 85, 246, 0.2));
+}
+.sc-tile-body span {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-tile-body small {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.sc-tile-seen {
+    color: var(--color-primary, var(--color-primary-dark));
+}
+.sc-panel-foot label {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-outcome-head > span {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.sc-outcome-icon {
+    background: var(--color-primary-light, rgba(134, 85, 246, 0.2));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.sc-outcome-failed > span,
+.sc-outcome-failed .sc-outcome-icon {
+    color: rgb(239, 149, 149);
+}
+.sc-outcome-failed .sc-outcome-icon {
+    background: rgba(240, 76, 76, 0.18);
+}
+.sc-outcome-body .sc-failure-reason {
+    background: rgba(240, 76, 76, 0.18);
+    color: rgb(232, 155, 155);
+}
+.sc-next-story {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: rgba(119, 158, 197, 0.18);
+}
+.sc-next-story > span {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-next-story small {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-countdown {
+    background: rgba(134, 85, 246, 0.2);
+    color: var(--color-primary-dark);
+}
+.sc-countdown:focus-visible {
+    outline: 3px solid rgba(152, 113, 244, 0.7);
+}
+.sc-countdown-label {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.sc-countdown-label b {
+    color: var(--color-primary-dark);
+}
+.sc-outcome-actions {
+    border-top: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface, var(--color-surface));
+}
+@media (min-width: 1201px),
+       (min-width: 901px) and (orientation: landscape),
+       (min-width: 769px) and (orientation: landscape) and (min-height: 521px) {
+    .sc-panel-foot {
+        border-top: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    }
+}
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) {
+    .sc-panel-foot {
+        border-top: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+        background: var(--color-surface, var(--color-surface));
+    }
+}
+
+/* ── vault.css ── */
+.vault-controls {
+    border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface-2, rgba(119, 158, 197, 0.18));
+}
+.vault-details[open] > summary {
+    color: var(--color-primary, var(--color-primary-dark));
+}
+.vault-lock {
+    background: linear-gradient(160deg, rgb(88, 29, 226), #0f172a);
+}
+.vault-card {
+    background: var(--color-surface, var(--color-surface));
+}
+.vault-pin-input {
+    border: 1px solid var(--color-border, rgba(132, 156, 184, 0.4));
+}
+.vault-error {
+    color: rgb(239, 149, 149);
+    background: rgba(240, 76, 76, 0.18);
+    border: 1px solid rgba(240, 76, 76, 0.4);
+}
+#vault-recovery-link {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.vault-field {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.vault-field input {
+    border: 1px solid var(--color-border, rgba(132, 156, 184, 0.4));
+}
+.vault-recovery-code {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+    background: var(--color-primary-light, rgba(134, 85, 246, 0.2));
+    border: 1px dashed var(--color-primary, rgba(152, 113, 244, 0.7));
+}
+#safe-export-canvas {
+    background: var(--color-surface);
+}
+.safe-file-pick {
+    border: 2px dashed var(--color-primary, rgba(152, 113, 244, 0.7));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.safe-fallback summary {
+    color: var(--color-text-muted);
+}
+.safe-fallback textarea {
+    border: 1px solid rgba(132, 156, 184, 0.4);
+}
+.vault-autolock {
+    color: var(--color-text-muted);
+}
+.vault-bio-btn {
+    border: 1px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+    background: var(--color-primary-light, rgba(134, 85, 246, 0.2));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+.pin-strength[data-level="zu-kurz"],
+.pin-strength[data-level="schwach"] {
+    color: rgb(249, 186, 139);
+}
+.pin-strength[data-level="mittel"] {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+.pin-strength[data-level="stark"] {
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}

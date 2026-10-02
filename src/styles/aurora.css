@@ -1,0 +1,334 @@
+/*
+ * Aurora – Stilvorschlag 2026 (nur Aussehen)
+ *
+ * Eine zusätzliche Ebene über allen anderen Stilen: dunkles Indigo statt
+ * Weiß, fließende Aurora-Verläufe (Türkis → Blau → Violett) und
+ * „Glas“-Flächen für Kopfzeile, Seitenleiste und Dialoge. Inhalte, Abläufe
+ * und Programmlogik bleiben unverändert; die Karte selbst (Kacheln) wird
+ * nicht angefasst. Wer den alten Stil zurück will, entfernt nur den
+ * Import in main.css.
+ *
+ * Regeln für diese Datei:
+ *  - keine `display`-Regeln (Sichtbarkeit gehört den anderen Stilen),
+ *  - keine Breiten-/Höhen-Medienabfragen (zwei Oberflächen, kein drittes Gesicht),
+ *  - jede Bewegung respektiert prefers-reduced-motion.
+ */
+
+/* ---------------------------------------------------------------------------
+   Farben: dieselben Token-Namen, neue Werte. Damit färben sich die meisten
+   Bausteine von selbst um.
+--------------------------------------------------------------------------- */
+:root {
+    color-scheme: dark;
+
+    --aurora-teal: #2dd4bf;
+    --aurora-blue: #60a5fa;
+    --aurora-violet: #a78bfa;
+    --aurora-indigo: #6366f1;
+    --aurora-gradient: linear-gradient(120deg, #14b8a6 0%, #3b82f6 48%, #8b5cf6 100%);
+    --aurora-gradient-soft: linear-gradient(120deg, rgba(45, 212, 191, 0.18), rgba(96, 165, 250, 0.16) 50%, rgba(167, 139, 250, 0.22));
+    --aurora-glow: 0 0 0 1px rgba(167, 139, 250, 0.28), 0 10px 32px rgba(99, 102, 241, 0.32);
+
+    --glass: rgba(20, 18, 42, 0.88);
+    --glass-strong: rgba(18, 16, 38, 0.9);
+    --glass-edge: rgba(196, 181, 253, 0.16);
+
+    --color-primary: #8b5cf6;
+    --color-primary-dark: #c4b5fd;      /* wird überwiegend als Textfarbe genutzt */
+    --color-primary-light: rgba(139, 92, 246, 0.22);
+
+    --color-bg: #0b0a1a;
+    --color-surface: #16142e;
+    --color-surface-2: #201d40;
+    --color-border: rgba(196, 181, 253, 0.16);
+
+    --color-text: #eeecfb;
+    --color-text-muted: #a9a5cc;
+
+    --color-danger: #f87171;
+    --color-success: #4ade80;
+
+    --shadow-1: 0 1px 0 rgba(255, 255, 255, 0.04) inset, 0 4px 18px rgba(0, 0, 0, 0.35);
+    --shadow-2: 0 18px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(196, 181, 253, 0.1);
+
+    --font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+html { background: var(--color-bg); }
+body { background: transparent; }
+
+/* Der Aurora-Schimmer hinter allem: weiche Lichtwolken, langsam atmend. */
+body::before {
+    content: "";
+    position: fixed;
+    inset: -20%;
+    z-index: -1;
+    pointer-events: none;
+    background:
+        radial-gradient(40% 35% at 15% 10%, rgba(45, 212, 191, 0.20), transparent 70%),
+        radial-gradient(45% 40% at 85% 0%, rgba(139, 92, 246, 0.30), transparent 70%),
+        radial-gradient(50% 45% at 60% 100%, rgba(59, 130, 246, 0.22), transparent 70%),
+        var(--color-bg);
+    animation: aurora-drift 28s ease-in-out infinite alternate;
+}
+@keyframes aurora-drift {
+    from { transform: translate3d(0, 0, 0) rotate(0deg); }
+    to   { transform: translate3d(3%, -2%, 0) rotate(4deg); }
+}
+
+::selection { background: rgba(139, 92, 246, 0.45); color: #fff; }
+
+a { color: var(--aurora-violet); }
+hr { border-top-color: var(--color-border); }
+
+/* ---------------------------------------------------------------------------
+   Kopfzeile: schwebendes Glas mit Aurora-Kante unten.
+--------------------------------------------------------------------------- */
+.topbar {
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(18px) saturate(1.4);
+    backdrop-filter: blur(18px) saturate(1.4);
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, rgba(45, 212, 191, 0.6), rgba(96, 165, 250, 0.6), rgba(167, 139, 250, 0.7), transparent) 1;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+}
+.brand { letter-spacing: 0.01em; }
+.brand em {
+    background: var(--aurora-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+}
+
+.pkg-chip {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--glass-edge);
+    color: var(--color-text);
+}
+.pkg-chip:hover { border-color: rgba(167, 139, 250, 0.6); }
+.pkg-chip.active {
+    background: var(--aurora-gradient-soft);
+    border-color: rgba(167, 139, 250, 0.55);
+    box-shadow: 0 0 18px rgba(139, 92, 246, 0.35);
+}
+
+.icon-button { color: var(--color-text); }
+.icon-button:hover:not(:disabled) {
+    background: rgba(167, 139, 250, 0.14);
+    border-color: transparent;
+    box-shadow: 0 0 16px rgba(139, 92, 246, 0.35);
+}
+.icon-button.unprotected { background: rgba(245, 158, 11, 0.14); }
+
+/* ---------------------------------------------------------------------------
+   Knöpfe: Pillen aus Glas; der Hauptknopf trägt den Aurora-Verlauf und
+   leuchtet sanft.
+--------------------------------------------------------------------------- */
+button {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--glass-edge);
+    color: var(--color-text);
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.25s, transform 0.15s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+button:hover:not(:disabled) {
+    background: rgba(167, 139, 250, 0.12);
+    border-color: rgba(167, 139, 250, 0.45);
+}
+button:active:not(:disabled) { transform: scale(0.97); }
+button:focus-visible { outline: 2px solid var(--aurora-violet); outline-offset: 2px; }
+
+button.primary,
+.pwa-update-now,
+.simulation-panel #sim-commit {
+    background: var(--aurora-gradient);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: var(--aurora-glow);
+    text-shadow: 0 1px 2px rgba(15, 10, 40, 0.35);
+}
+button.primary:hover:not(:disabled),
+.pwa-update-now:hover:not(:disabled),
+.simulation-panel #sim-commit:hover:not(:disabled) {
+    background: var(--aurora-gradient);
+    border-color: transparent;
+    filter: brightness(1.1) saturate(1.15);
+    box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.5), 0 12px 38px rgba(139, 92, 246, 0.5);
+}
+button.danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.45); }
+
+/* Eingaben */
+input[type="search"], input[type="text"], input[type="number"], input[type="email"],
+input[type="date"], input[type="time"], input[type="password"], select, textarea {
+    background: rgba(255, 255, 255, 0.05);
+    border-color: var(--glass-edge);
+    color: var(--color-text);
+}
+input::placeholder, textarea::placeholder { color: rgba(169, 165, 204, 0.75); }
+input:focus, select:focus, textarea:focus {
+    outline: none;
+    border-color: rgba(167, 139, 250, 0.8);
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25), 0 0 20px rgba(96, 165, 250, 0.2);
+}
+select option { background: var(--color-surface); color: var(--color-text); }
+input[type="range"], input[type="checkbox"], input[type="radio"] { accent-color: var(--aurora-violet); }
+
+/* ---------------------------------------------------------------------------
+   Seitenleiste: Glas über der Karte, Aurora-Licht in der oberen Ecke.
+--------------------------------------------------------------------------- */
+.sidebar {
+    background:
+        radial-gradient(120% 40% at 0% 0%, rgba(45, 212, 191, 0.10), transparent 60%),
+        radial-gradient(100% 35% at 100% 0%, rgba(139, 92, 246, 0.16), transparent 65%),
+        var(--glass);
+    -webkit-backdrop-filter: blur(22px) saturate(1.5);
+    backdrop-filter: blur(22px) saturate(1.5);
+    border-right-color: var(--glass-edge);
+    box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.08), 18px 0 50px rgba(0, 0, 0, 0.35);
+}
+.sidebar.floating-sidebar { border-color: var(--glass-edge); }
+
+.tabs { background: transparent; border-bottom-color: var(--glass-edge); }
+.tab-button { color: var(--color-text-muted); background: transparent; border-color: transparent; }
+.tab-button:hover:not(:disabled) { color: var(--color-text); background: rgba(255, 255, 255, 0.05); }
+.tab-button.active {
+    background: var(--aurora-gradient-soft);
+    color: #fff;
+    box-shadow: inset 0 0 0 1px rgba(167, 139, 250, 0.45), 0 0 18px rgba(139, 92, 246, 0.25);
+}
+.tab-panel.active { scrollbar-color: rgba(167, 139, 250, 0.45) transparent; }
+.tab-panel.active::-webkit-scrollbar-thumb { background: rgba(167, 139, 250, 0.45); }
+
+.sidebar > .mode-switch { background: rgba(255, 255, 255, 0.04); border-color: var(--glass-edge); }
+.sidebar > .mode-switch .mode-btn { color: var(--color-text-muted); }
+.sidebar > .mode-switch .mode-btn.active,
+.sidebar > .mode-switch .mode-btn.active:hover {
+    background: var(--aurora-gradient);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: var(--aurora-glow);
+}
+
+.sheet-grip span { background: rgba(196, 181, 253, 0.45); }
+.sheet-grip:hover span, .sheet-resizing .sheet-grip span { background: var(--aurora-violet); }
+
+.panel-zoom { background: var(--glass-strong); border-color: var(--glass-edge); color: var(--color-text); }
+
+/* Kennzahl-Kacheln: Zahlen im Aurora-Verlauf. */
+.stat {
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0.02));
+    box-shadow: inset 0 0 0 1px var(--glass-edge), 0 6px 18px rgba(0, 0, 0, 0.25);
+}
+.stat b {
+    background: linear-gradient(100deg, #99f6e4, #93c5fd 50%, #c4b5fd);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Suche */
+.search-results {
+    background: var(--glass-strong);
+    -webkit-backdrop-filter: blur(18px);
+    backdrop-filter: blur(18px);
+    border-color: var(--glass-edge);
+    box-shadow: var(--shadow-2);
+}
+.result-row:hover, .result-row.active { background: rgba(167, 139, 250, 0.14); }
+
+/* ---------------------------------------------------------------------------
+   Dialoge: tiefes Glas mit Aurora-Rand.
+--------------------------------------------------------------------------- */
+dialog {
+    background:
+        radial-gradient(90% 50% at 100% 0%, rgba(139, 92, 246, 0.18), transparent 60%),
+        radial-gradient(80% 45% at 0% 100%, rgba(45, 212, 191, 0.10), transparent 60%),
+        #15132c;
+    color: var(--color-text);
+    box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.2), 0 30px 80px rgba(0, 0, 0, 0.6), 0 0 60px rgba(99, 102, 241, 0.18);
+}
+dialog::backdrop {
+    background: rgba(6, 5, 18, 0.6);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+}
+
+/* Willkommen */
+.demo-welcome-card {
+    background:
+        radial-gradient(90% 60% at 100% 0%, rgba(139, 92, 246, 0.24), transparent 60%),
+        radial-gradient(80% 50% at 0% 100%, rgba(45, 212, 191, 0.14), transparent 60%),
+        rgba(21, 19, 44, 0.92);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    backdrop-filter: blur(20px) saturate(1.4);
+    color: var(--color-text);
+    border: 1px solid rgba(196, 181, 253, 0.22);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 70px rgba(99, 102, 241, 0.22);
+}
+.demo-welcome-card h2 {
+    background: linear-gradient(100deg, #fff 0%, #ddd6fe 60%, #99f6e4 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.demo-welcome-secondary { background: rgba(255, 255, 255, 0.05); border-color: var(--glass-edge); color: var(--color-text); }
+.demo-welcome-secondary:hover { background: rgba(167, 139, 250, 0.14); }
+.demo-welcome-countdown b { color: var(--aurora-violet); }
+.demo-welcome-x { color: var(--color-text-muted); }
+.demo-welcome-x:hover { background: rgba(255, 255, 255, 0.08); }
+
+/* ---------------------------------------------------------------------------
+   Karte: Kacheln bleiben, wie sie sind. Nur die Bedienelemente auf der Karte
+   (Zoom, Popups) bekommen Glas.
+--------------------------------------------------------------------------- */
+/* leaflet.css wird nach main.css geladen – deshalb `.leaflet-container …`. */
+#map { background: #0e0d22; }
+
+.leaflet-container .leaflet-bar,
+.leaflet-container .leaflet-bar a {
+    background: var(--glass-strong);
+    color: var(--color-text);
+    border-color: var(--glass-edge);
+}
+.leaflet-container .leaflet-bar a:hover { background: #2a2552; color: #fff; }
+
+.leaflet-container .leaflet-popup-content-wrapper,
+.leaflet-container .leaflet-popup-tip {
+    background: rgba(21, 19, 44, 0.95);
+    color: var(--color-text);
+    box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.22), 0 18px 46px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.18);
+}
+.leaflet-container .leaflet-popup-content-wrapper {
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+}
+.leaflet-container a.leaflet-popup-close-button { color: var(--color-text-muted); }
+#map .leaflet-control-attribution {
+    background: rgba(11, 10, 26, 0.72);
+    color: var(--color-text-muted);
+}
+#map .leaflet-control-attribution a { color: var(--aurora-violet); }
+.leaflet-container .leaflet-tooltip {
+    background: var(--glass-strong);
+    color: var(--color-text);
+    border-color: var(--glass-edge);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+}
+
+.leaflet-container .leaflet-tooltip-top::before { border-top-color: rgba(18, 16, 38, 0.9); }
+.leaflet-container .leaflet-tooltip-bottom::before { border-bottom-color: rgba(18, 16, 38, 0.9); }
+.leaflet-container .leaflet-tooltip-left::before { border-left-color: rgba(18, 16, 38, 0.9); }
+.leaflet-container .leaflet-tooltip-right::before { border-right-color: rgba(18, 16, 38, 0.9); }
+
+/* Meldungen: kräftig genug für weiße Schrift. */
+.toast-success { background: linear-gradient(120deg, #047857, #0f766e); }
+.toast-error { background: linear-gradient(120deg, #b91c1c, #9f1239); }
+
+/* ---------------------------------------------------------------------------
+   Ruhe auf Wunsch: keine Drift, keine federnden Knöpfe.
+--------------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+    body::before { animation: none; }
+    button { transition: background 0.2s, border-color 0.2s; }
+    button:active:not(:disabled) { transform: none; }
+}
