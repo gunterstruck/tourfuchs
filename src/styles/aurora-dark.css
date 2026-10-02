@@ -330,8 +330,25 @@
 }
 
 /* Meldungen: kräftig genug für weiße Schrift. */
-:where(.aurora-dark) .toast-success { background: linear-gradient(120deg, #047857, #0f766e); }
-:where(.aurora-dark) .toast-error { background: linear-gradient(120deg, #b91c1c, #9f1239); }
+/* Meldungen: dunkles Glas statt kräftiger Farbflächen; der Zustand zeigt sich
+   als leuchtende Kante (Türkis = erledigt, Rot = Fehler). Abgerundete Karte
+   statt Pille, damit mehrzeilige Meldungen am Handy nicht zur Blase werden. */
+:where(.aurora-dark) .toast {
+    background: rgba(18, 16, 38, 0.94);
+    -webkit-backdrop-filter: blur(16px) saturate(1.4);
+    backdrop-filter: blur(16px) saturate(1.4);
+    color: var(--color-text);
+    border-radius: 18px;
+    box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.28), 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 30px rgba(99, 102, 241, 0.22);
+}
+:where(.aurora-dark) .toast-success {
+    background: rgba(18, 16, 38, 0.94);
+    box-shadow: 0 0 0 1px rgba(45, 212, 191, 0.65), 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 26px rgba(45, 212, 191, 0.28);
+}
+:where(.aurora-dark) .toast-error {
+    background: rgba(18, 16, 38, 0.94);
+    box-shadow: 0 0 0 1px rgba(248, 113, 113, 0.75), 0 14px 40px rgba(0, 0, 0, 0.55), 0 0 26px rgba(248, 113, 113, 0.28);
+}
 
 /* ---------------------------------------------------------------------------
    Ruhe auf Wunsch: keine Drift, keine federnden Knöpfe.

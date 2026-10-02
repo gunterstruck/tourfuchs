@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
-    baseLightRadius, isLightsBasemap, LIGHT_COLORS, lightDotStyle, lightRadius, revenueReference
+    baseLightRadius, isLightsBasemap, LIGHT_COLOR, lightDotStyle, lightRadius, revenueReference
 } from '../src/features/lightsMap.js';
 import { CONFIG } from '../src/core/config.js';
 
@@ -20,12 +20,14 @@ describe('Lichterkarte: jeder Kunde ein Lichtpunkt', () => {
         expect(read('src/styles/map.css')).toContain('.leaflet-layer.basemap-lights');
     });
 
-    it('Farbe = Besuchsstatus: gelb im Rhythmus, orange bald fällig, rot überfällig', () => {
-        expect(lightDotStyle({ status: 'ok', zoom: 6, revenue: 0, reference: 0 }).fillColor).toBe(LIGHT_COLORS.ok);
-        expect(lightDotStyle({ status: 'none', zoom: 6 }).fillColor).toBe(LIGHT_COLORS.ok);
-        expect(lightDotStyle({ status: 'faellig', zoom: 6 }).fillColor).toBe(LIGHT_COLORS.faellig);
-        expect(lightDotStyle({ status: 'ueberfaellig', zoom: 6 }).fillColor).toBe(LIGHT_COLORS.ueberfaellig);
-        expect(lightDotStyle({ status: 'unbekannt', zoom: 6 }).fillColor).toBe(LIGHT_COLORS.none);
+    it('Farbe: immer warmes Gelb, unabhängig vom Besuchsstatus', () => {
+        const a = lightDotStyle({ zoom: 6, revenue: 0, reference: 0 });
+        const b = lightDotStyle({ zoom: 6, revenue: 5, reference: 10 });
+        expect(a.fillColor).toBe(LIGHT_COLOR);
+        expect(b.fillColor).toBe(LIGHT_COLOR);
+        expect(LIGHT_COLOR).toBe('#fde047');
+        // keine Statusfarbe mehr in der Punkt-Ebene
+        expect(read('src/features/map.js')).not.toMatch(/lightDotStyle\(\{ status/);
     });
 
     it('Größe = Umsatz, gedeckelt; ein Ausreißer macht nicht alle Punkte klein', () => {
