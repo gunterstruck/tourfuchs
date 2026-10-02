@@ -98,6 +98,19 @@ export const CONFIG = {
             minZoom: 5,
             crossOrigin: true
         },
+        lights: {
+            label: '✨ Lichterkarte',
+            // Dunkle OpenStreetMap-Karte, jeder Kunde ein Lichtpunkt
+            // (Farbe = Besuchsstatus, Größe = Umsatz; siehe features/lightsMap.js).
+            // Ersetzt Kunden-Kacheln, Stapel und Gebiets-Kacheln – nur auf Wahl.
+            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            className: 'basemap-lights',
+            lights: true,
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+            minZoom: 5,
+            crossOrigin: true
+        },
         satellite: {
             label: 'Satellit',
             url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',

@@ -46,6 +46,7 @@ import { activeDimensionFilters, regionMatchesActiveFilters } from './territoryV
 import { normalizeMinimumRegionCustomers, regionMeetsMinimum } from '../core/customerFilters.js';
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
+import { isLightsBasemap, lightDotStyle, revenueReference } from './lightsMap.js';
 
 let map = null;
 let regionLayer = null;
@@ -77,6 +78,9 @@ if (L.MarkerCluster && !L.MarkerCluster.prototype.__minSizePatched) {
     L.MarkerCluster.prototype.__minSizePatched = true;
 }
 let labelLayer = null;
+let lightsLayer = null;     // Lichterkarte: Kunden als Lichtpunkte (Canvas)
+let lightsRenderer = null;
+let showcaseRunning = false; // Live-Demos brauchen die Kunden-Kacheln
 let baseLayer = null;
 let regionStats = new Map();
 let regionFilters = [];
@@ -328,7 +332,16 @@ function trackRegionTooltip(layer) {
 }
 
 function tileOptions(key = state.basemap) {
-    return CONFIG.tileLayers?.[key] || CONFIG.tileLayers?.standard || CONFIG.tileLayer;
+    const chosen = CONFIG.tileLayers?.[key] || CONFIG.tileLayers?.standard || CONFIG.tileLayer;
+    // Während einer Live-Demo zeigt die Karte den Standard: Die Demo führt
+    // über Kunden-Kacheln und Stapel, die es in der Lichterkarte nicht gibt.
+    if (showcaseRunning && isLightsBasemap(chosen)) return CONFIG.tileLayers?.standard || chosen;
+    return chosen;
+}
+
+/** Zeigt die Karte gerade die Lichterkarte (Kunden als Lichtpunkte)? */
+function lightsActive() {
+    return isLightsBasemap(tileOptions());
 }
 
 function applyBasemap() {
@@ -336,6 +349,10 @@ function applyBasemap() {
     const opts = tileOptions();
     if (baseLayer) map.removeLayer(baseLayer);
     baseLayer = L.tileLayer(opts.url, opts).addTo(map);
+    map.getContainer().classList.toggle('lights-on', lightsActive());
+    // Die Lichterkarte zeichnet Kunden, Flächen und Beschriftungen anders –
+    // beim Wechsel einmal neu aufbauen (beim Start existieren die Ebenen noch nicht).
+    if (clusterGroup) applyView();
 }
 
 function popupOptions(extra = {}) {
@@ -494,12 +511,20 @@ export function initMap(containerId) {
     syncCustomerMarkerMode();
 
     labelLayer = L.layerGroup().addTo(map);
+    // Lichterkarte: eigene Ebene über den Flächen, unter Popups und Markern
+    // (Tour, eigene Orte). Canvas statt tausender DOM-Elemente.
+    map.createPane('lightsPane').style.zIndex = 450;
+    lightsRenderer = L.canvas({ pane: 'lightsPane', padding: 0.5, tolerance: isMobileMap() ? 10 : 5 });
+    lightsLayer = L.layerGroup().addTo(map);
+    map.getContainer().classList.toggle('lights-on', lightsActive());
     placeLayer = L.layerGroup().addTo(map);
     tourLayer = L.layerGroup().addTo(map);
 
     // Zoom-Automatik: bei „auto" den Detailgrad neu bestimmen
     map.on('zoomend', () => {
         syncCustomerMarkerMode();
+        // Lichtpunkte wachsen mit der Zoomstufe.
+        if (lightsActive()) renderMarkers();
         // Gespeicherte Orte hängen an einer Zoomschwelle und müssen sie beim
         // Zoomen auch überqueren dürfen. `applyView()` läuft nur bei
         // Ebenenwechsel bzw. in der Farbautomatik – zu selten dafür.
@@ -611,6 +636,10 @@ export function initMap(containerId) {
     on('service-visits:changed', refreshAll);
     on('colormode:changed', applyView);
     on('basemap:changed', applyBasemap);
+    on('showcase:running', (running) => {
+        showcaseRunning = Boolean(running);
+        applyBasemap();
+    });
     on('level:changed', () => { setLevel(state.level); });
     on('level:control-changed', syncEffectiveLevel);
     on('depth:changed', () => {
@@ -1090,7 +1119,23 @@ function simulationStyle(feature) {
     };
 }
 
+/** Lichterkarte: Flächen nur noch als leiser Hauch, die Punkte gehören in den Vordergrund. */
+function lightsRegionStyle(style) {
+    if (!lightsActive() || !style || style.opacity === 0) return style;
+    return {
+        ...style,
+        fillOpacity: (style.fillOpacity ?? 0) * 0.3,
+        color: '#c4b5fd',
+        opacity: 0.28,
+        weight: 0.8
+    };
+}
+
 function styleFor(feature) {
+    return lightsRegionStyle(baseStyleFor(feature));
+}
+
+function baseStyleFor(feature) {
     if (simulationPreview) return simulationStyle(feature);
     if (!regionVisibleUnderFilters(feature)) {
         return { fillColor: 'transparent', fillOpacity: 0, color: 'transparent', opacity: 0, weight: 0 };
@@ -1188,7 +1233,8 @@ function restyleRegions() {
 function renderLabels() {
     if (!labelLayer) return;
     labelLayer.clearLayers();
-    if (simulationPreview || !currentView.labels || !currentLevelData) return;
+    // Lichterkarte: keine Gebiets-Kacheln – die Punkte erzählen die Verteilung.
+    if (simulationPreview || !currentView.labels || !currentLevelData || lightsActive()) return;
 
     const attr = currentView.paint;
     const valueOf = (c) => attr === 'vb' ? (c.vb || UNASSIGNED) : (String(c[attr] ?? '').trim() || UNASSIGNED);
@@ -1850,8 +1896,9 @@ function tourFocusCustomers() {
  * So können die beiden Mengen nicht wieder auseinanderlaufen.
  */
 export function customersOnMap() {
-    // In der Flächenansicht (Bezirke/Gruppen) werden Kunden ausgeblendet.
-    if (!currentView.markers) return [];
+    // In der Flächenansicht (Bezirke/Gruppen) werden Kunden ausgeblendet –
+    // außer in der Lichterkarte: Dort ist jeder Kunde auf jeder Zoomstufe ein Punkt.
+    if (!currentView.markers && !lightsActive()) return [];
     return markerCustomers().filter((customer) => (
         customer
         && customer.lat !== null && customer.lng !== null
@@ -1884,12 +1931,18 @@ function renderMarkers() {
 function drawMarkers() {
     if (!clusterGroup) return;
     clusterGroup.clearLayers();
+    lightsLayer?.clearLayers();
     customerMarkers = [];
-    const markers = [];
     // Einmal für alle: Die Popup-Abstände messen das Layout. Je Marker gemessen,
     // kostete das bei vielen Kunden Sekunden – und beim Öffnen wird ohnehin neu
     // gemessen (popupopen).
     const popupOptionsForCustomers = customerPopupOptions();
+    if (lightsActive()) {
+        drawLights(popupOptionsForCustomers);
+        emit('map:markers-rendered');
+        return;
+    }
+    const markers = [];
     for (const customer of customersOnMap()) {
         const marker = L.marker([customer.lat, customer.lng], {
             icon: customerIcon(customer),
@@ -1912,6 +1965,27 @@ function drawMarkers() {
     // sich nicht nur mit den Filtern, sondern auch beim Zoomen: In der
     // Flächenansicht liegt kein einziger Marker auf der Karte.
     emit('map:markers-rendered');
+}
+
+/** Lichterkarte: jeder sichtbare Kunde ein Lichtpunkt (Farbe = Status, Größe = Umsatz). */
+function drawLights(popupOptionsForCustomers) {
+    if (!lightsLayer || !lightsRenderer) return;
+    const customers = customersOnMap();
+    const reference = revenueReference(customers.map((c) => c.umsatz));
+    const zoom = map.getZoom();
+    const now = planningNow();
+    const withTooltip = !isMobileMap();
+    for (const customer of customers) {
+        const dot = L.circleMarker([customer.lat, customer.lng], {
+            renderer: lightsRenderer,
+            customerId: customer.id,
+            ...lightDotStyle({ status: visitStatus(customer, now), zoom, revenue: customer.umsatz, reference })
+        });
+        dot.bindPopup(() => customerPopupHtml(customer), popupOptionsForCustomers);
+        if (withTooltip) dot.bindTooltip(escapeHtml(customer.name), { direction: 'top', offset: [0, -4] });
+        dot.on('click', () => emit('customer:detail-opened', customer.id));
+        lightsLayer.addLayer(dot);
+    }
 }
 
 // ---- Tour-Anzeige ----

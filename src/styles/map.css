@@ -846,3 +846,13 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
 .leaflet-layer.basemap-night {
     filter: brightness(0.66) contrast(1.12) saturate(0.78);
 }
+
+/* Kartenart „Lichterkarte": sehr dunkle Karte, Kunden als leuchtende Punkte
+   (features/lightsMap.js). Der Schein liegt auf der ganzen Punkt-Ebene. */
+.leaflet-layer.basemap-lights {
+    filter: brightness(0.34) saturate(0.35) contrast(1.2);
+}
+#map.lights-on { background: #0d0f17; }
+.leaflet-lights-pane canvas {
+    filter: drop-shadow(0 0 2.5px rgba(255, 214, 102, 0.85));
+}
