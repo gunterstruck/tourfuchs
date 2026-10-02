@@ -512,109 +512,11 @@ body.tour-focus #tour-stepper {
 }
 
 /* ── map.css ── */
-.own-place-marker {
-    border: 2px solid var(--color-border);
-}
 .popup-place .popup-place-kind {
     color: rgb(184, 151, 237);
 }
-.place-picker-marker {
-    border: 3px solid var(--color-border);
-}
 .place-picker-controls {
     background: rgba(22, 20, 46, 0.97);
-}
-.customer-marker-card {
-    color: var(--color-text, rgb(165, 182, 223));
-}
-.customer-marker-symbol {
-    border: 2px solid var(--color-border);
-}
-.customer-marker-copy small {
-    color: var(--color-text-muted, var(--color-text-muted));
-}
-.customer-marker-mode-card .customer-marker-card,
-.customer-marker-mode-label .customer-marker-card,
-.customer-marker-mode-detail .customer-marker-card {
-    background: rgba(22, 20, 46, 0.97);
-}
-.customer-marker-mode-card .customer-marker-symbol,
-.customer-marker-mode-label .customer-marker-symbol,
-.customer-marker-mode-detail .customer-marker-symbol {
-    border: 1px solid color-mix(in srgb, var(--marker-color) 52%, rgba(132, 156, 184, 0.4));
-    background: linear-gradient(to bottom, var(--marker-color) 0 5px, var(--color-surface) 5px 100%);
-}
-.customer-marker-mode-label .customer-marker-card,
-.customer-marker-mode-detail .customer-marker-card {
-    background: rgba(22, 20, 46, 0.98);
-}
-.customer-marker-mode-label .customer-marker-card::after,
-.customer-marker-mode-detail .customer-marker-card::after {
-    border-top: 9px solid var(--color-border);
-}
-.customer-marker-mode-label .customer-marker-copy small,
-.customer-marker-mode-detail .customer-marker-copy small {
-    color: var(--color-text-muted, var(--color-text-muted));
-}
-.customer-marker-card.approx .customer-marker-symbol {
-    outline: 1px dashed var(--color-border);
-}
-.customer-marker-card.in-tour {
-    outline: 3px solid rgba(152, 113, 244, 0.7);
-}
-.customer-marker-discovery {
-    border: 1px solid rgba(152, 113, 244, 0.35);
-    background: var(--color-surface);
-    color: var(--color-primary-dark);
-}
-.customer-marker-discovery::before {
-    border-top-color: var(--color-border);
-}
-.customer-stack-card {
-    background: rgba(22, 20, 46, 0.98);
-    color: rgb(165, 182, 223);
-}
-.customer-stack-card::before {
-    background: rgba(119, 158, 197, 0.17);
-}
-.customer-stack-card small {
-    color: var(--color-text-muted);
-}
-.customer-stack-discovery-label {
-    border: 1px solid rgba(152, 113, 244, 0.42);
-    background: rgba(22, 20, 46, 0.97);
-    color: var(--color-primary-dark);
-}
-.customer-stack-discovery-label::after {
-    border-right: 1px solid rgba(152, 113, 244, 0.42);
-    border-bottom: 1px solid rgba(152, 113, 244, 0.42);
-    background: var(--color-surface);
-}
-.tour-marker {
-    background: var(--route-step, rgb(85, 21, 234));
-    border: 2px solid var(--color-border);
-}
-.territory-stack-card {
-    background: rgba(22, 20, 46, 0.96);
-    color: rgb(165, 182, 223);
-}
-.territory-label-wrapper:focus-visible .territory-stack-card {
-    outline: 3px solid color-mix(in srgb, var(--territory-color) 45%, var(--color-border));
-}
-.territory-stack-card::before {
-    background: rgba(119, 158, 197, 0.161);
-}
-.territory-stack-card .tl-dimension {
-    color: var(--color-text-muted);
-}
-.territory-stack-card .tl-metrics {
-    border-top: 1px solid rgba(127, 154, 189, 0.4);
-}
-.territory-stack-card .tl-count {
-    color: var(--color-text-muted);
-}
-.territory-stack-card .tl-rev {
-    color: var(--color-primary-dark, var(--color-primary-dark));
 }
 .popup-nr {
     color: var(--color-text-muted, var(--color-text-muted));
@@ -651,15 +553,8 @@ body.tour-focus #tour-stepper {
 @media (max-width: 768px),
        (max-width: 1200px) and (orientation: portrait),
        (max-width: 900px) and (max-height: 520px) {
-    .customer-marker-wrapper::before {
-        background: rgba(85, 21, 234, 0.001);
-    }
-}
-@media (max-width: 768px),
-       (max-width: 1200px) and (orientation: portrait),
-       (max-width: 900px) and (max-height: 520px) {
     .popup-toolbar {
-        background: linear-gradient(var(--color-surface, var(--color-surface)) 70%, rgba(22, 20, 46, 0.5));
+        background: linear-gradient(var(--color-surface, var(--color-surface)) 70%, rgba(22, 20, 46, 0));
     }
 }
 

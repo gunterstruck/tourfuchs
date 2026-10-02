@@ -29,6 +29,11 @@ const SKIP = new Set(['aurora.css', 'aurora-tones.css', 'variables.css', 'main.c
 // brauchen einen Hauch mehr Gewicht (`:root …`), um später geladen zu gewinnen.
 const LATE = new Set(['contracts.css', 'serviceVisits.css']);
 
+// Alles, was als Kachel oder Beschriftung auf der Karte liegt, bleibt hell wie
+// die Karte selbst: Kunden-Kacheln, Stapel, Gebiets-Kacheln, Tour-Marker,
+// Hinweise an den Kacheln und Karten-Tooltips.
+const MAP_CONTENT = /marker|stack-card|stack-accent|stack-discovery|cluster|territory-label|territory-stack|leaflet-tooltip/;
+
 const NAMED = { white: [255, 255, 255], black: [0, 0, 0] };
 const COLOR_RE = /#[0-9a-fA-F]{3,8}\b|rgba?\([^)]*\)|\bwhite\b|\bblack\b/g;
 
@@ -81,6 +86,7 @@ function mapBackground(c) {
     }
     if (l < 0.8) return null;
     if (s < 0.2 || l > 0.985) {
+        if (a < 0.05) return 'rgba(22, 20, 46, 0)';
         if (a < 1) return `rgba(22, 20, 46, ${+(Math.max(a, 0.5)).toFixed(3)})`;
         return l > 0.975 ? 'var(--color-surface)' : 'var(--color-surface-2)';
     }
@@ -156,7 +162,9 @@ for (const file of files) {
             if (mapped) decls.push(`    ${node.prop}: ${mapped}${node.important ? ' !important' : ''};`);
         });
         if (!decls.length) return;
-        const selector = LATE.has(file) ? prefixSelector(rule.selector) : rule.selector.split(',').map((s) => s.trim()).join(',\n');
+        const parts = rule.selectors.filter((part) => !MAP_CONTENT.test(part));
+        if (!parts.length) return;
+        const selector = LATE.has(file) ? prefixSelector(parts.join(',')) : parts.join(',\n');
         let text = `${selector} {\n${decls.join('\n')}\n}`;
         // Medien-/Support-Abfragen beibehalten, damit die Gegenregel genau dort greift.
         for (let p = rule.parent; p && p.type === 'atrule'; p = p.parent) {

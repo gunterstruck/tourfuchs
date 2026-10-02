@@ -294,7 +294,7 @@ dialog::backdrop {
 
 .leaflet-container .leaflet-popup-content-wrapper,
 .leaflet-container .leaflet-popup-tip {
-    background: rgba(21, 19, 44, 0.95);
+    background: var(--color-surface);
     color: var(--color-text);
     box-shadow: 0 0 0 1px rgba(196, 181, 253, 0.22), 0 18px 46px rgba(0, 0, 0, 0.5), 0 0 40px rgba(99, 102, 241, 0.18);
 }
@@ -308,17 +308,26 @@ dialog::backdrop {
     color: var(--color-text-muted);
 }
 #map .leaflet-control-attribution a { color: var(--aurora-violet); }
-.leaflet-container .leaflet-tooltip {
-    background: var(--glass-strong);
+/* Kacheln und Beschriftungen auf der Karte bleiben im hellen Stil – sie
+   gehören zur Karte, und die ist hell. Dafür gelten dort die bisherigen Token. */
+.leaflet-marker-pane,
+.leaflet-tooltip-pane {
+    color-scheme: light;
+    --color-primary: #0d9488;
+    --color-primary-dark: #0f766e;
+    --color-primary-light: #ccfbf1;
+    --color-bg: #f8fafc;
+    --color-surface: #ffffff;
+    --color-surface-2: #f1f5f9;
+    --color-border: #e2e8f0;
+    --color-text: #0f172a;
+    --color-text-muted: #64748b;
+    --color-danger: #dc2626;
+    --color-success: #16a34a;
+    --shadow-1: 0 1px 3px rgba(15, 23, 42, 0.1);
+    --shadow-2: 0 6px 24px rgba(15, 23, 42, 0.16);
     color: var(--color-text);
-    border-color: var(--glass-edge);
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
 }
-
-.leaflet-container .leaflet-tooltip-top::before { border-top-color: rgba(18, 16, 38, 0.9); }
-.leaflet-container .leaflet-tooltip-bottom::before { border-bottom-color: rgba(18, 16, 38, 0.9); }
-.leaflet-container .leaflet-tooltip-left::before { border-left-color: rgba(18, 16, 38, 0.9); }
-.leaflet-container .leaflet-tooltip-right::before { border-right-color: rgba(18, 16, 38, 0.9); }
 
 /* Meldungen: kräftig genug für weiße Schrift. */
 .toast-success { background: linear-gradient(120deg, #047857, #0f766e); }
