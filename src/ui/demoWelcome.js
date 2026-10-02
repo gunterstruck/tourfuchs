@@ -28,6 +28,9 @@ const ACK_KEY = 'tf_demo_welcome_ack';
 const insideMobilePreview = new URLSearchParams(location.search).has('mobilePreview');
 
 let root = null;
+// Beispieldaten sind angekündigt, aber noch nicht da: Die Begrüßung steht
+// trotzdem schon – sie ist der eine Einstieg, nicht das Panel dahinter.
+let arriving = false;
 
 // Pro Besuch, nicht für immer: Beim nächsten Start ohne eigene Daten begrüßt
 // TourFuchs wieder.
@@ -52,7 +55,7 @@ function shouldShow() {
     if (insideMobilePreview) return false;
     if (acknowledged()) return false;
     if (document.querySelector('.sc-shield')) return false; // laufende Live-Demo
-    return isDemoDataset(state.customers);
+    return isDemoDataset(state.customers) || (arriving && state.customers.length === 0);
 }
 
 /**
@@ -69,8 +72,12 @@ function render() {
     const vorher = !root.hidden;
     root.hidden = !shouldShow();
     // Nur bei echtem Wechsel melden: Wer darauf hört, klappt Angebote auf und zu.
+    // Solange die Beispieldaten noch unterwegs sind: Panel und Blatt halten
+    // sich zurück (CSS über diese Klasse), damit nichts doppelt begrüßt.
+    document.body.classList.toggle('welcome-arriving', !root.hidden && state.customers.length === 0);
     if (vorher !== !root.hidden) emit('demo-welcome:changed', !root.hidden);
-    if (root.hidden) stopAutostart(); else startAutostart();
+    // Selbststart erst, wenn es etwas vorzuführen gibt.
+    if (root.hidden || !isDemoDataset(state.customers)) stopAutostart(); else startAutostart();
 }
 
 /** Quittieren: merken und ausblenden. */
@@ -220,7 +227,8 @@ export function initDemoWelcome() {
     on('showcase:running', render);
     on('customers:changed', render);
     on('demo:loaded', render);
-    on('demo:auto-loaded', render);
+    on('demo:auto-loaded', () => { arriving = false; render(); });
+    on('welcome-demo:arriving', (value) => { arriving = Boolean(value); render(); });
     // Bewusstes Löschen ist ein echter Neustart: der Hinweis darf wiederkommen.
     on('dataset:cleared', () => { forgetAcknowledged(); autostartCancelled = false; render(); });
 

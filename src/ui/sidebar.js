@@ -903,7 +903,7 @@ export function autoRevealIfEmpty() {
     if (state.ui.sidebarOpen || state.customers.length > 0) return;
     clearTimeout(autoRevealTimer);
     autoRevealTimer = setTimeout(() => {
-        if (!state.ui.sidebarOpen && state.customers.length === 0) {
+        if (!state.ui.sidebarOpen && state.customers.length === 0 && !isDemoWelcomeOpen()) {
             state.ui.sidebarOpen = true;
             applySidebar();
         }
@@ -1582,7 +1582,12 @@ export function initSidebar() {
         syncRevenueFilterControls();
     });
     // Die Willkommenskarte entscheidet mit, ob der Streifen sein Angebot zeigt.
-    on('demo-welcome:changed', renderDataStatus);
+    on('demo-welcome:changed', (open) => {
+        renderDataStatus();
+        // Handy: Steht die Begrüßung vor leerer Karte, bleibt das Blatt unten –
+        // sonst begrüßt dasselbe Willkommen zweimal übereinander.
+        if (open && state.customers.length === 0) showMapView(false);
+    });
     renderDataStatus();
     syncRevenueFilterControls();
     renderTeamFilters();

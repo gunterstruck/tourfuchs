@@ -40,6 +40,7 @@ import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.
 import { confirmImportWithDiff } from './importDiff.js';
 import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
+import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { showImportInsight } from './importInsight.js';
 
 let dialog = null;
@@ -914,6 +915,7 @@ function previewStatus({ title, detail, stateName = '' }) {
 }
 
 function cancelWelcomeDemo({ handled = false } = {}) {
+    emit('welcome-demo:arriving', false);
     welcomeDemoUserIntent = true;
     if (welcomeDemoTimer) clearTimeout(welcomeDemoTimer);
     welcomeDemoTimer = null;
@@ -940,6 +942,10 @@ function welcomeDemoBlockers() {
 
 function scheduleWelcomeDemo() {
     if (!canAutoLoadWelcomeDemo(welcomeDemoBlockers())) return;
+    // Die Begrüßung steht ab jetzt sofort in der Mitte – nicht erst nach den
+    // Beispieldaten. Sonst erschien zuerst das Willkommen im Panel und Sekunden
+    // später dasselbe noch einmal als Karte: zwei Begrüßungen, ein Sprung.
+    emit('welcome-demo:arriving', true);
     setAutoNote(AUTO_NOTE_ARMED);
     previewStatus({
         title: 'Die Deutschlandkarte ist bereit.',
@@ -958,7 +964,11 @@ function scheduleWelcomeDemo() {
             const loaded = await loadDemo({ source: 'welcome', confirmReplacement: false, announce: false });
             if (loaded) {
                 emit('demo:auto-loaded');
-                showToast('Beispielkunden sind da. Starte jetzt eine Live-Demo oder erkunde die Karte selbst.', 'success', 5200);
+                // Die Begrüßung in der Mitte sagt das schon; ein Toast nur, wenn
+                // sie inzwischen weggeklickt wurde.
+                if (!isDemoWelcomeOpen()) {
+                    showToast('Beispielkunden sind da. Starte jetzt eine Live-Demo oder erkunde die Karte selbst.', 'success', 5200);
+                }
             }
         } catch (error) {
             console.warn('Automatische Beispieldaten konnten nicht geladen werden:', error);
@@ -997,7 +1007,9 @@ async function performDemoLoad({ confirmReplacement, announce }) {
     if (disablesVault) removeVaultMeta();
     clearServiceContracts({ dirty: false });
     clearServiceVisits({ dirty: false });
-    await applyCustomers(customers, 'Demo-Daten');
+    // Beispieldaten sind kein Import – „2250 Kunden importiert" wäre hier nur
+    // ein weiterer Satz über dem, was Begrüßung bzw. Demo schon sagen.
+    await applyCustomers(customers, 'Demo-Daten', { announce: false });
     const demoNow = new Date();
     const serviceContracts = createDemoServiceContracts(customers, demoNow);
     setServiceContracts(serviceContracts, {
@@ -1036,12 +1048,12 @@ function removeDemoServiceVisits() {
     );
 }
 
-async function applyCustomers(customers, fileName) {
+async function applyCustomers(customers, fileName, { announce = true } = {}) {
     const { located, missing } = await geocodeByPlz(customers);
     replaceCustomers(customers, { fileName });
     const persisted = await persistDataset();
     fitToCustomers();
-    if (persisted) {
+    if (persisted && announce) {
         emit('toast', {
             type: 'success',
             text: `${customers.length} Kunden importiert, ${located + customers.filter((c) => c.geo === 'exakt').length} auf der Karte verortet.`

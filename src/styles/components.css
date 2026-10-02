@@ -3078,3 +3078,10 @@ body:not(.guide-on) .guide-open { display: none !important; }
     text-align: center;
     padding: 6px 12px;
 }
+
+/* Erster Start: Die Begrüßung steht sofort in der Mitte, die Beispieldaten
+   kommen dahinter. Das Panel wiederholt sie nicht – es zeigt nur die ruhige
+   Statuszeile, bis die Kunden da sind. */
+body.welcome-arriving #onboarding .ob-hero,
+body.welcome-arriving #onboarding > button,
+body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
