@@ -85,6 +85,19 @@ export const CONFIG = {
             minZoom: 5,
             crossOrigin: true
         },
+        night: {
+            label: 'Nacht',
+            // Dieselben OpenStreetMap-Kacheln wie „Standard", nur abgedunkelt
+            // und gedämpft (CSS-Filter über `className`) – nicht invertiert:
+            // Wasser bleibt blau, Grün bleibt grün, Straßennamen bleiben lesbar.
+            // Kacheln, Gebiete und Marker auf der Karte bleiben unverändert.
+            url: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+            className: 'basemap-night',
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+            maxZoom: 19,
+            minZoom: 5,
+            crossOrigin: true
+        },
         satellite: {
             label: 'Satellit',
             url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',

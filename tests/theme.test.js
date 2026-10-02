@@ -112,4 +112,18 @@ describe('Darstellung: Automatisch · Hell · Dunkel', () => {
             }
         }
     });
+
+    it('Kartenstil „Nacht": dieselben OSM-Kacheln, gedämpft statt invertiert, nur auf Wahl', async () => {
+        const { CONFIG } = await import('../src/core/config.js');
+        const night = CONFIG.tileLayers.night;
+        expect(night.label).toBe('Nacht');
+        expect(night.url).toBe(CONFIG.tileLayers.standard.url);
+        expect(night.className).toBe('basemap-night');
+        const rule = read('src/styles/map.css').match(/\.leaflet-layer\.basemap-night\s*\{([^}]*)\}/);
+        expect(rule?.[1]).toMatch(/brightness\(0\.\d+\)/);
+        expect(rule?.[1]).not.toMatch(/invert|hue-rotate/);
+        // Standard bleibt die normale Karte; die Darstellung schaltet die Karte nie mit.
+        expect(read('src/core/state.js')).toContain("basemap: 'standard'");
+        expect(read('src/ui/theme.js')).not.toMatch(/basemap/);
+    });
 });

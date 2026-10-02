@@ -839,3 +839,10 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
 .leaflet-layer.basemap-light {
     filter: grayscale(0.9) brightness(1.06) contrast(0.82);
 }
+
+/* Kartenart „Nacht": dieselben Kacheln abgedunkelt und gedämpft – blendet
+   abends nicht, bleibt aber eine vertraute Karte (keine Farbumkehr). Gilt nur
+   für die Kachelebene; Kunden-Kacheln, Gebiete und Marker bleiben, wie sie sind. */
+.leaflet-layer.basemap-night {
+    filter: brightness(0.66) contrast(1.12) saturate(0.78);
+}

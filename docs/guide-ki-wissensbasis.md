@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.8 · Stand: 02.10.2026 · App-Version: 3.5.0**
+**Version 3.9 · Stand: 02.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -534,7 +534,8 @@ Größenordnung am Desktop (1440 × 900): Der Daten-Reiter gewinnt so von 307 au
 
 **Musterantwort auf „Kann ich TourFuchs dunkel machen?":** „Ja – unter ⓘ Info →
 🎨 Darstellung auf 🌙 Dunkel tippen. Mit ‚Automatisch' folgt TourFuchs dem
-Hell-/Dunkelmodus deines Geräts."
+Hell-/Dunkelmodus deines Geräts. Wenn dich abends auch die helle Karte blendet:
+im Panel unter ‚Kartenstil' auf ‚Nacht' stellen."
 
 ---
 
@@ -1350,6 +1351,11 @@ Im Panel unter **"Kartenstil"** stehen:
   „API KEY REQUIRED". Sieht jemand diesen Schriftzug noch, hat das Gerät die
   neue Version noch nicht geladen: App einmal schließen und neu öffnen.
 - **"Standard"** (OpenStreetMap, Voreinstellung)
+- **"Nacht"** – dieselben OpenStreetMap-Kacheln, abgedunkelt und gedämpft
+  (keine Farbumkehr: Wasser bleibt blau, Grün bleibt grün, Ortsnamen bleiben
+  lesbar). Gedacht für abends und für den dunklen Stil (4.7), blendet nicht.
+  Kunden-Kacheln, Gebiete und Marker bleiben unverändert hell. Schaltet nie
+  automatisch um – nur bewusst wählen.
 - **"Satellit"** (Esri)
 
 Die Kartenwahl wird gespeichert. Das Mausrad zoomt in kleinen Viertelstufen, um
@@ -3445,6 +3451,11 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.9 (02.10.2026)
+
+- **Kartenstil „Nacht"** (8.3): abgedunkelte OpenStreetMap-Karte für abends;
+  nur auf bewusste Wahl, kein neuer Kartendienst.
 
 ### 26.3 Änderungen in Version 3.8 (02.10.2026)
 
