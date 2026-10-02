@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.10 · Stand: 02.10.2026 · App-Version: 3.5.0**
+**Version 3.11 · Stand: 02.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -1361,8 +1361,9 @@ Im Panel unter **"Kartenstil"** stehen:
   kleiner Lichtpunkt** statt Kunden-Kachel, Stapel oder Gebiets-Kachel. Zeigt
   auf einen Blick, wo Kunden sitzen, wo sie sich ballen und wo weiße Flecken
   sind – auf jeder Zoomstufe.
-  - **Farbe = Besuchsstatus:** gelb im Rhythmus (bzw. ohne Rhythmus), orange
-    bald fällig, rot überfällig.
+  - **Farbe:** immer warmes Gelb – wie Städte auf einem Nachtbild aus dem All.
+    Bewusst ohne Besuchsstatus (sonst wäre die Karte bei alten Besuchsdaten
+    ganz rot). Den Status zeigen Kunden-Popup, Tourplaner und „In der Nähe".
   - **Größe = Umsatz:** große Kunden leuchten größer.
   - **Antippen** eines Punkts öffnet den Kunden wie gewohnt; am Desktop zeigt
     Darüberfahren den Namen.
@@ -3467,6 +3468,13 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.11 (02.10.2026)
+
+- **Lichterkarte** (8.3): Punkte immer gelb, ohne Statusfarbe; Größe bleibt
+  Umsatz. Gebietsflächen dort nur noch als Hauch.
+- **Meldungen im dunklen Stil** (4.7): dunkles Glas mit leuchtender Kante
+  (Türkis = erledigt, Rot = Fehler) statt kräftiger Farbfläche.
 
 ### 26.3 Änderungen in Version 3.10 (02.10.2026)
 
