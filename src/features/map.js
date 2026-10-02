@@ -535,6 +535,11 @@ export function initMap(containerId) {
         scheduleCustomerMarkerHint();
         scheduleCustomerClusterHint();
     });
+    // Lichterkarte: Während einer Zoombewegung würde Leaflet die Punkt-Ebene
+    // mitstrecken – die Punkte blähten sich zu Flecken auf. Deshalb blenden sie
+    // kurz aus und erscheinen nach dem Zoomen in der richtigen Größe wieder.
+    map.on('zoomstart', () => map.getContainer().classList.add('lights-zooming'));
+    map.on('zoomend', () => map.getContainer().classList.remove('lights-zooming'));
     map.on('movestart zoomstart', () => {
         closeActiveRegionTooltip();
         dismissCustomerMarkerHint();

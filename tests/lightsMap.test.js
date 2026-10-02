@@ -54,6 +54,9 @@ describe('Lichterkarte: jeder Kunde ein Lichtpunkt', () => {
         // Live-Demo braucht Kunden-Kacheln
         expect(map).toContain("on('showcase:running'");
         expect(map).toMatch(/showcaseRunning && isLightsBasemap\(chosen\)/);
+        // Beim Zoomen keine aufgeblähten Flecken: Punkte blenden kurz aus
+        expect(map).toContain("classList.add('lights-zooming')");
+        expect(read('src/styles/map.css')).toMatch(/\.lights-zooming \.leaflet-lights-pane \{ opacity: 0/);
         // Antippen öffnet den Kunden wie gewohnt
         expect(map).toContain('dot.bindPopup(() => customerPopupHtml(customer)');
     });

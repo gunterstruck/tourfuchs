@@ -856,3 +856,8 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
 .leaflet-lights-pane canvas {
     filter: drop-shadow(0 0 2.5px rgba(255, 214, 102, 0.85));
 }
+.leaflet-lights-pane { transition: opacity 0.45s ease; }
+.lights-zooming .leaflet-lights-pane { opacity: 0; transition-duration: 0.12s; }
+@media (prefers-reduced-motion: reduce) {
+    .leaflet-lights-pane, .lights-zooming .leaflet-lights-pane { transition: none; }
+}
