@@ -305,3 +305,24 @@ describe('Ende einer Schulungsrunde am Handy', () => {
         expect(html).toContain('id="btn-first-steps-restore" class="only-desktop"');
     });
 });
+
+describe('Musik zum Start jeder Demo', () => {
+    it('nach einer Autoplay-Sperre holt die erste Geste die Musik nach', () => {
+        const music = new ShowcaseMusic({ createAudio: () => ({ play: () => Promise.resolve(), pause() {}, removeAttribute() {}, set src(v) {}, volume: 0, loop: false }) });
+        music.block();
+        expect(music.enabled).toBe(false);
+        expect(music.blocked).toBe(true);
+        expect(music.unblock()).toBe(true);
+        expect(music.enabled).toBe(true);
+        expect(music.blocked).toBe(false);
+        expect(music.unblock()).toBe(false);
+    });
+
+    it('eine neue Runde schaltet die Musik wieder ein', () => {
+        const src = readFileSync(`${process.cwd()}/src/ui/showcase.js`, 'utf8');
+        const start = src.slice(src.indexOf('function startStory(story) {'));
+        expect(start.indexOf('if (!inRound) music.setEnabled(true);')).toBeGreaterThan(-1);
+        expect(start.indexOf('if (!inRound) music.setEnabled(true);')).toBeLessThan(start.indexOf('inRound = true;'));
+        expect(src).toContain("for (const type of ['pointerup', 'click', 'keydown']) document.addEventListener(type, resumeBlockedMusic, true);");
+    });
+});

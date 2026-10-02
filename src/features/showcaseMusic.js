@@ -21,6 +21,9 @@ export class ShowcaseMusic {
         // user gesture, while a deliberate switch-off is kept for later demos
         // in the same page session.
         this.enabled = true;
+        // Der Browser hat den Ton verweigert (Selbststart ohne Tipp). Dann holt
+        // der erste Tipp irgendwo auf dem Bildschirm die Musik nach.
+        this.blocked = false;
         this.active = false;
         this.paused = false;
         this.hidden = false;
@@ -38,6 +41,7 @@ export class ShowcaseMusic {
 
     setEnabled(enabled) {
         this.enabled = Boolean(enabled);
+        this.blocked = false;
         this.error = '';
         this.sync({ fadeOutMs: MUSIC_FADE_MS });
     }
@@ -151,11 +155,19 @@ export class ShowcaseMusic {
     block() {
         ++this.generation;
         this.enabled = false;
+        this.blocked = true;
         this.wanted = false;
         this.loading = false;
         this.error = '';
         this.silence();
         this.onChange();
+    }
+
+    /** Erste Nutzergeste nach einer Autoplay-Sperre: Musik nachholen. */
+    unblock() {
+        if (!this.blocked) return false;
+        this.setEnabled(true);
+        return true;
     }
 
     fail() {

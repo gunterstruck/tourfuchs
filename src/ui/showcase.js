@@ -2212,6 +2212,10 @@ function endRound() {
 
 function startStory(story) {
     if (!story || running) return;
+    // Jede neu gestartete Demo beginnt mit Musik – auch wenn sie in einer
+    // früheren Runde ausgeschaltet wurde. Innerhalb einer laufenden Runde
+    // (nächster Film) bleibt die eigene Wahl stehen.
+    if (!inRound) music.setEnabled(true);
     inRound = true;
     clearAutoAdvance();
     // Noch im Klick: Die Musik fährt ohne Neustart auf volle Lautstärke hoch
@@ -2511,6 +2515,16 @@ export function initShowcase() {
         if (document.hidden) stopAutoAdvance();
     });
     window.addEventListener('pagehide', () => music.dispose());
+    // Selbststart ohne Tipp: Der Browser verweigert den Ton. Der erste echte
+    // Tipp (oder Tastendruck) während der Demo holt ihn nach – außer er gilt
+    // dem Musik-Knopf selbst, der sonst sofort wieder ausschalten würde.
+    const resumeBlockedMusic = (event) => {
+        if (!music.blocked || !(running || music.onBreak)) return;
+        if (event.target?.closest?.('.sc-music, .sc-dialog-music')) return;
+        music.unblock();
+    };
+    // Touch-Gesten zählen für den Browser erst beim Loslassen als Freigabe.
+    for (const type of ['pointerup', 'click', 'keydown']) document.addEventListener(type, resumeBlockedMusic, true);
 
     // Nach bewusstem Datenlöschen zählt der Demo-Fortschritt neu.
     on('dataset:cleared', () => resetShowcaseAfterDataClear());
