@@ -38,6 +38,7 @@ import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initGuide } from './ui/guide.js';
+import { initTheme } from './ui/theme.js';
 import { initExactGeocoding } from './ui/exactGeocoding.js';
 import { initMapPills } from './ui/mapPills.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
@@ -237,6 +238,8 @@ function handleSharedTourFromUrl() {
 }
 
 async function init() {
+    // Darstellung zuerst: Schalter verdrahten, Gerätewechsel verfolgen.
+    initTheme();
     takeSharedTourFromUrl();
     // Zuerst: Geräte befreien, die noch die alte Manifest-Sperre tragen.
     releaseInheritedOrientationLock();

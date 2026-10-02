@@ -12,7 +12,8 @@
  *   - helle Rahmen       → Aurora-Rahmen
  *   - Marken-Türkis      → Aurora-Violett
  *
- * Es ändert nur Farben – keine Abstände, keine Sichtbarkeit, keine Logik.
+ * Es ändert nur Farben – keine Abstände, keine Sichtbarkeit, keine Logik –
+ * und nur, solange der Dunkelstil aktiv ist (`html.aurora-dark`).
  *
  * Aufruf:  node tools/aurora-tones.mjs
  */
@@ -24,9 +25,12 @@ import postcss from 'postcss';
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const STYLE_DIR = resolve(ROOT, 'src/styles');
 const OUTPUT = resolve(STYLE_DIR, 'aurora-tones.css');
-const SKIP = new Set(['aurora.css', 'aurora-tones.css', 'variables.css', 'main.css']);
+const SKIP = new Set(['aurora.css', 'aurora-dark.css', 'aurora-tones.css', 'variables.css', 'main.css']);
+// Alle Gegenregeln gelten nur im Dunkelstil (`html.aurora-dark`). Das Präfix
+// steht in `:where()` und bringt damit kein Gewicht mit: Zustände wie
+// `.x.active` schlagen weiterhin `.x`, wie im Original.
 // Diese beiden laden ihre Komponenten selbst nach main.css – ihre Gegenregeln
-// brauchen einen Hauch mehr Gewicht (`:root …`), um später geladen zu gewinnen.
+// brauchen einen Hauch mehr Gewicht (`:root`), um später geladen zu gewinnen.
 const LATE = new Set(['contracts.css', 'serviceVisits.css']);
 
 // Alles, was als Kachel oder Beschriftung auf der Karte liegt, bleibt hell wie
@@ -128,11 +132,12 @@ const BG = /^background(-color|-image)?$/;
 const TEXT = /^(color|-webkit-text-fill-color|caret-color)$/;
 const BORDER = /^(border(-(top|right|bottom|left))?(-color)?|outline(-color)?|column-rule(-color)?)$/;
 
-function prefixSelector(selector) {
-    return selector.split(',').map((part) => {
+function prefixSelector(parts, late) {
+    const scope = late ? ':root:where(.aurora-dark)' : ':where(.aurora-dark)';
+    return parts.map((part) => {
         const p = part.trim();
-        if (/^(html|:root)\b/.test(p)) return p;
-        return `:root ${p}`;
+        if (/^(html|:root)\b/.test(p)) return p.replace(/^(html|:root)/, '$1.aurora-dark');
+        return `${scope} ${p}`;
     }).join(',\n');
 }
 
@@ -164,7 +169,7 @@ for (const file of files) {
         if (!decls.length) return;
         const parts = rule.selectors.filter((part) => !MAP_CONTENT.test(part));
         if (!parts.length) return;
-        const selector = LATE.has(file) ? prefixSelector(parts.join(',')) : parts.join(',\n');
+        const selector = prefixSelector(parts, LATE.has(file));
         let text = `${selector} {\n${decls.join('\n')}\n}`;
         // Medien-/Support-Abfragen beibehalten, damit die Gegenregel genau dort greift.
         for (let p = rule.parent; p && p.type === 'atrule'; p = p.parent) {
