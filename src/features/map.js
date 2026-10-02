@@ -1974,19 +1974,18 @@ function drawMarkers() {
     emit('map:markers-rendered');
 }
 
-/** Lichterkarte: jeder sichtbare Kunde ein Lichtpunkt (Farbe = Status, Größe = Umsatz). */
+/** Lichterkarte: jeder sichtbare Kunde ein gelber Lichtpunkt (Größe = Umsatz). */
 function drawLights(popupOptionsForCustomers) {
     if (!lightsLayer || !lightsRenderer) return;
     const customers = customersOnMap();
     const reference = revenueReference(customers.map((c) => c.umsatz));
     const zoom = map.getZoom();
-    const now = planningNow();
     const withTooltip = !isMobileMap();
     for (const customer of customers) {
         const dot = L.circleMarker([customer.lat, customer.lng], {
             renderer: lightsRenderer,
             customerId: customer.id,
-            ...lightDotStyle({ status: visitStatus(customer, now), zoom, revenue: customer.umsatz, reference })
+            ...lightDotStyle({ zoom, revenue: customer.umsatz, reference })
         });
         dot.bindPopup(() => customerPopupHtml(customer), popupOptionsForCustomers);
         if (withTooltip) dot.bindTooltip(escapeHtml(customer.name), { direction: 'top', offset: [0, -4] });

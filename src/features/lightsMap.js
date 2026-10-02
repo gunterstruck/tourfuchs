@@ -5,20 +5,17 @@
  * Sie ersetzt die Kunden-Kacheln und Stapel durch Punkte und zeigt so auf
  * einen Blick, wo Kunden sitzen, wo sie sich ballen und wo weiße Flecken sind.
  *
- *   Farbe   = Besuchsstatus (gelb im Rhythmus bzw. ohne Rhythmus,
- *             orange bald fällig, rot überfällig)
+ *   Farbe   = immer warmes Gelb – wie Städte auf einem Nachtbild aus dem All.
+ *             Bewusst ohne Besuchsstatus: Mit gealterten Besuchsdaten wäre
+ *             sonst die ganze Karte rot, und das Bild verlöre seine Ruhe.
+ *             Den Status zeigen Kunden-Popup, Tourplaner und „In der Nähe“.
  *   Größe   = Umsatz (große Kunden leuchten größer)
  *   Antippen öffnet den Kunden wie gewohnt.
  *
  * Hier liegen nur die reinen Regeln; gezeichnet wird in map.js.
  */
 
-export const LIGHT_COLORS = {
-    ok: '#fde047',
-    none: '#fde047',
-    faellig: '#fb923c',
-    ueberfaellig: '#f87171'
-};
+export const LIGHT_COLOR = '#fde047';
 
 /** Ist dieser Kartenstil die Lichterkarte? */
 export function isLightsBasemap(definition) {
@@ -51,12 +48,12 @@ export function lightRadius(zoom, revenue, reference) {
 }
 
 /** Leaflet-Stil eines Lichtpunkts. */
-export function lightDotStyle({ status, zoom, revenue, reference }) {
+export function lightDotStyle({ zoom, revenue, reference }) {
     return {
         radius: lightRadius(zoom, revenue, reference),
         stroke: false,
         fill: true,
-        fillColor: LIGHT_COLORS[status] || LIGHT_COLORS.none,
+        fillColor: LIGHT_COLOR,
         fillOpacity: 0.95
     };
 }
