@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="description" content="TourFuchs – Kunden sehen, Tour planen und gut vorbereitet hinfahren. Kundenkarte, Besuchsplanung und lokale Briefing-Prompts; alle Daten bleiben im Browser.">
     <meta name="theme-color" content="#0d9488">
+    <script src="/theme-boot.js"></script>
     <!-- Link-Vorschau (LinkedIn, Reddit, Slack, X …): Der geteilte Link ist das
          Schaufenster – ein Blick muss reichen, um den Wert zu verstehen. -->
     <link rel="canonical" href="https://tourfuchs.vercel.app/">
@@ -1017,6 +1018,14 @@
                 <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;">🎬 Funktionen entdecken (Live-Demos)</button>
                 <button type="button" class="js-open-guide guide-open" style="width:100%;margin-bottom:8px;">🦊 Frag den TourFuchs-Guide <small>(ChatGPT – extern)</small></button>
                 <button type="button" id="btn-first-steps-restore" class="only-desktop" style="width:100%;margin-bottom:12px;">🦊 Erste Schritte anzeigen</button>
+                <div class="info-setting info-theme" role="group" aria-labelledby="theme-setting-title">
+                    <span><b id="theme-setting-title">🎨 Darstellung</b><br><span class="muted small">Automatisch folgt dem Hell-/Dunkelmodus des Geräts.</span></span>
+                    <div class="segmented theme-switch">
+                        <button type="button" data-theme-choice="auto" aria-pressed="true">Automatisch</button>
+                        <button type="button" data-theme-choice="light" aria-pressed="false">☀️ Hell</button>
+                        <button type="button" data-theme-choice="dark" aria-pressed="false">🌙 Dunkel</button>
+                    </div>
+                </div>
                 <div class="info-setting-group">
                     <label class="info-setting">
                         <input type="checkbox" id="exact-geocode-toggle">

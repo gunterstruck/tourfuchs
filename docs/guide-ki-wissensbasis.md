@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.7 · Stand: 30.09.2026 · App-Version: 3.5.0**
+**Version 3.8 · Stand: 02.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -513,6 +513,28 @@ Größenordnung am Desktop (1440 × 900): Der Daten-Reiter gewinnt so von 307 au
   zoomt hinein.
 - Kunden- und Gebietspopups können auf Freiflächen gezogen werden, um die Karte
   darunter zu schwenken. Interaktive Elemente im Popup bleiben bedienbar.
+
+### 4.7 Darstellung: Automatisch, Hell, Dunkel
+
+**Klickpfad:** `ⓘ Info -> "🎨 Darstellung"` mit den drei Knöpfen
+**"Automatisch"**, **"☀️ Hell"** und **"🌙 Dunkel"**.
+
+- **Automatisch** (Standard) folgt dem Hell-/Dunkelmodus des Geräts. Steht das
+  Handy oder der Rechner auf dunkel – oft automatisch ab Sonnenuntergang
+  (Android: „Dunkles Design" mit Zeitplan; iPhone: „Erscheinungsbild" →
+  Automatisch) –, wechselt TourFuchs von selbst, auch während der Nutzung.
+- **Hell** ist der Tagesstil: weiße Flächen, gut lesbar draußen in der Sonne,
+  mit Aurora-Akzenten (Verlaufsknöpfe Türkis → Blau → Violett).
+- **Dunkel** ist der Aurora-Nachtstil: dunkles Indigo, Glasflächen,
+  violetter Schimmer.
+- Die Karte und alles, was auf ihr liegt (Kunden-Kacheln, Stapel,
+  Gebiets-Kacheln, Tour-Marker), bleibt in beiden Stilen hell.
+- Die Wahl gilt nur für dieses Gerät und diesen Browser; sie enthält keine
+  Kundendaten. Funktionen und Inhalte sind in beiden Stilen gleich.
+
+**Musterantwort auf „Kann ich TourFuchs dunkel machen?":** „Ja – unter ⓘ Info →
+🎨 Darstellung auf 🌙 Dunkel tippen. Mit ‚Automatisch' folgt TourFuchs dem
+Hell-/Dunkelmodus deines Geräts."
 
 ---
 
@@ -3423,6 +3445,12 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.8 (02.10.2026)
+
+- **Darstellung Automatisch · Hell · Dunkel** (4.7): neuer Stil „Aurora";
+  Standard folgt dem Gerät, bewusste Wahl unter `ⓘ Info -> "🎨 Darstellung"`.
+  Kacheln auf der Karte bleiben hell.
 
 ### 26.3 Änderungen in Version 3.7 (30.09.2026)
 
