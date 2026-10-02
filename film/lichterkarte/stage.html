@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<title>Werbefilm Lichterkarte – Bühne</title>
+<!-- Gestaltungsvorlage für den Werbefilm „Lichterkarte“ (9:16, WhatsApp-Status).
+     Wird per Playwright zu PNGs gerendert (render-graphics.mjs).
+     Parameter: ?part=bg|frame|mask|text|intro|outro&scene=lights|zoom|tap|out -->
+<style>
+@font-face { font-family: 'Nunito'; font-weight: 600; src: url('fonts/Nunito-600.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-weight: 800; src: url('fonts/Nunito-800.woff2') format('woff2'); }
+@font-face { font-family: 'Nunito'; font-weight: 900; src: url('fonts/Nunito-900.woff2') format('woff2'); }
+:root {
+  --night: #07060f; --indigo: #15132c; --violet: #8b5cf6; --teal: #2dd4bf; --blue: #60a5fa;
+  --gold: #fde047; --white: #ffffff; --muted: #b9b5d9;
+  --aurora: linear-gradient(120deg, #14b8a6 0%, #3b82f6 50%, #8b5cf6 100%);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { width: var(--w); height: var(--h); overflow: hidden; background: transparent; }
+body { font-family: 'Nunito', 'Liberation Sans', sans-serif; color: var(--white); position: relative; }
+.layer { position: absolute; inset: 0; display: none; }
+body[data-part="bg"] .bg, body[data-part="frame"] .frame, body[data-part="text"] .text,
+body[data-part="intro"] .intro, body[data-part="outro"] .outro, body[data-part="mask"] .mask { display: block; }
+
+/* Nachthimmel mit Aurora-Schleiern */
+.bg, .intro, .outro {
+  background:
+    radial-gradient(900px 700px at 15% -5%, rgba(45, 212, 191, 0.22), transparent 62%),
+    radial-gradient(1100px 800px at 95% 0%, rgba(139, 92, 246, 0.38), transparent 62%),
+    radial-gradient(1000px 700px at 50% 108%, rgba(59, 130, 246, 0.22), transparent 60%),
+    linear-gradient(180deg, #120f2b 0%, var(--night) 75%);
+}
+.star { position: absolute; border-radius: 50%; background: #fff; }
+.brand { position: absolute; display: flex; align-items: center; gap: 18px; font-weight: 900; letter-spacing: .4px; }
+.brand img { border-radius: 18px; box-shadow: 0 6px 18px rgba(0,0,0,.5), 0 0 26px rgba(139,92,246,.35); }
+.brand em { font-style: normal; background: var(--aurora); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.brand small { display: block; font-weight: 600; color: var(--muted); letter-spacing: 0; }
+.pills { position: absolute; display: flex; gap: 14px; flex-wrap: wrap; }
+.pill { padding: 10px 22px; border-radius: 999px; background: rgba(255,255,255,.06); border: 2px solid rgba(196,181,253,.25); font-weight: 800; color: #e9e6fb; white-space: nowrap; }
+.pill b { color: var(--teal); }
+
+/* Handy: Rahmen mit ausgestanztem Bildschirm */
+.screen-hole { position: absolute; border-radius: 52px; box-shadow: 0 0 0 200px #0b0a14; }
+.phone-shell { position: absolute; border-radius: 74px; overflow: hidden; }
+.phone-glow { position: absolute; border-radius: 80px; box-shadow: 0 30px 90px rgba(0,0,0,.7), 0 0 70px rgba(139,92,246,.35), 0 0 0 3px rgba(196,181,253,.14) inset; }
+.island { position: absolute; background: #050409; border-radius: 22px; }
+.side-btn { position: absolute; background: #2a2742; border-radius: 4px; }
+
+/* Texte */
+.headline { position: absolute; font-weight: 900; line-height: 1.08; text-shadow: 0 4px 24px rgba(0,0,0,.6); }
+.headline .glow { color: var(--gold); text-shadow: 0 0 26px rgba(253,224,71,.55), 0 4px 24px rgba(0,0,0,.6); }
+.sub { position: absolute; font-weight: 700; color: #ddd8ff; line-height: 1.3; }
+.cta { display: inline-block; padding: 20px 44px; border-radius: 999px; background: var(--aurora); font-weight: 900; box-shadow: 0 0 0 2px rgba(196,181,253,.35), 0 12px 40px rgba(99,102,241,.5); }
+.center { text-align: center; left: 0; right: 0; }
+.credit { position: absolute; left: 0; right: 0; text-align: center; color: rgba(185,181,217,.7); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="layer bg" id="bg"></div>
+<div class="layer frame" id="frame"></div>
+<div class="layer text" id="text"></div>
+<div class="layer intro" id="intro"></div>
+<div class="layer outro" id="outro"></div>
+<div class="layer mask" id="mask"></div>
+<script>
+const q = new URLSearchParams(location.search);
+const part = q.get('part') || 'bg';
+const scene = q.get('scene') || 'lights';
+const W = 1080, H = 1920;
+document.documentElement.style.setProperty('--w', W + 'px');
+document.documentElement.style.setProperty('--h', H + 'px');
+document.body.dataset.part = part;
+
+// Bildschirmfläche im Bild (Seitenverhältnis 390 × 844 wie die Aufnahme)
+const GEO = { screen: { x: 258, y: 168, w: 564, h: 1220 }, bezel: 18 };
+window.GEO = GEO;
+
+const T = {
+  brand: 'Tour<em>Fuchs</em>',
+  brandSmall: 'Kunden sehen. Tour planen.',
+  scenes: {
+    lights: ['Jeder <span class="glow">Lichtpunkt</span><br>ein Kunde.', 'Ganz Deutschland auf einen Blick.'],
+    zoom: ['Wo es leuchtet,<br>sitzt dein Geschäft.', 'Rot = überfällig · groß = viel Umsatz'],
+    tap: ['Antippen –<br>alles da.', 'Kontakt, Umsatz, letzter Besuch – ab in die Tour.'],
+    out: ['Gut vorbereitet<br>hinfahren.', 'Kundenkarte · Tourplanung · KI-Briefing'],
+  },
+  introTitle: 'Deine Kunden.<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">Bei Nacht.</span>',
+  introSub: 'Die Lichterkarte von TourFuchs',
+  outroTitle: 'Jetzt kostenlos<br>ausprobieren',
+  url: 'tourfuchs.vercel.app',
+  outroHint: '👇 Link unten im Status',
+  outroPills: ['<b>✓</b> Kostenlos', '<b>✓</b> Im Browser', '<b>✓</b> Daten bleiben bei dir'],
+  credit: 'Musik: „Tropical Island House 2024“ – Sascha Ende (ende.app), CC BY 4.0',
+};
+
+const ICON = '../../public/icons/icon-512.png';
+const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
+const add = (layer, html) => document.getElementById(layer).appendChild(el(html));
+
+// Sterne: fest verteilt (gleiches Bild bei jedem Rendern)
+function stars(layer) {
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  for (let i = 0; i < 70; i++) {
+    const r = 1 + rnd() * 2.6, o = 0.25 + rnd() * 0.55;
+    add(layer, `<div class="star" style="left:${(rnd() * W) | 0}px;top:${(rnd() * H) | 0}px;width:${r}px;height:${r}px;opacity:${o};box-shadow:0 0 ${r * 4}px rgba(196,181,253,.6)"></div>`);
+  }
+}
+
+function brand(layer, x, y, size) {
+  add(layer, `<div class="brand" style="left:${x}px;top:${y}px;font-size:${size}px">
+    <img src="${ICON}" width="${size * 2}" height="${size * 2}" alt="">
+    <div>${T.brand}<small style="font-size:${size * 0.6}px">${T.brandSmall}</small></div></div>`);
+}
+
+function pills(layer, y, size, list) {
+  add(layer, `<div class="pills" style="left:0;right:0;top:${y}px;justify-content:center;font-size:${size}px">${list.map(p => `<span class="pill">${p}</span>`).join('')}</div>`);
+}
+
+if (part === 'bg') {
+  stars('bg');
+  brand('bg', 60, 44, 34);
+  const s = GEO.screen;
+  add('bg', `<div style="position:absolute;left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;background:#0b0a14;border-radius:52px"></div>`);
+}
+
+if (part === 'frame') {
+  const s = GEO.screen, b = GEO.bezel;
+  const o = { x: s.x - b, y: s.y - b, w: s.w + 2 * b, h: s.h + 2 * b };
+  add('frame', `<div class="phone-glow" style="left:${o.x - 6}px;top:${o.y - 6}px;width:${o.w + 12}px;height:${o.h + 12}px"></div>`);
+  add('frame', `<div class="phone-shell" style="left:${o.x}px;top:${o.y}px;width:${o.w}px;height:${o.h}px;border:3px solid #3b3758">
+    <div class="screen-hole" style="left:${b - 3}px;top:${b - 3}px;width:${s.w}px;height:${s.h}px"></div></div>`);
+  // Kamera-Insel statt Kerbe – wirkt wie ein aktuelles Smartphone
+  add('frame', `<div class="island" style="left:${s.x + s.w / 2 - 70}px;top:${s.y + 14}px;width:140px;height:40px"></div>`);
+  add('frame', `<div class="side-btn" style="left:${o.x + o.w - 1}px;top:${o.y + 260}px;width:7px;height:120px"></div>`);
+  add('frame', `<div class="side-btn" style="left:${o.x - 6}px;top:${o.y + 220}px;width:7px;height:80px"></div>`);
+}
+
+if (part === 'text') {
+  const [head, sub] = T.scenes[scene] || T.scenes.lights;
+  add('text', `<div class="headline center" style="top:1446px;font-size:74px;padding:0 50px">${head}</div>`);
+  add('text', `<div class="sub center" style="top:1650px;font-size:38px;padding:0 70px">${sub}</div>`);
+}
+
+if (part === 'mask') {
+  const s = GEO.screen;
+  document.documentElement.style.setProperty('--w', s.w + 'px');
+  document.documentElement.style.setProperty('--h', s.h + 'px');
+  document.body.style.background = '#000';
+  add('mask', `<div style="position:absolute;inset:0;background:#fff;border-radius:52px"></div>`);
+}
+
+if (part === 'intro' || part === 'outro') {
+  stars(part);
+  const isIntro = part === 'intro';
+  const iconSize = isIntro ? 280 : 210;
+  const top = isIntro ? 430 : 360;
+  add(part, `<div class="center" style="position:absolute;top:${top}px"><img src="${ICON}" width="${iconSize}" height="${iconSize}" style="border-radius:${iconSize * 0.22}px;box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 90px rgba(139,92,246,.45)"></div>`);
+  const titleTop = top + iconSize + 70;
+  add(part, `<div class="headline center" style="top:${titleTop}px;font-size:96px">${isIntro ? T.introTitle : T.outroTitle}</div>`);
+  const nextTop = titleTop + 250;
+  if (isIntro) {
+    add(part, `<div class="sub center" style="top:${nextTop}px;font-size:44px">${T.introSub}</div>`);
+  } else {
+    add(part, `<div class="center" style="position:absolute;top:${nextTop}px"><span class="cta" style="font-size:50px">${T.url}</span></div>`);
+    add(part, `<div class="sub center" style="top:${nextTop + 160}px;font-size:40px">${T.outroHint}</div>`);
+    pills(part, nextTop + 290, 30, T.outroPills);
+    add(part, `<div class="credit" style="top:1840px;font-size:22px">${T.credit}</div>`);
+  }
+}
+window.ready = document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));
+</script>
+</body>
+</html>
