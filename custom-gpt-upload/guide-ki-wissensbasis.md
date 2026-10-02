@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.9 · Stand: 02.10.2026 · App-Version: 3.5.0**
+**Version 3.10 · Stand: 02.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -535,7 +535,8 @@ Größenordnung am Desktop (1440 × 900): Der Daten-Reiter gewinnt so von 307 au
 **Musterantwort auf „Kann ich TourFuchs dunkel machen?":** „Ja – unter ⓘ Info →
 🎨 Darstellung auf 🌙 Dunkel tippen. Mit ‚Automatisch' folgt TourFuchs dem
 Hell-/Dunkelmodus deines Geräts. Wenn dich abends auch die helle Karte blendet:
-im Panel unter ‚Kartenstil' auf ‚Nacht' stellen."
+im Panel unter ‚Kartenstil' auf ‚Nacht' stellen. Für einen Überblick, wo alle
+Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
 
 ---
 
@@ -1356,6 +1357,21 @@ Im Panel unter **"Kartenstil"** stehen:
   lesbar). Gedacht für abends und für den dunklen Stil (4.7), blendet nicht.
   Kunden-Kacheln, Gebiete und Marker bleiben unverändert hell. Schaltet nie
   automatisch um – nur bewusst wählen.
+- **"✨ Lichterkarte"** – sehr dunkle OpenStreetMap-Karte, **jeder Kunde ein
+  kleiner Lichtpunkt** statt Kunden-Kachel, Stapel oder Gebiets-Kachel. Zeigt
+  auf einen Blick, wo Kunden sitzen, wo sie sich ballen und wo weiße Flecken
+  sind – auf jeder Zoomstufe.
+  - **Farbe = Besuchsstatus:** gelb im Rhythmus (bzw. ohne Rhythmus), orange
+    bald fällig, rot überfällig.
+  - **Größe = Umsatz:** große Kunden leuchten größer.
+  - **Antippen** eines Punkts öffnet den Kunden wie gewohnt; am Desktop zeigt
+    Darüberfahren den Namen.
+  - Filter, Lasso und „In der Nähe" arbeiten mit genau den sichtbaren Punkten.
+  - Gebietsflächen bleiben nur als leiser Hauch; für Gebietsarbeit mit
+    Gebiets-Kacheln zurück auf „Standard".
+  - Während einer **Live-Demo** zeigt die Karte automatisch den Standard
+    (die Demo führt über Kacheln) und kehrt danach zur Lichterkarte zurück.
+  - Nur auf bewusste Wahl; kein neuer Kartendienst.
 - **"Satellit"** (Esri)
 
 Die Kartenwahl wird gespeichert. Das Mausrad zoomt in kleinen Viertelstufen, um
@@ -3451,6 +3467,12 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.10 (02.10.2026)
+
+- **Kartenstil „✨ Lichterkarte"** (8.3): Kunden als Lichtpunkte auf dunkler
+  Karte (Farbe = Besuchsstatus, Größe = Umsatz), antippbar; Live-Demos
+  schalten vorübergehend auf Standard.
 
 ### 26.3 Änderungen in Version 3.9 (02.10.2026)
 
