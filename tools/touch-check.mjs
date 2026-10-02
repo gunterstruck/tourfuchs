@@ -283,11 +283,47 @@ async function runFormat(browser, format, baseUrl) {
             // Zwei Zeilen antippen – auf das Etikett, nicht auf das Kästchen:
             // So trifft ein Daumen, und genau dafür ist die Trefferfläche da.
             const zuTippen = Math.min(2, vorher.haken);
+            // Auf dem GitHub-Runner erzeugte Chrome aus dem ersten künstlichen
+            // Tipp direkt nach dem künstlich gezogenen Lasso keinen Klick
+            // (Protokoll: pointerdown/touchstart/pointerup/touchend, dann
+            // nichts – niemand blockiert). Das ist der Zustand der
+            // Gestenerkennung nach der CDP-Zugfolge, nicht die App. Ein
+            // neutraler Tipp auf die Überschrift setzt ihn zurück; geprüft wird
+            // danach die Trefferfläche der Zeilen.
+            await page.locator('.popup-lasso h3').tap({ timeout: 5000 }).catch(() => {});
+            await sleep(400);
+            // Diagnose für den Befundfall: Was lag beim Tipp unter dem Finger,
+            // und welche Häkchen standen danach? (Nur bei Befund ausgegeben.)
+            const spur = [];
             for (let i = 0; i < zuTippen; i++) {
-                await page.locator('.popup-lasso .popup-pick label').nth(i)
-                    .tap({ timeout: 5000 })
+                const label = page.locator('.popup-lasso .popup-pick label').nth(i);
+                const vorTipp = await label.evaluate((el) => {
+                    const r = el.getBoundingClientRect();
+                    const x = r.left + r.width / 2;
+                    const y = r.top + r.height / 2;
+                    const hit = document.elementFromPoint(x, y);
+                    const name = (n) => n ? `${n.tagName.toLowerCase()}${n.id ? `#${n.id}` : ''}${n.className && typeof n.className === 'string' ? `.${n.className.split(' ').filter(Boolean).slice(0, 2).join('.')}` : ''}` : 'nichts';
+                    return { box: [Math.round(r.left), Math.round(r.top), Math.round(r.width), Math.round(r.height)], unterFinger: name(hit), trifftZeile: el.contains(hit) };
+                }).catch((e) => ({ fehler: String(e).slice(0, 80) }));
+                await page.evaluate(() => {
+                    window.__tcLog = [];
+                    const types = ['pointerdown', 'pointerup', 'touchstart', 'touchend', 'mousedown', 'mouseup', 'click', 'change', 'pointercancel', 'touchcancel'];
+                    window.__tcOff?.();
+                    const handler = (e) => {
+                        const t = e.target;
+                        const name = t ? `${t.tagName?.toLowerCase?.() || '?'}${t.className && typeof t.className === 'string' ? `.${t.className.split(' ')[0]}` : ''}` : '?';
+                        // Erst nach allen anderen Zuhörern prüfen, ob jemand blockiert hat.
+                        setTimeout(() => window.__tcLog.push(`${e.type}@${name}${e.defaultPrevented ? '!prevented' : ''}`), 0);
+                    };
+                    for (const type of types) document.addEventListener(type, handler, true);
+                    window.__tcOff = () => { for (const type of types) document.removeEventListener(type, handler, true); };
+                });
+                await label.tap({ timeout: 5000 })
                     .catch(() => problems.push(`Zeile ${i + 1} der Auswahlkarte ließ sich nicht antippen.`));
                 await sleep(350);
+                const gesetzt = await page.evaluate(() => [...document.querySelectorAll('.popup-lasso [data-pick]')].map((b) => (b.checked ? 1 : 0)).join(''));
+                const ereignisse = await page.evaluate(() => window.__tcLog.join(' '));
+                spur.push({ zeile: i + 1, ...vorTipp, danach: gesetzt, ereignisse });
             }
             const nachHaken = await page.evaluate(() => ({
                 gesetzt: document.querySelectorAll('.popup-lasso [data-pick]:checked').length,
@@ -295,6 +331,7 @@ async function runFormat(browser, format, baseUrl) {
             }));
             if (nachHaken.gesetzt !== zuTippen) {
                 problems.push(`Nach ${zuTippen} Tippern sind ${nachHaken.gesetzt} Häkchen gesetzt – die Trefferfläche stimmt nicht.`);
+                problems.push(`  Spur: ${JSON.stringify(spur)} · Fenster ${JSON.stringify(await page.evaluate(() => [innerWidth, innerHeight, devicePixelRatio]))}`);
             }
             if (nachHaken.knopf !== `🚩 ${zuTippen} zur Tour`) {
                 problems.push(`Mit ${zuTippen} Häkchen heißt der Knopf „${nachHaken.knopf}" statt „🚩 ${zuTippen} zur Tour".`);
