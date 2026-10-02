@@ -1,0 +1,120 @@
+/*
+ * Aurora hell – der Tagesstil (Standard, solange nichts Dunkles gewählt ist)
+ *
+ * Weiße Flächen wie gewohnt – gut lesbar draußen in der Sonne –, dazu die
+ * Aurora-Akzente: Verlaufsknöpfe Türkis → Blau → Violett, Glas-Kopfzeile,
+ * sanfter Aurora-Schein in Seitenleiste und Dialogen. Der Dunkelstil steht
+ * in aurora-dark.css und gilt nur mit `html.aurora-dark`.
+ *
+ * Alle Selektoren beginnen mit `:where(html:not(.aurora-dark))` – ohne
+ * zusätzliches Gewicht. Regeln: keine `display`-Regeln, keine Breiten-/
+ * Höhen-Medienabfragen, Bewegung respektiert prefers-reduced-motion.
+ */
+
+:root {
+    --aurora-gradient-day: linear-gradient(120deg, #0d9488 0%, #2563eb 52%, #7c3aed 100%);
+    --aurora-gradient-day-soft: linear-gradient(120deg, rgba(13, 148, 136, 0.12), rgba(37, 99, 235, 0.10) 50%, rgba(124, 58, 237, 0.14));
+    --aurora-glow-day: 0 0 0 1px rgba(124, 58, 237, 0.18), 0 8px 24px rgba(37, 99, 235, 0.22);
+}
+
+/* Kopfzeile: helles Glas mit Aurora-Kante. */
+:where(html:not(.aurora-dark)) .topbar {
+    background: rgba(255, 255, 255, 0.86);
+    -webkit-backdrop-filter: blur(18px) saturate(1.5);
+    backdrop-filter: blur(18px) saturate(1.5);
+    border-bottom: 1px solid transparent;
+    border-image: linear-gradient(90deg, transparent, rgba(13, 148, 136, 0.55), rgba(37, 99, 235, 0.5), rgba(124, 58, 237, 0.55), transparent) 1;
+}
+:where(html:not(.aurora-dark)) .brand em {
+    background: var(--aurora-gradient-day);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    font-weight: 700;
+}
+:where(html:not(.aurora-dark)) .pkg-chip.active {
+    background: var(--aurora-gradient-day-soft);
+    border-color: rgba(124, 58, 237, 0.35);
+    box-shadow: 0 0 14px rgba(124, 58, 237, 0.16);
+}
+
+/* Hauptknöpfe: Aurora-Verlauf mit sanftem Schein. */
+:where(html:not(.aurora-dark)) button.primary,
+:where(html:not(.aurora-dark)) .pwa-update-now,
+:where(html:not(.aurora-dark)) .simulation-panel #sim-commit {
+    background: var(--aurora-gradient-day);
+    border-color: transparent;
+    color: #fff;
+    box-shadow: var(--aurora-glow-day);
+}
+:where(html:not(.aurora-dark)) button.primary:hover:not(:disabled),
+:where(html:not(.aurora-dark)) .pwa-update-now:hover:not(:disabled),
+:where(html:not(.aurora-dark)) .simulation-panel #sim-commit:hover:not(:disabled) {
+    background: var(--aurora-gradient-day);
+    border-color: transparent;
+    filter: brightness(1.06) saturate(1.1);
+    box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.3), 0 10px 30px rgba(37, 99, 235, 0.32);
+}
+:where(html:not(.aurora-dark)) button {
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.25s, transform 0.15s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+:where(html:not(.aurora-dark)) button:active:not(:disabled) { transform: scale(0.97); }
+:where(html:not(.aurora-dark)) input:focus,
+:where(html:not(.aurora-dark)) select:focus,
+:where(html:not(.aurora-dark)) textarea:focus {
+    outline: none;
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.16), 0 0 16px rgba(37, 99, 235, 0.12);
+}
+
+/* Seitenleiste: weiß, oben ein Hauch Aurora-Licht. */
+:where(html:not(.aurora-dark)) .sidebar {
+    background:
+        radial-gradient(120% 30% at 0% 0%, rgba(13, 148, 136, 0.07), transparent 60%),
+        radial-gradient(100% 28% at 100% 0%, rgba(124, 58, 237, 0.08), transparent 65%),
+        var(--color-surface);
+}
+:where(html:not(.aurora-dark)) .tab-button.active {
+    background: var(--aurora-gradient-day-soft);
+    color: var(--color-primary-dark);
+    box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.22);
+}
+:where(html:not(.aurora-dark)) .sidebar > .mode-switch .mode-btn.active,
+:where(html:not(.aurora-dark)) .sidebar > .mode-switch .mode-btn.active:hover,
+:where(html:not(.aurora-dark)) .segmented button.active {
+    background: var(--aurora-gradient-day);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: var(--aurora-glow-day);
+}
+:where(html:not(.aurora-dark)) .stat {
+    background: linear-gradient(160deg, #f8fafc, #eef2ff);
+    box-shadow: inset 0 0 0 1px rgba(124, 58, 237, 0.1);
+}
+:where(html:not(.aurora-dark)) .stat b {
+    background: linear-gradient(100deg, #0f766e, #1d4ed8 55%, #6d28d9);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+
+/* Dialoge und Willkommen: weiß, mit leisem Aurora-Schein. */
+:where(html:not(.aurora-dark)) dialog {
+    background:
+        radial-gradient(90% 40% at 100% 0%, rgba(124, 58, 237, 0.07), transparent 60%),
+        radial-gradient(80% 40% at 0% 100%, rgba(13, 148, 136, 0.06), transparent 60%),
+        #fff;
+    box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.12), 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+:where(html:not(.aurora-dark)) .demo-welcome-card {
+    background:
+        radial-gradient(90% 50% at 100% 0%, rgba(124, 58, 237, 0.09), transparent 60%),
+        radial-gradient(80% 45% at 0% 100%, rgba(13, 148, 136, 0.08), transparent 60%),
+        #fff;
+    box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.14), 0 24px 60px rgba(15, 23, 42, 0.2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :where(html:not(.aurora-dark)) button { transition: background 0.2s, border-color 0.2s; }
+    :where(html:not(.aurora-dark)) button:active:not(:disabled) { transform: none; }
+}

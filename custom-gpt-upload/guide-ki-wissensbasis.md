@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.7 · Stand: 30.09.2026 · App-Version: 3.5.0**
+**Version 3.8 · Stand: 02.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -513,6 +513,28 @@ Größenordnung am Desktop (1440 × 900): Der Daten-Reiter gewinnt so von 307 au
   zoomt hinein.
 - Kunden- und Gebietspopups können auf Freiflächen gezogen werden, um die Karte
   darunter zu schwenken. Interaktive Elemente im Popup bleiben bedienbar.
+
+### 4.7 Darstellung: Automatisch, Hell, Dunkel
+
+**Klickpfad:** `ⓘ Info -> "🎨 Darstellung"` mit den drei Knöpfen
+**"Automatisch"**, **"☀️ Hell"** und **"🌙 Dunkel"**.
+
+- **Automatisch** (Standard) folgt dem Hell-/Dunkelmodus des Geräts. Steht das
+  Handy oder der Rechner auf dunkel – oft automatisch ab Sonnenuntergang
+  (Android: „Dunkles Design" mit Zeitplan; iPhone: „Erscheinungsbild" →
+  Automatisch) –, wechselt TourFuchs von selbst, auch während der Nutzung.
+- **Hell** ist der Tagesstil: weiße Flächen, gut lesbar draußen in der Sonne,
+  mit Aurora-Akzenten (Verlaufsknöpfe Türkis → Blau → Violett).
+- **Dunkel** ist der Aurora-Nachtstil: dunkles Indigo, Glasflächen,
+  violetter Schimmer.
+- Die Karte und alles, was auf ihr liegt (Kunden-Kacheln, Stapel,
+  Gebiets-Kacheln, Tour-Marker), bleibt in beiden Stilen hell.
+- Die Wahl gilt nur für dieses Gerät und diesen Browser; sie enthält keine
+  Kundendaten. Funktionen und Inhalte sind in beiden Stilen gleich.
+
+**Musterantwort auf „Kann ich TourFuchs dunkel machen?":** „Ja – unter ⓘ Info →
+🎨 Darstellung auf 🌙 Dunkel tippen. Mit ‚Automatisch' folgt TourFuchs dem
+Hell-/Dunkelmodus deines Geräts."
 
 ---
 
@@ -2429,13 +2451,25 @@ Ausnahme: Beim **sicheren Umzug** (14.4) bleibt das Tresor-Setup erzwungen –
 wer Daten verschlüsselt von einem anderen Gerät empfängt, hat sich für Schutz
 bereits entschieden. Demo-Daten verlangen nie eine PIN.
 
-Der Nutzer vergibt eine PIN mit mindestens vier Zeichen. Danach zeigt TourFuchs
+Der Nutzer vergibt eine **PIN oder Passphrase mit mindestens sechs Zeichen**
+(gilt für Einrichten, PIN ändern und neue PIN nach Wiederherstellung). Eine
+Anzeige bewertet sie ehrlich: nur Ziffern unter 8 Stellen „Schwach", 8–11
+Ziffern „Mittel", Passphrasen aus mehreren Wörtern „Stark". Empfohlen ist eine
+Passphrase wie „Fuchs-fährt-nach-Köln". Grund: Die Sperre nach Fehlversuchen
+wirkt nur in der App; wer die gespeicherten Daten kopiert, kann ohne Sperre
+probieren – dann schützt nur die Länge. Bestehende kürzere PINs funktionieren
+weiter; die neue Regel greift beim nächsten PIN-Wechsel. Am Sperrbildschirm
+erscheint bei einer Ziffern-PIN der Ziffernblock, bei einer Passphrase die
+volle Tastatur. Danach zeigt TourFuchs
 einen **Wiederherstellungscode**, der nur einmal sichtbar ist. Er muss getrennt und
 sicher aufbewahrt werden.
 
 ### 14.2 Schutzmodell
 
-- Kundendaten werden lokal mit AES-256 verschlüsselt.
+- Kundendaten werden lokal mit AES-256 verschlüsselt – ebenso der
+  Adress-Cache der Verortung, gespeicherte Touren und Simulations-Szenarien.
+  Das Gedächtnis „Besuche weitergeben" speichert Kundennummern nur als
+  Prüfsumme.
 - ein zufälliger Datenschlüssel wird mit einem aus der PIN abgeleiteten
   Schlüssel geschützt.
 - die PIN und der ungeschützte Datenschlüssel werden nicht dauerhaft
@@ -3412,7 +3446,22 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
 
+### 26.3 Änderungen in Version 3.8 (02.10.2026)
+
+- **Darstellung Automatisch · Hell · Dunkel** (4.7): neuer Stil „Aurora";
+  Standard folgt dem Gerät, bewusste Wahl unter `ⓘ Info -> "🎨 Darstellung"`.
+  Kacheln auf der Karte bleiben hell.
+
 ### 26.3 Änderungen in Version 3.7 (30.09.2026)
+
+- **Tresor schützt alle Kundenbezüge** (14.2): auch Adress-Cache, gespeicherte
+  Touren und Szenarien; Altbestand wird beim nächsten Entsperren verschlüsselt.
+- **Stärkere PIN** (14.1): mindestens 6 Zeichen für neue PINs, Stärkeanzeige,
+  Empfehlung Passphrase; passende Tastatur am Sperrbildschirm.
+- **Tresor-Live-Demo legt keinen echten Tresor mehr an.** Früher blieb nach
+  einem unterbrochenen Film ein Tresor mit Demo-PIN stehen („Entsperren nicht
+  möglich" am nächsten Morgen). Ein solcher Rest mit nur Beispieldaten wird
+  beim Start erkannt und entfernt; echte Kundendaten bleiben gesperrt.
 
 - **Erweiterungen mit Produktnamen** (4.2): „⚙️ Optionale Module" heißt jetzt
   **„🧩 Erweiterungen"**. Die Pakete heißen **GeoFuchs** (Gebietsplanung &
