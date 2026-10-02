@@ -5,7 +5,7 @@
 <title>Werbefilm Lichterkarte – Bühne</title>
 <!-- Gestaltungsvorlage für den Werbefilm „Lichterkarte“ (9:16, WhatsApp-Status).
      Wird per Playwright zu PNGs gerendert (render-graphics.mjs).
-     Parameter: ?part=bg|frame|mask|text|intro|outro&scene=lights|zoom|tap|out -->
+     Parameter: ?layout=phone|desktop&part=bg|frame|mask|text|intro|outro&scene=lights|zoom|tap|out -->
 <style>
 @font-face { font-family: 'Nunito'; font-weight: 600; src: url('fonts/Nunito-600.woff2') format('woff2'); }
 @font-face { font-family: 'Nunito'; font-weight: 800; src: url('fonts/Nunito-800.woff2') format('woff2'); }
@@ -38,6 +38,7 @@ body[data-part="intro"] .intro, body[data-part="outro"] .outro, body[data-part="
 .pills { position: absolute; display: flex; gap: 14px; flex-wrap: wrap; }
 .pill { padding: 10px 22px; border-radius: 999px; background: rgba(255,255,255,.06); border: 2px solid rgba(196,181,253,.25); font-weight: 800; color: #e9e6fb; white-space: nowrap; }
 .pill b { color: var(--teal); }
+.pills.compact .pill { padding: 8px 16px; }
 
 /* Handy: Rahmen mit ausgestanztem Bildschirm */
 .screen-hole { position: absolute; border-radius: 52px; box-shadow: 0 0 0 200px #0b0a14; }
@@ -66,13 +67,18 @@ body[data-part="intro"] .intro, body[data-part="outro"] .outro, body[data-part="
 const q = new URLSearchParams(location.search);
 const part = q.get('part') || 'bg';
 const scene = q.get('scene') || 'lights';
-const W = 1080, H = 1920;
+const layout = q.get('layout') || 'phone';
+const PHONE = layout === 'phone';
+const W = PHONE ? 1080 : 1920, H = PHONE ? 1920 : 1080;
 document.documentElement.style.setProperty('--w', W + 'px');
 document.documentElement.style.setProperty('--h', H + 'px');
 document.body.dataset.part = part;
 
-// Bildschirmfläche im Bild (Seitenverhältnis 390 × 844 wie die Aufnahme)
-const GEO = { screen: { x: 258, y: 168, w: 564, h: 1220 }, bezel: 18 };
+// Bildschirmfläche im Bild – Seitenverhältnis wie die Aufnahme
+// (Handy 390 × 844, Monitor 1280 × 800)
+const GEO = PHONE
+  ? { screen: { x: 258, y: 168, w: 564, h: 1220 }, bezel: 18 }
+  : { screen: { x: 720, y: 96, w: 1120, h: 700 }, bezel: 20 };
 window.GEO = GEO;
 
 const T = {
@@ -81,14 +87,14 @@ const T = {
   scenes: {
     lights: ['Jeder <span class="glow">Lichtpunkt</span><br>ein Kunde.', 'Ganz Deutschland auf einen Blick.'],
     zoom: ['Wo es leuchtet,<br>sitzt dein Geschäft.', 'Rot = überfällig · groß = viel Umsatz'],
-    tap: ['Antippen –<br>alles da.', 'Kontakt, Umsatz, letzter Besuch – ab in die Tour.'],
-    out: ['Gut vorbereitet<br>hinfahren.', 'Kundenkarte · Tourplanung · KI-Briefing'],
+    tap: [PHONE ? 'Antippen –<br>alles da.' : 'Anklicken –<br>alles da.', 'Kontakt, Umsatz, letzter Besuch – ab in die Tour.'],
+    out: ['Gut vorbereitet<br>hinfahren.', 'Kundenkarte · Tourplanung · KI‑Briefing'],
   },
   introTitle: 'Deine Kunden.<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">Bei Nacht.</span>',
   introSub: 'Die Lichterkarte von TourFuchs',
   outroTitle: 'Jetzt kostenlos<br>ausprobieren',
   url: 'tourfuchs.vercel.app',
-  outroHint: '👇 Link unten im Status',
+  outroHint: PHONE ? '👇 Link unten im Status' : 'Läuft im Browser – am PC und als App auf dem Handy',
   outroPills: ['<b>✓</b> Kostenlos', '<b>✓</b> Im Browser', '<b>✓</b> Daten bleiben bei dir'],
   credit: 'Musik: „Tropical Island House 2024“ – Sascha Ende (ende.app), CC BY 4.0',
 };
@@ -113,18 +119,33 @@ function brand(layer, x, y, size) {
     <div>${T.brand}<small style="font-size:${size * 0.6}px">${T.brandSmall}</small></div></div>`);
 }
 
-function pills(layer, y, size, list) {
-  add(layer, `<div class="pills" style="left:0;right:0;top:${y}px;justify-content:center;font-size:${size}px">${list.map(p => `<span class="pill">${p}</span>`).join('')}</div>`);
+function pills(layer, y, size, list, left = null) {
+  const pos = left === null ? 'left:0;right:0;justify-content:center' : `left:${left}px;width:620px;gap:10px`;
+  add(layer, `<div class="pills${left === null ? '' : ' compact'}" style="${pos};top:${y}px;font-size:${size}px">${list.map(p => `<span class="pill">${p}</span>`).join('')}</div>`);
 }
 
 if (part === 'bg') {
   stars('bg');
-  brand('bg', 60, 44, 34);
+  if (PHONE) brand('bg', 60, 44, 34);
+  else { brand('bg', 90, 92, 34); pills('bg', 950, 20, T.outroPills, 90); }
   const s = GEO.screen;
-  add('bg', `<div style="position:absolute;left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;background:#0b0a14;border-radius:52px"></div>`);
+  add('bg', `<div style="position:absolute;left:${s.x}px;top:${s.y}px;width:${s.w}px;height:${s.h}px;background:#0b0a14;border-radius:${PHONE ? 52 : 8}px"></div>`);
 }
 
-if (part === 'frame') {
+if (part === 'frame' && !PHONE) {
+  // Monitor: schmaler Rahmen, Kinn, Fuß
+  const s = GEO.screen, b = GEO.bezel;
+  const o = { x: s.x - b, y: s.y - b, w: s.w + 2 * b, h: s.h + 2 * b + 30 };
+  add('frame', `<div class="phone-glow" style="border-radius:28px;left:${o.x - 5}px;top:${o.y - 5}px;width:${o.w + 10}px;height:${o.h + 10}px"></div>`);
+  add('frame', `<div class="phone-shell" style="border-radius:24px;left:${o.x}px;top:${o.y}px;width:${o.w}px;height:${o.h}px;border:3px solid #3b3758">
+    <div class="screen-hole" style="border-radius:8px;left:${b - 3}px;top:${b - 3}px;width:${s.w}px;height:${s.h}px"></div></div>`);
+  const cx = s.x + s.w / 2;
+  add('frame', `<div style="position:absolute;left:${cx - 6}px;top:${o.y + o.h - 24}px;width:12px;height:12px;border-radius:50%;background:#2a2742;box-shadow:0 0 8px rgba(139,92,246,.6)"></div>`);
+  add('frame', `<div style="position:absolute;left:${cx - 55}px;top:${o.y + o.h}px;width:110px;height:120px;background:linear-gradient(180deg,#2a2742,#16142a);clip-path:polygon(20% 0,80% 0,100% 100%,0 100%)"></div>`);
+  add('frame', `<div style="position:absolute;left:${cx - 200}px;top:${o.y + o.h + 116}px;width:400px;height:22px;border-radius:12px;background:linear-gradient(180deg,#34304f,#16142a);box-shadow:0 16px 40px rgba(0,0,0,.55), 0 0 30px rgba(139,92,246,.25)"></div>`);
+}
+
+if (part === 'frame' && PHONE) {
   const s = GEO.screen, b = GEO.bezel;
   const o = { x: s.x - b, y: s.y - b, w: s.w + 2 * b, h: s.h + 2 * b };
   add('frame', `<div class="phone-glow" style="left:${o.x - 6}px;top:${o.y - 6}px;width:${o.w + 12}px;height:${o.h + 12}px"></div>`);
@@ -138,8 +159,15 @@ if (part === 'frame') {
 
 if (part === 'text') {
   const [head, sub] = T.scenes[scene] || T.scenes.lights;
-  add('text', `<div class="headline center" style="top:1446px;font-size:74px;padding:0 50px">${head}</div>`);
-  add('text', `<div class="sub center" style="top:1650px;font-size:38px;padding:0 70px">${sub}</div>`);
+  if (PHONE) {
+    add('text', `<div class="headline center" style="top:1446px;font-size:74px;padding:0 50px">${head}</div>`);
+    add('text', `<div class="sub center" style="top:1650px;font-size:38px;padding:0 70px">${sub}</div>`);
+  } else {
+    // Überschrift und Unterzeile im Fluss: Die Unterzeile rutscht mit, wenn die Überschrift umbricht.
+    add('text', `<div style="position:absolute;left:90px;top:300px;width:600px">
+      <div class="headline" style="position:static;font-size:70px">${head}</div>
+      <div class="sub" style="position:static;margin-top:34px;font-size:34px">${sub}</div></div>`);
+  }
 }
 
 if (part === 'mask') {
@@ -147,25 +175,25 @@ if (part === 'mask') {
   document.documentElement.style.setProperty('--w', s.w + 'px');
   document.documentElement.style.setProperty('--h', s.h + 'px');
   document.body.style.background = '#000';
-  add('mask', `<div style="position:absolute;inset:0;background:#fff;border-radius:52px"></div>`);
+  add('mask', `<div style="position:absolute;inset:0;background:#fff;border-radius:${PHONE ? 52 : 8}px"></div>`);
 }
 
 if (part === 'intro' || part === 'outro') {
   stars(part);
   const isIntro = part === 'intro';
-  const iconSize = isIntro ? 280 : 210;
-  const top = isIntro ? 430 : 360;
+  const iconSize = PHONE ? (isIntro ? 280 : 210) : (isIntro ? 220 : 170);
+  const top = PHONE ? (isIntro ? 430 : 360) : (isIntro ? 230 : 110);
   add(part, `<div class="center" style="position:absolute;top:${top}px"><img src="${ICON}" width="${iconSize}" height="${iconSize}" style="border-radius:${iconSize * 0.22}px;box-shadow:0 20px 60px rgba(0,0,0,.6), 0 0 90px rgba(139,92,246,.45)"></div>`);
-  const titleTop = top + iconSize + 70;
-  add(part, `<div class="headline center" style="top:${titleTop}px;font-size:96px">${isIntro ? T.introTitle : T.outroTitle}</div>`);
-  const nextTop = titleTop + 250;
+  const titleTop = top + iconSize + (PHONE ? 70 : 50);
+  add(part, `<div class="headline center" style="top:${titleTop}px;font-size:${PHONE ? 96 : 84}px">${isIntro ? T.introTitle : T.outroTitle}</div>`);
+  const nextTop = titleTop + (PHONE ? 250 : 215);
   if (isIntro) {
     add(part, `<div class="sub center" style="top:${nextTop}px;font-size:44px">${T.introSub}</div>`);
   } else {
     add(part, `<div class="center" style="position:absolute;top:${nextTop}px"><span class="cta" style="font-size:50px">${T.url}</span></div>`);
-    add(part, `<div class="sub center" style="top:${nextTop + 160}px;font-size:40px">${T.outroHint}</div>`);
-    pills(part, nextTop + 290, 30, T.outroPills);
-    add(part, `<div class="credit" style="top:1840px;font-size:22px">${T.credit}</div>`);
+    add(part, `<div class="sub center" style="top:${nextTop + (PHONE ? 160 : 130)}px;font-size:${PHONE ? 40 : 34}px">${T.outroHint}</div>`);
+    pills(part, nextTop + (PHONE ? 290 : 220), PHONE ? 30 : 26, T.outroPills);
+    add(part, `<div class="credit" style="top:${PHONE ? 1840 : 1030}px;font-size:${PHONE ? 22 : 18}px">${T.credit}</div>`);
   }
 }
 window.ready = document.fonts.ready.then(() => Promise.all([...document.images].map(i => i.decode().catch(() => {}))));

@@ -2,14 +2,28 @@
 // Szenen: Lichter gehen an → Flug ins Ruhrgebiet → Kunde antippen → zurück auf Deutschland.
 // Speichert Einzelbilder, Zeitstempel (list.txt für ffmpeg) und Szenenmarken (marks.json).
 //
-// Aufruf: node film/lichterkarte/record.mjs <ordner> <app-url>
+// Aufruf: node film/lichterkarte/record.mjs <ordner> <app-url> [phone|desktop]
 // Hinter einem TLS-prüfenden Proxy (Kartenkacheln): FILM_PROXY=<http://host:port>
 // und FILM_PROXY_CA=<ca-bundle.pem> setzen.
 import { chromium } from 'playwright';
 import { mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { X509Certificate, createHash } from 'node:crypto';
 
-const [,, outDir, appUrl = 'http://localhost:5173/'] = process.argv;
+const [,, outDir, appUrl = 'http://localhost:5173/', layout = 'phone'] = process.argv;
+const PHONE = layout === 'phone';
+// Handy: echte Touransicht. Desktop: Schreibtisch-Ansicht ohne Seitenleiste,
+// damit die Lichterkarte den ganzen Monitor füllt.
+const VIEW = PHONE
+    ? { viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true }
+    : { viewport: { width: 1120, height: 700 }, deviceScaleFactor: 1, isMobile: false, hasTouch: false };
+// Desktop: Der Bildschirmmitschnitt schafft bei großer Fläche (Leuchtschein auf
+// der Punkt-Ebene) nur gut 15 Bilder pro Sekunde. Deshalb läuft die Szene dort
+// halb so schnell und wird beim Schnitt doppelt so schnell abgespielt – ruckelfrei.
+const SLOW = PHONE ? 1 : 2;
+const scene = (ms) => sleep(ms * SLOW);
+const TAP = PHONE
+    ? { want: { x: 200, y: 480 }, box: [120, 280, 400, 540] }
+    : { want: { x: 600, y: 470 }, box: [360, 840, 380, 560] };
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const now = () => Date.now() / 1000;
 
@@ -26,7 +40,7 @@ if (process.env.FILM_PROXY) launch.proxy = { server: process.env.FILM_PROXY, byp
 
 const b = await chromium.launch(launch);
 const ctx = await b.newContext({
-    viewport: { width: 390, height: 844 }, deviceScaleFactor: 2, isMobile: true, hasTouch: true,
+    ...VIEW,
     locale: 'de-DE', timezoneId: 'Europe/Berlin', colorScheme: 'dark'
 });
 const p = await ctx.newPage();
@@ -36,13 +50,20 @@ await p.waitForSelector('#map');
 await sleep(9000);
 await p.locator('#btn-demo-welcome-ack').click().catch(() => {});
 await sleep(600);
-await p.evaluate(() => { if (document.body.classList.contains('sheet-open')) document.querySelector('#sheet-grip')?.click(); });
+if (PHONE) await p.evaluate(() => { if (document.body.classList.contains('sheet-open')) document.querySelector('#sheet-grip')?.click(); });
+else {
+    await p.locator('#mobile-preview [data-mp-close]').last().click().catch(() => {});
+    // Die Geschichte erzählt der Außendienst (wie im Handy-Film), nicht die Gebietsplanung.
+    await p.locator('.mode-btn[data-mode="aussendienst"]').click().catch(() => {});
+}
 await sleep(800);
 
 // Bühne: Lichterkarte, Blatt und Hinweise aus dem Bild, Lichter zunächst aus, Karte noch „Tag“.
 await p.addStyleTag({ content: `
-    .sidebar, .toasts, #toasts, .mobile-preview-hint, .context-help, .first-steps-float { visibility: hidden !important; }
-    .leaflet-layer.basemap-lights { transition: filter 2.6s ease-in-out; }
+    .sidebar, .sidebar-resize, .toasts, #toasts, .mobile-preview, .mobile-preview-hint, .context-help, .first-steps-float { visibility: hidden !important; }
+    .leaflet-layer.basemap-lights { transition: filter ${2.6 * SLOW}s ease-in-out; }
+    .leaflet-lights-pane { transition: opacity ${0.45 * SLOW}s ease; }
+    .lights-zooming .leaflet-lights-pane { transition-duration: ${0.12 * SLOW}s; }
     html.film-day .leaflet-layer.basemap-lights { filter: brightness(0.95) saturate(0.9) contrast(1) !important; }
     .leaflet-lights-pane canvas {
         -webkit-mask-image: linear-gradient(to left, #000 calc(var(--sweep, 140%) - 30%), transparent var(--sweep, 140%));
@@ -50,7 +71,7 @@ await p.addStyleTag({ content: `
     }
     .film-tap { position: fixed; z-index: 99999; width: 54px; height: 54px; margin: -27px 0 0 -27px; border-radius: 50%;
         border: 3px solid rgba(255,255,255,.95); box-shadow: 0 0 18px rgba(253,224,71,.8); pointer-events: none;
-        animation: film-tap 0.9s ease-out forwards; }
+        animation: film-tap ${0.9 * SLOW}s ease-out forwards; }
     @keyframes film-tap { 0% { transform: scale(.4); opacity: 0; } 25% { opacity: 1; } 100% { transform: scale(1.5); opacity: 0; } }
 ` });
 await p.evaluate(() => {
@@ -61,12 +82,14 @@ await p.evaluate(() => {
 await sleep(1500);
 
 const mapApi = '/src/features/map.js';
-const home = await p.evaluate(async (api) => {
-    const { getMap } = await import(api);
-    const m = getMap();
-    return { center: m.getCenter(), zoom: m.getZoom() };
-}, mapApi);
-const TARGET = { center: [51.38, 7.08], zoom: 9.6 };
+const home = PHONE
+    ? await p.evaluate(async (api) => {
+        const { getMap } = await import(api);
+        const m = getMap();
+        return { center: m.getCenter(), zoom: m.getZoom() };
+    }, mapApi)
+    : { center: [51.15, 10.4], zoom: 6 };
+const TARGET = PHONE ? { center: [51.38, 7.08], zoom: 9.6 } : { center: [51.35, 7.15], zoom: 9.4 };
 
 // Kacheln vorab laden: denselben Weg einmal ohne Kamera fliegen.
 await p.evaluate(async ({ api, t }) => {
@@ -93,7 +116,7 @@ await p.evaluate(() => {
 await sleep(2800);
 
 // Aufnahme
-const dir = `${outDir}/rec`;
+const dir = `${outDir}/rec-${layout}`;
 rmSync(dir, { recursive: true, force: true });
 mkdirSync(dir, { recursive: true });
 const cdp = await ctx.newCDPSession(p);
@@ -104,15 +127,16 @@ cdp.on('Page.screencastFrame', async (f) => {
     frames.push({ file, t: f.metadata.timestamp });
     try { await cdp.send('Page.screencastFrameAck', { sessionId: f.sessionId }); } catch { /* Ende */ }
 });
-await cdp.send('Page.startScreencast', { format: 'jpeg', quality: 92, maxWidth: 780, maxHeight: 1688, everyNthFrame: 1 });
+const { width: vw, height: vh } = VIEW.viewport;
+await cdp.send('Page.startScreencast', { format: 'jpeg', quality: PHONE ? 92 : 85, maxWidth: vw * VIEW.deviceScaleFactor, maxHeight: vh * VIEW.deviceScaleFactor, everyNthFrame: 1 });
 const marks = {};
-await sleep(700);
+await scene(700);
 
 // 1) Deutschland wird Nacht, die Lichter gehen von Ost nach West an.
 marks.lights = now();
-await p.evaluate(() => {
+await p.evaluate((slow) => {
     document.documentElement.classList.remove('film-day');
-    const start = performance.now() + 700, dur = 3600;
+    const start = performance.now() + 700 * slow, dur = 3600 * slow;
     const ease = (x) => x < 0.5 ? 2 * x * x : 1 - Math.pow(-2 * x + 2, 2) / 2;
     const step = (t) => {
         const k = Math.min(1, Math.max(0, (t - start) / dur));
@@ -120,45 +144,53 @@ await p.evaluate(() => {
         if (k < 1) requestAnimationFrame(step);
     };
     requestAnimationFrame(step);
-});
-await sleep(6200);
+}, SLOW);
+await scene(6200);
 
 // 2) Flug ins Ruhrgebiet.
 marks.zoom = now();
-await p.evaluate(async ({ api, t }) => {
+await p.evaluate(async ({ api, t, slow }) => {
     const { getMap } = await import(api);
-    getMap().flyTo(t.center, t.zoom, { duration: 3.6 });
-}, { api: mapApi, t: TARGET });
-await sleep(5200);
+    getMap().flyTo(t.center, t.zoom, { duration: 3.6 * slow });
+}, { api: mapApi, t: TARGET, slow: SLOW });
+await scene(5200);
 
 // 3) Einen Kunden antippen (überfällig, damit der Status sichtbar wird).
 marks.tap = now();
-const target = await p.evaluate(async (api) => {
+const target = await p.evaluate(async ({ api, tap }) => {
     const { getMap, customersOnMap } = await import(api);
     const { visitStatus } = await import('/src/features/visits.js');
     const m = getMap();
     const rect = m.getContainer().getBoundingClientRect();
-    const want = { x: 200, y: 480 };
+    const want = tap.want;
+    const [x0, x1, y0, y1] = tap.box;
     const cands = customersOnMap().map((c) => ({ c, pt: m.latLngToContainerPoint([c.lat, c.lng]) }))
-        .filter(({ pt }) => pt.x > 120 && pt.x < 280 && pt.y > 400 && pt.y < 540);
+        .filter(({ pt }) => pt.x > x0 && pt.x < x1 && pt.y > y0 && pt.y < y1);
     const score = ({ c, pt }) => Math.hypot(pt.x - want.x, pt.y - want.y) - (visitStatus(c) === 'ueberfaellig' ? 50 : 0);
     cands.sort((a, b) => score(a) - score(b));
     const pick = cands[0];
     return pick ? { x: rect.left + pick.pt.x, y: rect.top + pick.pt.y, name: pick.c.name } : null;
-}, mapApi);
+}, { api: mapApi, tap: TAP });
 if (!target) throw new Error('Kein Kunde zum Antippen gefunden');
-await sleep(500);
-await p.evaluate(({ x, y }) => {
+if (!PHONE) {
+    // Am Desktop gleitet die Maus heran; beim Darüberfahren erscheint der Name.
+    await p.mouse.move(target.x + 160, target.y + 120);
+    await p.mouse.move(target.x, target.y, { steps: 12 });
+    await scene(700);
+} else {
+    await scene(500);
+}
+await p.evaluate(({ x, y, slow }) => {
     const ring = document.createElement('div');
     ring.className = 'film-tap';
     ring.style.left = `${x}px`;
     ring.style.top = `${y}px`;
     document.body.appendChild(ring);
-    setTimeout(() => ring.remove(), 1000);
-}, target);
-await sleep(250);
+    setTimeout(() => ring.remove(), 1000 * slow);
+}, { ...target, slow: SLOW });
+await scene(250);
 await p.mouse.click(target.x, target.y);
-await sleep(4600);
+await scene(PHONE ? 4600 : 3800);
 const opened = await p.evaluate(() => document.querySelector('.popup-customer h3')?.textContent || '');
 if (!opened) throw new Error('Popup hat sich nicht geöffnet');
 
@@ -166,29 +198,29 @@ if (!opened) throw new Error('Popup hat sich nicht geöffnet');
 //    lädt Leaflet Kacheln erst nach einer Bewegung, ein Herauszoom-Flug zeigte
 //    sonst eine schrumpfende Karte vor schwarzem Grund.
 marks.out = now();
-await p.evaluate(() => {
+await p.evaluate((slow) => {
     const m = document.getElementById('map').getBoundingClientRect();
     const veil = document.createElement('div');
     veil.id = 'film-veil';
     veil.style.cssText = `position:fixed;left:${m.left}px;top:${m.top}px;width:${m.width}px;height:${m.height}px;`
-        + 'background:#0b0a14;opacity:0;transition:opacity .55s ease;z-index:1200;pointer-events:none';
+        + `background:#0b0a14;opacity:0;transition:opacity ${0.55 * slow}s ease;z-index:1200;pointer-events:none`;
     document.body.appendChild(veil);
     requestAnimationFrame(() => { veil.style.opacity = '1'; });
-});
-await sleep(650);
+}, SLOW);
+await scene(650);
 await p.evaluate(async ({ api, h }) => {
     const { getMap } = await import(api);
     const m = getMap();
     m.closePopup();
     m.setView(h.center, h.zoom, { animate: false });
 }, { api: mapApi, h: home });
-await sleep(900);
-await p.evaluate(() => {
+await scene(900);
+await p.evaluate((slow) => {
     const veil = document.getElementById('film-veil');
-    veil.style.transition = 'opacity .9s ease';
+    veil.style.transition = `opacity ${0.9 * slow}s ease`;
     veil.style.opacity = '0';
-});
-await sleep(3900);
+}, SLOW);
+await scene(3900);
 marks.done = now();
 await sleep(300);
 await cdp.send('Page.stopScreencast');
@@ -203,6 +235,7 @@ list += `file '${frames[frames.length - 1].file}'\n`;
 writeFileSync(`${dir}/list.txt`, list);
 const t0 = frames[0].t;
 const rel = Object.fromEntries(Object.entries(marks).map(([k, v]) => [k, +(v - t0).toFixed(3)]));
+rel.speed = SLOW; // Wiedergabe-Beschleunigung für den Schnitt
 writeFileSync(`${dir}/marks.json`, JSON.stringify(rel, null, 2));
 console.log('Bilder', frames.length, 'Marken', JSON.stringify(rel), 'Kunde', target.name, '→', opened);
 await b.close();

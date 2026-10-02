@@ -1,24 +1,30 @@
-// Setzt den Werbefilm „Lichterkarte“ zusammen: Intro → App im Handyrahmen mit
-// Szenentexten → Abschluss, mit Musik. 1080 × 1920, H.264/AAC, unter 30 Sekunden
-// (WhatsApp-Status).
-// Aufruf: node film/lichterkarte/compose.mjs <grafik-ordner> <aufnahme-ordner> <ausgabe.mp4>
+// Setzt den Werbefilm „Lichterkarte“ zusammen: Intro → App im Geräterahmen mit
+// Szenentexten → Abschluss, mit Musik. H.264/AAC.
+//   phone:   1080 × 1920, unter 30 Sekunden (WhatsApp-Status)
+//   desktop: 1920 × 1080, Monitor rechts, Texte links
+// Aufruf: node film/lichterkarte/compose.mjs <grafik-ordner> <aufnahme-ordner> <ausgabe.mp4> [phone|desktop]
 import { execFileSync } from 'node:child_process';
 import { readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const here = dirname(fileURLToPath(import.meta.url));
-const [,, gfx, rec, out] = process.argv;
-const geo = JSON.parse(readFileSync(join(gfx, 'geo.json')));
+const [,, gfx, rec, out, layout = 'phone'] = process.argv;
+const PHONE = layout === 'phone';
+const geo = JSON.parse(readFileSync(join(gfx, 'geo.json')))[layout];
 const marks = JSON.parse(readFileSync(join(rec, 'marks.json')));
 const music = resolve(here, '../../public/audio/tropical-island-house-2024.mp3');
 const s = geo.screen;
 
 const INTRO = 2.5, OUTRO = 4.0, XF = 0.5, TF = 0.35;
 // Kurz vor dem Einbruch der Nacht beginnen: Die Karte ist noch „Tag“.
-const start = Math.max(0, marks.lights - 0.35);
-const main = +(marks.done - start).toFixed(2);
-const at = (n) => +(marks[n] - start).toFixed(2);
+// Desktop wird in halber Geschwindigkeit aufgenommen (marks.speed = 2) und hier
+// beschleunigt; alle Zeiten unten sind Filmzeit.
+const speed = marks.speed || 1;
+const startRec = Math.max(0, marks.lights - 0.35 * speed);
+const main = +((marks.done - startRec) / speed).toFixed(2);
+const at = (n) => +((marks[n] - startRec) / speed).toFixed(2);
+const start = startRec;
 const texts = [
     ['lights', 0, at('zoom')],
     ['zoom', at('zoom'), at('tap')],
@@ -26,9 +32,9 @@ const texts = [
     ['out', at('out'), main],
 ];
 const total = +(INTRO + main + OUTRO - 2 * XF).toFixed(2);
-if (total > 30) throw new Error(`Film zu lang für den WhatsApp-Status: ${total} s`);
+if (PHONE && total > 30) throw new Error(`Film zu lang für den WhatsApp-Status: ${total} s`);
 
-const loop = (file, t) => ['-loop', '1', '-t', String(t), '-i', join(gfx, file)];
+const loop = (file, t) => ['-loop', '1', '-t', String(t), '-i', join(gfx, `${layout}-${file}`)];
 const inputs = [
     ...loop('intro.png', INTRO),                                   // 0
     ...loop('bg.png', main),                                       // 1
@@ -42,7 +48,7 @@ const inputs = [
 
 const f = [];
 f.push('[0]fps=30,format=yuv420p,setsar=1[intro]');
-f.push(`[2]trim=start=${start}:duration=${main},setpts=PTS-STARTPTS,fps=30,scale=${s.w}:${s.h}:flags=lanczos,format=rgba[app0]`);
+f.push(`[2]trim=start=${startRec}:duration=${(main * speed).toFixed(2)},setpts=(PTS-STARTPTS)/${speed},fps=30,scale=${s.w}:${s.h}:flags=lanczos,format=rgba[app0]`);
 f.push(`[3]fps=30,format=gray,scale=${s.w}:${s.h}[mask]`);
 f.push('[app0][mask]alphamerge[app]');
 f.push('[1]fps=30,format=rgba[bg]');

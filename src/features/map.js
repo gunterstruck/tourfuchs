@@ -1129,9 +1129,11 @@ function lightsRegionStyle(style) {
     if (!lightsActive() || !style || style.opacity === 0) return style;
     return {
         ...style,
-        fillOpacity: (style.fillOpacity ?? 0) * 0.3,
+        // Gebietsfarben nur als Ahnung: Selbst kräftige GeoFuchs-Flächen (bis 0,62)
+        // bleiben unter 0,1 und überstrahlen die Lichtpunkte nicht.
+        fillOpacity: (style.fillOpacity ?? 0) * 0.15,
         color: '#c4b5fd',
-        opacity: 0.28,
+        opacity: 0.22,
         weight: 0.8
     };
 }
