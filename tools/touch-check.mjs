@@ -113,9 +113,19 @@ async function runFormat(browser, format, baseUrl) {
 
     await page.goto(baseUrl, { waitUntil: 'domcontentloaded' });
     await page.waitForSelector('#map', { timeout: 20000 });
-    await sleep(9000);
+    // Auf Zustände warten statt auf eine feste Zeit: Auf einem langsamen Runner
+    // waren nach neun Sekunden die Beispielkunden noch nicht da – „Der
+    // Lasso-Knopf fehlt" war dann ein Befund über den Rechner, nicht über die App.
+    await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === false, null, { timeout: 60000 })
+        .catch(() => {});
+    await page.waitForFunction(() => document.getElementById('demo-welcome')?.hidden === false, null, { timeout: 10000 })
+        .catch(() => {});
     await page.evaluate(() => document.getElementById('btn-demo-welcome-close')?.click());
-    await sleep(1200);
+    await page.waitForFunction(() => {
+        const btn = document.getElementById('btn-lasso');
+        return Boolean(btn && btn.offsetParent !== null);
+    }, null, { timeout: 15000 }).catch(() => {});
+    await sleep(600);
 
 
     const button = await page.evaluate(COVER_PROBE, 'btn-lasso');
@@ -240,6 +250,26 @@ async function runFormat(browser, format, baseUrl) {
         await page.locator('#btn-lasso').tap({ timeout: 8000 }).catch(() => problems.push('Der Lasso-Knopf ließ sich nicht antippen.'));
         await sleep(700);
         await zieheFlaeche();
+        // Nach dem Lasso schwenkt die Karte nach (autoPan), bis die Auswahlkarte
+        // ganz im Bild steht. Auf einem langsamen Rechner (CI) dauert das länger
+        // als die feste Pause – getippt wurde dann auf eine noch rutschende
+        // Zeile, der erste Tipp ging daneben. Gewartet wird deshalb auf einen
+        // Zustand: Die Karte steht fünf Frames lang auf demselben Pixel.
+        await page.waitForFunction(() => new Promise((resolve) => {
+            const el = document.querySelector('.popup-lasso');
+            if (!el) { resolve(false); return; }
+            let last = null; let still = 0; let frames = 0;
+            const step = () => {
+                const r = el.getBoundingClientRect();
+                const pos = `${Math.round(r.left)},${Math.round(r.top)}`;
+                still = pos === last ? still + 1 : 0;
+                last = pos;
+                if (still >= 5) { resolve(true); return; }
+                if (++frames > 120) { resolve(false); return; }
+                requestAnimationFrame(step);
+            };
+            requestAnimationFrame(step);
+        }), null, { timeout: 10000 }).catch(() => {});
 
         const vorher = await page.evaluate(() => ({
             haken: document.querySelectorAll('.popup-lasso [data-pick]').length,
