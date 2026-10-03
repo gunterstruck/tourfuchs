@@ -19,8 +19,9 @@ const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => 
  * @param {string} prefix            eindeutig je Dialog – beide Dialoge liegen
  *                                   gleichzeitig im Dokument, gleichnamige
  *                                   Radiogruppen würden sich sonst koppeln
+ * @param {string} [scopeNote]       wo die gemeinsame Wahl gilt
  */
-export function assistantChooserHtml(currentAssistant, prefix) {
+export function assistantChooserHtml(currentAssistant, prefix, scopeNote = 'Gilt für Kunden- und Mehrkunden-Briefing.') {
     const choice = loadAssistantChoice();
     const options = ASSISTANTS.map((entry) => `<label class="briefing-assistant-option">
             <input type="radio" name="${prefix}-assistant" value="${entry.id}"${entry.id === choice.id ? ' checked' : ''}>
@@ -39,7 +40,7 @@ export function assistantChooserHtml(currentAssistant, prefix) {
                     placeholder="https://assistent.meine-firma.de" value="${escapeHtml(choice.customUrl)}">
             </label>
             <p class="briefing-assistant-error" role="alert" hidden></p>
-            <p class="muted small">Gilt für Kunden- und Mehrkunden-Briefing. Die Wahl bestimmt nur, welches Fenster sich öffnet: TourFuchs sendet nichts – der Prompt geht erst raus, wenn du ihn dort absendest.</p>
+            <p class="muted small">${escapeHtml(scopeNote)} Die Wahl bestimmt nur, welches Fenster sich öffnet: TourFuchs sendet nichts – der Prompt geht erst raus, wenn du ihn dort absendest.</p>
         </div>
     </details>`;
 }

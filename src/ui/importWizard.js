@@ -42,6 +42,10 @@ import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { showImportInsight } from './importInsight.js';
+import { buildCustomerListPrompt } from '../features/customerListPrompt.js';
+import { copyText } from '../features/handoff.js';
+import { resolveAssistant } from '../services/assistant.js';
+import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -137,6 +141,7 @@ export function initImportWizard() {
     });
 
     initPasteImport();
+    initCustomerListAssistant(openFilePicker);
     initConsent();
     applyDataWayOrder();
     mobileQuery.addEventListener('change', applyDataWayOrder);
@@ -210,6 +215,52 @@ export function initImportWizard() {
             detail: 'Die Beispielkunden erscheinen gleich wieder auf der Karte.'
         });
         scheduleWelcomeDemo();
+    });
+}
+
+/**
+ * Kein Export zur Hand: Die Firmen-KI baut die Liste. TourFuchs kopiert nur
+ * den Prompt und öffnet den gewählten Assistenten (gleiche Wahl wie beim
+ * Briefing); das Ergebnis kommt über die bekannten Wege herein – Einfügen
+ * oder Datei – inklusive Berechtigungs-Zusicherung und Spalten-Prüfung.
+ */
+function initCustomerListAssistant(openFilePicker) {
+    const kiDialog = document.getElementById('ki-list-dialog');
+    if (!kiDialog) return;
+    const prompt = buildCustomerListPrompt();
+    const launch = document.getElementById('ki-list-launch');
+    const chooser = document.getElementById('ki-list-assistant');
+    let assistant = resolveAssistant();
+    const syncLaunch = () => { launch.textContent = `📋 Prompt kopieren & ${assistant.label} öffnen`; };
+
+    document.getElementById('ki-list-prompt').textContent = prompt;
+    document.getElementById('btn-ki-list')?.addEventListener('click', () => {
+        assistant = resolveAssistant();
+        chooser.innerHTML = assistantChooserHtml(assistant, 'kilist', 'Gilt auch für die Briefings.');
+        wireAssistantChooser(chooser, 'kilist', (next) => { assistant = next; syncLaunch(); });
+        syncLaunch();
+        if (ownDataDialog?.open) ownDataDialog.close();
+        kiDialog.showModal();
+    });
+    kiDialog.querySelector('.dialog-close')?.addEventListener('click', () => kiDialog.close());
+    launch.addEventListener('click', async () => {
+        // Wie beim Briefing: Kopieren anstoßen, solange das Fenster den Fokus
+        // hat, dann – noch in der Nutzergeste – den Assistenten öffnen.
+        const copyPromise = copyText(prompt);
+        launchAssistant(assistant);
+        const copied = await copyPromise;
+        showToast(copied
+            ? `Prompt kopiert – in ${assistant.label} einfügen und absenden. Danach hier „Ergebnis einfügen".`
+            : 'Kopieren hat nicht geklappt – den Prompt unter „Prompt ansehen" markieren und kopieren.',
+        copied ? 'success' : 'error', 7000);
+    });
+    document.getElementById('ki-list-paste')?.addEventListener('click', () => {
+        kiDialog.close();
+        openPasteDialog();
+    });
+    document.getElementById('ki-list-file')?.addEventListener('click', () => {
+        kiDialog.close();
+        openFilePicker();
     });
 }
 

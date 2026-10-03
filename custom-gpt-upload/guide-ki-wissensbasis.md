@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.11 · Stand: 02.10.2026 · App-Version: 3.5.0**
+**Version 3.12 · Stand: 03.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -859,6 +859,49 @@ Danach wählt der Nutzer zwischen:
 
 Die zweite Option ist nur für eine `.tfsafe`-Datei aus dem sicheren
 Geräteumzug. Danach wird der getrennte Schlüssel-QR benötigt.
+
+#### 7.1.1 Kein Export zur Hand: Liste von der Firmen-KI
+
+**Klickpfad:** `"Daten" -> "Eigene Daten laden" -> "Excel- oder CSV-Liste" ->
+"🤖 Kein Export zur Hand? Liste von deiner Firmen-KI erstellen lassen"`.
+
+Für Nutzer, die keine fertige Liste haben, aber Zugriff auf die KI ihres
+Unternehmens (z. B. Microsoft 365 Copilot), die CRM-Exporte, Excel-Listen und
+Berichte lesen darf. Der Dialog **"Kundenliste von deiner Firmen-KI"** zeigt
+drei Schritte:
+
+1. **"Prompt kopieren & Microsoft 365 Copilot öffnen"** – der Knopf nennt den
+   gewählten Assistenten (gleiche Zielwahl wie beim Briefing, 9.5). Im
+   Assistenten einfügen und absenden.
+2. **Ergebnis prüfen** – auch eine Firmen-KI kann sich irren oder Lücken lassen.
+3. **"Ergebnis einfügen"** (Tabelle aus dem Chat kopiert) oder **"Excel-Datei der
+   KI auswählen"** (wenn die KI eine Datei geliefert hat). Danach läuft der
+   normale Import mit Berechtigungs-Bestätigung und Spaltenzuordnung.
+
+Unter **"Prompt ansehen"** steht der vollständige Text. Er bittet um alle Kunden,
+die dem Nutzer als Vertriebsmitarbeiter zugeordnet sind, und verlangt genau diese
+Spaltenüberschriften, die TourFuchs ohne Nacharbeit erkennt: Kundennummer,
+Kundenname, Straße, PLZ, Ort, Vertriebsbeauftragter, Vertriebsbezirk,
+Hauptansprechpartner, Telefon, E-Mail, Umsatz, Besuchsrhythmus (Wochen), Letzter
+Besuch (TT.MM.JJJJ). Regeln im Prompt: nur echte Daten aus zugänglichen
+Unternehmensquellen, **nichts erfinden** (Unbekanntes bleibt leer), eine Zeile
+pro Kunde, Quellen nennen, bevorzugt eine Excel-Datei. Hat die KI keinen Zugriff,
+soll sie das sagen und nennen, wo ein solcher Export wahrscheinlich liegt.
+
+**Datenschutz:** TourFuchs ruft keine KI auf und überträgt nichts. Es kopiert den
+Prompt (der keine Kundendaten enthält) und öffnet den Assistenten. Ob die Firmen-KI
+die Kundendaten verarbeiten darf, regeln die Vorgaben des Unternehmens.
+
+**Typische Probleme:**
+
+- *Die KI findet keine Kunden:* Ohne Zugriff auf CRM oder Exporte kann sie nichts
+  liefern. Ihre Antwort nennt meist, wo der Export liegt – dann diesen Export
+  direkt über "Excel-/CSV-Datei auswählen" laden.
+- *Die Antwort enthält Text um die Tabelle herum:* kein Problem – die ganze
+  Antwort kopieren und einfügen; TourFuchs schneidet die Tabelle heraus (auch
+  Markdown-Tabellen). Kommt die Liste in mehreren Abschnitten, übernimmt das
+  Einfügen nur den größten – dann die KI um eine Excel-Datei bitten.
+- *Spalten heißen anders:* Die Spaltenzuordnung zeigt es; dort von Hand zuordnen.
 
 ### 7.2 Demo-Daten
 
@@ -3468,6 +3511,13 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.12 (03.10.2026)
+
+- **Kundenliste von der Firmen-KI** (7.1.1): neuer, leiser Weg in "Eigene Daten
+  laden" für Nutzer ohne Export. TourFuchs kopiert einen Prompt mit genau den
+  erkannten Spaltenüberschriften und öffnet den gewählten Assistenten; das
+  Ergebnis kommt über Einfügen oder Datei in den normalen Import.
 
 ### 26.3 Änderungen in Version 3.11 (02.10.2026)
 

@@ -3088,3 +3088,30 @@ body:not(.guide-on) .guide-open { display: none !important; }
 body.welcome-arriving #onboarding .ob-hero,
 body.welcome-arriving #onboarding > button,
 body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
+
+/* Kundenliste von der Firmen-KI */
+.ki-list-dialog {
+    width: 520px;
+    max-width: min(520px, calc(100vw - 24px));
+    max-height: calc(100dvh - 24px);
+    overflow-y: auto;
+}
+.ki-list-dialog header h2 { font-size: 1.15rem; }
+.ki-list-dialog > p { margin: 0 0 8px; line-height: 1.4; }
+.ki-list-steps { margin: 0 0 10px; padding-left: 20px; line-height: 1.45; font-size: 0.92rem; }
+.ki-list-steps li + li { margin-top: 4px; }
+.ki-list-preview { margin: 0 0 10px; }
+.ki-list-preview summary { cursor: pointer; font-weight: 600; color: var(--color-primary-dark); }
+.ki-list-preview pre {
+    margin: 8px 0 0;
+    padding: 10px 12px;
+    max-height: 220px;
+    overflow: auto;
+    white-space: pre-wrap;
+    font: 0.8rem/1.45 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: var(--color-surface-2);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+}
+.ki-list-dialog footer { flex-wrap: wrap; }
+.ki-list-dialog footer button { flex: 1 1 100%; }
