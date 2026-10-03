@@ -462,7 +462,7 @@
                 </div>
                 <!-- Zweiter Einstieg (nur Handy): eine fertige Tour vom Desktop
                      holen. Gehört zu den Start-Aktionen, nicht ans Listenende. -->
-                <button id="btn-tour-scan" class="only-mobile btn-scan-entry">📷 Tour vom Desktop holen</button>
+                <button id="btn-tour-scan" class="only-mobile btn-scan-entry">📷 Tour per QR übernehmen</button>
                 <div id="tour-sales-map-view" class="aussen-view-block expert-only expert-swipe-section" data-expert-section="map-view">
                     <span class="field-label">Kartenansicht</span>
                     <div class="seg-toggle" id="aussen-view" role="group" aria-label="Kartenansicht">
@@ -551,6 +551,7 @@
                     <button id="btn-route-focus" disabled>🗺️ Route auf Karte anzeigen</button>
                     <button id="btn-gmaps" disabled>🧭 In Google Maps navigieren</button>
                     <button id="btn-tour-qr" class="only-desktop qr-handoff" disabled>📲 An Handy übergeben (QR)</button>
+                    <button id="btn-tour-qr-phone" class="only-mobile qr-handoff" disabled>📲 Tour per QR teilen</button>
                     <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" disabled>🖨️ Tagesplan drucken</button>
                     <button id="btn-tour-ics" data-expert-section="tour-ics" disabled>📅 Kalender-Export (.ics)</button>
                     <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
@@ -1392,19 +1393,19 @@
 
         <dialog id="qr-share-dialog">
             <header>
-                <h2>📲 Tour an Handy übergeben</h2>
+                <h2 id="qr-share-title">📲 Tour an Handy übergeben</h2>
                 <button class="dialog-close" aria-label="Schließen">Schließen</button>
             </header>
             <div class="qr-share-body">
                 <canvas id="qr-share-canvas"></canvas>
                 <p id="qr-share-info" class="muted small"></p>
-                <p class="muted small">Einfach mit der <b>normalen Handy-Kamera</b> scannen – der Link öffnet TourFuchs (installierte App oder Browser) direkt mit dieser Tour. Alternativ in TourFuchs <b>„Tour vom Desktop scannen"</b> nutzen. Es wird nur die Tour übertragen – Bildschirm zu Kamera, ohne Netzwerk und ohne Server.</p>
+                <p class="muted small">Einfach mit der <b>normalen Handy-Kamera</b> scannen – der Link öffnet TourFuchs (installierte App oder Browser) direkt mit dieser Tour. Alternativ in TourFuchs <b>„Tour per QR übernehmen"</b> nutzen. Es wird nur die Tour übertragen – Bildschirm zu Kamera, ohne Netzwerk und ohne Server.</p>
             </div>
         </dialog>
 
         <dialog id="qr-scan-dialog">
             <header>
-                <h2>📷 Tour vom Desktop scannen</h2>
+                <h2>📷 Tour per QR scannen</h2>
                 <button class="dialog-close" aria-label="Schließen">Schließen</button>
             </header>
             <div class="qr-scan-body">

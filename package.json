@@ -1,6 +1,6 @@
 {
   "name": "tourfuchs",
-  "version": "3.6.0",
+  "version": "3.7.0",
   "description": "TourFuchs – Kunden sehen, Tour planen und lokale Briefing-Prompts vorbereiten. PWA, alle Daten bleiben im Browser.",
   "type": "module",
   "scripts": {
