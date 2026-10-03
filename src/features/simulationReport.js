@@ -27,6 +27,7 @@
 import { formatRevenueFull, formatRevenueShort } from '../core/format.js';
 import { DEMO_DATA_LABEL } from '../core/demoSafety.js';
 import { fairness } from './territory.js';
+import { openPrintView } from '../ui/printView.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -290,9 +291,5 @@ export function reportHtml(model) {
  * @returns {boolean} false, wenn der Browser das Fenster blockiert hat
  */
 export function printSimulationReport(model, open = (...args) => window.open(...args)) {
-    const win = open('', '_blank');
-    if (!win) return false;
-    win.document.write(reportHtml(model));
-    win.document.close();
-    return true;
+    return openPrintView(reportHtml(model), { open });
 }

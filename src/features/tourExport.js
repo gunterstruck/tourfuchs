@@ -9,6 +9,7 @@ import { DEMO_DATA_LABEL, hasDemoCustomers, isDemoCustomer } from '../core/demoS
 import { distanceKm } from '../services/geocode.js';
 import { zanoboMachineUrl } from '../services/zanobo.js';
 import { formatDateDe, lastVisit, agoText } from './visits.js';
+import { openPrintView } from '../ui/printView.js';
 
 export const DEFAULT_VISIT_MINUTES = 45; // Standard-Besuchsdauer (im UI einstellbar)
 const AVG_SPEED_KMH = 60;      // Durchschnittstempo für Fahrzeit-Schätzung
@@ -147,14 +148,9 @@ export function printDayPlan(start, stops, {
         <p class="foot">${planned
             ? `Bestätigter Service-Tagesvorschlag · Rückkehr ${escapeHtml(String(servicePlan?.metrics?.finishAt || '').slice(11, 16) || '—')} · Fahrzeiten bleiben Planungsschätzungen.`
             : `Zeiten geschätzt (${visitMinutes} min je Besuch, ${AVG_SPEED_KMH} km/h Fahrt).`} Erstellt mit TourFuchs Vertrieb.</p>
-        <button class="noprint" onclick="window.print()" style="margin-top:16px;padding:8px 16px;">Drucken</button>
         </body></html>`;
 
-    const win = window.open('', '_blank');
-    if (!win) return false;
-    win.document.write(html);
-    win.document.close();
-    return true;
+    return openPrintView(html);
 }
 
 function icsEscape(text) {
