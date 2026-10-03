@@ -825,6 +825,8 @@
                     <!-- Hilfe dort, wo man unsicher wird: die passende Live-Demo. Danach
                          kehrt TourFuchs hierher zurück (keine Demo-Schleife). -->
                     <button type="button" class="linklike own-data-demo" data-demo-story="import-zuordnung">▶ Wie läuft der Import ab? Live-Demo ansehen (40 s)</button>
+                    <!-- Kein Export zur Hand: die Firmen-KI baut die Liste im passenden Format. -->
+                    <button id="btn-ki-list" type="button" class="linklike">🤖 Kein Export zur Hand? Liste von deiner Firmen-KI erstellen lassen</button>
                     <button id="btn-template" class="linklike">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
                 </section>
                 <section class="own-data-option" aria-labelledby="own-data-safe-title">
@@ -915,6 +917,31 @@
             <footer>
                 <button id="paste-cancel">Abbrechen</button>
                 <button id="paste-confirm" class="primary" disabled>Spalten zuordnen</button>
+            </footer>
+        </dialog>
+
+        <!-- Kundenliste von der Firmen-KI: TourFuchs kopiert nur den Prompt und
+             öffnet den Assistenten – es ruft selbst keine KI auf. -->
+        <dialog id="ki-list-dialog" class="ki-list-dialog" aria-label="Kundenliste von deiner Firmen-KI">
+            <header>
+                <h2>🤖 Kundenliste von deiner Firmen-KI</h2>
+                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+            </header>
+            <p class="muted small">Viele Firmen-KIs wie Microsoft 365 Copilot kennen eure CRM-Exporte und Excel-Listen. Dieser Prompt bittet sie um eine Kundenliste mit Spalten, die TourFuchs direkt erkennt.</p>
+            <ol class="ki-list-steps">
+                <li><b>Prompt kopieren</b> – der Assistent öffnet sich im neuen Fenster. Dort einfügen und absenden.</li>
+                <li><b>Ergebnis prüfen.</b> Auch eine Firmen-KI kann sich irren oder Lücken lassen.</li>
+                <li>Tabelle kopieren und hier <b>einfügen</b> – oder die Excel-Datei der KI auswählen.</li>
+            </ol>
+            <details class="ki-list-preview">
+                <summary>Prompt ansehen</summary>
+                <pre id="ki-list-prompt"></pre>
+            </details>
+            <div id="ki-list-assistant"></div>
+            <footer>
+                <button id="ki-list-launch" type="button" class="primary">📋 Prompt kopieren &amp; Copilot öffnen</button>
+                <button id="ki-list-paste" type="button">📋 Ergebnis einfügen</button>
+                <button id="ki-list-file" type="button">📁 Excel-Datei der KI auswählen</button>
             </footer>
         </dialog>
 
