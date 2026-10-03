@@ -267,7 +267,7 @@ const FASSUNGEN = {
         abspann: `<span class="fox">🦊</span>
             <h1>Umfahren. Briefen lassen. Entscheiden.</h1>
             <p class="url">tourfuchs.vercel.app</p>
-            <p class="fine">Alle Kunden und Vorgänge in diesem Film sind erfunden.<br>Privates Projekt, kostenlos, ohne Gewähr.</p>`
+            <p class="fine">Alle Kunden und Vorgänge in diesem Film sind erfunden.<br>Privates Projekt, frei nutzbar, ohne Gewähr.</p>`
     },
     briefing: {
         titel: `<span class="kicker">TourFuchs</span>
