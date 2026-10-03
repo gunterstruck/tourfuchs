@@ -20,8 +20,8 @@ function proxyArgs() {
     return [`--ignore-certificate-errors-spki-list=${pins.join(',')}`];
 }
 
-/** App öffnen: dunkler Stil, Beispieldaten, Außendienst, Hinweise aus dem Bild. */
-export async function openApp(appUrl, { beforeLoad } = {}) {
+/** App öffnen: dunkler Stil, Beispieldaten, Modus (Außendienst oder GeoFuchs), Hinweise aus dem Bild. */
+export async function openApp(appUrl, { beforeLoad, mode = 'aussendienst' } = {}) {
     const launch = { args: ['--lang=de-DE', ...proxyArgs()] };
     if (process.env.PLAYWRIGHT_CHROMIUM_PATH) launch.executablePath = process.env.PLAYWRIGHT_CHROMIUM_PATH;
     if (process.env.FILM_PROXY) launch.proxy = { server: process.env.FILM_PROXY, bypass: new URL(appUrl).hostname };
@@ -38,7 +38,7 @@ export async function openApp(appUrl, { beforeLoad } = {}) {
     await sleep(9000);
     await p.locator('#btn-demo-welcome-ack').click().catch(() => {});
     await p.locator('#mobile-preview [data-mp-close]').last().click().catch(() => {});
-    await p.locator('.mode-btn[data-mode="aussendienst"]').click().catch(() => {});
+    await p.locator(`.mode-btn[data-mode="${mode}"]`).click().catch(() => {});
     await sleep(800);
     await p.addStyleTag({ content: `
         .toasts, #toasts, .mobile-preview, .mobile-preview-hint, .context-help, .first-steps-float,
