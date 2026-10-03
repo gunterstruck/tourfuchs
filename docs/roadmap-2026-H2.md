@@ -649,6 +649,18 @@ der Prompt mit einer echten Firmen-KI und echten Nutzern getestet ist. Erst die
 Befunde (Liefert Copilot eine Datei oder eine Tabelle? Findet es die Kunden?
 Wo hakt es?) entscheiden über den nächsten Schritt.
 
+### Offene Themen mit Auslöser *(von jeder KI-Sitzung zuerst prüfen)*
+
+Themen, die nicht gebaut werden, bis ihr Auslöser eintritt – aber nicht
+vergessen werden dürfen. Wer (Mensch oder KI) an TourFuchs arbeitet, prüft
+diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnte.
+
+| Thema | Auslöser | Stand | Details |
+|---|---|---|---|
+| **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT |
+| **Praxistest Firmen-KI-Kundenliste** | Der Verantwortliche hat den Prompt mit einem echten Firmen-Copilot getestet. | offen seit 03.10.2026 – Baustopp bis dahin | Abschnitt „Einstieg mit eigenen Daten" oben; Befund entscheidet über den nächsten Schritt |
+| **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | offen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren |
+
 ### Backlog & Vision (bewusst NICHT jetzt)
 
 - **POIs auf der Karte** (Ladestationen): nur als Opt-in – externe POI-Abfragen
