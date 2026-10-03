@@ -547,9 +547,13 @@ Antwort. Ein Halbsatz genügt – „MIT, privates Projekt, ohne Gewähr".
 - **Rückmeldungen einsammeln, nicht nur Reichweite zählen.** Die drei Fragen,
   die wirklich interessieren: Wie lange bis zu den eigenen Daten? Woran ist es
   gescheitert? Was hat gefehlt?
-- **Kein Tracking – bewusst.** Es wird keine Zahlen geben. Der Erfolgsmaßstab
-  sind Kommentare und Gespräche, nicht ein Dashboard. Das ist die logische Folge
-  der Bauweise und in Ordnung – man muss es nur vorher wissen.
+- **Kein Tracking einzelner Personen – aber eine anonyme Zählung.** *(Geändert
+  am 03.10.2026.)* Ursprünglich hieß es hier „Es wird keine Zahlen geben". Das
+  reicht nicht, sobald TourFuchs Pflegebudget braucht: Dann muss neutral belegbar
+  sein, ob es genutzt wird. Seitdem zählt TourFuchs cookielos die Seitenaufrufe
+  (Vercel Web Analytics) – ohne eigene Ereignisse, ohne Kundendaten, mit Respekt
+  vor „Do Not Track". Gespräche bleiben der Kern; die Zahl zeigt den Trend.
+  Einzelheiten: [Nutzungsnachweis](nutzungsnachweis.md).
 
 ---
 

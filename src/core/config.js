@@ -3,6 +3,14 @@
  */
 
 export const CONFIG = {
+    // Anonyme Nutzungszählung (Vercel Web Analytics, cookielos): nur auf den hier
+    // genannten Adressen. Eine Firmen-Installation unter eigener Adresse zählt
+    // nichts, solange sie hier nicht eingetragen ist. Einzelheiten und Grenzen:
+    // docs/nutzungsnachweis.md.
+    usageCount: {
+        hosts: ['tourfuchs.vercel.app'],
+        scriptSrc: '/_vercel/insights/script.js'
+    },
     // TourFuchs-Guide: eigener GPT bei ChatGPT (OpenAI) – läuft AUSSERHALB der
     // Organisation. TourFuchs verlinkt ihn nur (Einbetten verbietet ChatGPT) und
     // warnt vor jedem Öffnen; es werden keine Daten übergeben.

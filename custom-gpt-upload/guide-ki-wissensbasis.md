@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.12 · Stand: 03.10.2026 · App-Version: 3.5.0**
+**Version 3.13 · Stand: 03.10.2026 · App-Version: 3.5.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -2683,6 +2683,7 @@ Dienste übergeben.
 | Ortssuche für Start/Ziel | Tippen im Suchfeld | keine externe Übertragung | dieselbe lokale PLZ-Tabelle |
 | Eigene Orte merken | Klick auf "★ merken" | keine externe Übertragung; lokal gespeichert (im Tresor verschlüsselt) | nur TourFuchs im Browser |
 | Kartenanzeige | Karte betrachten | technische Zugriffsdaten, Kachelkoordinaten | OSM/Esri-Kacheldienste |
+| Anonyme Nutzungszählung | Seitenaufruf auf `tourfuchs.vercel.app` (nicht bei "Do Not Track"/GPC) | Adresse ohne Suchteil/Fragment, Herkunftsseite, Browser/OS/Gerätetyp/Land; keine Cookies, keine Kunden- oder Bediendaten | Vercel Web Analytics |
 | Adressen exakt verorten | bewusster Klick bei Echtdaten | Straße, PLZ, Ort | Nominatim/OpenStreetMap |
 | Straßenroute/Korridor | nach Zustimmung | Koordinaten der Routenpunkte | OSRM |
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |
@@ -2692,6 +2693,26 @@ Dienste übergeben.
 | Demo-Kontakt und Demo-Briefing | Klick auf sichtbare Demo-Aktion | keine externe Übertragung; lokale Simulation/Vorschau | nur TourFuchs im Browser |
 | Tour-QR | QR anzeigen/scannen | keine TourFuchs-Serverübertragung; Tour im QR/URL-Fragment | Bildschirm/Kamera |
 | Sicherer Umzug | Export/Import | TourFuchs lädt nichts hoch; Dateiweg vom Nutzer gewählt | lokales Dateisystem/gewählter Kanal |
+
+### 16.2a Anonyme Nutzungszählung
+
+TourFuchs zählt auf `tourfuchs.vercel.app` die **Seitenaufrufe** mit Vercel Web
+Analytics – **ohne Cookies**, ohne Kennung auf dem Gerät, ohne eigene Ereignisse
+(kein "Import", kein "Tour geplant"). Gemeldet wird nur die Adresse ohne Suchteil
+und Fragment; eine geteilte Tour verlässt das Gerät dadurch nie. Bei "Do Not
+Track" oder Global Privacy Control, in der Handy-Vorschau und auf anderen Adressen
+(Vorschauen, Firmen-Installation) wird nicht gezählt.
+
+**Zweck:** neutraler Beleg, **ob** TourFuchs genutzt wird – etwa als Grundlage für
+ein Pflegebudget im Unternehmen –, ohne Mitarbeiter zu überwachen. Es ist
+**keine** Leistungs- oder Verhaltenskontrolle möglich: keine Person, kein Gerät
+über den Tag hinaus, keine Inhalte.
+
+**Musterantwort auf "Werde ich überwacht?":** Nein. TourFuchs zählt nur anonym,
+dass die Seite aufgerufen wurde – nicht wer, nicht was du darin tust. Kundendaten
+bleiben immer auf deinem Gerät. Mit "Do Not Track" im Browser wird auch nicht
+gezählt. Einzelheiten: Datenschutzerklärung Abschnitt 4a und
+`docs/nutzungsnachweis.md`.
 
 ### 16.3 Was Nominatim nicht erhält
 
@@ -3511,6 +3532,14 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.13 (03.10.2026)
+
+- **Anonyme Nutzungszählung** (16.2, 16.2a): Seitenaufrufe auf
+  `tourfuchs.vercel.app` werden cookielos gezählt (Vercel Web Analytics), ohne
+  eigene Ereignisse und ohne Kunden- oder Bediendaten; "Do Not Track" wird
+  respektiert. Das frühere "kein Tracking" heißt jetzt genauer "keine
+  Verfolgung einzelner Personen".
 
 ### 26.3 Änderungen in Version 3.12 (03.10.2026)
 

@@ -50,11 +50,14 @@ Zeitraffer bleiben, wo sie sind, bis die Nische sie verlangt.
 Branchen → angrenzende Rollen (z. B. Service-Techniker).
 
 **Messen:** Nutzer fragen bleibt der Kern (Wie lange bis zu den eigenen Daten?
-Woran ist es gescheitert? Was hat gefehlt?). Ob zusätzlich eine anonyme,
-cookielose Besucherzählung (Vercel Web Analytics) kommt, ist **offen** – sie
-würde das bisherige Versprechen „kein Tracking" ändern und braucht deshalb eine
-ausdrückliche Entscheidung des Verantwortlichen sowie eine angepasste
-Datenschutzerklärung (vgl. go-to-market.md, „Kein Tracking – bewusst").
+Woran ist es gescheitert? Was hat gefehlt?). Dazu kommt seit 03.10.2026 eine
+**anonyme, cookielose Zählung der Seitenaufrufe** (Vercel Web Analytics) –
+entschieden vom Verantwortlichen. Grund: Wird TourFuchs je im Unternehmen
+betrieben, kostet Pflege Geld, und das Budget braucht einen neutralen Beleg, dass
+das Werkzeug genutzt wird – ohne dass der Verdacht einer Mitarbeiterüberwachung
+entsteht (Betriebsrat). Deshalb nur Seitenaufrufe, keine eigenen Ereignisse,
+keine Kundendaten, „Do Not Track" wird respektiert. Merkblatt für Budget und
+Betriebsrat: [Nutzungsnachweis](nutzungsnachweis.md).
 
 ---
 
