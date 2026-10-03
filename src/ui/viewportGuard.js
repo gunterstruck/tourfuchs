@@ -28,6 +28,25 @@ export function applyViewportHeight({ win = window, doc = document } = {}) {
     return h;
 }
 
+/**
+ * Hat iOS die Seite beim Tippen in ein Feld doch herangezoomt (etwa weil ein
+ * Feld kleiner als 16px erscheint), bleibt sie danach gezoomt. Beim Verlassen
+ * des Feldes setzt TourFuchs den Zoom zurück: kurz `maximum-scale=1` in den
+ * Viewport-Tag, dann wieder den ursprünglichen Inhalt – Pinch-Zoom bleibt
+ * danach wie vorher erlaubt.
+ */
+export function resetInputZoom({ win = window, doc = document } = {}) {
+    const scale = win.visualViewport?.scale ?? 1;
+    if (scale <= 1.01) return false;
+    const meta = doc.querySelector('meta[name="viewport"]');
+    if (!meta) return false;
+    const original = meta.getAttribute('content') || '';
+    if (/maximum-scale/.test(original)) return false;
+    meta.setAttribute('content', `${original}, maximum-scale=1`);
+    win.setTimeout(() => meta.setAttribute('content', original), 400);
+    return true;
+}
+
 export function initViewportGuard({ win = window, doc = document } = {}) {
     let frame = 0;
     const timers = [];
@@ -45,6 +64,14 @@ export function initViewportGuard({ win = window, doc = document } = {}) {
     win.addEventListener('orientationchange', syncSoon);
     win.addEventListener('pageshow', syncSoon);
     win.visualViewport?.addEventListener('resize', sync);
+    doc.addEventListener('focusout', (event) => {
+        if (!event.target?.matches?.('input, textarea, select')) return;
+        // Erst wenn kein anderes Feld den Fokus übernimmt (Tastatur geht zu).
+        win.setTimeout(() => {
+            if (doc.activeElement?.matches?.('input, textarea, select')) return;
+            if (resetInputZoom({ win, doc })) syncSoon();
+        }, 120);
+    });
     doc.addEventListener('visibilitychange', () => {
         if (doc.visibilityState === 'visible') syncSoon();
     });

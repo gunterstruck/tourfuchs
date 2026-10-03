@@ -1,7 +1,7 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { applyViewportHeight, currentViewportHeight } from '../src/ui/viewportGuard.js';
+import { applyViewportHeight, currentViewportHeight, resetInputZoom } from '../src/ui/viewportGuard.js';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 
@@ -48,5 +48,23 @@ describe('iPhone, installierte App: Statusleiste und Fensterhöhe', () => {
         const card = css.slice(css.indexOf('.demo-welcome-card {'), css.indexOf('}', css.indexOf('.demo-welcome-card {')));
         expect(card).toContain('max-height: 100%;');
         expect(card).toContain('overflow-y: auto;');
+    });
+
+    it('setzt einen iOS-Eingabezoom beim Verlassen des Feldes zurück und gibt Pinch-Zoom wieder frei', () => {
+        vi.useFakeTimers();
+        document.head.innerHTML = '<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">';
+        const meta = document.querySelector('meta[name="viewport"]');
+        const win = { visualViewport: { scale: 1.6 }, setTimeout };
+        expect(resetInputZoom({ win, doc: document })).toBe(true);
+        expect(meta.getAttribute('content')).toContain('maximum-scale=1');
+        vi.advanceTimersByTime(450);
+        expect(meta.getAttribute('content')).not.toContain('maximum-scale');
+        expect(resetInputZoom({ win: { visualViewport: { scale: 1 }, setTimeout }, doc: document })).toBe(false);
+        vi.useRealTimers();
+    });
+
+    it('Felder im Bedienpanel gleichen die Panel-Skalierung aus', () => {
+        const css = read('src/styles/responsive.css');
+        expect(css).toContain('font-size: max(calc(16px / var(--panel-zoom, 1)), 1em) !important;');
     });
 });
