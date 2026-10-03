@@ -9,6 +9,8 @@
   sein könnte (z. B. „Der Konzern will TourFuchs selbst betreiben" →
   Umzug ins Konzern-GitHub, siehe `docs/nutzungsnachweis.md`).
 - Abschnitt **3 „Arbeitsweise (Definition of Done)"** – gilt für jeden PR.
+- `docs/wettbewerb.md` – Wettbewerber, ihre wahrscheinlichen Züge und unsere
+  Antworten. Neu ansehen, wenn dort genannte Auslöser eintreten.
 
 **Grundsätze (nicht verhandelbar):**
 - Lokal-first: Kundendaten verlassen das Gerät nicht; keine Cloud, kein Login.
