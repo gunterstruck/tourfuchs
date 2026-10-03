@@ -98,3 +98,10 @@ describe('Startansicht am Handy: Deutschland über den Pillen', () => {
         expect(map).toMatch(/bottom = Math\.max\(bottom, Math\.round\(mapRect\.bottom - fabRect\.top \+ 10\)\)/);
     });
 });
+
+describe('Suche am Handy: Treffer über die ganze Breite', () => {
+    it('löst die Trefferliste vom schmalen Suchfeld', () => {
+        const css = read('src/styles/responsive.css');
+        expect(css).toMatch(/\.search-results \{\s*position: fixed;\s*top: calc\(var\(--topbar-height\) \+ 6px\);\s*left: 8px;\s*right: 8px;/);
+    });
+});
