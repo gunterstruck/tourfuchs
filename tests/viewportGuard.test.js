@@ -6,13 +6,27 @@ import { applyViewportHeight, currentViewportHeight } from '../src/ui/viewportGu
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 
 describe('iPhone, installierte App: Statusleiste und Fensterhöhe', () => {
-    it('setzt --app-height aus der echten Fensterhöhe und setzt eine verrutschte Seite zurück', () => {
+    it('setzt --app-height aus der Layout-Höhe und setzt eine verrutschte Seite zurück', () => {
         const scrolls = [];
-        const win = { innerHeight: 667.4, visualViewport: { height: 420 }, scrollY: 40, scrollX: 0, scrollTo: (x, y) => scrolls.push([x, y]) };
-        expect(currentViewportHeight(win)).toBe(667); // Tastatur offen: volle Höhe behalten
-        applyViewportHeight({ win, doc: document });
+        const doc = { documentElement: { clientHeight: 667, style: document.documentElement.style } };
+        const win = { innerHeight: 667.4, visualViewport: { height: 420, scale: 1 }, scrollY: 40, scrollX: 0, scrollTo: (x, y) => scrolls.push([x, y]) };
+        expect(currentViewportHeight(win, doc)).toBe(667); // Tastatur offen: volle Höhe behalten
+        applyViewportHeight({ win, doc });
         expect(document.documentElement.style.getPropertyValue('--app-height')).toBe('667px');
         expect(scrolls).toEqual([[0, 0]]);
+    });
+
+    it('bleibt beim Heranzoomen (iOS, Eingabefeld) bei der vollen Höhe', () => {
+        const doc = { documentElement: { clientHeight: 667 } };
+        const zoomed = { innerHeight: 310, visualViewport: { height: 310, scale: 2.1 } };
+        expect(currentViewportHeight(zoomed, doc)).toBe(667);
+    });
+
+    it('Eingabefelder haben auf Touch-Geräten mindestens 16px (kein Auto-Zoom in iOS)', () => {
+        const css = read('src/styles/responsive.css');
+        const block = css.slice(css.lastIndexOf('@media (hover: none) and (pointer: coarse)'));
+        expect(block).toContain('textarea');
+        expect(block).toContain('font-size: max(16px, 1em) !important;');
     });
 
     it('die App-Höhe kommt aus --app-height, mit 100dvh als Rückfall', () => {
