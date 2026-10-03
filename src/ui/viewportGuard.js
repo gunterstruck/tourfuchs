@@ -11,16 +11,18 @@
  * Fenster seine Größe ändert oder das Gerät gedreht wird. Eine verrutschte
  * Seite (scrollY ≠ 0) wird dabei zurückgesetzt.
  */
-export function currentViewportHeight(win = window) {
-    const inner = Math.round(win.innerHeight || 0);
-    const visual = Math.round(win.visualViewport?.height || 0);
-    // Tastatur offen: visualViewport ist kleiner – die App behält die volle
-    // Höhe (innerHeight), damit nichts springt.
-    return Math.max(inner, visual) || 0;
+export function currentViewportHeight(win = window, doc = win.document) {
+    // Layout-Höhe: Sie ändert sich weder mit der Tastatur noch, wenn iOS die
+    // Seite heranzoomt. innerHeight schrumpft beim Zoomen – die App wäre dann
+    // nur halb hoch (graue Fläche unter der Karte).
+    const layout = Math.round(doc?.documentElement?.clientHeight || 0);
+    const scale = win.visualViewport?.scale ?? 1;
+    const inner = Math.abs(scale - 1) < 0.01 ? Math.round(win.innerHeight || 0) : 0;
+    return Math.max(layout, inner) || 0;
 }
 
 export function applyViewportHeight({ win = window, doc = document } = {}) {
-    const h = currentViewportHeight(win);
+    const h = currentViewportHeight(win, doc);
     if (h > 0) doc.documentElement.style.setProperty('--app-height', `${h}px`);
     if (win.scrollY || win.scrollX) win.scrollTo(0, 0);
     return h;
