@@ -1,4 +1,4 @@
-﻿# 🦊 TourFuchs Vertrieb
+# 🦊 TourFuchs Vertrieb
 
 **Kunden sehen. Tour planen. Gut vorbereitet hinfahren.**
 
@@ -99,7 +99,7 @@ Eine Datei mit Kundenzeilen gilt als **neuer vollständiger Kundenbestand**. Sin
 
 ### Datenschutz
 
-- Kundendaten werden **lokal im Browser** gespeichert (IndexedDB); der Betreiber erhält sie nicht und es gibt kein Tracking.
+- Kundendaten werden **lokal im Browser** gespeichert (IndexedDB); der Betreiber erhält sie nicht. Gezählt werden nur anonym und ohne Cookies die Seitenaufrufe auf `tourfuchs.vercel.app` (siehe [Nutzungsnachweis](docs/nutzungsnachweis.md)).
 - Bei Demo-Kunden werden Telefon, E-Mail, Briefing und exakte Adress-Geocodierung nicht extern gestartet. Die sichtbaren Aktionen sind sichere Simulationen; echte importierte Kunden bleiben unverändert nutzbar.
 - Beim **Kunden- und beim Mehrkunden-Briefing** entsteht der Prompt ausschließlich lokal, ist im Dialog unter „🔍 Vollständigen Prompt ansehen" im Wortlaut einsehbar (aufklappbar, **vor** dem Kopieren) und wird nur in die Zwischenablage kopiert. Eine Übertragung erfolgt erst, wenn der Nutzer ihn selbst im Assistenten einfügt und absendet. TourFuchs führt dabei keine Anmeldung und keinen API-Aufruf durch; eine frühere automatische Entra-/Graph-Anbindung wurde entfernt.
 - Nur die optionale adressgenaue Verortung sendet die jeweilige Adresse an OpenStreetMap (Nominatim), gedrosselt gemäß deren Nutzungsrichtlinie. Die **Ortssuche für Start und Ziel** gehört ausdrücklich **nicht** dazu: Sie sucht ausschließlich in den mitgelieferten Postleitzahl-Daten, der eingegebene Text verlässt das Gerät nicht.
