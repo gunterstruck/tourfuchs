@@ -443,7 +443,7 @@ Kundenliste irgendwo hochgeladen wird.
 Der Film ist übrigens keine Animation: Das ist eine Live-Demo, die in der App
 steckt. Ihr könnt sie selbst starten.
 
-(Alle Kunden im Video sind erfunden. Privates Projekt, kostenlos, ohne Gewähr.)
+(Alle Kunden im Video sind erfunden. Privates Projekt, frei nutzbar, ohne Gewähr.)
 
 #Vertrieb #Außendienst #KI
 ```
