@@ -35,6 +35,16 @@
     /* Erweiterungen sind am Handy nicht gewünscht. */
     .pkg-chips { display: none !important; }
     .search-wrap { max-width: none; }
+    /* Trefferliste über (fast) die ganze Breite statt so schmal wie das
+       Suchfeld: Namen, PLZ und Ort passen in eine Zeile, statt in fünf
+       umzubrechen. Bezug ist die Kopfzeile (Glas = eigener Rahmen), die
+       ohnehin die volle Breite einnimmt. */
+    .search-results {
+        position: fixed;
+        top: calc(var(--topbar-height) + 6px);
+        left: 8px;
+        right: 8px;
+    }
 
     .sidebar { box-shadow: var(--shadow-2); }
 }
