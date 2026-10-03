@@ -30,14 +30,26 @@ export function volumeIsWritable(audio) {
     }
 }
 
+/**
+ * iPhone/iPad erkennen (auch iPadOS, das sich als Mac ausgibt). Neuere iOS-
+ * Versionen melden einen gesetzten `volume`-Wert zurück, spielen aber trotzdem
+ * mit voller Lautstärke – die Rückfrage allein reicht dort nicht.
+ */
+export function isAppleMobile(nav = globalThis.navigator) {
+    if (!nav) return false;
+    const ua = String(nav.userAgent || '');
+    return /iPad|iPhone|iPod/.test(ua) || (nav.platform === 'MacIntel' && Number(nav.maxTouchPoints) > 1);
+}
+
 function defaultCreateContext() {
     const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
     return Ctor ? new Ctor() : null;
 }
 
 export class ShowcaseMusic {
-    constructor({ createAudio = () => new Audio(), createContext = defaultCreateContext, onChange = () => {} } = {}) {
+    constructor({ createAudio = () => new Audio(), createContext = defaultCreateContext, onChange = () => {}, appleMobile = isAppleMobile() } = {}) {
         this.createAudio = createAudio;
+        this.appleMobile = appleMobile;
         this.createContext = createContext;
         this.context = null;  // nur, wo audio.volume nicht wirkt (iOS)
         this.source = null;
@@ -153,7 +165,7 @@ export class ShowcaseMusic {
 
     /** Nur wo nötig (iOS): Element über einen Verstärker an den Ausgang hängen. */
     attachGain(audio) {
-        if (volumeIsWritable(audio)) return;
+        if (!this.appleMobile && volumeIsWritable(audio)) return;
         try {
             this.context = this.context || this.createContext();
             if (!this.context) return;
