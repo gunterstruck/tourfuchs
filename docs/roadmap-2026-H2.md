@@ -47,8 +47,10 @@ Wenn nein → Backlog, egal wie gut sie ist. GeoFuchs, ServiceFuchs und der
 Zeitraffer bleiben, wo sie sind, bis die Nische sie verlangt.
 
 **Wettbewerb:** Wir konkurrieren nicht in Funktionen (CRM-Abgleich, Teams,
-Verträge sind das Heimspiel der Anbieter), sondern mit null Hürde,
-nachprüfbarem Vertrauen und Emotion. Wettbewerber, ihre wahrscheinlichen Züge
+Verträge, Kaufkraftdaten sind das Heimspiel der Anbieter), sondern mit null
+Hürde, „Tour und Gebiet in einem Werkzeug“, nachprüfbarem Vertrauen und
+Emotion. Rückmeldung aus der Praxis (03.10.2026): Die Kunden als Lichter
+darzustellen kommt sehr gut an. Wettbewerber, ihre wahrscheinlichen Züge
 und unsere Antworten: [Wettbewerb](wettbewerb.md).
 
 **Wachstum danach, Schritt für Schritt:** weitere Außendienst-Teams → andere
@@ -665,6 +667,7 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
 | **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT |
 | **Praxistest Firmen-KI-Kundenliste** | Der Verantwortliche hat den Prompt mit einem echten Firmen-Copilot getestet. | offen seit 03.10.2026 – Baustopp bis dahin | Abschnitt „Einstieg mit eigenen Daten" oben; Befund entscheidet über den nächsten Schritt |
 | **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | offen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren |
+| **LinkedIn-Serie 2 „Für die Vertriebsleitung“** (GeoFuchs) | Serie 1 (Lichterkarte · Tour planen · Firmen-KI-Liste) ist gelaufen, und die Besucherzahlen bzw. Kommentare zeigen Interesse. | offen seit 03.10.2026 | Idee: drei Filme im selben Look. (1) „Deine Bezirke bei Nacht“ – Lichterkarte mit Gebietsgrenzen: Wo leuchtet es zu viel in einem Bezirk? (2) Umverteilen in Minuten – Alt/Neu mit Umsatzwirkung. (3) Fertige Entscheidungsvorlage. Botschaft gegen teure Fachsoftware: „kostenlos im Browser, auf denselben Daten wie der Außendienst“. Film-Werkzeuge: `film/lichterkarte/` (neuer `film`-Typ in `stage.html` + Aufnahmeskript). Hintergrund: [Wettbewerb](wettbewerb.md). |
 
 ### Backlog & Vision (bewusst NICHT jetzt)
 

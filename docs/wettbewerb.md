@@ -2,101 +2,177 @@
 
 **Stand: 03.10.2026 · Rolle: Product Owner · Status: Arbeitsgrundlage**
 
-Diese Seite beantwortet zwei Fragen: Was machen die Wettbewerber, gerade bei
-Werbung und Kurzfilmen? Und was würde ein Wettbewerber tun, wenn er TourFuchs
-als Bedrohung sähe, etwa nach dem Rat einer KI? Daraus folgt, wie wir uns
-aufstellen.
+TourFuchs spielt auf **zwei Feldern** zugleich: **Tourenplanung** für den
+Außendienstler (Moment A) und **Gebietsplanung** für die Vertriebsleitung
+(GeoFuchs, Moment B). Auf beiden Feldern gibt es etablierte Anbieter, aber
+kaum einen, der beides in einem Werkzeug verbindet. Diese Seite beantwortet:
+
+1. Wer ist auf welchem Feld unterwegs, und wie werben die Anbieter?
+2. Was würde ein Wettbewerber tun, wenn er TourFuchs als Bedrohung sähe,
+   etwa nach dem Rat einer KI?
+3. Wie stellen wir uns auf, und was folgt daraus für die Roadmap?
 
 > Die Recherche stützt sich auf öffentlich auffindbare Quellen (Stand oben). Sie
 > ist eine Momentaufnahme, keine vollständige Marktstudie. Was eine fremde KI
-> raten würde, ist eine begründete Einschätzung, keine Tatsache.
+> raten würde, ist eine begründete Einschätzung, keine Tatsache. Links wurden
+> per Suche gefunden, nicht jeder einzeln geprüft.
 
 ---
 
-## 1. Wer ist im Markt?
+## 1. Das Spielfeld auf einen Blick
 
-| Anbieter | Kurzprofil | Preis / Einstieg | Marketing |
-|---|---|---|---|
-| **portatour** (impactit, Wien) | Automatische Touren- und Gebietsplanung; Besuchsintervalle, Öffnungszeiten, Übernachtungen; Excel/CSV und CRM (Salesforce, Dynamics, Veeva). | Kaufprodukt für Unternehmen | Sachliche Erklärvideos (2 Min., 10-Min.-Demo), Hilfe-Center |
-| **Badger Maps** (USA) | Karten-App für den Außendienst: CRM-Daten auf Google Maps, Routenoptimierung, Leads; Excel/CSV oder CRM. | ab ca. 69 $ pro Nutzer und Monat, 7 Tage Test | Starke Inhaltsmaschine: Gründer-Podcast „Outside Sales Talk“ auf YouTube (einzelne Folgen ~30.000 Aufrufe) |
-| **easymap / EasyVisit** | Web-basierte Touren- und Besuchsplanung mit Frequenzüberwachung. | Unternehmenslizenz | Webinare, Fachportale |
-| **SPOTIO, Repsly** | Außendienst-Automatisierung (Tür-zu-Tür, Konsumgüter im Handel). | Unternehmenslizenz | Klassisches B2B-Marketing |
-| **Microsoft-Umfeld** (z. B. MapCopilot für Dynamics 365) | Karten in Dynamics, Routen per natürlicher Sprache: „Zeig alle Leads im Umkreis von 50 km und optimiere die Route“. | Zusatz zu Dynamics | Partner-Blogs, Microsoft-Ökosystem |
+| | Tourenplanung (Außendienst, unterwegs) | Gebietsplanung (Vertriebsleitung, Schreibtisch) |
+|---|---|---|
+| **Typische Anbieter** | portatour, Badger Maps, SPOTIO, Repsly | RegioGraph, eSpatial, Maptive, Salesforce Maps, Maptitude |
+| **Beides** | portatour (Touren- *und* Gebietsoptimierung), easymap | |
+| **Käufer** | Unternehmen, teils Einzelne | Vertriebsleitung, Controlling |
+| **Preis** | Abo pro Nutzer (z. B. Badger Maps ab ca. 69 $/Monat) | Lizenzen, Enterprise-Verträge, Schulungen |
+| **TourFuchs** | Außendienst-Modus | GeoFuchs |
 
-## 2. Werbung und Kurzfilme
+**Unsere Besonderheit:** Ein kostenloses Browser-Werkzeug, das **beides** auf
+denselben Daten kann – ohne Konto, ohne Installation. Die großen
+Gebietsplaner sind Spezialwerkzeuge für Fachleute; die Tourenplaner kennen
+keine Gebietsreform.
 
-- Die Wettbewerber **erklären** ihr Produkt (Demos, Webinare, Vergleiche) oder
-  setzen auf **Fachinhalte** (Badger Maps' Podcast).
+## 2. Tourenplanung – Anbieter
+
+| Anbieter | Kurzprofil | Marketing |
+|---|---|---|
+| **portatour** (impactit, Wien) | Automatische Tourenplanung mit Besuchsintervallen, Öffnungszeiten, Übernachtungen; dazu Gebietsoptimierung. Excel/CSV und CRM (Salesforce, Dynamics, Veeva). Kunden vom Selbstständigen bis 1.000+ Außendienstler. | Sachliche Erklär- und Demovideos |
+| **Badger Maps** (San Francisco) | Karten-App: CRM-Daten auf Google Maps, Routenoptimierung, Leads, Kalender; Web und App Store. | Starke Inhaltsmaschine: Gründer-Podcast „Outside Sales Talk“ (einzelne Folgen ~30.000 Aufrufe), Produktvideos, offensive Vergleichsartikel auf LinkedIn |
+| **easymap / EasyVisit** (Ipsos) | Web-basierte Touren- und Besuchsplanung mit Frequenzüberwachung, auch Gebietsplanung. | Webinare, Fachportale |
+| **SPOTIO, Repsly** | Außendienst-Automatisierung (Tür-zu-Tür, Konsumgüter im Handel). | Klassisches B2B-Marketing |
+
+**Links**
+
+- portatour: [YouTube-Kanal](https://www.youtube.com/c/portatour/videos) ·
+  [Kurzer Überblick](https://www.youtube.com/watch?v=2jOKmFnpsVw) ·
+  [Dynamische Tourenplanung](https://www.youtube.com/watch?v=5dH2MG5nQ8g) ·
+  [portatour-App](https://www.youtube.com/watch?v=4XQC4AMtnWQ) ·
+  [Demo (ca. 10 Min.)](https://www.youtube.com/watch?v=Sm9FnxRP36o) ·
+  [LinkedIn](https://www.linkedin.com/company/portatour/)
+- Badger Maps: [YouTube-Kanal](https://www.youtube.com/channel/UC340Lg5zE8mVFmcE7u5ldlg) ·
+  [Brand Demo Video](https://www.youtube.com/watch?v=Oi0XhdLXDYg) ·
+  [Sell More with Badger Maps](https://www.youtube.com/watch?v=6-jxPbX56Ak) ·
+  [Web App Walkthrough](https://www.youtube.com/watch?v=EafoIBPEPNU) ·
+  [LinkedIn](https://www.linkedin.com/company/badger-mapping-solutions) ·
+  [LinkedIn-Artikel „Is Badger Maps the best Portatour alternative?“](https://www.linkedin.com/pulse/badger-maps-best-portatour-alternative-steven-benson) ·
+  [Podcast](https://www.badgermapping.com/podcast/how-i-left-my-sales-career-to-start-badger-maps)
+- easymap: [Webinar Touren- und Auslastungsplanung](https://www.ipsos.com/de-de/node/1051991)
+
+## 3. Gebietsplanung – Anbieter
+
+| Anbieter | Kurzprofil | Für wen |
+|---|---|---|
+| **RegioGraph** (früher GfK, heute NielsenIQ) | Der deutsche Klassiker im Geomarketing: Gebiete planen, ausgleichen, umordnen, Berichte; dazu Kaufkraft- und Marktdaten. | Vertriebsleitung, Controlling; Lizenzsoftware |
+| **easymap** (Ipsos) | Gebiets- und Tourenplanung, stark im deutschen Mittelstand. | Vertriebsleitung |
+| **portatour** | Gebietsoptimierung als Ergänzung zur Tourenplanung. | Außendienst und Leitung |
+| **eSpatial** | Spezialist für Gebietszuschnitt und automatischen Ausgleich; oft bei großen Neuordnungen. | Großunternehmen |
+| **Maptive** | Gebiete im Browser nach PLZ oder Kunden; Ausgleich nach Umsatz, Arbeitslast, Anzahl. | Mittelstand, Preis pro Nutzer |
+| **Salesforce Maps / Sales Planning** | Gebietsplanung direkt im CRM. | Salesforce-Kunden, Enterprise |
+| **Maptitude** (Caliper) | Klassische Karten- und Gebietssoftware. | Analysten |
+
+**Links**
+
+- RegioGraph: [Vertriebsgebiete planen](https://www.youtube.com/watch?v=77EnFgCqVYc) ·
+  [Vertriebsgebiete umordnen](https://www.youtube.com/watch?v=qIzID5wHICo) ·
+  [RegioGraph 2024](https://www.youtube.com/watch?v=xgF4ZUmjxhA) ·
+  [Gebietsberichte erzeugen](https://www.youtube.com/watch?v=9phxAumzWEQ) ·
+  [Anwendung Vertriebsgebiete](https://nielseniq.com/global/de/landing-page/regiograph-applications-sales-territories/) ·
+  [Booklet Gebietsplanung](https://nielseniq.com/global/de/insights/analysis/2023/geomarketing-booklet-gebietsplanung/)
+- Marktüberblicke: [OMR Reviews: Vertriebsgebiete planen](https://omr.com/de/reviews/contenthub/vertriebsgebiete-planen-und-optimieren) ·
+  [CRO Club: Software für Vertriebsgebietsplanung](https://croclub.com/de/tools/beste-vertriebsgebietsplanungs-software/) ·
+  [Maptive: Sales Mapping Software im Vergleich](https://www.maptive.com/best-sales-mapping-software/) ·
+  [Caliper: 25 Territory-Mapping-Tools](https://caliper.com/Maptitude/blog/25-best-sales-territory-mapping-software/default.htm)
+
+## 4. Microsoft und das CRM als dritte Front
+
+Add-ons wie **MapCopilot für Dynamics 365** zeigen die Richtung: Routen und
+Gebiete per natürlicher Sprache im CRM („Zeig alle Leads im Umkreis von 50 km
+und optimiere die Route“). Langfristig ist das die größte Verschiebung im Markt.
+[MapCopilot (Inogic)](https://www.inogic.com/blog/2025/11/meet-mapcopilot-your-ai-powered-geo-mapping-companion-for-dynamics-365/)
+
+## 5. Werbung und Kurzfilme
+
+- Die Anbieter **erklären**: Demos, Tutorials, Webinare. RegioGraph zeigt
+  Bildschirm-Anleitungen, portatour Produktvideos, Badger Maps setzt auf
+  Fachinhalte (Podcast) und offensive Vergleiche auf LinkedIn.
 - **Emotionale Kurzfilme** im Stil der Lichterkarte haben wir nicht gefunden.
   Das beweist nicht, dass es keine gibt, aber das Muster ist klar: Niemand
   „zeigt her“.
-- **Folge für uns:** Unsere Filme (Lichterkarte, Tour planen, Firmen-KI-Liste)
-  besetzen eine Lücke. Der Coolness-Faktor ist ein echter Unterschied, kein
-  Beiwerk.
+- **Rückmeldung aus der Praxis (03.10.2026):** Die Kunden als Lichter
+  darzustellen kommt sehr gut an. Das bestätigt: Der Coolness-Faktor ist ein
+  echter Unterschied, kein Beiwerk.
 
-## 3. Was würde ein Wettbewerber tun? (Die Sicht einer „fremden KI“)
+## 6. Was würde ein Wettbewerber tun? (Die Sicht einer „fremden KI“)
 
-**Lageeinschätzung, wie sie eine Analyse vermutlich treffen würde:** *„Kein
-Grund zur Panik.“* TourFuchs ist ein privates, frei nutzbares Projekt: ohne
-Support, ohne CRM-Abgleich, ohne Team-Funktionen, ohne Vertrag. Die Wettbewerber
-verkaufen an **Unternehmen** (Einkauf, IT); TourFuchs erreicht **Einzelne**, die
-an der IT vorbei ausprobieren. Andere Käufer, andere Front.
-
-**Wahrscheinliche Empfehlungen, vom Wahrscheinlichen zum Gefährlichen:**
+**Lageeinschätzung:** *„Kein Grund zur Panik.“* TourFuchs ist ein privates,
+frei nutzbares Projekt ohne Support, CRM-Abgleich, Team-Funktionen und Vertrag.
+Die Wettbewerber verkaufen an **Unternehmen** (Einkauf, IT); TourFuchs erreicht
+**Einzelne**, die an der IT vorbei ausprobieren.
 
 | # | Zug des Wettbewerbers | Wahrscheinlichkeit | Gefahr für uns |
 |---|---|---|---|
 | 1 | **Beobachten, nicht reagieren.** Eine Reaktion würde TourFuchs nur bekannter machen. | hoch | gering |
 | 2 | **Vertrauen angreifen:** „Privates Tool, Schatten-IT, wer haftet, wo ist der Auftragsverarbeitungsvertrag?“ | mittel | **hoch** – das zieht in Unternehmen am stärksten |
-| 3 | **Ideen nachbauen:** Lichterkarte als Heatmap, Copilot-Prompt für den Import. Ideen sind nicht geschützt und schnell kopiert. | mittel | mittel |
+| 3 | **Ideen nachbauen:** Lichterkarte als Heatmap, Copilot-Prompt für den Import. Ideen sind nicht geschützt. | mittel | mittel |
 | 4 | **Gratis-Einstieg für Einzelne** (Solo-Tarif) – schließt die Tür, durch die wir kommen. | mittel | mittel |
-| 5 | **In CRM und Copilot einbauen:** „Frag Copilot nach deiner Tour.“ Langfristig ist Microsoft selbst die größere Bedrohung als portatour: Ist Tourenplanung ein Copilot-Feature, ist sie in jedem Konzern einfach da. | steigend | **hoch** (langfristig) |
-| 6 | **Den Entwickler ansprechen** – einstellen oder übernehmen. | gering | keine – eher eine Chance |
+| 5 | **In CRM und Copilot einbauen:** Ist Tourenplanung ein Copilot-Feature, ist sie in jedem Konzern einfach da. | steigend | **hoch** (langfristig) |
+| 6 | **Gebietsplaner vereinfachen:** RegioGraph & Co. bringen eine schlanke Browser-Version. | gering | mittel – träfe GeoFuchs |
+| 7 | **Den Entwickler ansprechen** – einstellen oder übernehmen. | gering | keine – eher eine Chance |
 
-## 4. Unser Schutz – was schwer zu kopieren ist
-
-Unser Schutz sind nicht Funktionen, sondern vier Dinge:
+## 7. Unser Schutz – was schwer zu kopieren ist
 
 1. **Null Hürde:** Browser, kein Login, keine IT-Freigabe, in einer Minute
    ausprobiert.
-2. **Nachprüfbares Vertrauen:** Kundendaten bleiben lokal, Datenschutz offen
+2. **Beides in einem:** Tour und Gebiet auf denselben Daten, für Außendienst
+   und Leitung. Die Spezialisten bieten jeweils nur eine Hälfte.
+3. **Nachprüfbares Vertrauen:** Kundendaten bleiben lokal, Datenschutz offen
    beschrieben, Nutzungszählung betriebsratsfest dokumentiert
-   ([Nutzungsnachweis](nutzungsnachweis.md)). Genau die Antwort auf Zug 2.
-3. **Insider im Konzern:** Der Entwickler kennt die Abläufe, die Firmen-KI und
-   die Kollegen. Das hat kein US-Anbieter.
-4. **Emotion:** die Filme und die Lichterkarte.
+   ([Nutzungsnachweis](nutzungsnachweis.md)).
+4. **Insider im Konzern:** Der Entwickler kennt Abläufe, Firmen-KI und Kollegen.
+5. **Emotion:** die Lichterkarte und die Filme.
 
-## 5. Unsere Antworten (Produktentscheidungen)
+## 8. Unsere Antworten (Produktentscheidungen)
 
 | Zug | Unsere Antwort |
 |---|---|
-| **Vertrauen angreifen (2)** | Das Argument liegt schon bereit: lokal-first, [Datenschutzerklärung](../public/datenschutz.html), [Nutzungsnachweis](nutzungsnachweis.md) mit Betriebsrats-Teil, Open Source. Beim Umzug ins Konzern-GitHub übernimmt der Konzern die Verantwortung (Roadmap, „Offene Themen“). |
+| **Vertrauen angreifen (2)** | Das Argument liegt bereit: lokal-first, [Datenschutzerklärung](https://tourfuchs.vercel.app/datenschutz.html), [Nutzungsnachweis](nutzungsnachweis.md) mit Betriebsrats-Teil, Open Source. Beim Konzern-Betrieb übernimmt der Konzern die Verantwortung (Roadmap, „Offene Themen“). |
 | **Ideen nachbauen (3)** | Nicht verhindern, sondern schneller sein: Tempo durch echte Nutzer schlägt Nachbau. |
 | **Gratis-Einstieg (4)** | Wir sind schon frei nutzbar; unser Vorsprung ist die fehlende Hürde (kein Konto), nicht der Preis. |
-| **CRM / Copilot (5)** | **Mit Copilot arbeiten, nicht dagegen.** TourFuchs bereitet Prompts vor und sendet selbst nichts. Wird Copilot besser im Routen, profitieren wir mit. |
-| **Generell** | **Schmal bleiben, nicht in Funktionen konkurrieren.** CRM-Abgleich, Teams, Verträge wären das Heimspiel der Wettbewerber. Es gilt die Prüffrage aus Roadmap 1a: *„Hilft das unseren 10 Außendienstlern?“* |
+| **CRM / Copilot (5)** | **Mit Copilot arbeiten, nicht dagegen.** TourFuchs bereitet Prompts vor und sendet selbst nichts. |
+| **Schlanke Gebietsplaner (6)** | Unser Gebietsplaner hängt am Werkzeug, das der Außendienst ohnehin nutzt – das kann ein reiner Gebietsplaner nicht nachbauen. |
+| **Generell** | **Schmal bleiben, nicht in Funktionen konkurrieren.** Kaufkraftdaten, CRM-Abgleich, Teams und Verträge sind das Heimspiel der Wettbewerber. Prüffrage aus Roadmap 1a: *„Hilft das unseren 10 Außendienstlern?“* |
 
 **Der beste Schutz:** 10 Menschen, die TourFuchs jede Woche nutzen – bevor es
 jemand anderes merkt.
 
-## 6. Wann diese Seite neu ansehen?
+## 9. Was folgt für die Roadmap?
 
-- Ein Wettbewerber bringt einen Gratis-Tarif für Einzelne oder eine
-  Lichterkarte-ähnliche Ansicht.
-- Microsoft kündigt Tourenplanung als Copilot-Funktion an.
+- **Reihenfolge bleibt:** erst der Außendienstler (Nische, Moment A), dann die
+  Vertriebsleitung (GeoFuchs, Moment B). Die Leitung kommt am leichtesten dazu,
+  wenn sie sieht, dass ihre Leute TourFuchs schon benutzen.
+- **LinkedIn-Serie 2 „Für die Vertriebsleitung“** ist als offenes Thema mit
+  Auslöser in der Roadmap: Gebietsplanung zeigen, wo die Wettbewerber teure
+  Fachsoftware anbieten – und wieder mit der Lichterkarte als Einstieg.
+- **Keine neuen Funktionen** aus dieser Analyse. Der Baustopp bis zum Praxistest
+  gilt weiter.
+
+## 10. Wann diese Seite neu ansehen?
+
+- Ein Wettbewerber bringt einen Gratis-Tarif für Einzelne, eine
+  Lichterkarte-ähnliche Ansicht oder einen schlanken Browser-Gebietsplaner.
+- Microsoft kündigt Touren- oder Gebietsplanung als Copilot-Funktion an.
 - Jemand stellt TourFuchs in einem Unternehmen als „Schatten-IT“ in Frage.
 - Spätestens bei der Entscheidung über den Konzern-Betrieb.
 
 ---
 
-### Quellen
+### Weitere Quellen
 
 - [Badger Maps: Vergleich mit portatour](https://www.badgermapping.com/compare-portatour-field-sales/)
 - [Badger Maps auf Capterra (Preis, Bewertung)](https://www.capterra.co.za/software/148607/badger-maps)
-- [Badger Maps Podcast „Outside Sales Talk“](https://www.badgermapping.com/podcast/how-i-left-my-sales-career-to-start-badger-maps)
 - [Starter Story: Wie Badger Maps mit einem Nischen-Podcast wächst](https://www.starterstory.com/stories/how-our-podcast-for-field-salespeople-became-one-of-the-most-popular-sales-podcasts)
 - [portatour Erklärvideo (Help Center)](https://help.portatour.com/hc/en-us/articles/360023577312-Explanation-video-in-2-minutes)
 - [portatour auf Softguide](https://www.softguide.de/programm/portatour-tourenplanung-fuer-outlook-mobile-salesforce-crm)
-- [easymap Webinar (Ipsos)](https://www.ipsos.com/de-de/node/1051991)
 - [Capterra: Field-Sales-Software Deutschland](https://www.capterra.com.de/directory/33395/field-sales/software)
-- [MapCopilot für Dynamics 365 (Inogic)](https://www.inogic.com/blog/2025/11/meet-mapcopilot-your-ai-powered-geo-mapping-companion-for-dynamics-365/)
