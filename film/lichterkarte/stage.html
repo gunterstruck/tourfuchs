@@ -5,7 +5,8 @@
 <title>Werbefilm Lichterkarte – Bühne</title>
 <!-- Gestaltungsvorlage für den Werbefilm „Lichterkarte“ (9:16, WhatsApp-Status).
      Wird per Playwright zu PNGs gerendert (render-graphics.mjs).
-     Parameter: ?layout=phone|desktop&part=bg|frame|mask|text|intro|outro&scene=lights|zoom|tap|out -->
+     Parameter: ?film=lights|tour|kiliste&layout=phone|desktop&part=bg|frame|mask|text|intro|outro&scene=…
+     Die Filme „tour“ (Woche 2) und „kiliste“ (Woche 3) gibt es nur im Querformat (LinkedIn). -->
 <style>
 @font-face { font-family: 'Nunito'; font-weight: 600; src: url('fonts/Nunito-600.woff2') format('woff2'); }
 @font-face { font-family: 'Nunito'; font-weight: 800; src: url('fonts/Nunito-800.woff2') format('woff2'); }
@@ -68,6 +69,7 @@ const q = new URLSearchParams(location.search);
 const part = q.get('part') || 'bg';
 const scene = q.get('scene') || 'lights';
 const layout = q.get('layout') || 'phone';
+const film = q.get('film') || 'lights';
 const PHONE = layout === 'phone';
 const W = PHONE ? 1080 : 1920, H = PHONE ? 1920 : 1080;
 document.documentElement.style.setProperty('--w', W + 'px');
@@ -80,8 +82,9 @@ const GEO = PHONE
   ? { screen: { x: 258, y: 168, w: 564, h: 1220 }, bezel: 18 }
   : { screen: { x: 720, y: 96, w: 1120, h: 700 }, bezel: 20 };
 window.GEO = GEO;
+window.FILM = film;
 
-const T = {
+const BASE = {
   brand: 'Tour<em>Fuchs</em>',
   brandSmall: 'Kunden sehen. Tour planen.',
   scenes: {
@@ -98,6 +101,35 @@ const T = {
   outroPills: ['<b>✓</b> Frei nutzbar', '<b>✓</b> Im Browser', '<b>✓</b> Daten bleiben bei dir'],
   credit: 'Musik: „Tropical Island House 2024“ – Sascha Ende (ende.app), CC BY 4.0',
 };
+
+// Je Film eigene Szenentexte und eigenes Intro; Abschluss und Marke bleiben gleich.
+const FILMS = {
+  lights: {},
+  tour: {
+    scenes: {
+      lasso: ['Gebiet<br><span class="glow">umkreisen.</span>', 'Mit dem Lasso die Kunden für morgen auswählen.'],
+      add: ['Ab in<br>die Tour.', 'Ein Klick – alle stehen auf dem Plan.'],
+      route: ['Route<br>steht.', 'Startpunkt rein, Reihenfolge optimieren – fertig.'],
+      go: ['Aufs Handy –<br>und los.', 'QR-Code scannen, Google Maps navigiert.'],
+    },
+    introTitle: 'Dein Tag.<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">In 30 Sekunden geplant.</span>',
+    introSub: 'Tourplanung mit TourFuchs',
+    credit: 'Alle gezeigten Kunden sind erfunden. · ' + BASE.credit,
+  },
+  kiliste: {
+    scenes: {
+      ask: ['Keine Liste<br><span class="glow">zur Hand?</span>', 'TourFuchs schreibt den Auftrag für deine Firmen-KI.'],
+      ki: ['Die KI baut<br>die Tabelle.', 'Aus euren eigenen Quellen – erfunden wird nichts.'],
+      paste: ['Einfügen.', 'Spalten werden automatisch erkannt.'],
+      map: ['Deine Kunden.<br>Auf der Karte.', 'Die Daten bleiben auf deinem Gerät.'],
+    },
+    introTitle: 'Keine Kundenliste?<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">Frag deine Firmen-KI.</span>',
+    introSub: 'Eigene Daten in TourFuchs – ohne Export',
+    credit: 'Alle gezeigten Kunden sind erfunden. · ' + BASE.credit,
+  },
+};
+const T = { ...BASE, ...FILMS[film] };
+window.SCENES = Object.keys(T.scenes);
 
 const ICON = '../../public/icons/icon-512.png';
 const el = (html) => { const t = document.createElement('template'); t.innerHTML = html.trim(); return t.content.firstElementChild; };
@@ -158,7 +190,7 @@ if (part === 'frame' && PHONE) {
 }
 
 if (part === 'text') {
-  const [head, sub] = T.scenes[scene] || T.scenes.lights;
+  const [head, sub] = T.scenes[scene] || Object.values(T.scenes)[0];
   if (PHONE) {
     add('text', `<div class="headline center" style="top:1446px;font-size:74px;padding:0 50px">${head}</div>`);
     add('text', `<div class="sub center" style="top:1650px;font-size:38px;padding:0 70px">${sub}</div>`);

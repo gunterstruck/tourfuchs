@@ -1,5 +1,6 @@
-// Setzt den Werbefilm „Lichterkarte“ zusammen: Intro → App im Geräterahmen mit
-// Szenentexten → Abschluss, mit Musik. H.264/AAC.
+// Setzt einen Werbefilm zusammen: Intro → App im Geräterahmen mit
+// Szenentexten → Abschluss, mit Musik. H.264/AAC. Die Szenen und ihre
+// Reihenfolge stehen in marks.json (order); ohne order gilt die Lichterkarte.
 //   phone:   1080 × 1920, unter 30 Sekunden (WhatsApp-Status)
 //   desktop: 1920 × 1080, Monitor rechts, Texte links
 // Aufruf: node film/lichterkarte/compose.mjs <grafik-ordner> <aufnahme-ordner> <ausgabe.mp4> [phone|desktop]
@@ -21,16 +22,12 @@ const INTRO = 2.5, OUTRO = 4.0, XF = 0.5, TF = 0.35;
 // Desktop wird in halber Geschwindigkeit aufgenommen (marks.speed = 2) und hier
 // beschleunigt; alle Zeiten unten sind Filmzeit.
 const speed = marks.speed || 1;
-const startRec = Math.max(0, marks.lights - 0.35 * speed);
+const order = marks.order || ['lights', 'zoom', 'tap', 'out'];
+const startRec = Math.max(0, marks[order[0]] - (marks.lead ?? 0.35) * speed);
 const main = +((marks.done - startRec) / speed).toFixed(2);
 const at = (n) => +((marks[n] - startRec) / speed).toFixed(2);
 const start = startRec;
-const texts = [
-    ['lights', 0, at('zoom')],
-    ['zoom', at('zoom'), at('tap')],
-    ['tap', at('tap'), at('out')],
-    ['out', at('out'), main],
-];
+const texts = order.map((name, i) => [name, i === 0 ? 0 : at(name), i + 1 < order.length ? at(order[i + 1]) : main]);
 const total = +(INTRO + main + OUTRO - 2 * XF).toFixed(2);
 if (PHONE && total > 30) throw new Error(`Film zu lang für den WhatsApp-Status: ${total} s`);
 
@@ -41,10 +38,11 @@ const inputs = [
     '-f', 'concat', '-safe', '0', '-i', join(rec, 'list.txt'),     // 2
     ...loop('mask.png', main),                                     // 3
     ...loop('frame.png', main),                                    // 4
-    ...texts.flatMap(([n]) => loop(`text-${n}.png`, main)),        // 5–8
-    ...loop('outro.png', OUTRO),                                   // 9
-    '-i', music,                                                   // 10
+    ...texts.flatMap(([n]) => loop(`text-${n}.png`, main)),        // 5 … 4+n
+    ...loop('outro.png', OUTRO),                                   // 5+n
+    '-i', music,                                                   // 6+n
 ];
+const OUT_IDX = 5 + texts.length, MUSIC_IDX = 6 + texts.length;
 
 const f = [];
 f.push('[0]fps=30,format=yuv420p,setsar=1[intro]');
@@ -63,10 +61,10 @@ texts.forEach(([, a, b], i) => {
     last = `m${3 + i}`;
 });
 f.push(`[${last}]format=yuv420p,setsar=1[main]`);
-f.push('[9]fps=30,format=yuv420p,setsar=1[outro]');
+f.push(`[${OUT_IDX}]fps=30,format=yuv420p,setsar=1[outro]`);
 f.push(`[intro][main]xfade=transition=fade:duration=${XF}:offset=${INTRO - XF}[x1]`);
 f.push(`[x1][outro]xfade=transition=fade:duration=${XF}:offset=${(INTRO + main - 2 * XF).toFixed(2)}[v]`);
-f.push(`[10]atrim=0:${total},asetpts=PTS-STARTPTS,volume=0.6,afade=t=in:d=0.8,afade=t=out:st=${(total - 2.5).toFixed(2)}:d=2.5[a]`);
+f.push(`[${MUSIC_IDX}]atrim=0:${total},asetpts=PTS-STARTPTS,volume=0.6,afade=t=in:d=0.8,afade=t=out:st=${(total - 2.5).toFixed(2)}:d=2.5[a]`);
 
 execFileSync('ffmpeg', ['-y', '-loglevel', 'error', ...inputs,
     '-filter_complex', f.join(';'), '-map', '[v]', '-map', '[a]', '-t', String(total),
