@@ -90,3 +90,11 @@ describe('Kleine Telefone: kompakter Text und Demo-Abschluss mit sichtbarem Coun
         expect(showcase).toContain('.sc-countdown { width: 66px; height: 66px; }');
     });
 });
+
+describe('Startansicht am Handy: Deutschland über den Pillen', () => {
+    it('reserviert beim Einpassen unten Platz für die Kartenknopfzeile', () => {
+        const map = read('src/features/map.js');
+        expect(map).toContain('function visibleFabRowRect()');
+        expect(map).toMatch(/bottom = Math\.max\(bottom, Math\.round\(mapRect\.bottom - fabRect\.top \+ 10\)\)/);
+    });
+});
