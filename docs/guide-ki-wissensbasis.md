@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.13 · Stand: 03.10.2026 · App-Version: 3.5.0**
+**Version 3.14 · Stand: 03.10.2026 · App-Version: 3.6.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -532,8 +532,21 @@ Größenordnung am Desktop (1440 × 900): Der Daten-Reiter gewinnt so von 307 au
 - Die Wahl gilt nur für dieses Gerät und diesen Browser; sie enthält keine
   Kundendaten. Funktionen und Inhalte sind in beiden Stilen gleich.
 
-**Musterantwort auf „Kann ich TourFuchs dunkel machen?":** „Ja – unter ⓘ Info →
-🎨 Darstellung auf 🌙 Dunkel tippen. Mit ‚Automatisch' folgt TourFuchs dem
+**Schnellschalter 🌙 / ☀️ oben rechts** (Kopfzeile, links neben `ⓘ`, am
+Desktop und am Handy): **ein Tipp schaltet komplett um.**
+
+- **🌙 Mond** → dunkler Stil **und** „✨ Lichterkarte" zugleich – jeder Kunde
+  ein Licht. Gedacht, um das sofort zeigen zu können.
+- **☀️ Sonne** → heller Stil und wieder die Karte, die vorher eingestellt war
+  (war es schon die Lichterkarte, dann „Standard").
+- Der Knopf zeigt ☀️, solange dunkler Stil und Lichterkarte zusammen aktiv
+  sind; wird eins davon anderswo geändert, steht wieder 🌙 da.
+- Die Feineinstellung (Automatisch · Hell · Dunkel, jede Karte einzeln) bleibt
+  unter `ⓘ Info -> "🎨 Darstellung"` bzw. im Panel unter „Kartenstil".
+
+**Musterantwort auf „Kann ich TourFuchs dunkel machen?":** „Ja – am schnellsten
+oben rechts auf 🌙 tippen: dunkler Stil plus Lichterkarte, ☀️ führt zurück.
+Nur den Stil ändern: unter ⓘ Info → 🎨 Darstellung auf 🌙 Dunkel tippen. Mit ‚Automatisch' folgt TourFuchs dem
 Hell-/Dunkelmodus deines Geräts. Wenn dich abends auch die helle Karte blendet:
 im Panel unter ‚Kartenstil' auf ‚Nacht' stellen. Für einen Überblick, wo alle
 Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
@@ -3532,6 +3545,12 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.14 (03.10.2026)
+
+- **Schnellschalter 🌙 / ☀️ oben rechts** (4.7): ein Tipp schaltet komplett auf
+  dunklen Stil mit Lichterkarte und zurück zu hell mit der vorherigen Karte –
+  am Desktop und am Handy.
 
 ### 26.3 Änderungen in Version 3.13 (03.10.2026)
 

@@ -39,6 +39,7 @@ import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initGuide } from './ui/guide.js';
 import { initTheme } from './ui/theme.js';
+import { initNightToggle } from './ui/nightToggle.js';
 import { startUsageCount } from './services/usageCount.js';
 import { initExactGeocoding } from './ui/exactGeocoding.js';
 import { initMapPills } from './ui/mapPills.js';
@@ -240,7 +241,9 @@ function handleSharedTourFromUrl() {
 
 async function init() {
     // Darstellung zuerst: Schalter verdrahten, Gerätewechsel verfolgen.
-    initTheme();
+    const theme = initTheme();
+    // Mond/Sonne oben rechts: dunkler Stil + Lichterkarte mit einem Tipp.
+    initNightToggle({ theme, onBasemapChanged: (fn) => on('basemap:changed', fn) });
     startUsageCount();
     takeSharedTourFromUrl();
     // Zuerst: Geräte befreien, die noch die alte Manifest-Sperre tragen.

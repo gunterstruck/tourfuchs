@@ -3115,3 +3115,6 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 }
 .ki-list-dialog footer { flex-wrap: wrap; }
 .ki-list-dialog footer button { flex: 1 1 100%; }
+
+/* Mond/Sonne oben rechts (src/ui/nightToggle.js): bleibt auch am Handy stehen. */
+.night-toggle { flex: 0 0 auto; }
