@@ -417,6 +417,10 @@ function placeToolbar() {
 
     // `fixed` bezieht sich auf einen evtl. transformierten Rahmen, nicht aufs Fenster.
     const off = frameOffset(fixedFrame(toolbarEl));
+    // Installierte App auf dem iPhone: nie unter die Statusleiste (Uhrzeit).
+    const topbar = document.querySelector('.topbar');
+    const safeTop = topbar ? parseFloat(getComputedStyle(topbar).paddingTop) || 0 : 0;
+    if (safeTop > 0) spot.y = Math.max(spot.y, safeTop + 6);
     toolbarEl.style.left = `${Math.round(spot.x - off.x)}px`;
     toolbarEl.style.top = `${Math.round(spot.y - off.y)}px`;
     toolbarEl.dataset.x = String(Math.round(spot.x));
