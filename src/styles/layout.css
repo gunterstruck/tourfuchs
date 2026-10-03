@@ -13,7 +13,9 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 0 12px;
+    /* iPhone quer: Notch/Dynamic Island und runde Ecken liegen seitlich –
+       ☰ links sowie 🌙 und ⓘ rechts bleiben außerhalb (viewport-fit=cover). */
+    padding: 0 max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px));
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
     /* über der Mobile-Vorschau (z-index 3000), damit der Zurück-Toggle immer klickbar bleibt */

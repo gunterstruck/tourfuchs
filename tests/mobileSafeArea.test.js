@@ -46,3 +46,12 @@ describe('Untere System-Navigationsleiste (Android/iOS) verdeckt das Blatt nicht
         expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*124px/);
     });
 });
+
+describe('iPhone quer: Kopfzeile bleibt seitlich frei von Notch und runden Ecken', () => {
+    it('polstert die Kopfzeile links und rechts mit env(safe-area-inset-*)', () => {
+        const layout = read('src/styles/layout.css');
+        const topbar = layout.slice(layout.indexOf('.topbar {'), layout.indexOf('}', layout.indexOf('.topbar {')));
+        expect(topbar).toContain('env(safe-area-inset-left, 0px)');
+        expect(topbar).toContain('env(safe-area-inset-right, 0px)');
+    });
+});
