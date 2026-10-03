@@ -34,6 +34,47 @@ denselben Daten kann – ohne Konto, ohne Installation. Die großen
 Gebietsplaner sind Spezialwerkzeuge für Fachleute; die Tourenplaner kennen
 keine Gebietsreform.
 
+### Positionierungskarte
+
+![Positionierung: Tourenplanung × Gebietsplanung](wettbewerb-positionierung.svg)
+
+**Wie die Karte zu lesen ist:** Nach rechts wächst die Stärke in der
+Tourenplanung (Außendienst, unterwegs), nach oben die Stärke in der
+Gebietsplanung (Vertriebsleitung, Schreibtisch). Die Farbe zeigt die
+**Einstiegshürde für einen einzelnen Nutzer** – die dritte Achse, auf der
+TourFuchs sich am deutlichsten unterscheidet. Die Werte (0–10) sind eine
+**Einschätzung des Product Owners** auf Basis öffentlicher Informationen, keine
+Messung; sie sollen die Lage zeigen, nicht die Anbieter benoten.
+
+| Anbieter | Tour | Gebiet | Hürde | Begründung |
+|---|---|---|---|---|
+| portatour | 8,8 | 5,0 | mittel | Starke automatische Tourenplanung (Intervalle, Öffnungszeiten, Übernachtungen); Gebietsoptimierung als Ergänzung. |
+| Badger Maps | 8,2 | 2,8 | mittel | Routen, Leads, Kalender auf der Karte; Gebiete eher als Anzeige. |
+| SPOTIO | 6,4 | 2,4 | mittel | Außendienst-Automatisierung mit Gebietsverwaltung, aber ohne Gebietszuschnitt im engeren Sinn. |
+| Repsly | 5,2 | 1,6 | mittel | Fokus auf Handel/Konsumgüter-Außendienst, Planung eher Besuchslisten. |
+| easymap | 6,0 | 7,0 | hoch | Gebiets- und Tourenplanung, klassische Unternehmenslösung. |
+| Salesforce Maps | 7,4 | 8,4 | hoch | Beides stark – aber im Salesforce-CRM und über Enterprise-Verträge. |
+| RegioGraph | 1,8 | 9,0 | hoch | Der Gebietsplanungs-Klassiker mit Marktdaten; keine Tourenplanung für den Außendienst. |
+| eSpatial | 3,8 | 8,8 | hoch | Spezialist für Gebietszuschnitt und Ausgleich; Routing nur ergänzend. |
+| Maptitude | 2,6 | 7,2 | hoch | Karten- und Gebietssoftware für Analysten. |
+| Maptive | 4,6 | 7,0 | mittel | Gebiete im Browser, Routen ergänzend. |
+| **TourFuchs heute** | **6,6** | **6,2** | **niedrig** | Tour (Lasso, Optimierung, QR aufs Handy, Briefing) und Gebiet (Bezirke, Cockpit, Was-wäre-wenn, Entscheidungsvorlage) auf denselben Daten – ohne Konto, im Browser. Abzüge: keine Zeitfenster/Übernachtungen, keine Marktdaten. |
+| **TourFuchs Ziel** | **7,8** | **7,4** | **niedrig** | Siehe unten. |
+
+**Wo TourFuchs hingehört – und wohin nicht:**
+
+- **In das Feld „Beides“, aber als einziger mit niedriger Hürde.** Dort sitzen
+  heute nur Lösungen mit Lizenz oder Enterprise-Vertrag (Salesforce Maps,
+  easymap). Die Lücke ist nicht „noch mehr Funktionen“, sondern „beides,
+  sofort, für Einzelne“.
+- **Nicht nach ganz oben rechts.** Gegen RegioGraph (Marktdaten) oder
+  portatour (Zeitfenster, Übernachtungen) in deren Kernfeld anzutreten, wäre
+  das Heimspiel der Wettbewerber – teuer und gegen die Nischen-Entscheidung.
+- **Der Weg zum Ziel ist schmal:** Die Pfeillänge entsteht durch Feinschliff
+  an dem, was echte Nutzer vermissen (Praxistest, Serie-1-Rückmeldungen), nicht
+  durch neue Module. Die Prüffrage bleibt: *„Hilft das unseren 10
+  Außendienstlern?“*
+
 ## 2. Tourenplanung – Anbieter
 
 | Anbieter | Kurzprofil | Marketing |
