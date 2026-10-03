@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.14 · Stand: 03.10.2026 · App-Version: 3.6.0**
+**Version 3.15 · Stand: 03.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -2119,7 +2119,7 @@ Diagnosewerkzeug**. Der Guide übernimmt dieses Wording immer.
 
 ---
 
-## 11. Tour vom Desktop aufs Smartphone übergeben
+## 11. Tour per QR übergeben (Desktop → Handy, Handy → Handy)
 
 ### 11.1 Senden am Desktop
 
@@ -2150,7 +2150,7 @@ QR-Fragment gelesen.
 
 ### 11.3 Empfangen innerhalb von TourFuchs
 
-**Klickpfad:** `"Tour" -> "Tour vom Desktop scannen"`.
+**Klickpfad:** `"Tour" -> "Tour per QR übernehmen"` (Fenster „Tour per QR scannen").
 
 Alternativ zum Live-Kamerascan kann ein Foto des QR-Codes ausgewählt werden.
 
@@ -2163,11 +2163,21 @@ Nach erfolgreichem Scan:
   Wunsch **ab dem aktuellen Standort**.
 - **Kalender (.ics)** funktioniert ebenfalls direkt aus dem QR-Code.
 
-### 11.4 Warum "An Handy übergeben" mobil fehlt
+### 11.4 Von Handy zu Handy teilen
 
-Auf einem Smartphone wäre das Senden einer Tour an dasselbe Smartphone
-verwirrend. Deshalb ist **"An Handy übergeben (QR)"** im Mobile View ausgeblendet.
-**"Tour vom Desktop scannen"** bleibt sichtbar.
+**Klickpfad (Handy):** Tour planen -> **"📲 Tour per QR teilen"**.
+
+Das Handy zeigt denselben QR-Code wie der Desktop. Die Kollegin oder der Kollege
+scannt ihn mit der **normalen Kamera** des eigenen Handys; der Link öffnet
+TourFuchs mit dieser Tour – auch wenn TourFuchs dort noch nie benutzt wurde.
+So verbreitet sich die App von Kollege zu Kollege.
+
+- Bewusst **nur QR**, kein Versand-Link über WhatsApp, Mail oder Teams: Die Tour
+  enthält Namen, Adressen und Telefonnummern. Bildschirm zu Kamera kommt ohne
+  Messenger, Server und Kopien in fremden Postfächern aus.
+- Am Desktop heißt der Knopf weiterhin **"An Handy übergeben (QR)"**.
+- Empfangen: normale Kamera-App oder in TourFuchs **"Tour per QR übernehmen"**
+  (verschwindet, sobald ein Startpunkt gesetzt ist).
 
 ---
 
@@ -2946,7 +2956,7 @@ ist der Schalter.
 
 ### 18.13 QR-Senden fehlt auf dem Smartphone
 
-Kein Fehler. **"An Handy übergeben (QR)"** ist nur am Desktop sichtbar. Mobil
+Kein Fehler. **"An Handy übergeben (QR)"** ist nur am Desktop sichtbar; am Handy heißt derselbe Weg **"📲 Tour per QR teilen"**. Mobil
 steht **"Tour vom Desktop scannen"** zur Verfügung.
 
 ### 18.14 QR-Scan funktioniert nicht
@@ -3465,7 +3475,8 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 17. **Findet die Suche eine Stadt ohne Kunden?**
     Ja, über das lokale Verzeichnis der PLZ-Ortszentren; die Auswahl bewegt die
     Karte, legt aber noch keinen eigenen Ort an.
-18. **Warum fehlt "An Handy übergeben" mobil?**
+18. **Wie teile ich eine Tour von Handy zu Handy?** (Tour -> "📲 Tour per QR teilen", das andere Handy scannt mit der Kamera)
+18a. **Warum fehlt "An Handy übergeben" mobil?**
     Weil das Senden an das Smartphone nur am Desktop sinnvoll ist.
 19. **Wann erscheint die Demo-Auswahl automatisch?**
     Gar nicht mehr. Sie öffnet nur auf Klick: im Willkommens-Panel über
@@ -3545,6 +3556,15 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.15 (03.10.2026)
+
+- **Tour per QR von Handy zu Handy** (11.4): neuer Knopf "📲 Tour per QR teilen"
+  am Handy; das andere Handy scannt mit der Kamera. Bewusst kein Versand-Link.
+  Der Empfang heißt jetzt neutral "Tour per QR übernehmen".
+- **iPhone und kleine Handys:** Kopfzeile unter der Statusleiste, kein Eingabe-
+  Zoom in Feldern, Druckansicht mit "← Zurück zu TourFuchs", Trefferliste der
+  Suche über die ganze Breite, Deutschland beim Start über den Kartenknöpfen.
 
 ### 26.3 Änderungen in Version 3.14 (03.10.2026)
 

@@ -60,7 +60,9 @@ export function initTourQr() {
  * öffnet beim Scannen mit der normalen Handy-Kamera direkt die PWA/den Browser.
  * @param {string} encoded  Ergebnis von encodeTourPayload
  */
-export async function openShareDialog(encoded, { stopCount, skipped = 0 } = {}) {
+export async function openShareDialog(encoded, { stopCount, skipped = 0, fromPhone = false } = {}) {
+    const title = document.getElementById('qr-share-title');
+    if (title) title.textContent = fromPhone ? '📲 Tour per QR teilen' : '📲 Tour an Handy übergeben';
     const canvas = document.getElementById('qr-share-canvas');
     const url = encodeTourUrl(encoded, window.location.origin + window.location.pathname);
     try {
@@ -74,7 +76,7 @@ export async function openShareDialog(encoded, { stopCount, skipped = 0 } = {}) 
     document.getElementById('qr-share-info').textContent =
         `${stopCount} Stopp${stopCount === 1 ? '' : 's'} im Code` +
         (skipped > 0 ? ` · ${skipped} weitere passen nicht hinein` : '') +
-        ' · mit der Handy-Kamera scannen';
+        (fromPhone ? ' · das andere Handy scannt ihn mit der Kamera' : ' · mit der Handy-Kamera scannen');
     shareDialog.showModal();
 }
 
