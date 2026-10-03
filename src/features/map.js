@@ -237,6 +237,15 @@ function scheduleCustomerMarkerHint() {
     markerHintOfferTimer = window.setTimeout(maybeOfferCustomerMarkerHint, 260);
 }
 
+/** Sichtbare Pillen in der Kartenknopfzeile als gemeinsames Rechteck (oder null). */
+function visibleFabRowRect() {
+    const pills = [...document.querySelectorAll('#map-fab-row > .map-fab')]
+        .map((pill) => visibleElementRect(pill))
+        .filter((rect) => rect && getComputedStyle(document.getElementById('map-fab-row')).display !== 'none');
+    if (!pills.length) return null;
+    return { top: Math.min(...pills.map((r) => r.top)), bottom: Math.max(...pills.map((r) => r.bottom)) };
+}
+
 function visibleElementRect(element) {
     if (!element) return null;
     const style = window.getComputedStyle(element);
@@ -2282,6 +2291,13 @@ function fitPadding(mobileBottom) {
         if (mapRect && sheetRect && sheetRect.top < mapRect.bottom) {
             const overlap = mapRect.bottom - sheetRect.top; // wie weit das Blatt in die Karte ragt
             bottom = Math.max(56, Math.min(mobileBottom, Math.round(overlap + 16)));
+        }
+        // Die Pillen („In der Nähe", „Lasso ziehen") schweben über dem Blatt.
+        // Was die Karte zeigen soll (z. B. ganz Deutschland beim Start), gehört
+        // darüber – nicht darunter.
+        const fabRect = visibleFabRowRect();
+        if (mapRect && fabRect && fabRect.top < mapRect.bottom) {
+            bottom = Math.max(bottom, Math.round(mapRect.bottom - fabRect.top + 10));
         }
         return { topLeft: [18, 76], bottomRight: [18, bottom] };
     }
