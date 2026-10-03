@@ -55,3 +55,24 @@ describe('iPhone quer: Kopfzeile bleibt seitlich frei von Notch und runden Ecken
         expect(topbar).toContain('env(safe-area-inset-right, 0px)');
     });
 });
+
+describe('iPhone SE: Karten-Pillen nebeneinander, nie über einer Kachel', () => {
+    const responsive = read('src/styles/responsive.css');
+    const map = read('src/features/map.js');
+
+    it('bricht die Knopfzeile am Handy nicht um, sondern lässt die Pillen schrumpfen', () => {
+        expect(responsive).toContain('.map-fab-row { flex-wrap: nowrap; }');
+        expect(responsive).toMatch(/\.map-fab \{\s*flex: 0 1 auto;\s*min-width: 0;/);
+    });
+
+    it('nimmt auf kleinen Telefonen den Zierfuchs aus den Pillen', () => {
+        const tail = responsive.slice(responsive.lastIndexOf('@media (max-width: 400px)'));
+        expect(tail).toContain('.map-fab .mns-fox { display: none; }');
+    });
+
+    it('blendet die Knopfzeile aus, solange eine Kachel offen ist', () => {
+        expect(responsive).toContain('body.map-popup-open .map-fab-row { display: none; }');
+        expect(map).toContain("document.body.classList.add('map-popup-open')");
+        expect(map).toContain("document.body.classList.remove('map-popup-open')");
+    });
+});
