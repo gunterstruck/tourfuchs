@@ -16,6 +16,10 @@
 - Jede neue externe Verbindung wird in `public/datenschutz.html` und README offengelegt.
 - Nutzungszählung nur anonym und schmal (`docs/nutzungsnachweis.md`): keine eigenen
   Ereignisse, keine Kunden- oder Bediendaten.
+- **Werbung, Filme, Texte:** Nie „kein Tracking“, „keine Statistik“ oder „wir
+  zählen nichts“ schreiben – seit 03.10.2026 gibt es eine anonyme Zählung der
+  Seitenaufrufe. Richtig und stärker ist die Aussage über die **Kundendaten**:
+  „Kundendaten bleiben bei dir / lokal im Browser“.
 - Sichtbare Beschriftungen stehen in `docs/guide-ki-wissensbasis.md`
   (abgesichert durch `tests/docsConsistency.test.js`).
 
