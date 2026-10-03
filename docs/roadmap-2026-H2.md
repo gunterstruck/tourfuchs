@@ -596,6 +596,23 @@ reduziert werden darf.
 Kundentyp. Die existierende Regel aus Release 11 bleibt damit intakt: Kundenzahl,
 Umsatz, Fälligkeit und Gebiete kennen den Punkt nicht; Tour und Navigation schon.
 
+### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
+
+Die größte Hürde vor echter Nutzung ist nicht eine fehlende Funktion, sondern
+der **erste eigene Datensatz**: Viele Vertriebsleute haben keinen Export zur
+Hand – wohl aber Zugriff auf die KI ihres Unternehmens (z. B. Microsoft 365
+Copilot), die CRM-Exporte und Excel-Listen lesen darf.
+
+| # | Punkt | Status | Umsetzung |
+|---|---|---|---|
+| E.1 | **Prompt für die Firmen-KI** | ✅ umgesetzt | `"Eigene Daten laden"` → „🤖 Kein Export zur Hand? Liste von deiner Firmen-KI erstellen lassen". Der Prompt verlangt genau die Spaltenüberschriften, die die Spaltenerkennung exakt trifft (Test sichert das ab), verbietet Erfinden, fordert Quellenangabe und bei fehlendem Zugriff einen ehrlichen Hinweis, wo der Export liegt. |
+| E.2 | **Kein neuer Weg hinein** | ✅ umgesetzt | Das Ergebnis kommt über „Ergebnis einfügen" (Einfügen-Dialog) oder „Excel-Datei der KI auswählen" – mit Berechtigungs-Zusicherung und Spaltenprüfung wie jede Liste. TourFuchs kopiert nur den Prompt und öffnet den Assistenten (gleiche Zielwahl wie beim Briefing); es ruft keine KI auf (Grundsatz 5.1). |
+
+**Produktentscheidung – Baustopp:** Danach wird **nichts weiter angebaut**, bis
+der Prompt mit einer echten Firmen-KI und echten Nutzern getestet ist. Erst die
+Befunde (Liefert Copilot eine Datei oder eine Tabelle? Findet es die Kunden?
+Wo hakt es?) entscheiden über den nächsten Schritt.
+
 ### Backlog & Vision (bewusst NICHT jetzt)
 
 - **POIs auf der Karte** (Ladestationen): nur als Opt-in – externe POI-Abfragen
@@ -610,7 +627,9 @@ Umsatz, Fälligkeit und Gebiete kennen den Punkt nicht; Tour und Navigation scho
   noch per Anmeldung. Es bereitet den Prompt vor, mehr nicht. Ein lokales Modell
   bleibt theoretisch denkbar, steht aber auf keiner Liste.
 - **Connector-Anleitungen** (Export-Leitfäden für CRM-Systeme): reine Dokumentation,
-  geringer Aufwand – wird als Lückenfüller zwischen Releases mitgenommen.
+  geringer Aufwand – wird als Lückenfüller zwischen Releases mitgenommen. Teilweise
+  abgelöst durch die Kundenliste von der Firmen-KI (s. o.): Die KI kennt das
+  eigene CRM besser als jeder generische Leitfaden.
 - Eigener OSRM-/Nominatim-Endpoint bzw. konfigurierbarer Routing-Server (F2) – erst
   relevant, wenn > ~5 regelmäßige Nutzer; bis dahin: Fallback + Opt-in reichen.
 - Refactoring `map.js`/`sidebar.js`/`tourPanel.js` in Untermodule (F7) – opportunistisch
