@@ -12,9 +12,36 @@ export const MUSIC_BREAK_VOLUME_FACTOR = 0.6;
 export const MUSIC_BREAK_IDLE_MS = 60_000;
 
 /** One player shared by all live tutorials; enabled by default, without storage or third-party requests. */
+/**
+ * iPhone/iPad: Safari ignoriert `audio.volume` (bleibt immer 1). Ein- und
+ * Ausblenden liefen dort ins Leere – die Musik spielte laut weiter und riss
+ * am Ende der Blende ab. Dann regelt ein Web-Audio-Verstärker (GainNode) die
+ * Lautstärke. Wo `volume` wirkt (Android, Desktop), bleibt alles wie bisher.
+ */
+export function volumeIsWritable(audio) {
+    try {
+        const before = audio.volume;
+        audio.volume = 0.5;
+        const ok = Math.abs(audio.volume - 0.5) < 0.01;
+        audio.volume = before;
+        return ok;
+    } catch {
+        return false;
+    }
+}
+
+function defaultCreateContext() {
+    const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
+    return Ctor ? new Ctor() : null;
+}
+
 export class ShowcaseMusic {
-    constructor({ createAudio = () => new Audio(), onChange = () => {} } = {}) {
+    constructor({ createAudio = () => new Audio(), createContext = defaultCreateContext, onChange = () => {} } = {}) {
         this.createAudio = createAudio;
+        this.createContext = createContext;
+        this.context = null;  // nur, wo audio.volume nicht wirkt (iOS)
+        this.source = null;
+        this.gain = null;
         this.onChange = onChange;
         this.audio = null;
         // The click that starts a tutorial also starts playback. This remains a
@@ -106,11 +133,64 @@ export class ShowcaseMusic {
             }
         } else if (this.hidden && this.audio) this.silence();
         // Wechsel Film <-> Pause: gleiche Aufnahme, nur die Lautstärke gleitet.
-        else if (wanted && !this.loading && this.audio && Math.abs(this.audio.volume - this.targetVolume()) > 0.001) {
+        else if (wanted && !this.loading && this.audio && Math.abs(this.level() - this.targetVolume()) > 0.001) {
             this.fade(this.targetVolume(), undefined, MUSIC_BREAK_FADE_MS);
         }
         if (!this.active && !this.onBreak && this.audio?.paused) this.audio.currentTime = 0;
         this.onChange();
+    }
+
+    /** Aktuelle Lautstärke – über den Verstärker (iOS) oder das Element. */
+    level() {
+        if (this.gain) return this.gain.gain.value;
+        return this.audio ? this.audio.volume : 0;
+    }
+
+    setLevel(value) {
+        if (this.gain) this.gain.gain.value = value;
+        else if (this.audio) this.audio.volume = value;
+    }
+
+    /** Nur wo nötig (iOS): Element über einen Verstärker an den Ausgang hängen. */
+    attachGain(audio) {
+        if (volumeIsWritable(audio)) return;
+        try {
+            this.context = this.context || this.createContext();
+            if (!this.context) return;
+            this.source = this.context.createMediaElementSource(audio);
+            this.gain = this.context.createGain();
+            this.gain.gain.value = 0;
+            this.source.connect(this.gain);
+            this.gain.connect(this.context.destination);
+        } catch {
+            this.source = null;
+            this.gain = null;
+        }
+    }
+
+    /**
+     * Neue Demo-Runde: frisches Element, im selben Tipp erzeugt. Safari spielt
+     * ein einmal hart gestopptes Element teils nicht mehr ab – die Musik blieb
+     * dann bis zum Neustart der App stumm.
+     */
+    renew() {
+        ++this.generation;
+        clearInterval(this.fadeTimer);
+        this.fadeTimer = null;
+        this.wanted = false;
+        this.loading = false;
+        this.releaseElement();
+    }
+
+    releaseElement() {
+        if (this.audio) {
+            try { this.audio.pause(); } catch { /* egal */ }
+            this.audio.removeAttribute?.('src');
+        }
+        try { this.source?.disconnect(); this.gain?.disconnect(); } catch { /* egal */ }
+        this.source = null;
+        this.gain = null;
+        this.audio = null;
     }
 
     start(generation) {
@@ -124,10 +204,13 @@ export class ShowcaseMusic {
                 audio.addEventListener('error', () => {
                     if (this.audio === audio && this.wanted) this.fail();
                 });
+                this.attachGain(audio);
             }
+            // iOS hält den Ton-Kontext nach Pausen oder Anrufen an – im Tipp wecken.
+            if (this.context?.state && this.context.state !== 'running') this.context.resume?.().catch?.(() => {});
             clearInterval(this.fadeTimer);
             this.fadeTimer = null;
-            this.audio.volume = 0;
+            this.setLevel(0);
             this.loading = true;
             // Called synchronously by the Music button: preserve browser user activation.
             const result = this.audio.play();
@@ -178,8 +261,7 @@ export class ShowcaseMusic {
         this.error = 'Musik konnte nicht starten. Prüfe Verbindung und Browserfreigabe; die Schulung läuft ohne Musik weiter.';
         this.silence();
         // A new click retries with a fresh media element, including after a network failure.
-        if (this.audio) this.audio.removeAttribute('src');
-        this.audio = null;
+        this.releaseElement();
         this.onChange();
     }
 
@@ -187,7 +269,7 @@ export class ShowcaseMusic {
         clearInterval(this.fadeTimer);
         this.fadeTimer = null;
         if (!this.audio) { done?.(); return; }
-        const start = this.audio.volume;
+        const start = this.level();
         let elapsed = 0;
         let last = Date.now();
         this.fadeTimer = setInterval(() => {
@@ -202,7 +284,7 @@ export class ShowcaseMusic {
             // Weich beginnen und weich enden (smoothstep) statt linear: Das Ohr
             // hört den Anfang und das Ende einer Blende, nicht die Mitte.
             const eased = fraction * fraction * (3 - 2 * fraction);
-            this.audio.volume = start + (target - start) * eased;
+            this.setLevel(start + (target - start) * eased);
             if (fraction === 1) {
                 clearInterval(this.fadeTimer);
                 this.fadeTimer = null;
@@ -214,7 +296,7 @@ export class ShowcaseMusic {
     silence() {
         clearInterval(this.fadeTimer);
         this.fadeTimer = null;
-        if (this.audio) { this.audio.volume = 0; this.audio.pause(); }
+        if (this.audio) { this.setLevel(0); this.audio.pause(); }
     }
 
     dispose() {
@@ -227,7 +309,8 @@ export class ShowcaseMusic {
         this.wanted = false;
         this.loading = false;
         this.silence();
-        if (this.audio) this.audio.removeAttribute('src');
-        this.audio = null;
+        this.releaseElement();
+        try { this.context?.close?.(); } catch { /* egal */ }
+        this.context = null;
     }
 }
