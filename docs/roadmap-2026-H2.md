@@ -23,6 +23,39 @@ Alles, was auf keinen der beiden Momente einzahlt, ist Backlog – nicht Sprint.
 - **Mobile ist der primäre Formfaktor** für Moment A, Desktop für Moment B.
 - Jede Übermittlung an Drittdienste (Nominatim, OSRM) ist offengelegt und abschaltbar.
 
+### 1a. Nische zuerst *(Produktentscheidung, 03.10.2026)*
+
+Erfolgreiche Produkte beginnen in einer Nische, die genau zu ihrer Stärke passt
+(Amazon: Bücher – Millionen Titel, die kein Laden führen kann, jedes Exemplar
+gleich), und wachsen erst von dort aus.
+
+**Unsere Nische:** der einzelne **Außendienstler in einem größeren Unternehmen**
+mit einer Excel-Kundenliste und Microsoft 365, der morgen eine Tour fahren will.
+
+- **Sie passt zu unserer Stärke:** Browser, lokal, kein Konto, keine IT-Freigabe –
+  ausprobieren am selben Abend, ohne jemanden zu fragen. Ein CRM-Projekt braucht
+  dafür Monate.
+- **Gleicher Schmerz bei allen:** Liste in Excel, Kunden im Kopf, Tour auf Zuruf.
+- **Weitersagen funktioniert:** Außendienstler sitzen im Vertriebsmeeting
+  nebeneinander.
+
+**Erfolgsmaß:** **5–10 Außendienstler, die TourFuchs jede Woche nutzen** – nicht
+die Zahl der Funktionen.
+
+**Prüffrage für jede neue Idee:** *„Hilft das unseren 10 Außendienstlern?"*
+Wenn nein → Backlog, egal wie gut sie ist. GeoFuchs, ServiceFuchs und der
+Zeitraffer bleiben, wo sie sind, bis die Nische sie verlangt.
+
+**Wachstum danach, Schritt für Schritt:** weitere Außendienst-Teams → andere
+Branchen → angrenzende Rollen (z. B. Service-Techniker).
+
+**Messen:** Nutzer fragen bleibt der Kern (Wie lange bis zu den eigenen Daten?
+Woran ist es gescheitert? Was hat gefehlt?). Ob zusätzlich eine anonyme,
+cookielose Besucherzählung (Vercel Web Analytics) kommt, ist **offen** – sie
+würde das bisherige Versprechen „kein Tracking" ändern und braucht deshalb eine
+ausdrückliche Entscheidung des Verantwortlichen sowie eine angepasste
+Datenschutzerklärung (vgl. go-to-market.md, „Kein Tracking – bewusst").
+
 ---
 
 ## 2. Release-Plan
