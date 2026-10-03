@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { ShowcaseMusic, SHOWCASE_MUSIC_URL, MUSIC_BREAK_IDLE_MS, volumeIsWritable } from '../src/features/showcaseMusic.js';
+import { ShowcaseMusic, SHOWCASE_MUSIC_URL, MUSIC_BREAK_IDLE_MS, volumeIsWritable, isAppleMobile } from '../src/features/showcaseMusic.js';
 
 let music, audio, createAudio;
 function fakeAudio() {
@@ -387,5 +387,29 @@ describe('iPhone: Lautstärke über Web Audio, frischer Player je Runde', () => 
         expect(createAudio).toHaveBeenCalledTimes(2);
         expect(second.play).toHaveBeenCalled();
         expect(second.volume).toBeCloseTo(0.18);
+    });
+
+    it('erkennt iPhone und iPad (auch iPadOS als Mac)', () => {
+        expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X)' })).toBe(true);
+        expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel', maxTouchPoints: 5 })).toBe(true);
+        expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Linux; Android 14; SM-S921B)', platform: 'Linux armv8l', maxTouchPoints: 5 })).toBe(false);
+        expect(isAppleMobile({ userAgent: 'Mozilla/5.0 (Macintosh)', platform: 'MacIntel', maxTouchPoints: 0 })).toBe(false);
+    });
+
+    it('nutzt auf dem iPhone den Verstärker, auch wenn volume scheinbar wirkt', async () => {
+        const ctx = fakeContext();
+        const lying = fakeAudio(); // meldet gesetzte Werte zurück wie neuere iOS-Versionen
+        const m = new ShowcaseMusic({ createAudio: () => lying, createContext: () => ctx, appleMobile: true });
+        m.setPlayback({ active: true });
+        await vi.advanceTimersByTimeAsync(400);
+        expect(ctx.createGain).toHaveBeenCalled();
+        expect(ctx.gainNode.gain.value).toBeCloseTo(0.18);
+        m.setPlayback({ active: false });
+        await vi.advanceTimersByTimeAsync(1000);
+        expect(ctx.gainNode.gain.value).toBeGreaterThan(0);
+        expect(lying.pause).not.toHaveBeenCalled();
+        await vi.advanceTimersByTimeAsync(1200);
+        expect(ctx.gainNode.gain.value).toBe(0);
+        m.dispose();
     });
 });
