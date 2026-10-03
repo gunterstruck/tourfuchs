@@ -700,6 +700,32 @@ body.sc-running dialog[open] {
     .sc-tile-body b { font-size: 0.83rem; }
     .sc-tile-body span { font-size: 0.71rem; }
     .sc-panel-foot { padding-top: 7px; }
+
+    /* Demo-Abschluss auf kleinen Schirmen (iPhone SE): kompakter Kopf, und
+       der Countdown-Ring steht neben „Als Nächstes" statt darunter – sonst
+       lag er unter den Knöpfen und man sah nicht, dass er abläuft. */
+    .sc-outcome-head { padding: 12px 16px 2px; }
+    .sc-outcome-icon { width: 32px; height: 32px; font-size: 1.1rem; }
+    .sc-outcome-head > span { margin-top: 4px; }
+    .sc-outcome-head h2 { font-size: 1.12rem; }
+    .sc-outcome-body {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        align-content: start;
+        column-gap: 10px;
+        padding: 8px 16px 12px;
+        line-height: 1.4;
+    }
+    .sc-outcome-body > p { grid-column: 1 / -1; }
+    .sc-next-story { margin-top: 10px; padding: 9px 11px; gap: 4px; }
+    .sc-countdown-wrap { margin-top: 10px; gap: 4px; }
+    .sc-countdown { width: 66px; height: 66px; }
+    .sc-countdown-num { font-size: 1.5rem; }
+    .sc-countdown[data-state="stopped"] .sc-countdown-num { font-size: 1.3rem; padding-left: 4px; }
+    .sc-countdown-label { display: none; }
+    .sc-outcome-actions { padding-top: 8px; gap: 6px; }
+    .sc-outcome-actions button { min-height: 36px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

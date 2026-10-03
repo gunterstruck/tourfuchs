@@ -66,13 +66,27 @@ describe('iPhone SE: Karten-Pillen nebeneinander, nie über einer Kachel', () =>
     });
 
     it('nimmt auf kleinen Telefonen den Zierfuchs aus den Pillen', () => {
-        const tail = responsive.slice(responsive.lastIndexOf('@media (max-width: 400px)'));
-        expect(tail).toContain('.map-fab .mns-fox { display: none; }');
+        expect(responsive).toMatch(/@media \(max-width: 400px\) \{\s*\.map-fab \.mns-fox \{ display: none; \}/);
     });
 
     it('blendet die Knopfzeile aus, solange eine Kachel offen ist', () => {
         expect(responsive).toContain('body.map-popup-open .map-fab-row { display: none; }');
         expect(map).toContain("document.body.classList.add('map-popup-open')");
         expect(map).toContain("document.body.classList.remove('map-popup-open')");
+    });
+});
+
+describe('Kleine Telefone: kompakter Text und Demo-Abschluss mit sichtbarem Countdown', () => {
+    const responsive = read('src/styles/responsive.css');
+    const showcase = read('src/styles/showcase.css');
+
+    it('verkleinert auf kleinen Telefonen den Grundtext (rem-basiert)', () => {
+        const tail = responsive.slice(responsive.lastIndexOf('@media (max-width: 400px) and (max-height: 700px)'));
+        expect(tail).toContain('html, body { font-size: 13.5px; }');
+    });
+
+    it('stellt den Countdown-Ring neben „Als Nächstes"', () => {
+        expect(showcase).toMatch(/\.sc-outcome-body \{\s*display: grid;\s*grid-template-columns: minmax\(0, 1fr\) auto;/);
+        expect(showcase).toContain('.sc-countdown { width: 66px; height: 66px; }');
     });
 });

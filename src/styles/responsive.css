@@ -796,3 +796,12 @@ body.sc-running .mobile-next-step { display: none !important; }
     .map-fab .mns-fox { display: none; }
     .map-fab { padding: 9px 11px; gap: 5px; font-size: 0.8rem; }
 }
+
+/* Kleine Telefone (iPhone SE, 13 mini, Safari mit Adressleiste): Text gut
+   10 % kleiner. Fast alle Schriftgrößen sind in rem angegeben – eine Zeile hier
+   verkleinert die ganze Oberfläche gleichmäßig, damit Kacheln, Dialoge und der
+   Demo-Abschluss auf den kleinen Schirm passen. Gilt nur für die Touransicht. */
+@media (max-width: 400px) and (max-height: 700px),
+       (max-width: 768px) and (orientation: portrait) and (max-height: 600px) {
+    html, body { font-size: 13.5px; }
+}
