@@ -615,7 +615,27 @@ Umsatz, Fälligkeit und Gebiete kennen den Punkt nicht; Tour und Navigation scho
   relevant, wenn > ~5 regelmäßige Nutzer; bis dahin: Fallback + Opt-in reichen.
 - Refactoring `map.js`/`sidebar.js`/`tourPanel.js` in Untermodule (F7) – opportunistisch
   im Zuge von Release 2/3, kein eigenes Projekt.
-- Mehrsprachigkeit, Themes, weitere Kartenanbieter: kein Beitrag zu Moment A/B.
+- **Zeitraffer „Geschäftsjahr bei Nacht"** *(Idee, 03.10.2026 – geparkt)*: Die
+  Lichterkarte als Film über ein Geschäftsjahr. Jeder **Auftragseingang** blitzt
+  an seinem Ort hell auf und verglimmt dann langsam; die Farbe zeigt die
+  **Produktkategorie**, eine Uhr/ein Datum läuft mit (Vorbild: Zug-Zeitraffer
+  wie „1603 trains running" – Tagesverlauf statt Geschäftsjahr).
+  - *Warum überhaupt:* Ein Werkzeug darf schlicht **cool** sein. Menschen arbeiten
+    lieber und länger mit Werkzeugen, die ihnen gefallen (vgl. Auto: A nach B
+    schafft jedes, gekauft wird das, das sich gut anfühlt). Das wirkt indirekt –
+    Akzeptanz, Weitererzählen, Vorführwert beim Chef und im Vertriebsmeeting –
+    und ist trotzdem ein echter Produktwert. Die Lichterkarte hat das bestätigt.
+  - *Haken:* Braucht **Auftragsdaten mit Datum** (und optional Kategorie) – eine
+    neue, umfangreiche Importquelle. Verarbeitung bliebe lokal wie alles andere.
+  - *Schlanker Einstieg (falls es je losgeht):* **„Besuchs-Zeitraffer"** mit Daten,
+    die TourFuchs schon hat – die eingetragenen Besuche (`besuche`) leuchten im
+    Zeitraffer auf. Kein neuer Import; testet, ob der Effekt trägt. Erst danach
+    Auftragseingänge als optionale Importspalten (Datum, Kategorie, Wert).
+  - *Bewertung:* hoher Wow-Faktor, kein Beitrag zu Moment A/B, Aufwand für die
+    PWA derzeit nicht zu rechtfertigen → **bewusst nicht jetzt**.
+- Mehrsprachigkeit, weitere Kartenanbieter: kein Beitrag zu Moment A/B.
+  (*Themes* sind seit 02.10.2026 da: Aurora hell/dunkel, Kartenstile „Nacht" und
+  „✨ Lichterkarte" – siehe Wissensbasis 4.7/8.3.)
 
 ---
 
