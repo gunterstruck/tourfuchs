@@ -1,6 +1,9 @@
 /* App-Layout: Topbar, Sidebar, Karte */
 #app {
-    height: 100dvh;
+    /* --app-height setzt src/ui/viewportGuard.js aus der echten Fensterhöhe –
+       iOS liefert nach dem Entsperren der installierten App teils ein
+       veraltetes 100dvh (App nur halb hoch, darunter weiße Fläche). */
+    height: var(--app-height, 100dvh);
     display: grid;
     grid-template-rows: var(--topbar-height) 1fr;
     grid-template-columns: 1fr;
@@ -15,7 +18,7 @@
     gap: 10px;
     /* iPhone quer: Notch/Dynamic Island und runde Ecken liegen seitlich –
        ☰ links sowie 🌙 und ⓘ rechts bleiben außerhalb (viewport-fit=cover). */
-    padding: 0 max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px));
+    padding: var(--safe-top, 0px) max(12px, env(safe-area-inset-right, 0px)) 0 max(12px, env(safe-area-inset-left, 0px));
     background: var(--color-surface);
     border-bottom: 1px solid var(--color-border);
     /* über der Mobile-Vorschau (z-index 3000), damit der Zurück-Toggle immer klickbar bleibt */

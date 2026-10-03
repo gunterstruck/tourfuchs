@@ -671,8 +671,10 @@ function initMobileNextStep() {
 
 // ---- Panelhöhe kontinuierlich per Griff ziehen (Maus + Touch) ----
 function topbarPx() {
-    const v = getComputedStyle(document.documentElement).getPropertyValue('--topbar-height');
-    return parseInt(v, 10) || 56;
+    // Gemessen statt aus --topbar-height gelesen: Der Wert ist ein calc()
+    // (Kopfzeile + Statusleiste des iPhones) und lässt sich nicht parsen.
+    const h = document.querySelector('.topbar')?.getBoundingClientRect().height;
+    return Math.round(h) || 56;
 }
 function sheetMaxHeight() {
     return Math.max(SHEET_MIN_HEIGHT, Math.round(window.innerHeight - topbarPx() - 8));
