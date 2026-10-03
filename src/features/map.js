@@ -558,6 +558,8 @@ export function initMap(containerId) {
         if (!el) return;
         activePopup = e.popup;
         map.getContainer().classList.add('popup-visible');
+        // Am Handy weicht die Knopfzeile (Nähe/Lasso) der offenen Kachel.
+        document.body.classList.add('map-popup-open');
         decoratePopup(el);
         makePopupPanMap(el);
         el.querySelector('[data-popup-close]')?.addEventListener('click', () => map.closePopup());
@@ -607,6 +609,7 @@ export function initMap(containerId) {
         if (activePopup === e.popup) {
             activePopup = null;
             map.getContainer().classList.remove('popup-visible');
+            document.body.classList.remove('map-popup-open');
         }
         cancelAnimationFrame(popupFitFrame);
         const el = e.popup.getElement();

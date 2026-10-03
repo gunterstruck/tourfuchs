@@ -698,7 +698,16 @@
     /* Ist das Blatt aufgezogen, liegt die Zeile dahinter – dann gehört sie weg
        und nicht halb verdeckt in die Bedienung hinein. */
     body.sheet-open .map-fab-row { display: none; }
+    /* Offene Kunden-/Gebietskachel: Die Pillen lägen sonst mitten auf ihr
+       (iPhone SE). Schließen bringt sie zurück. */
+    body.map-popup-open .map-fab-row { display: none; }
+    /* Immer nebeneinander: Statt umzubrechen werden die Pillen schmaler
+       (Text mit „…"). iOS setzt Schrift und Emoji breiter als Chromium –
+       auf dem iPhone SE brach die Zeile sonst in zwei Etagen um. */
+    .map-fab-row { flex-wrap: nowrap; }
     .map-fab {
+        flex: 0 1 auto;
+        min-width: 0;
         max-width: 46vw;
         padding: 9px 13px;
         font-size: 0.84rem;
@@ -776,4 +785,14 @@ body.sc-running .mobile-next-step { display: none !important; }
         pointer-events: none;
         user-select: none;
     }
+}
+
+
+/* Kleine Telefone (iPhone SE & Co.): Der Zierfuchs in der Pille weicht dem
+   Text, damit „In der Nähe" und „Lasso ziehen" ganz lesbar nebeneinander
+   passen. */
+/* Steht bewusst am Dateiende: überstimmt die Pillenmaße der Touransicht. */
+@media (max-width: 400px) {
+    .map-fab .mns-fox { display: none; }
+    .map-fab { padding: 9px 11px; gap: 5px; font-size: 0.8rem; }
 }
