@@ -805,3 +805,15 @@ body.sc-running .mobile-next-step { display: none !important; }
        (max-width: 768px) and (orientation: portrait) and (max-height: 600px) {
     html, body { font-size: 13.5px; }
 }
+
+/* iPhone/iPad: Safari zoomt die ganze Seite heran, sobald ein Eingabefeld mit
+   weniger als 16px Schrift den Fokus bekommt – und nach dem Schließen nicht
+   wieder heraus (Einfügen-Dialog, Suche). Auf Touch-Geräten haben Felder
+   deshalb mindestens 16px; der kleinere Grundtext bleibt sonst erhalten. */
+@media (hover: none) and (pointer: coarse) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]),
+    select,
+    textarea {
+        font-size: max(16px, 1em) !important;
+    }
+}
