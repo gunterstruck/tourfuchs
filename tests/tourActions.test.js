@@ -60,3 +60,13 @@ describe('Tour-Aktionen: Scan als Einstieg, QR prominent, Desktop-Timeline', () 
         expect(components).toMatch(/\.stop-num \{[\s\S]*z-index: 1;/);
     });
 });
+
+describe('Tour per QR von Handy zu Handy', () => {
+    const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
+    it('zeigt am Handy denselben QR-Weg – bewusst ohne Versand-Link', () => {
+        expect(html).toMatch(/id="btn-tour-qr-phone"[^>]*class="[^"]*only-mobile[^"]*qr-handoff/);
+        expect(html).toContain('📲 Tour per QR teilen');
+        expect(html).toContain('📷 Tour per QR übernehmen');
+        expect(html).not.toMatch(/navigator\.share|qr-share-send/);
+    });
+});

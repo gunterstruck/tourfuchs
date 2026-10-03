@@ -78,7 +78,9 @@ export function initTourPanel() {
     // Plan-Einstellungen (Datum/Startzeit/Besuchsdauer) + QR-Übergabe
     document.getElementById('plan-date').value = todayInputValue();
     document.getElementById('btn-service-day-preview')?.addEventListener('click', buildServiceDayPreview);
-    document.getElementById('btn-tour-qr').addEventListener('click', shareTourAsQr);
+    document.getElementById('btn-tour-qr').addEventListener('click', () => shareTourAsQr());
+    // Handy → Handy: derselbe QR-Code, das andere Handy scannt ihn mit der Kamera.
+    document.getElementById('btn-tour-qr-phone')?.addEventListener('click', () => shareTourAsQr({ fromPhone: true }));
     initTourQr();
 
     // Schritt 0: Bezirk wählen (Auswahl klappt danach auf eine schmale Zeile ein)
@@ -1525,6 +1527,8 @@ function renderStops() {
     document.getElementById('btn-tour-ics').disabled = !hasRoute;
     document.getElementById('btn-tour-copy').disabled = !hasRoute;
     document.getElementById('btn-tour-qr').disabled = !hasRoute;
+    const phoneQr = document.getElementById('btn-tour-qr-phone');
+    if (phoneQr) phoneQr.disabled = !hasRoute;
     document.getElementById('btn-tour-save').disabled = !hasRoute;
     document.getElementById('btn-tour-clear').disabled = !(state.tour.start || state.tour.destination || stops.length > 0);
 }
@@ -1777,7 +1781,7 @@ function planOptions() {
 }
 
 /** Tour als QR-Code für die Übergabe ans Handy anzeigen */
-function shareTourAsQr() {
+function shareTourAsQr({ fromPhone = false } = {}) {
     const eff = effStops();
     if (!state.tour.start || eff.length === 0) return;
     const date = document.getElementById('plan-date')?.value;
@@ -1797,9 +1801,10 @@ function shareTourAsQr() {
     }
     openShareDialog(payload, {
         stopCount: Math.min(eff.length, MAX_QR_STOPS),
-        skipped: Math.max(0, eff.length - MAX_QR_STOPS)
+        skipped: Math.max(0, eff.length - MAX_QR_STOPS),
+        fromPhone
     });
-    noteTourSharedToPhone();
+    if (!fromPhone) noteTourSharedToPhone();
 }
 
 function optimizeTour() {
