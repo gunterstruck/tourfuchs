@@ -46,6 +46,11 @@ die Zahl der Funktionen.
 Wenn nein → Backlog, egal wie gut sie ist. GeoFuchs, ServiceFuchs und der
 Zeitraffer bleiben, wo sie sind, bis die Nische sie verlangt.
 
+**Wettbewerb:** Wir konkurrieren nicht in Funktionen (CRM-Abgleich, Teams,
+Verträge sind das Heimspiel der Anbieter), sondern mit null Hürde,
+nachprüfbarem Vertrauen und Emotion. Wettbewerber, ihre wahrscheinlichen Züge
+und unsere Antworten: [Wettbewerb](wettbewerb.md).
+
 **Wachstum danach, Schritt für Schritt:** weitere Außendienst-Teams → andere
 Branchen → angrenzende Rollen (z. B. Service-Techniker).
 
