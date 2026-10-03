@@ -1,7 +1,9 @@
 #!/bin/sh
-# Erzeugt die Werbefilme „Lichterkarte“:
-#   film/tourfuchs-lichterkarte-whatsapp-status-9x16.mp4  (Handy, < 30 s)
-#   film/tourfuchs-lichterkarte-desktop-16x9.mp4          (Desktop, Monitor)
+# Erzeugt die Werbefilme (LinkedIn-Serie und WhatsApp-Status):
+#   film/tourfuchs-lichterkarte-whatsapp-status-9x16.mp4    (Woche 1, Handy, < 30 s)
+#   film/tourfuchs-lichterkarte-desktop-16x9.mp4            (Woche 1, Querformat)
+#   film/tourfuchs-tour-planen-linkedin-16x9.mp4            (Woche 2, Querformat)
+#   film/tourfuchs-firmen-ki-kundenliste-linkedin-16x9.mp4  (Woche 3, Querformat)
 # Voraussetzungen: Node.js mit Playwright (Chromium), ffmpeg (libx264, aac).
 # Die App muss laufen (z. B. `npx vite --port 5173`); Adresse als 1. Argument.
 # Hinter einem TLS-prüfenden Proxy zusätzlich FILM_PROXY und FILM_PROXY_CA setzen
@@ -16,3 +18,9 @@ node film/lichterkarte/record.mjs "$WORK" "$APP" phone
 node film/lichterkarte/record.mjs "$WORK" "$APP" desktop
 node film/lichterkarte/compose.mjs "$WORK/gfx" "$WORK/rec-phone" film/tourfuchs-lichterkarte-whatsapp-status-9x16.mp4 phone
 node film/lichterkarte/compose.mjs "$WORK/gfx" "$WORK/rec-desktop" film/tourfuchs-lichterkarte-desktop-16x9.mp4 desktop
+node film/lichterkarte/render-graphics.mjs "$WORK/gfx-tour" tour
+node film/lichterkarte/record-tour.mjs "$WORK" "$APP"
+node film/lichterkarte/compose.mjs "$WORK/gfx-tour" "$WORK/rec-tour" film/tourfuchs-tour-planen-linkedin-16x9.mp4 desktop
+node film/lichterkarte/render-graphics.mjs "$WORK/gfx-kiliste" kiliste
+node film/lichterkarte/record-kiliste.mjs "$WORK" "$APP"
+node film/lichterkarte/compose.mjs "$WORK/gfx-kiliste" "$WORK/rec-kiliste" film/tourfuchs-firmen-ki-kundenliste-linkedin-16x9.mp4 desktop
