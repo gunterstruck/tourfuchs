@@ -826,4 +826,10 @@ body.sc-running .mobile-next-step { display: none !important; }
     textarea {
         font-size: max(16px, 1em) !important;
     }
+    /* Im Bedienpanel wirkt zusätzlich die Panel-Skalierung (CSS zoom, per
+       Zwei-Finger-Geste bis 80 %). Damit das Feld auch dann wirklich 16px
+       groß erscheint, gleicht die Schrift den Zoom aus. */
+    .panel-scale :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]), select, textarea) {
+        font-size: max(calc(16px / var(--panel-zoom, 1)), 1em) !important;
+    }
 }
