@@ -48,8 +48,10 @@ export function initTheme({ doc = document, win = window, storage = globalThis.l
     let choice = readThemeChoice(storage);
     const buttons = [...doc.querySelectorAll('[data-theme-choice]')];
 
+    const listeners = new Set();
     const render = () => {
         applyTheme(resolveDark(choice, media?.matches), doc);
+        listeners.forEach((fn) => fn());
         for (const button of buttons) {
             const active = button.dataset.themeChoice === choice;
             button.classList.toggle('active', active);
@@ -65,5 +67,10 @@ export function initTheme({ doc = document, win = window, storage = globalThis.l
     }
     media?.addEventListener?.('change', () => { if (choice === 'auto') render(); });
     render();
-    return { get choice() { return choice; } };
+    return {
+        get choice() { return choice; },
+        /** Wahl von außen setzen (Mond/Sonne-Knopf) – der Schalter im Info-Dialog zieht mit. */
+        setChoice(next) { choice = saveThemeChoice(next, storage); render(); },
+        onChange(fn) { listeners.add(fn); return () => listeners.delete(fn); }
+    };
 }
