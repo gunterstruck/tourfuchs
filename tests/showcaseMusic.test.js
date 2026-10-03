@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
-import { ShowcaseMusic, SHOWCASE_MUSIC_URL, MUSIC_BREAK_IDLE_MS } from '../src/features/showcaseMusic.js';
+import { ShowcaseMusic, SHOWCASE_MUSIC_URL, MUSIC_BREAK_IDLE_MS, volumeIsWritable } from '../src/features/showcaseMusic.js';
 
 let music, audio, createAudio;
 function fakeAudio() {
@@ -321,8 +321,71 @@ describe('Musik zum Start jeder Demo', () => {
     it('eine neue Runde schaltet die Musik wieder ein', () => {
         const src = readFileSync(`${process.cwd()}/src/ui/showcase.js`, 'utf8');
         const start = src.slice(src.indexOf('function startStory(story) {'));
-        expect(start.indexOf('if (!inRound) music.setEnabled(true);')).toBeGreaterThan(-1);
-        expect(start.indexOf('if (!inRound) music.setEnabled(true);')).toBeLessThan(start.indexOf('inRound = true;'));
+        const block = start.indexOf('if (!inRound) {');
+        expect(block).toBeGreaterThan(-1);
+        expect(start.indexOf('music.renew();')).toBeGreaterThan(block);
+        expect(start.indexOf('music.setEnabled(true);')).toBeGreaterThan(start.indexOf('music.renew();'));
+        expect(start.indexOf('music.setEnabled(true);')).toBeLessThan(start.indexOf('inRound = true;'));
         expect(src).toContain("for (const type of ['pointerup', 'click', 'keydown']) document.addEventListener(type, resumeBlockedMusic, true);");
+    });
+});
+
+describe('iPhone: Lautstärke über Web Audio, frischer Player je Runde', () => {
+    // Safari auf iOS: audio.volume lässt sich setzen, bleibt aber 1.
+    function iosAudio() {
+        const a = fakeAudio();
+        Object.defineProperty(a, 'volume', { get: () => 1, set: () => {} });
+        return a;
+    }
+    function fakeContext() {
+        const gain = { gain: { value: 1 }, connect: vi.fn(), disconnect: vi.fn() };
+        const source = { connect: vi.fn(), disconnect: vi.fn() };
+        return {
+            state: 'suspended', destination: {}, gainNode: gain,
+            createMediaElementSource: vi.fn(() => source),
+            createGain: vi.fn(() => gain),
+            resume: vi.fn(() => Promise.resolve()),
+            close: vi.fn()
+        };
+    }
+
+    it('erkennt, ob audio.volume wirkt', () => {
+        expect(volumeIsWritable(fakeAudio())).toBe(true);
+        expect(volumeIsWritable(iosAudio())).toBe(false);
+    });
+
+    it('blendet auf iOS über den Verstärker ein und sanft aus', async () => {
+        const ctx = fakeContext();
+        const ios = iosAudio();
+        const m = new ShowcaseMusic({ createAudio: () => ios, createContext: () => ctx });
+        m.setPlayback({ active: true });
+        await vi.advanceTimersByTimeAsync(400);
+        expect(ctx.resume).toHaveBeenCalled();
+        expect(ctx.gainNode.gain.value).toBeCloseTo(0.18);
+        m.setPlayback({ active: false });
+        await vi.advanceTimersByTimeAsync(1000);
+        const mid = ctx.gainNode.gain.value;
+        expect(mid).toBeGreaterThan(0);
+        expect(mid).toBeLessThan(0.18);
+        expect(ios.pause).not.toHaveBeenCalled();     // klingt noch aus
+        await vi.advanceTimersByTimeAsync(1200);
+        expect(ctx.gainNode.gain.value).toBe(0);
+        expect(ios.pause).toHaveBeenCalled();
+        m.dispose();
+    });
+
+    it('eine neue Runde holt einen frischen Player', async () => {
+        await start();
+        music.setPlayback({ active: false });
+        await vi.advanceTimersByTimeAsync(2500);
+        const second = fakeAudio();
+        createAudio.mockImplementation(() => second);
+        music.renew();
+        music.setEnabled(true);
+        music.setPlayback({ active: true });
+        await settle();
+        expect(createAudio).toHaveBeenCalledTimes(2);
+        expect(second.play).toHaveBeenCalled();
+        expect(second.volume).toBeCloseTo(0.18);
     });
 });

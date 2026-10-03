@@ -2219,7 +2219,12 @@ function startStory(story) {
     // Jede neu gestartete Demo beginnt mit Musik – auch wenn sie in einer
     // früheren Runde ausgeschaltet wurde. Innerhalb einer laufenden Runde
     // (nächster Film) bleibt die eigene Wahl stehen.
-    if (!inRound) music.setEnabled(true);
+    if (!inRound) {
+        // Neue Runde: frischer Player, noch im Tipp (iOS spielt sonst nach
+        // einem Abbruch teils keine Musik mehr).
+        music.renew();
+        music.setEnabled(true);
+    }
     inRound = true;
     clearAutoAdvance();
     // Noch im Klick: Die Musik fährt ohne Neustart auf volle Lautstärke hoch
