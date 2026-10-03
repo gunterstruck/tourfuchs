@@ -3,7 +3,8 @@
 <head>
 <meta charset="utf-8">
 <title>Werbefilm Lichterkarte – Bühne</title>
-<!-- Gestaltungsvorlage für den Werbefilm „Lichterkarte“ (9:16, WhatsApp-Status).
+<!-- Serie 1: lights, tour, kiliste · Serie 2 (Vertriebsleitung): bezirke, umverteilen, vorlage.
+     Gestaltungsvorlage für den Werbefilm „Lichterkarte“ (9:16, WhatsApp-Status).
      Wird per Playwright zu PNGs gerendert (render-graphics.mjs).
      Parameter: ?film=lights|tour|kiliste&layout=phone|desktop&part=bg|frame|mask|text|intro|outro&scene=…
      Die Filme „tour“ (Woche 2) und „kiliste“ (Woche 3) gibt es nur im Querformat (LinkedIn). -->
@@ -125,6 +126,40 @@ const FILMS = {
     },
     introTitle: 'Keine Kundenliste?<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">Frag deine Firmen-KI.</span>',
     introSub: 'Eigene Daten in TourFuchs – ohne Export',
+    credit: 'Alle gezeigten Kunden sind erfunden. · ' + BASE.credit,
+  },
+  // Serie 2 „Für die Vertriebsleitung“ (GeoFuchs) – Wochen 4 bis 6.
+  bezirke: {
+    scenes: {
+      lights: ['Viele Lichter.<br><span class="glow">Wer betreut sie?</span>', 'Jeder Punkt ein Kunde – aber welcher Bezirk ist zuständig?'],
+      areas: ['Deine Bezirke<br>auf einen Blick.', 'Jede Farbe ein Vertriebsbezirk – mit Kunden und Umsatz.'],
+      detail: ['Anklicken –<br>Zahlen da.', 'Kunden, Umsatz und stärkste Standorte je Bezirk.'],
+      cockpit: ['Ausgewogen?<br>Ein Blick genügt.', 'Das Cockpit: Top, Flop und Faktor – für alle Bezirke.'],
+    },
+    introTitle: 'Deine Bezirke.<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">Im Griff.</span>',
+    introSub: 'Gebietsplanung mit TourFuchs',
+    credit: 'Alle gezeigten Kunden sind erfunden. · ' + BASE.credit,
+  },
+  umverteilen: {
+    scenes: {
+      whatif: ['Was wäre,<br><span class="glow">wenn …?</span>', 'Gebiete testweise umbuchen – ohne Daten zu ändern.'],
+      pick: ['Augsburg<br>nach Stuttgart.', 'Zwei Landkreise, acht Kunden – ausgewählt in Sekunden.'],
+      effect: ['Wirkung<br>sofort sichtbar.', '1,8 Mio. € Umsatz wandern – Top und Flop verschieben sich.'],
+      map: ['Alt und Neu<br>auf der Karte.', 'Erst prüfen, dann übernehmen.'],
+    },
+    introTitle: 'Gebiete umverteilen.<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">In Minuten.</span>',
+    introSub: 'Was-wäre-wenn mit TourFuchs',
+    credit: 'Alle gezeigten Kunden sind erfunden. · ' + BASE.credit,
+  },
+  vorlage: {
+    scenes: {
+      sim: ['Variante<br>durchgespielt.', 'Eine Umverteilung als Simulation – noch nichts übernommen.'],
+      doc: ['Die Vorlage fürs<br><span class="glow">Management.</span>', 'Vorher, nachher, Ausgewogenheit – druckfertig.'],
+      names: ['Ohne<br>Kundennamen.', 'Gemacht für die Sitzung. Die Namensliste gibt es separat als Excel.'],
+      decide: ['Entscheiden in<br>einer Sitzung.', 'Statt Wochen mit Tabellen und Fachsoftware.'],
+    },
+    introTitle: 'Die Entscheidung.<br><span style="color:var(--gold);text-shadow:0 0 30px rgba(253,224,71,.55)">Auf einem Blatt.</span>',
+    introSub: 'Entscheidungsvorlage aus TourFuchs',
     credit: 'Alle gezeigten Kunden sind erfunden. · ' + BASE.credit,
   },
 };
