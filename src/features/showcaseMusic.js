@@ -41,6 +41,24 @@ export function isAppleMobile(nav = globalThis.navigator) {
     return /iPad|iPhone|iPod/.test(ua) || (nav.platform === 'MacIntel' && Number(nav.maxTouchPoints) > 1);
 }
 
+export function preferPlaybackSession(nav = globalThis.navigator) {
+    try {
+        if (nav?.audioSession && nav.audioSession.type !== 'playback') nav.audioSession.type = 'playback';
+        return Boolean(nav?.audioSession);
+    } catch {
+        return false;
+    }
+}
+
+/** Ton-Hinweis (Laufleiste): einmal je Sitzung, auf Handy und Tablet – alle Browser. */
+export const SOUND_HINT_KEY = 'tf_sound_hint_shown';
+export function shouldShowSoundHint({ win = globalThis.window, storage = globalThis.sessionStorage } = {}) {
+    let shown = false;
+    try { shown = storage?.getItem(SOUND_HINT_KEY) === '1'; } catch { /* privat */ }
+    if (shown) return false;
+    return Boolean(win?.matchMedia?.('(pointer: coarse)').matches);
+}
+
 function defaultCreateContext() {
     const Ctor = globalThis.AudioContext || globalThis.webkitAudioContext;
     return Ctor ? new Ctor() : null;
@@ -218,6 +236,10 @@ export class ShowcaseMusic {
                 });
                 this.attachGain(audio);
             }
+            // Safari (iOS 17+): Demo-Musik wie ein Video behandeln – sie spielt dann
+            // auch bei eingeschaltetem Lautlos-Schalter. Andere Browser kennen
+            // navigator.audioSession nicht und überspringen das.
+            preferPlaybackSession();
             // iOS hält den Ton-Kontext nach Pausen oder Anrufen an – im Tipp wecken.
             if (this.context?.state && this.context.state !== 'running') this.context.resume?.().catch?.(() => {});
             clearInterval(this.fadeTimer);
