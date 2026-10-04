@@ -78,13 +78,18 @@ function packPoint(point) {
 
 function packStop(customer) {
     const stop = {
-        n: customer.name || '',
+        // Ein Zielpunkt ohne Kunde („Einfahrt") trägt seine Beschriftung im label.
+        n: customer.name || customer.label || '',
         lat: round5(customer.lat),
         lng: round5(customer.lng)
     };
     const addr = [customer.strasse, `${customer.plz ?? ''} ${customer.ort ?? ''}`.trim()]
         .filter(Boolean).join(', ');
     if (addr) stop.a = addr;
+    else if (customer.adresse) stop.a = String(customer.adresse);
+    // Präzise gesetzter Pin: Das Handy soll zur Koordinate navigieren, nicht zur
+    // Adresse – genau wie beim Startpunkt.
+    if (customer.coordinateSource === 'map-pin') stop.m = 1;
     if (customer.telefon) stop.t = customer.telefon;
     if (customer.nummer) stop.k = customer.nummer;
     if (customer.plz) stop.p = customer.plz;
@@ -217,6 +222,7 @@ export function decodeTourPayload(text) {
             telefon: p.t || '',
             nummer: p.k || '',
             plz: p.p || '',
+            ...(p.m === 1 ? { coordinateSource: 'map-pin' } : {}),
             ...(p.d === 1 ? { demo: true, dataOrigin: DEMO_DATA_ORIGIN } : {})
         }));
     if (stops.length === 0) return null;

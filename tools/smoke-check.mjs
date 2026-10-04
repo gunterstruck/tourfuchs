@@ -256,12 +256,25 @@ async function phone(browser, baseUrl) {
     // Suchen → Treffer → Aktion im Kunden-Popup. Geklickt wird über das DOM:
     // Am Handy kann das Tour-Blatt Teile der Karte überdecken – geprüft wird
     // hier der Bedienweg, nicht die Treffsicherheit eines Fingers.
+    // Die Trefferliste wird asynchron neu aufgebaut; eine eben gefundene Zeile
+    // kann im nächsten Moment ersetzt sein. Deshalb gezielt einen *Kunden*-
+    // Treffer (data-id, nicht Ort) anklicken und bei Bedarf neu ansetzen.
     const pick = async (query, action) => {
         await closeDialogs(page);
-        await page.fill('#global-search', query);
-        await page.waitForSelector('#search-results .result-row', { timeout: TIMEOUT });
-        await page.evaluate(() => document.querySelector('#search-results .result-row').click());
-        await page.waitForSelector(`.leaflet-popup [data-action="${action}"]`, { timeout: TIMEOUT });
+        for (let attempt = 1; ; attempt++) {
+            await page.fill('#global-search', '');
+            await page.fill('#global-search', query);
+            await page.waitForSelector('#search-results .result-row[data-id]', { timeout: TIMEOUT });
+            const clicked = await page.evaluate(() => {
+                const row = document.querySelector('#search-results .result-row[data-id]');
+                row?.click();
+                return Boolean(row);
+            });
+            const opened = clicked && await page.waitForSelector(`.leaflet-popup [data-action="${action}"]`, { timeout: 10000 })
+                .then(() => true).catch(() => false);
+            if (opened) break;
+            if (attempt >= 3) throw new Error(`Kunden-Popup für „${query}" nicht erschienen`);
+        }
         await page.evaluate((a) => document.querySelector(`.leaflet-popup [data-action="${a}"]`).click(), action);
         await page.evaluate(() => document.querySelector('.leaflet-popup-close-button')?.click());
         // Leaflet blendet ein geschlossenes Popup noch ~200 ms aus, bevor es das

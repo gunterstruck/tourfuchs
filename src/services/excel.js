@@ -546,7 +546,12 @@ function contactFromValues({ nummer, name, telefon, email, primary, sheetRow }) 
  * Leere Teile fehlen im Export – deshalb wird jeder Teil an seiner Form
  * erkannt (E-Mail an „@", Telefon an Ziffern), nicht an seiner Position.
  */
-function parseOtherContacts(value, nummer, sheetRow) {
+// Übliche Schreibweisen: „0234 123456", „(0234) 123456", „+49 (0)234 12-34",
+// „0234/123456". Mindestens 5 Ziffern, sonst nur Zeichen, die in Nummern vorkommen.
+const PHONE_PATTERN = /^[+(]?[\d\s/().-]+$/;
+const looksLikePhone = (part) => PHONE_PATTERN.test(part) && (part.match(/\d/g) || []).length >= 5;
+
+function parseOtherContacts(value, nummer, sheetRow, onUnknown = () => {}) {
     return String(value ?? '')
         .split(/\s*\|\s*|\n/)
         .map((entry) => entry.trim())
@@ -555,8 +560,9 @@ function parseOtherContacts(value, nummer, sheetRow) {
             const found = { name: '', telefon: '', email: '' };
             for (const part of entry.split(/\s*·\s*/).map((p) => p.trim()).filter(Boolean)) {
                 if (!found.email && part.includes('@')) found.email = part;
-                else if (!found.telefon && /^[+\d][\d\s/().-]{3,}$/.test(part)) found.telefon = part;
+                else if (!found.telefon && looksLikePhone(part)) found.telefon = part;
                 else if (!found.name) found.name = part;
+                else onUnknown(part); // nichts still verwerfen
             }
             return contactFromValues({ nummer, ...found, primary: false, sheetRow });
         })
@@ -789,7 +795,13 @@ export function parseRows(rows, mapping) {
             _sheetRow: sheetRow,
             _raw: row
         };
-        const others = mapping.weitereKontakte ? parseOtherContacts(row[mapping.weitereKontakte], nummer, sheetRow) : [];
+        const unknownParts = [];
+        const others = mapping.weitereKontakte
+            ? parseOtherContacts(row[mapping.weitereKontakte], nummer, sheetRow, (part) => unknownParts.push(part))
+            : [];
+        if (unknownParts.length) {
+            err(sheetRow, `Weitere Ansprechpartner: nicht zuordenbare Angabe übersprungen: ${unknownParts.slice(0, 3).join(', ')}`, row, 'Hinweis');
+        }
         if (contact || others.length) {
             customer.contacts = [...(contact ? [{ ...contact, primary: true }] : []), ...others];
             if (contact) customer.primaryContactId = contact.id;

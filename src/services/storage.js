@@ -62,9 +62,28 @@ export async function removeFromCache(key) {
     });
 }
 
+// ---- Schreibreihenfolge ----
+//
+// Alle Schreibvorgänge für Datensatz und Nebenspeicher laufen nacheinander.
+// Sonst konnte ein verschlüsselter Speichervorgang, der kurz vor dem
+// Deaktivieren des Tresors begann (Speichertimer), **nach** dem Klartext
+// landen: Die Daten lagen dann verschlüsselt mit einem verworfenen Schlüssel –
+// nach dem Neuladen waren sie weg. Jeder Vorgang entscheidet erst, wenn er an
+// der Reihe ist, ob verschlüsselt wird.
+let writeTail = Promise.resolve();
+function inOrder(task) {
+    const run = writeTail.then(task, task);
+    writeTail = run.catch(() => {});
+    return run;
+}
+
 // ---- Kundendaten ----
 
-export async function saveDataset(dataset) {
+export function saveDataset(dataset) {
+    return inOrder(() => writeDataset(dataset));
+}
+
+async function writeDataset(dataset) {
     try {
         // Aktiver, gesperrter Tresor: niemals im Klartext schreiben – lieber gar nicht.
         if (isEnabled() && !isUnlocked()) return false;
@@ -92,8 +111,8 @@ export async function loadDataset() {
     }
 }
 
-export async function clearDataset() {
-    await removeFromCache(KEYS.dataset);
+export function clearDataset() {
+    return inOrder(() => removeFromCache(KEYS.dataset));
 }
 
 /** Gibt es überhaupt einen gespeicherten Datensatz? (unabhängig von Ver-/Entschlüsselung) */
@@ -118,7 +137,11 @@ export async function hasStoredDataset() {
 
 export const PROTECTED_KEYS = Object.freeze(['geocodeCache', 'tours', 'scenarios']);
 
-async function saveProtected(key, value) {
+function saveProtected(key, value) {
+    return inOrder(() => writeProtected(key, value));
+}
+
+async function writeProtected(key, value) {
     if (isEnabled() && !isUnlocked()) return false;
     const payload = (isEnabled() && isUnlocked()) ? await encryptForStore(value) : value;
     await saveToCache(KEYS[key], payload);
@@ -137,7 +160,11 @@ async function loadProtected(key, fallback) {
  * Einrichten bzw. Entsperren verschlüsselt, nach dem Deaktivieren (DEK noch im
  * Speicher, Metadaten schon weg) im Klartext.
  */
-export async function reprotectStores() {
+export function reprotectStores() {
+    return inOrder(rewriteProtectedStores);
+}
+
+async function rewriteProtectedStores() {
     for (const key of PROTECTED_KEYS) {
         try {
             const raw = (await loadFromCache(KEYS[key])) ?? null;
@@ -155,7 +182,11 @@ export async function reprotectStores() {
 }
 
 /** Nach einem Tresor-Wipe: verschlüsselte Nebenspeicher sind ohne Schlüssel wertlos. */
-export async function clearProtectedStores() {
+export function clearProtectedStores() {
+    return inOrder(removeProtectedStores);
+}
+
+async function removeProtectedStores() {
     for (const key of PROTECTED_KEYS) {
         try { await removeFromCache(KEYS[key]); } catch { /* IndexedDB evtl. nicht verfügbar */ }
     }
