@@ -105,3 +105,15 @@ describe('Suche am Handy: Treffer über die ganze Breite', () => {
         expect(css).toMatch(/\.search-results \{\s*position: fixed;\s*top: calc\(var\(--topbar-height\) \+ 6px\);\s*left: 8px;\s*right: 8px;/);
     });
 });
+
+describe('Willkommen auf kleinen Handys: alle drei Wege sichtbar', () => {
+    const css = read('src/styles/responsive.css');
+    it('rückt das Blatt tiefer, solange die Willkommens-Karte offen ist', () => {
+        expect(css).toMatch(/body\.demo-data-active\.demo-welcome-open \{\s*--mobile-sheet-peek: 84px;/);
+        expect(read('src/ui/demoWelcome.js')).toContain("document.body.classList.toggle('demo-welcome-open', !root.hidden);");
+    });
+    it('macht die Karte auf niedrigen Schirmen kompakter und lässt den Fußtext weg', () => {
+        const block = css.slice(css.lastIndexOf('@media (max-width: 768px) and (max-height: 640px)'));
+        expect(block).toContain('.demo-welcome-foot { display: none; }');
+    });
+});
