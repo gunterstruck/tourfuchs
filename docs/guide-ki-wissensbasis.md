@@ -1534,6 +1534,11 @@ selbst ab.
 **Klickpfad:** Kundenmarker -> **"Briefing"** ->
 **"Prompt kopieren & <Assistent> öffnen"**.
 
+**Kürzerer Weg für geplante Besuche:** Jeder Stopp unter **"Meine Tour"** hat
+einen eigenen Briefing-Knopf – am Desktop **"📋 Briefing"** unter dem
+Kundennamen, am Handy der runde **📋**-Knopf neben dem Entfernen-Knopf. Er öffnet
+denselben Briefing-Dialog wie das Kunden-Popup.
+
 Dieser Klickpfad gilt für echte importierte Kundendaten. Bei Demo-Kunden endet
 der Klickpfad sicher in der lokalen Briefing-Vorschau mit **"Verstanden"**.
 
