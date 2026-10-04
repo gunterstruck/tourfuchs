@@ -74,9 +74,9 @@ describe('Mobiles Tour-Akkordeon (Startpunkt · Vorschläge · Meine Tour)', () 
         // Offene Gruppe scrollt intern (gedeckelt), damit die Köpfe stehenbleiben.
         expect(css).toContain('.tour-acc.open .acc-body {\n        max-height: 34vh;');
         expect(css).toContain('.tour-acc.open .scroll-list { max-height: none; overflow: visible; }');
-        // Der Scan-Einstieg wird beim Planen (Start steht) ausgeblendet.
+        // Der Scan-Einstieg wird beim Planen (Start steht) schmaler.
         expect(panel).toContain("classList.toggle('tour-has-start', !!state.tour.start)");
-        expect(css).toContain('body.tour-has-start #tab-tour.active #btn-tour-scan');
+        expect(css).toContain('body.tour-has-start #tab-tour.active #btn-tour-scan {');
         // Die offene „In der Nähe"-Karte ist genauso gedeckelt wie ein Schritt –
         // sie darf den Prozess darunter nicht aus dem Bild schieben.
         expect(css).toContain('.nearby-card.open .acc-body {\n        max-height: 34vh;');

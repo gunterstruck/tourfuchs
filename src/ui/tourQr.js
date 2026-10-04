@@ -33,6 +33,14 @@ export function initTourQr() {
     scanDialog.addEventListener('close', stopCamera);
 
     document.getElementById('btn-tour-scan').addEventListener('click', openScanDialog);
+    // Weitere Einstiege (Schrittleiste, „Eigene Daten laden"): ein offener
+    // Dialog wird vorher geschlossen, damit der Scan-Dialog oben liegt.
+    document.querySelectorAll('[data-tour-scan]').forEach((button) => {
+        button.addEventListener('click', () => {
+            button.closest('dialog')?.close();
+            openScanDialog();
+        });
+    });
     document.getElementById('qr-scan-file').addEventListener('change', onScanFile);
     document.getElementById('qr-received-adopt').addEventListener('click', adoptReceivedTour);
     document.getElementById('qr-received-gmaps').addEventListener('click', () => {

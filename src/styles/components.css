@@ -1715,6 +1715,20 @@ body.tour-focus #nearby-card,
 body.tour-focus #btn-tour-scan {
     display: none;
 }
+/* Im Fokus-Modus wandert der Scan-Einstieg als 📷 in die Schrittleiste. */
+.tour-step-scan { display: none; }
+body.tour-focus .tour-step-scan {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 42px;
+    padding: 9px;
+    border: 1px solid color-mix(in srgb, var(--color-primary, #0d9488) 40%, #e2e8f0);
+    border-radius: 12px;
+    background: var(--color-surface, #fff);
+    font-size: 1rem;
+    cursor: pointer;
+}
 /* Nur die aktive Gruppe bleibt; ihre Kopfzeile ersetzt die Schrittleiste. */
 body.tour-focus #tab-tour .tour-acc .acc-head { display: none; }
 body.tour-focus #tab-tour .tour-acc:not(.open) { display: none; }
