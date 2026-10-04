@@ -122,10 +122,11 @@ export function applyVisitReport(rows) {
         return true;
     }
     const result = mergeVisitReport(state.customers, rows);
+    // Nur die Besuche aus dem Bericht gelten hier als bekannt – sie sollen nicht
+    // gleich wieder in einem Bericht dieses Geräts landen. Eigene, noch nicht
+    // gemeldete Besuche derselben Kunden bleiben in „Seit dem letzten Bericht".
+    if (result.entries.length > 0) rememberSentVisits(result.entries);
     if (result.added > 0) {
-        // Übernommene Besuche gelten hier als bekannt – sie sollen nicht gleich
-        // wieder in einem Bericht dieses Geräts landen.
-        rememberSentVisits(result.touched.flatMap((customer) => (customer.besuche || []).map((date) => ({ customer, date }))));
         markDirty();
         emit('visits:changed');
         emit('customers:changed');
