@@ -24,7 +24,7 @@ import { zanoboMachineUrl } from '../services/zanobo.js';
 import { copyText, tourText } from '../features/handoff.js';
 import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
 import { loadTours, saveTours } from '../services/storage.js';
-import { resolveTour, stampTourKeys } from '../features/savedTourKeys.js';
+import { resolveTour, stampTourKeys, servicePlanBasis, servicePlanBasisMatches } from '../features/savedTourKeys.js';
 import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } from '../services/routing.js';
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
@@ -1915,7 +1915,9 @@ async function saveCurrentTour() {
         roundTrip: !!state.tour.roundTrip,
         stopIds: [...state.tour.stops],
         servicePlan: state.tour.servicePlan ? structuredClone(state.tour.servicePlan) : null,
-        serviceVisitByCustomer: state.tour.servicePlan ? structuredClone(state.tour.serviceVisitByCustomer || {}) : {}
+        serviceVisitByCustomer: state.tour.servicePlan ? structuredClone(state.tour.serviceVisitByCustomer || {}) : {},
+        // Wofür der Zeitplan gerechnet wurde – beim Laden wird verglichen.
+        servicePlanBasis: state.tour.servicePlan ? servicePlanBasis(state.tour.start, state.tour.stops, getCustomer) : null
     }, getCustomer);
     // gleicher Name -> ersetzen
     savedTours = savedTours.filter((t) => t.name !== name);
@@ -1944,17 +1946,23 @@ function loadSavedTour(id) {
         && resolved.lost === 0 && resolved.remapped === 0
         && validIds.length === tour.stopIds.length
         && validIds.every((customerId) => planCustomerIds.has(customerId));
-    state.tour.servicePlan = servicePlanComplete ? structuredClone(tour.servicePlan) : null;
-    state.tour.serviceVisitByCustomer = servicePlanComplete
+    // … und nur, wenn Start und Kunden noch dort liegen, wofür er gerechnet
+    // wurde. Sonst kombinierte der Export eine neue Adresse mit alten Fahrzeiten.
+    const planStillValid = servicePlanComplete
+        && servicePlanBasisMatches(tour.servicePlanBasis, resolved.start, validIds, getCustomer);
+    const planDropped = servicePlanComplete && !planStillValid;
+    state.tour.servicePlan = planStillValid ? structuredClone(tour.servicePlan) : null;
+    state.tour.serviceVisitByCustomer = planStillValid
         ? structuredClone(tour.serviceVisitByCustomer || {})
         : {};
     emit('tour:changed');
     const notes = [];
+    if (planDropped) notes.push('Service-Zeitplan verworfen, weil sich Adressen geändert haben – bitte neu planen lassen');
     if (resolved.lost > 0) notes.push(`${resolved.lost} nicht mehr vorhandene Kunden ausgelassen`);
     if (resolved.remapped > 0) notes.push(`${resolved.remapped} Kunden nach dem Import neu zugeordnet`);
     showToast(notes.length > 0
         ? `Tour „${tour.name}" geladen (${notes.join(', ')}).`
-        : `Tour „${tour.name}" geladen${servicePlanComplete ? ' – inklusive Service-Zeitplan' : ''}.`, 'success');
+        : `Tour „${tour.name}" geladen${planStillValid ? ' – inklusive Service-Zeitplan' : ''}.`, notes.length && planDropped ? 'info' : 'success');
 }
 
 async function deleteSavedTour(id) {

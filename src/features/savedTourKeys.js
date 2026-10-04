@@ -95,3 +95,30 @@ export function resolveTour(tour, customers) {
         start: point(tour.start, true), destination: point(tour.destination, false)
     };
 }
+
+/**
+ * Planungsgrundlage eines Service-Zeitplans: Lage und Anschrift jedes
+ * Stopps plus Startpunkt. Fahrzeiten und Strecken im Plan gelten nur für
+ * genau diese Punkte – zieht ein Kunde beim Reimport um, ist der Plan veraltet.
+ */
+function placeFingerprint(point) {
+    if (!point) return '';
+    const coord = (value) => (Number.isFinite(Number(value)) && value !== null && value !== '' ? Number(value).toFixed(5) : '');
+    return [coord(point.lat), coord(point.lng), point.strasse, point.plz, point.ort]
+        .map((part) => String(part ?? '').trim().toLowerCase()).join('|');
+}
+
+export function servicePlanBasis(start, customerIds, getCustomer) {
+    return {
+        start: placeFingerprint(start),
+        stops: Object.fromEntries((customerIds || []).map((id) => [id, placeFingerprint(getCustomer(id))]))
+    };
+}
+
+/** Gilt ein gespeicherter Zeitplan noch? Ohne festgehaltene Grundlage: nein – lieber neu planen. */
+export function servicePlanBasisMatches(basis, start, customerIds, getCustomer) {
+    if (!basis?.stops) return false;
+    const now = servicePlanBasis(start, customerIds, getCustomer);
+    if (now.start !== basis.start) return false;
+    return (customerIds || []).every((id) => basis.stops[id] !== undefined && basis.stops[id] === now.stops[id]);
+}

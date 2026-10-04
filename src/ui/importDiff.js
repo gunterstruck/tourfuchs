@@ -106,6 +106,8 @@ function render(body, diff, warning) {
         ${listSection('Nicht mehr in der Liste', diff.removed, (entry) => entry.bezirk)}
         ${listSection('Bezirkswechsel', diff.moved, (entry) => `${entry.from} → ${entry.to}`)}
         ${listSection('Geänderte Angaben', diff.changed || [], (entry) => entry.fields.map((f) => f.label).join(', '))}
+        ${diff.lostVisitCount ? `<p class="diff-warning"><b>${diff.lostVisitCount.toLocaleString('de-DE')} erfasste ${diff.lostVisitCount === 1 ? 'Besuch steht' : 'Besuche stehen'} nicht in der neuen Liste</b> und ${diff.lostVisitCount === 1 ? 'geht' : 'gehen'} beim Ersetzen verloren. Vorher sichern: „Als Excel exportieren" nimmt alle Besuche mit.</p>` : ''}
+        ${listSection('Besuche gehen verloren', diff.visitsLost || [], (entry) => entry.dates.join(', '))}
         <p class="diff-warning">${escapeHtml(warning)}</p>`;
 }
 
