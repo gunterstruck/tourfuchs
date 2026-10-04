@@ -288,7 +288,10 @@ export function searchOwnPlaces(query, ownPlaces = [], limit = 5) {
             lng: place.lng,
             plz: place.plz ?? '',
             ort: place.ort ?? '',
-            strasse: place.strasse ?? ''
+            strasse: place.strasse ?? '',
+            // Präziser Pin (Einfahrt, Tor): Navigation zur Koordinate, nicht zur Adresse.
+            ...(place.coordinateSource ? { coordinateSource: place.coordinateSource } : {}),
+            ...(place.adresse ? { adresse: place.adresse } : {})
         }));
 }
 

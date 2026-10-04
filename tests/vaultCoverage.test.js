@@ -98,6 +98,21 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
         expect(disable).not.toMatch(/vault\.lock\(\)/);
     });
 
+    it('Deaktivieren: ein noch laufender verschlüsselter Speichervorgang überschreibt den Klartext nicht', async () => {
+        await vault.setup('123456', OPTS);
+        // Speichertimer feuert kurz vor dem Deaktivieren – verschlüsselt noch.
+        const stale = storage.saveDataset({ customers: [{ name: 'Alt' }] });
+        // disableVault(): Metadaten weg, Klartext speichern, Schlüssel verwerfen.
+        vault.removeVaultMeta();
+        await storage.saveDataset({ customers: [{ name: 'Smoke Test' }] });
+        vault.discardKey();
+        await stale;
+        await new Promise((r) => setTimeout(r, 20));
+        const raw = RAW.get('kundendaten');
+        expect(raw.__enc).toBeUndefined();
+        expect(JSON.stringify(raw)).toContain('Smoke Test');
+    });
+
     it('räumt die Nebenspeicher beim Wipe mit ab', async () => {
         await vault.setup('123456', OPTS);
         await storage.saveTours(TOUR);

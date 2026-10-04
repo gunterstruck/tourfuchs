@@ -27,14 +27,24 @@ function visitedOn(customer, day) {
 
 /**
  * War der Kunde vor dem heutigen Besuch überfällig? Dafür wird der heutige
- * Eintrag gedanklich zurückgenommen und der Status auf den Vortag gerechnet –
- * sonst wäre nach dem Abhaken jeder Kunde „im Rhythmus" und die Antwort immer 0.
+ * Eintrag gedanklich zurückgenommen – sonst wäre nach dem Abhaken jeder Kunde
+ * „im Rhythmus" und die Antwort immer 0. Geprüft wird gegen **jetzt**, nicht
+ * gegen gestern: Wer genau heute überfällig geworden ist und heute besucht
+ * wurde, hat eine Überfälligkeit abgearbeitet.
  */
 export function wasOverdueBeforeVisit(customer, day, now = new Date()) {
     if (!customer?.rhythmusWochen) return false;
     const before = (customer.besuche || []).filter((date) => date < day);
-    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    return visitStatus({ ...customer, besuche: before }, yesterday) === 'ueberfaellig';
+    return visitStatus({ ...customer, besuche: before }, now) === 'ueberfaellig';
+}
+
+/** Zielpunkt wie im Tourpanel: verknüpfter Kunde, sonst der Ort selbst. */
+function destinationPoint(tour, customers) {
+    const destination = tour?.destination;
+    if (!destination) return null;
+    const customer = destination.customerId ? customers.find((c) => c.id === destination.customerId) : null;
+    const point = customer && Number.isFinite(customer.lat) ? customer : destination;
+    return Number.isFinite(point?.lat) && Number.isFinite(point?.lng) ? { lat: point.lat, lng: point.lng } : null;
 }
 
 function summarize(customer, day) {
@@ -84,9 +94,12 @@ export function dayReview({ customers = [], tour = null, now = new Date() } = {}
         .map((id) => customers.find((customer) => customer.id === id))
         .filter((customer) => customer && Number.isFinite(customer.lat) && Number.isFinite(customer.lng))
         .map((customer) => ({ lat: customer.lat, lng: customer.lng }));
+    // Mit separatem Ziel endet die Strecke dort – dieselbe Rechnung wie im Tourpanel.
+    const destination = destinationPoint(tour, customers);
+    const routePoints = destination ? [...stopPoints, destination] : stopPoints;
     const start = tour?.start && Number.isFinite(tour.start.lat) ? tour.start : null;
-    const roadKmEstimate = start && stopPoints.length
-        ? routeDistance(start, stopPoints, Boolean(tour?.roundTrip)).roadKmEstimate
+    const roadKmEstimate = start && routePoints.length
+        ? routeDistance(start, routePoints, Boolean(tour?.roundTrip)).roadKmEstimate
         : 0;
 
     return {
