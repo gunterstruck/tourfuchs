@@ -25,7 +25,7 @@ import { copyText, tourText } from '../features/handoff.js';
 import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
 import { loadTours, saveTours } from '../services/storage.js';
 import { resolveTour, stampTourKeys, servicePlanBasis, servicePlanBasisMatches } from '../features/savedTourKeys.js';
-import { joinedWindow } from '../features/serviceJobGroups.js';
+import { joinedWindow, windowForPlanningDay, earlierSla } from '../features/serviceJobGroups.js';
 import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } from '../services/routing.js';
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
@@ -421,16 +421,6 @@ function exactCustomerIndex() {
     return index;
 }
 
-function windowTimeForDate(value, workDate) {
-    const raw = String(value || '').trim();
-    if (!raw) return { value: '', matchesDate: true };
-    if (/^\d{1,2}:\d{2}$/.test(raw)) return { value: raw, matchesDate: true };
-    const match = raw.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}:\d{2})/);
-    return match
-        ? { value: match[2], matchesDate: match[1] === workDate }
-        : { value: raw, matchesDate: true };
-}
-
 function priorityRank(value) {
     return ['KRITISCH', 'HOCH', 'MITTEL', 'NIEDRIG'].indexOf(String(value || '').toUpperCase());
 }
@@ -455,9 +445,11 @@ function buildServiceJobGroups(workDate) {
         }
         const customer = customers[0];
         if (!customerInTourScope(customer)) continue;
-        const startWindow = windowTimeForDate(visit.timeWindowStart, workDate);
-        const endWindow = windowTimeForDate(visit.timeWindowEnd, workDate);
-        if (!startWindow.matchesDate || !endWindow.matchesDate) {
+        // Fenster mit dem Planungstag schneiden – auch mehrtägige Fenster zählen.
+        const dayWindow = windowForPlanningDay(visit.timeWindowStart, visit.timeWindowEnd, workDate);
+        const startWindow = { value: dayWindow.start };
+        const endWindow = { value: dayWindow.end };
+        if (!dayWindow.matchesDate) {
             skipped.push({ visit, customer, reason: 'Termin liegt an einem anderen Tag' });
             continue;
         }
@@ -495,7 +487,8 @@ function buildServiceJobGroups(workDate) {
             group.priority = visit.priority;
         }
         if (!group.dueDate || String(visit.dueDate) < group.dueDate) group.dueDate = visit.dueDate;
-        if (visit.slaDueAt && (!group.slaDueAt || String(visit.slaDueAt) < group.slaDueAt)) group.slaDueAt = visit.slaDueAt;
+        // Als Zeitpunkt vergleichen, nicht als Text (reines Datum = Tagesende).
+        if (visit.slaDueAt) group.slaDueAt = earlierSla(group.slaDueAt, visit.slaDueAt);
         group.timeWindowStart = joined.start;
         group.timeWindowEnd = joined.end;
         group.requiredSkills = [...new Set([...group.requiredSkills, ...(visit.requiredSkills || [])])];
