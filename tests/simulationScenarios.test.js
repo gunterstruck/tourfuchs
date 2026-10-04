@@ -126,7 +126,7 @@ describe('Zwei Varianten vergleichen', () => {
     });
 
     it('kommt mit leeren Szenarien zurecht', () => {
-        expect(compareScenarios(null, null)).toEqual({ onlyA: 0, onlyB: 0, same: 0, conflicting: [] });
+        expect(compareScenarios(null, null)).toEqual({ onlyA: 0, onlyB: 0, same: 0, conflicting: [], differentAttr: false });
     });
 });
 
