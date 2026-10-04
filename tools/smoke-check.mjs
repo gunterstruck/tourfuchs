@@ -11,7 +11,8 @@
  * Wege:
  *   1. Desktop: eigene Liste importieren (Einfügen → Zuordnen → Karte)
  *   2. Desktop: Tresor einrichten, sperren, entsperren – Kunden wieder da,
- *      gespeicherte Tour im Rohspeicher verschlüsselt
+ *      gespeicherte Tour im Rohspeicher verschlüsselt; Tresor deaktivieren –
+ *      Kunden bleiben im Klartext erhalten, auch nach dem Neuladen
  *   3. Handy: Kunde suchen → als Start und Ziel in die Tour → Besuch eintragen
  *      → „Besuche weitergeben" erscheint
  *
@@ -146,6 +147,25 @@ async function desktop(browser, baseUrl) {
         await page.click('#vault-unlock');
         await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === true, null, { timeout: TIMEOUT });
         await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT });
+    });
+
+    await step('Tresor deaktivieren – Kunden bleiben, auch nach dem Neuladen', async () => {
+        await closeDialogs(page);
+        const before = await customerCount(page);
+        const answer = (dialog) => dialog.type() === 'prompt' ? dialog.accept('Smoke-Test-2026') : dialog.accept();
+        page.on('dialog', answer);
+        await page.evaluate(() => { const b = document.getElementById('btn-vault-disable'); b.hidden = false; b.click(); });
+        await page.waitForFunction(() => !localStorage.getItem('tf_vault'), null, { timeout: TIMEOUT });
+        page.off('dialog', answer);
+        // Speichertimer abwarten: Früher schrieb er hier den geleerten Bestand weg.
+        await sleep(2500);
+        const raw = await rawStore(page, 'kundendaten');
+        if (raw?.__enc) throw new Error('Kundendaten nach dem Deaktivieren noch verschlüsselt');
+        if (!JSON.stringify(raw || {}).includes('Smoke Test')) throw new Error('Kundendaten nach dem Deaktivieren verloren');
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForSelector('#map', { timeout: TIMEOUT });
+        await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT });
+        if (await page.evaluate(() => document.getElementById('vault-lock')?.hidden === false)) throw new Error('Sperrbildschirm trotz deaktiviertem Tresor');
     });
 
     await step('keine Skriptfehler', async () => {

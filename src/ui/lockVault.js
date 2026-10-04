@@ -10,7 +10,7 @@ import * as vault from '../services/vault.js';
 import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot
 } from '../core/state.js';
-import { saveDataset, loadDataset, reprotectStores } from '../services/storage.js';
+import { saveDataset, loadDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
@@ -115,7 +115,17 @@ export function isLeftoverDemoDataset(dataset) {
     const customers = dataset.customers || [];
     if (customers.length > 0 && !isDemoDataset(customers)) return false;
     const own = (rows) => (rows || []).some((row) => row && row.sourceSystem !== 'DEMO');
-    return !own(dataset.serviceContracts) && !own(dataset.serviceVisits);
+    if (own(dataset.serviceContracts) || own(dataset.serviceVisits)) return false;
+    // Eigene Orte (z. B. Zuhause) und Gebiete kennt die Demo nicht – wer sie
+    // hat, hat den Tresor genutzt. Lieber eine PIN zu viel als Adressen im Klartext.
+    const any = (rows) => Array.isArray(rows) && rows.length > 0;
+    return !any(dataset.places) && !any(dataset.territories);
+}
+
+/** Nebenspeicher (Touren, Adress-Cache, Szenarien) leer? Sonst ist unklar, wem sie gehören. */
+async function protectedStoresEmpty() {
+    const [tours, geocodeCache, scenarios] = await Promise.all([loadTours(), loadGeocodeCache(), loadScenarios()]);
+    return tours.length === 0 && scenarios.length === 0 && Object.keys(geocodeCache || {}).length === 0;
 }
 
 async function healLeftoverDemoVault() {
@@ -124,8 +134,8 @@ async function healLeftoverDemoVault() {
         if (vault.isUnlocked() || !vault.isEnabled()) return false; // inzwischen selbst entsperrt
         await vault.unlock(pin);
         const dataset = await loadDataset();
-        if (!isLeftoverDemoDataset(dataset)) {
-            // Echte Daten mit zufällig gleicher PIN: Tresor bleibt, Sperre bleibt.
+        if (!isLeftoverDemoDataset(dataset) || !(await protectedStoresEmpty())) {
+            // Echte oder unklare Daten mit zufällig gleicher PIN: Tresor bleibt, Sperre bleibt.
             vault.lock();
             return false;
         }
@@ -632,8 +642,10 @@ async function disableVault() {
         vault.removeVaultMeta();                 // Tresor aus – DEK bleibt noch im Speicher
         await saveDataset(datasetSnapshot());    // jetzt im Klartext neu speichern
         await reprotectStores();                 // Nebenspeicher ebenso
-        emit('dataset:dirty');
-        vault.lock();                            // DEK aus dem Speicher entfernen
+        // Nur den Schlüssel verwerfen – NICHT lock(): Das meldet „gesperrt",
+        // leert Kunden, Verträge, Besuche und Gebiete im Speicher, und der
+        // Speichertimer schriebe danach den leeren Stand als Klartext weg.
+        vault.discardKey();
         renderControls();
         showToast('Tresor deaktiviert. Daten sind wieder unverschlüsselt gespeichert.', 'info', 6000);
     } catch {
