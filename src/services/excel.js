@@ -53,7 +53,13 @@ export const FIELDS = [
     { key: 'rhythmusWochen', label: 'Besuchsrhythmus (Wochen)', required: false, synonyms: ['besuchsrhythmus', 'rhythmus', 'rhythmus wochen', 'besuchsintervall', 'intervall', 'turnus', 'besuchsturnus', 'frequenz', 'zyklus wochen'] },
     { key: 'letzterBesuch', label: 'Letzter Besuch (Datum)', required: false, synonyms: ['letzter besuch', 'letzterbesuch', 'besuchsdatum', 'last visit', 'zuletzt besucht', 'letzter kontakt', 'letzter termin'] },
     { key: 'lat',     label: 'Breitengrad (optional)', required: false, synonyms: ['lat', 'latitude', 'breitengrad', 'breite'] },
-    { key: 'lng',     label: 'Längengrad (optional)',  required: false, synonyms: ['lng', 'lon', 'longitude', 'längengrad', 'laengengrad', 'länge'] }
+    { key: 'lng',     label: 'Längengrad (optional)',  required: false, synonyms: ['lng', 'lon', 'longitude', 'längengrad', 'laengengrad', 'länge'] },
+    // Die beiden folgenden schreibt der eigene Excel-Export – damit er sich
+    // verlustfrei wieder einlesen lässt (ganze Besuchshistorie, Herkunft der
+    // Koordinaten). Keine bloßen Teilwörter wie „besuche": „Anzahl Besuche"
+    // darf nicht als Historie erkannt werden.
+    { key: 'alleBesuche', label: 'Alle Besuche (Historie)', required: false, synonyms: ['alle besuche', 'besuchshistorie', 'besuchsverlauf', 'visit history'] },
+    { key: 'verortung', label: 'Verortung (Genauigkeit)', required: false, synonyms: ['verortung', 'verortungsgenauigkeit', 'geo genauigkeit', 'geo-genauigkeit'] }
 ];
 
 function normalizeHeader(h) {
@@ -679,8 +685,20 @@ export function parseRows(rows, mapping) {
         seen.set(dupKey, sheetRow);
 
         const letzterBesuch = mapping.letzterBesuch ? parseDateIso(row[mapping.letzterBesuch]) : null;
+        const besuche = new Set(letzterBesuch ? [letzterBesuch] : []);
+        if (mapping.alleBesuche) {
+            const invalid = [];
+            for (const part of String(row[mapping.alleBesuche] ?? '').split(/[;,|\n]/).map((p) => p.trim()).filter(Boolean)) {
+                const date = parseDateIso(part);
+                if (date) besuche.add(date); else invalid.push(part);
+            }
+            if (invalid.length) err(sheetRow, `Besuchsdatum nicht lesbar, übersprungen: ${invalid.slice(0, 3).join(', ')}`, row, 'Hinweis');
+        }
         const extra = Object.fromEntries(Object.entries(row)
             .filter(([header, value]) => !mappedHeaders.has(header) && String(value ?? '').trim() !== '')
+            // Abgeleitete Exportspalte: wird aus der Historie neu berechnet, nicht als
+            // veralteter Zusatzwert mitgeschleppt.
+            .filter(([header]) => !(mapping.alleBesuche && normalizeHeader(header) === normalizeHeader('Anzahl Besuche')))
             .map(([header, value]) => [header, String(value ?? '').trim()]));
         const customer = {
             // Stabile ID aus dem fachlichen Schlüssel (eindeutig dank Dublettenprüfung
@@ -702,10 +720,13 @@ export function parseRows(rows, mapping) {
             email: get('email'),
             umsatz: umsatzByRow[index] ?? null,
             rhythmusWochen: parseWeeks(mapping.rhythmusWochen ? row[mapping.rhythmusWochen] : null),
-            besuche: letzterBesuch ? [letzterBesuch] : [],
+            besuche: [...besuche].sort(),
             lat: hasCoords ? lat : null,
             lng: hasCoords ? lng : null,
-            geo: hasCoords ? 'exakt' : 'none',
+            // Fremde Koordinaten gelten als genau – außer der eigene Export sagt
+            // etwas anderes („PLZ-Mitte"): Dann bleibt der Kunde ein Kandidat
+            // für die adressgenaue Verortung.
+            geo: hasCoords ? geoFromExportLabel(mapping.verortung ? row[mapping.verortung] : null) : 'none',
             extra,
             _sheetRow: sheetRow,
             _raw: row
@@ -842,6 +863,14 @@ const GEO_EXPORT_LABEL = {
     strasse: 'Straße (Beispieldaten)',
     none: 'nicht verortet'
 };
+
+/** Rückweg der Spalte „Verortung" beim Wiederimport (bei vorhandenen Koordinaten). */
+function geoFromExportLabel(label) {
+    const text = String(label ?? '').trim().toLowerCase();
+    if (text === GEO_EXPORT_LABEL.plz.toLowerCase()) return 'plz';
+    if (text === GEO_EXPORT_LABEL.strasse.toLowerCase()) return 'strasse';
+    return 'exakt';
+}
 
 function contactExportText(contact) {
     return [contact?.name, contact?.telefon, contact?.email]
