@@ -510,13 +510,26 @@ function parseBool(value) {
     return ['1', 'ja', 'j', 'yes', 'y', 'true', 'wahr', 'x', 'primär', 'primaer', 'haupt'].includes(str);
 }
 
+/** Kurze, stabile Prüfsumme (FNV-1a) – für IDs, nicht für Sicherheit. */
+function shortHash(value) {
+    let hash = 0x811c9dc5;
+    for (const char of String(value)) {
+        hash ^= char.codePointAt(0);
+        hash = Math.imul(hash, 0x01000193) >>> 0;
+    }
+    return hash.toString(36);
+}
+
 function contactFromValues({ nummer, name, telefon, email, primary, sheetRow }) {
     const cleanName = String(name ?? '').trim();
     const cleanPhone = String(telefon ?? '').trim();
     const cleanEmail = String(email ?? '').trim();
     if (!cleanName && !cleanPhone && !cleanEmail) return null;
+    const cleanNummer = String(nummer ?? '').trim();
     return {
-        id: `ct-${String(nummer ?? '').trim() || sheetRow}-${sheetRow}`,
+        // Aus dem Inhalt, nicht aus der Excel-Zeile: Zwei Importe mit je einem
+        // Kontakt in „Zeile 2" ergaben sonst dieselbe ID für Anna und Bernd.
+        id: `ct-${cleanNummer || sheetRow}-${shortHash(`${cleanName.toLowerCase()}|${cleanPhone}|${cleanEmail.toLowerCase()}`)}`,
         nummer: String(nummer ?? '').trim(),
         name: cleanName,
         telefon: cleanPhone,
@@ -533,11 +546,20 @@ function syncPrimaryContact(customer) {
         return customer;
     }
     const primary = contacts.find((c) => c.primary) || contacts.find((c) => c.name) || contacts[0];
-    customer.contacts = contacts.map((c) => ({ ...c, primary: c.id === primary.id }));
-    customer.primaryContactId = primary.id;
-    customer.ansprechpartner = primary.name || '';
-    customer.telefon = primary.telefon || '';
-    customer.email = primary.email || '';
+    // Genau ein Hauptkontakt – über das Objekt, nicht über die ID: Ältere
+    // Bestände können doppelte IDs tragen. Doppelte IDs werden dabei eindeutig.
+    const seenIds = new Set();
+    customer.contacts = contacts.map((c, i) => {
+        let id = c.id || `ct-${i}`;
+        while (seenIds.has(id)) id = `${id}-${i}`;
+        seenIds.add(id);
+        return { ...c, id, primary: c === primary };
+    });
+    const chosen = customer.contacts[contacts.indexOf(primary)];
+    customer.primaryContactId = chosen.id;
+    customer.ansprechpartner = chosen.name || '';
+    customer.telefon = chosen.telefon || '';
+    customer.email = chosen.email || '';
     return customer;
 }
 
@@ -776,11 +798,15 @@ export function attachContacts(customers, contactRows, errors = []) {
         };
         const duplicate = existing.find((c) =>
             (c.name || '') === next.name && (c.telefon || '') === next.telefon && (c.email || '') === next.email);
-        if (duplicate) Object.assign(duplicate, next);
-        else existing.push(next);
+        // Eine spätere Zeile ohne Haupt-Markierung nimmt einem bestehenden
+        // Hauptkontakt die Rolle nicht weg.
+        const entry = duplicate ? Object.assign(duplicate, next, { primary: duplicate.primary || next.primary }) : next;
+        if (!duplicate) existing.push(next);
         customer.contacts = existing;
+        // Ausdrücklich als Hauptkontakt markiert (oder noch keiner da): genau
+        // dieser Eintrag – über das Objekt, damit gleiche IDs nichts verwechseln.
         if (next.primary || !customer.primaryContactId) {
-            customer.contacts.forEach((c) => { c.primary = c.id === next.id; });
+            customer.contacts.forEach((c) => { c.primary = c === entry; });
         }
         syncPrimaryContact(customer);
         matched++;
