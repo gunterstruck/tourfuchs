@@ -152,11 +152,20 @@ export function scenarioSummary(scenario, attrLabel = (value) => value) {
  * Zwei Szenarien nebeneinander – der eigentliche Zweck der Sache.
  * Vergleicht, welche Kunden beide bewegen und wo sie sich widersprechen.
  *
- * @returns {{ onlyA: number, onlyB: number, same: number, conflicting: string[] }}
+ * Unterschiedliche Zielfelder (Bezirk gegen Gruppe) sind unabhängig: Dann gibt
+ * es weder „gleich" noch „widersprüchlich", nur `differentAttr`.
+ *
+ * @returns {{ onlyA: number, onlyB: number, same: number, conflicting: string[], differentAttr: boolean }}
  */
 export function compareScenarios(a, b) {
     const mapA = new Map(Array.isArray(a?.overrides) ? a.overrides : []);
     const mapB = new Map(Array.isArray(b?.overrides) ? b.overrides : []);
+    // Alte Szenarien ohne Angabe meinten den Bezirk (früherer Standard).
+    const attrA = a?.assignAttr || 'bezirk';
+    const attrB = b?.assignAttr || 'bezirk';
+    if (attrA !== attrB) {
+        return { onlyA: mapA.size, onlyB: mapB.size, same: 0, conflicting: [], differentAttr: true };
+    }
     const conflicting = [];
     let same = 0;
     for (const [id, value] of mapA) {
@@ -168,6 +177,37 @@ export function compareScenarios(a, b) {
         onlyA: [...mapA.keys()].filter((id) => !mapB.has(id)).length,
         onlyB: [...mapB.keys()].filter((id) => !mapA.has(id)).length,
         same,
-        conflicting
+        conflicting,
+        differentAttr: false
     };
+}
+
+/**
+ * Kunden eines Gebiets in der Simulation einem Ziel zuweisen.
+ *
+ * Maßgeblich ist der **simulierte** Stand, nicht nur der Ursprung: Hat eine
+ * andere Ebene den Kunden schon umgebucht (Landkreis → Süd), muss „PLZ → Nord"
+ * ihn zurückholen – auch wenn Nord sein Ausgangswert ist. Dann wird die
+ * Umbuchung entfernt statt übersehen.
+ *
+ * @param {Map<string,string>} overrides  wird an Ort und Stelle geändert
+ * @param {Array<object>} customers
+ * @param {string} target
+ * @param {(customer: object) => string} originalOf  Ausgangswert im Zielfeld
+ * @returns {{ movedIds: string[], moved: number, movedRevenue: number }}
+ */
+export function assignInSimulation(overrides, customers, target, originalOf) {
+    const movedIds = [];
+    let movedRevenue = 0;
+    for (const customer of customers || []) {
+        const id = customer.id;
+        const original = originalOf(customer);
+        const current = overrides.has(id) ? overrides.get(id) : original;
+        if (current === target) continue;
+        if (original === target) overrides.delete(id);
+        else overrides.set(id, target);
+        movedIds.push(id);
+        movedRevenue += customer.umsatz || 0;
+    }
+    return { movedIds, moved: movedIds.length, movedRevenue };
 }
