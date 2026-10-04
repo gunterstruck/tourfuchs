@@ -342,9 +342,15 @@
         max-height: 34vh;
         overflow-y: auto;
     }
-    /* Der Scan-Einstieg ist beim Planen (Start steht) redundant und kostet
-       Platz – dann ausblenden, damit die Akkordeon-Köpfe passen. */
-    body.tour-has-start #tab-tour.active #btn-tour-scan { display: none; }
+    /* Der Scan-Einstieg bleibt immer erreichbar. Steht schon ein Start, wird
+       er nur schmaler, damit die Akkordeon-Köpfe weiter passen. */
+    body.tour-has-start #tab-tour.active #btn-tour-scan {
+        padding: 5px 10px;
+        min-height: 0;
+        margin-top: 4px;
+        font-size: 0.84rem;
+        font-weight: 600;
+    }
 
     /* Die Karten-Einfärbung „Kartenansicht" (Kunden/Status/Chancen) ist eine
        Analyse-/Karten-Sache und gehört nicht in den mobilen Tour-Prozess: Auf dem

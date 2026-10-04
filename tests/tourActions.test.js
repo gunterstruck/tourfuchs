@@ -27,8 +27,19 @@ describe('Tour-Aktionen: Scan als Einstieg, QR prominent, Desktop-Timeline', () 
         expect(responsive).toContain('.btn-scan-entry');
     });
 
-    it('blendet den Scan-Einstieg aus, sobald ein Startpunkt steht (wie „In der Nähe")', () => {
-        expect(responsive).toContain('body.tour-has-start #tab-tour.active #btn-tour-scan');
+    it('lässt den Scan-Einstieg immer erreichbar – schmal mit Start, als 📷 im Fokus-Modus', () => {
+        // Steht ein Start, wird er nur schmaler – nicht mehr ausgeblendet.
+        expect(responsive).toMatch(/body\.tour-has-start #tab-tour\.active #btn-tour-scan \{\s*padding/);
+        expect(responsive).not.toContain('body.tour-has-start #tab-tour.active #btn-tour-scan { display: none; }');
+        // Vor dem Planer: auch ohne planbare Kunden sichtbar.
+        expect(html.indexOf('id="btn-tour-scan"')).toBeLessThan(html.indexOf('id="tour-planner"'));
+        // Fokus-Modus: 📷 in der Schrittleiste.
+        expect(html).toMatch(/class="tour-step-scan only-mobile" data-tour-scan/);
+        expect(components).toContain('body.tour-focus .tour-step-scan');
+        // „Eigene Daten laden": eigener Weg für Empfänger ohne Kundendaten.
+        const dialog = html.slice(html.indexOf('id="own-data-dialog"'), html.indexOf('id="import-insight-dialog"'));
+        expect(dialog).toContain('data-tour-scan');
+        expect(read('src/ui/tourQr.js')).toContain("querySelectorAll('[data-tour-scan]')");
     });
 
     it('rückt die QR-Übergabe am Desktop nach oben und hebt sie hervor', () => {
