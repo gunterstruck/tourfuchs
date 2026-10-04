@@ -38,6 +38,7 @@ import { showToast } from './toast.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { openAreaBriefing } from './areaBriefing.js';
+import { openCustomerBriefing } from './customerBriefing.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -1476,8 +1477,10 @@ function renderStops() {
                     <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? '<span class="route-role">Ziel</span>' : ''}${outsideServiceScope ? '<span class="route-role scope-exception">Außerhalb Servicefilter</span>' : ''}</span>
                     <span class="stop-sub muted small">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${done ? ' · heute besucht' : (lastVisit(c) ? ` · zuletzt ${agoText(lastVisit(c))}` : '')}</span>
                     ${servicePlanLine ? `<span class="stop-plan-line">${servicePlanLine}</span>` : ''}
+                    <button type="button" class="stop-briefing stop-briefing-inline" data-briefing="${i}" title="Briefing für ${escapeHtml(c.name)} vorbereiten">📋 Briefing</button>
                 </span>
                 <span class="stop-actions">
+                    <button type="button" class="stop-briefing stop-briefing-icon" data-briefing="${i}" title="Briefing für ${escapeHtml(c.name)} vorbereiten" aria-label="Briefing für ${escapeHtml(c.name)}">📋</button>
                     <button type="button" class="stop-visit${done ? ' is-done' : ''}" data-visit="${i}" title="${done ? 'Heute besucht' : 'Als heute besucht markieren'}">${done ? '✓' : '✓ Heute'}</button>
                     <button type="button" data-up="${i}" title="Nach oben" ${i === 0 ? 'disabled' : ''}>↑</button>
                     <button type="button" data-down="${i}" title="Nach unten" ${i === stops.length - 1 ? 'disabled' : ''}>↓</button>
@@ -1485,6 +1488,12 @@ function renderStops() {
                 </span>
             </div>`;
         }).join('');
+
+        // Der wichtigste Nutzen direkt am Stopp – ohne Umweg über Marker und Popup.
+        el.querySelectorAll('[data-briefing]').forEach((btn) => btn.addEventListener('click', () => {
+            const c = stops[parseInt(btn.dataset.briefing, 10)];
+            if (c) openCustomerBriefing(c);
+        }));
 
         el.querySelectorAll('[data-visit]').forEach((btn) => btn.addEventListener('click', () => {
             const c = stops[parseInt(btn.dataset.visit, 10)];
