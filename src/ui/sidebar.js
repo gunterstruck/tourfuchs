@@ -68,6 +68,8 @@ const OPTIONAL_FILTERS_KEY = 'gf_optional_filter_dimensions';
 const SIDEBAR_MIN = 340;
 const SIDEBAR_MAX = 400;
 const SHEET_MIN_HEIGHT = 140; // reicht für Griff + Tabs
+const SHEET_COLLAPSE_MS = 280; // etwas länger als der Einklapp-Übergang (0.24 s)
+let collapseSheetTimer = null;
 const PANEL_ZOOM_MIN = 0.8;
 const PANEL_ZOOM_MAX = 1.5;
 const PANEL_ZOOM_STEP = 0.1;
@@ -691,14 +693,16 @@ function tourSheetHeight() {
 }
 // Sichtbare „Guckhöhe" des geschlossenen Blatts (nur der Griff schaut heraus).
 function peekPx() {
-    const v = getComputedStyle(document.documentElement).getPropertyValue('--mobile-sheet-peek');
+    // Am <body> lesen: Beispieldaten-Betrieb und Willkommens-Karte setzen den
+    // Wert dort (108 px bzw. 68 px), :root trägt nur die Grundhöhe.
+    const v = getComputedStyle(document.body || document.documentElement).getPropertyValue('--mobile-sheet-peek');
     return parseInt(v, 10) || 40;
 }
-function clampSheetHeight(h) {
-    return Math.max(SHEET_MIN_HEIGHT, Math.min(sheetMaxHeight(), Math.round(h)));
+function clampSheetHeight(h, min = SHEET_MIN_HEIGHT) {
+    return Math.max(min, Math.min(sheetMaxHeight(), Math.round(h)));
 }
-function setSheetHeight(h, persist = false) {
-    const next = clampSheetHeight(h);
+function setSheetHeight(h, persist = false, min = SHEET_MIN_HEIGHT) {
+    const next = clampSheetHeight(h, min);
     document.documentElement.style.setProperty('--sheet-height', `${next}px`);
     document.getElementById('sidebar')?.classList.add('sheet-sized');
     if (persist) { try { localStorage.setItem(SHEET_HEIGHT_KEY, String(next)); } catch (e) { /* egal */ } }
@@ -804,14 +808,28 @@ function toggleSheet() {
     }
 }
 
-/** Handy: das Blatt vollständig auf die Guckhöhe zurückziehen (kein Rest). */
+/**
+ * Handy: das Blatt vollständig auf die Guckhöhe zurückziehen (kein Rest).
+ *
+ * Erst gleitet das Blatt in seiner jetzigen Höhe nach unten, danach – schon
+ * eingeklappt und ohne Übergang – fällt die gezogene Höhe weg. Liefen Höhe und
+ * Einklapp-Verschiebung gleichzeitig, hüpfte das Blatt beim Loslassen kurz hoch
+ * und fiel dann erst (die Verschiebung rechnet in Prozent der wachsenden Höhe).
+ */
 function collapseSheetFully() {
     const sidebar = document.getElementById('sidebar');
-    sidebar?.classList.remove('sheet-sized');
-    document.documentElement.style.removeProperty('--sheet-height');
     try { localStorage.removeItem(SHEET_HEIGHT_KEY); } catch (e) { /* egal */ }
     state.ui.sidebarOpen = false;
     applySidebar();
+    clearTimeout(collapseSheetTimer);
+    collapseSheetTimer = setTimeout(() => {
+        if (state.ui.sidebarOpen || !sidebar) return;
+        sidebar.classList.add('sheet-instant');
+        sidebar.classList.remove('sheet-sized');
+        document.documentElement.style.removeProperty('--sheet-height');
+        void sidebar.offsetHeight; // Stil übernehmen, solange der Übergang aus ist
+        sidebar.classList.remove('sheet-instant');
+    }, SHEET_COLLAPSE_MS);
 }
 
 /**
@@ -855,11 +873,14 @@ function initSheetGrip() {
             // das Blatt zunächst auf die sichtbare Guckhöhe fixieren, damit es
             // NICHT auf die volle Höhe springt, sondern von dort dem Finger folgt.
             if (mode === 'resize' && isSheetUi() && !state.ui.sidebarOpen) {
-                startH = setSheetHeight(peekPx()); // geklammerte Starthöhe merken -> kein Sprung, kein Totgang
+                clearTimeout(collapseSheetTimer);
+                startH = setSheetHeight(peekPx(), false, peekPx()); // genau ab der Guckhöhe -> kein Sprung, kein Totgang
                 state.ui.sidebarOpen = true; applySidebar();
             }
         }
-        if (mode === 'resize') { rawHeight = startH - dy; setSheetHeight(rawHeight); }
+        // Am Handy folgt das Blatt dem Finger bis hinab zur Guckhöhe; erst beim
+        // Loslassen entscheidet die Mindesthöhe, ob es ganz einklappt.
+        if (mode === 'resize') { rawHeight = startH - dy; setSheetHeight(rawHeight, false, isSheetUi() ? peekPx() : SHEET_MIN_HEIGHT); }
         else if (mode === 'move') applySidebarPosition({ left: ev.clientX - offsetX, top: ev.clientY - offsetY });
     });
     const finish = () => {
