@@ -38,6 +38,7 @@ import {
 import { confirmDatasetReplacement, hasExistingDataset, onlyDemoDataPresent } from './datasetReplacement.js';
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 import { confirmImportWithDiff } from './importDiff.js';
+import { carryOverVisits } from '../features/datasetDiff.js';
 import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
@@ -731,6 +732,12 @@ async function confirmImport() {
     // Änderungsbericht mit „2250 entfallen" wäre dort eine Schreckmeldung
     // ohne Gegenstand, direkt vor dem ersten eigenen Erfolgserlebnis.
     const replacingDemoOnly = onlyDemoDataPresent();
+    // Eigene, lokal erfasste Besuche bleiben beim Reimport erhalten – vor dem
+    // Änderungsbericht, damit er nur noch echten Verlust (entfallene Kunden) zeigt.
+    // Beispielbesuche wandern nie in echte Daten.
+    const carriedVisits = customers.length > 0 && !replacingDemoOnly && !isDemoDataset(state.customers)
+        ? carryOverVisits(state.customers, customers)
+        : 0;
     if (customers.length > 0 && !replacingDemoOnly) {
         // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
         // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
@@ -767,6 +774,9 @@ async function confirmImport() {
         removeDemoContracts();
         removeDemoServiceVisits();
         replaceCustomers(customers, { fileName: parsed.fileName });
+        if (carriedVisits > 0) {
+            showToast(`${carriedVisits} lokal erfasste ${carriedVisits === 1 ? 'Besuch' : 'Besuche'} übernommen.`, 'info', 5000);
+        }
         areaCount = await resolveAreas(areaRows, errors);
         if (areaCount > 0) emit('customers:changed');
         fitToCustomers();
