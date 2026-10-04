@@ -26,8 +26,10 @@ export const STATUS_LABELS = {
 };
 
 export function lastVisit(customer) {
-    const visits = customer.besuche;
-    return visits && visits.length > 0 ? visits[visits.length - 1] : null;
+    // Das späteste Datum – nicht einfach das letzte im Feld: Ältere Bestände
+    // können unsortiert sein.
+    const visits = Array.isArray(customer.besuche) ? customer.besuche.filter(Boolean) : [];
+    return visits.length > 0 ? visits.reduce((latest, date) => (date > latest ? date : latest)) : null;
 }
 
 export function visitStatus(customer, now = new Date()) {
@@ -76,9 +78,9 @@ export function todayIso(now = new Date()) {
 export function markVisitedToday(customer) {
     const today = todayIso();
     if (!Array.isArray(customer.besuche)) customer.besuche = [];
-    if (customer.besuche[customer.besuche.length - 1] !== today) {
-        customer.besuche.push(today);
-    }
+    // Ganze Historie prüfen, nicht nur den letzten Eintrag, und danach sortiert
+    // und ohne Dubletten ablegen.
+    customer.besuche = [...new Set([...customer.besuche.filter(Boolean), today])].sort();
     return today;
 }
 
