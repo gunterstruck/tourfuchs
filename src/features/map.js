@@ -1683,6 +1683,12 @@ function customerIcon(customer) {
 }
 
 function customerPopupOptions() {
+    // Handy: die Kachel nutzt die Bildschirmbreite (abzüglich Rand), damit
+    // Knöpfe und „alle 4 Wochen" nicht gestaucht oder abgeschnitten werden.
+    if (isMobileMap()) {
+        const width = Math.max(240, Math.min(330, window.innerWidth - 56));
+        return popupOptions({ maxWidth: width, minWidth: width, className: 'customer-detail-popup' });
+    }
     return popupOptions({ maxWidth: 300, className: 'customer-detail-popup' });
 }
 
@@ -1718,7 +1724,7 @@ function visitBlockHtml(customer) {
         ${RHYTHM_OPTIONS.map(([v, l]) => `<option value="${v}"${String(customer.rhythmusWochen ?? '') === v ? ' selected' : ''}>${l}</option>`).join('')}
     </select>`;
     return `<div class="visit-block">
-        <p class="visit-line">🗓️ Zuletzt: <b>${last ? formatDateDe(last) : '—'}</b> <span class="muted small">(${agoText(last)})</span> ${statusBadge}</p>
+        <p class="visit-line">🗓️ Zuletzt: <b>${last ? formatDateDe(last) : '—'}</b> <span class="muted small nowrap">(${agoText(last)})</span> ${statusBadge}</p>
         <div class="visit-controls">
             <button data-action="mark-visited" data-id="${escapeHtml(customer.id)}">✓ Heute besucht</button>
             ${rhythmSelect}
@@ -1853,7 +1859,7 @@ export function customerPopupHtml(customer) {
     const demoBadge = isDemoCustomer(customer) ? '<span class="popup-demo-badge">Demo</span>' : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}${nr}</h3>
-        ${addr ? `<p class="popup-addr">${addr}${customer.geo === 'plz' ? ' <span class="muted small">· 📍 ca. (PLZ-Mitte)</span>' : customer.geo === 'strasse' ? ' <span class="muted small">· 📍 Straße, ohne Hausnummer</span>' : ''}</p>` : ''}
+        ${addr ? `<p class="popup-addr">${addr}${customer.geo === 'plz' ? ' <span class="muted small popup-geo-note">📍 ca. (PLZ-Mitte)</span>' : customer.geo === 'strasse' ? ' <span class="muted small popup-geo-note">📍 Straße, ohne Hausnummer</span>' : ''}</p>` : ''}
         ${revenueHtml}
         ${profi && hierarchy ? `<p class="muted small popup-meta">${hierarchy}</p>` : ''}
         ${contactBlockHtml(customer)}
@@ -1861,10 +1867,10 @@ export function customerPopupHtml(customer) {
         ${serviceContractsBlockHtml(customer)}
         ${visitBlockHtml(customer)}
         <div class="popup-actions">
-            <button data-action="tour-start" data-id="${escapeHtml(customer.id)}">🚩 Als Start</button>
-            ${profi ? `<button data-action="tour-dest" data-id="${escapeHtml(customer.id)}" ${isDest ? 'disabled' : ''}>${isDest ? '✓ Ziel' : '🏁 Als Ziel'}</button>` : ''}
-            <button data-action="tour-add" data-id="${escapeHtml(customer.id)}" ${inTour ? 'disabled' : ''}>${inTour ? '✓ In Tour' : '➕ Zur Tour'}</button>
-            <button data-action="customer-briefing" data-id="${escapeHtml(customer.id)}" title="Prompt für ein Kundenbriefing vorbereiten und den Assistenten öffnen">📋 Briefing</button>
+            <button data-action="tour-start" data-id="${escapeHtml(customer.id)}"><span class="pa-ico">🚩</span><span class="pa-label">Als Start</span></button>
+            ${profi ? `<button data-action="tour-dest" data-id="${escapeHtml(customer.id)}" ${isDest ? 'disabled' : ''}>${isDest ? '<span class="pa-ico">✓</span><span class="pa-label">Ziel</span>' : '<span class="pa-ico">🏁</span><span class="pa-label">Als Ziel</span>'}</button>` : ''}
+            <button data-action="tour-add" data-id="${escapeHtml(customer.id)}" ${inTour ? 'disabled' : ''}>${inTour ? '<span class="pa-ico">✓</span><span class="pa-label">In Tour</span>' : '<span class="pa-ico">➕</span><span class="pa-label">Zur Tour</span>'}</button>
+            <button data-action="customer-briefing" data-id="${escapeHtml(customer.id)}" title="Prompt für ein Kundenbriefing vorbereiten und den Assistenten öffnen"><span class="pa-ico">📋</span><span class="pa-label">Briefing</span></button>
         </div>
     </div>`;
 }
