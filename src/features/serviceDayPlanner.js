@@ -76,9 +76,12 @@ function parseSlaMinute(value, workDate) {
     const clockOnly = parseClock(text, { allowEndOfDay: true });
     if (clockOnly !== null) return { minute: clockOnly, valid: true };
 
-    const match = /^(\d{4}-\d{2}-\d{2})(?:[T\s](\d{1,2}):(\d{2}))/.exec(text);
+    const match = /^(\d{4}-\d{2}-\d{2})(?:[T\s](\d{1,2}):(\d{2})|$)/.exec(text);
     if (!match || !validDateKey(match[1])) return { minute: null, valid: false };
-    const clock = parseClock(`${match[2]}:${match[3]}`, { allowEndOfDay: true });
+    // Reines Datum (so lässt der Import es zu): Frist gilt bis Tagesende.
+    const clock = match[2] === undefined
+        ? 24 * 60
+        : parseClock(`${match[2]}:${match[3]}`, { allowEndOfDay: true });
     if (clock === null) return { minute: null, valid: false };
     const relativeDay = dayNumber(match[1]) - dayNumber(workDate);
     return { minute: relativeDay * 1440 + clock, valid: true };
