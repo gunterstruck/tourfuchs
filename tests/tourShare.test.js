@@ -116,3 +116,37 @@ describe('matchStopsToCustomers', () => {
         expect(matched[0].customer.id).toBe('demo-1');
     });
 });
+
+describe('Gepackter Tour-Link (#tz=…) – dünnerer QR-Code', async () => {
+    const share = await import('../src/features/tourShare.js');
+    const stops = Array.from({ length: 12 }, (_, i) => ({
+        name: `Autohaus Beispiel ${i}`, lat: 51.4 + i / 100, lng: 7.0 + i / 100,
+        strasse: `Hauptstraße ${i + 1}`, plz: `4513${i % 10}`, ort: 'Essen', telefon: `0201 55500${i}`, nummer: `K-${1000 + i}`
+    }));
+    const encoded = share.encodeTourPayload({ start: { lat: 51.45, lng: 7.01, label: 'Büro' }, stops, tourName: 'Dienstag Süd' });
+
+    it('packt und entpackt verlustfrei – inklusive Umlauten', async () => {
+        const url = await share.encodeTourUrlPacked(encoded, 'https://tourfuchs.vercel.app/');
+        expect(url).toContain('/#tz=');
+        expect(share.hasSharedTour(url)).toBe(true);
+        const tour = await share.decodeTourText(url);
+        expect(tour.stops).toHaveLength(12);
+        expect(tour.start.label).toBe('Büro');
+        expect(tour.tourName).toBe('Dienstag Süd');
+        expect(tour.stops[3].name).toBe('Autohaus Beispiel 3');
+    });
+
+    it('ist deutlich kürzer als der ungepackte Link', async () => {
+        const packed = await share.encodeTourUrlPacked(encoded, 'https://tourfuchs.vercel.app/');
+        const plain = share.encodeTourUrl(encoded, 'https://tourfuchs.vercel.app/');
+        expect(packed.length).toBeLessThan(plain.length * 0.6);
+    });
+
+    it('liest weiterhin alte ungepackte Links (#t=…) und lehnt Kaputtes ab', async () => {
+        const plain = share.encodeTourUrl(encoded, 'https://tourfuchs.vercel.app/');
+        expect(share.hasSharedTour(plain)).toBe(true);
+        expect((await share.decodeTourText(plain)).stops).toHaveLength(12);
+        expect(await share.decodeTourText('https://tourfuchs.vercel.app/#tz=AAAA')).toBeNull();
+        expect(share.hasSharedTour('https://tourfuchs.vercel.app/#top')).toBe(false);
+    });
+});
