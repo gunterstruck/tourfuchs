@@ -247,7 +247,6 @@ export function matchStopsToCustomers(stops, customers) {
     const add = (map, key, c) => { if (!map.has(key)) map.set(key, []); map.get(key).push(c); };
     const namePlz = (item) => `${String(item.name ?? '').trim().toLowerCase()}|${String(item.plz ?? '').trim()}`;
     for (const c of customers || []) {
-        if (!Number.isFinite(Number(c.lat)) || !Number.isFinite(Number(c.lng))) continue;
         const nummer = String(c.nummer ?? '').trim();
         if (nummer) add(byNummer, `${kind(c)}|${nummer}`, c);
         if (namePlz(c) !== '|') add(byNamePlz, `${kind(c)}|${namePlz(c)}`, c);
@@ -268,6 +267,15 @@ export function matchStopsToCustomers(stops, customers) {
         }
     }
     return { matched, unmatched, ambiguous };
+}
+
+/**
+ * Gültige Koordinate? Number(null) und Number('') sind 0 – ein Kunde ohne
+ * Position stünde sonst am Nullpunkt und verdrängte die richtige QR-Position.
+ */
+export function hasValidCoords(point) {
+    const ok = (v) => v !== null && v !== undefined && !(typeof v === 'string' && v.trim() === '') && Number.isFinite(Number(v));
+    return Boolean(point) && ok(point.lat) && ok(point.lng);
 }
 
 // Mehrere Kandidaten: erst Name + PLZ, dann die Lage entscheiden lassen. Bleibt

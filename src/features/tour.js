@@ -176,6 +176,38 @@ function pointParam(p) {
     return `${p.lat},${p.lng}`;
 }
 
+/** Wie viele Stopps passen in einen Google-Maps-Link? Bei der Rundreise ist das Ziel der Start. */
+export function googleMapsCapacity(roundTrip = false) {
+    return roundTrip ? CONFIG.tour.maxWaypoints : CONFIG.tour.maxWaypoints + 1;
+}
+
+/**
+ * Tour in vollständige Teilstrecken für Google Maps zerlegen – kein Stopp
+ * fällt still weg. Jede Teilstrecke beginnt am letzten Stopp der vorigen;
+ * bei der Rundreise endet die letzte wieder am Start.
+ * @returns {Array<{ link: string, from: number, to: number }>}  from/to: Stoppnummern (1-basiert)
+ */
+export function googleMapsLegs(start, stops, roundTrip = false) {
+    if (!stops?.length) return [];
+    if (stops.length <= googleMapsCapacity(roundTrip)) {
+        return [{ link: googleMapsLink(start, stops, roundTrip), from: 1, to: stops.length }];
+    }
+    const points = roundTrip ? [...stops, start] : [...stops];
+    const perLeg = CONFIG.tour.maxWaypoints + 1;
+    const legs = [];
+    let origin = start;
+    for (let i = 0; i < points.length; i += perLeg) {
+        const chunk = points.slice(i, i + perLeg);
+        legs.push({
+            link: googleMapsLink(origin, chunk, false),
+            from: i + 1,
+            to: Math.min(i + chunk.length, stops.length)
+        });
+        origin = { ...chunk[chunk.length - 1], here: false };
+    }
+    return legs;
+}
+
 /**
  * Google-Maps-Directions-Link (max. 9 Zwischenziele).
  * - Einfache Tour: letzter Stopp = Ziel, alle davor = Waypoints.
