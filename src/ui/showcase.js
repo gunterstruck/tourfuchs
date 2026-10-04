@@ -44,7 +44,7 @@ import { loadDemo, openMappingForShowcase, openOwnDataDialog } from './importWiz
 import { ShowcasePlayback, ShowcaseAbortError as AbortError, showcaseTempo, showcaseTempoForRate, TEMPO_ORDER } from '../features/showcasePlayback.js';
 import { captureShowcaseFilters } from './sidebar.js';
 import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
-import { ShowcaseMusic } from '../features/showcaseMusic.js';
+import { ShowcaseMusic, shouldShowSoundHint, SOUND_HINT_KEY } from '../features/showcaseMusic.js';
 
 // Beispieltabelle für die Einfüge-Vorführung: bewusst klein, mit
 // Überschriftenzeile und Tabulatoren – genau das, was Excel beim Kopieren in
@@ -1919,6 +1919,7 @@ function showChrome(story) {
     toolbarEl.querySelector('.sc-music').addEventListener('click', () => music.setEnabled(!music.enabled));
     toolbarEl.querySelector('.sc-music-volume input').addEventListener('input', (event) => music.setVolume(Number(event.target.value) / 100));
     music.setPlayback({ active: true, paused: false, hidden: document.hidden });
+    showSoundHint();
     cursorEl.hidden = false;
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
 }
@@ -1953,6 +1954,26 @@ function syncPlaybackControls() {
     skip.classList.toggle('is-stepping', stepMode);
     toolbarEl.querySelector('.sc-replay').setAttribute('aria-disabled', String(!sayHistory.length || replayAt === 0));
 }
+/**
+ * Ton-Hinweis: Eine Web-App kann die Lautstärke des Geräts weder lesen noch
+ * ändern und den Lautlos-Schalter nicht erkennen. Deshalb beim ersten Demo-
+ * Start einer Sitzung auf Handy und Tablet (alle Browser) ein kurzer Hinweis
+ * in der Laufleiste – einmal, ein paar Sekunden, dann weg.
+ */
+const SOUND_HINT_TEXT = '🔊 Mit Ton schöner: Lautstärke am Gerät aufdrehen.';
+const SOUND_HINT_MS = 6000;
+let soundHintVisible = false;
+let soundHintTimer = null;
+
+function showSoundHint() {
+    if (!shouldShowSoundHint()) return;
+    try { sessionStorage.setItem(SOUND_HINT_KEY, '1'); } catch { /* nur diese Sitzung */ }
+    soundHintVisible = true;
+    clearTimeout(soundHintTimer);
+    soundHintTimer = setTimeout(() => { soundHintVisible = false; syncMusicControls(); }, SOUND_HINT_MS);
+    syncMusicControls();
+}
+
 function syncMusicControls() {
     syncBreakMusicButton();
     if (!toolbarEl) return;
@@ -1968,8 +1989,9 @@ function syncMusicControls() {
     volume.querySelector('input').value = String(Math.round(music.volume * 100));
     volume.querySelector('output').textContent = `${Math.round(music.volume * 100)} %`;
     const status = toolbarEl.querySelector('.sc-music-status');
-    status.textContent = music.error;
-    status.hidden = !music.error;
+    const note = music.error || (soundHintVisible && music.enabled ? SOUND_HINT_TEXT : '');
+    status.textContent = note;
+    status.hidden = !note;
     scheduleToolbarPlacement();
 }
 function setProgress(i, n) {
