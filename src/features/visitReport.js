@@ -195,7 +195,10 @@ export function parseVisitDate(value) {
  *
  * @param {Array<object>} customers  wird an Ort und Stelle ergänzt
  * @param {Array<object>} rows       Tabellenzeilen (Kopf -> Wert)
- * @returns {{ added: number, known: number, unknown: string[], invalid: number, touched: object[] }}
+ * `entries` nennt genau die Besuche, die im Bericht stehen (neu ergänzt oder
+ * schon bekannt) – nur diese gelten danach als weitergegeben. Andere Besuche
+ * desselben Kunden (z. B. der heutige, noch nicht gemeldete) bleiben offen.
+ * @returns {{ added: number, known: number, unknown: string[], invalid: number, touched: object[], entries: Array<{customer: object, date: string}> }}
  */
 export function mergeVisitReport(customers, rows, { today = todayIso() } = {}) {
     const byNumber = new Map();
@@ -204,7 +207,7 @@ export function mergeVisitReport(customers, rows, { today = todayIso() } = {}) {
         if (nummer && !byNumber.has(nummer)) byNumber.set(nummer, customer);
     }
     const headerOf = (row, wanted) => Object.keys(row || {}).find((key) => normalizeHeader(key) === normalizeHeader(wanted));
-    const result = { added: 0, known: 0, unknown: [], invalid: 0, touched: [] };
+    const result = { added: 0, known: 0, unknown: [], invalid: 0, touched: [], entries: [] };
     const unknown = new Set();
     const touched = new Set();
     for (const row of rows || []) {
@@ -214,6 +217,7 @@ export function mergeVisitReport(customers, rows, { today = todayIso() } = {}) {
         const customer = byNumber.get(nummer);
         if (!customer) { unknown.add(nummer); continue; }
         const visits = Array.isArray(customer.besuche) ? customer.besuche : [];
+        result.entries.push({ customer, date });
         if (visits.includes(date)) { result.known += 1; continue; }
         customer.besuche = [...visits, date].sort();
         result.added += 1;

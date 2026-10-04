@@ -178,6 +178,32 @@ async function desktop(browser, baseUrl) {
         if (await page.evaluate(() => document.getElementById('vault-lock')?.hidden === false)) throw new Error('Sperrbildschirm trotz deaktiviertem Tresor');
     });
 
+    await step('Alle Daten löschen – auch Touren, Adress-Cache und Szenarien', async () => {
+        await closeDialogs(page);
+        // Nebenspeicher füllen, wie es Tourspeichern und Verortung täten.
+        await page.evaluate(() => new Promise((resolve) => {
+            const req = indexedDB.open('geofuchs-db');
+            req.onsuccess = () => {
+                const db = req.result;
+                const tx = db.transaction([db.objectStoreNames[0]], 'readwrite');
+                const store = tx.objectStore(db.objectStoreNames[0]);
+                store.put([{ id: 't1', name: 'Smoke Tour', start: { label: 'Zuhause Rosenweg 7' }, stopIds: [] }], 'gespeicherte-touren');
+                store.put({ 'Rosenweg 7, 45127 Essen': { lat: 51.45, lng: 7.01 } }, 'geocode-cache');
+                tx.oncomplete = () => { db.close(); resolve(); };
+            };
+        }));
+        const answer = (dialog) => dialog.accept();
+        page.on('dialog', answer);
+        await page.evaluate(() => document.getElementById('btn-clear').click());
+        await page.waitForFunction(() => /\b0\b|keine/i.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT }).catch(() => {});
+        await sleep(1000);
+        page.off('dialog', answer);
+        for (const key of ['gespeicherte-touren', 'geocode-cache', 'simulations-szenarien']) {
+            const raw = await rawStore(page, key);
+            if (raw && JSON.stringify(raw).includes('Rosenweg')) throw new Error(`${key} nach „Alle Daten löschen" noch vorhanden`);
+        }
+    });
+
     await step('keine Skriptfehler', async () => {
         if (errors.length) throw new Error(errors.join(' | '));
     });

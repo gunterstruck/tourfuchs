@@ -306,6 +306,7 @@ export function initCockpit() {
     reloadScenarios();
     on('app:ready', reloadScenarios);
     on('vault:locked', () => { scenarios = []; renderScenarios(); });
+    on('dataset:cleared', () => { scenarios = []; renderScenarios(); });
     document.getElementById('sim-reset').addEventListener('click', resetSimulation);
     document.getElementById('sim-commit').addEventListener('click', commitSimulation);
     document.getElementById('simulation-map-edit').addEventListener('click', editSimulation);

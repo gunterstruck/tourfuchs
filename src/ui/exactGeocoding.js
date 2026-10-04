@@ -17,7 +17,7 @@
  */
 import { state, on, emit, datasetSnapshot } from '../core/state.js';
 import { isEnabled as vaultEnabled, isUnlocked as vaultUnlocked, onVault } from '../services/vault.js';
-import { groupExactGeocodeCandidates, geocodeExact } from '../services/geocode.js';
+import { groupExactGeocodeCandidates, geocodeExact, abandonGeocodeRuns } from '../services/geocode.js';
 import { saveDataset } from '../services/storage.js';
 import { showToast } from './toast.js';
 
@@ -314,6 +314,9 @@ export function initExactGeocoding() {
     // Speicher entfernten Kunden weiter, schickte Adressen an OpenStreetMap,
     // obwohl die App gesperrt ist, und blockierte den Neustart nach dem Entsperren.
     onVault('locked', () => { if (handle) { lockedDuringRun = true; cancelExactGeocoding(); } });
+    // Bestand gelöscht oder ersetzt: alter Lauf endet, ohne den Cache zu schreiben.
+    on('dataset:replacing', abandonGeocodeRuns);
+    on('dataset:cleared', abandonGeocodeRuns);
     on('customers:changed', renderInfoState);
     on('showcase:running', onShowcaseRunning);
 }

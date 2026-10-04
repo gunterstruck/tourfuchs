@@ -148,8 +148,24 @@ export function groupExactGeocodeCandidates(customers) {
     return [...groups.values()];
 }
 
+// Jeder Lauf gehört zu einem Bestand. Wird der Bestand gelöscht, ersetzt oder
+// gesperrt, zählt die Generation hoch: Alte Läufe brechen ab und dürfen danach
+// weder Nominatim fragen noch den Adress-Cache schreiben – sonst stellte ein
+// noch laufender Vorgang gerade gelöschte Adressen wieder her.
+let generation = 0;
+const activeRuns = new Set();
+
+/** Alle laufenden Verortungen abbrechen; ihre Ergebnisse verfallen. */
+export function abandonGeocodeRuns() {
+    generation += 1;
+    for (const run of activeRuns) run.cancel();
+    activeRuns.clear();
+}
+
 export function geocodeExact(customers, onProgress) {
     const groups = groupExactGeocodeCandidates(customers);
+    const myGeneration = generation;
+    const current = () => myGeneration === generation;
     let cancelled = false;
     let controller = null;          // laufende Anfrage – „Anhalten" bricht sie sofort ab
     let wake = null;                // wartende Pause – „Anhalten" beendet sie sofort
@@ -161,6 +177,7 @@ export function geocodeExact(customers, onProgress) {
         },
         total: groups.length
     };
+    activeRuns.add(handle);
     // Unterbrechbare Pause: Ein Tipp auf „Anhalten" soll nicht bis zu einer
     // halben Minute auf das Ende einer Wartezeit warten müssen.
     const pause = (ms) => new Promise((resolve) => {
@@ -169,7 +186,7 @@ export function geocodeExact(customers, onProgress) {
     });
 
     handle.run = (async () => {
-        if (groups.length === 0) return { updated: 0, failed: 0, cancelled: false, serviceDown: false };
+        if (groups.length === 0) { activeRuns.delete(handle); return { updated: 0, failed: 0, cancelled: false, serviceDown: false }; }
         const cache = await loadGeocodeCache();
         let updated = 0;
         let failed = 0;
@@ -178,7 +195,7 @@ export function geocodeExact(customers, onProgress) {
         let serviceDown = false;
 
         for (let i = 0; i < groups.length; i++) {
-            if (cancelled) break;
+            if (cancelled || !current()) break;
             const group = groups[i];
 
             let result = cache[group.key];
@@ -213,6 +230,7 @@ export function geocodeExact(customers, onProgress) {
                     result = json[0] ? { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) } : null;
                     cache[group.key] = result;
                     errorsInRow = 0;
+                    if (!current()) break;
                     if (i % 10 === 0) await saveGeocodeCache(cache);
                 } catch (error) {
                     result = undefined; // Netz- oder Dienstfehler: nicht als "nicht gefunden" cachen
@@ -243,6 +261,8 @@ export function geocodeExact(customers, onProgress) {
             onProgress?.(i + 1, groups.length);
         }
 
+        activeRuns.delete(handle);
+        if (!current()) return { updated: 0, failed: 0, cancelled: true, serviceDown: false };
         await saveGeocodeCache(cache);
         return { updated, failed, cancelled, serviceDown };
     })();

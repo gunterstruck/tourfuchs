@@ -471,6 +471,7 @@ export function setCustomers(customers, meta = {}) {
  * vorherigen Bestand darf nicht auf Kunden einer neuen Datei übergehen.
  */
 export function replaceCustomers(customers, meta = {}) {
+    emit('dataset:replacing'); // laufende Vorgänge des alten Bestands beenden
     state.territories = { ...(meta.territories || {}) };
     Object.assign(state.tour, {
         bezirk: '__all__',
