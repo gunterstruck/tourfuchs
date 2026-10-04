@@ -59,6 +59,7 @@ export const FIELDS = [
     // Koordinaten). Keine bloßen Teilwörter wie „besuche": „Anzahl Besuche"
     // darf nicht als Historie erkannt werden.
     { key: 'alleBesuche', label: 'Alle Besuche (Historie)', required: false, synonyms: ['alle besuche', 'besuchshistorie', 'besuchsverlauf', 'visit history'] },
+    { key: 'weitereKontakte', label: 'Weitere Ansprechpartner', required: false, synonyms: ['weitere ansprechpartner', 'weitere kontakte', 'zusätzliche ansprechpartner', 'zusaetzliche ansprechpartner'] },
     { key: 'verortung', label: 'Verortung (Genauigkeit)', required: false, synonyms: ['verortung', 'verortungsgenauigkeit', 'geo genauigkeit', 'geo-genauigkeit'] }
 ];
 
@@ -539,6 +540,29 @@ function contactFromValues({ nummer, name, telefon, email, primary, sheetRow }) 
     };
 }
 
+/**
+ * Rückweg der Exportspalte „Weitere Ansprechpartner":
+ * „Bernd Kurz · 0201 123 · b@firma.de | Clara · c@firma.de".
+ * Leere Teile fehlen im Export – deshalb wird jeder Teil an seiner Form
+ * erkannt (E-Mail an „@", Telefon an Ziffern), nicht an seiner Position.
+ */
+function parseOtherContacts(value, nummer, sheetRow) {
+    return String(value ?? '')
+        .split(/\s*\|\s*|\n/)
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+        .map((entry) => {
+            const found = { name: '', telefon: '', email: '' };
+            for (const part of entry.split(/\s*·\s*/).map((p) => p.trim()).filter(Boolean)) {
+                if (!found.email && part.includes('@')) found.email = part;
+                else if (!found.telefon && /^[+\d][\d\s/().-]{3,}$/.test(part)) found.telefon = part;
+                else if (!found.name) found.name = part;
+            }
+            return contactFromValues({ nummer, ...found, primary: false, sheetRow });
+        })
+        .filter(Boolean);
+}
+
 function syncPrimaryContact(customer) {
     const contacts = Array.isArray(customer.contacts) ? customer.contacts.filter(Boolean) : [];
     if (contacts.length === 0) {
@@ -583,6 +607,10 @@ function isRealCalendarDate(iso) {
 }
 
 /** Datum robust nach ISO (YYYY-MM-DD) parsen; unterstützt dd.mm.yyyy, ISO, Excel-Seriennummer */
+function localTodayIso(now = new Date()) {
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+}
+
 function parseDateIso(value) {
     if (value === null || value === undefined || value === '') return null;
     const str = String(value).trim();
@@ -708,6 +736,9 @@ export function parseRows(rows, mapping) {
 
         const letzterBesuch = mapping.letzterBesuch ? parseDateIso(row[mapping.letzterBesuch]) : null;
         const besuche = new Set(letzterBesuch ? [letzterBesuch] : []);
+        // Ein Besuch liegt nie in der Zukunft – solche Daten sind Termine oder
+        // Tippfehler. Sie würden „Zuletzt besucht" verfälschen; als Hinweis melden.
+        const future = [];
         if (mapping.alleBesuche) {
             const invalid = [];
             for (const part of String(row[mapping.alleBesuche] ?? '').split(/[;,|\n]/).map((p) => p.trim()).filter(Boolean)) {
@@ -716,6 +747,11 @@ export function parseRows(rows, mapping) {
             }
             if (invalid.length) err(sheetRow, `Besuchsdatum nicht lesbar, übersprungen: ${invalid.slice(0, 3).join(', ')}`, row, 'Hinweis');
         }
+        const today = localTodayIso();
+        for (const date of [...besuche]) {
+            if (date > today) { besuche.delete(date); future.push(date); }
+        }
+        if (future.length) err(sheetRow, `Besuchsdatum in der Zukunft, nicht als Besuch übernommen: ${future.sort().slice(0, 3).join(', ')}`, row, 'Hinweis');
         const extra = Object.fromEntries(Object.entries(row)
             .filter(([header, value]) => !mappedHeaders.has(header) && String(value ?? '').trim() !== '')
             // Abgeleitete Exportspalte: wird aus der Historie neu berechnet, nicht als
@@ -753,9 +789,10 @@ export function parseRows(rows, mapping) {
             _sheetRow: sheetRow,
             _raw: row
         };
-        if (contact) {
-            customer.contacts = [{ ...contact, primary: true }];
-            customer.primaryContactId = contact.id;
+        const others = mapping.weitereKontakte ? parseOtherContacts(row[mapping.weitereKontakte], nummer, sheetRow) : [];
+        if (contact || others.length) {
+            customer.contacts = [...(contact ? [{ ...contact, primary: true }] : []), ...others];
+            if (contact) customer.primaryContactId = contact.id;
         }
         customers.push(syncPrimaryContact(customer));
     });
