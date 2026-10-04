@@ -25,12 +25,13 @@ import { copyText, tourText } from '../features/handoff.js';
 import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
 import { loadTours, saveTours } from '../services/storage.js';
 import { resolveTour, stampTourKeys, servicePlanBasis, servicePlanBasisMatches } from '../features/savedTourKeys.js';
+import { joinedWindow, windowForPlanningDay, earlierSla } from '../features/serviceJobGroups.js';
 import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } from '../services/routing.js';
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
 import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.js';
 import { isPhoneUi } from '../core/viewport.js';
-import { serviceVisitWindow } from '../features/serviceVisits.js';
+import { serviceVisitWindow, isSchedulableServiceVisit } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
 import { showRouteView, isPanelPinching } from './sidebar.js';
 import { showToast } from './toast.js';
@@ -161,14 +162,14 @@ export function initTourPanel() {
     document.getElementById('btn-tour-print').addEventListener('click', () => {
         const eff = effStops();
         if (!state.tour.start || eff.length === 0) return;
-        if (!printDayPlan(state.tour.start, eff, { tourName: currentTourName(), ...planOptions() })) {
+        if (!printDayPlan(state.tour.start, eff, { tourName: currentTourName(), ...planOptions(), destination: exportDestination() })) {
             showToast('Bitte Pop-ups für den Druck erlauben.', 'error');
         }
     });
     document.getElementById('btn-tour-ics').addEventListener('click', () => {
         const eff = effStops();
         if (!state.tour.start || eff.length === 0) return;
-        downloadIcs(state.tour.start, eff, { tourName: currentTourName(), ...planOptions() });
+        downloadIcs(state.tour.start, eff, { tourName: currentTourName(), ...planOptions(), destination: exportDestination() });
         showToast('Kalender-Datei (.ics) mit Terminen je Besuch erstellt.', 'success');
     });
     document.getElementById('btn-tour-copy').addEventListener('click', async () => {
@@ -257,7 +258,13 @@ export function initTourPanel() {
     on('mode:changed', refreshPlanningScope);
     on('service-customer-scope:changed', refreshPlanningScope);
     on('service-contracts:changed', refreshPlanningScope);
-    on('service-visits:changed', refreshPlanningScope);
+    on('service-visits:changed', () => {
+        // Neue Einsatzdaten: Ein offener Vorschlag beruht auf den alten und
+        // wird verworfen – sonst ließe sich ein inzwischen erledigter Einsatz
+        // noch in den Tagesplan übernehmen.
+        discardServiceDayPreview(true);
+        refreshPlanningScope();
+    });
     on('service-day:focus', focusServiceDayPlanner);
     syncModeSpecificTourControls();
     initTourAccordion();
@@ -414,16 +421,6 @@ function exactCustomerIndex() {
     return index;
 }
 
-function windowTimeForDate(value, workDate) {
-    const raw = String(value || '').trim();
-    if (!raw) return { value: '', matchesDate: true };
-    if (/^\d{1,2}:\d{2}$/.test(raw)) return { value: raw, matchesDate: true };
-    const match = raw.match(/^(\d{4}-\d{2}-\d{2})[T ](\d{1,2}:\d{2})/);
-    return match
-        ? { value: match[2], matchesDate: match[1] === workDate }
-        : { value: raw, matchesDate: true };
-}
-
 function priorityRank(value) {
     return ['KRITISCH', 'HOCH', 'MITTEL', 'NIEDRIG'].indexOf(String(value || '').toUpperCase());
 }
@@ -448,15 +445,29 @@ function buildServiceJobGroups(workDate) {
         }
         const customer = customers[0];
         if (!customerInTourScope(customer)) continue;
-        const startWindow = windowTimeForDate(visit.timeWindowStart, workDate);
-        const endWindow = windowTimeForDate(visit.timeWindowEnd, workDate);
-        if (!startWindow.matchesDate || !endWindow.matchesDate) {
+        // Fenster mit dem Planungstag schneiden – auch mehrtägige Fenster zählen.
+        const dayWindow = windowForPlanningDay(visit.timeWindowStart, visit.timeWindowEnd, workDate);
+        const startWindow = { value: dayWindow.start };
+        const endWindow = { value: dayWindow.end };
+        if (!dayWindow.matchesDate) {
             skipped.push({ visit, customer, reason: 'Termin liegt an einem anderen Tag' });
             continue;
         }
-        if (!groups.has(customer.id)) {
-            groups.set(customer.id, {
-                id: `service-stop:${customer.id}`,
+        const durationMin = Number(visit.durationMin) || Number(document.getElementById('plan-visit-min')?.value) || DEFAULT_VISIT_MINUTES;
+        // Bündeln nur, wenn das gemeinsame Zeitfenster beide Einsätze trägt –
+        // sonst würde ein unvereinbares Fenster den ganzen Stopp (samt
+        // kritischem Einsatz) aus dem Plan werfen. Dann ein eigener Stopp.
+        const customerGroups = groups.get(customer.id) || [];
+        groups.set(customer.id, customerGroups);
+        let group = null;
+        let joined = null;
+        for (const candidate of customerGroups) {
+            joined = joinedWindow(candidate, startWindow.value, endWindow.value, durationMin);
+            if (joined) { group = candidate; break; }
+        }
+        if (!group) {
+            group = {
+                id: customerGroups.length ? `service-stop:${customer.id}:${customerGroups.length + 1}` : `service-stop:${customer.id}`,
                 customer,
                 visits: [],
                 durationMin: 0,
@@ -466,21 +477,23 @@ function buildServiceJobGroups(workDate) {
                 timeWindowStart: '',
                 timeWindowEnd: '',
                 requiredSkills: []
-            });
+            };
+            customerGroups.push(group);
+            joined = { start: startWindow.value || '', end: endWindow.value || '' };
         }
-        const group = groups.get(customer.id);
         group.visits.push(visit);
-        group.durationMin += Number(visit.durationMin) || Number(document.getElementById('plan-visit-min')?.value) || DEFAULT_VISIT_MINUTES;
+        group.durationMin += durationMin;
         if (priorityRank(visit.priority) >= 0 && (priorityRank(group.priority) < 0 || priorityRank(visit.priority) < priorityRank(group.priority))) {
             group.priority = visit.priority;
         }
         if (!group.dueDate || String(visit.dueDate) < group.dueDate) group.dueDate = visit.dueDate;
-        if (visit.slaDueAt && (!group.slaDueAt || String(visit.slaDueAt) < group.slaDueAt)) group.slaDueAt = visit.slaDueAt;
-        if (startWindow.value && (!group.timeWindowStart || startWindow.value > group.timeWindowStart)) group.timeWindowStart = startWindow.value;
-        if (endWindow.value && (!group.timeWindowEnd || endWindow.value < group.timeWindowEnd)) group.timeWindowEnd = endWindow.value;
+        // Als Zeitpunkt vergleichen, nicht als Text (reines Datum = Tagesende).
+        if (visit.slaDueAt) group.slaDueAt = earlierSla(group.slaDueAt, visit.slaDueAt);
+        group.timeWindowStart = joined.start;
+        group.timeWindowEnd = joined.end;
         group.requiredSkills = [...new Set([...group.requiredSkills, ...(visit.requiredSkills || [])])];
     }
-    return { groups: [...groups.values()], skipped, scope };
+    return { groups: [...groups.values()].flat(), skipped, scope };
 }
 
 function plannerReasonText(reason) {
@@ -600,16 +613,49 @@ function buildServiceDayPreview() {
     renderServiceDayPreview();
 }
 
+function discardServiceDayPreview(notify = false) {
+    if (!serviceDayPreview) return;
+    serviceDayPreview = null;
+    serviceDayGroups = new Map();
+    renderServiceDayPreview();
+    if (notify) showToast('Die Einsatzdaten haben sich geändert – bitte den Tagesvorschlag neu erstellen.', 'info', 4500);
+}
+
+/** Beruht der Vorschlag noch auf den aktuellen, planbaren Einsätzen? */
+function serviceDayPreviewCurrent(result) {
+    const current = new Map((state.serviceVisits || []).map((visit) => [visit.id, visit]));
+    return result.itinerary.every((entry) => {
+        const visits = serviceDayGroups.get(entry.jobId)?.visits || [];
+        return visits.length > 0 && visits.every((visit) => {
+            const now = current.get(visit.id);
+            return now && isSchedulableServiceVisit(now) && now.customerNumber === visit.customerNumber;
+        });
+    });
+}
+
 function acceptServiceDayPreview() {
     const result = serviceDayPreview?.result;
     if (!result?.itinerary?.length) return;
+    // Zweite Sicherung neben dem Verwerfen beim Import: vor der Übernahme
+    // nachsehen, ob jeder Einsatz noch existiert und planbar ist.
+    if (!serviceDayPreviewCurrent(result)) {
+        discardServiceDayPreview(false);
+        showToast('Mindestens ein Einsatz ist nicht mehr offen oder wurde geändert – bitte den Tagesvorschlag neu erstellen.', 'info', 5000);
+        return;
+    }
     if (state.tour.stops.length && !window.confirm('Die vorhandenen Tourstopps durch diesen Service-Tagesvorschlag ersetzen?')) return;
     const stopIds = result.itinerary.map((entry) => entry.customer?.id).filter(Boolean);
     state.tour.stops = [...new Set(stopIds)];
-    state.tour.serviceVisitByCustomer = Object.fromEntries(result.itinerary.map((entry) => {
-        const group = serviceDayGroups.get(entry.jobId);
-        return [entry.customer?.id, group?.visits?.map((visit) => visit.id).filter(Boolean) || []];
-    }).filter(([customerId]) => customerId));
+    // Ein Kunde kann mehrere Stopps haben (unvereinbare Zeitfenster) – seine
+    // Einsätze werden zusammengeführt statt vom letzten Stopp überschrieben.
+    const visitsByCustomer = {};
+    for (const entry of result.itinerary) {
+        const customerId = entry.customer?.id;
+        if (!customerId) continue;
+        const ids = serviceDayGroups.get(entry.jobId)?.visits?.map((visit) => visit.id).filter(Boolean) || [];
+        visitsByCustomer[customerId] = [...new Set([...(visitsByCustomer[customerId] || []), ...ids])];
+    }
+    state.tour.serviceVisitByCustomer = visitsByCustomer;
     state.tour.servicePlan = {
         version: 1,
         generatedAt: new Date().toISOString(),
@@ -1379,7 +1425,12 @@ function serviceScopeExceptionIds(stops) {
 function renderStops() {
     const el = document.getElementById('tour-stops');
     const stops = state.tour.stops.map(getCustomer).filter(Boolean);
-    const plannedEntries = new Map((state.tour.servicePlan?.itinerary || []).map((entry) => [entry.customerId, entry]));
+    // Ein Kunde kann mehrere geplante Einsätze haben (getrennte Zeitfenster).
+    const plannedEntries = new Map();
+    for (const entry of state.tour.servicePlan?.itinerary || []) {
+        if (!plannedEntries.has(entry.customerId)) plannedEntries.set(entry.customerId, []);
+        plannedEntries.get(entry.customerId).push(entry);
+    }
     const visitsById = new Map((state.serviceVisits || []).map((visit) => [visit.id, visit]));
     const serviceExceptions = serviceScopeExceptionIds(stops);
     const exceptionCount = serviceExceptions.size;
@@ -1416,7 +1467,7 @@ function renderStops() {
             const serviceReason = linkedVisits.map((visit) => visit.reason).filter(Boolean).join(' + ');
             const zanoboUrl = zanoboMachineUrl(linkedVisits.find((visit) => String(visit.assetId ?? '').trim())?.assetId);
             const servicePlanLine = planned
-                ? `<span class="service-stop-plan">🛠️ ${escapeHtml(formatPlanTime(planned.start))}–${escapeHtml(formatPlanTime(planned.end))}${serviceReason ? ` · ${escapeHtml(serviceReason)}` : ''}${zanoboUrl ? ` · <a class="zanobo-link" href="${escapeHtml(zanoboUrl)}" target="_blank" rel="noopener noreferrer" title="Zanobo vergleicht das Betriebsgeräusch mit der Referenz der Anlage – Orientierung, keine Diagnose.">🔊 Anhören</a>` : ''}</span>`
+                ? `<span class="service-stop-plan">🛠️ ${planned.map((entry) => `${escapeHtml(formatPlanTime(entry.start))}–${escapeHtml(formatPlanTime(entry.end))}`).join(' + ')}${serviceReason ? ` · ${escapeHtml(serviceReason)}` : ''}${zanoboUrl ? ` · <a class="zanobo-link" href="${escapeHtml(zanoboUrl)}" target="_blank" rel="noopener noreferrer" title="Zanobo vergleicht das Betriebsgeräusch mit der Referenz der Anlage – Orientierung, keine Diagnose.">🔊 Anhören</a>` : ''}</span>`
                 : '';
             return `
             <div class="stop-row${autoLastStopIsDestination && i === stops.length - 1 ? ' final-row' : ''}${done ? ' stop-visited' : ''}">
@@ -1803,6 +1854,12 @@ function renderSuggestions() {
 }
 
 /** Datum, Startzeit und Besuchsdauer aus den Plan-Eingaben lesen */
+/** Endpunkt für Druck/Kalender: getrennt von den Besuchen (siehe exportRows). */
+function exportDestination() {
+    const point = destPoint();
+    return point ? { point, isCustomer: Boolean(state.tour.destination?.customerId && point !== state.tour.destination) } : null;
+}
+
 function planOptions() {
     const date = document.getElementById('plan-date')?.value;
     const time = document.getElementById('plan-time')?.value;
