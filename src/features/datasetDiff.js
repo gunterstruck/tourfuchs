@@ -12,6 +12,8 @@
  * sonst Name + PLZ. Reine Logik, ohne DOM – Rechenweg und Anzeige getrennt.
  */
 
+import { customerKey as identityKey } from './savedTourKeys.js';
+
 const OHNE_BEZIRK = 'Ohne Zuordnung';
 
 function text(value) {
@@ -23,11 +25,14 @@ function amount(value) {
     return Number.isFinite(number) ? number : 0;
 }
 
-/** Identität eines Kunden über Importe hinweg: Nummer, sonst Name + PLZ. */
+/**
+ * Identität eines Kunden über Importe hinweg: Nummer, sonst Name + PLZ.
+ * Genau die Regel des Imports und der gespeicherten Touren – die Kundennummer
+ * bleibt dabei, wie sie ist: Der Import führt „AB12" und „ab12" als zwei
+ * Kunden, also darf der Vergleich sie nicht zusammenlegen.
+ */
 export function customerKey(customer) {
-    const nummer = text(customer?.nummer);
-    if (nummer) return `nr:${nummer.toLowerCase()}`;
-    return `np:${text(customer?.name).toLowerCase()}|${text(customer?.plz)}`;
+    return identityKey(customer) ?? 'np:|';
 }
 
 /**

@@ -309,7 +309,12 @@ function sundayIso(today = new Date()) {
 export function serviceVisitWindow(visit, scope = 'week', today = new Date()) {
     if (!isSchedulableServiceVisit(visit)) return false;
     if (scope === 'all') return true;
-    const due = parseDate(visit?.dueDate).value;
+    // Maßgeblich ist die frühere von regulärer Fälligkeit und SLA-Frist: Ein
+    // Einsatz mit überschrittener SLA gehört nach „Jetzt", auch wenn sein
+    // reguläres Fälligkeitsdatum erst nächste Woche ist.
+    const regular = parseDate(visit?.dueDate).value;
+    const sla = parseDate(String(visit?.slaDueAt ?? '').slice(0, 10)).value;
+    const due = [regular, sla].filter(Boolean).sort()[0] || '';
     const current = todayIso(today);
     if (!due || !current) return false;
     const now = due <= current || canonical(visit?.priority) === 'KRITISCH';
