@@ -8,7 +8,7 @@
 
 import * as vault from '../services/vault.js';
 import {
-    state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot
+    state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot, setPlaces
 } from '../core/state.js';
 import { saveDataset, loadDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
@@ -267,6 +267,7 @@ async function afterUnlock() {
 // ---- Reaktion auf Sperren / Wipe ----
 function onLocked() {
     // Sensible Daten aus dem Arbeitsspeicher entfernen und Sperre zeigen.
+    closeSensitiveDialogs();
     emit('vault:locked');
     state.territories = {};
     clearServiceContracts({ dirty: false });
@@ -288,7 +289,13 @@ function onLocked() {
  * so etwas stehenbleiben darf.
  */
 function onWiped() {
+    closeSensitiveDialogs();
     state.territories = {};
+    // Eigene Orte (Zuhause!) und alle Tourpunkte gehören zum Gelöschten. Blieben
+    // sie stehen, landeten sie mit den neu geladenen Beispieldaten im Klartext.
+    setPlaces([]);
+    Object.assign(state.tour, { start: null, destination: null, stops: [], servicePlan: null, serviceVisitByCustomer: {} });
+    emit('tour:changed');
     clearServiceContracts({ dirty: false });
     clearServiceVisits({ dirty: false });
     setCustomers([]);
@@ -297,6 +304,32 @@ function onWiped() {
     hideLockScreen();
     renderControls();
     showToast('Der Tresor und die lokalen Daten wurden gelöscht.', 'error', 7000);
+}
+
+/**
+ * Offene Dialoge schließen und ihren Inhalt leeren, bevor gesperrt bzw.
+ * gelöscht wird. Der Sperrbildschirm ist ein normales Element; ein per
+ * showModal() geöffneter Dialog liegt in der obersten Ebene darüber – ein
+ * offenes Briefing oder der Export-Schlüssel blieben sonst sichtbar.
+ * Die geleerten Bereiche werden beim nächsten Öffnen ohnehin neu aufgebaut.
+ */
+const SENSITIVE_CONTENT = [
+    '#customer-briefing-body', '#area-briefing-body', '#territory-summary-body', '#day-review-body',
+    '#contract-radar-body', '#import-diff-body', '#import-result-body', '#import-insight-body',
+    '#qr-scan-stoplist', '#safe-export-info'
+];
+export function closeSensitiveDialogs() {
+    for (const open of document.querySelectorAll('dialog[open]')) {
+        if (open !== dialog) open.close();
+    }
+    for (const selector of SENSITIVE_CONTENT) {
+        const el = document.querySelector(selector);
+        if (el) el.innerHTML = '';
+    }
+    for (const field of document.querySelectorAll('dialog textarea, #safe-key-input')) field.value = '';
+    for (const canvas of document.querySelectorAll('#qr-share-canvas, #safe-export-canvas')) {
+        canvas.getContext?.('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+    }
 }
 
 // ---- Steuerung im Daten-Tab + Topbar ----

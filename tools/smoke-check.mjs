@@ -138,8 +138,18 @@ async function desktop(browser, baseUrl) {
         await page.waitForSelector('.vault-done', { timeout: TIMEOUT });
         await page.click('.vault-done');
         const before = await customerCount(page);
+        // Offener Dialog mit Kundendaten: Die Sperre muss ihn schließen und leeren
+        // (modale Dialoge lägen sonst über dem Sperrbildschirm).
+        await page.evaluate(() => {
+            document.getElementById('territory-summary-body').textContent = 'Smoke Test Nord';
+            document.getElementById('territory-summary-dialog').showModal();
+        });
         await page.evaluate(() => document.getElementById('btn-vault-toggle').click());
         await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === false, null, { timeout: TIMEOUT });
+        const leftOpen = await page.evaluate(() => [...document.querySelectorAll('dialog[open]')]
+            .filter((d) => d.id !== 'vault-dialog').map((d) => d.id));
+        if (leftOpen.length) throw new Error(`Dialog bleibt über der Sperre offen: ${leftOpen.join(', ')}`);
+        if (await page.evaluate(() => document.getElementById('territory-summary-body').textContent)) throw new Error('Dialoginhalt nach dem Sperren nicht geleert');
         const raw = await rawStore(page, 'kundendaten');
         if (!raw?.__enc) throw new Error('Kundendaten liegen nicht verschlüsselt im Speicher');
         if (JSON.stringify(raw).includes('Smoke Test')) throw new Error('Klartext im verschlüsselten Speicher');
