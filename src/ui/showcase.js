@@ -1960,7 +1960,7 @@ function syncPlaybackControls() {
  * Start einer Sitzung auf Handy und Tablet (alle Browser) ein kurzer Hinweis
  * in der Laufleiste – einmal, ein paar Sekunden, dann weg.
  */
-const SOUND_HINT_TEXT = '🔊 Mit Ton schöner: Lautstärke am Gerät aufdrehen.';
+const SOUND_HINT_TEXT = '🔊 Ton an? Lautstärke aufdrehen.';
 const SOUND_HINT_MS = 6000;
 let soundHintVisible = false;
 let soundHintTimer = null;

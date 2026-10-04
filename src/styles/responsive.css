@@ -35,6 +35,9 @@
     /* Erweiterungen sind am Handy nicht gewünscht. */
     .pkg-chips { display: none !important; }
     .search-wrap { max-width: none; }
+    /* Beispieldaten-Streifen: „🧪 Beispieldaten" genügt – der Zusatz brach auf
+       kleinen Handys unschön um und kostete eine Zeile. */
+    .demo-banner-suffix { display: none; }
     /* Trefferliste über (fast) die ganze Breite statt so schmal wie das
        Suchfeld: Namen, PLZ und Ort passen in eine Zeile, statt in fünf
        umzubrechen. Bezug ist die Kopfzeile (Glas = eigener Rahmen), die
@@ -475,12 +478,13 @@
        Hinweis nicht nur als Ansatz am unteren Rand (bzw. hinter der System-Leiste)
        erscheint. Alle Peek-abhängigen Overlays steigen automatisch mit. */
     body.demo-data-active {
-        --mobile-sheet-peek: 124px;
+        /* Hinweis einzeilig (ohne „das sind Demo-Kunden") + zwei Knöpfe. */
+        --mobile-sheet-peek: 108px;
     }
     /* Willkommens-Karte offen: Der Streifen zeigt nur den Hinweis (seine Knöpfe
        stehen in der Karte) – das Blatt rückt tiefer und gibt ihr Platz. */
     body.demo-data-active.demo-welcome-open {
-        --mobile-sheet-peek: 84px;
+        --mobile-sheet-peek: 68px;
     }
 
     /* Hier stand der Kopf-Streifen mit der Basis/Profi-Pille. Sie ist seit dem
