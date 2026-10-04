@@ -10,7 +10,7 @@ import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import { state, emit, getCustomer, setCustomers } from '../core/state.js';
 import { decodeTourText, matchStopsToCustomers, encodeTourUrlPacked } from '../features/tourShare.js';
-import { googleMapsLink } from '../features/tour.js';
+import { googleMapsLegs } from '../features/tour.js';
 import { downloadIcs } from '../features/tourExport.js';
 import { combinePlanStart } from '../features/dayPlanner.js';
 import { showToast } from './toast.js';
@@ -45,8 +45,12 @@ export function initTourQr() {
     document.getElementById('qr-received-adopt').addEventListener('click', adoptReceivedTour);
     document.getElementById('qr-received-gmaps').addEventListener('click', () => {
         if (!received) return;
-        const link = googleMapsLink(received.start, received.stops, received.roundTrip);
-        if (link) window.open(link, '_blank', 'noopener');
+        const legs = googleMapsLegs(received.start, received.stops, received.roundTrip);
+        if (legs.length === 1) { window.open(legs[0].link, '_blank', 'noopener'); return; }
+        // Mehr Stopps, als Google Maps in einem Link annimmt: vollständige
+        // Teilstrecken anbieten statt still Stopps wegzulassen. Je ein Knopf –
+        // mehrere Fenster auf einmal würde der Browser blockieren.
+        renderLegButtons(legs);
     });
     document.getElementById('qr-received-ics').addEventListener('click', () => {
         if (!received) return;
@@ -254,6 +258,17 @@ async function tryHandlePayload(text) {
     return true;
 }
 
+function renderLegButtons(legs) {
+    const box = document.getElementById('qr-received-legs');
+    if (!box) return;
+    box.hidden = false;
+    box.innerHTML = `<p class="muted small">Google Maps nimmt nicht alle ${received.stops.length} Stopps in einem Link an. Fahr die Tour in ${legs.length} Teilstrecken – jede beginnt, wo die vorige endet:</p>`
+        + legs.map((leg, i) => `<button type="button" data-leg="${i}">🧭 Teil ${i + 1}: Stopp ${leg.from}–${leg.to}${received.roundTrip && i === legs.length - 1 ? ' + Rückweg' : ''}</button>`).join('');
+    box.querySelectorAll('[data-leg]').forEach((button) => button.addEventListener('click', () => {
+        window.open(legs[Number(button.dataset.leg)].link, '_blank', 'noopener');
+    }));
+}
+
 function renderReceived() {
     document.getElementById('qr-scan-live').hidden = true;
     const result = document.getElementById('qr-scan-result');
@@ -265,6 +280,11 @@ function renderReceived() {
     document.getElementById('qr-scan-summary').innerHTML =
         `<b>${escapeHtml(received.tourName)}</b> · ${received.stops.length} Stopps · ${escapeHtml(dateText)}, `
         + `Start ${escapeHtml(received.startTime)} Uhr · ${received.visitMinutes} min je Besuch`;
+    const legs = googleMapsLegs(received.start, received.stops, received.roundTrip);
+    const gmaps = document.getElementById('qr-received-gmaps');
+    gmaps.textContent = legs.length > 1 ? `🧭 In Google Maps navigieren (${legs.length} Teilstrecken)` : '🧭 In Google Maps navigieren';
+    const legBox = document.getElementById('qr-received-legs');
+    if (legBox) { legBox.hidden = true; legBox.innerHTML = ''; }
     document.getElementById('qr-scan-stoplist').innerHTML = received.stops.map((s, i) =>
         `<div class="qr-stop-row"><b>${i + 1}.</b> ${escapeHtml(s.name)}${s.adresse ? ` <span class="muted small">${escapeHtml(s.adresse)}</span>` : ''}</div>`
     ).join('');
@@ -317,6 +337,16 @@ function adoptReceivedTour() {
     if (!received || received.stops.length === 0) return;
     const { matched } = matchStopsToCustomers(received.stops, state.customers);
     const idByStop = new Map(matched.map(({ stop, customer }) => [stop, customer.id]));
+    // Lokaler Kunde ohne Position: Die QR-Position ist gültig – übernehmen,
+    // sonst fiele der Stopp aus Karte und Route.
+    let positioned = 0;
+    for (const { stop, customer } of matched) {
+        if (hasValidCoords(customer) || !hasValidCoords(stop)) continue;
+        customer.lat = Number(stop.lat);
+        customer.lng = Number(stop.lng);
+        customer.geo = 'exakt';
+        positioned += 1;
+    }
 
     state.tour.bezirk = '__all__'; // Stopps können außerhalb des gewählten Bezirks liegen
 
@@ -355,7 +385,8 @@ function adoptReceivedTour() {
 
     emit('tour:scope-changed');
     emit('tour:changed');
-    if (created.length > 0) emit('dataset:dirty'); // neue Kunden lokal sichern
+    if (positioned > 0) emit('customers:changed');
+    if (created.length > 0 || positioned > 0) emit('dataset:dirty'); // neue Kunden/Positionen lokal sichern
     scanDialog.close();
     showToast(created.length > 0
         ? `Tour mit ${state.tour.stops.length} Stopps übernommen – ${created.length} neu${created.length === 1 ? 'er Kunde' : 'e Kunden'} angelegt.`

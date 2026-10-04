@@ -14,7 +14,7 @@ import {
     MIN_PLACE_QUERY, loadPlaceIndex, searchGeoPlaces, searchOwnPlaces,
     parseCoordinateQuery, tourPointFromResult, createOwnPlace, findOwnPlaceForPoint
 } from '../features/places.js';
-import { suggestNearby, countNearby, suggestAlongRoute, optimizeOrder, routeDistance, googleMapsLink } from '../features/tour.js';
+import { suggestNearby, countNearby, suggestAlongRoute, optimizeOrder, routeDistance, googleMapsLink, googleMapsCapacity } from '../features/tour.js';
 import { printDayPlan, downloadIcs, DEFAULT_VISIT_MINUTES } from '../features/tourExport.js';
 import { combinePlanStart, todayInputValue } from '../features/dayPlanner.js';
 import { encodeTourPayload, MAX_QR_STOPS } from '../features/tourShare.js';
@@ -1863,8 +1863,10 @@ function optimizeTour() {
 function openInGoogleMaps() {
     const eff = effStops();
     if (!state.tour.start || eff.length === 0) return;
-    if (eff.length > CONFIG.tour.maxWaypoints + 1) {
-        showToast(`Google Maps unterstützt max. ${CONFIG.tour.maxWaypoints + 1} Stopps – es werden die ersten ${CONFIG.tour.maxWaypoints + 1} übergeben.`, 'info', 6000);
+    // Rundreise: Das Ziel ist der Start, also passt ein Stopp weniger hinein.
+    const capacity = googleMapsCapacity(state.tour.roundTrip);
+    if (eff.length > capacity) {
+        showToast(`Google Maps unterstützt max. ${capacity} Stopps – es werden die ersten ${capacity} übergeben.`, 'info', 6000);
     }
     const link = googleMapsLink(state.tour.start, eff, state.tour.roundTrip);
     if (link) window.open(link, '_blank', 'noopener');
