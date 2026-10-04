@@ -419,6 +419,17 @@
     #tour-stops .stop-actions [data-up],
     #tour-stops .stop-actions [data-down],
     #tour-stops .stop-actions .stop-visit { display: none; }
+    /* Briefing bleibt am Handy: runder 📋-Knopf; die Unterzeile ist hier ausgeblendet. */
+    #tour-stops .stop-briefing-inline { display: none; }
+    #tour-stops .stop-actions .stop-briefing-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        padding: 0;
+        border-radius: 50%;
+    }
     /* „✕" wird zum runden „−" (Wegfall), Gegenstück zum „＋" der Vorschläge. */
     #tour-stops .stop-remove {
         width: 30px;

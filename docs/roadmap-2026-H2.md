@@ -597,6 +597,40 @@ das Finden einer fremden Adresse in einer fremden Stadt – genau das, was an
    bei `face-check` und beim Tablet-Zwitter: Diese Fehlerklasse findet nur das
    echte Gerät.
 
+### UX-Durchgang 04.10.2026 (extern) – PO-Entscheidung und Reihenfolge
+
+Ein externer Durchgang (Desktop + eingebaute mobile Vorschau, Beispieldaten)
+fand keine Fehler, aber Reibung: viele Funktionen, der nächste sinnvolle Klick
+tritt zu wenig hervor. Bewertet gegen Moment A („startklare Tagestour, ≤ 3
+Interaktionen"):
+
+1. **Briefing direkt am Tourstopp** – *04.10.2026 umgesetzt.* Der zentrale
+   Nutzen brauchte einen Umweg über Marker und Popup. Desktop: „📋 Briefing"
+   unter dem Kundennamen (nimmt dem Namen keine Breite); Handy: runder 📋-Knopf.
+2. **Tour-Schritte dauerhaft beschriftet** („Start · Vorschläge · Meine Tour"
+   statt „1"/„2") und nach der Startwahl „Kunden vorschlagen" hervorheben. *Als
+   Nächstes.*
+3. **„Navigieren" als Hauptaktion**, Maps/QR/Druck/Kalender/Text/Rückblick unter
+   „Teilen & Exportieren" bündeln. Die lange Schaltflächenliste nach der Tour
+   ist die größte Aufmerksamkeits-Schuld in Moment A.
+
+Gemerkt, nicht terminiert (in dieser Reihenfolge):
+
+4. **Nähe-Bezug benennen:** „Nahe Kartenmitte" bzw. „Nahe deinem Startpunkt"
+   statt zweier gleich klingender Nähe-Logiken. Klein, reine Beschriftung.
+5. **Vorschlagsliste kürzer:** erst wenige passende Vorschläge, größere
+   Hinzufügen-Flächen, dann „Weitere anzeigen" (Berlin: 40 Treffer am Stück).
+6. **Mobile Vorschau mit Karte/Suche/Tour starten**, nicht mit dem
+   Datenverwaltungs-Panel, sobald Daten da sind.
+7. **Demo-Einstieg kompakter:** Banner, Erweiterungen, Arbeitsbereich und
+   Einstellungen nehmen vor der eigentlichen Aufgabe viel Platz.
+8. **Demo-Briefing mit fiktivem, kopierbarem Beispielprompt** statt nur
+   Erklärung – der Interessent soll „Kunde bekannt → Briefing fertig" erleben.
+   Vorher prüfen, ob das Demo-Briefing (Release-Notiz zu den Briefing-Filmen)
+   nicht schon einen Prompt zeigt und nur der Einstieg dorthin fehlt.
+9. **GitHub-Homepage-Link** im Repository zeigt auf eine 404-Seite → auf die
+   Vercel-Adresse umstellen (Repository-Einstellung, kein Code).
+
 ### Release 12 – „Zwei Oberflächen, kein drittes" *(16.08.2026 umgesetzt)*
 
 Anlass: eine Vorgabe des Product Owners, die Release 7 zu Ende führt. Dort wurde
