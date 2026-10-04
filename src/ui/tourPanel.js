@@ -140,6 +140,12 @@ export function initTourPanel() {
         emit('tour:changed');
     });
 
+    // Datum oder Startzeit geändert: Vorschlag und bestätigter Zeitplan gelten
+    // nicht mehr – sonst exportiert der Kalender den alten Tag mit alten Zeiten.
+    for (const id of ['plan-date', 'plan-time']) {
+        document.getElementById(id)?.addEventListener('change', discardServicePlanForNewTiming);
+    }
+
     document.getElementById('overdue-first').addEventListener('change', (e) => {
         overdueFirst = e.target.checked;
         renderSuggestions();
@@ -385,6 +391,15 @@ function invalidateAcceptedServicePlan(notify = false) {
     serviceDayPreview = null;
     renderServiceDayPreview();
     if (notify) showToast('Der bestätigte Service-Zeitplan wurde wegen der manuellen Touränderung verworfen.', 'info', 4500);
+}
+
+function discardServicePlanForNewTiming() {
+    const hadPlan = clearServiceTourPlan();
+    if (!hadPlan && !serviceDayPreview) return;
+    serviceDayPreview = null;
+    renderServiceDayPreview();
+    emit('tour:changed');
+    showToast('Datum oder Startzeit geändert – bitte den Service-Zeitplan neu vorschlagen lassen.', 'info', 4500);
 }
 
 function exactCustomerIndex() {
