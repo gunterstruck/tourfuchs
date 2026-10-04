@@ -75,6 +75,9 @@ function render() {
     // Solange die Beispieldaten noch unterwegs sind: Panel und Blatt halten
     // sich zurück (CSS über diese Klasse), damit nichts doppelt begrüßt.
     document.body.classList.toggle('welcome-arriving', !root.hidden && state.customers.length === 0);
+    // Handy: Solange die Karte offen ist, braucht der Beispieldaten-Streifen
+    // seine Knöpfe nicht (die Karte trägt dieselben) – das Blatt rückt tiefer.
+    document.body.classList.toggle('demo-welcome-open', !root.hidden);
     if (vorher !== !root.hidden) emit('demo-welcome:changed', !root.hidden);
     // Selbststart erst, wenn es etwas vorzuführen gibt.
     if (root.hidden || !isDemoDataset(state.customers)) stopAutostart(); else startAutostart();

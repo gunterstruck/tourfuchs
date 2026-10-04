@@ -477,6 +477,11 @@
     body.demo-data-active {
         --mobile-sheet-peek: 124px;
     }
+    /* Willkommens-Karte offen: Der Streifen zeigt nur den Hinweis (seine Knöpfe
+       stehen in der Karte) – das Blatt rückt tiefer und gibt ihr Platz. */
+    body.demo-data-active.demo-welcome-open {
+        --mobile-sheet-peek: 84px;
+    }
 
     /* Hier stand der Kopf-Streifen mit der Basis/Profi-Pille. Sie ist seit dem
        26.09.2026 weg – die Zeile gehört wieder der Karte. */
@@ -832,4 +837,20 @@ body.sc-running .mobile-next-step { display: none !important; }
     .panel-scale :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="button"]):not([type="submit"]), select, textarea) {
         font-size: max(calc(16px / var(--panel-zoom, 1)), 1em) !important;
     }
+}
+
+/* Willkommens-Karte auf niedrigen Handy-Schirmen (iPhone SE im Browser mit
+   Adress- und Symbolleiste): kompakter, damit alle drei Wege – „In Aktion
+   sehen", „Eigene Daten laden", „Verstanden" – ohne Scrollen sichtbar sind. */
+@media (max-width: 768px) and (max-height: 640px) {
+    .demo-welcome { padding: 10px 14px; }
+    .demo-welcome-card { padding: 12px 16px 10px; }
+    .demo-welcome-fox { font-size: 1.6rem; }
+    .demo-welcome-card h2 { margin: 2px 0 4px; font-size: 1.04rem; }
+    .demo-welcome-lead { margin: 0 0 10px; font-size: 0.86rem; line-height: 1.35; }
+    .demo-welcome-actions { gap: 6px; }
+    .demo-welcome-actions .primary,
+    .demo-welcome-actions .demo-welcome-own { padding: 9px 12px; }
+    .demo-welcome-ack { margin-top: 6px; }
+    .demo-welcome-foot { display: none; }
 }
