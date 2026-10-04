@@ -219,20 +219,26 @@ function renderDayStart() {
     const summary = el('service-day-start-summary');
     if (!button || !summary) return;
     const index = customerIndex();
-    const urgent = visits().filter((visit) => serviceVisitWindow(visit, 'now'));
+    // Dieselbe Auswahl wie beim Klick (openTourPlanning): dringende Einsätze,
+    // sonst die der Woche – sonst bliebe der Knopf gesperrt, obwohl der Klick
+    // Wocheneinsätze planen könnte.
+    const { urgent, planning } = planningSelection();
     const customers = new Map();
     let withoutPosition = 0;
-    for (const visit of urgent) {
+    for (const visit of planning) {
         const customer = customerForVisit(visit, index);
         if (!customer) continue;
         customers.set(customer.id, customer);
-        if (customer.lat === null || customer.lng === null) withoutPosition++;
+        if (!isLocated(customer)) withoutPosition++;
     }
-    const located = [...customers.values()].filter((customer) => customer.lat !== null && customer.lng !== null).length;
+    const located = [...customers.values()].filter(isLocated).length;
     button.disabled = located === 0;
+    const place = `bei ${customers.size} Kunden · ${located} verortet${withoutPosition ? ` · ${withoutPosition} ohne Kartenposition` : ''}`;
     summary.textContent = urgent.length
-        ? `${urgent.length} dringende Einsätze bei ${customers.size} Kunden · ${located} verortet${withoutPosition ? ` · ${withoutPosition} ohne Kartenposition` : ''}`
-        : 'Aktuell kein dringender Einsatz. „Diese Woche" zeigt den nächsten Planungshorizont.';
+        ? `${urgent.length} dringende Einsätze ${place}`
+        : planning.length
+            ? `Kein dringender Einsatz – ${planning.length} Einsätze diese Woche ${place}`
+            : 'Aktuell kein dringender Einsatz. „Diese Woche" zeigt den nächsten Planungshorizont.';
 }
 
 function renderAll() {
@@ -402,13 +408,21 @@ async function clearAllVisits() {
     emit('toast', { type: 'success', text: 'Einsatzdaten gelöscht. Kunden und Verträge bleiben erhalten.' });
 }
 
-function openTourPlanning() {
+const isLocated = (customer) => customer?.lat !== null && customer?.lng !== null
+    && Number.isFinite(Number(customer?.lat)) && Number.isFinite(Number(customer?.lng));
+
+/** Welche Einsätze die Tagesplanung aufnimmt: dringende, sonst die der Woche. */
+function planningSelection() {
     const urgent = visits().filter((visit) => serviceVisitWindow(visit, 'now'));
-    const planningVisits = urgent.length ? urgent : visits().filter((visit) => serviceVisitWindow(visit, 'week'));
+    return { urgent, planning: urgent.length ? urgent : visits().filter((visit) => serviceVisitWindow(visit, 'week')) };
+}
+
+function openTourPlanning() {
+    const { planning: planningVisits } = planningSelection();
     const index = customerIndex();
     const located = [...new Map(planningVisits.map((visit) => {
         const customer = customerForVisit(visit, index);
-        return customer && Number.isFinite(customer.lat) && Number.isFinite(customer.lng)
+        return customer && isLocated(customer)
             ? [customer.id, customer]
             : null;
     }).filter(Boolean)).values()];

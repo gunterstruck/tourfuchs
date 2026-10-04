@@ -31,7 +31,7 @@ import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
 import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.js';
 import { isPhoneUi } from '../core/viewport.js';
-import { serviceVisitWindow } from '../features/serviceVisits.js';
+import { serviceVisitWindow, isSchedulableServiceVisit } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
 import { showRouteView, isPanelPinching } from './sidebar.js';
 import { showToast } from './toast.js';
@@ -162,14 +162,14 @@ export function initTourPanel() {
     document.getElementById('btn-tour-print').addEventListener('click', () => {
         const eff = effStops();
         if (!state.tour.start || eff.length === 0) return;
-        if (!printDayPlan(state.tour.start, eff, { tourName: currentTourName(), ...planOptions() })) {
+        if (!printDayPlan(state.tour.start, eff, { tourName: currentTourName(), ...planOptions(), destination: exportDestination() })) {
             showToast('Bitte Pop-ups für den Druck erlauben.', 'error');
         }
     });
     document.getElementById('btn-tour-ics').addEventListener('click', () => {
         const eff = effStops();
         if (!state.tour.start || eff.length === 0) return;
-        downloadIcs(state.tour.start, eff, { tourName: currentTourName(), ...planOptions() });
+        downloadIcs(state.tour.start, eff, { tourName: currentTourName(), ...planOptions(), destination: exportDestination() });
         showToast('Kalender-Datei (.ics) mit Terminen je Besuch erstellt.', 'success');
     });
     document.getElementById('btn-tour-copy').addEventListener('click', async () => {
@@ -258,7 +258,13 @@ export function initTourPanel() {
     on('mode:changed', refreshPlanningScope);
     on('service-customer-scope:changed', refreshPlanningScope);
     on('service-contracts:changed', refreshPlanningScope);
-    on('service-visits:changed', refreshPlanningScope);
+    on('service-visits:changed', () => {
+        // Neue Einsatzdaten: Ein offener Vorschlag beruht auf den alten und
+        // wird verworfen – sonst ließe sich ein inzwischen erledigter Einsatz
+        // noch in den Tagesplan übernehmen.
+        discardServiceDayPreview(true);
+        refreshPlanningScope();
+    });
     on('service-day:focus', focusServiceDayPlanner);
     syncModeSpecificTourControls();
     initTourAccordion();
@@ -614,9 +620,36 @@ function buildServiceDayPreview() {
     renderServiceDayPreview();
 }
 
+function discardServiceDayPreview(notify = false) {
+    if (!serviceDayPreview) return;
+    serviceDayPreview = null;
+    serviceDayGroups = new Map();
+    renderServiceDayPreview();
+    if (notify) showToast('Die Einsatzdaten haben sich geändert – bitte den Tagesvorschlag neu erstellen.', 'info', 4500);
+}
+
+/** Beruht der Vorschlag noch auf den aktuellen, planbaren Einsätzen? */
+function serviceDayPreviewCurrent(result) {
+    const current = new Map((state.serviceVisits || []).map((visit) => [visit.id, visit]));
+    return result.itinerary.every((entry) => {
+        const visits = serviceDayGroups.get(entry.jobId)?.visits || [];
+        return visits.length > 0 && visits.every((visit) => {
+            const now = current.get(visit.id);
+            return now && isSchedulableServiceVisit(now) && now.customerNumber === visit.customerNumber;
+        });
+    });
+}
+
 function acceptServiceDayPreview() {
     const result = serviceDayPreview?.result;
     if (!result?.itinerary?.length) return;
+    // Zweite Sicherung neben dem Verwerfen beim Import: vor der Übernahme
+    // nachsehen, ob jeder Einsatz noch existiert und planbar ist.
+    if (!serviceDayPreviewCurrent(result)) {
+        discardServiceDayPreview(false);
+        showToast('Mindestens ein Einsatz ist nicht mehr offen oder wurde geändert – bitte den Tagesvorschlag neu erstellen.', 'info', 5000);
+        return;
+    }
     if (state.tour.stops.length && !window.confirm('Die vorhandenen Tourstopps durch diesen Service-Tagesvorschlag ersetzen?')) return;
     const stopIds = result.itinerary.map((entry) => entry.customer?.id).filter(Boolean);
     state.tour.stops = [...new Set(stopIds)];
@@ -1828,6 +1861,12 @@ function renderSuggestions() {
 }
 
 /** Datum, Startzeit und Besuchsdauer aus den Plan-Eingaben lesen */
+/** Endpunkt für Druck/Kalender: getrennt von den Besuchen (siehe exportRows). */
+function exportDestination() {
+    const point = destPoint();
+    return point ? { point, isCustomer: Boolean(state.tour.destination?.customerId && point !== state.tour.destination) } : null;
+}
+
 function planOptions() {
     const date = document.getElementById('plan-date')?.value;
     const time = document.getElementById('plan-time')?.value;

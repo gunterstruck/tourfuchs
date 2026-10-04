@@ -328,6 +328,7 @@ function customerFromStop(stop, i) {
         ansprechpartner: '', telefon: String(stop.telefon || '').trim(), email: '',
         umsatz: null, rhythmusWochen: null, besuche: [],
         lat: Number(stop.lat), lng: Number(stop.lng), geo: 'exakt',
+        ...(stop.coordinateSource ? { coordinateSource: stop.coordinateSource } : {}),
         extra: { Herkunft: 'QR-Übergabe' },
         fromQr: true
     };

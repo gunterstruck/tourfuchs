@@ -37,36 +37,70 @@ export function schedule(start, stops, startTime, visitMinutes = DEFAULT_VISIT_M
     return result;
 }
 
-function exportRows(start, stops, startTime, visitMinutes, servicePlan) {
+/** Zielzeile: Ankunft am Endpunkt – kein Besuch, kein Termin. */
+function destinationRow(point, arrival, extra = {}) {
+    return { customer: point, arrival, end: arrival, driveMin: 0, km: 0, durationMin: 0, visitIds: [], isDestination: true, ...extra };
+}
+
+/**
+ * Zeilen für Druck und Kalender.
+ *
+ * @param {{ point: object, isCustomer: boolean } | null} destination
+ *   Endpunkt der Tour, wenn er als letzter Eintrag in `stops` steht. Ein Ort
+ *   (Büro, Zuhause) ist nie ein Besuch. Im bestätigten Service-Plan ist auch
+ *   ein Kunde als Endpunkt nur das Ende des Tages – er darf die bestätigten
+ *   Zeiten nicht kippen (früher: Plan verworfen, 45-Minuten-„Besuch" im Büro).
+ */
+function exportRows(start, stops, startTime, visitMinutes, servicePlan, destination = null) {
     const itinerary = Array.isArray(servicePlan?.itinerary) ? servicePlan.itinerary : [];
-    const entries = new Map(itinerary.map((entry) => [entry.customerId, entry]));
-    if (itinerary.length && stops.every((customer) => entries.has(customer?.id))) {
-        // Dem Plan folgen, nicht der Stoppliste: Ein Kunde mit zwei Einsätzen in
-        // getrennten Zeitfenstern (vormittags + nachmittags) steht dort zweimal.
-        const byId = new Map(stops.map((customer) => [customer.id, customer]));
-        return itinerary.filter((entry) => byId.has(entry.customerId)).map((entry) => {
-            const customer = byId.get(entry.customerId);
-            const arrival = new Date(entry.start || entry.arrival);
-            const end = new Date(entry.end);
-            return {
-                customer,
-                arrival,
-                end,
-                driveMin: Number(entry.driveMin) || 0,
-                km: Number(entry.km) || 0,
-                durationMin: Number(entry.durationMin) || Math.max(1, Math.round((end - arrival) / 60000)),
-                visitIds: Array.isArray(entry.visitIds) ? entry.visitIds : [],
-                planned: true
-            };
-        });
+    const planned = new Set(itinerary.map((entry) => entry.customerId));
+    const hasDestination = Boolean(destination?.point) && stops[stops.length - 1] === destination.point;
+    const visitStops = hasDestination ? stops.slice(0, -1) : stops;
+
+    if (itinerary.length && visitStops.length && visitStops.every((customer) => planned.has(customer?.id))) {
+        const rows = planRows(visitStops, itinerary);
+        if (hasDestination) {
+            const finish = new Date(servicePlan?.metrics?.finishAt || '');
+            rows.push(destinationRow(destination.point, Number.isNaN(finish.getTime()) ? rows[rows.length - 1].end : finish, { planned: true }));
+        }
+        return rows;
     }
-    return schedule(start, stops, startTime, visitMinutes).map((row) => ({
+
+    const rows = schedule(start, stops, startTime, visitMinutes).map((row) => ({
         ...row,
         end: new Date(row.arrival.getTime() + visitMinutes * 60000),
         durationMin: visitMinutes,
         visitIds: [],
         planned: false
     }));
+    // Ohne Plan bleibt ein Kunde als Ziel ein Besuch; ein reiner Ort nicht.
+    if (hasDestination && !destination.isCustomer) {
+        const last = rows[rows.length - 1];
+        rows[rows.length - 1] = destinationRow(destination.point, last.arrival, { driveMin: last.driveMin, km: last.km, planned: false });
+    }
+    return rows;
+}
+
+/**
+ * Dem Plan folgen, nicht der Stoppliste: Ein Kunde mit zwei Einsätzen in
+ * getrennten Zeitfenstern (vormittags + nachmittags) steht dort zweimal.
+ */
+function planRows(stops, itinerary) {
+    const byId = new Map(stops.map((customer) => [customer.id, customer]));
+    return itinerary.filter((entry) => byId.has(entry.customerId)).map((entry) => {
+        const arrival = new Date(entry.start || entry.arrival);
+        const end = new Date(entry.end);
+        return {
+            customer: byId.get(entry.customerId),
+            arrival,
+            end,
+            driveMin: Number(entry.driveMin) || 0,
+            km: Number(entry.km) || 0,
+            durationMin: Number(entry.durationMin) || Math.max(1, Math.round((end - arrival) / 60000)),
+            visitIds: Array.isArray(entry.visitIds) ? entry.visitIds : [],
+            planned: true
+        };
+    });
 }
 
 function visitsForRow(row, serviceVisits) {
@@ -81,9 +115,9 @@ function hhmm(date) {
 /** Druckbaren Tagesplan in neuem Fenster öffnen */
 export function printDayPlan(start, stops, {
     startTime = defaultStart(), tourName = 'Tagestour', visitMinutes = DEFAULT_VISIT_MINUTES,
-    servicePlan = null, serviceVisits = []
+    servicePlan = null, serviceVisits = [], destination = null
 } = {}) {
-    const rows = exportRows(start, stops, startTime, visitMinutes, servicePlan);
+    const rows = exportRows(start, stops, startTime, visitMinutes, servicePlan, destination);
     const planned = rows.length > 0 && rows.every((row) => row.planned);
     const demo = isDemoCustomer(start) || hasDemoCustomers(stops);
     const totalKm = planned && Number.isFinite(Number(servicePlan?.metrics?.totalKm))
@@ -92,8 +126,19 @@ export function printDayPlan(start, stops, {
     const effectiveStart = planned ? `${servicePlan.workDate}T${servicePlan.shiftStart}` : startTime;
     const dateStr = new Date(effectiveStart).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
+    const visitCount = rows.filter((row) => !row.isDestination).length;
     const body = rows.map((r, i) => {
         const c = r.customer;
+        if (r.isDestination) {
+            const label = c.label || c.name || 'Ziel';
+            const where = c.adresse || [c.strasse, `${c.plz ?? ''} ${c.ort ?? ''}`.trim()].filter(Boolean).join(', ');
+            return `<tr>
+            <td class="num">🏁</td>
+            <td class="time">${hhmm(r.arrival)}</td>
+            <td><b>Ziel: ${escapeHtml(label)}</b>${where ? `<br>${escapeHtml(where)}` : ''}</td>
+            <td class="check"></td>
+        </tr>`;
+        }
         const addr = [c.strasse, `${c.plz} ${c.ort}`.trim()].filter(Boolean).join(', ');
         const contact = [c.ansprechpartner, c.telefon].filter(Boolean).join(' · ');
         const last = lastVisit(c);
@@ -143,7 +188,7 @@ export function printDayPlan(start, stops, {
         </style></head><body>
         <h1>🦊 ${escapeHtml(tourName)}</h1>
         ${demo ? `<p class="demo">${DEMO_DATA_LABEL}</p>` : ''}
-        <p class="sub">${dateStr} · Start ${planned ? escapeHtml(servicePlan.shiftStart) : hhmm(new Date(startTime))} bei „${escapeHtml(start.label)}" · ${rows.length} Besuche · ca. ${Math.round(totalKm)} km</p>
+        <p class="sub">${dateStr} · Start ${planned ? escapeHtml(servicePlan.shiftStart) : hhmm(new Date(startTime))} bei „${escapeHtml(start.label)}" · ${visitCount} Besuche · ca. ${Math.round(totalKm)} km</p>
         <table>
             <thead><tr><th>#</th><th>Ankunft</th><th>Kunde</th><th>✓</th></tr></thead>
             <tbody>${body}</tbody>
@@ -167,9 +212,10 @@ function icsDate(date) {
 /** Tour als .ics-Datei (ein VEVENT je Stopp) herunterladen */
 export function downloadIcs(start, stops, {
     startTime = defaultStart(), tourName = 'Tagestour', visitMinutes = DEFAULT_VISIT_MINUTES,
-    servicePlan = null, serviceVisits = []
+    servicePlan = null, serviceVisits = [], destination = null
 } = {}) {
-    const rows = exportRows(start, stops, startTime, visitMinutes, servicePlan);
+    // Der Endpunkt ist kein Termin.
+    const rows = exportRows(start, stops, startTime, visitMinutes, servicePlan, destination).filter((row) => !row.isDestination);
     const demo = isDemoCustomer(start) || hasDemoCustomers(stops);
     const now = icsDate(new Date());
     const lines = [
