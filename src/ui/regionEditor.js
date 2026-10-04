@@ -31,6 +31,14 @@ let assignAttr = 'bezirk';   // 'bezirk' | 'gruppe'; Channel bleibt reine option
 let territorySelected = false; // „Ganze Fläche" (Gebietszuordnung) mit zuweisen
 const undoStack = [];        // [{ label, changes:[{id,attr,old,neu}], territory }]
 const redoStack = [];        // zurückgenommene Einträge, bis etwas Neues zugewiesen wird
+let datasetVersion = 0;      // jeder Eintrag merkt sich, zu welchem Bestand er gehört
+
+function clearHistory() {
+    datasetVersion += 1;
+    undoStack.length = 0;
+    redoStack.length = 0;
+    if (dialog?.open) render();
+}
 const mobilePlanningQuery = mobilePlanningMediaQuery();
 
 function closeUnavailableEditor() {
@@ -63,6 +71,12 @@ export function initRegionEditor() {
     on('depth:changed', () => {
         if (state.ui.depth !== 'profi') closeUnavailableEditor();
     });
+    // Verlauf gehört zum Bestand: Nach Reimport, Löschen, Sperren oder neuen
+    // Beispieldaten würde „Rückgängig" sonst Werte des alten Bestands in
+    // gleichnamige Kunden-IDs des neuen schreiben.
+    for (const event of ['dataset:replacing', 'dataset:cleared', 'vault:locked', 'demo:loaded']) {
+        on(event, clearHistory);
+    }
     on('optional-modules:changed', ({ moduleId, enabled } = {}) => {
         if (moduleId === 'territoryPlanning' && !enabled) closeUnavailableEditor();
     });
@@ -267,7 +281,7 @@ function applyAssign() {
         return;
     }
 
-    undoStack.push({ label: `${changes.length} → ${target}`, changes, territory });
+    undoStack.push({ label: `${changes.length} → ${target}`, changes, territory, version: datasetVersion });
     // Eine neue Zuweisung macht die zurückgenommene Zukunft ungültig.
     redoStack.length = 0;
     persistAndRefresh();
@@ -281,6 +295,9 @@ function applyAssign() {
  * Wiederherstellen. Beide Wege sind derselbe Vorgang mit vertauschten Werten.
  */
 function applyEntry(entry, direction) {
+    // Zweite Sicherung neben dem Leeren: Ein Eintrag aus einem anderen Bestand
+    // wird nie angewendet.
+    if (entry.version !== datasetVersion) return false;
     for (const change of entry.changes) {
         const customer = getCustomer(change.id);
         if (customer) customer[change.attr] = change[direction];
@@ -291,13 +308,14 @@ function applyEntry(entry, direction) {
     }
     persistAndRefresh();
     render();
+    return true;
 }
 
 function undo() {
     const entry = undoStack.pop();
     if (!entry) return;
+    if (!applyEntry(entry, 'old')) { clearHistory(); return; }
     redoStack.push(entry);
-    applyEntry(entry, 'old');
     showToast('Änderung rückgängig gemacht.', 'success');
 }
 
@@ -309,7 +327,7 @@ function undo() {
 function redo() {
     const entry = redoStack.pop();
     if (!entry) return;
+    if (!applyEntry(entry, 'neu')) { clearHistory(); return; }
     undoStack.push(entry);
-    applyEntry(entry, 'neu');
     showToast('Änderung wiederhergestellt.', 'success');
 }
