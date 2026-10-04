@@ -19,7 +19,7 @@ import { initImportWizard } from './ui/importWizard.js';
 import { initTourPanel } from './ui/tourPanel.js';
 import { openReceivedFromUrl } from './ui/tourQr.js';
 import { initSafeTransfer } from './ui/safeTransfer.js';
-import { decodeTourPayload, TOUR_HASH_KEY } from './features/tourShare.js';
+import { decodeTourText, hasSharedTour } from './features/tourShare.js';
 import { initCockpit } from './ui/cockpit.js';
 import { initRegionEditor } from './ui/regionEditor.js';
 import { initSearch } from './ui/search.js';
@@ -225,17 +225,20 @@ let pendingSharedTour = null;
 
 function takeSharedTourFromUrl() {
     const hash = window.location.hash || '';
-    if (!hash.includes(`${TOUR_HASH_KEY}=`)) return;
-    pendingSharedTour = { payload: decodeTourPayload(window.location.href) };
+    if (!hasSharedTour(hash)) return;
+    // Gepackte Links (#tz=…) entpackt der Browser asynchron – das Versprechen
+    // wird aufbewahrt, die Adresszeile aber sofort geleert.
+    pendingSharedTour = { payload: decodeTourText(window.location.href) };
     history.replaceState(null, '', window.location.pathname + window.location.search);
 }
 
-function handleSharedTourFromUrl() {
+async function handleSharedTourFromUrl() {
     takeSharedTourFromUrl();
     // Gesperrt: aufbewahren, bootData öffnet die Tour nach dem Entsperren.
     if (!pendingSharedTour || vaultLocked()) return;
-    const { payload } = pendingSharedTour;
+    const pending = pendingSharedTour;
     pendingSharedTour = null;
+    const payload = await pending.payload;
     if (payload) openReceivedFromUrl(payload);
     else emit('toast', { type: 'error', text: 'Der gescannte Tour-Link konnte nicht gelesen werden.' });
 }

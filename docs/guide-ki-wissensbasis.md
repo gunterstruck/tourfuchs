@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.15.1 · Stand: 04.10.2026 · App-Version: 3.7.0**
+**Version 3.15.2 · Stand: 04.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -3556,6 +3556,15 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.15.2 (04.10.2026)
+
+- **"Tour per QR übernehmen" liest zuverlässig** (11.4): Der Tour-Code ist jetzt
+  gepackt und dadurch etwa halb so dicht; der Scanner in der App nutzt die
+  hohe Kameraauflösung, den eingebauten QR-Erkenner des Browsers (wo
+  vorhanden) und probiert bei Fotos/Screenshots mehrere Größen. Alte Codes
+  werden weiter gelesen. Vorher scheiterte die App bei großen Touren, obwohl
+  die normale Handy-Kamera den Code lesen konnte.
 
 ### 26.3 Änderungen in Version 3.15.1 (04.10.2026)
 

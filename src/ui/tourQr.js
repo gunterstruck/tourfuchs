@@ -9,7 +9,7 @@
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import { state, emit, getCustomer, setCustomers } from '../core/state.js';
-import { decodeTourPayload, matchStopsToCustomers, encodeTourUrl } from '../features/tourShare.js';
+import { decodeTourText, matchStopsToCustomers, encodeTourUrlPacked } from '../features/tourShare.js';
 import { googleMapsLink } from '../features/tour.js';
 import { downloadIcs } from '../features/tourExport.js';
 import { combinePlanStart } from '../features/dayPlanner.js';
@@ -64,11 +64,13 @@ export async function openShareDialog(encoded, { stopCount, skipped = 0, fromPho
     const title = document.getElementById('qr-share-title');
     if (title) title.textContent = fromPhone ? '📲 Tour per QR teilen' : '📲 Tour an Handy übergeben';
     const canvas = document.getElementById('qr-share-canvas');
-    const url = encodeTourUrl(encoded, window.location.origin + window.location.pathname);
+    const url = await encodeTourUrlPacked(encoded, window.location.origin + window.location.pathname);
     try {
         // ECC „L": maximale Kapazität für die längere URL; Bildschirm→Kamera ist
         // ein sauberer Kanal, hohe Fehlerkorrektur ist hier nicht nötig.
-        await QRCode.toCanvas(canvas, url, { errorCorrectionLevel: 'L', width: 380, margin: 2 });
+        // Intern hoch aufgelöst (CSS skaliert auf die Anzeigegröße): Screenshots
+        // und Kamera bekommen scharfe Kanten statt verwaschener Module.
+        await QRCode.toCanvas(canvas, url, { errorCorrectionLevel: 'L', width: 1024, margin: 3 });
     } catch {
         showToast('QR-Code konnte nicht erzeugt werden – Tour zu groß. Bitte Stopps reduzieren.', 'error', 6000);
         return;
@@ -105,12 +107,20 @@ async function startCamera() {
     const statusEl = document.getElementById('qr-scan-status');
     const video = document.getElementById('qr-scan-video');
     try {
+        // Hohe Auflösung anfordern: Ohne Angabe liefern viele Handys 640×480 –
+        // zu grob für einen dichten Tour-Code. Dauer-Autofokus, wo vorhanden.
         videoStream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'environment' }, audio: false
+            video: {
+                facingMode: 'environment',
+                width: { ideal: 1920 },
+                height: { ideal: 1080 },
+                advanced: [{ focusMode: 'continuous' }]
+            },
+            audio: false
         });
         video.srcObject = videoStream;
         await video.play();
-        statusEl.textContent = 'Kamera auf den QR-Code am Desktop richten …';
+        statusEl.textContent = 'Kamera auf den QR-Code richten – nah genug, dass er das Bild füllt …';
         scanLoop(video);
     } catch {
         statusEl.textContent = 'Kamera nicht verfügbar – bitte unten ein Foto des QR-Codes wählen.';
@@ -127,23 +137,86 @@ function stopCamera() {
     if (video) video.srcObject = null;
 }
 
+// Eingebauter Erkenner des Browsers (Chrome/Android): liest auch sehr dichte
+// Codes zuverlässig. Wo es ihn nicht gibt (Safari), übernimmt jsQR.
+let barcodeDetector;
+function nativeDetector() {
+    if (barcodeDetector !== undefined) return barcodeDetector;
+    barcodeDetector = null;
+    try {
+        if (typeof window.BarcodeDetector === 'function') barcodeDetector = new window.BarcodeDetector({ formats: ['qr_code'] });
+    } catch { barcodeDetector = null; }
+    return barcodeDetector;
+}
+async function detectNative(source) {
+    const detector = nativeDetector();
+    if (!detector) return [];
+    try {
+        const codes = await detector.detect(source);
+        return codes.map((c) => c.rawValue).filter(Boolean);
+    } catch {
+        return [];
+    }
+}
+
+/**
+ * Ausschnitt einer Quelle (Video, Bild) verkleinert auf ein Canvas zeichnen
+ * und mit jsQR lesen. jsQR wird auf riesigen Bildern langsam und unsicher,
+ * auf zu kleinen verschwimmen die Module – deshalb mehrere Größen/Ausschnitte.
+ */
+function jsqrRegion(source, srcW, srcH, crop, maxSide, canvas) {
+    const side = Math.min(srcW, srcH) * crop;
+    const sw = crop >= 1 ? srcW : side;
+    const sh = crop >= 1 ? srcH : side;
+    const sx = (srcW - sw) / 2;
+    const sy = (srcH - sh) / 2;
+    const scale = Math.min(1, maxSide / Math.max(sw, sh));
+    canvas.width = Math.max(1, Math.round(sw * scale));
+    canvas.height = Math.max(1, Math.round(sh * scale));
+    const ctx = canvas.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(source, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    return jsQR(img.data, img.width, img.height)?.data || null;
+}
+
+// Für Videobilder wechselnde Versuche (je Takt einer): ganzes Bild und Mitte.
+const VIDEO_ATTEMPTS = [[1, 1280], [0.75, 1100], [0.55, 900]];
+// Für Fotos/Screenshots alle Versuche nacheinander.
+const IMAGE_ATTEMPTS = [[1, 1600], [1, 1100], [0.8, 1400], [0.6, 1200], [1, 800], [0.45, 1000], [1, 2400]];
+
 function scanLoop(video) {
     const loopId = ++scanLoopId;
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d', { willReadFrequently: true });
-    const tick = () => {
+    let attempt = 0;
+    const tick = async () => {
         if (loopId !== scanLoopId || !scanDialog.open) return;
         if (video.readyState >= 2 && video.videoWidth > 0) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-            const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-            const code = jsQR(img.data, img.width, img.height);
-            if (code?.data && tryHandlePayload(code.data)) return;
+            const texts = await detectNative(video);
+            if (loopId !== scanLoopId) return;
+            if (!texts.length) {
+                const [crop, maxSide] = VIDEO_ATTEMPTS[attempt++ % VIDEO_ATTEMPTS.length];
+                const text = jsqrRegion(video, video.videoWidth, video.videoHeight, crop, maxSide, canvas);
+                if (text) texts.push(text);
+            }
+            for (const text of texts) {
+                if (await tryHandlePayload(text)) return;
+            }
         }
-        setTimeout(tick, 220);
+        setTimeout(tick, 160);
     };
     tick();
+}
+
+/** Alle Leseversuche auf einem Bild (für Tests exportiert). */
+export async function readQrFromImage(bitmap) {
+    const texts = await detectNative(bitmap);
+    if (texts.length) return texts;
+    const canvas = document.createElement('canvas');
+    for (const [crop, maxSide] of IMAGE_ATTEMPTS) {
+        const text = jsqrRegion(bitmap, bitmap.width, bitmap.height, crop, maxSide, canvas);
+        if (text) return [text];
+    }
+    return [];
 }
 
 async function onScanFile(e) {
@@ -152,20 +225,20 @@ async function onScanFile(e) {
     if (!file) return;
     const bitmap = await createImageBitmap(file).catch(() => null);
     if (!bitmap) { showToast('Bild konnte nicht gelesen werden.', 'error'); return; }
-    const canvas = document.createElement('canvas');
-    canvas.width = bitmap.width;
-    canvas.height = bitmap.height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(bitmap, 0, 0);
-    const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const code = jsQR(img.data, img.width, img.height);
-    if (!code?.data || !tryHandlePayload(code.data)) {
-        showToast('Kein TourFuchs-QR-Code im Bild gefunden.', 'error');
+    const statusEl = document.getElementById('qr-scan-status');
+    if (statusEl) statusEl.textContent = 'Bild wird gelesen …';
+    const texts = await readQrFromImage(bitmap);
+    for (const text of texts) {
+        if (await tryHandlePayload(text)) return;
     }
+    if (statusEl) statusEl.textContent = '';
+    showToast(texts.length
+        ? 'Das ist kein TourFuchs-Tour-Code.'
+        : 'Kein QR-Code im Bild gefunden – bitte näher heran oder schärfer fotografieren.', 'error', 6000);
 }
 
-function tryHandlePayload(text) {
-    const payload = decodeTourPayload(text);
+async function tryHandlePayload(text) {
+    const payload = await decodeTourText(text);
     if (!payload) return false;
     received = payload;
     stopCamera();
