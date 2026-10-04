@@ -1844,8 +1844,9 @@ function renderDataStatus() {
     const demoBanner = document.getElementById('demo-banner');
     const demoActive = !empty && isDemoDataset(state.customers);
     if (demoBanner) demoBanner.hidden = !demoActive;
-    // Der Hinweis „das sind Demo-Kunden" bleibt immer stehen – er ist die
-    // Ehrlichkeit des Streifens. Seine zwei Knöpfe dagegen tragen dieselben
+    // Der Hinweis „🧪 Beispieldaten" bleibt immer stehen – er ist die
+    // Ehrlichkeit des Streifens (am Handy ohne den Zusatz „das sind
+    // Demo-Kunden", der dort unschön umbrach). Seine zwei Knöpfe dagegen tragen dieselben
     // Beschriftungen wie die Begrüßung; zweimal dasselbe Angebot im selben Bild
     // ist keine Wahl, sondern Rauschen. Solange die Begrüßung steht, gehören die
     // Angebote ihr. Die Demo-Übersicht bietet sie nicht an – die bleibt.

@@ -27,7 +27,7 @@ describe('Ton zum Demo-Start', () => {
 
     it('der Hinweis steht in der Laufleiste und verschwindet von selbst', () => {
         const src = readFileSync(`${process.cwd()}/src/ui/showcase.js`, 'utf8');
-        expect(src).toContain("const SOUND_HINT_TEXT = '🔊 Mit Ton schöner: Lautstärke am Gerät aufdrehen.';");
+        expect(src).toContain("const SOUND_HINT_TEXT = '🔊 Ton an? Lautstärke aufdrehen.';");
         expect(src).toContain('showSoundHint();');
         expect(src).toMatch(/soundHintVisible && music\.enabled \? SOUND_HINT_TEXT/);
     });
