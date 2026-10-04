@@ -3567,6 +3567,8 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
   auch bei leerem Filter im Tour-Blatt und hat unter "📂 Eigene Daten laden"
   einen eigenen Abschnitt "Tour von einem anderen Handy". Reihenfolge im Blatt:
   erst Bezirk, dann "Tour per QR übernehmen", mit Abstand zum Planer.
+- **Kleine iPhones:** Die Bezirk-Zeile bleibt einzeilig ("ändern ▸" rechts fest,
+  links kürzt notfalls "…"), ebenso die Knöpfe "In Aktion sehen" / "Eigene Daten laden".
 
 ### 26.3 Änderungen in Version 3.15.2 (04.10.2026)
 
