@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.15.2 · Stand: 04.10.2026 · App-Version: 3.7.0**
+**Version 3.16 · Stand: 04.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -2176,8 +2176,11 @@ So verbreitet sich die App von Kollege zu Kollege.
   enthält Namen, Adressen und Telefonnummern. Bildschirm zu Kamera kommt ohne
   Messenger, Server und Kopien in fremden Postfächern aus.
 - Am Desktop heißt der Knopf weiterhin **"An Handy übergeben (QR)"**.
-- Empfangen: normale Kamera-App oder in TourFuchs **"Tour per QR übernehmen"**
-  (verschwindet, sobald ein Startpunkt gesetzt ist).
+- Empfangen: normale Kamera-App oder in TourFuchs **"📷 Tour per QR übernehmen"**.
+  Der Knopf ist am Handy immer erreichbar: oben im Tour-Blatt (mit gesetztem
+  Start schmaler), in der Schrittleiste als **📷** und unter **"📂 Eigene Daten
+  laden" -> "Tour von einem anderen Handy"** – dort auch ganz ohne eigene
+  Kundendaten.
 
 ---
 
@@ -3556,6 +3559,13 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.16 (04.10.2026)
+
+- **"📷 Tour per QR übernehmen" immer erreichbar** (11.4): bleibt mit gesetztem
+  Startpunkt sichtbar (schmaler), erscheint in der Schrittleiste als 📷, steht
+  auch bei leerem Filter im Tour-Blatt und hat unter "📂 Eigene Daten laden"
+  einen eigenen Abschnitt "Tour von einem anderen Handy".
 
 ### 26.3 Änderungen in Version 3.15.2 (04.10.2026)
 

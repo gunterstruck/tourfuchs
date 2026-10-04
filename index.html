@@ -448,6 +448,10 @@
                 </div><!-- /#nearby-card -->
 
                 <!-- Schritt 0: eigenen Bezirk wählen (nach Wahl auf schmale Zeile eingeklappt) -->
+                <!-- Zweiter Einstieg (nur Handy): eine fertige Tour von einem anderen
+                     Gerät holen. Steht bewusst VOR dem Planer, damit er auch ohne
+                     planbare Kunden (leerer Filter) und mit gesetztem Start da ist. -->
+                <button id="btn-tour-scan" class="only-mobile btn-scan-entry">📷 Tour per QR übernehmen</button>
                 <div id="tour-scope" class="tour-scope"></div>
 
                 <div id="tour-planner" hidden>
@@ -458,11 +462,9 @@
                     <button type="button" class="tour-step" data-step="start" role="tab"><span class="ts-num">1</span><span class="ts-label">Startpunkt</span></button>
                     <button type="button" class="tour-step" data-step="suggest" role="tab"><span class="ts-num">2</span><span class="ts-label">Vorschläge</span></button>
                     <button type="button" class="tour-step" data-step="mytour" role="tab"><span class="ts-num">3</span><span class="ts-label">Meine Tour</span></button>
+                    <button type="button" class="tour-step-scan only-mobile" data-tour-scan title="Tour per QR übernehmen" aria-label="Tour per QR übernehmen">📷</button>
                     <button type="button" class="tour-focus-exit" title="Übersicht anzeigen" aria-label="Übersicht anzeigen">☰</button>
                 </div>
-                <!-- Zweiter Einstieg (nur Handy): eine fertige Tour vom Desktop
-                     holen. Gehört zu den Start-Aktionen, nicht ans Listenende. -->
-                <button id="btn-tour-scan" class="only-mobile btn-scan-entry">📷 Tour per QR übernehmen</button>
                 <div id="tour-sales-map-view" class="aussen-view-block expert-only expert-swipe-section" data-expert-section="map-view">
                     <span class="field-label">Kartenansicht</span>
                     <div class="seg-toggle" id="aussen-view" role="group" aria-label="Kartenansicht">
@@ -839,6 +841,13 @@
                     <!-- Die Empfangs-Demo gibt es nur am Handy; am Schreibtisch keine
                          Zeile statt einer unpassenden Demo. -->
                     <button type="button" class="linklike own-data-demo only-mobile" data-demo-story="empfang">▶ Wie geht das? Live-Demo ansehen (30 s)</button>
+                </section>
+                <!-- Eine einzelne Tour von einem anderen Handy: keine Datei, nur
+                     ein QR-Code – auch ganz ohne eigene Kundendaten nutzbar. -->
+                <section class="own-data-option only-mobile" aria-labelledby="own-data-qr-title">
+                    <h3 id="own-data-qr-title">📷 Tour von einem anderen Handy</h3>
+                    <p class="muted small">Das andere Gerät zeigt „📲 Tour per QR teilen" – du scannst den Code mit der Kamera. Eigene Kundendaten brauchst du dafür nicht.</p>
+                    <button type="button" data-tour-scan>📷 Tour per QR übernehmen</button>
                 </section>
             </div>
         </dialog>
