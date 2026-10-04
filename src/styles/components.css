@@ -1384,6 +1384,14 @@
     border-radius: var(--radius-l);
     padding: 8px 10px; cursor: pointer; font-size: 0.9rem;
 }
+.scope-collapsed {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+}
+.scope-collapsed-main { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+.scope-collapsed-action { flex: 0 0 auto; }
 .scope-collapsed:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
 
 /* Globale Ansichtstiefe: im Basis-Modus werden alle Profi-/Experten-Elemente
@@ -1874,7 +1882,18 @@ body.offers-receded #demo-banner {
     gap: 6px;
 }
 .demo-banner-actions[hidden] { display: none; }
-.demo-banner-actions .demo-banner-cta { min-height: 34px; }
+.demo-banner-actions .demo-banner-cta {
+    min-height: 34px;
+    /* Einzeilig halten: Auf schmalen iPhones (breitere Systemschrift) brach
+       „Eigene Daten laden" sonst in zwei Zeilen um. */
+    padding: 6px 8px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+@media (max-width: 400px) {
+    .demo-banner-actions .demo-banner-cta { font-size: 0.78rem; padding: 6px 6px; }
+}
 .demo-banner-cta {
     flex-shrink: 0;
     padding: 6px 12px;

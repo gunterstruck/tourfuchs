@@ -313,7 +313,9 @@ function renderTourScope() {
         const count = state.tour.bezirk === '__all__'
             ? availableCustomers.length
             : (counts.get(state.tour.bezirk) ?? 0);
-        scope.innerHTML = `<button type="button" id="scope-toggle" class="scope-collapsed">🗺️ Bezirk: <b>${escapeHtml(label)}</b><span class="muted"> · ${count} ${customerLabel} · ändern ▸</span></button>`;
+        // Zwei Teile: links Bezirk + Anzahl (kürzt notfalls mit „…"), rechts
+        // fest „ändern ▸" – so bricht die Zeile auf kleinen Handys nicht um.
+        scope.innerHTML = `<button type="button" id="scope-toggle" class="scope-collapsed"><span class="scope-collapsed-main">🗺️ Bezirk: <b>${escapeHtml(label)}</b><span class="muted"> · ${count} ${customerLabel}</span></span><span class="scope-collapsed-action muted">ändern ▸</span></button>`;
         updatePlannerVisibility();
         return;
     }
