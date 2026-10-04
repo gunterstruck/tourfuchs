@@ -631,6 +631,57 @@ Gemerkt, nicht terminiert (in dieser Reihenfolge):
 9. **GitHub-Homepage-Link** im Repository zeigt auf eine 404-Seite → auf die
    Vercel-Adresse umstellen (Repository-Einstellung, kein Code).
 
+### Zur Diskussion: Mobile Hauptoberfläche „Kunde finden → Briefing oder Tour → Navigieren" *(Vorschlag 04.10.2026, nicht entschieden)*
+
+**Idee:** Am Handy wird genau dieser Ablauf zur Hauptoberfläche; alles andere
+tritt zurück.
+
+| Änderung | So würde es aussehen |
+|---|---|
+| Drei dauerhaft sichtbare Bereiche | Unten: **Karte · Kunden · Meine Tour**. „Meine Tour" zeigt die Anzahl der Stopps. |
+| Kundenauswahl räumt die Oberfläche auf | Suchtreffer antippen → Datenpanel schließen → Kundenkarte öffnen. Kein zusätzliches Einklappen nötig. |
+| Kundenkarte auf die nächsten Aktionen ausrichten | Name, Adresse, Besuchsstatus; darunter große Schaltflächen **Briefing · Zur Tour · Navigieren**. Weitere Angaben aufklappbar. |
+| Touraktionen ordnen | Stoppliste mit „Briefing" je Kunde und eine auffällige Schaltfläche **Tour starten**. Kalender, Drucken und Textkopie unter **„Teilen & Exportieren"**. |
+| Datenverwaltung aus dem Arbeitsablauf nehmen | Import, Export, Tresor und Datenstatistik unter **Menü → Daten verwalten**. Ohne geladene Kunden erscheint der Import weiterhin direkt. |
+| Standortfehler auffangen | Fehlt der Standort: **„Kartenmitte verwenden"** · **„Ort eingeben"** anbieten. |
+
+**Desktop:** die drei Tour-Schritte immer vollständig beschriften –
+**Startpunkt · Kundenvorschläge · Meine Tour**.
+
+**Vorgeschlagene Reihenfolge:** zuerst nur zwei Dinge, weil beide konkret
+beobachtete Umwege beheben:
+
+1. dauerhaft sichtbarer Zugang zu **„Meine Tour"** (mit Stoppzahl),
+2. **Datenpanel schließt bei Kundenauswahl** automatisch.
+
+**Danach messen statt vermuten:** Freiwillige erledigen dieselben drei Aufgaben
+– *Kunde suchen, Briefing öffnen, Tour starten*. Beobachtet wird, wo sie
+suchen, zurückgehen oder nachfragen. Erst das zeigt, ob die Vereinfachung
+tatsächlich hilft (dieselbe Lehre wie bei `face-check`: diese Fehlerklasse
+findet nur das echte Gerät mit echten Menschen).
+
+**Einordnung (Stand 04.10.2026, zur Diskussion):**
+
+- **Schon da:** „Briefing" je Tourstopp (#347, am Handy runder 📋-Knopf);
+  Briefing im Kunden-Popup; eine obere Navigation am Handy (`#mobile-topnav`)
+  und der Knopf „nächster Schritt" auf der Karte (`#mobile-next-step`).
+- **Überschneidung mit dem UX-Durchgang oben:** „Teilen & Exportieren" und
+  „Tour starten" entsprechen Punkt 3, die Desktop-Beschriftung Punkt 2, die
+  mobile Startansicht Punkt 6 – diese Punkte würden hier aufgehen.
+- **Offene Fragen:**
+  - Untere Leiste **statt** oder **zusätzlich zu** `#mobile-topnav`? Zwei
+    Navigationen wären eine neue Aufmerksamkeits-Schuld (Release 9) und
+    berühren die Grenze „Zwei Oberflächen, kein drittes" (Release 12).
+  - Was heißt „Tour starten" genau – Google-Maps-Navigation zum ersten Stopp,
+    Teilstrecken bei vielen Stopps (wie beim QR-Empfang) oder ein eigener
+    Unterwegs-Modus?
+  - „Navigieren" auf der Kundenkarte: direkt zum Kunden ab aktuellem
+    Standort, ohne die Tour zu verändern?
+  - Tresor unter „Daten verwalten": Das Schloss oben bleibt für Sperren/
+    Entsperren sichtbar – nur Einrichtung und Verwaltung wandern ins Menü?
+  - Wer sind die Freiwilligen, und wann? Ohne Termin bleibt der Messschritt
+    ein Vorsatz.
+
 ### Release 12 – „Zwei Oberflächen, kein drittes" *(16.08.2026 umgesetzt)*
 
 Anlass: eine Vorgabe des Product Owners, die Release 7 zu Ende führt. Dort wurde
