@@ -10,7 +10,7 @@
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
 import {
-    state, replaceCustomers, setServiceContracts, setServiceVisits, setPlaces, emit, datasetSnapshot
+    state, replaceCustomers, setServiceContracts, setServiceVisits, setPlaces, emit, on, datasetSnapshot
 } from '../core/state.js';
 import { mergeOwnPlaces } from '../features/places.js';
 import { saveDataset } from '../services/storage.js';
@@ -40,6 +40,8 @@ export function initSafeTransfer() {
     exportDialog = document.getElementById('safe-export-dialog');
     receiveDialog = document.getElementById('safe-receive-dialog');
     if (!exportDialog || !receiveDialog) return;
+    // Gesperrt: Export-Schlüssel und gewählte Datei nicht im Speicher halten.
+    on('vault:locked', () => { lastExport = null; pendingContainer = null; stopCamera(); });
 
     exportDialog.querySelector('.dialog-close').addEventListener('click', () => exportDialog.close());
     receiveDialog.querySelector('.dialog-close').addEventListener('click', () => receiveDialog.close());
@@ -329,7 +331,7 @@ async function applyImported(dataset) {
 
     if (isEnabled()) {
         // Auf diesem Gerät ist bereits ein Tresor aktiv -> direkt verschlüsselt sichern.
-        await saveDataset(datasetSnapshot());
+        if (!(await persistReceived())) return;
         showToast(`Daten empfangen (${transferCountText({
             count: customers.length,
             contractCount: serviceContracts.length,
@@ -342,14 +344,34 @@ async function applyImported(dataset) {
         forced: true,
         title: 'Importierte Daten schützen',
         intro: 'Die empfangenen Kundendaten liegen jetzt auf diesem Gerät. Lege eine PIN fest, damit sie <b>AES-256-verschlüsselt</b> gespeichert und beim Öffnen der App per PIN entsperrt werden.',
-        onDone: () => showToast(`Daten empfangen (${transferCountText({
-            count: customers.length,
-            contractCount: serviceContracts.length,
-            visitCount: serviceVisits.length
-        })}) und mit dem Tresor gesichert.`, 'success', 6000),
+        onDone: async () => {
+            // Das Einrichten speichert bereits – hier noch einmal mit Ergebnis,
+            // damit „gesichert" nur erscheint, wenn es stimmt.
+            if (!(await persistReceived())) return;
+            showToast(`Daten empfangen (${transferCountText({
+                count: customers.length,
+                contractCount: serviceContracts.length,
+                visitCount: serviceVisits.length
+            })}) und mit dem Tresor gesichert.`, 'success', 6000);
+        },
         onDismiss: async () => {
-            await saveDataset(datasetSnapshot());
+            if (!(await persistReceived())) return;
             showToast('Daten empfangen. Achtung: ohne Tresor unverschlüsselt gespeichert – du kannst ihn jederzeit im Tab „Daten" aktivieren.', 'info', 8000);
         }
     });
+}
+
+/**
+ * Empfangene Daten speichern – und nur bei echtem Erfolg „gesichert" melden.
+ * saveDataset() liefert false (z. B. Tresor zwischenzeitlich gesperrt,
+ * Speicher voll); dann ehrlich sagen und einen neuen Versuch anbieten.
+ */
+async function persistReceived() {
+    for (;;) {
+        if (await saveDataset(datasetSnapshot())) return true;
+        if (!confirm('Die empfangenen Daten konnten nicht gespeichert werden.\n\nErneut versuchen?')) {
+            showToast('Nicht gespeichert: Die empfangenen Daten sind nur bis zum Neuladen da. Bitte den Import danach wiederholen.', 'error', 9000);
+            return false;
+        }
+    }
 }
