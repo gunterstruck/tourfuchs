@@ -174,6 +174,10 @@ async function phone(browser, baseUrl) {
         await page.waitForSelector(`.leaflet-popup [data-action="${action}"]`, { timeout: TIMEOUT });
         await page.evaluate((a) => document.querySelector(`.leaflet-popup [data-action="${a}"]`).click(), action);
         await page.evaluate(() => document.querySelector('.leaflet-popup-close-button')?.click());
+        // Leaflet blendet ein geschlossenes Popup noch ~200 ms aus, bevor es das
+        // Element entfernt. Ohne dieses Warten fände der nächste Aufruf dort noch
+        // seinen Knopf – und griffe ins Leere, sobald das Element verschwindet.
+        await page.waitForFunction(() => !document.querySelector('.leaflet-popup'), null, { timeout: TIMEOUT });
     };
 
     await step('Tour: Start und Ziel über die Suche', async () => {
