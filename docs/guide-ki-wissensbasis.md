@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.15 · Stand: 03.10.2026 · App-Version: 3.7.0**
+**Version 3.15.1 · Stand: 04.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -3556,6 +3556,15 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - Patch: Textkorrektur ohne geänderten Klickpfad.
 - Minor: neuer Klickpfad oder neue Funktion.
 - Major: neue Produktstruktur oder geänderte Datenschutzarchitektur.
+
+### 26.3 Änderungen in Version 3.15.1 (04.10.2026)
+
+- **Handy-Blatt gleitet ruhig zu:** Beim Herunterziehen folgt das Blatt dem
+  Finger bis ganz unten und bleibt beim Loslassen liegen – kein kurzes
+  Hochhüpfen mehr.
+- **Ruhigere Zeilenumbrüche:** Kundenkarte am Handy breiter, Knöpfe mit Symbol
+  über der Beschriftung, "alle 4 Wochen" nicht mehr abgeschnitten; Wörter mit
+  Bindestrich werden nicht mehr am Strich getrennt, kein einsames Schlusswort.
 
 ### 26.3 Änderungen in Version 3.15 (03.10.2026)
 

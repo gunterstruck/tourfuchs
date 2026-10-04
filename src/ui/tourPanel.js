@@ -1359,7 +1359,7 @@ function renderStops() {
             <b>Noch keine Stopps</b>
             <ol>
                 <li>Startpunkt wählen</li>
-                <li>Kunden aus Vorschlägen oder Karten-Popups hinzufügen</li>
+                <li>Kunden aus Vorschlägen oder von der Karte hinzufügen</li>
                 <li>Route auf der Karte anzeigen</li>
             </ol>
         </div>`;

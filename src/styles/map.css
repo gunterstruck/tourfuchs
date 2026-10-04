@@ -662,6 +662,12 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
 .popup .cust-list .mini { font-size: 0.8rem; padding: 1px 0; }
 .popup-actions { display: flex; gap: 6px; margin-top: 8px; }
 .popup-actions button { font-size: 0.8rem; padding: 4px 8px; flex: 1; }
+/* Symbol und Beschriftung als feste Einheiten: wird es eng, wandert die
+   Beschriftung geschlossen unter das Symbol – nie „Als" | „Start". */
+.popup-actions button { display: inline-flex; align-items: center; justify-content: center; flex-wrap: wrap; column-gap: 4px; row-gap: 1px; min-width: 0; }
+.popup-actions .pa-label { white-space: nowrap; }
+/* Hinweis zur Ortung als Ganzes umbrechen (nicht „Straße, ohne" | „Hausnummer"). */
+.popup-geo-note { display: block; white-space: nowrap; }
 
 .popup-contract-summary {
     display: flex;
@@ -726,6 +732,11 @@ button.contact-link {
 .visit-controls { display: flex; gap: 6px; align-items: center; }
 .visit-controls button { font-size: 0.8rem; padding: 4px 8px; white-space: nowrap; }
 .rhythm-select { font-size: 0.8rem; padding: 4px 6px; flex: 1; min-width: 0; }
+/* Am Handy hat die Auswahl 16 px (kein iOS-Zoom) – reicht der Platz neben
+   „Heute besucht" nicht, rückt sie vollständig in die nächste Zeile, statt
+   „alle 4 Woch…" abzuschneiden. */
+.visit-controls { flex-wrap: wrap; }
+.visit-controls .rhythm-select { flex: 1 1 7.6em; padding: 4px 20px 4px 6px; }
 .status-badge {
     display: inline-block;
     color: #fff;
@@ -794,7 +805,10 @@ button.contact-link {
     /* Mobil etwas größere Kacheln für Lesbarkeit und Treffsicherheit – hochkant. */
     .customer-marker-mode-label .customer-marker-card { width: 112px; margin-left: -56px; min-height: 100px; }
     .customer-marker-mode-detail .customer-marker-card { width: 126px; margin-left: -63px; min-height: 112px; }
-    .leaflet-popup-content {
+    /* Mit .leaflet-popup davor: Leaflets eigenes Stylesheet (13px 24px 13px
+       20px) kommt später und gewann bisher – die schmale Handy-Kachel verlor
+       so fast 20 px Textbreite. */
+    .leaflet-popup .leaflet-popup-content {
         margin: 10px 12px;
         max-height: min(52dvh, 380px);
     }
@@ -816,6 +830,8 @@ button.contact-link {
     .popup .visit-block { margin: 6px 0 4px; padding: 7px 8px; }
     .popup .visit-line { margin: 0 0 5px; }
     .popup-actions { margin-top: 6px; }
+    /* Am Handy einheitlich: Symbol oben, Beschriftung darunter (nicht mal so, mal so). */
+    .popup-actions button { flex-direction: column; flex-wrap: nowrap; padding: 4px 4px; }
     /* Ziehen im Modal schwenkt die Karte: der Content-Wrapper fängt Touch-Gesten
        ab (touch-action: none), die scrollbare Kundenliste behält ihr Scrollen. */
     .pan-map-popup { touch-action: none; }

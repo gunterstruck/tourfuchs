@@ -17,6 +17,12 @@ body {
 }
 
 h1, h2, h3 { margin: 0 0 0.5em; line-height: 1.25; }
+/* Ruhigere Umbrüche: Überschriften ausgewogen, Fließtext ohne einsames
+   Schlusswort. Browser ohne Unterstützung umbrechen wie bisher. */
+h1, h2, h3, h4 { text-wrap: balance; }
+body { text-wrap: pretty; }
+/* Zusammengesetzte Wörter mit Bindestrich nicht am Strich zerreißen. */
+.nowrap { white-space: nowrap; }
 h2 { font-size: 1.05rem; }
 h3 { font-size: 0.92rem; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin-top: 1.2em; }
 

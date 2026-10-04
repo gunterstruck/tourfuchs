@@ -518,6 +518,8 @@
     }
     /* Während des Ziehens keine Transition, damit das Blatt dem Finger folgt. */
     .sheet-resizing .sidebar { transition: none; }
+    /* Nach dem Einklappen: gezogene Höhe ohne Übergang verwerfen (unsichtbar, nur der Griff schaut heraus). */
+    .sidebar.sheet-instant { transition: none !important; }
     /* Ende einer Schulungsrunde: langsam einklappen, im Takt der ausklingenden Musik. */
     .sidebar.sheet-settling { transition: transform 2s ease-in-out, height 2s ease-in-out; }
 

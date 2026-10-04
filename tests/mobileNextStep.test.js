@@ -84,6 +84,18 @@ describe('Blatt wieder vollständig einklappbar (mobil)', () => {
         expect(sidebar).toContain('rawHeight = startH - dy');
         // Unter der Mindesthöhe = ganz einklappen.
         expect(sidebar).toContain('rawHeight <= SHEET_MIN_HEIGHT');
-        expect(sidebar).toContain("sidebar?.classList.remove('sheet-sized')");
+        expect(sidebar).toContain("sidebar.classList.remove('sheet-sized')");
+    });
+
+    it('gleitet beim Loslassen ruhig nach unten, ohne kurz hochzuhüpfen', () => {
+        const fn = sidebar.slice(sidebar.indexOf('function collapseSheetFully'), sidebar.indexOf('function initSheetGrip'));
+        // Erst einklappen (Verschiebung), die gezogene Höhe fällt erst danach weg …
+        expect(fn.indexOf('applySidebar()')).toBeLessThan(fn.indexOf("removeProperty('--sheet-height')"));
+        expect(fn).toContain('SHEET_COLLAPSE_MS');
+        // … und zwar ohne Übergang.
+        expect(fn).toContain("classList.add('sheet-instant')");
+        expect(read('src/styles/responsive.css')).toMatch(/\.sidebar\.sheet-instant\s*\{\s*transition:\s*none/);
+        // Beim Ziehen folgt das Blatt dem Finger bis zur Guckhöhe.
+        expect(sidebar).toContain('setSheetHeight(peekPx(), false, peekPx())');
     });
 });
