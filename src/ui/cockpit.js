@@ -154,6 +154,10 @@ function resetSimulationState() {
 
 function snapshotSimulation() {
     return {
+        // Das Zielfeld gehört zum Stand: Ein Szenario kann es wechseln (Bezirk →
+        // Gruppe). Ohne es schriebe „Rückgängig" + „Übernehmen" alte Bezirkswerte
+        // ins Gruppenfeld.
+        assignAttr,
         overrides: new Map(overrides),
         pendingTerr: new Map([...pendingTerr].map(([id, info]) => [
             id,
@@ -164,6 +168,10 @@ function snapshotSimulation() {
 }
 
 function restoreSimulation(snapshot) {
+    if (snapshot.assignAttr && snapshot.assignAttr !== assignAttr) {
+        assignAttr = snapshot.assignAttr;
+        renderAssignAttrSelect();
+    }
     overrides = snapshot.overrides;
     pendingTerr = snapshot.pendingTerr;
     opsLog = snapshot.opsLog;
@@ -306,6 +314,9 @@ export function initCockpit() {
     reloadScenarios();
     on('app:ready', reloadScenarios);
     on('vault:locked', () => { scenarios = []; renderScenarios(); });
+    // Neuer oder gelöschter Bestand: Simulation und ihr Verlauf gehören zum alten.
+    on('dataset:replacing', resetSimulationState);
+    on('dataset:cleared', resetSimulationState);
     on('dataset:cleared', () => { scenarios = []; renderScenarios(); });
     document.getElementById('sim-reset').addEventListener('click', resetSimulation);
     document.getElementById('sim-commit').addEventListener('click', commitSimulation);
