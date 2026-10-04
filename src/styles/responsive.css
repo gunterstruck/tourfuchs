@@ -230,7 +230,11 @@
     user-select: none;
     font-size: 0.98rem;
     transition: background 0.15s;
+    /* Schrittname („1. Startpunkt") nie umbrechen – kürzen darf nur die
+       Zusammenfassung rechts (mit „…"). */
+    white-space: nowrap;
 }
+.tour-acc .acc-head .acc-summary { min-width: 0; flex: 0 1 auto; }
 .tour-acc .acc-head:active { background: #f8fafc; }
 .tour-acc.open .acc-head { border-bottom: 1px solid #f1f5f9; }
 .tour-acc .acc-summary {
@@ -347,7 +351,7 @@
     body.tour-has-start #tab-tour.active #btn-tour-scan {
         padding: 5px 10px;
         min-height: 0;
-        margin-top: 4px;
+        margin: 4px 0 12px;
         font-size: 0.84rem;
         font-weight: 600;
     }
@@ -446,7 +450,9 @@
        „Was ist in meiner Nähe?" – sichtbar beim Starten, im Fokus ausgeblendet. */
     .btn-scan-entry {
         width: 100%;
-        margin-top: 8px;
+        /* Reihenfolge: Bezirk wählen → Tour übernehmen → planen. Luft nach
+           unten trennt den Einstieg sichtbar vom Planer (1 · 2 · 3). */
+        margin: 6px 0 16px;
         background: #fff;
         color: var(--color-primary-dark, #0f766e);
         border: 1px solid color-mix(in srgb, var(--color-primary, #0d9488) 40%, #e2e8f0);

@@ -2177,8 +2177,8 @@ So verbreitet sich die App von Kollege zu Kollege.
   Messenger, Server und Kopien in fremden Postfächern aus.
 - Am Desktop heißt der Knopf weiterhin **"An Handy übergeben (QR)"**.
 - Empfangen: normale Kamera-App oder in TourFuchs **"📷 Tour per QR übernehmen"**.
-  Der Knopf ist am Handy immer erreichbar: oben im Tour-Blatt (mit gesetztem
-  Start schmaler), in der Schrittleiste als **📷** und unter **"📂 Eigene Daten
+  Der Knopf ist am Handy immer erreichbar: im Tour-Blatt direkt unter der
+  Bezirkswahl und mit etwas Abstand vor "1. Startpunkt" (mit gesetztem Start schmaler), in der Schrittleiste als **📷** und unter **"📂 Eigene Daten
   laden" -> "Tour von einem anderen Handy"** – dort auch ganz ohne eigene
   Kundendaten.
 
@@ -3565,7 +3565,8 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - **"📷 Tour per QR übernehmen" immer erreichbar** (11.4): bleibt mit gesetztem
   Startpunkt sichtbar (schmaler), erscheint in der Schrittleiste als 📷, steht
   auch bei leerem Filter im Tour-Blatt und hat unter "📂 Eigene Daten laden"
-  einen eigenen Abschnitt "Tour von einem anderen Handy".
+  einen eigenen Abschnitt "Tour von einem anderen Handy". Reihenfolge im Blatt:
+  erst Bezirk, dann "Tour per QR übernehmen", mit Abstand zum Planer.
 
 ### 26.3 Änderungen in Version 3.15.2 (04.10.2026)
 
