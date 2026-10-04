@@ -5,11 +5,11 @@
 
 import { CONFIG } from '../core/config.js';
 import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, setPlaces, clearServiceContracts, clearServiceVisits, filterDimensionDefs, datasetSnapshot } from '../core/state.js';
-import { exactGeocodeCandidates, groupExactGeocodeCandidates } from '../services/geocode.js';
+import { exactGeocodeCandidates, groupExactGeocodeCandidates, abandonGeocodeRuns } from '../services/geocode.js';
 import { runExactGeocoding, cancelExactGeocoding, isExactGeocodingRunning, exactGeocodePreference } from './exactGeocoding.js';
 import { isDemoDataset, isDemoCustomer } from '../core/demoSafety.js';
-import { saveDataset, clearDataset, saveSettings } from '../services/storage.js';
-import { isEnabled as vaultEnabled, removeVaultMeta } from '../services/vault.js';
+import { saveDataset, clearDataset, saveSettings, clearProtectedStores } from '../services/storage.js';
+import { isEnabled as vaultEnabled, removeVaultMeta, discardKey } from '../services/vault.js';
 import { STATUS_COLORS, STATUS_LABELS, isOpportunity } from '../features/visits.js';
 import { planningNow } from '../features/dayPlanner.js';
 import { automaticLevelActive } from '../features/mapLevel.js';
@@ -1341,10 +1341,17 @@ export function applyMode(mode, userInitiated = true, persist = true) {
 async function clearAllData() {
     if (state.customers.length === 0 && Object.keys(state.territories).length === 0 && state.serviceContracts.length === 0 && state.serviceVisits.length === 0 && state.places.length === 0) return;
     if (!confirm('Alle Kunden-, Einsatz-, Vertrags- und Gebietszuordnungen sowie eigene Orte aus dem Browser löschen?')) return;
+    // Zuerst laufende Verortungen stoppen – sie dürfen danach nichts mehr
+    // abfragen oder in den Adress-Cache zurückschreiben.
+    abandonGeocodeRuns();
     // Ohne Daten gibt es nichts zu schützen -> Tresor mit deaktivieren,
     // sonst bliebe beim nächsten Öffnen ein Sperrbildschirm ohne Inhalt.
     if (vaultEnabled()) removeVaultMeta();
+    discardKey();
     await clearDataset();
+    // „Alles" heißt auch: gespeicherte Touren (Startadressen!), Adress-Cache
+    // und Simulationsszenarien – ohne Tresor lägen sie sonst lesbar herum.
+    await clearProtectedStores();
     state.tour.start = null;
     state.tour.destination = null;
     state.tour.stops = [];

@@ -210,6 +210,7 @@ export function initTourPanel() {
     reloadTours();
     on('app:ready', reloadTours);
     on('vault:locked', () => { savedTours = []; renderSavedTours(); });
+    on('dataset:cleared', () => { savedTours = []; renderSavedTours(); });
 
     // Startpunkt per Suchfeld: Kunde, eigener Ort, Ortsverzeichnis, Koordinaten
     const setStart = (point) => {
