@@ -43,7 +43,7 @@ describe('Untere System-Navigationsleiste (Android/iOS) verdeckt das Blatt nicht
         expect(css).toContain('body.demo-data-active {');
         const demoBlock = css.slice(css.indexOf('body.demo-data-active {'));
         // Zwei Zeilen: Hinweis mit Demo-Übersicht, darunter „In Aktion sehen" · „Eigene Daten laden".
-        expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*124px/);
+        expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*108px/);
     });
 });
 
@@ -109,11 +109,25 @@ describe('Suche am Handy: Treffer über die ganze Breite', () => {
 describe('Willkommen auf kleinen Handys: alle drei Wege sichtbar', () => {
     const css = read('src/styles/responsive.css');
     it('rückt das Blatt tiefer, solange die Willkommens-Karte offen ist', () => {
-        expect(css).toMatch(/body\.demo-data-active\.demo-welcome-open \{\s*--mobile-sheet-peek: 84px;/);
+        expect(css).toMatch(/body\.demo-data-active\.demo-welcome-open \{\s*--mobile-sheet-peek: 68px;/);
         expect(read('src/ui/demoWelcome.js')).toContain("document.body.classList.toggle('demo-welcome-open', !root.hidden);");
     });
     it('macht die Karte auf niedrigen Schirmen kompakter und lässt den Fußtext weg', () => {
         const block = css.slice(css.lastIndexOf('@media (max-width: 768px) and (max-height: 640px)'));
         expect(block).toContain('.demo-welcome-foot { display: none; }');
+    });
+});
+
+describe('Beispieldaten-Streifen und Ton-Hinweis am Handy', () => {
+    const css = read('src/styles/responsive.css');
+    it('zeigt am Handy nur „🧪 Beispieldaten" – einzeilig, ohne Zusatz', () => {
+        expect(read('index.html')).toContain('<span class="demo-banner-suffix"> – das sind Demo-Kunden.</span>');
+        expect(css).toContain('.demo-banner-suffix { display: none; }');
+        expect(css).toMatch(/body\.demo-data-active \{[\s\S]*?--mobile-sheet-peek: 108px;/);
+    });
+    it('der Ton-Hinweis steht als Blase unter der Laufleiste, die Leiste bricht nicht um', () => {
+        const sc = read('src/styles/showcase.css');
+        expect(sc).toMatch(/\.sc-music-status \{\s*position: absolute;\s*top: calc\(100% \+ 6px\);/);
+        expect(sc).not.toContain('.sc-toolbar:has(.sc-music-status:not([hidden])) { flex-wrap: wrap;');
     });
 });

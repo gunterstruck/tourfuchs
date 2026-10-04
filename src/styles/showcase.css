@@ -237,8 +237,23 @@
 .sc-music-volume { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; }
 .sc-music-volume input { width: 72px; min-height: 28px; accent-color: #0d9488; }
 .sc-music-volume output { min-width: 34px; font-variant-numeric: tabular-nums; }
-.sc-music-status { flex: 1 1 100%; max-width: 420px; font-size: 0.8rem; font-weight: 400; }
-.sc-toolbar:has(.sc-music-status:not([hidden])) { flex-wrap: wrap; border-radius: 18px; }
+/* Ton-Hinweis bzw. Musik-Fehler: als kleine Sprechblase unter der Leiste,
+   nicht in ihr – sonst brach die Leiste auf schmalen Handys um und das ✕
+   rutschte in eine zweite Zeile. */
+.sc-music-status {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    max-width: min(420px, calc(100vw - 24px));
+    padding: 6px 12px;
+    border-radius: 14px;
+    background: var(--color-surface, #fff);
+    box-shadow: 0 6px 20px rgba(15, 23, 42, 0.18);
+    font-size: 0.8rem;
+    font-weight: 400;
+    white-space: normal;
+    pointer-events: none;
+}
 .sc-music-volume[hidden], .sc-music-status[hidden] { display: none; }
 .sc-paused .sc-cursor { transition: none; }
 
