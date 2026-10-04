@@ -135,6 +135,11 @@ async function runFormat(browser, format, baseUrl, onlyStories) {
         timezoneId: 'Europe/Berlin'
     });
     await context.addInitScript(PROBE);
+    // Optionale Module einschalten, damit auch ihre Filme geprüft werden – der
+    // Service-Film erscheint sonst gar nicht in der Auswahl (ab Werk aus).
+    await context.addInitScript(() => {
+        try { localStorage.setItem('gf_service_enabled', '1'); } catch { /* ohne Speicher: Standard */ }
+    });
     const page = await context.newPage();
     const pageErrors = [];
     page.on('pageerror', (e) => pageErrors.push(String(e).slice(0, 200)));

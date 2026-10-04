@@ -41,8 +41,11 @@ function exportRows(start, stops, startTime, visitMinutes, servicePlan) {
     const itinerary = Array.isArray(servicePlan?.itinerary) ? servicePlan.itinerary : [];
     const entries = new Map(itinerary.map((entry) => [entry.customerId, entry]));
     if (itinerary.length && stops.every((customer) => entries.has(customer?.id))) {
-        return stops.map((customer) => {
-            const entry = entries.get(customer.id);
+        // Dem Plan folgen, nicht der Stoppliste: Ein Kunde mit zwei Einsätzen in
+        // getrennten Zeitfenstern (vormittags + nachmittags) steht dort zweimal.
+        const byId = new Map(stops.map((customer) => [customer.id, customer]));
+        return itinerary.filter((entry) => byId.has(entry.customerId)).map((entry) => {
+            const customer = byId.get(entry.customerId);
             const arrival = new Date(entry.start || entry.arrival);
             const end = new Date(entry.end);
             return {
