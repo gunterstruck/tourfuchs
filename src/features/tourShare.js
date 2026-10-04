@@ -10,6 +10,7 @@ import { DEMO_DATA_ORIGIN, isDemoCustomer } from '../core/demoSafety.js';
 
 export const TOUR_QR_PREFIX = 'TF1:';
 export const TOUR_HASH_KEY = 't';   // Fragment-Schlüssel: host/…#t=<base64url>
+export const TOUR_HASH_KEY_PACKED = 'tz'; // gepackt (deflate-raw): host/…#tz=<base64url>
 export const MAX_QR_STOPS = 12;
 
 const round5 = (n) => Math.round(Number(n) * 1e5) / 1e5;
@@ -26,6 +27,35 @@ function fromBase64Url(b64) {
     const bytes = Uint8Array.from(bin, (ch) => ch.charCodeAt(0));
     return new TextDecoder().decode(bytes);
 }
+
+function bytesToBase64Url(bytes) {
+    let bin = '';
+    for (const b of bytes) bin += String.fromCharCode(b);
+    return btoa(bin).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+function base64UrlToBytes(b64) {
+    const bin = atob(b64.replace(/-/g, '+').replace(/_/g, '/'));
+    return Uint8Array.from(bin, (ch) => ch.charCodeAt(0));
+}
+async function pipeBytes(bytes, stream) {
+    const writer = stream.writable.getWriter();
+    writer.write(bytes).catch(() => {});
+    writer.close().catch(() => {});
+    const reader = stream.readable.getReader();
+    const chunks = [];
+    let length = 0;
+    for (;;) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        chunks.push(value);
+        length += value.length;
+    }
+    const out = new Uint8Array(length);
+    let offset = 0;
+    for (const chunk of chunks) { out.set(chunk, offset); offset += chunk.length; }
+    return out;
+}
+const canPack = () => typeof CompressionStream === 'function' && typeof DecompressionStream === 'function';
 
 // Achtung: Number(null) wäre 0 – Strings konvertieren, alles andere direkt prüfen
 const isCoord = (v) => Number.isFinite(typeof v === 'string' && v !== '' ? Number(v) : v);
@@ -93,6 +123,46 @@ export function encodeTourUrl(encoded, baseUrl) {
     if (!encoded) return null;
     const base = String(baseUrl || '').replace(/[#?].*$/, '').replace(/\/$/, '');
     return `${base}/#${TOUR_HASH_KEY}=${toBase64Url(encoded)}`;
+}
+
+/**
+ * Wie encodeTourUrl, aber gepackt (#tz=…, deflate-raw). Namen und Adressen
+ * wiederholen sich stark – gepackt wird der QR-Code bei zwölf Stopps etwa
+ * halb so dicht (z. B. Version 38 → 20). Erst das macht ihn für den Scanner
+ * in der App (jsQR) zuverlässig lesbar; die Handy-Kamera schafft beides.
+ * Ohne CompressionStream bleibt es beim ungepackten #t=….
+ */
+export async function encodeTourUrlPacked(encoded, baseUrl) {
+    if (!encoded) return null;
+    if (!canPack()) return encodeTourUrl(encoded, baseUrl);
+    try {
+        const packed = await pipeBytes(new TextEncoder().encode(encoded), new CompressionStream('deflate-raw'));
+        const base = String(baseUrl || '').replace(/[#?].*$/, '').replace(/\/$/, '');
+        return `${base}/#${TOUR_HASH_KEY_PACKED}=${bytesToBase64Url(packed)}`;
+    } catch {
+        return encodeTourUrl(encoded, baseUrl);
+    }
+}
+
+/** Steckt in Text/URL eine geteilte Tour (#t=… oder #tz=…)? */
+export function hasSharedTour(text) {
+    return new RegExp(`[#&](?:${TOUR_HASH_KEY}|${TOUR_HASH_KEY_PACKED})=`).test(String(text || ''));
+}
+
+/**
+ * Wie decodeTourPayload, versteht zusätzlich die gepackte Form (#tz=…).
+ * @returns {Promise<object|null>}
+ */
+export async function decodeTourText(text) {
+    const m = String(text || '').match(new RegExp(`[#&]${TOUR_HASH_KEY_PACKED}=([A-Za-z0-9\\-_]+)`));
+    if (!m) return decodeTourPayload(text);
+    if (!canPack()) return null;
+    try {
+        const raw = await pipeBytes(base64UrlToBytes(m[1]), new DecompressionStream('deflate-raw'));
+        return decodeTourPayload(new TextDecoder().decode(raw));
+    } catch {
+        return null;
+    }
 }
 
 /** Tour-Fragment aus einer (Hash-)URL herauslösen, sonst null. */
