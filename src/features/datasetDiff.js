@@ -63,7 +63,10 @@ const COMPARED_FIELDS = [
     { key: 'strasse', label: 'Straße' },
     { key: 'plz', label: 'PLZ' },
     { key: 'ort', label: 'Ort' },
+    { key: 'vb', label: 'Vertriebsbeauftragter' },
+    { key: 'channel', label: 'Vertriebschannel' },
     { key: 'gruppe', label: 'Vertriebsgruppe' },
+    { key: 'kundentyp', label: 'Kundentyp' },
     { key: 'ansprechpartner', label: 'Ansprechpartner' },
     { key: 'telefon', label: 'Telefon' },
     { key: 'email', label: 'E-Mail' },
@@ -82,6 +85,16 @@ function changedFields(before, after) {
         if (a !== b) fields.push({ key, label, from: a, to: b });
     }
     return fields;
+}
+
+/**
+ * Besuche, die der neue Stand nicht mehr kennt. Besuche werden meist in
+ * TourFuchs erfasst und stehen in keiner CRM-Liste – ersetzt der Import den
+ * Bestand, sind sie weg. Das muss vorher sichtbar sein.
+ */
+function lostVisits(before, after) {
+    const kept = new Set(Array.isArray(after?.besuche) ? after.besuche : []);
+    return [...new Set(Array.isArray(before?.besuche) ? before.besuche : [])].filter((date) => date && !kept.has(date)).sort();
 }
 
 function districtTotals(customers) {
@@ -114,6 +127,7 @@ export function diffCustomerDatasets(previous = [], incoming = []) {
     const added = [];
     const moved = [];
     const changed = [];
+    const visitsLost = [];
     const seen = new Set();
     let keptCount = 0;
 
@@ -134,13 +148,17 @@ export function diffCustomerDatasets(previous = [], incoming = []) {
         if (fields.length) {
             changed.push({ ...summarize(customer), fields });
         }
-        // „Unverändert" heißt jetzt wirklich unverändert – Bezirk wie Felder.
-        if (from === to && fields.length === 0) keptCount++;
+        const lost = lostVisits(match, customer);
+        if (lost.length) visitsLost.push({ ...summarize(customer), dates: lost });
+        // „Unverändert" heißt jetzt wirklich unverändert – Bezirk, Felder, Besuche.
+        if (from === to && fields.length === 0 && lost.length === 0) keptCount++;
     }
 
-    const removed = [...before.entries()]
-        .filter(([key]) => !seen.has(key))
-        .map(([, customer]) => summarize(customer));
+    const removedCustomers = [...before.entries()].filter(([key]) => !seen.has(key)).map(([, customer]) => customer);
+    const removed = removedCustomers.map(summarize);
+    // Auch entfallende Kunden nehmen ihre Besuche mit.
+    const lostVisitCount = visitsLost.reduce((total, entry) => total + entry.dates.length, 0)
+        + removedCustomers.reduce((total, customer) => total + lostVisits(customer, null).length, 0);
 
     const beforeTotals = districtTotals(previous);
     const afterTotals = districtTotals(incoming);
@@ -177,10 +195,12 @@ export function diffCustomerDatasets(previous = [], incoming = []) {
         removed,
         moved,
         changed,
+        visitsLost,
+        lostVisitCount,
         keptCount,
         districts,
         totals,
-        hasChanges: added.length > 0 || removed.length > 0 || moved.length > 0 || changed.length > 0
+        hasChanges: added.length > 0 || removed.length > 0 || moved.length > 0 || changed.length > 0 || lostVisitCount > 0
     };
 }
 
@@ -191,6 +211,7 @@ export function diffHeadline(diff) {
     if (diff.removed.length) parts.push(`${diff.removed.length} ${diff.removed.length === 1 ? 'entfällt' : 'entfallen'}`);
     if (diff.moved.length) parts.push(`${diff.moved.length} ${diff.moved.length === 1 ? 'Bezirkswechsel' : 'Bezirkswechsel'}`);
     if (diff.changed?.length) parts.push(`${diff.changed.length} geändert`);
+    if (diff.lostVisitCount) parts.push(`${diff.lostVisitCount} ${diff.lostVisitCount === 1 ? 'Besuch geht' : 'Besuche gehen'} verloren`);
     if (!parts.length) return 'Keine Unterschiede zum bisherigen Bestand.';
     return parts.join(' · ');
 }
