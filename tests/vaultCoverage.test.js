@@ -85,8 +85,17 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
         await storage.saveTours(TOUR);
         vault.removeVaultMeta(); // DEK noch im Speicher – wie in disableVault()
         await storage.reprotectStores();
-        vault.lock();
+        vault.discardKey();
         expect(await storage.loadTours()).toEqual(TOUR);
+    });
+
+    it('Deaktivieren leert den Bestand nicht (discardKey statt lock)', () => {
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/lockVault.js'), 'utf8');
+        const disable = ui.slice(ui.indexOf('async function disableVault()'), ui.indexOf('// ---- Auto-Lock'));
+        expect(disable).toContain('vault.discardKey();');
+        // lock() meldet „gesperrt" → onLocked leert Kunden; der Speichertimer
+        // schriebe danach den leeren Stand. Darf hier nie wieder auftauchen.
+        expect(disable).not.toMatch(/vault\.lock\(\)/);
     });
 
     it('räumt die Nebenspeicher beim Wipe mit ab', async () => {
