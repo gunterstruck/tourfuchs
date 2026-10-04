@@ -33,6 +33,7 @@ import {
     scenarioFromSnapshot,
     scenarioSummary,
     snapshotFromScenario,
+    assignInSimulation,
     upsertScenario
 } from '../features/simulationScenarios.js';
 import { loadScenarios, saveScenarios } from '../services/storage.js';
@@ -658,7 +659,7 @@ async function deleteScenario(id) {
 
 /** Das laufende Overlay als Pseudo-Szenario – damit „gegen jetzt" vergleichbar ist. */
 function liveAsScenario() {
-    return { name: 'aktuelle Simulation', overrides: [...overrides], pendingTerr: [...pendingTerr] };
+    return { name: 'aktuelle Simulation', assignAttr, overrides: [...overrides], pendingTerr: [...pendingTerr] };
 }
 
 function renderCompare() {
@@ -669,6 +670,18 @@ function renderCompare() {
 
     const diff = compareScenarios(liveAsScenario(), other);
     box.hidden = false;
+    if (diff.differentAttr) {
+        // Bezirk und Gruppe sind unabhängig – gleiche Namen sind dort kein „gleich",
+        // verschiedene kein „widersprüchlich".
+        box.innerHTML = `
+        <b>Aktuelle Simulation gegen „${escapeHtml(other.name)}"</b>
+        <p class="muted small">Nicht direkt vergleichbar: Die aktuelle Simulation verändert <b>${escapeHtml(attrLabel(assignAttr))}</b>, das Szenario <b>${escapeHtml(attrLabel(other.assignAttr))}</b>. Beide Änderungen können nebeneinander bestehen.</p>
+        <ul class="sim-compare-list">
+            <li><b>${diff.onlyA}</b> Kunden jetzt · <b>${diff.onlyB}</b> im Szenario</li>
+        </ul>
+        <button type="button" class="linklike" data-scenario-compare="">Vergleich schließen</button>`;
+        return;
+    }
     box.innerHTML = `
         <b>Aktuelle Simulation gegen „${escapeHtml(other.name)}"</b>
         <ul class="sim-compare-list">
@@ -978,17 +991,11 @@ function assignSelected() {
         const territoryId = `${simulationLevel}:${region.key}`;
         const previous = pendingTerr.get(territoryId);
         for (const id of previous?.customerIds || []) overrides.delete(id);
-        const movedIds = [];
         // Kunden im Gebiet umbuchen
-        for (const id of ids) {
-            const c = getCustomer(id);
-            if (c && attrValueOf(c) !== target) {
-                overrides.set(id, target);
-                movedIds.push(id);
-                moved++;
-                movedRevenue += c.umsatz || 0;
-            }
-        }
+        const step = assignInSimulation(overrides, ids.map((id) => getCustomer(id)).filter(Boolean), target, attrValueOf);
+        const movedIds = step.movedIds;
+        moved += step.moved;
+        movedRevenue += step.movedRevenue;
         // Gebietszuordnung (auch für leere Gebiete) merken
         pendingTerr.set(territoryId, {
             value: target,
