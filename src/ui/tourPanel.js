@@ -24,6 +24,7 @@ import { zanoboMachineUrl } from '../services/zanobo.js';
 import { copyText, tourText } from '../features/handoff.js';
 import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
 import { loadTours, saveTours } from '../services/storage.js';
+import { resolveTour, stampTourKeys } from '../features/savedTourKeys.js';
 import { getRoadRoute, routingKey, hasRoutingConsent, requestRoutingConsent } from '../services/routing.js';
 import { flyToCustomer, focusPoint, fitTourRoute } from '../features/map.js';
 import { modeVisibleCustomers, modeTourCustomers } from '../features/customerScope.js';
@@ -186,7 +187,20 @@ export function initTourPanel() {
 
     // Gespeicherte Touren liegen bei aktivem Tresor verschlüsselt: nach dem
     // Entsperren (app:ready) neu laden, beim Sperren aus dem Speicher nehmen.
-    const reloadTours = () => loadTours().then((tours) => { savedTours = tours; renderSavedTours(); });
+    const reloadTours = () => loadTours().then((tours) => {
+        savedTours = tours;
+        renderSavedTours();
+        // Bestandstouren einmalig mit fachlichen Schlüsseln versehen – solange
+        // die IDs noch auf genau die Kunden zeigen, mit denen sie gespeichert wurden.
+        if (state.customers.length === 0) return;
+        let changed = false;
+        savedTours = savedTours.map((tour) => {
+            const stamped = stampTourKeys(tour, getCustomer);
+            changed ||= stamped.changed;
+            return stamped.tour;
+        });
+        if (changed) saveTours(savedTours);
+    });
     reloadTours();
     on('app:ready', reloadTours);
     on('vault:locked', () => { savedTours = []; renderSavedTours(); });
@@ -404,9 +418,12 @@ function buildServiceJobGroups(workDate) {
     const scope = state.ui.serviceCustomerScope === 'now' ? 'now' : 'week';
     const groups = new Map();
     const skipped = [];
+    // Fälligkeit gegen den Planungstag prüfen, nicht gegen heute: Wer sonntags
+    // den Montag plant, braucht die Montagseinsätze.
+    const planningDay = /^\d{4}-\d{2}-\d{2}$/.test(String(workDate || '')) ? new Date(`${workDate}T12:00:00`) : new Date();
 
     for (const visit of state.serviceVisits || []) {
-        if (!serviceVisitWindow(visit, scope)) continue;
+        if (!serviceVisitWindow(visit, scope, planningDay)) continue;
         if (assignee && visit.assignedTo !== assignee) continue;
         const customers = index.get(normalizeCustomerNumber(visit.customerNumber)) || [];
         if (customers.length !== 1) {
@@ -1871,7 +1888,7 @@ async function saveCurrentTour() {
     if (!state.tour.start || (state.tour.stops.length === 0 && !state.tour.destination)) return;
     const name = currentTourName();
     // Startpunkt vollständig sichern (auch GPS-Standorte ohne Kunden-Id)
-    const tour = {
+    const { tour } = stampTourKeys({
         id: `tour-${Date.now()}`,
         name,
         savedAt: new Date().toISOString(),
@@ -1881,7 +1898,7 @@ async function saveCurrentTour() {
         stopIds: [...state.tour.stops],
         servicePlan: state.tour.servicePlan ? structuredClone(state.tour.servicePlan) : null,
         serviceVisitByCustomer: state.tour.servicePlan ? structuredClone(state.tour.serviceVisitByCustomer || {}) : {}
-    };
+    }, getCustomer);
     // gleicher Name -> ersetzen
     savedTours = savedTours.filter((t) => t.name !== name);
     savedTours.unshift(tour);
@@ -1894,16 +1911,19 @@ async function saveCurrentTour() {
 function loadSavedTour(id) {
     const tour = savedTours.find((t) => t.id === id);
     if (!tour) return;
-    // nur noch existierende Kunden übernehmen
-    const validIds = tour.stopIds.filter((sid) => getCustomer(sid));
-    state.tour.start = { ...tour.start };
-    // Ziel übernehmen, sofern der Kunde (falls verknüpft) noch existiert
-    state.tour.destination = (tour.destination && (!tour.destination.customerId || getCustomer(tour.destination.customerId)))
-        ? { ...tour.destination } : null;
+    // Über die fachlichen Schlüssel auflösen: Nach einem Reimport kann eine
+    // alte ID einem anderen Kunden gehören – dann lieber neu zuordnen oder
+    // auslassen als still den falschen Kunden anfahren.
+    const resolved = resolveTour(tour, state.customers);
+    const validIds = resolved.stopIds;
+    state.tour.start = resolved.start;
+    state.tour.destination = resolved.destination;
     state.tour.roundTrip = !!tour.roundTrip;
     state.tour.stops = validIds;
     const planCustomerIds = new Set((tour.servicePlan?.itinerary || []).map((entry) => entry.customerId));
+    // Zeitplan nur, wenn jeder Stopp unverändert zugeordnet ist – sonst neu planen.
     const servicePlanComplete = Boolean(tour.servicePlan)
+        && resolved.lost === 0 && resolved.remapped === 0
         && validIds.length === tour.stopIds.length
         && validIds.every((customerId) => planCustomerIds.has(customerId));
     state.tour.servicePlan = servicePlanComplete ? structuredClone(tour.servicePlan) : null;
@@ -1911,9 +1931,11 @@ function loadSavedTour(id) {
         ? structuredClone(tour.serviceVisitByCustomer || {})
         : {};
     emit('tour:changed');
-    const lost = tour.stopIds.length - validIds.length;
-    showToast(lost > 0
-        ? `Tour „${tour.name}" geladen (${lost} nicht mehr vorhandene Kunden ausgelassen).`
+    const notes = [];
+    if (resolved.lost > 0) notes.push(`${resolved.lost} nicht mehr vorhandene Kunden ausgelassen`);
+    if (resolved.remapped > 0) notes.push(`${resolved.remapped} Kunden nach dem Import neu zugeordnet`);
+    showToast(notes.length > 0
+        ? `Tour „${tour.name}" geladen (${notes.join(', ')}).`
         : `Tour „${tour.name}" geladen${servicePlanComplete ? ' – inklusive Service-Zeitplan' : ''}.`, 'success');
 }
 

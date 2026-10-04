@@ -205,6 +205,28 @@ describe('proposeServiceDay', () => {
         expect(reasonCodes(result.itinerary[0])).toContain('sla-late');
     });
 
+    it('nimmt eine SLA-Frist als reines Datum ernst (Tagesende) – wie der Import sie zulässt', () => {
+        const result = plan({
+            shiftEnd: '10:00',
+            jobs: [
+                job('P1', { priority: 'P1', durationMin: 20 }),
+                job('SLA', { priority: 'P4', slaDueAt: '2026-07-16', durationMin: 20 })
+            ]
+        });
+
+        expect(result.itinerary.map((entry) => entry.jobId)).toEqual(['SLA', 'P1']);
+        expect(reasonCodes(result.itinerary[0])).toContain('sla-overdue-before-shift');
+        expect(reasonCodes(result.itinerary[0])).not.toContain('invalid-sla-ignored');
+    });
+
+    it('reines Datum am Planungstag gilt bis Tagesende – nicht überfällig', () => {
+        const result = plan({ jobs: [job('SLA', { slaDueAt: '2026-07-17', durationMin: 20 })] });
+        const codes = reasonCodes(result.itinerary[0]);
+        expect(codes).not.toContain('invalid-sla-ignored');
+        expect(codes).not.toContain('sla-late');
+        expect(codes).not.toContain('sla-overdue-before-shift');
+    });
+
     it('behaelt bei knapper Kapazitaet den Auftrag mit hoeherer Dringlichkeit', () => {
         const result = plan({
             shiftEnd: '09:00',
