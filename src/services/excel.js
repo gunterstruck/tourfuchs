@@ -683,7 +683,11 @@ export function parseRows(rows, mapping) {
             .filter(([header, value]) => !mappedHeaders.has(header) && String(value ?? '').trim() !== '')
             .map(([header, value]) => [header, String(value ?? '').trim()]));
         const customer = {
-            id: `k${index}-${name.slice(0, 12)}`,
+            // Stabile ID aus dem fachlichen Schlüssel (eindeutig dank Dublettenprüfung
+            // oben), nicht aus der Zeilennummer: Nach Umsortieren und Reimport muss
+            // dieselbe ID denselben Kunden meinen – gespeicherte Touren und
+            // Szenarien hängen daran.
+            id: `k-${dupKey}`,
             nummer, name,
             strasse: get('strasse'),
             plz,
