@@ -39,6 +39,7 @@ function packPoint(point) {
     // Handy navigierte einen Kilometer neben die Station.
     const addr = [point.strasse, `${point.plz ?? ''} ${point.ort ?? ''}`.trim()].filter(Boolean).join(', ');
     if (point.strasse && addr) packed.a = addr;
+    else if (point.adresse) packed.a = String(point.adresse); // übernommener Start: beim Weitergeben nicht verlieren
     if (point.coordinateSource === 'map-pin') packed.m = 1;
     if (isDemoCustomer(point)) packed.d = 1;
     if (point.here) packed.h = 1; // Geräte-Standort: Ziel-Navigation ab aktuellem Ort
@@ -164,26 +165,61 @@ export function decodeTourPayload(text) {
 /**
  * Empfangene Stopps mit lokal vorhandenen Kunden abgleichen:
  * Kundennummer zuerst, dann Name + PLZ (unabhängig von Groß-/Kleinschreibung).
- * @returns {{ matched: Array<{stop, customer}>, unmatched: Array }}
+ * Mehrdeutige Treffer werden über Name/PLZ und Lage aufgelöst, sonst nicht zugeordnet.
+ * @returns {{ matched: Array<{stop, customer}>, unmatched: Array, ambiguous: number }}
  */
 export function matchStopsToCustomers(stops, customers) {
+    // Kundennummern sind nicht immer eindeutig (zwei Quellsysteme, Filialen
+    // mit Stammnummer). Deshalb Kandidatenlisten statt „der Letzte gewinnt".
     const byNummer = new Map();
     const byNamePlz = new Map();
     const kind = (item) => isDemoCustomer(item) ? 'demo' : 'real';
+    const add = (map, key, c) => { if (!map.has(key)) map.set(key, []); map.get(key).push(c); };
+    const namePlz = (item) => `${String(item.name ?? '').trim().toLowerCase()}|${String(item.plz ?? '').trim()}`;
     for (const c of customers || []) {
+        if (!Number.isFinite(Number(c.lat)) || !Number.isFinite(Number(c.lng))) continue;
         const nummer = String(c.nummer ?? '').trim();
-        if (nummer) byNummer.set(`${kind(c)}|${nummer}`, c);
-        const key = `${kind(c)}|${String(c.name ?? '').trim().toLowerCase()}|${String(c.plz ?? '').trim()}`;
-        if (!key.endsWith('||')) byNamePlz.set(key, c);
+        if (nummer) add(byNummer, `${kind(c)}|${nummer}`, c);
+        if (namePlz(c) !== '|') add(byNamePlz, `${kind(c)}|${namePlz(c)}`, c);
     }
     const matched = [];
     const unmatched = [];
+    let ambiguous = 0;
     for (const stop of stops || []) {
         const prefix = kind(stop);
-        const customer = (stop.nummer && byNummer.get(`${prefix}|${String(stop.nummer).trim()}`))
-            || byNamePlz.get(`${prefix}|${String(stop.name ?? '').trim().toLowerCase()}|${String(stop.plz ?? '').trim()}`);
-        if (customer && Number.isFinite(Number(customer.lat))) matched.push({ stop, customer });
-        else unmatched.push(stop);
+        const nummer = String(stop.nummer ?? '').trim();
+        const byNr = nummer ? byNummer.get(`${prefix}|${nummer}`) || [] : [];
+        const byName = byNamePlz.get(`${prefix}|${namePlz(stop)}`) || [];
+        const pick = pickCandidate(stop, byNr.length > 0 ? byNr : byName);
+        if (pick.customer) matched.push({ stop, customer: pick.customer });
+        else {
+            if (pick.ambiguous) ambiguous += 1;
+            unmatched.push(stop);
+        }
     }
-    return { matched, unmatched };
+    return { matched, unmatched, ambiguous };
+}
+
+// Mehrere Kandidaten: erst Name + PLZ, dann die Lage entscheiden lassen. Bleibt
+// es offen, wird nichts geraten – der Stopp kommt mit seinen eigenen Daten
+// (Name, Adresse, Koordinaten aus dem QR-Code) und landet sicher am richtigen Ort.
+const SAME_PLACE_METERS = 150;
+function pickCandidate(stop, candidates) {
+    if (candidates.length <= 1) return { customer: candidates[0] || null };
+    const wanted = `${String(stop.name ?? '').trim().toLowerCase()}|${String(stop.plz ?? '').trim()}`;
+    const sameName = candidates.filter((c) => `${String(c.name ?? '').trim().toLowerCase()}|${String(c.plz ?? '').trim()}` === wanted);
+    if (sameName.length === 1) return { customer: sameName[0] };
+    const pool = sameName.length > 1 ? sameName : candidates;
+    const near = pool.filter((c) => metersBetween(stop, c) <= SAME_PLACE_METERS);
+    if (near.length === 1) return { customer: near[0] };
+    return { customer: null, ambiguous: true };
+}
+
+function metersBetween(a, b) {
+    const rad = Math.PI / 180;
+    const dLat = (Number(b.lat) - Number(a.lat)) * rad;
+    const dLng = (Number(b.lng) - Number(a.lng)) * rad;
+    const h = Math.sin(dLat / 2) ** 2
+        + Math.cos(Number(a.lat) * rad) * Math.cos(Number(b.lat) * rad) * Math.sin(dLng / 2) ** 2;
+    return 2 * 6371000 * Math.asin(Math.sqrt(h));
 }

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import { encodeTourPayload, decodeTourPayload, matchStopsToCustomers, encodeTourUrl, extractTourFromUrl, TOUR_QR_PREFIX, TOUR_HASH_KEY, MAX_QR_STOPS } from '../src/features/tourShare.js';
 
@@ -114,5 +116,54 @@ describe('matchStopsToCustomers', () => {
         const { matched } = matchStopsToCustomers([demoStop], [customers[0], demoCustomer]);
         expect(matched).toHaveLength(1);
         expect(matched[0].customer.id).toBe('demo-1');
+    });
+
+    describe('doppelte Kundennummer', () => {
+        const twins = [
+            { id: 'essen', nummer: 'K200', name: 'Elektro Kaiser', plz: '45127', lat: 51.4556, lng: 7.0116 },
+            { id: 'koeln', nummer: 'K200', name: 'Elektro Kaiser', plz: '50667', lat: 50.9375, lng: 6.9603 }
+        ];
+
+        it('nimmt nicht einfach den letzten, sondern löst über Name + PLZ auf', () => {
+            const stop = { name: 'Elektro Kaiser', nummer: 'K200', plz: '45127', lat: 51.4556, lng: 7.0116 };
+            const { matched } = matchStopsToCustomers([stop], twins);
+            expect(matched[0].customer.id).toBe('essen');
+        });
+
+        it('löst bei gleichem Namen und gleicher PLZ über die Lage auf', () => {
+            const sameName = twins.map((c) => ({ ...c, plz: '45127' }));
+            const stop = { name: 'Elektro Kaiser', nummer: 'K200', plz: '45127', lat: 50.9376, lng: 6.9604 };
+            const { matched } = matchStopsToCustomers([stop], sameName);
+            expect(matched[0].customer.id).toBe('koeln');
+        });
+
+        it('rät nicht, wenn nichts eindeutig ist – Stopp kommt mit eigenen Daten', () => {
+            const stop = { name: 'Anderer Name', nummer: 'K200', plz: '', lat: 52.52, lng: 13.40 };
+            const { matched, unmatched, ambiguous } = matchStopsToCustomers([stop], twins);
+            expect(matched).toHaveLength(0);
+            expect(unmatched).toEqual([stop]);
+            expect(ambiguous).toBe(1);
+        });
+    });
+});
+
+describe('Übernommener Start behält Adresse und Herkunft', () => {
+    it('decodiert Adresse und „von Hand gesetzt"', () => {
+        const qr = encodeTourPayload({
+            start: { lat: 51.45, lng: 7.01, label: 'Zuhause', strasse: 'Rosenweg 7', plz: '45127', ort: 'Essen', coordinateSource: 'map-pin' },
+            stops: [{ name: 'A', lat: 51.5, lng: 7.1 }]
+        });
+        const decoded = decodeTourPayload(qr);
+        expect(decoded.start).toMatchObject({ adresse: 'Rosenweg 7, 45127 Essen', coordinateSource: 'map-pin' });
+        // Weitergeben eines übernommenen Starts behält die Adresse
+        const again = decodeTourPayload(encodeTourPayload({ start: decoded.start, stops: decoded.stops }));
+        expect(again.start.adresse).toBe('Rosenweg 7, 45127 Essen');
+    });
+
+    it('übernimmt beides in den Tourplan', () => {
+        const ui = readFileSync(resolve(process.cwd(), 'src/ui/tourQr.js'), 'utf8');
+        const adopt = ui.slice(ui.indexOf('function adoptReceivedTour()'));
+        expect(adopt).toContain('...(adresse ? { adresse } : {}),');
+        expect(adopt).toContain('...(coordinateSource ? { coordinateSource } : {}),');
     });
 });

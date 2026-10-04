@@ -186,7 +186,7 @@ function renderReceived() {
         `<div class="qr-stop-row"><b>${i + 1}.</b> ${escapeHtml(s.name)}${s.adresse ? ` <span class="muted small">${escapeHtml(s.adresse)}</span>` : ''}</div>`
     ).join('');
 
-    const { matched } = matchStopsToCustomers(received.stops, state.customers);
+    const { matched, ambiguous } = matchStopsToCustomers(received.stops, state.customers);
     const missing = received.stops.length - matched.length;
     const adopt = document.getElementById('qr-received-adopt');
     // Übernehmen ist immer möglich: fehlende Kunden werden dabei lokal angelegt,
@@ -197,6 +197,10 @@ function renderReceived() {
         : matched.length === 0
             ? 'Diese Kunden sind lokal noch nicht vorhanden – beim Übernehmen werden sie angelegt, damit die ganze Tour sichtbar ist.'
             : `${matched.length} von ${received.stops.length} Stopps sind lokal vorhanden; ${missing} werden beim Übernehmen neu angelegt.`;
+    if (ambiguous > 0) {
+        document.getElementById('qr-scan-matchinfo').textContent += ` ${ambiguous === 1 ? 'Eine Kundennummer gibt' : `${ambiguous} Kundennummern gibt`} es lokal mehrfach – `
+            + 'diese Stopps werden mit den Daten aus dem QR-Code angelegt statt geraten.';
+    }
 }
 
 /**
@@ -244,11 +248,16 @@ function adoptReceivedTour() {
     });
     if (created.length > 0) setCustomers([...state.customers, ...created]);
 
+    // Start vollständig übernehmen: Adresse und „von Hand gesetzt" gehören dazu,
+    // sonst steht im Plan nur noch ein namenloser Kartenpunkt.
+    const { adresse, coordinateSource, here } = received.start;
     state.tour.start = {
         lat: received.start.lat,
         lng: received.start.lng,
         label: received.start.label || 'Übernommener Start',
-        ...(received.start.here ? { here: true } : {})
+        ...(adresse ? { adresse } : {}),
+        ...(coordinateSource ? { coordinateSource } : {}),
+        ...(here ? { here: true } : {})
     };
     state.tour.destination = null;
     state.tour.roundTrip = received.roundTrip;
