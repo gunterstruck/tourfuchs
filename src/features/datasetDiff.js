@@ -30,6 +30,42 @@ export function customerKey(customer) {
     return `np:${text(customer?.name).toLowerCase()}|${text(customer?.plz)}`;
 }
 
+/**
+ * Lokal erfasste Besuche über einen Reimport retten.
+ *
+ * Besuche entstehen meist in TourFuchs („besucht" am Handy, Besuchsbericht)
+ * und stehen in keiner CRM-Liste. Ersetzte der monatliche Reimport den
+ * Bestand blind, wären sie jedes Mal weg. Bei gleichem Kunden (Kundennummer,
+ * sonst Name + PLZ – dieselbe Regel wie beim Import) werden die bisherigen
+ * Besuche mit denen der neuen Liste vereinigt.
+ *
+ * @param {object[]} previous  bisheriger Bestand (bleibt unverändert)
+ * @param {object[]} incoming  neue Liste – `besuche` wird an Ort und Stelle ergänzt
+ * @returns {number} Zahl der übernommenen Besuchsdaten
+ */
+export function carryOverVisits(previous = [], incoming = []) {
+    const before = new Map();
+    for (const customer of previous) {
+        const key = customerKey(customer);
+        if (!before.has(key)) before.set(key, customer);
+    }
+    let carried = 0;
+    const used = new Set();
+    for (const customer of incoming) {
+        const key = customerKey(customer);
+        const match = before.get(key);
+        if (!match || used.has(key)) continue;
+        used.add(key);
+        const own = Array.isArray(customer.besuche) ? customer.besuche : [];
+        const known = new Set(own);
+        const extra = (Array.isArray(match.besuche) ? match.besuche : []).filter((date) => date && !known.has(date));
+        if (extra.length === 0) continue;
+        customer.besuche = [...new Set([...own, ...extra])].sort();
+        carried += extra.length;
+    }
+    return carried;
+}
+
 function districtOf(customer) {
     return text(customer?.bezirk) || OHNE_BEZIRK;
 }

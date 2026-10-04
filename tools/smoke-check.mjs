@@ -10,6 +10,7 @@
  *
  * Wege:
  *   1. Desktop: eigene Liste importieren (Einfügen → Zuordnen → Karte)
+ *   1b. Desktop: Besuch eintragen, dieselbe Liste neu einlesen – Besuch bleibt
  *   2. Desktop: Tresor einrichten, sperren, entsperren – Kunden wieder da,
  *      gespeicherte Tour im Rohspeicher verschlüsselt; Tresor deaktivieren –
  *      Kunden bleiben im Klartext erhalten, auch nach dem Neuladen
@@ -126,6 +127,39 @@ async function desktop(browser, baseUrl) {
         if (await confirmReplace.isVisible({ timeout: 3000 }).catch(() => false)) await confirmReplace.click();
         await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === true, null, { timeout: TIMEOUT });
         await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
+    });
+
+    await step('Reimport behält lokal erfasste Besuche', async () => {
+        await closeDialogs(page);
+        // Besuch bei „Smoke Test Nord" eintragen (Suche → Popup → besucht).
+        await page.fill('#global-search', 'Smoke Test Nord');
+        await page.waitForSelector('#search-results .result-row', { timeout: TIMEOUT });
+        await page.evaluate(() => document.querySelector('#search-results .result-row').click());
+        await page.waitForSelector('.leaflet-popup [data-action="mark-visited"]', { timeout: TIMEOUT });
+        await page.evaluate(() => document.querySelector('.leaflet-popup [data-action="mark-visited"]').click());
+        await page.evaluate(() => document.querySelector('.leaflet-popup-close-button')?.click());
+        await page.fill('#global-search', '');
+        const today = await page.evaluate(() => new Date().toLocaleDateString('sv-SE'));
+        // Dieselbe Liste noch einmal einlesen – wie der monatliche CRM-Export.
+        await page.evaluate(() => document.getElementById('own-data-dialog').showModal());
+        await page.locator('#btn-paste').click();
+        const consent = page.locator('#consent-dialog[open] #consent-confirm');
+        if (await consent.isVisible({ timeout: 2000 }).catch(() => false)) await consent.click();
+        await page.waitForSelector('#paste-dialog[open]', { timeout: TIMEOUT });
+        await page.locator('#paste-input').fill(FIXTURE);
+        await page.waitForFunction(() => !document.getElementById('paste-confirm')?.disabled, null, { timeout: TIMEOUT });
+        await page.locator('#paste-confirm').click();
+        await page.waitForSelector('#import-dialog[open]', { timeout: TIMEOUT });
+        await page.locator('#mapping-confirm').click();
+        await page.waitForSelector('#import-diff-dialog[open]', { timeout: TIMEOUT });
+        const headline = await page.textContent('#import-diff-body .diff-headline');
+        if (/verloren/.test(headline)) throw new Error(`Änderungsbericht meldet Verlust: ${headline}`);
+        await page.locator('#import-diff-dialog[open] [data-diff-confirm]').click();
+        await page.waitForFunction(() => !document.getElementById('import-diff-dialog')?.open, null, { timeout: TIMEOUT });
+        await sleep(1500);
+        const raw = await rawStore(page, 'kundendaten');
+        const nord = (raw?.customers || []).find((c) => c.nummer === 'SMOKE-1');
+        if (!nord?.besuche?.includes(today)) throw new Error(`Besuch vom ${today} nach dem Reimport verloren`);
     });
 
     await step('Tresor einrichten, sperren und entsperren – Daten verschlüsselt', async () => {
