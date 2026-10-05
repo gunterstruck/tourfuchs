@@ -647,34 +647,34 @@
             <form id="place-pin-form">
                 <header>
                     <div>
-                        <span class="place-pin-kicker">Exakte Kartenposition</span>
-                        <h2 id="place-pin-title">📌 Ort benennen</h2>
+                        <span class="place-pin-kicker" data-i18n="place.kicker">Exakte Kartenposition</span>
+                        <h2 id="place-pin-title" data-i18n="place.titleNew">📌 Ort benennen</h2>
                     </div>
-                    <button type="button" class="dialog-close" data-place-pin-close>Schließen</button>
+                    <button type="button" class="dialog-close" data-place-pin-close data-i18n="dialog.close">Schließen</button>
                 </header>
-                <p class="muted small">TourFuchs verwendet genau den gesetzten Pin für Umkreis, Strecke und Navigation. Es findet keine Adresssuche im Netz statt.</p>
-                <label class="place-pin-field">Name
-                    <input id="place-pin-name" type="text" maxlength="80" required placeholder="z. B. Ladestation A3" autocomplete="off">
+                <p class="muted small" data-i18n="place.description">TourFuchs verwendet genau den gesetzten Pin für Umkreis, Strecke und Navigation. Es findet keine Adresssuche im Netz statt.</p>
+                <label class="place-pin-field"><span data-i18n="place.name">Name</span>
+                    <input id="place-pin-name" type="text" maxlength="80" required placeholder="z. B. Ladestation A3" data-i18n-placeholder="place.namePlaceholder" autocomplete="off">
                 </label>
-                <label class="place-pin-field">Straße und Hausnummer <span class="muted">(optional, nur als Beschriftung)</span>
+                <label class="place-pin-field"><span data-i18n="place.street">Straße und Hausnummer</span> <span class="muted" data-i18n="place.optional">(optional, nur als Beschriftung)</span>
                     <input id="place-pin-street" type="text" maxlength="120" autocomplete="street-address">
                 </label>
                 <div class="place-pin-place-row">
-                    <label class="place-pin-field">PLZ <span class="muted">(optional)</span>
+                    <label class="place-pin-field"><span data-i18n="place.postal">PLZ</span> <span class="muted" data-i18n="place.optional">(optional, nur als Beschriftung)</span>
                         <input id="place-pin-postcode" type="text" maxlength="10" inputmode="numeric" autocomplete="postal-code">
                     </label>
-                    <label class="place-pin-field">Ort <span class="muted">(optional)</span>
+                    <label class="place-pin-field"><span data-i18n="place.city">Ort</span> <span class="muted" data-i18n="place.optional">(optional, nur als Beschriftung)</span>
                         <input id="place-pin-city" type="text" maxlength="80" autocomplete="address-level2">
                     </label>
                 </div>
                 <p id="place-pin-coordinates" class="place-pin-coordinates"></p>
                 <label id="place-pin-remember-row" class="check-inline place-pin-remember">
                     <input id="place-pin-remember" type="checkbox" checked>
-                    Diesen Ort für spätere Touren merken
+                    <span data-i18n="place.remember">Diesen Ort für spätere Touren merken</span>
                 </label>
                 <footer>
-                    <button type="button" data-place-pin-close>Abbrechen</button>
-                    <button id="place-pin-save" type="submit" class="primary">Merken und als Start verwenden</button>
+                    <button type="button" data-place-pin-close data-i18n="place.cancel">Abbrechen</button>
+                    <button id="place-pin-save" type="submit" class="primary" data-i18n="place.saveRememberStart">Merken und als Start verwenden</button>
                 </footer>
             </form>
         </dialog>

@@ -739,8 +739,9 @@ auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert i
 | 14.3 | **Sprachwahl und App-Rahmen** | ✅ umgesetzt | `ⓘ Info → 🌐 Sprache`: Automatisch · Deutsch · Englisch · Französisch · Spanisch. Automatisch wertet nur lokal die Gerätesprachen aus; die bewusste Wahl bleibt lokal. App-Titel, Kopf, Suche, Hauptreiter und die Sprachwahl wechseln sofort. Noch nicht umgestellte Fachdialoge fallen sichtbar auf Deutsch zurück statt Texte zu erfinden. |
 | 14.4 | **Erstnutzung und Import-Einstieg** | ✅ umgesetzt | Begrüßung, Demo-Hinweise, „Eigene Daten laden“, Einfügen, Berechtigungsbestätigung und die statische Spaltenzuordnung sind in allen vier Sprachen verfügbar. Automatische Onboarding-Statusmeldungen bleiben ebenfalls in der gewählten Sprache. Dynamische Importauswertung und Fachfeldnamen folgen separat. |
 | 14.5 | **Dynamischer Kundenlisten-Import** | ✅ umgesetzt | Tabellenblatt, Kopfzeile, Feldnamen, Pflichtkennzeichnung, Einfügeschritte, Validierungsfehler, Speicherfehler und Importergebnis werden in DE/EN/FR/ES erzeugt. Bekannte Fehler aus Excel/CSV und Zwischenablage werden lokalisiert; Katalogtexte in Ergebnis-HTML werden maskiert. |
-| 14.6 | **Karte, Kunde, Tour und Formate** | 🔜 als Nächstes | Kundenkarte, Tour, Karten-Pin, Navigation, Meldungen sowie Datum/Zahl/Währung. |
-| 14.7 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
+| 14.6 | **Karten-Pin und eigene Orte** | ✅ umgesetzt | Auswahlleiste auf der Karte, Benennungsdialog, Start-/Zielentscheidung, Speichern, Ändern, Löschen, Ortsmittenhinweise und die Popup-Aktionen sind in DE/EN/FR/ES verfügbar. Eingesetzte Ortsnamen werden vor Popup-HTML maskiert. |
+| 14.7 | **Kundenkarte, Tour und Formate** | 🔜 als Nächstes | Kundendetails, vollständige Tour, Navigation, Meldungen sowie Datum/Zahl/Währung. |
+| 14.8 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
 
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 

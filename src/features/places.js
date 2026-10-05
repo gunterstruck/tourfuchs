@@ -24,6 +24,7 @@
 
 import { CONFIG } from '../core/config.js';
 import { distanceKm, loadPlzCentroids, loadPlzPlaces } from '../services/geocode.js';
+import { t } from '../core/i18n.js';
 
 /** Ab zwei Zeichen wird gesucht – wie bei der bestehenden Kundensuche. */
 export const MIN_PLACE_QUERY = 2;
@@ -204,8 +205,12 @@ export function loadPlaceIndex() {
 }
 
 function placeDetail(entry) {
-    if (entry.plzCount === 1) return `${entry.plz} · Ortsmitte`;
-    return `${entry.plzFrom}–${entry.plzTo} · ${entry.plzCount} PLZ · Ortsmitte`;
+    if (entry.plzCount === 1) return `${entry.plz} · ${t('place.center')}`;
+    return t('place.postalCountCenter', {
+        from: entry.plzFrom,
+        to: entry.plzTo,
+        count: entry.plzCount
+    });
 }
 
 /**
@@ -229,7 +234,7 @@ export function searchGeoPlaces(query, index, limit = 5) {
             kind: 'plz',
             id: `plz:${entry.plz}`,
             label: `${entry.plz} ${entry.name}`,
-            detail: 'Postleitzahl · Ortsmitte',
+            detail: t('place.postalCenter'),
             lat: entry.lat,
             lng: entry.lng,
             plz: entry.plz,
@@ -283,7 +288,7 @@ export function searchOwnPlaces(query, ownPlaces = [], limit = 5) {
             kind: 'eigener-ort',
             id: place.id,
             label: place.label,
-            detail: [place.strasse, [place.plz, place.ort].filter(Boolean).join(' ')].filter(Boolean).join(' · ') || 'Eigener Ort',
+            detail: [place.strasse, [place.plz, place.ort].filter(Boolean).join(' ')].filter(Boolean).join(' · ') || t('place.own'),
             lat: place.lat,
             lng: place.lng,
             plz: place.plz ?? '',

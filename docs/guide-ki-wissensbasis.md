@@ -1873,6 +1873,12 @@ violetter Stern-Pin auf der Tourkarte. Sein Popup bietet **"Als Start"**,
 Zielchip öffnet **"📌 genauer"** denselben Ablauf für einen bereits gefundenen
 Ort.
 
+Bei englischer, französischer oder spanischer Oberfläche erscheinen auch diese
+sichtbaren Bezeichnungen – Kartenhinweis, **„Position übernehmen“**,
+Benennungsdialog, **„Als Start“**, **„Als Ziel“**, **„Position ändern“** und
+**„Löschen“** – in der gewählten Sprache. Name und exakte Koordinate des
+eigenen Orts bleiben unverändert lokal gespeichert.
+
 **Einen Ort merken:** Ist ein Ort als Start oder Ziel gewählt, steht am Chip der
 Knopf **"★ merken"**. Er fragt nach einem Namen; danach trägt der Startpunkt
 diesen Namen und der Ort steht künftig oben in der Trefferliste. Gelöscht wird
