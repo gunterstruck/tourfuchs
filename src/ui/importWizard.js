@@ -47,6 +47,7 @@ import { buildCustomerListPrompt } from '../features/customerListPrompt.js';
 import { copyText } from '../features/handoff.js';
 import { resolveAssistant } from '../services/assistant.js';
 import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
+import { currentLocale, t } from '../core/i18n.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -212,8 +213,8 @@ export function initImportWizard() {
         resetWelcomeDemoAfterDataClear();
         syncDemoRestoreOffer();
         previewStatus({
-            title: 'Zurückgesetzt – Willkommen zurück.',
-            detail: 'Die Beispielkunden erscheinen gleich wieder auf der Karte.'
+            title: t('onboarding.resetTitle'),
+            detail: t('onboarding.resetDetail')
         });
         scheduleWelcomeDemo();
     });
@@ -326,15 +327,15 @@ function syncConsentUi() {
     const at = consentGivenAt();
     const date = at ? new Date(at) : null;
     const stamp = date && !Number.isNaN(date.getTime())
-        ? date.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+        ? date.toLocaleDateString(currentLocale(), { day: '2-digit', month: '2-digit', year: 'numeric' })
         : null;
     document.querySelectorAll('[data-compliance-optin]').forEach((input) => {
         input.checked = Boolean(at);
         const text = input.parentElement?.querySelector('span');
         if (!text) return;
         text.textContent = at
-            ? `Berechtigung bestätigt${stamp ? ` am ${stamp}` : ''}. Zum Zurücknehmen abwählen.`
-            : 'Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.';
+            ? t('consent.confirmed', { date: stamp ? ` · ${stamp}` : '' })
+            : t('consent.claim');
     });
 }
 
@@ -502,7 +503,7 @@ function applyDataWayOrder() {
     upload.style.order = '0';
     paste.style.order = '1';
     if (hint) {
-        hint.textContent = 'Über den grünen Button eine Excel-/CSV-Datei auswählen. Alternativ eine kopierte Tabelle aus Excel einfügen.';
+        hint.textContent = t('ownData.wayHint');
     }
 }
 
@@ -958,8 +959,8 @@ function showImportResult({ customerCount, contactCount = 0, areaCount, skipped,
 // Die Begrüßung verspricht nur, was auch passiert: Solange die Automatik
 // scharf ist, kündigt sie die Beispielkunden an – ist sie pausiert, lädt die
 // Zeile stattdessen aktiv zum Selbst-Starten ein.
-const AUTO_NOTE_ARMED = 'Schau dir zuerst an, was möglich ist. Die Beispielkunden erscheinen gleich automatisch auf der Deutschlandkarte.';
-const AUTO_NOTE_PAUSED = 'Schau dir zuerst an, was möglich ist – eine Live-Demo bringt die Beispielkunden jederzeit auf die Karte.';
+const autoNoteArmed = () => t('onboarding.autoNote');
+const autoNotePaused = () => t('onboarding.autoNotePaused');
 
 function setAutoNote(text) {
     const note = document.getElementById('ob-auto-note');
@@ -981,10 +982,10 @@ function cancelWelcomeDemo({ handled = false } = {}) {
     if (welcomeDemoTimer) clearTimeout(welcomeDemoTimer);
     welcomeDemoTimer = null;
     if (handled) markWelcomeDemoHandled();
-    setAutoNote(AUTO_NOTE_PAUSED);
+    setAutoNote(autoNotePaused());
     previewStatus({
-        title: 'Automatische Beispieldaten pausiert.',
-        detail: 'Dein gewählter Einstieg hat jetzt Vorrang.',
+        title: t('onboarding.pausedTitle'),
+        detail: t('onboarding.pausedDetail'),
         stateName: 'paused'
     });
 }
@@ -1007,17 +1008,17 @@ function scheduleWelcomeDemo() {
     // Beispieldaten. Sonst erschien zuerst das Willkommen im Panel und Sekunden
     // später dasselbe noch einmal als Karte: zwei Begrüßungen, ein Sprung.
     emit('welcome-demo:arriving', true);
-    setAutoNote(AUTO_NOTE_ARMED);
+    setAutoNote(autoNoteArmed());
     previewStatus({
-        title: 'Die Deutschlandkarte ist bereit.',
-        detail: 'Beispielkunden erscheinen gleich automatisch.'
+        title: t('onboarding.readyTitle'),
+        detail: t('onboarding.readyDetail')
     });
     welcomeDemoTimer = setTimeout(async () => {
         welcomeDemoTimer = null;
         if (!canAutoLoadWelcomeDemo(welcomeDemoBlockers())) return;
         previewStatus({
-            title: 'Beispielkunden kommen auf die Karte …',
-            detail: 'Lokal erzeugt, unverbindlich und jederzeit ersetzbar.',
+            title: t('onboarding.loadingTitle'),
+            detail: t('onboarding.loadingDetail'),
             stateName: 'loading'
         });
         document.body.classList.add('demo-data-arriving');
@@ -1028,14 +1029,14 @@ function scheduleWelcomeDemo() {
                 // Die Begrüßung in der Mitte sagt das schon; ein Toast nur, wenn
                 // sie inzwischen weggeklickt wurde.
                 if (!isDemoWelcomeOpen()) {
-                    showToast('Beispielkunden sind da. Starte jetzt eine Live-Demo oder erkunde die Karte selbst.', 'success', 5200);
+                    showToast(t('onboarding.demoReady'), 'success', 5200);
                 }
             }
         } catch (error) {
             console.warn('Automatische Beispieldaten konnten nicht geladen werden:', error);
             previewStatus({
-                title: 'Die Karte bleibt startklar.',
-                detail: 'Eine Live-Demo lädt die Beispieldaten bei Bedarf.',
+                title: t('onboarding.fallbackTitle'),
+                detail: t('onboarding.fallbackDetail'),
                 stateName: 'paused'
             });
         } finally {
@@ -1084,7 +1085,7 @@ async function performDemoLoad({ confirmReplacement, announce }) {
     markWelcomeDemoHandled();
     emit('demo:loaded');
     if (announce) {
-        showToast('Demo geladen – tippe auf einen Kundenstapel oder starte eine Live-Demo. Eigene Daten kannst du jederzeit laden.', 'success', 6000);
+        showToast(t('onboarding.demoLoaded'), 'success', 6000);
     }
     return true;
 }

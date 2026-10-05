@@ -187,10 +187,10 @@ describe('Onboarding-Trichter: ein Einstieg, sichtbare nächste Schritte', () =>
         const wizard = source('src/ui/importWizard.js');
         const html = source('index.html');
         expect(html).toContain('id="ob-auto-note"');
-        expect(wizard).toContain('AUTO_NOTE_ARMED');
-        expect(wizard).toContain('AUTO_NOTE_PAUSED');
-        expect(wizard).toContain('setAutoNote(AUTO_NOTE_PAUSED)');
-        expect(wizard).toContain('setAutoNote(AUTO_NOTE_ARMED)');
+        expect(wizard).toContain("const autoNoteArmed = () => t('onboarding.autoNote')");
+        expect(wizard).toContain("const autoNotePaused = () => t('onboarding.autoNotePaused')");
+        expect(wizard).toContain('setAutoNote(autoNotePaused())');
+        expect(wizard).toContain('setAutoNote(autoNoteArmed())');
     });
 
     it('führt die Entdeck-Hinweise bis zur ersten geöffneten Kundenkarte weiter', () => {
