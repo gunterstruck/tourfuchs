@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { detectDelimiter, extractDelimitedGrid, looksLikeTable, parseClipboardTable } from '../src/services/clipboardTable.js';
+import { MESSAGES } from '../src/i18n/messages.js';
 
 const excelCopy = [
     'Kundenname\tPLZ\tOrt\tVertriebsbezirk',
@@ -192,11 +193,11 @@ describe('Auffindbarkeit des Einfüge-Wegs', () => {
 
     it('sagt am Handy nirgends „Strg"', () => {
         const steps = wizard.slice(wizard.indexOf('function renderPasteSteps'), wizard.indexOf('function offerPasteAfterCancel'));
-        const mobileBranch = steps.slice(steps.indexOf('mobileQuery.matches'), steps.indexOf(': `<li>'));
-        expect(mobileBranch).not.toMatch(/Strg|⌘/);
-        expect(mobileBranch).toContain('gedrückt halten');
-        // Der Desktop-Zweig darf und soll es sagen
-        expect(steps).toContain('<b>Strg</b> + <b>V</b>');
+        expect(steps).toContain("mobileQuery.matches ? 'import.pasteMobile' : 'import.pasteDesktop'");
+        expect(MESSAGES.de['import.pasteMobile3']).not.toMatch(/Strg|⌘/);
+        expect(MESSAGES.de['import.pasteMobile3']).toContain('gedrückt halten');
+        // Der Desktop-Zweig darf und soll die Tastenkürzel nennen.
+        expect(MESSAGES.de['import.pasteDesktop3']).toContain('Strg + V');
     });
 
     it('bietet den Weg genau dann an, wenn der Datei-Dialog ohne Auswahl endet', () => {

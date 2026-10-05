@@ -1,3 +1,5 @@
+import { IMPORT_MESSAGES } from './importMessages.js';
+
 /**
  * Zentrale Textkataloge. Neue Sprachen werden erst als „vollständig" markiert,
  * wenn der definierte Kernumfang übersetzt und geprüft ist. Bis dahin kann die
@@ -106,7 +108,8 @@ export const MESSAGES = Object.freeze({
         'consent.after': 'Danach wird nicht mehr gefragt. Zurücknehmen kannst du das jederzeit unter Daten.',
         'consent.confirm': 'Bestätigen und weiter',
         'consent.claim': 'Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.',
-        'consent.confirmed': 'Berechtigung bestätigt{date}. Zum Zurücknehmen abwählen.'
+        'consent.confirmed': 'Berechtigung bestätigt{date}. Zum Zurücknehmen abwählen.',
+        ...IMPORT_MESSAGES.de
     }),
     en: Object.freeze({
         'app.title': 'TourFuchs Sales – Customer map, tour planning & briefing',
@@ -210,7 +213,8 @@ export const MESSAGES = Object.freeze({
         'consent.after': 'You will not be asked again. You can withdraw this at any time under Data.',
         'consent.confirm': 'Confirm and continue',
         'consent.claim': 'I am authorised to process this data and use it locally in TourFuchs.',
-        'consent.confirmed': 'Authorisation confirmed{date}. Clear the checkbox to withdraw it.'
+        'consent.confirmed': 'Authorisation confirmed{date}. Clear the checkbox to withdraw it.',
+        ...IMPORT_MESSAGES.en
     }),
     fr: Object.freeze({
         'app.title': 'TourFuchs Ventes – Carte clients, tournées et briefing',
@@ -314,7 +318,8 @@ export const MESSAGES = Object.freeze({
         'consent.after': 'Cette question ne sera plus posée. Vous pouvez retirer votre accord à tout moment dans Données.',
         'consent.confirm': 'Confirmer et continuer',
         'consent.claim': 'Je suis autorisé à traiter ces données et à les utiliser localement dans TourFuchs.',
-        'consent.confirmed': 'Autorisation confirmée{date}. Décochez la case pour la retirer.'
+        'consent.confirmed': 'Autorisation confirmée{date}. Décochez la case pour la retirer.',
+        ...IMPORT_MESSAGES.fr
     }),
     es: Object.freeze({
         'app.title': 'TourFuchs Ventas – Mapa de clientes, rutas y briefing',
@@ -418,6 +423,7 @@ export const MESSAGES = Object.freeze({
         'consent.after': 'No volveremos a preguntarlo. Puedes retirar la autorización en cualquier momento en Datos.',
         'consent.confirm': 'Confirmar y continuar',
         'consent.claim': 'Tengo autorización para tratar estos datos y usarlos localmente en TourFuchs.',
-        'consent.confirmed': 'Autorización confirmada{date}. Desmarca la casilla para retirarla.'
+        'consent.confirmed': 'Autorización confirmada{date}. Desmarca la casilla para retirarla.',
+        ...IMPORT_MESSAGES.es
     })
 });

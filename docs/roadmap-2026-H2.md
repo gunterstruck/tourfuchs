@@ -738,8 +738,9 @@ auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert i
 | 14.2 | **Sicherer Übersetzungskatalog** | ✅ umgesetzt | Schlüsselbasierter Katalog mit deutschem Rückfall pro Text, Platzhaltern und ausdrücklich markierten DOM-Texten bzw. Textattributen. Katalogwerte werden nur als Text geschrieben, nie als ungeprüftes HTML. Die vier Sprachbezeichnungen sind vorbereitet; noch keine unvollständige Sprache wird automatisch aktiviert. |
 | 14.3 | **Sprachwahl und App-Rahmen** | ✅ umgesetzt | `ⓘ Info → 🌐 Sprache`: Automatisch · Deutsch · Englisch · Französisch · Spanisch. Automatisch wertet nur lokal die Gerätesprachen aus; die bewusste Wahl bleibt lokal. App-Titel, Kopf, Suche, Hauptreiter und die Sprachwahl wechseln sofort. Noch nicht umgestellte Fachdialoge fallen sichtbar auf Deutsch zurück statt Texte zu erfinden. |
 | 14.4 | **Erstnutzung und Import-Einstieg** | ✅ umgesetzt | Begrüßung, Demo-Hinweise, „Eigene Daten laden“, Einfügen, Berechtigungsbestätigung und die statische Spaltenzuordnung sind in allen vier Sprachen verfügbar. Automatische Onboarding-Statusmeldungen bleiben ebenfalls in der gewählten Sprache. Dynamische Importauswertung und Fachfeldnamen folgen separat. |
-| 14.5 | **Dynamische Kernabläufe und Formate** | 🔜 als Nächstes | Importauswertung, Kundenkarte, Tour, Karten-Pin, Navigation, Meldungen sowie Datum/Zahl/Währung. |
-| 14.6 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
+| 14.5 | **Dynamischer Kundenlisten-Import** | ✅ umgesetzt | Tabellenblatt, Kopfzeile, Feldnamen, Pflichtkennzeichnung, Einfügeschritte, Validierungsfehler, Speicherfehler und Importergebnis werden in DE/EN/FR/ES erzeugt. Bekannte Fehler aus Excel/CSV und Zwischenablage werden lokalisiert; Katalogtexte in Ergebnis-HTML werden maskiert. |
+| 14.6 | **Karte, Kunde, Tour und Formate** | 🔜 als Nächstes | Kundenkarte, Tour, Karten-Pin, Navigation, Meldungen sowie Datum/Zahl/Währung. |
+| 14.7 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
 
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 
