@@ -84,12 +84,12 @@
                  für den gezielten Einstieg. -->
             <div id="demo-banner" class="demo-banner" role="note" hidden>
                 <div class="demo-banner-head">
-                    <span class="demo-banner-text">🧪 <b>Beispieldaten</b><span class="demo-banner-suffix"> – das sind Demo-Kunden.</span></span>
-                    <button type="button" id="btn-demo-overview" class="demo-banner-link">🎬 Alle Demos</button>
+                    <span class="demo-banner-text">🧪 <b data-i18n="demo.bannerLabel">Beispieldaten</b><span class="demo-banner-suffix" data-i18n="demo.bannerSuffix"> – das sind Demo-Kunden.</span></span>
+                    <button type="button" id="btn-demo-overview" class="demo-banner-link" data-i18n="demo.all">🎬 Alle Demos</button>
                 </div>
                 <div class="demo-banner-actions" id="demo-banner-actions">
-                    <button type="button" id="btn-demo-show" class="demo-banner-cta">▶ In Aktion sehen</button>
-                    <button type="button" id="btn-demo-own-data" class="demo-banner-cta">📂 Eigene Daten laden</button>
+                    <button type="button" id="btn-demo-show" class="demo-banner-cta" data-i18n="demo.action">▶ In Aktion sehen</button>
+                    <button type="button" id="btn-demo-own-data" class="demo-banner-cta" data-i18n="onboarding.loadOwn">📂 Eigene Daten laden</button>
                 </div>
             </div>
             <details id="optional-modules" class="optional-modules expert-only">
@@ -164,23 +164,23 @@
                 <div id="onboarding">
                     <div class="ob-hero">
                         <div class="ob-fox">🦊</div>
-                        <h2>Willkommen bei TourFuchs!</h2>
-                        <p class="ob-greeting">Schön, dass du da bist.</p>
-                        <p class="muted" id="ob-auto-note">Schau dir zuerst an, was möglich ist. Die Beispielkunden erscheinen gleich automatisch auf der Deutschlandkarte.</p>
+                        <h2 data-i18n="onboarding.title">Willkommen bei TourFuchs!</h2>
+                        <p class="ob-greeting" data-i18n="onboarding.greeting">Schön, dass du da bist.</p>
+                        <p class="muted" id="ob-auto-note" data-i18n="onboarding.autoNote">Schau dir zuerst an, was möglich ist. Die Beispielkunden erscheinen gleich automatisch auf der Deutschlandkarte.</p>
                     </div>
 
-                    <button id="btn-showcase-ob" class="primary ob-primary-action">▶ Live-Demos starten</button>
-                    <p class="muted small ob-action-sub">Echte Klicks in der laufenden App – Schritt für Schritt erklärt.</p>
+                    <button id="btn-showcase-ob" class="primary ob-primary-action" data-i18n="onboarding.startDemos">▶ Live-Demos starten</button>
+                    <p class="muted small ob-action-sub" data-i18n="onboarding.demoHint">Echte Klicks in der laufenden App – Schritt für Schritt erklärt.</p>
 
-                    <button id="btn-own-data" class="ob-secondary-action">📂 Eigene Daten laden</button>
-                    <p class="muted small ob-action-sub">Excel/CSV oder verschlüsselte TourFuchs-Datei.</p>
+                    <button id="btn-own-data" class="ob-secondary-action" data-i18n="onboarding.loadOwn">📂 Eigene Daten laden</button>
+                    <p class="muted small ob-action-sub" data-i18n="onboarding.loadHint">Excel/CSV oder verschlüsselte TourFuchs-Datei.</p>
 
-                    <button id="btn-demo-restore" class="ob-secondary-action" hidden>🧪 Beispieldaten wieder laden</button>
-                    <p id="demo-restore-sub" class="muted small ob-action-sub" hidden>Stellt die unverbindliche TourFuchs-Demo nach dem Löschen wieder her.</p>
+                    <button id="btn-demo-restore" class="ob-secondary-action" data-i18n="onboarding.restore" hidden>🧪 Beispieldaten wieder laden</button>
+                    <p id="demo-restore-sub" class="muted small ob-action-sub" data-i18n="onboarding.restoreHint" hidden>Stellt die unverbindliche TourFuchs-Demo nach dem Löschen wieder her.</p>
 
                     <div id="demo-preview-status" class="ob-preview-status" role="status" aria-live="polite">
                         <span class="ob-preview-pulse" aria-hidden="true"></span>
-                        <span><b>Die Karte startet bewusst ruhig.</b><small>Beispielkunden werden automatisch eingeblendet.</small></span>
+                        <span><b data-i18n="onboarding.previewTitle">Die Karte startet bewusst ruhig.</b><small data-i18n="onboarding.previewDetail">Beispielkunden werden automatisch eingeblendet.</small></span>
                     </div>
                 </div>
 
@@ -637,7 +637,7 @@
             </div>
         </section>
 
-        <div id="dropzone" class="dropzone"><div>📥 Excel- oder CSV-Datei hier ablegen</div></div>
+        <div id="dropzone" class="dropzone"><div data-i18n="import.dropzone">📥 Excel- oder CSV-Datei hier ablegen</div></div>
         <div id="toasts" class="toasts" aria-live="polite"></div>
 
         <!-- Bestätigung für einen frei auf der Karte gesetzten Ort. Die Karte
@@ -686,23 +686,23 @@
              Karte dahinter bleibt bedienbar. -->
         <div id="demo-welcome" class="demo-welcome" role="dialog" aria-labelledby="demo-welcome-title" aria-describedby="demo-welcome-lead" hidden>
             <div class="demo-welcome-card">
-                <button type="button" id="btn-demo-welcome-close" class="demo-welcome-x" aria-label="Hinweis schließen">✕</button>
+                <button type="button" id="btn-demo-welcome-close" class="demo-welcome-x" aria-label="Hinweis schließen" data-i18n-aria-label="welcome.close">✕</button>
                 <div class="demo-welcome-fox" aria-hidden="true">🦊</div>
-                <h2 id="demo-welcome-title">Willkommen bei TourFuchs</h2>
-                <p id="demo-welcome-lead" class="demo-welcome-lead">Lass dir zeigen, was TourFuchs kann – oder leg direkt mit deinen <b>eigenen Daten</b> los. Die Kunden auf der Karte sind <b>Beispieldaten</b>.</p>
+                <h2 id="demo-welcome-title" data-i18n="welcome.title">Willkommen bei TourFuchs</h2>
+                <p id="demo-welcome-lead" class="demo-welcome-lead" data-i18n="welcome.lead">Lass dir zeigen, was TourFuchs kann – oder leg direkt mit deinen eigenen Daten los. Die Kunden auf der Karte sind Beispieldaten.</p>
                 <div class="demo-welcome-actions">
                     <button type="button" id="btn-demo-welcome-demos" class="primary demo-welcome-show">
-                        <span class="demo-welcome-show-title">▶ TourFuchs in Aktion sehen</span>
-                        <small>Live in der echten App · mit Musik ♫</small>
+                        <span class="demo-welcome-show-title" data-i18n="welcome.show">▶ TourFuchs in Aktion sehen</span>
+                        <small data-i18n="welcome.showHint">Live in der echten App · mit Musik ♫</small>
                     </button>
-                    <p id="demo-welcome-countdown" class="demo-welcome-countdown" hidden>Startet von selbst in <b>10</b> s</p>
-                    <button type="button" id="btn-demo-welcome-own" class="demo-welcome-secondary demo-welcome-own">📂 Eigene Daten laden</button>
+                    <p id="demo-welcome-countdown" class="demo-welcome-countdown" hidden><span data-i18n="welcome.countdownPrefix">Startet von selbst in</span> <b>10</b> s</p>
+                    <button type="button" id="btn-demo-welcome-own" class="demo-welcome-secondary demo-welcome-own" data-i18n="onboarding.loadOwn">📂 Eigene Daten laden</button>
                     <!-- Der schnellste Weg gehört sichtbar ins Willkommen, nicht in ein
                          Untermenü. Am Handy ist Excel selten offen – dort ausgeblendet. -->
-                    <button type="button" id="btn-demo-welcome-paste" class="demo-welcome-secondary only-desktop">📋 Liste ist in Excel offen? Direkt einfügen</button>
+                    <button type="button" id="btn-demo-welcome-paste" class="demo-welcome-secondary only-desktop" data-i18n="welcome.paste">📋 Liste ist in Excel offen? Direkt einfügen</button>
                 </div>
-                <button type="button" id="btn-demo-welcome-ack" class="demo-welcome-ack">Verstanden – erst umsehen</button>
-                <p class="demo-welcome-foot muted small">Excel/CSV oder verschlüsselte <span class="nowrap">TourFuchs-Datei</span> · später jederzeit über 📂 im <span class="nowrap">Daten-Bereich</span>.</p>
+                <button type="button" id="btn-demo-welcome-ack" class="demo-welcome-ack" data-i18n="welcome.lookAround">Verstanden – erst umsehen</button>
+                <p class="demo-welcome-foot muted small" data-i18n="welcome.foot">Excel/CSV oder verschlüsselte TourFuchs-Datei · später jederzeit im Daten-Bereich.</p>
             </div>
         </div>
 
@@ -807,47 +807,47 @@
         </div>
 
         <!-- Eigene Daten: erst hier zwischen normalem Import und sicherem Umzug wählen -->
-        <dialog id="own-data-dialog" class="own-data-dialog" aria-label="Eigene Daten laden">
+        <dialog id="own-data-dialog" class="own-data-dialog" aria-label="Eigene Daten laden" data-i18n-aria-label="ownData.aria">
             <header>
-                <h2>📂 Eigene Daten laden</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="ownData.title">📂 Eigene Daten laden</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
-            <p class="muted own-data-intro">Wähle die Datei, die du vorliegen hast.</p>
+            <p class="muted own-data-intro" data-i18n="ownData.intro">Wähle die Datei, die du vorliegen hast.</p>
             <div class="own-data-options">
                 <section class="own-data-option" aria-labelledby="own-data-list-title">
-                    <h3 id="own-data-list-title">📊 Excel- oder CSV-Liste</h3>
-                    <p class="muted small">Für deine eigene Kundenliste. TourFuchs hilft dir danach bei der Zuordnung der Spalten.</p>
+                    <h3 id="own-data-list-title" data-i18n="ownData.listTitle">📊 Excel- oder CSV-Liste</h3>
+                    <p class="muted small" data-i18n="ownData.listDescription">Für deine eigene Kundenliste. TourFuchs hilft dir danach bei der Zuordnung der Spalten.</p>
                     <label class="compliance-optin">
                         <input type="checkbox" data-compliance-optin>
-                        <span>Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</span>
+                        <span data-i18n="ownData.consent">Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</span>
                     </label>
                     <!-- Datei-Auswahl ist auf allen Geräten der primäre Importweg. -->
                     <div class="own-data-ways">
-                        <button id="btn-upload" class="primary">📁 Excel-/CSV-Datei auswählen</button>
-                        <button id="btn-paste">📋 Liste aus Excel einfügen</button>
+                        <button id="btn-upload" class="primary" data-i18n="ownData.upload">📁 Excel-/CSV-Datei auswählen</button>
+                        <button id="btn-paste" data-i18n="ownData.paste">📋 Liste aus Excel einfügen</button>
                     </div>
                     <p id="own-data-way-hint" class="muted small own-data-way-hint"></p>
                     <!-- Hilfe dort, wo man unsicher wird: die passende Live-Demo. Danach
                          kehrt TourFuchs hierher zurück (keine Demo-Schleife). -->
-                    <button type="button" class="linklike own-data-demo" data-demo-story="import-zuordnung">▶ Wie läuft der Import ab? Live-Demo ansehen (40 s)</button>
+                    <button type="button" class="linklike own-data-demo" data-demo-story="import-zuordnung" data-i18n="ownData.demo">▶ Wie läuft der Import ab? Live-Demo ansehen (40 s)</button>
                     <!-- Kein Export zur Hand: die Firmen-KI baut die Liste im passenden Format. -->
-                    <button id="btn-ki-list" type="button" class="linklike">🤖 Kein Export zur Hand? Liste von deiner Firmen-KI erstellen lassen</button>
-                    <button id="btn-template" class="linklike">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
+                    <button id="btn-ki-list" type="button" class="linklike" data-i18n="ownData.ai">🤖 Kein Export zur Hand? Liste von deiner Firmen-KI erstellen lassen</button>
+                    <button id="btn-template" class="linklike" data-i18n="ownData.template">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
                 </section>
                 <section class="own-data-option" aria-labelledby="own-data-safe-title">
-                    <h3 id="own-data-safe-title">🔐 Verschlüsselte TourFuchs-Datei</h3>
-                    <p class="muted small">Für eine <b>.tfsafe</b>-Datei von einem anderen Gerät. Danach scannst du den getrennten Schlüssel-QR.</p>
-                    <button id="btn-safe-receive-ob" class="primary">Verschlüsselte Datei öffnen</button>
+                    <h3 id="own-data-safe-title" data-i18n="ownData.safeTitle">🔐 Verschlüsselte TourFuchs-Datei</h3>
+                    <p class="muted small" data-i18n="ownData.safeDescription">Für eine .tfsafe-Datei von einem anderen Gerät. Danach scannst du den getrennten Schlüssel-QR.</p>
+                    <button id="btn-safe-receive-ob" class="primary" data-i18n="ownData.safeOpen">Verschlüsselte Datei öffnen</button>
                     <!-- Die Empfangs-Demo gibt es nur am Handy; am Schreibtisch keine
                          Zeile statt einer unpassenden Demo. -->
-                    <button type="button" class="linklike own-data-demo only-mobile" data-demo-story="empfang">▶ Wie geht das? Live-Demo ansehen (30 s)</button>
+                    <button type="button" class="linklike own-data-demo only-mobile" data-demo-story="empfang" data-i18n="ownData.safeDemo">▶ Wie geht das? Live-Demo ansehen (30 s)</button>
                 </section>
                 <!-- Eine einzelne Tour von einem anderen Handy: keine Datei, nur
                      ein QR-Code – auch ganz ohne eigene Kundendaten nutzbar. -->
                 <section class="own-data-option only-mobile" aria-labelledby="own-data-qr-title">
-                    <h3 id="own-data-qr-title">📷 Tour von einem anderen Handy</h3>
-                    <p class="muted small">Das andere Gerät zeigt „📲 Tour per QR teilen" – du scannst den Code mit der Kamera. Eigene Kundendaten brauchst du dafür nicht.</p>
-                    <button type="button" data-tour-scan>📷 Tour per QR übernehmen</button>
+                    <h3 id="own-data-qr-title" data-i18n="ownData.qrTitle">📷 Tour von einem anderen Handy</h3>
+                    <p class="muted small" data-i18n="ownData.qrDescription">Das andere Gerät zeigt „Tour per QR teilen“ – du scannst den Code mit der Kamera. Eigene Kundendaten brauchst du dafür nicht.</p>
+                    <button type="button" data-tour-scan data-i18n="ownData.qrOpen">📷 Tour per QR übernehmen</button>
                 </section>
             </div>
         </dialog>
@@ -916,19 +916,19 @@
         </dialog>
 
         <!-- Einfügen statt Datei: die Liste ist meist ohnehin in Excel offen -->
-        <dialog id="paste-dialog" class="paste-dialog" aria-label="Kundenliste einfügen">
+        <dialog id="paste-dialog" class="paste-dialog" aria-label="Kundenliste einfügen" data-i18n-aria-label="paste.aria">
             <header>
-                <h2>📋 Kundenliste einfügen</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="paste.title">📋 Kundenliste einfügen</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <!-- Inhalt setzt der Import-Assistent nach Gerät: „Strg+V" ist am Handy sinnlos. -->
             <ol class="paste-steps" id="paste-steps"></ol>
-            <textarea id="paste-input" rows="6" spellcheck="false" aria-label="Kundenliste einfügen"
+            <textarea id="paste-input" rows="6" spellcheck="false" aria-label="Kundenliste einfügen" data-i18n-aria-label="paste.input"
                 placeholder="Kundenname	PLZ	Ort	Vertriebsbezirk&#10;Muster GmbH	45136	Essen	Bezirk West"></textarea>
             <p id="paste-status" class="muted small" role="status"></p>
             <footer>
-                <button id="paste-cancel">Abbrechen</button>
-                <button id="paste-confirm" class="primary" disabled>Spalten zuordnen</button>
+                <button id="paste-cancel" data-i18n="paste.cancel">Abbrechen</button>
+                <button id="paste-confirm" class="primary" data-i18n="paste.continue" disabled>Spalten zuordnen</button>
             </footer>
         </dialog>
 
@@ -960,37 +960,37 @@
         <!-- Import-Dialog: Spalten-Zuordnung -->
         <dialog id="import-dialog">
             <header>
-                <h2>Spalten zuordnen</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="mapping.title">Spalten zuordnen</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <p id="mapping-file-info" class="muted"></p>
             <!-- Blatt und Überschriftenzeile: erkannt, aber jederzeit korrigierbar.
                  Exporte aus Vertriebssystemen tragen oft Titelzeilen über der
                  Tabelle oder liefern mehrere Reiter in einer Datei. -->
             <div id="mapping-source" class="mapping-source" hidden>
-                <label id="mapping-sheet-field" hidden>Tabellenblatt
+                <label id="mapping-sheet-field" hidden><span data-i18n="mapping.sheet">Tabellenblatt</span>
                     <select id="mapping-sheet"></select>
                 </label>
-                <label id="mapping-header-row-field">Überschriftenzeile
+                <label id="mapping-header-row-field"><span data-i18n="mapping.headerRow">Überschriftenzeile</span>
                     <select id="mapping-header-row"></select>
                 </label>
             </div>
             <p id="mapping-source-warning" class="mapping-source-warning" hidden></p>
-            <p class="muted small">TourFuchs hat die Spalten automatisch erkannt – bitte prüfen und ggf. anpassen.</p>
+            <p class="muted small" data-i18n="mapping.hint">TourFuchs hat die Spalten automatisch erkannt – bitte prüfen und ggf. anpassen.</p>
             <div class="table-scroll">
                 <table class="mapping-table">
-                    <thead><tr><th>Feld</th><th>Spalte in Ihrer Datei</th><th>Beispielwerte</th></tr></thead>
+                    <thead><tr><th data-i18n="mapping.field">Feld</th><th data-i18n="mapping.sourceColumn">Spalte in Ihrer Datei</th><th data-i18n="mapping.examples">Beispielwerte</th></tr></thead>
                     <tbody id="mapping-rows"></tbody>
                 </table>
                 <details id="mapping-more" class="mapping-more">
-                    <summary>Weitere Felder <span id="mapping-more-count" class="muted small"></span></summary>
+                    <summary><span data-i18n="mapping.more">Weitere Felder</span> <span id="mapping-more-count" class="muted small"></span></summary>
                     <table class="mapping-table">
                         <tbody id="mapping-rows-optional"></tbody>
                     </table>
                 </details>
             </div>
             <footer>
-                <button id="mapping-confirm" class="primary">Importieren</button>
+                <button id="mapping-confirm" class="primary" data-i18n="mapping.import">Importieren</button>
             </footer>
         </dialog>
 
@@ -1341,13 +1341,13 @@
         <dialog id="consent-dialog" class="consent-dialog" aria-labelledby="consent-title">
             <div class="consent-body">
                 <div class="consent-icon" aria-hidden="true">🦊📋</div>
-                <h2 id="consent-title">Einmal kurz bestätigen</h2>
-                <p class="muted small">Deine Liste bleibt <b>auf diesem Gerät</b> – TourFuchs überträgt keine Kundendaten an einen Server und meldet sich an keinem Dienst an.</p>
-                <p class="consent-claim">Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</p>
-                <p class="muted small">Danach wird nicht mehr gefragt. Zurücknehmen kannst du das jederzeit unter <b>Daten</b>.</p>
+                <h2 id="consent-title" data-i18n="consent.title">Einmal kurz bestätigen</h2>
+                <p class="muted small" data-i18n="consent.local">Deine Liste bleibt auf diesem Gerät – TourFuchs überträgt keine Kundendaten an einen Server und meldet sich an keinem Dienst an.</p>
+                <p class="consent-claim" data-i18n="ownData.consent">Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.</p>
+                <p class="muted small" data-i18n="consent.after">Danach wird nicht mehr gefragt. Zurücknehmen kannst du das jederzeit unter Daten.</p>
                 <div class="consent-actions">
-                    <button type="button" id="consent-cancel">Abbrechen</button>
-                    <button type="button" id="consent-confirm" class="primary">Bestätigen und weiter</button>
+                    <button type="button" id="consent-cancel" data-i18n="paste.cancel">Abbrechen</button>
+                    <button type="button" id="consent-confirm" class="primary" data-i18n="consent.confirm">Bestätigen und weiter</button>
                 </div>
             </div>
         </dialog>

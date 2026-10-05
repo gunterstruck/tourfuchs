@@ -121,7 +121,7 @@ describe('Willkommen auf kleinen Handys: alle drei Wege sichtbar', () => {
 describe('Beispieldaten-Streifen und Ton-Hinweis am Handy', () => {
     const css = read('src/styles/responsive.css');
     it('zeigt am Handy nur „🧪 Beispieldaten" – einzeilig, ohne Zusatz', () => {
-        expect(read('index.html')).toContain('<span class="demo-banner-suffix"> – das sind Demo-Kunden.</span>');
+        expect(read('index.html')).toMatch(/class="demo-banner-suffix"[^>]*data-i18n="demo\.bannerSuffix"/);
         expect(css).toContain('.demo-banner-suffix { display: none; }');
         expect(css).toMatch(/body\.demo-data-active \{[\s\S]*?--mobile-sheet-peek: 108px;/);
     });
