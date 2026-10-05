@@ -50,3 +50,12 @@ export function createTranslator(initialLocale = DEFAULT_LOCALE, catalogs = MESS
     };
 }
 
+const runtime = createTranslator(DEFAULT_LOCALE);
+
+export function currentLocale() { return runtime.locale; }
+export function t(key, values) { return runtime.t(key, values); }
+export function applyLocale(locale, root = globalThis.document) {
+    runtime.setLocale(locale);
+    runtime.apply(root);
+    return runtime.locale;
+}

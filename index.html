@@ -23,17 +23,17 @@
     <meta name="twitter:title" content="TourFuchs – Kunden sehen. Tour planen. Gut vorbereitet hinfahren.">
     <meta name="twitter:description" content="Kundenkarte, Tourenplanung und Briefing-Prompts – 100 % im Browser, ohne Anmeldung, ohne Cloud.">
     <meta name="twitter:image" content="https://tourfuchs.vercel.app/og-image.png">
-    <title>TourFuchs Vertrieb – Kundenkarte, Tourplanung &amp; Briefing</title>
+    <title data-i18n="app.title">TourFuchs Vertrieb – Kundenkarte, Tourplanung &amp; Briefing</title>
     <link rel="icon" href="/icons/favicon.svg" type="image/svg+xml">
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </head>
 <body>
     <div id="app">
         <header class="topbar">
-            <button id="sidebar-toggle" class="icon-button" aria-label="Menü umschalten" aria-expanded="true">☰</button>
+            <button id="sidebar-toggle" class="icon-button" aria-label="Menü umschalten" data-i18n-aria-label="shell.menu" aria-expanded="true">☰</button>
             <div class="brand">
                 <span class="brand-icon">🦊</span>
-                <span class="brand-name">TourFuchs <em>Vertrieb</em></span>
+                <span class="brand-name">TourFuchs <em data-i18n="app.sales">Vertrieb</em></span>
             </div>
             <!-- Eingeschaltete Erweiterungen (nur Desktop): Name, Kurzbeschreibung, Klick öffnet den Bereich. -->
             <nav id="pkg-chips" class="pkg-chips" aria-label="Eingeschaltete Erweiterungen">
@@ -47,20 +47,20 @@
                 </button>
             </nav>
             <div class="search-wrap">
-                <input id="global-search" type="search" placeholder="Kunde, Ort, PLZ suchen…" autocomplete="off">
+                <input id="global-search" type="search" placeholder="Kunde, Ort, PLZ suchen…" data-i18n-placeholder="shell.search" autocomplete="off">
                 <div id="search-results" class="search-results"></div>
             </div>
             <div class="mobile-preview-entry">
-                <button id="btn-mobile-preview" class="icon-button" aria-label="Mobile Außendienst und Tour ansehen" title="Mobile Außendienst &amp; Tour ansehen">📱</button>
+                <button id="btn-mobile-preview" class="icon-button" aria-label="Mobile Außendienst und Tour ansehen" data-i18n-aria-label="shell.mobilePreview" title="Mobile Außendienst &amp; Tour ansehen" data-i18n-title="shell.mobilePreview">📱</button>
                 <div id="mobile-preview-hint" class="mobile-preview-hint" role="status" aria-live="polite" hidden>
-                    <strong>Mobil weiterarbeiten</strong>
-                    <span>Kunden, Briefing &amp; Tour</span>
+                    <strong data-i18n="shell.continueMobile">Mobil weiterarbeiten</strong>
+                    <span data-i18n="shell.mobileSummary">Kunden, Briefing &amp; Tour</span>
                 </div>
             </div>
             <button id="btn-vault-toggle" class="icon-button" hidden aria-label="Tresor sperren" title="Tresor jetzt sperren">🔓</button>
             <!-- Mond/Sonne: ein Tipp schaltet komplett um – dunkler Stil + Lichterkarte bzw. zurück. -->
             <button id="btn-night" class="icon-button night-toggle" type="button" aria-pressed="false" aria-label="Nachtansicht: dunkler Stil mit Lichterkarte" title="Nachtansicht: jeder Kunde ein Licht">🌙</button>
-            <button id="btn-info" class="icon-button" aria-label="Info & Impressum">ⓘ</button>
+            <button id="btn-info" class="icon-button" aria-label="Info & Impressum" data-i18n-aria-label="shell.info">ⓘ</button>
         </header>
 
         <!-- Mobiler Kopf-Streifen: trug bis zum 26.09.2026 die Basis/Profi-Pille.
@@ -68,7 +68,7 @@
         <div id="mobile-topnav" class="mobile-topnav" role="navigation" aria-label="Ansicht &amp; Bereiche"></div>
 
         <aside id="sidebar" class="sidebar">
-            <button id="sheet-grip" class="sheet-grip" type="button" aria-label="Tour-Panel vergrößern" title="Panelgröße ändern">
+            <button id="sheet-grip" class="sheet-grip" type="button" aria-label="Tour-Panel vergrößern" data-i18n-aria-label="shell.sheetExpand" title="Panelgröße ändern" data-i18n-title="shell.sheetResize">
                 <span></span>
             </button>
             <div id="sidebar-resize" class="sidebar-resize" role="separator" aria-orientation="vertical" aria-label="Bedienpanel-Breite ändern" title="Panelbreite ziehen"></div>
@@ -145,12 +145,12 @@
             <div id="mobile-desktop-note" class="mobile-desktop-note" role="note">Für Touren unterwegs optimiert: Karte, Kunden, Briefing und Route. Strategisches Gebietsmanagement bleibt am Desktop.</div>
 
             <nav class="tabs" role="tablist">
-                <button class="tab-button active" data-tab="daten" data-modes="aussendienst gebietsplanung" role="tab">📄 Daten</button>
-                <button class="tab-button" data-tab="team" data-modes="aussendienst gebietsplanung" role="tab">Filter</button>
-                <button class="tab-button territory-module-only" data-tab="gebiete" data-modes="gebietsplanung" role="tab">🗺️ Gebiete</button>
-                <button class="tab-button expert-only" data-tab="einsaetze" data-modes="service" role="tab">🧰 Einsätze</button>
-                <button class="tab-button expert-only" data-tab="vertraege" data-modes="service" role="tab">🛡️ Verträge</button>
-                <button class="tab-button" data-tab="tour" data-modes="aussendienst service" role="tab">Tour</button>
+                <button class="tab-button active" data-tab="daten" data-modes="aussendienst gebietsplanung" role="tab" data-i18n="tab.data">📄 Daten</button>
+                <button class="tab-button" data-tab="team" data-modes="aussendienst gebietsplanung" role="tab" data-i18n="tab.filter">Filter</button>
+                <button class="tab-button territory-module-only" data-tab="gebiete" data-modes="gebietsplanung" role="tab" data-i18n="tab.territories">🗺️ Gebiete</button>
+                <button class="tab-button expert-only" data-tab="einsaetze" data-modes="service" role="tab" data-i18n="tab.jobs">🧰 Einsätze</button>
+                <button class="tab-button expert-only" data-tab="vertraege" data-modes="service" role="tab" data-i18n="tab.contracts">🛡️ Verträge</button>
+                <button class="tab-button" data-tab="tour" data-modes="aussendienst service" role="tab" data-i18n="tab.tour">Tour</button>
             </nav>
 
             <!-- Erste-Schritte-Checkliste: sichtbarer roter Faden nach dem ersten Import -->
@@ -1050,8 +1050,8 @@
         <!-- Info-Dialog -->
         <dialog id="info-dialog">
             <header>
-                <h2>🦊 TourFuchs Vertrieb</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="info.title">🦊 TourFuchs Vertrieb</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n-aria-label="dialog.close" data-i18n="dialog.close">Schließen</button>
             </header>
             <div class="info-content">
                 <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;">🎬 Funktionen entdecken (Live-Demos)</button>
@@ -1064,6 +1064,16 @@
                         <button type="button" data-theme-choice="light" aria-pressed="false">☀️ Hell</button>
                         <button type="button" data-theme-choice="dark" aria-pressed="false">🌙 Dunkel</button>
                     </div>
+                </div>
+                <div class="info-setting info-language" role="group" aria-labelledby="language-setting-title">
+                    <span><b id="language-setting-title" data-i18n="language.title">🌐 Sprache</b><br><span class="muted small" data-i18n="language.hint">Automatisch folgt der bevorzugten Gerätesprache.</span></span>
+                    <select id="language-select" aria-labelledby="language-setting-title">
+                        <option value="auto" data-i18n="language.auto">Automatisch</option>
+                        <option value="de" data-i18n="language.de">Deutsch</option>
+                        <option value="en" data-i18n="language.en">Englisch</option>
+                        <option value="fr" data-i18n="language.fr">Französisch</option>
+                        <option value="es" data-i18n="language.es">Spanisch</option>
+                    </select>
                 </div>
                 <div class="info-setting-group">
                     <label class="info-setting">
