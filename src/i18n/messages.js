@@ -1,6 +1,7 @@
 import { IMPORT_MESSAGES } from './importMessages.js';
 import { PLACE_MESSAGES } from './placeMessages.js';
 import { CUSTOMER_MESSAGES } from './customerMessages.js';
+import { TOUR_MESSAGES } from './tourMessages.js';
 
 /**
  * Zentrale Textkataloge. Neue Sprachen werden erst als „vollständig" markiert,
@@ -113,7 +114,8 @@ export const MESSAGES = Object.freeze({
         'consent.confirmed': 'Berechtigung bestätigt{date}. Zum Zurücknehmen abwählen.',
         ...IMPORT_MESSAGES.de,
         ...PLACE_MESSAGES.de,
-        ...CUSTOMER_MESSAGES.de
+        ...CUSTOMER_MESSAGES.de,
+        ...TOUR_MESSAGES.de
     }),
     en: Object.freeze({
         'app.title': 'TourFuchs Sales – Customer map, tour planning & briefing',
@@ -220,7 +222,8 @@ export const MESSAGES = Object.freeze({
         'consent.confirmed': 'Authorisation confirmed{date}. Clear the checkbox to withdraw it.',
         ...IMPORT_MESSAGES.en,
         ...PLACE_MESSAGES.en,
-        ...CUSTOMER_MESSAGES.en
+        ...CUSTOMER_MESSAGES.en,
+        ...TOUR_MESSAGES.en
     }),
     fr: Object.freeze({
         'app.title': 'TourFuchs Ventes – Carte clients, tournées et briefing',
@@ -327,7 +330,8 @@ export const MESSAGES = Object.freeze({
         'consent.confirmed': 'Autorisation confirmée{date}. Décochez la case pour la retirer.',
         ...IMPORT_MESSAGES.fr,
         ...PLACE_MESSAGES.fr,
-        ...CUSTOMER_MESSAGES.fr
+        ...CUSTOMER_MESSAGES.fr,
+        ...TOUR_MESSAGES.fr
     }),
     es: Object.freeze({
         'app.title': 'TourFuchs Ventas – Mapa de clientes, rutas y briefing',
@@ -434,6 +438,7 @@ export const MESSAGES = Object.freeze({
         'consent.confirmed': 'Autorización confirmada{date}. Desmarca la casilla para retirarla.',
         ...IMPORT_MESSAGES.es,
         ...PLACE_MESSAGES.es,
-        ...CUSTOMER_MESSAGES.es
+        ...CUSTOMER_MESSAGES.es,
+        ...TOUR_MESSAGES.es
     })
 });

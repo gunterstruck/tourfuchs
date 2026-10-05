@@ -62,7 +62,7 @@ describe('Mobiles Tour-Akkordeon (Startpunkt · Vorschläge · Meine Tour)', () 
         expect(panel).toContain('acc-sum-start');
         expect(panel).toContain('acc-sum-suggest');
         expect(panel).toContain('acc-sum-mytour');
-        expect(panel).toContain('Umkreis ${state.tour.radiusKm} km');
+        expect(panel).toContain("t('tour.summary.radius', { count: state.tour.radiusKm })");
     });
 
     it('zieht das Tour-Blatt ganz auf und hält alle drei Köpfe sichtbar', () => {

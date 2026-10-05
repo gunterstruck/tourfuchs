@@ -667,6 +667,7 @@ export function initMap(containerId) {
     });
     on('tour:scope-changed', refreshAll);
     on('tour:changed', () => { renderTour(); renderPlaces(); });
+    on('locale:changed', refreshAll);
     on('places:changed', renderPlaces);
     on('simulation:preview', (preview) => {
         simulationPreview = preview?.active ? preview : null;
@@ -2145,7 +2146,7 @@ function currentTourRoutePoints() {
 }
 
 function attachTourCustomerPopup(marker, point, tooltipText) {
-    marker.bindTooltip(tooltipText);
+    marker.bindTooltip(escapeHtml(tooltipText));
     if (point?.customerId) {
         const customer = getCustomer(point.customerId);
         if (customer) {
@@ -2161,7 +2162,7 @@ function attachTourCustomerPopup(marker, point, tooltipText) {
 }
 
 function drawAirRoute(routePts) {
-    drawColoredRoute(routePts, { dashed: true, tooltip: 'Luftlinie: Rot = Start, Lila = Ziel' });
+    drawColoredRoute(routePts, { dashed: true, tooltip: t('tour.map.airTooltip') });
 }
 
 async function drawRoadRoute(routePts) {
@@ -2171,7 +2172,11 @@ async function drawRoadRoute(routePts) {
     if (!road?.latLngs?.length) return false;
 
     drawColoredRoute(road.latLngs, {
-        tooltip: `Straßenroute (${road.provider}): ${Math.round(road.distanceKm)} km, ca. ${Math.round(road.durationMin)} min · Rot = Start, Lila = Ziel`
+        tooltip: t('tour.map.roadTooltip', {
+            provider: road.provider,
+            distance: Math.round(road.distanceKm),
+            duration: Math.round(road.durationMin)
+        })
     });
     return true;
 }
@@ -2199,13 +2204,13 @@ function renderTour() {
         const marker = L.marker([start.lat, start.lng], {
             icon: L.divIcon({
                 className: 'tour-marker-wrapper',
-                html: `<div class="tour-marker start" style="--route-step:${routeColor(0, Math.max(2, routePts.length))}">${startIsEnd ? 'S/Z' : 'S'}</div>`,
+                html: `<div class="tour-marker start" style="--route-step:${routeColor(0, Math.max(2, routePts.length))}">${escapeHtml(t(startIsEnd ? 'tour.map.startDestinationShort' : 'tour.map.startShort'))}</div>`,
                 iconSize: [28, 28],
                 iconAnchor: [14, 14]
             }),
             zIndexOffset: 1000
         });
-        attachTourCustomerPopup(marker, start, `${startIsEnd ? 'Start/Ziel' : 'Start'}: ${start.label}`).addTo(tourLayer);
+        attachTourCustomerPopup(marker, start, `${t(startIsEnd ? 'tour.map.startDestination' : 'tour.map.start')}: ${start.label}`).addTo(tourLayer);
     }
 
     stopCustomers.forEach((c, i) => {
@@ -2219,7 +2224,7 @@ function renderTour() {
             }),
             zIndexOffset: 900
         });
-        attachTourCustomerPopup(marker, c, `${autoDestination ? 'Ziel' : `${i + 1}.`} ${c.name}`).addTo(tourLayer);
+        attachTourCustomerPopup(marker, c, `${autoDestination ? t('tour.stops.destination') : `${i + 1}.`} ${c.name}`).addTo(tourLayer);
     });
 
     if (dest) {
@@ -2232,7 +2237,9 @@ function renderTour() {
             }),
             zIndexOffset: 1000
         });
-        attachTourCustomerPopup(marker, dest, `Ziel: ${dest.name || state.tour.destination.label}`).addTo(tourLayer);
+        attachTourCustomerPopup(marker, dest, t('tour.map.destinationLabel', {
+            label: dest.name || state.tour.destination.label
+        })).addTo(tourLayer);
     }
 
 }

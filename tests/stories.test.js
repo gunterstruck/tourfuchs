@@ -161,11 +161,12 @@ describe('Showcase-Stories: Guardrail', () => {
         // eine Lücke: Die 2 lag im Startpunkt-Block und war zugeklappt nicht zu
         // sehen. Das optionale Ziel ist eine Beigabe zu Schritt 1, keine Stufe.
         const panel = readFileSync(resolve(process.cwd(), 'src/ui/tourPanel.js'), 'utf8');
-        expect(panel).toContain("sh.textContent = '2. Vorschläge'");
-        expect(panel).toContain("mh.textContent = '3. Meine Tour'");
+        expect(panel).toContain("sh.textContent = t('tour.suggestions.heading')");
+        expect(panel).toContain("mh.textContent = t('tour.mine.heading')");
         expect(panel).not.toContain("'3. Vorschläge'");
         expect(panel).not.toContain("'4. Meine Tour'");
-        expect(html).toContain('<h3>Ziel <span class="muted small">(optional)</span>');
+        expect(html).toContain('<span data-i18n="tour.destination.heading">Ziel</span>');
+        expect(html).toContain('<span class="muted small" data-i18n="tour.optional">(optional)</span>');
     });
 
     it('die Stories in fester Reihenfolge', () => {

@@ -418,7 +418,7 @@
 
             <!-- Tab: Tour -->
             <section id="tab-tour" class="tab-panel">
-                <h2 class="tour-panel-title">Besuchsplaner</h2>
+                <h2 class="tour-panel-title" data-i18n="tour.title">Besuchsplaner</h2>
 
                 <!-- „In der Nähe": der Einstieg VOR dem Prozess, nicht seine erste
                      Stufe. Trägt deshalb dasselbe Gewand wie die drei Tourschritte,
@@ -452,53 +452,53 @@
                 <!-- Zweiter Einstieg (nur Handy): eine fertige Tour von einem anderen
                      Gerät holen. Steht nach der Bezirkswahl, aber VOR dem Planer, damit er auch ohne
                      planbare Kunden (leerer Filter) und mit gesetztem Start da ist. -->
-                <button id="btn-tour-scan" class="only-mobile btn-scan-entry">📷 Tour per QR übernehmen</button>
+                <button id="btn-tour-scan" class="only-mobile btn-scan-entry" data-i18n="tour.scan">📷 Tour per QR übernehmen</button>
 
                 <div id="tour-planner" hidden>
                 <!-- Fokus-Modus (mobil): horizontale Schrittleiste. Ersetzt die
                      Akkordeon-Köpfe, sobald der Nutzer in einem Schritt arbeitet;
                      der aktive Schritt zeigt Text, die anderen nur die Ziffer. -->
-                <div id="tour-stepper" class="tour-stepper" role="tablist" aria-label="Tour-Schritte" hidden>
-                    <button type="button" class="tour-step" data-step="start" role="tab"><span class="ts-num">1</span><span class="ts-label">Startpunkt</span></button>
-                    <button type="button" class="tour-step" data-step="suggest" role="tab"><span class="ts-num">2</span><span class="ts-label">Vorschläge</span></button>
-                    <button type="button" class="tour-step" data-step="mytour" role="tab"><span class="ts-num">3</span><span class="ts-label">Meine Tour</span></button>
-                    <button type="button" class="tour-step-scan only-mobile" data-tour-scan title="Tour per QR übernehmen" aria-label="Tour per QR übernehmen">📷</button>
-                    <button type="button" class="tour-focus-exit" title="Übersicht anzeigen" aria-label="Übersicht anzeigen">☰</button>
+                <div id="tour-stepper" class="tour-stepper" role="tablist" aria-label="Tour-Schritte" data-i18n-aria-label="tour.stepsAria" hidden>
+                    <button type="button" class="tour-step" data-step="start" role="tab"><span class="ts-num">1</span><span class="ts-label" data-i18n="tour.step.start">Startpunkt</span></button>
+                    <button type="button" class="tour-step" data-step="suggest" role="tab"><span class="ts-num">2</span><span class="ts-label" data-i18n="tour.step.suggestions">Vorschläge</span></button>
+                    <button type="button" class="tour-step" data-step="mytour" role="tab"><span class="ts-num">3</span><span class="ts-label" data-i18n="tour.step.mine">Meine Tour</span></button>
+                    <button type="button" class="tour-step-scan only-mobile" data-tour-scan title="Tour per QR übernehmen" aria-label="Tour per QR übernehmen" data-i18n-title="tour.scan" data-i18n-aria-label="tour.scan">📷</button>
+                    <button type="button" class="tour-focus-exit" title="Übersicht anzeigen" aria-label="Übersicht anzeigen" data-i18n-title="tour.overview" data-i18n-aria-label="tour.overview">☰</button>
                 </div>
                 <div id="tour-sales-map-view" class="aussen-view-block expert-only expert-swipe-section" data-expert-section="map-view">
-                    <span class="field-label">Kartenansicht</span>
+                    <span class="field-label" data-i18n="tour.mapView">Kartenansicht</span>
                     <div class="seg-toggle" id="aussen-view" role="group" aria-label="Kartenansicht">
-                        <button type="button" class="seg" data-view="rep">Kunden</button>
-                        <button type="button" class="seg" data-view="status">Status</button>
-                        <button type="button" class="seg expert-only" data-view="chancen">🎯 Chancen</button>
+                        <button type="button" class="seg" data-view="rep" data-i18n="tour.mapView.customers">Kunden</button>
+                        <button type="button" class="seg" data-view="status" data-i18n="tour.mapView.status">Status</button>
+                        <button type="button" class="seg expert-only" data-view="chancen" data-i18n="tour.mapView.opportunities">🎯 Chancen</button>
                     </div>
                     <p id="chancen-count" class="muted small"></p>
                 </div>
 
                 <div class="tour-acc" data-acc="start">
-                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true">1. Startpunkt <span class="help-dot" tabindex="0" title="Starte mit deinem Standort, einem Kunden oder einem Ort (Station, Büro, Hotel) – Ortsname oder PLZ genügt. Häufige Orte lassen sich mit „★ merken“ sichern. Danach schlägt TourFuchs passende Kunden in der Nähe oder entlang der Route vor.">?</span><span class="acc-summary" id="acc-sum-start"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
+                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true"><span data-i18n="tour.start.heading">1. Startpunkt</span> <span class="help-dot" tabindex="0" title="Starte mit deinem Standort, einem Kunden oder einem Ort (Station, Büro, Hotel) – Ortsname oder PLZ genügt. Häufige Orte lassen sich mit „★ merken“ sichern. Danach schlägt TourFuchs passende Kunden in der Nähe oder entlang der Route vor." data-i18n-title="tour.start.help">?</span><span class="acc-summary" id="acc-sum-start"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
                 <div class="acc-body">
                 <div id="tour-start"></div>
                 <div class="button-row">
-                    <button id="btn-my-location">📍 Mein Standort</button>
+                    <button id="btn-my-location" data-i18n="tour.start.myLocation">📍 Mein Standort</button>
                 </div>
                 <div class="start-search-wrap">
-                    <input id="start-search" type="search" placeholder="…oder Kunde, Ort oder PLZ als Start" autocomplete="off">
+                    <input id="start-search" type="search" placeholder="…oder Kunde, Ort oder PLZ als Start" data-i18n-placeholder="tour.start.searchPlaceholder" autocomplete="off">
                     <div id="start-results"></div>
                 </div>
 
                 <div class="plan-day-box">
                     <div class="plan-settings">
-                        <label class="plan-field">Datum
+                        <label class="plan-field"><span data-i18n="tour.plan.date">Datum</span>
                             <input type="date" id="plan-date"></label>
-                        <label class="plan-field">Start
+                        <label class="plan-field"><span data-i18n="tour.plan.start">Start</span>
                             <input type="time" id="plan-time" value="08:00"></label>
-                        <label class="plan-field">Besuch (Min.)
+                        <label class="plan-field"><span data-i18n="tour.plan.visitMinutes">Besuch (Min.)</span>
                             <input type="number" id="plan-visit-min" value="45" min="10" max="240" step="5"></label>
                         <label id="service-plan-end-field" class="plan-field" hidden>Arbeitsende
                             <input type="time" id="service-plan-end" value="17:00"></label>
                     </div>
-                    <p class="muted small">Datum, Startzeit und Besuchsdauer für den Tagesplan-Druck, die Kalender-Termine (.ics) und die QR-Übergabe.</p>
+                    <p class="muted small" data-i18n="tour.plan.hint">Datum, Startzeit und Besuchsdauer für den Tagesplan-Druck, die Kalender-Termine (.ics) und die QR-Übergabe.</p>
                 </div>
 
                 <section id="service-day-planner" class="service-day-planner" hidden>
@@ -515,10 +515,10 @@
                 </section>
 
                 <div data-expert-section="destination">
-                    <h3>Ziel <span class="muted small">(optional)</span> <span class="help-dot" tabindex="0" title="Mit Ziel berechnet TourFuchs Vorschläge entlang der Strecke. Ziel kann ein Kunde oder ein Ort sein (z. B. die Rückgabestation). Ohne Ziel ist der letzte Stopp automatisch das Ziel.">?</span></h3>
+                    <h3><span data-i18n="tour.destination.heading">Ziel</span> <span class="muted small" data-i18n="tour.optional">(optional)</span> <span class="help-dot" tabindex="0" title="Mit Ziel berechnet TourFuchs Vorschläge entlang der Strecke. Ziel kann ein Kunde oder ein Ort sein (z. B. die Rückgabestation). Ohne Ziel ist der letzte Stopp automatisch das Ziel." data-i18n-title="tour.destination.help">?</span></h3>
                     <div id="tour-dest"></div>
                     <div class="start-search-wrap">
-                        <input id="dest-search" type="search" placeholder="Kunde, Ort oder PLZ als Ziel – Vorschläge dann entlang der Strecke" autocomplete="off">
+                        <input id="dest-search" type="search" placeholder="Kunde, Ort oder PLZ als Ziel – Vorschläge dann entlang der Strecke" data-i18n-placeholder="tour.destination.searchPlaceholder" autocomplete="off">
                         <div id="dest-results"></div>
                     </div>
                 </div>
@@ -527,48 +527,48 @@
                 </div><!-- /.tour-acc start -->
 
                 <div class="tour-acc" data-acc="suggest">
-                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true"><span id="suggest-head">2. Vorschläge</span> <span class="help-dot" tabindex="0" title="Umkreis zeigt Kunden nahe am Start. Entlang der Tour zeigt Kunden im Korridor der geplanten Strecke.">?</span><span class="acc-summary" id="acc-sum-suggest"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
+                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true"><span id="suggest-head" data-i18n="tour.suggestions.heading">2. Vorschläge</span> <span class="help-dot" tabindex="0" title="Umkreis zeigt Kunden nahe am Start. Entlang der Tour zeigt Kunden im Korridor der geplanten Strecke." data-i18n-title="tour.suggestions.help">?</span><span class="acc-summary" id="acc-sum-suggest"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
                 <div class="acc-body">
-                <div class="seg-toggle" id="suggest-mode" role="group" aria-label="Vorschlagsmodus" data-expert-section="suggest-mode">
-                    <button type="button" id="mode-radius" class="seg active" data-mode="radius">Umkreis um Start</button>
-                    <button type="button" id="mode-route" class="seg" data-mode="route">Entlang der Tour</button>
+                <div class="seg-toggle" id="suggest-mode" role="group" aria-label="Vorschlagsmodus" data-i18n-aria-label="tour.suggestions.modeAria" data-expert-section="suggest-mode">
+                    <button type="button" id="mode-radius" class="seg active" data-mode="radius" data-i18n="tour.suggestions.radiusMode">Umkreis um Start</button>
+                    <button type="button" id="mode-route" class="seg" data-mode="route" data-i18n="tour.suggestions.routeMode">Entlang der Tour</button>
                 </div>
-                <label class="field-label" for="radius-slider"><span id="radius-label">Umkreis</span>: <span id="radius-value"></span></label>
+                <label class="field-label" for="radius-slider"><span id="radius-label" data-i18n="tour.suggestions.radius">Umkreis</span>: <span id="radius-value"></span></label>
                 <input id="radius-slider" type="range" min="5" max="100" step="5">
                 <p id="suggest-hint" class="muted small"></p>
-                <label id="tour-sales-priority" class="check-inline"><input type="checkbox" id="overdue-first"> Überfällige zuerst</label>
+                <label id="tour-sales-priority" class="check-inline"><input type="checkbox" id="overdue-first"> <span data-i18n="tour.suggestions.overdueFirst">Überfällige zuerst</span></label>
                 <div id="tour-suggestions" class="scroll-list"></div>
-                <button type="button" id="btn-area-briefing" class="area-briefing-btn" hidden>🧭 Wen zuerst? Briefing für diese Auswahl</button>
+                <button type="button" id="btn-area-briefing" class="area-briefing-btn" data-i18n="tour.suggestions.areaBriefing" hidden>🧭 Wen zuerst? Briefing für diese Auswahl</button>
                 </div><!-- /.acc-body -->
                 </div><!-- /.tour-acc suggest -->
 
                 <div class="tour-acc" data-acc="mytour">
-                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true"><span id="mytour-head">3. Meine Tour</span> <span class="help-dot" tabindex="0" title="Tippe Kunden aus den Vorschlägen oder aus Karten-Popups zur Tour. Karte zeigt die Reihenfolge farbig von Rot nach Lila.">?</span><span class="acc-summary" id="acc-sum-mytour"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
+                <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true"><span id="mytour-head" data-i18n="tour.mine.heading">3. Meine Tour</span> <span class="help-dot" tabindex="0" title="Tippe Kunden aus den Vorschlägen oder aus Karten-Popups zur Tour. Karte zeigt die Reihenfolge farbig von Rot nach Lila." data-i18n-title="tour.mine.help">?</span><span class="acc-summary" id="acc-sum-mytour"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
                 <div class="acc-body">
-                <label class="check-inline" data-expert-section="round-trip"><input type="checkbox" id="round-trip"> 🔁 Rundreise (zurück zum Start)</label>
+                <label class="check-inline" data-expert-section="round-trip"><input type="checkbox" id="round-trip"> <span data-i18n="tour.roundTrip">🔁 Rundreise (zurück zum Start)</span></label>
                 <div id="tour-stops"></div>
                 <p id="tour-summary"></p>
                 <div class="button-column">
-                    <button id="btn-optimize" class="primary" disabled>⚡ Reihenfolge optimieren</button>
-                    <button id="btn-route-focus" disabled>🗺️ Route auf Karte anzeigen</button>
-                    <button id="btn-gmaps" disabled>🧭 In Google Maps navigieren</button>
-                    <button id="btn-tour-qr" class="only-desktop qr-handoff" disabled>📲 An Handy übergeben (QR)</button>
-                    <button id="btn-tour-qr-phone" class="only-mobile qr-handoff" disabled>📲 Tour per QR teilen</button>
-                    <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" disabled>🖨️ Tagesplan drucken</button>
-                    <button id="btn-tour-ics" data-expert-section="tour-ics" disabled>📅 Kalender-Export (.ics)</button>
-                    <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
+                    <button id="btn-optimize" class="primary" data-i18n="tour.action.optimize" disabled>⚡ Reihenfolge optimieren</button>
+                    <button id="btn-route-focus" data-i18n="tour.action.showRoute" disabled>🗺️ Route auf Karte anzeigen</button>
+                    <button id="btn-gmaps" data-i18n="tour.action.googleMaps" disabled>🧭 In Google Maps navigieren</button>
+                    <button id="btn-tour-qr" class="only-desktop qr-handoff" data-i18n="tour.action.handoffQr" disabled>📲 An Handy übergeben (QR)</button>
+                    <button id="btn-tour-qr-phone" class="only-mobile qr-handoff" data-i18n="tour.action.shareQr" disabled>📲 Tour per QR teilen</button>
+                    <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" data-i18n="tour.action.print" disabled>🖨️ Tagesplan drucken</button>
+                    <button id="btn-tour-ics" data-expert-section="tour-ics" data-i18n="tour.action.calendar" disabled>📅 Kalender-Export (.ics)</button>
+                    <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" data-i18n="tour.action.copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
                     <button id="btn-day-review" class="btn-day-review" hidden>🌙 Feierabend-Rückblick</button>
                     <button id="btn-visit-report" class="btn-visit-report" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
-                    <button id="btn-tour-clear" class="danger" disabled>✕ Tour leeren</button>
+                    <button id="btn-tour-clear" class="danger" data-i18n="tour.action.clear" disabled>✕ Tour leeren</button>
                 </div>
                 </div><!-- /.acc-body -->
                 </div><!-- /.tour-acc mytour -->
 
                 <div class="expert-only expert-swipe-section" data-expert-section="saved-tours">
-                    <h3>Gespeicherte Touren</h3>
+                    <h3 data-i18n="tour.saved.title">Gespeicherte Touren</h3>
                     <div class="button-row">
-                        <input id="tour-name" type="text" placeholder="Tourname, z. B. Dienstag Nord" autocomplete="off">
-                        <button id="btn-tour-save" disabled>💾</button>
+                        <input id="tour-name" type="text" placeholder="Tourname, z. B. Dienstag Nord" data-i18n-placeholder="tour.saved.namePlaceholder" autocomplete="off">
+                        <button id="btn-tour-save" title="Tour speichern" aria-label="Tour speichern" data-i18n-title="tour.saved.save" data-i18n-aria-label="tour.saved.save" disabled>💾</button>
                     </div>
                     <div id="saved-tours"></div>
                 </div>
@@ -596,7 +596,7 @@
             </button>
             <button id="btn-route-mode" class="route-mode-toggle map-fab" type="button" hidden>
                 <span class="mns-icon" aria-hidden="true">🗺️</span>
-                <span class="mns-label"><span class="fab-text">Straßenroute</span><span class="fab-suffix"> anzeigen</span></span>
+                <span class="mns-label"><span class="fab-text">Straßenroute</span><span class="fab-suffix" data-i18n="tour.action.showSuffix"> anzeigen</span></span>
             </button>
             <button id="btn-lasso" class="lasso-toggle map-fab" type="button" aria-pressed="false" hidden>
                 <span class="mns-icon" aria-hidden="true">🖊️</span>
