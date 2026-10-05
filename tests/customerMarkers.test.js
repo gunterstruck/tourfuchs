@@ -4,6 +4,7 @@ import { resolve } from 'node:path';
 import {
     DEFAULT_CUSTOMER_COLOR,
     canOfferCustomerMarkerHint,
+    customerMarkerAddress,
     customerClusterRadius,
     customerClusterSummary,
     customerMarkerLabel,
@@ -44,6 +45,16 @@ describe('Lebendige Kunden-Kacheln', () => {
     it('zeigt bei Demokunden sofort den unterscheidbaren Namen statt des langen Präfixes', () => {
         expect(customerMarkerLabel('TourFuchs Demo · Autohaus 0339', { demo: true })).toBe('Autohaus 0339');
         expect(customerMarkerLabel('Müller Maschinenbau', { demo: false })).toBe('Müller Maschinenbau');
+    });
+
+    it('zeigt die Adresse und kennzeichnet einen PLZ-Mittelpunkt ehrlich', () => {
+        expect(customerMarkerAddress({
+            strasse: 'Hauptstraße 12', plz: '45127', ort: 'Essen', geo: 'exakt'
+        })).toBe('Hauptstraße 12 · 45127 Essen');
+        expect(customerMarkerAddress({
+            plz: '45127', ort: 'Essen', geo: 'plz'
+        })).toBe('45127 Essen · ca. PLZ-Mitte');
+        expect(customerMarkerAddress({})).toBe('');
     });
 
     it('bietet den Entdecken-Hinweis nur einmal und nicht während einer Vorführung an', () => {
@@ -89,6 +100,7 @@ describe('Lebendige Kunden-Kacheln', () => {
         const map = readFileSync(resolve(process.cwd(), 'src/features/map.js'), 'utf8');
         const css = readFileSync(resolve(process.cwd(), 'src/styles/map.css'), 'utf8');
         expect(map).toContain('customer-marker-symbol');
+        expect(map).toContain('customerMarkerAddress(customer)');
         expect(map).toContain('customer-stack-card');
         expect(map).toContain('customer-stack-discovery-label');
         expect(map).toContain('Tippe einen Kundenstapel an');
