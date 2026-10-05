@@ -724,6 +724,21 @@ reduziert werden darf.
 Kundentyp. Die existierende Regel aus Release 11 bleibt damit intakt: Kundenzahl,
 Umsatz, Fälligkeit und Gebiete kennen den Punkt nicht; Tour und Navigation schon.
 
+### Release 14 – „Spricht meine Sprache" *(05.10.2026 begonnen)*
+
+Anlass ist der Nutzerwunsch, TourFuchs bei englischer, französischer oder
+spanischer Gerätesprache automatisch in derselben Sprache zu zeigen. Die
+Umstellung erfolgt bewusst in kleinen, jeweils geprüften und einzeln
+auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert in
+`main` landet.
+
+| # | Item | Status | Ergebnis |
+|---|---|---|---|
+| 14.1 | **Gerätesprache zuverlässig auflösen** | ✅ umgesetzt | Zentraler, rein lokaler Baustein erkennt `en-*`, `fr-*`, `es-*` und `de-*`, respektiert die Reihenfolge von `navigator.languages`, kennt eine gespeicherte manuelle Wahl und fällt für alles andere auf Deutsch zurück. Noch keine sichtbare Oberfläche wird gemischtsprachig umgestellt. |
+| 14.2 | **Sprachwahl und statische Kernoberfläche** | 🔜 als Nächstes | Automatisch · Deutsch · English · Français · Español; die bewusste Wahl bleibt lokal auf dem Gerät. |
+| 14.3 | **Dynamische Kernabläufe und Formate** | geplant | Import, Kundenkarte, Tour, Karten-Pin, Navigation, Meldungen sowie Datum/Zahl/Währung. |
+| 14.4 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
+
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 
 Die größte Hürde vor echter Nutzung ist nicht eine fehlende Funktion, sondern
