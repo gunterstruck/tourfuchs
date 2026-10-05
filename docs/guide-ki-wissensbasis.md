@@ -551,6 +551,20 @@ Hell-/Dunkelmodus deines Geräts. Wenn dich abends auch die helle Karte blendet:
 im Panel unter ‚Kartenstil' auf ‚Nacht' stellen. Für einen Überblick, wo alle
 Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
 
+### 4.8 Sprache: automatisch oder bewusst gewählt
+
+**Klickpfad:** `ⓘ Info -> "🌐 Sprache"` mit **Automatisch**, **Deutsch**,
+**Englisch**, **Französisch** und **Spanisch**.
+
+- **Automatisch** (Standard) liest ausschließlich lokal die bevorzugten
+  Gerätesprachen. `en-*`, `fr-*` und `es-*` wählen die entsprechende Sprache;
+  Deutsch und jede nicht unterstützte Sprache fallen auf Deutsch zurück.
+- Eine bewusste Auswahl gewinnt vor der Gerätesprache und bleibt nur in diesem
+  Browser gespeichert. Es wird keine Spracheinstellung übertragen.
+- Die Umstellung wird abschnittsweise ausgeliefert. In diesem ersten sichtbaren
+  Schritt sind App-Kopf, Hauptreiter und Sprachwahl übersetzt; noch nicht
+  umgestellte Fachdialoge verwenden den deutschen Ausgangstext.
+
 ---
 
 ## 5. Onboarding beim ersten Start

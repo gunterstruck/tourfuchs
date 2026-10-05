@@ -736,8 +736,8 @@ auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert i
 |---|---|---|---|
 | 14.1 | **Gerätesprache zuverlässig auflösen** | ✅ umgesetzt | Zentraler, rein lokaler Baustein erkennt `en-*`, `fr-*`, `es-*` und `de-*`, respektiert die Reihenfolge von `navigator.languages`, kennt eine gespeicherte manuelle Wahl und fällt für alles andere auf Deutsch zurück. Noch keine sichtbare Oberfläche wird gemischtsprachig umgestellt. |
 | 14.2 | **Sicherer Übersetzungskatalog** | ✅ umgesetzt | Schlüsselbasierter Katalog mit deutschem Rückfall pro Text, Platzhaltern und ausdrücklich markierten DOM-Texten bzw. Textattributen. Katalogwerte werden nur als Text geschrieben, nie als ungeprüftes HTML. Die vier Sprachbezeichnungen sind vorbereitet; noch keine unvollständige Sprache wird automatisch aktiviert. |
-| 14.3 | **Sprachwahl und englische Kernoberfläche** | 🔜 als Nächstes | Automatisch · Deutsch · English; die bewusste Wahl bleibt lokal auf dem Gerät. Automatische Aktivierung erst, sobald der Kern vollständig ist. |
-| 14.4 | **Dynamische Kernabläufe und Formate** | geplant | Import, Kundenkarte, Tour, Karten-Pin, Navigation, Meldungen sowie Datum/Zahl/Währung. |
+| 14.3 | **Sprachwahl und App-Rahmen** | ✅ umgesetzt | `ⓘ Info → 🌐 Sprache`: Automatisch · Deutsch · Englisch · Französisch · Spanisch. Automatisch wertet nur lokal die Gerätesprachen aus; die bewusste Wahl bleibt lokal. App-Titel, Kopf, Suche, Hauptreiter und die Sprachwahl wechseln sofort. Noch nicht umgestellte Fachdialoge fallen sichtbar auf Deutsch zurück statt Texte zu erfinden. |
+| 14.4 | **Dynamische Kernabläufe und Formate** | 🔜 als Nächstes | Import, Kundenkarte, Tour, Karten-Pin, Navigation, Meldungen sowie Datum/Zahl/Währung. |
 | 14.5 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
 
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
