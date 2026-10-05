@@ -72,6 +72,23 @@ const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
 ));
 
+const IMPORT_ERROR_KEYS = Object.freeze({
+    'Die Zwischenablage ist leer.': 'import.error.emptyClipboard',
+    'Es wurde nur eine Zeile gefunden. Bitte die Überschriftenzeile mit markieren.': 'import.error.oneRow',
+    'Es wurde nur eine Spalte erkannt. Bitte mehrere Spalten aus der Tabelle markieren.': 'import.error.oneColumn',
+    'Unter der Überschriftenzeile stehen keine Datenzeilen.': 'import.error.noDataRows',
+    'Die CSV-Datei enthält keine Tabelle.': 'import.error.noCsvTable',
+    'Die Datei enthält kein Tabellenblatt.': 'import.error.noSheet',
+    'Die CSV-Datei enthält keine Datenzeilen.': 'import.error.noCsvRows',
+    'Das Tabellenblatt enthält keine Datenzeilen.': 'import.error.noSheetRows'
+});
+
+function importErrorDetail(error) {
+    const detail = String(error?.message || error || '');
+    const key = IMPORT_ERROR_KEYS[detail];
+    return key ? t(key) : detail;
+}
+
 export function initImportWizard() {
     dialog = document.getElementById('import-dialog');
     ownDataDialog = document.getElementById('own-data-dialog');
@@ -360,8 +377,8 @@ function initConsent() {
         input.addEventListener('change', () => {
             setConsent(input.checked);
             showToast(input.checked
-                ? 'Berechtigung bestätigt – du wirst beim Import nicht mehr gefragt.'
-                : 'Berechtigung zurückgenommen. Beim nächsten Import wird wieder gefragt.', 'info', 5000);
+                ? t('import.consentGranted')
+                : t('import.consentRevoked'), 'info', 5000);
         });
     });
     const dlg = document.getElementById('consent-dialog');
@@ -410,7 +427,7 @@ export function openMappingForShowcase(file) {
 async function handleFile(file) {
     const isExcel = /\.(xlsx|xlsm|xls|csv|ods)$/i.test(file.name);
     if (!isExcel) {
-        showToast('Bitte eine Excel- oder CSV-Datei wählen (.xlsx, .xlsm, .xls, .csv).', 'error');
+        showToast(t('import.selectFile'), 'error');
         return;
     }
     try {
@@ -427,7 +444,7 @@ async function handleFile(file) {
         parsed = { ...workbook, fileName: file.name, file };
         await showMappingStep();
     } catch (error) {
-        showToast(`Datei konnte nicht gelesen werden: ${error.message}`, 'error');
+        showToast(t('import.readFailed', { detail: importErrorDetail(error) }), 'error');
     }
 }
 
@@ -444,7 +461,7 @@ async function reloadWorkbookSource({ sheet = null, headerRow = null } = {}) {
         parsed = { ...workbook, fileName: parsed.fileName, file: parsed.file };
         await showMappingStep();
     } catch (error) {
-        showToast(`Auswahl konnte nicht gelesen werden: ${error.message}`, 'error', 6000);
+        showToast(t('import.selectionFailed', { detail: importErrorDetail(error) }), 'error', 6000);
         renderMappingSource();
     }
 }
@@ -475,14 +492,13 @@ function renderMappingSource() {
     const warning = document.getElementById('mapping-source-warning');
     if (warning) {
         warning.hidden = parsed.headerConfident !== false;
-        warning.textContent = 'In der erkannten Überschriftenzeile steht kein bekannter Feldname. '
-            + 'Bitte oben prüfen, ob die richtige Zeile und das richtige Blatt gewählt sind.';
+        warning.textContent = t('import.headerWarning');
     }
 
     const rowSelect = document.getElementById('mapping-header-row');
     if (rowSelect) {
         rowSelect.innerHTML = headerOptions.map((option) => (
-            `<option value="${option.row}"${option.row === headerRow ? ' selected' : ''}>Zeile ${option.row}: ${escapeHtml(option.preview)}</option>`
+            `<option value="${option.row}"${option.row === headerRow ? ' selected' : ''}>${escapeHtml(t('import.rowOption', { row: option.row, preview: option.preview }))}</option>`
         )).join('');
         rowSelect.onchange = () => reloadWorkbookSource({ sheet: sheetName, headerRow: Number(rowSelect.value) });
     }
@@ -511,13 +527,12 @@ function applyDataWayOrder() {
 function renderPasteSteps() {
     const list = document.getElementById('paste-steps');
     if (!list) return;
-    list.innerHTML = mobileQuery.matches
-        ? `<li>In der Tabellen-App die Liste <b>mit der Überschriftenzeile</b> markieren.</li>
-           <li>Auf <b>Kopieren</b> tippen.</li>
-           <li>Unten ins Feld tippen, <b>gedrückt halten</b> und <b>Einfügen</b> wählen.</li>`
-        : `<li>In Excel die Liste <b>mit der Überschriftenzeile</b> markieren.</li>
-           <li><b>Strg</b> + <b>C</b> drücken (Mac: <b>⌘</b> + <b>C</b>).</li>
-           <li>Hier ins Feld klicken und <b>Strg</b> + <b>V</b> drücken.</li>`;
+    const prefix = mobileQuery.matches ? 'import.pasteMobile' : 'import.pasteDesktop';
+    list.replaceChildren(...[1, 2, 3].map((number) => {
+        const item = document.createElement('li');
+        item.textContent = t(`${prefix}${number}`);
+        return item;
+    }));
 }
 
 /**
@@ -538,7 +553,7 @@ function offerPasteAfterCancel() {
         void paste.offsetWidth; // Animation bei erneutem Anlass neu starten
         paste.classList.add('attention');
     }
-    showToast('Kein Export zur Hand? Wenn die Liste in Excel offen ist, genügt Kopieren und Einfügen.', 'info', 7000);
+    showToast(t('import.pasteOffer'), 'info', 7000);
 }
 
 /**
@@ -564,12 +579,16 @@ function initPasteImport() {
         }
         try {
             const { headers, rows } = parseClipboardTable(text);
-            status.textContent = `Erkannt: ${rows.length} ${rows.length === 1 ? 'Zeile' : 'Zeilen'}, ${headers.length} Spalten – erste Spalte „${headers[0]}".`;
+            status.textContent = t('import.pasteDetected', {
+                rows: rows.length,
+                columns: headers.length,
+                first: headers[0]
+            });
             status.classList.add('paste-status-ok');
             status.classList.remove('paste-status-error');
             confirm.disabled = false;
         } catch (error) {
-            status.textContent = error.message;
+            status.textContent = importErrorDetail(error);
             status.classList.add('paste-status-error');
             status.classList.remove('paste-status-ok');
             confirm.disabled = true;
@@ -623,10 +642,10 @@ async function usePastedTable(text) {
     cancelWelcomeDemo();
     try {
         const { headers, rows } = parseClipboardTable(text);
-        parsed = { headers, rows, fileName: 'Eingefügte Liste' };
+        parsed = { headers, rows, fileName: t('import.pastedFile') };
         await showMappingStep();
     } catch (error) {
-        showToast(`Eingefügte Daten konnten nicht gelesen werden: ${error.message}`, 'error', 6000);
+        showToast(t('import.pastedReadFailed', { detail: importErrorDetail(error) }), 'error', 6000);
     }
 }
 
@@ -635,9 +654,13 @@ async function showMappingStep() {
     const { headers, rows, fileName, file, sheetName } = parsed;
     const mapping = autoDetectMapping(headers);
 
-    const sheetInfo = file && sheetName ? ` · Blatt „${sheetName}"` : '';
-    document.getElementById('mapping-file-info').textContent =
-        `${fileName}${sheetInfo} – ${rows.length} Zeilen, ${headers.length} Spalten`;
+    const sheetInfo = file && sheetName ? t('import.sheetInfo', { sheet: sheetName }) : '';
+    document.getElementById('mapping-file-info').textContent = t('import.fileInfo', {
+        file: fileName,
+        sheet: sheetInfo,
+        rows: rows.length,
+        columns: headers.length
+    });
     renderMappingSource();
 
     // „Überblick → aufzoomen": Die wichtigsten Felder (Pflicht + die üblichen
@@ -646,14 +669,14 @@ async function showMappingStep() {
     // wie viele. So wirkt der Dialog nicht erschlagend, ohne etwas zu verstecken.
     const IMPORTANT = new Set(['name', 'plz', 'strasse', 'ort', 'bezirk', 'gruppe', 'kundentyp', 'umsatz']);
     const rowHtml = (field) => {
-        const options = ['<option value="">– nicht vorhanden –</option>']
+        const options = [`<option value="">${escapeHtml(t('import.none'))}</option>`]
             .concat(headers.map((h) => {
                 const selected = mapping[field.key] === h ? ' selected' : '';
                 return `<option value="${escapeHtml(h)}"${selected}>${escapeHtml(h)}</option>`;
             })).join('');
-        const badge = field.required ? ' <span class="req">Pflicht</span>' : '';
+        const badge = field.required ? ` <span class="req">${escapeHtml(t('import.required'))}</span>` : '';
         return `<tr>
-            <td>${field.label}${badge}</td>
+            <td>${escapeHtml(t(`mapping.field.${field.key}`))}${badge}</td>
             <td><select data-field="${field.key}">${options}</select></td>
             <td class="preview" data-preview="${field.key}"></td>
         </tr>`;
@@ -665,7 +688,10 @@ async function showMappingStep() {
     if (optTbody) optTbody.innerHTML = optional.map(rowHtml).join('');
     const detected = optional.filter((f) => mapping[f.key]).length;
     const moreCount = document.getElementById('mapping-more-count');
-    if (moreCount) moreCount.textContent = `(optional · ${optional.length}${detected ? ` · ${detected} automatisch erkannt` : ''})`;
+    if (moreCount) moreCount.textContent = t('import.optional', {
+        count: optional.length,
+        detected: detected ? t('import.detected', { count: detected }) : ''
+    });
     const moreDetails = document.getElementById('mapping-more');
     if (moreDetails) moreDetails.open = false;
 
@@ -697,11 +723,11 @@ async function confirmImport() {
 
     const contactOnly = !mapping.name && !mapping.gebiet && mapping.nummer && (mapping.ansprechpartner || mapping.telefon || mapping.email);
     if (!mapping.name && !mapping.gebiet && !contactOnly) {
-        showToast('Bitte die Spalte „Kundenname" (oder für reine Flächenzeilen „Gebiet") zuordnen.', 'error');
+        showToast(t('import.validationName'), 'error');
         return;
     }
     if (mapping.name && !mapping.plz && !(mapping.lat && mapping.lng)) {
-        showToast('Ohne PLZ (oder Koordinaten) können Kunden nicht auf der Karte verortet werden.', 'error');
+        showToast(t('import.validationLocation'), 'error');
         return;
     }
 
@@ -716,7 +742,7 @@ async function confirmImport() {
         if (errors.length) {
             showImportResult({ customerCount: 0, contactCount: 0, areaCount: 0, skipped, errors });
         } else {
-            showToast('Keine gültigen Zeilen im Import gefunden.', 'error');
+            showToast(t('import.noRows'), 'error');
         }
         return;
     }
@@ -747,14 +773,14 @@ async function confirmImport() {
             ? await confirmImportWithDiff({
                 previous: state.customers,
                 incoming: customers,
-                sourceLabel: 'Die ausgewählte Kundenliste'
+                sourceLabel: t('import.selectedList')
             })
             : confirmDatasetReplacement({
                 incomingCount: customers.length,
-                sourceLabel: 'Die ausgewählte Kundenliste'
+                sourceLabel: t('import.selectedList')
             });
         if (!confirmed) {
-            showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
+            showToast(t('import.canceled'), 'info', 5000);
             return;
         }
     }
@@ -776,7 +802,7 @@ async function confirmImport() {
         removeDemoServiceVisits();
         replaceCustomers(customers, { fileName: parsed.fileName });
         if (carriedVisits > 0) {
-            showToast(`${carriedVisits} lokal erfasste ${carriedVisits === 1 ? 'Besuch' : 'Besuche'} übernommen.`, 'info', 5000);
+            showToast(t('import.visitsCarried', { count: carriedVisits }), 'info', 5000);
         }
         areaCount = await resolveAreas(areaRows, errors);
         if (areaCount > 0) emit('customers:changed');
@@ -788,7 +814,7 @@ async function confirmImport() {
         if (contactRows.length > 0) {
             const { matched } = attachContacts(state.customers, contactRows, errors);
             setCustomers(state.customers, { fileName: state.fileName, importedAt: state.importedAt });
-            showToast(`${matched} Kontakt(e) mit bestehenden Kunden verknüpft.`, matched ? 'success' : 'info', 6000);
+            showToast(t('import.contactsMatched', { count: matched }), matched ? 'success' : 'info', 6000);
         } else if (areaCount > 0) {
             emit('customers:changed');
         }
@@ -888,8 +914,8 @@ async function persistDataset() {
     const saved = await saveDataset(datasetSnapshot());
     if (saved) return true;
     showToast(vaultEnabled()
-        ? 'Die Daten liegen auf der Karte, konnten aber nicht gespeichert werden: Der Tresor ist gesperrt. Entsperre ihn und lade die Liste erneut – sonst sind sie nach dem Neuladen weg.'
-        : 'Die Daten liegen auf der Karte, konnten aber nicht dauerhaft gespeichert werden (Browser-Speicher voll oder blockiert). Nach dem Neuladen sind sie weg.',
+        ? t('import.saveVaultFailed')
+        : t('import.saveFailed'),
     'error', 12000);
     return false;
 }
@@ -900,8 +926,8 @@ function syncImportNotesButton() {
     btn.hidden = lastErrors.length === 0;
     const nurHinweise = lastErrors.every((e) => e.Typ === 'Hinweis');
     btn.textContent = nurHinweise
-        ? '⬇ Hinweise zum letzten Import (.xlsx)'
-        : '⬇ Fehlerliste zum letzten Import (.xlsx)';
+        ? t('import.notesDownload')
+        : t('import.errorsDownload');
 }
 
 /**
@@ -927,31 +953,30 @@ function showImportResult({ customerCount, contactCount = 0, areaCount, skipped,
 
     if (fehler === 0) {
         const parts = [];
-        if (customerCount) parts.push(`${customerCount} Kunden`);
-        if (contactCount) parts.push(`${contactCount} Kontakte`);
-        if (areaCount) parts.push(`${areaCount} Gebiete`);
+        if (customerCount) parts.push(t('import.customers', { count: customerCount }));
+        if (contactCount) parts.push(t('import.contacts', { count: contactCount }));
+        if (areaCount) parts.push(t('import.areas', { count: areaCount }));
         // Ohne Fehler und ohne übernommene Zeile wäre „importiert" gelogen.
         if (parts.length === 0) {
-            showToast('Keine gültigen Zeilen im Import gefunden.', 'error', 6000);
+            showToast(t('import.noRows'), 'error', 6000);
             return;
         }
-        const replacement = replacedExisting ? ' Die bisherige Kundenliste wurde vollständig ersetzt.' : '';
+        const replacement = replacedExisting ? t('import.replaced') : '';
         // Hinweise gehen nicht verloren: Anzahl nennen und sagen, wo die Liste liegt.
-        const notes = hinweise
-            ? ` ${hinweise} Hinweis${hinweise === 1 ? '' : 'e'} – Liste unter „Daten“.`
-            : '';
-        showToast(`${parts.join(', ')} importiert.${replacement}${notes}`, 'success', notes ? 8000 : 6000);
+        const notes = hinweise ? t('import.notes', { count: hinweise }) : '';
+        showToast(`${t('import.success', { items: parts.join(', ') })}${replacement}${notes}`, 'success', notes ? 8000 : 6000);
         return;
     }
+    const stat = (count, key) => `<div class="stat"><b>${count}</b><span>${escapeHtml(t(key))}</span></div>`;
     document.getElementById('import-result-body').innerHTML = `
         <div class="stat-grid">
-            <div class="stat"><b>${customerCount}</b><span>Kunden</span></div>
-            <div class="stat"><b>${contactCount}</b><span>Kontakte</span></div>
-            <div class="stat"><b>${areaCount}</b><span>Gebiete</span></div>
-            <div class="stat"><b>${fehler}</b><span>Fehler</span></div>
-            <div class="stat"><b>${hinweise}</b><span>Hinweise</span></div>
+            ${stat(customerCount, 'import.statCustomers')}
+            ${stat(contactCount, 'import.statContacts')}
+            ${stat(areaCount, 'import.statAreas')}
+            ${stat(fehler, 'import.statErrors')}
+            ${stat(hinweise, 'import.statNotes')}
         </div>
-        <p class="muted small"><b>${fehler} Zeile${fehler === 1 ? '' : 'n'} wurde${fehler === 1 ? '' : 'n'} nicht übernommen</b> – alle übrigen sind importiert. ${replacedExisting ? 'Die bisherige Kundenliste wurde vollständig ersetzt. ' : ''}${hinweise ? `Dazu ${hinweise} Hinweis(e) (z. B. unbekannte PLZ) zu importierten Zeilen. ` : ''}Lade die Liste herunter, korrigiere die Zeilen und lade sie erneut. Der Zugang bleibt unter „Daten“ erhalten.</p>
+        <p class="muted small"><b>${escapeHtml(t('import.incompleteTitle', { count: fehler }))}</b> – ${escapeHtml(t('import.incompleteBody'))}</p>
     `;
     resultDialog.showModal();
 }
@@ -1122,6 +1147,8 @@ async function applyCustomers(customers, fileName, { announce = true } = {}) {
         });
     }
     if (missing.length > 0) {
-        showToast(`Unbekannte PLZ: ${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}`, 'error', 7000);
+        showToast(t('import.unknownPostal', {
+            codes: `${missing.slice(0, 5).join(', ')}${missing.length > 5 ? '…' : ''}`
+        }), 'error', 7000);
     }
 }

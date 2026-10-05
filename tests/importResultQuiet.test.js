@@ -15,6 +15,7 @@ import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { parseRows } from '../src/services/excel.js';
+import { MESSAGES } from '../src/i18n/messages.js';
 
 const source = (file) => readFileSync(resolve(process.cwd(), file), 'utf8');
 
@@ -39,13 +40,14 @@ describe('Import-Ergebnis: Modal nur bei nicht importierten Zeilen', () => {
     it('nennt die Hinweise im Toast, statt sie zu verschlucken', () => {
         const wizard = source('src/ui/importWizard.js');
         expect(wizard).toContain('const notes = hinweise');
-        expect(wizard).toContain('Liste unter „Daten“');
+        expect(wizard).toContain("t('import.notes', { count: hinweise })");
+        expect(MESSAGES.de['import.notes']).toContain('Liste unter „Daten“');
     });
 
     it('behauptet keinen Import, wenn keine Zeile übernommen wurde', () => {
         const wizard = source('src/ui/importWizard.js');
         expect(wizard).toContain('if (parts.length === 0) {');
-        expect(wizard).toContain("showToast('Keine gültigen Zeilen im Import gefunden.', 'error', 6000)");
+        expect(wizard).toContain("showToast(t('import.noRows'), 'error', 6000)");
     });
 
     it('hält die Liste dauerhaft erreichbar, statt sie an das Modal zu binden', () => {
@@ -66,7 +68,8 @@ describe('Import-Ergebnis: Modal nur bei nicht importierten Zeilen', () => {
     it('sagt im Modal, was der Nutzer wissen muss: was fehlt und was zu tun ist', () => {
         const html = source('index.html');
         const wizard = source('src/ui/importWizard.js');
-        expect(html).toContain('<h2>Nicht alle Zeilen konnten importiert werden</h2>');
-        expect(wizard).toContain('wurde${fehler === 1 ? \'\' : \'n\'} nicht übernommen');
+        expect(html).toContain('data-i18n="import.incompleteDialogTitle"');
+        expect(wizard).toContain("t('import.incompleteTitle', { count: fehler })");
+        expect(MESSAGES.de['import.incompleteBody']).toContain('korrigiere die Zeilen');
     });
 });

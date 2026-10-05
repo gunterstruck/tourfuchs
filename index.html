@@ -1356,12 +1356,12 @@
              wurden – reine Hinweise melden sich als Toast (siehe showImportResult). -->
         <dialog id="import-result-dialog">
             <header>
-                <h2>Nicht alle Zeilen konnten importiert werden</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="import.incompleteDialogTitle">Nicht alle Zeilen konnten importiert werden</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <div id="import-result-body"></div>
             <footer>
-                <button id="import-error-download">⬇ Fehlerliste (.xlsx)</button>
+                <button id="import-error-download" data-i18n="import.errorDownload">⬇ Fehlerliste (.xlsx)</button>
                 <button id="import-result-ok" class="primary">OK</button>
             </footer>
         </dialog>

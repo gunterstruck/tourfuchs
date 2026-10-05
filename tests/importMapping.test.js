@@ -21,7 +21,7 @@ describe('Import-Assistent: wichtige Felder zuerst, optionale auf Abruf (Konzept
         expect(wiz).toContain("FIELDS.filter((f) => !IMPORTANT.has(f.key))");
         expect(wiz).toContain("getElementById('mapping-rows-optional')");
         // Kurzstatus: wie viele optionale Felder automatisch erkannt wurden.
-        expect(wiz).toContain('automatisch erkannt');
+        expect(wiz).toContain("t('import.detected', { count: detected })");
         // Standardmäßig eingeklappt (Überblick zuerst).
         expect(wiz).toContain('moreDetails.open = false');
     });
