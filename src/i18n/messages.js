@@ -1,5 +1,6 @@
 import { IMPORT_MESSAGES } from './importMessages.js';
 import { PLACE_MESSAGES } from './placeMessages.js';
+import { CUSTOMER_MESSAGES } from './customerMessages.js';
 
 /**
  * Zentrale Textkataloge. Neue Sprachen werden erst als „vollständig" markiert,
@@ -111,7 +112,8 @@ export const MESSAGES = Object.freeze({
         'consent.claim': 'Ich bin berechtigt, diese Daten zu verarbeiten und in TourFuchs lokal zu verwenden.',
         'consent.confirmed': 'Berechtigung bestätigt{date}. Zum Zurücknehmen abwählen.',
         ...IMPORT_MESSAGES.de,
-        ...PLACE_MESSAGES.de
+        ...PLACE_MESSAGES.de,
+        ...CUSTOMER_MESSAGES.de
     }),
     en: Object.freeze({
         'app.title': 'TourFuchs Sales – Customer map, tour planning & briefing',
@@ -217,7 +219,8 @@ export const MESSAGES = Object.freeze({
         'consent.claim': 'I am authorised to process this data and use it locally in TourFuchs.',
         'consent.confirmed': 'Authorisation confirmed{date}. Clear the checkbox to withdraw it.',
         ...IMPORT_MESSAGES.en,
-        ...PLACE_MESSAGES.en
+        ...PLACE_MESSAGES.en,
+        ...CUSTOMER_MESSAGES.en
     }),
     fr: Object.freeze({
         'app.title': 'TourFuchs Ventes – Carte clients, tournées et briefing',
@@ -323,7 +326,8 @@ export const MESSAGES = Object.freeze({
         'consent.claim': 'Je suis autorisé à traiter ces données et à les utiliser localement dans TourFuchs.',
         'consent.confirmed': 'Autorisation confirmée{date}. Décochez la case pour la retirer.',
         ...IMPORT_MESSAGES.fr,
-        ...PLACE_MESSAGES.fr
+        ...PLACE_MESSAGES.fr,
+        ...CUSTOMER_MESSAGES.fr
     }),
     es: Object.freeze({
         'app.title': 'TourFuchs Ventas – Mapa de clientes, rutas y briefing',
@@ -429,6 +433,7 @@ export const MESSAGES = Object.freeze({
         'consent.claim': 'Tengo autorización para tratar estos datos y usarlos localmente en TourFuchs.',
         'consent.confirmed': 'Autorización confirmada{date}. Desmarca la casilla para retirarla.',
         ...IMPORT_MESSAGES.es,
-        ...PLACE_MESSAGES.es
+        ...PLACE_MESSAGES.es,
+        ...CUSTOMER_MESSAGES.es
     })
 });
