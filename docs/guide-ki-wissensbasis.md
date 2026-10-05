@@ -561,9 +561,13 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Deutsch und jede nicht unterstützte Sprache fallen auf Deutsch zurück.
 - Eine bewusste Auswahl gewinnt vor der Gerätesprache und bleibt nur in diesem
   Browser gespeichert. Es wird keine Spracheinstellung übertragen.
-- Die Umstellung wird abschnittsweise ausgeliefert. In diesem ersten sichtbaren
-  Schritt sind App-Kopf, Hauptreiter und Sprachwahl übersetzt; noch nicht
-  umgestellte Fachdialoge verwenden den deutschen Ausgangstext.
+- Die Umstellung wird abschnittsweise ausgeliefert. App-Kopf, Hauptreiter,
+  Sprachwahl sowie der Einstieg bis zur statischen Spaltenzuordnung sind
+  übersetzt. Dazu gehören die sichtbaren Knöpfe **„Live-Demos starten“**,
+  **„Eigene Daten laden“**, **„Excel-/CSV-Datei auswählen“**,
+  **„Liste aus Excel einfügen“**, **„Bestätigen und weiter“** und
+  **„Importieren“**. Dynamische Importauswertung und noch nicht umgestellte
+  Fachdialoge verwenden vorerst den deutschen Ausgangstext.
 
 ---
 

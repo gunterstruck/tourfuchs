@@ -42,8 +42,8 @@ describe('Demo-Streifen: Live-Demos gleichwertig neben „Eigene Daten laden"', 
 
     it('bietet „In Aktion sehen" und „Eigene Daten laden" nebeneinander an', () => {
         const banner = html.slice(html.indexOf('id="demo-banner"'), html.indexOf('id="optional-modules"'));
-        expect(banner).toContain('id="btn-demo-show" class="demo-banner-cta">▶ In Aktion sehen');
-        expect(banner).toContain('id="btn-demo-own-data" class="demo-banner-cta">📂 Eigene Daten laden');
+        expect(banner).toMatch(/id="btn-demo-show"[^>]*class="demo-banner-cta"[^>]*data-i18n="demo\.action"/);
+        expect(banner).toMatch(/id="btn-demo-own-data"[^>]*class="demo-banner-cta"[^>]*data-i18n="onboarding\.loadOwn"/);
         expect(banner.indexOf('btn-demo-show')).toBeLessThan(banner.indexOf('btn-demo-own-data'));
     });
 
