@@ -568,8 +568,13 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   **„Liste aus Excel einfügen“**, **„Bestätigen und weiter“** und
   **„Importieren“**. Auch die danach erzeugten Feldnamen, Tabellen- und
   Kopfzeilenhinweise, Validierungsfehler, Speicherfehler und das Importergebnis
-  folgen der Sprache. Noch nicht umgestellte Fachdialoge außerhalb des
-  Kundenlisten-Imports verwenden vorerst den deutschen Ausgangstext.
+  folgen der Sprache. Die globale Suche zeigt **„Eigene Orte“**, **„Kunden“**,
+  **„Orte“** und **„Keine Treffer“** ebenfalls passend zur Auswahl. In der
+  Kundenkarte wechseln Umsatz, letzter Besuch, Rhythmus, Kontaktaktionen,
+  Servicehinweise sowie **„Als Start“**, **„Als Ziel“**, **„Zur Tour“** und
+  **„Briefing“**; Datum und Umsatz werden dort sprachgerecht formatiert.
+  Noch nicht umgestellte Fachdialoge außerhalb von Import, eigenen Orten und
+  Kundenkarte verwenden vorerst den deutschen Ausgangstext.
 
 ---
 
