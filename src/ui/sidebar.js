@@ -1597,6 +1597,11 @@ export function initSidebar() {
         applyMode(state.ui.mode, true);
         if (isMobileUi()) showMapView();
     });
+    // Nur ein echter Kundenimport führt direkt zum räumlichen Ergebnis. Andere
+    // Datenquellen (Verträge, Serviceeinsätze) behalten ihren Fachdialog offen.
+    on('data:imported', (payload) => {
+        if (isMobileUi() && !payload?.type) showMapView(false);
+    });
 
     on('customers:changed', () => {
         renderDataStatus();

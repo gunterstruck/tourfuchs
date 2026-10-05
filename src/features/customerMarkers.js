@@ -30,6 +30,18 @@ export function customerMarkerLabel(name, { demo = false } = {}) {
     return value.replace(/^TourFuchs Demo\s*·\s*/i, '') || value;
 }
 
+/** Lesbare Kundenadresse ohne leere Trennzeichen; PLZ-Geocodes bleiben ehrlich. */
+export function customerMarkerAddress(customer, { markApproximate = true } = {}) {
+    const street = String(customer?.strasse ?? '').trim();
+    const place = [customer?.plz, customer?.ort]
+        .map((value) => String(value ?? '').trim())
+        .filter(Boolean)
+        .join(' ');
+    const address = [street, place].filter(Boolean).join(' · ');
+    if (!address) return '';
+    return markApproximate && customer?.geo === 'plz' ? `${address} · ca. PLZ-Mitte` : address;
+}
+
 /**
  * Pixelradius für die Kundenverdichtung. In dichten Stadtansichten bleiben
  * Stapel bewusst länger zusammen; erst im Nahbereich entstehen Einzelkarten.

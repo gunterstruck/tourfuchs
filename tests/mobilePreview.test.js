@@ -69,6 +69,7 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         // demo:loaded schaltet mobil auf die Karte (statt das Datenblatt weit zu öffnen),
         // damit die neuen Kunden sofort sichtbar sind und die Sidebar unten einklappt.
         expect(sidebar).toMatch(/on\('demo:loaded', \(\) => \{[\s\S]*if \(isMobileUi\(\)\) showMapView\(\);/);
+        expect(sidebar).toMatch(/on\('data:imported', \(payload\) => \{[\s\S]*!payload\?\.type[\s\S]*showMapView\(false\);/);
     });
 
     it('lässt den Desktop-Datenbereich unverändert und gruppiert nur mobil per JS', () => {

@@ -34,6 +34,7 @@ import {
     CUSTOMER_MARKER_MODES,
     DEFAULT_CUSTOMER_COLOR,
     canOfferCustomerMarkerHint,
+    customerMarkerAddress,
     customerClusterRadius,
     customerClusterSummary,
     customerMarkerLabel,
@@ -1658,18 +1659,18 @@ function customerIcon(customer) {
     const visitAccent = state.ui.mode !== 'service' && currentView.markerBy !== 'status'
         ? (status === 'faellig' ? ' visit-due' : status === 'ueberfaellig' ? ' visit-overdue' : '')
         : '';
-    const place = [customer.plz, customer.ort].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
     const openVisits = state.ui.mode === 'service'
         ? serviceVisitsForCustomer(state.serviceVisits, customer, { scope: 'open' }).length
         : 0;
     const context = openVisits
         ? `${openVisits} offene${openVisits === 1 ? 'r Einsatz' : ' Einsätze'}`
         : (customer.rhythmusWochen ? STATUS_LABELS[status] : '');
-    const detail = [place, context].filter(Boolean).join(' · ');
+    const address = customerMarkerAddress(customer);
+    const detail = [address, context].filter(Boolean).join(' · ');
     const label = customerMarkerLabel(customer.name, { demo: isDemoCustomer(customer) });
     return L.divIcon({
         className: 'customer-marker-wrapper',
-        html: `<div class="customer-marker-card${customer.geo === 'plz' ? ' approx' : ''}${inTour ? ' in-tour' : ''}${visitAccent}" style="--marker-color:${color}" aria-hidden="true">
+        html: `<div class="customer-marker-card${customer.geo === 'plz' ? ' approx' : ''}${inTour ? ' in-tour' : ''}${visitAccent}" style="--marker-color:${color}" title="${escapeHtml([label, address].filter(Boolean).join(' · '))}" aria-hidden="true">
             <span class="customer-marker-accent"></span>
             <span class="customer-marker-symbol"></span>
             <span class="customer-marker-copy">
