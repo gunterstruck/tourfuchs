@@ -39,6 +39,7 @@ import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { openAreaBriefing } from './areaBriefing.js';
 import { openCustomerBriefing } from './customerBriefing.js';
+import { t } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -889,14 +890,14 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoi
             <button type="button" class="result-row" data-point="${index}">
                 <b>${escapeHtml(result.label)}</b> <span class="muted">${escapeHtml(result.detail)}</span>
             </button>
-            ${removable ? `<button type="button" class="result-row-x" data-drop="${escapeHtml(result.id)}" title="Ort löschen" aria-label="Ort „${escapeHtml(result.label)}" löschen">✕</button>` : ''}
+            ${removable ? `<button type="button" class="result-row-x" data-drop="${escapeHtml(result.id)}" title="${escapeHtml(t('place.deleteTitle'))}" aria-label="${escapeHtml(t('place.deleteAria', { label: result.label }))}">✕</button>` : ''}
         </div>`;
     };
 
     const mapRow = (label) => `<button type="button" class="result-row result-row-map" data-map-point>
         <span class="result-map-pin" aria-hidden="true">📌</span>
-        <b>${label ? `„${escapeHtml(label)}" exakt auf der Karte setzen` : 'Eigenen Ort auf der Karte setzen'}</b>
-        <span class="muted">Stelle antippen oder Pin mit Finger bzw. Maus ziehen</span>
+        <b>${escapeHtml(label ? t('place.setExactNamed', { label }) : t('place.setExact'))}</b>
+        <span class="muted">${escapeHtml(t('place.setExactHint'))}</span>
     </button>`;
 
     const wireMapChoice = (raw) => {

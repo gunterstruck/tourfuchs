@@ -14,6 +14,7 @@ import { getMap, closeMapPopups } from '../features/map.js';
 import { clearLassoSelection, setLassoActive } from './lasso.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
 import { showToast } from './toast.js';
+import { t } from '../core/i18n.js';
 
 let request = null;
 let marker = null;
@@ -21,6 +22,9 @@ let controls = null;
 let mapClick = null;
 
 const validCoordinate = (value, max) => Number.isFinite(Number(value)) && Math.abs(Number(value)) <= max;
+const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => (
+    { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[char]
+));
 
 function pointFrom(latlng) {
     if (!latlng || !validCoordinate(latlng.lat, 90) || !validCoordinate(latlng.lng, 180)) return null;
@@ -57,16 +61,16 @@ function ensureControls(map) {
     controls = document.createElement('section');
     controls.className = 'place-picker-controls';
     controls.hidden = true;
-    controls.setAttribute('aria-label', 'Kartenpunkt wählen');
+    controls.setAttribute('aria-label', t('place.pickerAria'));
     controls.innerHTML = `
         <div class="place-picker-instruction">
             <span class="place-picker-big-pin" aria-hidden="true">📌</span>
-            <span><b>Exakte Position setzen</b><small>Karte verschieben, Stelle antippen oder Pin ziehen.</small></span>
+            <span><b>${escapeHtml(t('place.pickerTitle'))}</b><small>${escapeHtml(t('place.pickerHint'))}</small></span>
             <code data-place-picker-coordinates></code>
         </div>
         <div class="place-picker-actions">
-            <button type="button" data-place-picker-cancel>Abbrechen</button>
-            <button type="button" class="primary" data-place-picker-confirm>Position übernehmen</button>
+            <button type="button" data-place-picker-cancel>${escapeHtml(t('place.cancel'))}</button>
+            <button type="button" class="primary" data-place-picker-confirm>${escapeHtml(t('place.confirmPosition'))}</button>
         </div>`;
     map.getContainer().appendChild(controls);
     L.DomEvent.disableClickPropagation(controls);
@@ -120,7 +124,7 @@ function openPicker(detail = {}) {
     if (supplied) map.setView(initial, Math.max(map.getZoom(), 16), { animate: true });
     marker = L.marker(initial, { icon: pickerIcon(), draggable: true, keyboard: true, zIndexOffset: 3000 })
         .addTo(map)
-        .bindTooltip('Pin ziehen oder Stelle auf der Karte antippen', { direction: 'top', offset: [0, -38] });
+        .bindTooltip(t('place.tooltip'), { direction: 'top', offset: [0, -38] });
     marker.on('drag dragend', updateCoordinateLabel);
     mapClick = (event) => {
         marker?.setLatLng(event.latlng);
@@ -148,9 +152,9 @@ function dialogElements() {
 }
 
 function saveLabel(target, remembered) {
-    if (target === 'edit') return 'Ort speichern';
-    if (target === 'destination') return remembered ? 'Merken und als Ziel verwenden' : 'Als Ziel verwenden';
-    return remembered ? 'Merken und als Start verwenden' : 'Als Start verwenden';
+    if (target === 'edit') return t('place.saveEdit');
+    if (target === 'destination') return remembered ? t('place.saveRememberDestination') : t('place.saveDestination');
+    return remembered ? t('place.saveRememberStart') : t('place.saveStart');
 }
 
 function syncSaveLabel() {
@@ -166,12 +170,15 @@ function confirmPosition() {
     closePicker();
 
     const el = dialogElements();
-    el.title.textContent = request.placeId ? '📌 Gespeicherten Ort ändern' : '📌 Ort benennen';
+    el.title.textContent = request.placeId ? t('place.titleEdit') : t('place.titleNew');
     el.name.value = request.label;
     el.street.value = request.strasse;
     el.postcode.value = request.plz;
     el.city.value = request.ort;
-    el.coordinates.textContent = `Pin: ${point.lat.toFixed(6)}, ${point.lng.toFixed(6)}`;
+    el.coordinates.textContent = t('place.coordinates', {
+        lat: point.lat.toFixed(6),
+        lng: point.lng.toFixed(6)
+    });
     el.rememberRow.hidden = Boolean(request.placeId) || request.target === 'edit';
     el.remember.checked = true;
     syncSaveLabel();
@@ -223,7 +230,7 @@ function savePlace(event) {
     } else if (el.remember.checked) {
         const place = createOwnPlace(values);
         if (!place || !addPlace(place)) {
-            showToast('Der Ort konnte nicht gespeichert werden. Bitte zuerst einen anderen eigenen Ort löschen.', 'info', 6000);
+            showToast(t('place.saveFailed'), 'info', 6000);
             return;
         }
         point = tourPointFromOwnPlace(place);
@@ -233,9 +240,13 @@ function savePlace(event) {
     }
 
     applyAsTourPoint(point, request.target);
-    const targetLabel = request.target === 'destination' ? ' als Ziel' : request.target === 'start' ? ' als Start' : '';
+    const successKey = request.target === 'destination'
+        ? (remembered ? 'place.savedDestinationSuccess' : 'place.destinationSuccess')
+        : request.target === 'start'
+            ? (remembered ? 'place.savedStartSuccess' : 'place.startSuccess')
+            : 'place.savedSuccess';
     el.dialog.close();
-    showToast(`„${point.label}"${remembered ? ' gespeichert und' : ''}${targetLabel} übernommen.`, 'success');
+    showToast(t(successKey, { label: point.label }), 'success');
     request = null;
     emit('tour:changed');
 }

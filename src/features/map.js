@@ -48,6 +48,7 @@ import { normalizeMinimumRegionCustomers, regionMeetsMinimum } from '../core/cus
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 import { isLightsBasemap, lightDotStyle, revenueReference } from './lightsMap.js';
+import { t } from '../core/i18n.js';
 
 let map = null;
 let regionLayer = null;
@@ -727,9 +728,9 @@ function handlePopupAction(action, customerId) {
         } else if (action === 'place-edit') {
             emit('place-picker:open', { target: 'edit', placeId: place.id, point: place });
         } else if (action === 'place-remove') {
-            if (confirm(`Gespeicherten Ort „${place.label}" löschen?`)) {
+            if (confirm(t('place.deleteConfirm', { label: place.label }))) {
                 removePlace(place.id);
-                emit('toast', { type: 'success', text: `„${place.label}" gelöscht.` });
+                emit('toast', { type: 'success', text: t('place.deleted', { label: place.label }) });
             }
         }
         return false;
@@ -2029,15 +2030,15 @@ function ownPlacePopupHtml(place) {
     const address = [place.strasse, placeLine].filter(Boolean).map(escapeHtml).join(' · ');
     const exact = place.coordinateSource === 'map-pin';
     return `<div class="popup popup-place">
-        <p class="popup-place-kind">★ Gespeicherter Ort</p>
+        <p class="popup-place-kind">${escapeHtml(t('place.kindSaved'))}</p>
         <h3>${escapeHtml(place.label)}</h3>
         ${address ? `<p class="popup-addr">${address}</p>` : ''}
-        <p class="muted small popup-place-coordinates">${Number(place.lat).toFixed(6)}, ${Number(place.lng).toFixed(6)}${exact ? ' · exakt gesetzt' : ''}</p>
+        <p class="muted small popup-place-coordinates">${Number(place.lat).toFixed(6)}, ${Number(place.lng).toFixed(6)}${exact ? ` · ${escapeHtml(t('place.exact'))}` : ''}</p>
         <div class="popup-actions">
-            <button data-action="place-start" data-id="${escapeHtml(place.id)}">🚩 Als Start</button>
-            ${state.ui.depth === 'profi' ? `<button data-action="place-dest" data-id="${escapeHtml(place.id)}">🏁 Als Ziel</button>` : ''}
-            <button data-action="place-edit" data-id="${escapeHtml(place.id)}">📌 Position ändern</button>
-            <button data-action="place-remove" data-id="${escapeHtml(place.id)}">✕ Löschen</button>
+            <button data-action="place-start" data-id="${escapeHtml(place.id)}">${escapeHtml(t('place.asStart'))}</button>
+            ${state.ui.depth === 'profi' ? `<button data-action="place-dest" data-id="${escapeHtml(place.id)}">${escapeHtml(t('place.asDestination'))}</button>` : ''}
+            <button data-action="place-edit" data-id="${escapeHtml(place.id)}">${escapeHtml(t('place.changePosition'))}</button>
+            <button data-action="place-remove" data-id="${escapeHtml(place.id)}">${escapeHtml(t('place.delete'))}</button>
         </div>
     </div>`;
 }
@@ -2053,7 +2054,7 @@ function ownPlacePopupHtml(place) {
 function foundPlacePopupHtml(result) {
     const detail = String(result.detail ?? '').trim();
     return `<div class="popup popup-place">
-        <p class="popup-place-kind">📍 Gefundener Ort</p>
+        <p class="popup-place-kind">${escapeHtml(t('place.kindFound'))}</p>
         <h3>${escapeHtml(result.label)}</h3>
         ${detail ? `<p class="popup-addr">${escapeHtml(detail)}</p>` : ''}
         <p class="muted small popup-place-coordinates">${Number(result.lat).toFixed(6)}, ${Number(result.lng).toFixed(6)}</p>
@@ -2077,8 +2078,8 @@ function renderPlaces() {
         if (!place || selected.has(place.id) || !Number.isFinite(Number(place.lat)) || !Number.isFinite(Number(place.lng))) continue;
         L.marker([Number(place.lat), Number(place.lng)], {
             icon: ownPlaceIcon(),
-            title: `${place.label} – gespeicherter Ort`,
-            alt: `${place.label} – gespeicherter Ort`,
+            title: t('place.markerDescription', { label: place.label }),
+            alt: t('place.markerDescription', { label: place.label }),
             zIndexOffset: 700
         })
             .bindTooltip(place.label)
