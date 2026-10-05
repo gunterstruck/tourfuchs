@@ -566,8 +566,10 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   übersetzt. Dazu gehören die sichtbaren Knöpfe **„Live-Demos starten“**,
   **„Eigene Daten laden“**, **„Excel-/CSV-Datei auswählen“**,
   **„Liste aus Excel einfügen“**, **„Bestätigen und weiter“** und
-  **„Importieren“**. Dynamische Importauswertung und noch nicht umgestellte
-  Fachdialoge verwenden vorerst den deutschen Ausgangstext.
+  **„Importieren“**. Auch die danach erzeugten Feldnamen, Tabellen- und
+  Kopfzeilenhinweise, Validierungsfehler, Speicherfehler und das Importergebnis
+  folgen der Sprache. Noch nicht umgestellte Fachdialoge außerhalb des
+  Kundenlisten-Imports verwenden vorerst den deutschen Ausgangstext.
 
 ---
 

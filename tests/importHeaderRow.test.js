@@ -240,7 +240,7 @@ describe('Zuordnungsdialog macht Blatt und Überschriftenzeile korrigierbar', ()
     });
 
     it('nennt das gelesene Blatt in der Dateizeile', () => {
-        expect(wizard).toContain('Blatt „${sheetName}"');
+        expect(wizard).toContain("t('import.sheetInfo', { sheet: sheetName })");
     });
 
     it('blendet die Auswahl bei eingefügten Tabellen aus', () => {
