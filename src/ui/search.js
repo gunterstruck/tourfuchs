@@ -25,6 +25,7 @@
  */
 
 import { state, getCustomer, on } from '../core/state.js';
+import { t } from '../core/i18n.js';
 import { flyToCustomer, flyToPlace } from '../features/map.js';
 import { applyServiceCustomerScope } from '../features/customerScope.js';
 import {
@@ -81,7 +82,7 @@ export function globalSearchHits({ customers = [], places = [], index = null, qu
             kind: 'koordinaten',
             id: 'koordinaten',
             label: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`,
-            detail: 'Eingefügte Koordinaten',
+            detail: t('customer.search.coordinates'),
             ...coords,
             plz: '',
             ort: ''
@@ -139,23 +140,25 @@ export function initSearch() {
         const hits = globalSearchHits({ customers: pool, places: state.places, index, query: raw });
         const gefunden = hits.own.length + hits.orte.length + hits.customers.length;
         if (gefunden === 0) {
-            results.innerHTML = '<div class="result-empty">Keine Treffer</div>';
+            results.innerHTML = `<div class="result-empty">${escapeHtml(t('customer.search.none'))}</div>`;
             results.style.display = 'block';
             return;
         }
 
         const verdeckt = hits.totalCustomers - hits.customers.length;
         results.innerHTML = [
-            groupHtml('Eigene Orte', hits.own.map(placeRow)),
+            groupHtml(t('customer.search.savedPlaces'), hits.own.map(placeRow)),
             groupHtml(
-                verdeckt > 0 ? `Kunden (${hits.customers.length} von ${hits.totalCustomers})` : 'Kunden',
+                verdeckt > 0
+                    ? t('customer.search.customersCount', { shown: hits.customers.length, total: hits.totalCustomers })
+                    : t('customer.search.customers'),
                 hits.customers.map((c) => `
                     <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
                         <b>${escapeHtml(c.name)}</b>
                         <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${c.vb ? ` · ${escapeHtml(c.vb)}` : ''}</span>
                     </button>`)
             ),
-            groupHtml('Orte', hits.orte.map(placeRow))
+            groupHtml(t('customer.search.places'), hits.orte.map(placeRow))
         ].join('');
         results.style.display = 'block';
 

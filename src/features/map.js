@@ -24,7 +24,7 @@ import {
 } from './labelPlacement.js';
 import { suggestNearby, suggestAlongRoute } from './tour.js';
 import { popupSafeRect, popupPanOffset, popupContentHeightLimit } from './popupViewport.js';
-import { visitStatus, isOpportunity, lastVisit, agoText, formatDateDe, markVisitedToday, STATUS_COLORS, STATUS_LABELS } from './visits.js';
+import { visitStatus, isOpportunity, lastVisit, agoText, formatDate, formatDateDe, markVisitedToday, STATUS_COLORS } from './visits.js';
 import { planningNow } from './dayPlanner.js';
 import { automaticLevelActive, automaticLevelForZoom } from './mapLevel.js';
 import { isPlanningRelevantServiceContract, normalizeCustomerNumber } from './serviceContracts.js';
@@ -48,7 +48,7 @@ import { normalizeMinimumRegionCustomers, regionMeetsMinimum } from '../core/cus
 import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 import { isLightsBasemap, lightDotStyle, revenueReference } from './lightsMap.js';
-import { t } from '../core/i18n.js';
+import { currentLocale, t } from '../core/i18n.js';
 
 let map = null;
 let regionLayer = null;
@@ -740,9 +740,7 @@ function handlePopupAction(action, customerId) {
     if (action === 'demo-call' || action === 'demo-email') {
         emit('toast', {
             type: 'info',
-            text: action === 'demo-call'
-                ? 'Demo-Modus: Bei echten Kundendaten würde sich jetzt die Telefon-App öffnen. Es wird kein Anruf gestartet.'
-                : 'Demo-Modus: Bei echten Kundendaten würde sich jetzt das E-Mail-Programm öffnen. Es wird keine Nachricht erstellt.'
+            text: action === 'demo-call' ? t('customer.demo.call') : t('customer.demo.email')
         });
         return true;
     }
@@ -777,7 +775,7 @@ function handlePopupAction(action, customerId) {
         markVisitedToday(customer);
         markDirty();
         emit('visits:changed');
-        emit('toast', { type: 'success', text: `Besuch bei ${customer.name} für heute eingetragen.` });
+        emit('toast', { type: 'success', text: t('customer.visit.saved', { name: customer.name }) });
     } else if (action === 'customer-briefing') {
         openCustomerBriefing(customer);
     } else if (action === 'service-contracts') {
@@ -1645,6 +1643,16 @@ function regionPopupHtml(feature) {
 
 // ---- Kundenmarker ----
 
+function customerStatusLabel(status) {
+    const keys = {
+        ok: 'customer.status.ok',
+        faellig: 'customer.status.due',
+        ueberfaellig: 'customer.status.overdue',
+        none: 'customer.status.none'
+    };
+    return t(keys[status] || keys.none);
+}
+
 function markerColor(customer) {
     const by = currentView.markerBy;
     if (by === 'status') return STATUS_COLORS[visitStatus(customer)];
@@ -1664,8 +1672,8 @@ function customerIcon(customer) {
         ? serviceVisitsForCustomer(state.serviceVisits, customer, { scope: 'open' }).length
         : 0;
     const context = openVisits
-        ? `${openVisits} offene${openVisits === 1 ? 'r Einsatz' : ' Einsätze'}`
-        : (customer.rhythmusWochen ? STATUS_LABELS[status] : '');
+        ? t(openVisits === 1 ? 'customer.service.openJob' : 'customer.service.openJobs', { count: openVisits })
+        : (customer.rhythmusWochen ? customerStatusLabel(status) : '');
     const address = customerMarkerAddress(customer);
     const detail = [address, context].filter(Boolean).join(' · ');
     const label = customerMarkerLabel(customer.name, { demo: isDemoCustomer(customer) });
@@ -1676,7 +1684,7 @@ function customerIcon(customer) {
             <span class="customer-marker-symbol"></span>
             <span class="customer-marker-copy">
                 <b>${escapeHtml(label)}</b>
-                <small>${escapeHtml(detail || 'Details öffnen')}</small>
+                <small>${escapeHtml(detail || t('customer.marker.openDetails'))}</small>
             </span>
         </div>`,
         iconSize: isMobileMap() ? [44, 44] : [28, 28],
@@ -1703,32 +1711,40 @@ function animateCustomerMarkerOpen(marker) {
     window.setTimeout(() => card.classList.remove('is-opening'), 320);
 }
 
-const RHYTHM_OPTIONS = [
-    ['', 'kein Rhythmus'], ['2', 'alle 2 Wochen'], ['4', 'alle 4 Wochen'],
-    ['6', 'alle 6 Wochen'], ['8', 'alle 8 Wochen'], ['12', 'alle 12 Wochen'], ['26', 'alle 26 Wochen']
-];
+const RHYTHM_WEEKS = [2, 4, 6, 8, 12, 26];
+
+function rhythmOptionsHtml(selectedWeeks) {
+    const selected = String(selectedWeeks ?? '');
+    const options = [['', t('customer.rhythm.none')], ...RHYTHM_WEEKS.map((weeks) => [
+        String(weeks), t('customer.rhythm.weeks', { count: weeks })
+    ])];
+    return options.map(([value, label]) => (
+        `<option value="${value}"${selected === value ? ' selected' : ''}>${escapeHtml(label)}</option>`
+    )).join('');
+}
 
 function visitBlockHtml(customer) {
     // Basis: nur „Heute besucht" – Rhythmus/Zuletzt/Status sind Profi-Komfort.
     if (state.ui.depth !== 'profi') {
         return `<div class="visit-block">
             <div class="visit-controls">
-                <button data-action="mark-visited" data-id="${escapeHtml(customer.id)}">✓ Heute besucht</button>
+                <button data-action="mark-visited" data-id="${escapeHtml(customer.id)}">${escapeHtml(t('customer.visit.today'))}</button>
             </div>
         </div>`;
     }
     const status = visitStatus(customer);
     const last = lastVisit(customer);
     const statusBadge = customer.rhythmusWochen
-        ? `<span class="status-badge" style="background:${STATUS_COLORS[status]}">${STATUS_LABELS[status]}</span>`
+        ? `<span class="status-badge" style="background:${STATUS_COLORS[status]}">${escapeHtml(customerStatusLabel(status))}</span>`
         : '';
     const rhythmSelect = `<select class="rhythm-select" data-rhythm="${escapeHtml(customer.id)}">
-        ${RHYTHM_OPTIONS.map(([v, l]) => `<option value="${v}"${String(customer.rhythmusWochen ?? '') === v ? ' selected' : ''}>${l}</option>`).join('')}
+        ${rhythmOptionsHtml(customer.rhythmusWochen)}
     </select>`;
+    const relativeVisit = last ? agoText(last, new Date(), currentLocale()) : t('customer.visit.never');
     return `<div class="visit-block">
-        <p class="visit-line">🗓️ Zuletzt: <b>${last ? formatDateDe(last) : '—'}</b> <span class="muted small nowrap">(${agoText(last)})</span> ${statusBadge}</p>
+        <p class="visit-line">${escapeHtml(t('customer.visit.last'))} <b>${last ? escapeHtml(formatDate(last, currentLocale())) : '—'}</b> <span class="muted small nowrap">(${escapeHtml(relativeVisit)})</span> ${statusBadge}</p>
         <div class="visit-controls">
-            <button data-action="mark-visited" data-id="${escapeHtml(customer.id)}">✓ Heute besucht</button>
+            <button data-action="mark-visited" data-id="${escapeHtml(customer.id)}">${escapeHtml(t('customer.visit.today'))}</button>
             ${rhythmSelect}
         </div>
     </div>`;
@@ -1738,20 +1754,20 @@ function contactBlockHtml(customer) {
     const parts = [];
     const contactName = String(customer.ansprechpartner ?? '').trim();
     if (contactName) {
-        parts.push(`<p class="muted small">👤 Hauptansprechpartner: <b>${escapeHtml(contactName)}</b></p>`);
+        parts.push(`<p class="muted small">${escapeHtml(t('customer.contact.main'))} <b>${escapeHtml(contactName)}</b></p>`);
     }
     const links = [];
     const demo = isDemoCustomer(customer);
     if (customer.telefon && demo) {
-        links.push(`<button type="button" class="contact-link" data-action="demo-call" data-id="${escapeHtml(customer.id)}">📞 Anrufen</button>`);
+        links.push(`<button type="button" class="contact-link" data-action="demo-call" data-id="${escapeHtml(customer.id)}">${escapeHtml(t('customer.contact.call'))}</button>`);
     } else if (customer.telefon) {
         const tel = String(customer.telefon).replace(/[^\d+]/g, '');
-        links.push(`<a class="contact-link" href="tel:${escapeHtml(tel)}">📞 Anrufen</a>`);
+        links.push(`<a class="contact-link" href="tel:${escapeHtml(tel)}">${escapeHtml(t('customer.contact.call'))}</a>`);
     }
     if (customer.email && demo) {
-        links.push(`<button type="button" class="contact-link" data-action="demo-email" data-id="${escapeHtml(customer.id)}">✉️ E-Mail</button>`);
+        links.push(`<button type="button" class="contact-link" data-action="demo-email" data-id="${escapeHtml(customer.id)}">${escapeHtml(t('customer.contact.email'))}</button>`);
     } else if (customer.email) {
-        links.push(`<a class="contact-link" href="mailto:${escapeHtml(customer.email)}">✉️ E-Mail</a>`);
+        links.push(`<a class="contact-link" href="mailto:${escapeHtml(customer.email)}">${escapeHtml(t('customer.contact.email'))}</a>`);
     }
     if (links.length) parts.push(`<div class="contact-links">${links.join('')}</div>`);
     return parts.join('');
@@ -1782,29 +1798,37 @@ function serviceContractsBlockHtml(customer) {
         valuesByCurrency.set(currency, (valuesByCurrency.get(currency) || 0) + value);
     });
     const currencies = [...valuesByCurrency.keys()];
+    const locale = currentLocale();
     let valueText = '';
     if (currencies.length === 1) {
         const currency = currencies[0];
         const value = valuesByCurrency.get(currency);
-        if (currency === 'EUR') valueText = `${formatRevenueShort(value)} p. a.`;
+        if (currency === 'EUR') valueText = t('customer.contract.perYear', { value: formatRevenueShort(value, locale) });
         else {
             try {
-                valueText = `${new Intl.NumberFormat('de-DE', {
+                const formatted = new Intl.NumberFormat(locale, {
                     style: 'currency', currency, notation: 'compact', maximumFractionDigits: 1
-                }).format(value)} p. a.`;
+                }).format(value);
+                valueText = t('customer.contract.perYear', { value: formatted });
             } catch {
-                valueText = `${Math.round(value).toLocaleString('de-DE')} ${currency} p. a.`;
+                const formatted = `${Math.round(value).toLocaleString(locale)} ${currency}`;
+                valueText = t('customer.contract.perYear', { value: formatted });
             }
         }
     } else if (currencies.length > 1) {
-        valueText = 'Werte in mehreren Währungen';
+        valueText = t('customer.contract.multipleCurrencies');
     }
     const detail = [
-        earliestAction ? `Handeln bis ${formatDateDe(earliestAction)}` : 'Frist prüfen',
+        earliestAction
+            ? t('customer.contract.actBy', { date: formatDate(earliestAction, locale) })
+            : t('customer.contract.checkDeadline'),
         valueText
     ].filter(Boolean).join(' · ');
+    const contractLabel = t(linked.length === 1 ? 'customer.contract.one' : 'customer.contract.many', {
+        count: linked.length
+    });
     return `<button type="button" class="popup-contract-summary" data-action="service-contracts" data-id="${escapeHtml(customer.id)}">
-        <span><b>🛡️ ${linked.length} Service${linked.length === 1 ? 'vertrag' : 'verträge'}</b><small>${escapeHtml(detail)}</small></span>
+        <span><b>🛡️ ${escapeHtml(contractLabel)}</b><small>${escapeHtml(detail)}</small></span>
         <span aria-hidden="true">›</span>
     </button>`;
 }
@@ -1823,14 +1847,19 @@ function serviceVisitsBlockHtml(customer) {
             || String(a.id || '').localeCompare(String(b.id || '')));
     if (!linked.length) return '';
     const first = linked[0];
+    const locale = currentLocale();
     const detail = [
-        first.reason || 'Serviceeinsatz',
-        first.dueDate ? `fällig ${formatDateDe(first.dueDate)}` : '',
-        first.durationMin ? `${first.durationMin} Min.` : ''
+        first.reason || t('customer.job.fallback'),
+        first.dueDate ? t('customer.job.due', { date: formatDate(first.dueDate, locale) }) : '',
+        first.durationMin ? t('customer.job.minutes', { count: first.durationMin }) : ''
     ].filter(Boolean).join(' · ');
     const urgent = linked.filter((visit) => serviceVisitWindow(visit, 'now')).length;
+    const openLabel = t(linked.length === 1 ? 'customer.job.openOne' : 'customer.job.openMany', {
+        count: linked.length
+    });
+    const urgentLabel = urgent ? ` · ${t('customer.job.urgent', { count: urgent })}` : '';
     return `<button type="button" class="popup-service-visits" data-action="service-visits" data-id="${escapeHtml(customer.id)}">
-        <span><b>🧰 ${linked.length} offene${linked.length === 1 ? 'r Einsatz' : ' Einsätze'}${urgent ? ` · ${urgent} dringend` : ''}</b><small>${escapeHtml(detail)}</small></span>
+        <span><b>🧰 ${escapeHtml(openLabel)}${escapeHtml(urgentLabel)}</b><small>${escapeHtml(detail)}</small></span>
         <span aria-hidden="true">›</span>
     </button>`;
 }
@@ -1852,16 +1881,24 @@ export function customerPopupHtml(customer) {
         && String(rawRevenue).trim() !== ''
         && Number.isFinite(Number(rawRevenue));
     const revenue = hasRevenue ? Number(rawRevenue) : null;
+    const locale = currentLocale();
     const revenueHtml = hasRevenue
-        ? `<p class="popup-revenue"><span>Umsatz</span><b class="popup-umsatz" title="${formatRevenueFull(revenue)}">${formatRevenueShort(revenue)}</b></p>`
+        ? `<p class="popup-revenue"><span>${escapeHtml(t('customer.revenue'))}</span><b class="popup-umsatz" title="${escapeHtml(formatRevenueFull(revenue, locale))}">${escapeHtml(formatRevenueShort(revenue, locale))}</b></p>`
         : '';
     const profi = state.ui.depth === 'profi';
     // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
-    const nr = profi && customer.nummer ? `<span class="popup-nr">Nr. ${escapeHtml(customer.nummer)}</span>` : '';
-    const demoBadge = isDemoCustomer(customer) ? '<span class="popup-demo-badge">Demo</span>' : '';
+    const nr = profi && customer.nummer
+        ? `<span class="popup-nr">${escapeHtml(t('customer.number', { number: customer.nummer }))}</span>`
+        : '';
+    const demoBadge = isDemoCustomer(customer)
+        ? `<span class="popup-demo-badge">${escapeHtml(t('customer.demoBadge'))}</span>`
+        : '';
+    const geoNote = customer.geo === 'plz'
+        ? t('customer.geo.postalApprox')
+        : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}${nr}</h3>
-        ${addr ? `<p class="popup-addr">${addr}${customer.geo === 'plz' ? ' <span class="muted small popup-geo-note">📍 ca. (PLZ-Mitte)</span>' : customer.geo === 'strasse' ? ' <span class="muted small popup-geo-note">📍 Straße, ohne Hausnummer</span>' : ''}</p>` : ''}
+        ${addr ? `<p class="popup-addr">${addr}${geoNote ? ` <span class="muted small popup-geo-note">${escapeHtml(geoNote)}</span>` : ''}</p>` : ''}
         ${revenueHtml}
         ${profi && hierarchy ? `<p class="muted small popup-meta">${hierarchy}</p>` : ''}
         ${contactBlockHtml(customer)}
@@ -1869,10 +1906,10 @@ export function customerPopupHtml(customer) {
         ${serviceContractsBlockHtml(customer)}
         ${visitBlockHtml(customer)}
         <div class="popup-actions">
-            <button data-action="tour-start" data-id="${escapeHtml(customer.id)}"><span class="pa-ico">🚩</span><span class="pa-label">Als Start</span></button>
-            ${profi ? `<button data-action="tour-dest" data-id="${escapeHtml(customer.id)}" ${isDest ? 'disabled' : ''}>${isDest ? '<span class="pa-ico">✓</span><span class="pa-label">Ziel</span>' : '<span class="pa-ico">🏁</span><span class="pa-label">Als Ziel</span>'}</button>` : ''}
-            <button data-action="tour-add" data-id="${escapeHtml(customer.id)}" ${inTour ? 'disabled' : ''}>${inTour ? '<span class="pa-ico">✓</span><span class="pa-label">In Tour</span>' : '<span class="pa-ico">➕</span><span class="pa-label">Zur Tour</span>'}</button>
-            <button data-action="customer-briefing" data-id="${escapeHtml(customer.id)}" title="Prompt für ein Kundenbriefing vorbereiten und den Assistenten öffnen"><span class="pa-ico">📋</span><span class="pa-label">Briefing</span></button>
+            <button data-action="tour-start" data-id="${escapeHtml(customer.id)}"><span class="pa-ico">🚩</span><span class="pa-label">${escapeHtml(t('customer.action.asStart'))}</span></button>
+            ${profi ? `<button data-action="tour-dest" data-id="${escapeHtml(customer.id)}" ${isDest ? 'disabled' : ''}>${isDest ? `<span class="pa-ico">✓</span><span class="pa-label">${escapeHtml(t('customer.action.destination'))}</span>` : `<span class="pa-ico">🏁</span><span class="pa-label">${escapeHtml(t('customer.action.asDestination'))}</span>`}</button>` : ''}
+            <button data-action="tour-add" data-id="${escapeHtml(customer.id)}" ${inTour ? 'disabled' : ''}>${inTour ? `<span class="pa-ico">✓</span><span class="pa-label">${escapeHtml(t('customer.action.inTour'))}</span>` : `<span class="pa-ico">➕</span><span class="pa-label">${escapeHtml(t('customer.action.addTour'))}</span>`}</button>
+            <button data-action="customer-briefing" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.action.briefingTitle'))}"><span class="pa-ico">📋</span><span class="pa-label">${escapeHtml(t('customer.action.briefing'))}</span></button>
         </div>
     </div>`;
 }
@@ -1971,11 +2008,12 @@ function drawMarkers() {
     }
     const markers = [];
     for (const customer of customersOnMap()) {
+        const detailsLabel = t('customer.marker.detailsLabel', { name: customer.name });
         const marker = L.marker([customer.lat, customer.lng], {
             icon: customerIcon(customer),
             customerId: customer.id,
-            title: `${customer.name} – Details öffnen`,
-            alt: `${customer.name} – Details öffnen`
+            title: detailsLabel,
+            alt: detailsLabel
         });
         marker.bindPopup(() => customerPopupHtml(customer), popupOptionsForCustomers);
         marker.on('click', () => {

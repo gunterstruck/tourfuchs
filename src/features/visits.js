@@ -90,12 +90,24 @@ export function formatDateDe(isoDate) {
     return `${d}.${m}.${y}`;
 }
 
+const DATE_LOCALES = Object.freeze({ de: 'de-DE', en: 'en-GB', fr: 'fr-FR', es: 'es-ES' });
+
+/** Lokalisierte Datumsanzeige für bereits umgestellte Oberflächen. */
+export function formatDate(isoDate, locale = 'de') {
+    if (!isoDate) return '';
+    const language = String(locale).toLowerCase().split(/[-_]/)[0];
+    const parsed = new Date(`${isoDate}T12:00:00`);
+    if (Number.isNaN(parsed.getTime())) return formatDateDe(isoDate);
+    return new Intl.DateTimeFormat(DATE_LOCALES[language] || DATE_LOCALES.de).format(parsed);
+}
+
 /** "vor 3 Wochen" / "vor 5 Tagen" */
-export function agoText(isoDate, now = new Date()) {
+export function agoText(isoDate, now = new Date(), locale = 'de') {
     if (!isoDate) return 'noch nie';
     const days = Math.max(0, Math.round((now.getTime() - new Date(`${isoDate}T12:00:00`).getTime()) / DAY_MS));
-    if (days === 0) return 'heute';
-    if (days === 1) return 'gestern';
-    if (days < 21) return `vor ${days} Tagen`;
-    return `vor ${Math.round(days / 7)} Wochen`;
+    const language = String(locale).toLowerCase().split(/[-_]/)[0];
+    const intlLocale = DATE_LOCALES[language] || DATE_LOCALES.de;
+    const formatter = new Intl.RelativeTimeFormat(intlLocale, { numeric: 'auto' });
+    if (days < 21) return formatter.format(-days, 'day');
+    return formatter.format(-Math.round(days / 7), 'week');
 }
