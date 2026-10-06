@@ -477,14 +477,15 @@ function customerClusterIcon(cluster) {
         attr,
         dimensionLabel: state.dims[attr]?.label || 'Vertriebsgebiete',
         unassigned: UNASSIGNED,
-        colorFor: (value) => attrColor(attr, value)
+        colorFor: (value) => attrColor(attr, value),
+        translate: t
     });
-    const title = `${summary.context} – antippen zum Hineinzoomen`;
+    const title = t('customer.cluster.zoom', { context: summary.context });
     return L.divIcon({
         html: `<div class="customer-stack-card ${summary.kind}" style="--stack-color:${summary.color};--stack-accent:${summary.accent}" role="button" aria-label="${escapeHtml(title)}" title="${escapeHtml(title)}">
             <span class="customer-stack-accent"></span>
-            <strong>${summary.count}</strong><small>Kunden</small>
-            <span class="customer-stack-discovery-label" aria-hidden="true">Tippe einen Kundenstapel an</span>
+            <strong>${summary.count}</strong><small>${escapeHtml(t(summary.count === 1 ? 'customer.cluster.customerOne' : 'customer.cluster.customerMany'))}</small>
+            <span class="customer-stack-discovery-label" aria-hidden="true">${escapeHtml(t('customer.cluster.discover'))}</span>
         </div>`,
         className: 'cluster-wrapper',
         iconSize: [48, 46],

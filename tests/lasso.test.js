@@ -177,7 +177,8 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         // heißt `map-fab-row` und zählt hier nicht mit): Fuchs, Routen-
         // Umschalter und Lasso.
         expect(row.match(/map-fab"/g)).toHaveLength(3);
-        expect(ui).toContain("label.textContent = active ? 'Ziehen …' : 'Lasso ziehen'");
+        expect(ui).toContain("t(active ? 'mobile.lasso.drawing' : 'mobile.lasso.draw')");
+        expect(ui).toContain("on('locale:changed', renderLassoButton)");
     });
 
     it('friert die Karte im Zeichenmodus ein', () => {

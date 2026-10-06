@@ -14,6 +14,7 @@ import { saveDataset, loadDataset, reprotectStores, loadTours, loadGeocodeCache,
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
+import { t } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -82,6 +83,7 @@ export function initVault(options = {}) {
     // Bewusstes „Daten löschen" ist ein Neustart: Der einmalige Hinweis darf
     // beim nächsten eigenen Import wieder kommen.
     on('dataset:cleared', () => { markVaultOfferSeen(false); renderControls(); });
+    on('locale:changed', renderControls);
 
     renderControls();
 
@@ -399,12 +401,12 @@ function renderControls() {
         toggle.classList.toggle('unprotected', !enabled && ownDataPresent());
         if (!enabled) {
             toggle.textContent = '🔓';
-            toggle.title = 'Daten sind unverschlüsselt – tippen, um den Tresor mit PIN einzurichten';
-            toggle.setAttribute('aria-label', 'Datentresor einrichten');
+            toggle.title = t('mobile.vault.setupTitle');
+            toggle.setAttribute('aria-label', t('mobile.vault.setupLabel'));
         } else {
             toggle.textContent = '🔐';
-            toggle.title = 'Tresor entsperrt – tippen zum Sofort-Sperren';
-            toggle.setAttribute('aria-label', 'Tresor sperren');
+            toggle.title = t('mobile.vault.lockTitle');
+            toggle.setAttribute('aria-label', t('mobile.vault.lockLabel'));
         }
     }
 

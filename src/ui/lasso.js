@@ -43,6 +43,7 @@ import {
     tourAdditions
 } from '../features/lasso.js';
 import { openAreaBriefing } from './areaBriefing.js';
+import { t } from '../core/i18n.js';
 
 let active = false;            // Zeichenmodus an?
 let drawing = false;           // Finger/Maus gerade unten?
@@ -577,14 +578,7 @@ function returnMapRoom() {
 }
 
 /** Modus schalten. Getrennt exportiert, damit die Live-Demo ihn führen kann. */
-export function setLassoActive(next) {
-    active = Boolean(next);
-    drawing = false;
-    pointerId = null;
-    clearTrace();
-    if (active) giveMapRoom();
-    else returnMapRoom();
-    document.body.classList.toggle('lasso-active', active);
+function renderLassoButton() {
     const button = document.getElementById('btn-lasso');
     if (button) {
         button.classList.toggle('active', active);
@@ -594,14 +588,25 @@ export function setLassoActive(next) {
         const icon = button.querySelector('.mns-icon');
         const label = button.querySelector('.mns-label');
         if (icon) icon.textContent = active ? '✏️' : '🖊️';
-        if (label) label.textContent = active ? 'Ziehen …' : 'Lasso ziehen';
+        if (label) label.textContent = t(active ? 'mobile.lasso.drawing' : 'mobile.lasso.draw');
     }
+}
+
+export function setLassoActive(next) {
+    active = Boolean(next);
+    drawing = false;
+    pointerId = null;
+    clearTrace();
+    if (active) giveMapRoom();
+    else returnMapRoom();
+    document.body.classList.toggle('lasso-active', active);
+    renderLassoButton();
     if (overlay) overlay.classList.toggle('drawing', active);
     setMapInteraction(!active);
     if (active) {
         // Kurz halten: Der Hinweis steht am unteren Rand – genau dort, wo
         // gleich der Auswahlstreifen erscheint.
-        emit('toast', { type: 'info', text: 'Zieh mit dem Finger oder der Maus eine Fläche um deine Kunden.', ms: 2600 });
+        emit('toast', { type: 'info', text: t('mobile.lasso.hint'), ms: 2600 });
     }
 }
 
@@ -679,5 +684,7 @@ export function initLasso() {
     // Das Blatt auf- und zuziehen ändert, ob die Karte überhaupt sichtbar ist.
     on('sheet:changed', syncButtonVisibility);
     on('tab:changed', syncButtonVisibility);
+    on('locale:changed', renderLassoButton);
+    renderLassoButton();
     syncButtonVisibility();
 }

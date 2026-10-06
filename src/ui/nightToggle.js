@@ -12,6 +12,8 @@
  * Lichterkarte ist gewählt. Wer eins von beiden anderswo ändert, sieht wieder
  * den Mond. Gemerkt wird nur, welche Karte vorher eingestellt war (lokal).
  */
+import { t } from '../core/i18n.js';
+
 export const NIGHT_PREV_BASEMAP_KEY = 'tf_night_prev_basemap';
 export const LIGHTS_BASEMAP = 'lights';
 const DARK_CLASS = 'aurora-dark';
@@ -33,7 +35,7 @@ function chooseBasemap(select, value) {
 }
 
 export function initNightToggle({
-    doc = document, theme, storage = globalThis.localStorage, onBasemapChanged
+    doc = document, theme, storage = globalThis.localStorage, onBasemapChanged, onLocaleChanged
 } = {}) {
     const button = doc.getElementById('btn-night');
     const select = doc.getElementById('basemap-select');
@@ -43,11 +45,9 @@ export function initNightToggle({
         const night = isNight(doc, select);
         button.textContent = night ? '☀️' : '🌙';
         button.setAttribute('aria-pressed', String(night));
-        const label = night
-            ? 'Tagansicht: heller Stil mit der vorherigen Karte'
-            : 'Nachtansicht: dunkler Stil mit Lichterkarte';
+        const label = t(night ? 'mobile.night.lightLabel' : 'mobile.night.darkLabel');
         button.setAttribute('aria-label', label);
-        button.title = night ? 'Tagansicht: zurück zu hell' : 'Nachtansicht: jeder Kunde ein Licht';
+        button.title = t(night ? 'mobile.night.lightTitle' : 'mobile.night.darkTitle');
     };
 
     const toggle = () => {
@@ -71,6 +71,7 @@ export function initNightToggle({
     theme.onChange?.(render);
     select?.addEventListener('change', render);
     onBasemapChanged?.(render);
+    onLocaleChanged?.(render);
     render();
     return { toggle, render };
 }

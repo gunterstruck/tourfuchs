@@ -602,7 +602,11 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   verwenden vorerst Deutsch; Französisch und Spanisch werden als nächstes
   vollständig geprüft. Die CI vergleicht dafür bereits alle Produktionskataloge
   mit dem deutschen Schlüsselbestand, kontrolliert benannte Platzhalter und
-  meldet unbestätigte deutsche 1:1-Texte in Französisch oder Spanisch.
+  meldet unbestätigte deutsche 1:1-Texte in Französisch oder Spanisch. Auf der
+  mobilen Karten-Hauptansicht wechseln außerdem Tresor-Einstieg, Nachtmodus,
+  nächster Schritt, Lasso, Kartenbezeichnung und Kundenstapel sofort zwischen
+  DE/EN/FR/ES; Französisch und Spanisch sind dafür bei 390 × 844 Pixeln im
+  laufenden Browser geprüft.
 
 ---
 

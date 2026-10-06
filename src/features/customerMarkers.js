@@ -83,17 +83,24 @@ export function customerClusterSummary(customers, {
     attr = 'bezirk',
     dimensionLabel = 'Vertriebsbezirk',
     unassigned = 'Ohne Zuordnung',
-    colorFor = () => DEFAULT_CUSTOMER_COLOR
+    colorFor = () => DEFAULT_CUSTOMER_COLOR,
+    translate
 } = {}) {
     const list = Array.isArray(customers) ? customers : [];
     const count = list.length;
+    const message = (key, values, fallback) => typeof translate === 'function'
+        ? translate(key, values)
+        : fallback;
     if (!planning || !attr) {
         return {
             count,
             color: DEFAULT_CUSTOMER_COLOR,
             accent: DEFAULT_CUSTOMER_COLOR,
             kind: 'neutral',
-            context: `${count} Kunden in diesem Bereich`
+            context: message(
+                count === 1 ? 'customer.cluster.areaOne' : 'customer.cluster.areaMany',
+                { count }, `${count} ${count === 1 ? 'Kunde' : 'Kunden'} in diesem Bereich`
+            )
         };
     }
 
@@ -111,7 +118,10 @@ export function customerClusterSummary(customers, {
             color,
             accent: color,
             kind: value === unassigned ? 'unassigned' : 'assigned',
-            context: `${count} Kunden · ${value}`
+            context: message(
+                count === 1 ? 'customer.cluster.assignedOne' : 'customer.cluster.assignedMany',
+                { count, value }, `${count} ${count === 1 ? 'Kunde' : 'Kunden'} · ${value}`
+            )
         };
     }
 
@@ -126,6 +136,9 @@ export function customerClusterSummary(customers, {
         color: DEFAULT_CUSTOMER_COLOR,
         accent: `linear-gradient(90deg, ${stops.join(', ')})`,
         kind: 'mixed',
-        context: `${count} Kunden · mehrere ${dimensionLabel}`
+        context: message(
+            'customer.cluster.mixed', { count, dimension: dimensionLabel },
+            `${count} Kunden · mehrere ${dimensionLabel}`
+        )
     };
 }

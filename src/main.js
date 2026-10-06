@@ -253,7 +253,11 @@ async function init() {
     language.onChange((locale) => emit('locale:changed', locale));
     const theme = initTheme();
     // Mond/Sonne oben rechts: dunkler Stil + Lichterkarte mit einem Tipp.
-    initNightToggle({ theme, onBasemapChanged: (fn) => on('basemap:changed', fn) });
+    initNightToggle({
+        theme,
+        onBasemapChanged: (fn) => on('basemap:changed', fn),
+        onLocaleChanged: (fn) => on('locale:changed', fn)
+    });
     startUsageCount();
     takeSharedTourFromUrl();
     // Zuerst: Geräte befreien, die noch die alte Manifest-Sperre tragen.
