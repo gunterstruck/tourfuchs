@@ -499,9 +499,9 @@ function removeBiometric() {
 
 // ---- Aktivierung ----
 /**
- * Tresor-Aktivierung anzeigen. Ohne Optionen der normale Button-Flow; mit
- * `forced: true` (z. B. nach einem verschlüsselten Import) ohne Abbrechen,
- * mit passendem Text und optionalen Callbacks.
+ * Tresor-Aktivierung anzeigen. Ohne Optionen der normale Button-Flow. Eine
+ * optionale Abbruchsperre bleibt für ausdrücklich ununterbrechbare interne
+ * Abläufe verfügbar; Datenimporte verwenden sie bewusst nicht.
  * @param {{forced?:boolean, title?:string, intro?:string, onDone?:Function, onDismiss?:Function}} [opts]
  */
 export function openSetupDialog(opts = {}) {

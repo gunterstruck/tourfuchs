@@ -101,9 +101,11 @@ describe('Datentresor: Angebot statt Pflicht nach dem Import', () => {
         expect(vault).toContain('isDemoDataset');
     });
 
-    it('hält am erzwungenen Setup fest, wo Schutz die Absicht war (sicherer Umzug)', () => {
-        // Wer Daten verschlüsselt von einem anderen Gerät empfängt, hat sich für
-        // Schutz bereits entschieden. Nur der Onboarding-Weg wurde entlastet.
-        expect(source('src/ui/safeTransfer.js')).toContain('forced: true');
+    it('trennt auch beim sicheren Umzug Transportverschlüsselung und lokalen Tresor', () => {
+        const transfer = source('src/ui/safeTransfer.js');
+        expect(transfer).not.toContain('openSetupDialog');
+        expect(transfer).not.toContain('forced: true');
+        expect(transfer).toContain('Datentresor ist eine getrennte Entscheidung');
+        expect(transfer).toContain('Ohne Datentresor liegen sie auf diesem Gerät unverschlüsselt');
     });
 });
