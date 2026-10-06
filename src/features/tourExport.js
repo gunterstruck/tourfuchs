@@ -5,6 +5,7 @@
  */
 
 import { CONFIG } from '../core/config.js';
+import { currentLocale, t } from '../core/i18n.js';
 import { DEMO_DATA_LABEL, hasDemoCustomers, isDemoCustomer } from '../core/demoSafety.js';
 import { distanceKm } from '../services/geocode.js';
 import { zanoboMachineUrl } from '../services/zanobo.js';
@@ -219,26 +220,26 @@ export function downloadIcs(start, stops, {
     const demo = isDemoCustomer(start) || hasDemoCustomers(stops);
     const now = icsDate(new Date());
     const lines = [
-        'BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//TourFuchs Vertrieb//DE', 'CALSCALE:GREGORIAN'
+        'BEGIN:VCALENDAR', 'VERSION:2.0', `PRODID:-//TourFuchs//${currentLocale().toUpperCase()}`, 'CALSCALE:GREGORIAN'
     ];
     rows.forEach((r, i) => {
         const c = r.customer;
         const end = r.end || new Date(r.arrival.getTime() + visitMinutes * 60000);
         const addr = [c.strasse, `${c.plz} ${c.ort}`.trim()].filter(Boolean).join(', ');
         const serviceDetails = visitsForRow(r, serviceVisits).flatMap((visit) => [
-            visit.workOrderId && `Auftrag: ${visit.workOrderId}`,
-            visit.reason && `Anlass: ${visit.reason}`,
-            visit.priority && `Priorität: ${visit.priority}`,
-            visit.assignedTo && `Verantwortlich: ${visit.assignedTo}`,
-            visit.sourceUrl && `Quelle: ${visit.sourceUrl}`,
-            zanoboMachineUrl(visit.assetId) && `Maschine anhören (Zanobo): ${zanoboMachineUrl(visit.assetId)}`
+            visit.workOrderId && t('tour.ics.order', { value: visit.workOrderId }),
+            visit.reason && t('tour.ics.reason', { value: visit.reason }),
+            visit.priority && t('tour.ics.priority', { value: visit.priority }),
+            visit.assignedTo && t('tour.ics.responsible', { value: visit.assignedTo }),
+            visit.sourceUrl && t('tour.ics.source', { value: visit.sourceUrl }),
+            zanoboMachineUrl(visit.assetId) && t('tour.ics.listenMachine', { value: zanoboMachineUrl(visit.assetId) })
         ]).filter(Boolean);
         const desc = [
-            demo && DEMO_DATA_LABEL,
-            c.ansprechpartner && `Hauptansprechpartner: ${c.ansprechpartner}`,
-            c.telefon && `Telefon: ${c.telefon}`,
+            demo && t('tour.export.demoLabel'),
+            c.ansprechpartner && t('tour.ics.mainContact', { name: c.ansprechpartner }),
+            c.telefon && t('tour.ics.phone', { phone: c.telefon }),
             c.email && `E-Mail: ${c.email}`,
-            c.nummer && `Kd.-Nr.: ${c.nummer}`,
+            c.nummer && t('tour.ics.customerNumber', { number: c.nummer }),
             ...serviceDetails
         ].filter(Boolean).join('\n');
         lines.push(
