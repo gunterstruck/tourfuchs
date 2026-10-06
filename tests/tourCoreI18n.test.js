@@ -17,15 +17,17 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
     });
 
     it.each([
-        ['en', 'Visit planner', '…or customer, place or postal code as start', '⚡ Optimise order'],
-        ['fr', 'Planificateur de visites', '…ou client, lieu ou code postal comme départ', '⚡ Optimiser l’ordre'],
-        ['es', 'Planificador de visitas', '…o cliente, lugar o código postal como inicio', '⚡ Optimizar orden']
-    ])('übersetzt den statischen Tourkern auf %s', (locale, title, startPlaceholder, optimise) => {
+        ['en', 'Visit planner', '…or customer, place or postal code as start', '⚡ Optimise order', '✨ Explainable day proposal', 'Calculate day proposal'],
+        ['fr', 'Planificateur de visites', '…ou client, lieu ou code postal comme départ', '⚡ Optimiser l’ordre', '✨ Proposition de journée explicable', 'Calculer la proposition du jour'],
+        ['es', 'Planificador de visitas', '…o cliente, lugar o código postal como inicio', '⚡ Optimizar orden', '✨ Propuesta diaria explicable', 'Calcular propuesta diaria']
+    ])('übersetzt den statischen Tourkern auf %s', (locale, title, startPlaceholder, optimise, serviceTitle, calculate) => {
         const dom = new JSDOM(read('index.html'));
         translateDocument(dom.window.document, locale);
         expect(dom.window.document.querySelector('.tour-panel-title').textContent).toBe(title);
         expect(dom.window.document.getElementById('start-search').placeholder).toBe(startPlaceholder);
         expect(dom.window.document.getElementById('btn-optimize').textContent).toBe(optimise);
+        expect(dom.window.document.querySelector('.service-day-planner-head b').textContent).toBe(serviceTitle);
+        expect(dom.window.document.getElementById('btn-service-day-preview').textContent).toBe(calculate);
     });
 
     it('übersetzt Pluralformen und dynamische Tourhinweise', () => {
@@ -42,6 +44,7 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
 
     it('rendert Start, Ziel, Stopps, Vorschläge und Touraktionen aus dem Katalog', () => {
         const panel = read('src/ui/tourPanel.js');
+        const visits = read('src/ui/serviceVisitPlanner.js');
         for (const key of [
             'tour.start.none',
             'tour.destination.none',
@@ -57,6 +60,8 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.toast.googleMapsLimit',
             'tour.saved.none'
         ]) expect(panel, key).toContain(key);
+        expect(visits).toContain("t('tour.service.allOpen')");
+        expect(visits).toContain("on('locale:changed', renderAssigneeOptions)");
     });
 
     it('maskiert dynamische Texte in Tour-HTML und rendert bei Sprachwechsel neu', () => {
