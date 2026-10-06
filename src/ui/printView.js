@@ -10,6 +10,8 @@
  * 2. In der installierten App (Standalone) öffnet sie gar kein Fenster mehr,
  *    sondern liegt als Vollbild-Ebene in der App; „Zurück" schließt sie.
  */
+import { currentLocale, t } from '../core/i18n.js';
+
 const BAR_STYLE = `
     .tf-printbar { position: sticky; top: 0; z-index: 10; display: flex; gap: 8px; align-items: center;
         margin: -24px -24px 16px; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 10px;
@@ -19,9 +21,9 @@ const BAR_STYLE = `
     .tf-printbar .tf-print { margin-left: auto; background: #0d9488; border-color: #0d9488; color: #fff; font-weight: 700; }
     @media print { .tf-printbar { display: none !important; } }`;
 
-const BAR_HTML = `<div class="tf-printbar">
-    <button type="button" class="tf-back" onclick="tfBack()">← Zurück zu TourFuchs</button>
-    <button type="button" class="tf-print" onclick="window.print()">🖨 Drucken</button>
+function barHtml() { return `<div class="tf-printbar" lang="${currentLocale()}">
+    <button type="button" class="tf-back" onclick="tfBack()">${t('print.back')}</button>
+    <button type="button" class="tf-print" onclick="window.print()">${t('print.action')}</button>
 </div>
 <script>
 function tfBack() {
@@ -33,14 +35,14 @@ function tfBack() {
         location.href = '/';
     }, 300);
 }
-<\/script>`;
+<\/script>`; }
 
 /** Leiste in ein fertiges Druck-HTML einsetzen (direkt nach <body>). */
 export function withBackBar(html) {
     const text = String(html || '');
     if (text.includes('class="tf-printbar"')) return text;
     const styled = text.replace('</style>', `${BAR_STYLE}\n</style>`);
-    return styled.replace(/<body([^>]*)>/i, (m) => `${m}\n${BAR_HTML}`);
+    return styled.replace(/<body([^>]*)>/i, (m) => `${m}\n${barHtml()}`);
 }
 
 export function isStandaloneApp(win = window) {
@@ -66,9 +68,9 @@ function openOverlay(html, doc = document) {
     overlay.className = 'print-view-overlay';
     overlay.setAttribute('role', 'dialog');
     overlay.setAttribute('aria-modal', 'true');
-    overlay.setAttribute('aria-label', 'Druckansicht');
+    overlay.setAttribute('aria-label', t('print.view'));
     const frame = doc.createElement('iframe');
-    frame.title = 'Druckansicht';
+    frame.title = t('print.view');
     frame.srcdoc = html;
     overlay.appendChild(frame);
     doc.body.appendChild(overlay);
