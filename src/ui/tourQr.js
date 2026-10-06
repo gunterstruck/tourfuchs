@@ -8,7 +8,8 @@
 
 import QRCode from 'qrcode';
 import jsQR from 'jsqr';
-import { state, emit, getCustomer, setCustomers } from '../core/state.js';
+import { state, emit, getCustomer, on, setCustomers } from '../core/state.js';
+import { currentLocale, t } from '../core/i18n.js';
 import { decodeTourText, matchStopsToCustomers, encodeTourUrlPacked } from '../features/tourShare.js';
 import { googleMapsLegs } from '../features/tour.js';
 import { downloadIcs } from '../features/tourExport.js';
@@ -24,6 +25,7 @@ let scanDialog = null;
 let videoStream = null;
 let scanLoopId = 0;
 let received = null; // dekodierte Tour aus dem letzten Scan
+let lastShareInfo = null;
 
 export function initTourQr() {
     shareDialog = document.getElementById('qr-share-dialog');
@@ -63,8 +65,23 @@ export function initTourQr() {
             visitMinutes: received.visitMinutes,
             tourName: received.tourName
         });
-        showToast('Kalender-Datei (.ics) erstellt.', 'success');
+        showToast(t('qr.received.calendarCreated'), 'success');
     });
+    on('locale:changed', () => {
+        if (shareDialog?.open && lastShareInfo) renderShareCopy();
+        if (scanDialog?.open && received) renderReceived();
+    });
+}
+
+function renderShareCopy() {
+    if (!lastShareInfo) return;
+    const { stopCount, skipped, fromPhone } = lastShareInfo;
+    const title = document.getElementById('qr-share-title');
+    if (title) title.textContent = t(fromPhone ? 'qr.share.titlePhone' : 'qr.share.titleDesktop');
+    const parts = [t(stopCount === 1 ? 'qr.share.stopOne' : 'qr.share.stopMany', { count: stopCount })];
+    if (skipped > 0) parts.push(t(skipped === 1 ? 'qr.share.skippedOne' : 'qr.share.skippedMany', { count: skipped }));
+    parts.push(t(fromPhone ? 'qr.share.scanOtherPhone' : 'qr.share.scanPhone'));
+    document.getElementById('qr-share-info').textContent = parts.join(' · ');
 }
 
 /**
@@ -73,8 +90,8 @@ export function initTourQr() {
  * @param {string} encoded  Ergebnis von encodeTourPayload
  */
 export async function openShareDialog(encoded, { stopCount, skipped = 0, fromPhone = false } = {}) {
-    const title = document.getElementById('qr-share-title');
-    if (title) title.textContent = fromPhone ? '📲 Tour per QR teilen' : '📲 Tour an Handy übergeben';
+    lastShareInfo = { stopCount, skipped, fromPhone };
+    renderShareCopy();
     const canvas = document.getElementById('qr-share-canvas');
     const url = await encodeTourUrlPacked(encoded, window.location.origin + window.location.pathname);
     try {
@@ -84,13 +101,9 @@ export async function openShareDialog(encoded, { stopCount, skipped = 0, fromPho
         // und Kamera bekommen scharfe Kanten statt verwaschener Module.
         await QRCode.toCanvas(canvas, url, { errorCorrectionLevel: 'L', width: 1024, margin: 3 });
     } catch {
-        showToast('QR-Code konnte nicht erzeugt werden – Tour zu groß. Bitte Stopps reduzieren.', 'error', 6000);
+        showToast(t('qr.share.tooLarge'), 'error', 6000);
         return;
     }
-    document.getElementById('qr-share-info').textContent =
-        `${stopCount} Stopp${stopCount === 1 ? '' : 's'} im Code` +
-        (skipped > 0 ? ` · ${skipped} weitere passen nicht hinein` : '') +
-        (fromPhone ? ' · das andere Handy scannt ihn mit der Kamera' : ' · mit der Handy-Kamera scannen');
     shareDialog.showModal();
 }
 
@@ -132,10 +145,10 @@ async function startCamera() {
         });
         video.srcObject = videoStream;
         await video.play();
-        statusEl.textContent = 'Kamera auf den QR-Code richten – nah genug, dass er das Bild füllt …';
+        statusEl.textContent = t('qr.scan.aim');
         scanLoop(video);
     } catch {
-        statusEl.textContent = 'Kamera nicht verfügbar – bitte unten ein Foto des QR-Codes wählen.';
+        statusEl.textContent = t('qr.scan.unavailable');
     }
 }
 
@@ -236,17 +249,17 @@ async function onScanFile(e) {
     e.target.value = '';
     if (!file) return;
     const bitmap = await createImageBitmap(file).catch(() => null);
-    if (!bitmap) { showToast('Bild konnte nicht gelesen werden.', 'error'); return; }
+    if (!bitmap) { showToast(t('qr.scan.imageUnreadable'), 'error'); return; }
     const statusEl = document.getElementById('qr-scan-status');
-    if (statusEl) statusEl.textContent = 'Bild wird gelesen …';
+    if (statusEl) statusEl.textContent = t('qr.scan.readingImage');
     const texts = await readQrFromImage(bitmap);
     for (const text of texts) {
         if (await tryHandlePayload(text)) return;
     }
     if (statusEl) statusEl.textContent = '';
     showToast(texts.length
-        ? 'Das ist kein TourFuchs-Tour-Code.'
-        : 'Kein QR-Code im Bild gefunden – bitte näher heran oder schärfer fotografieren.', 'error', 6000);
+        ? t('qr.scan.notTourCode')
+        : t('qr.scan.noCode'), 'error', 6000);
 }
 
 async function tryHandlePayload(text) {
@@ -262,8 +275,13 @@ function renderLegButtons(legs) {
     const box = document.getElementById('qr-received-legs');
     if (!box) return;
     box.hidden = false;
-    box.innerHTML = `<p class="muted small">Google Maps nimmt nicht alle ${received.stops.length} Stopps in einem Link an. Fahr die Tour in ${legs.length} Teilstrecken – jede beginnt, wo die vorige endet:</p>`
-        + legs.map((leg, i) => `<button type="button" data-leg="${i}">🧭 Teil ${i + 1}: Stopp ${leg.from}–${leg.to}${received.roundTrip && i === legs.length - 1 ? ' + Rückweg' : ''}</button>`).join('');
+    box.innerHTML = `<p class="muted small">${escapeHtml(t('qr.received.legs', { stops: received.stops.length, legs: legs.length }))}</p>`
+        + legs.map((leg, i) => `<button type="button" data-leg="${i}">${escapeHtml(t('qr.received.leg', {
+            part: i + 1,
+            from: leg.from,
+            to: leg.to,
+            return: received.roundTrip && i === legs.length - 1 ? t('qr.received.return') : ''
+        }))}</button>`).join('');
     box.querySelectorAll('[data-leg]').forEach((button) => button.addEventListener('click', () => {
         window.open(legs[Number(button.dataset.leg)].link, '_blank', 'noopener');
     }));
@@ -275,14 +293,19 @@ function renderReceived() {
     result.hidden = false;
 
     const dateText = received.date
-        ? new Date(`${received.date}T12:00:00`).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })
-        : 'ohne Datum';
+        ? new Date(`${received.date}T12:00:00`).toLocaleDateString(currentLocale(), { weekday: 'long', day: '2-digit', month: '2-digit', year: 'numeric' })
+        : t('qr.received.noDate');
+    const summary = t(received.stops.length === 1 ? 'qr.received.summaryOne' : 'qr.received.summaryMany', {
+        count: received.stops.length,
+        date: dateText,
+        time: received.startTime,
+        minutes: received.visitMinutes
+    });
     document.getElementById('qr-scan-summary').innerHTML =
-        `<b>${escapeHtml(received.tourName)}</b> · ${received.stops.length} Stopps · ${escapeHtml(dateText)}, `
-        + `Start ${escapeHtml(received.startTime)} Uhr · ${received.visitMinutes} min je Besuch`;
+        `<b>${escapeHtml(received.tourName)}</b> · ${escapeHtml(summary)}`;
     const legs = googleMapsLegs(received.start, received.stops, received.roundTrip);
     const gmaps = document.getElementById('qr-received-gmaps');
-    gmaps.textContent = legs.length > 1 ? `🧭 In Google Maps navigieren (${legs.length} Teilstrecken)` : '🧭 In Google Maps navigieren';
+    gmaps.textContent = t(legs.length > 1 ? 'qr.received.googleMapsParts' : 'qr.received.googleMaps', { count: legs.length });
     const legBox = document.getElementById('qr-received-legs');
     if (legBox) { legBox.hidden = true; legBox.innerHTML = ''; }
     document.getElementById('qr-scan-stoplist').innerHTML = received.stops.map((s, i) =>
@@ -296,13 +319,15 @@ function renderReceived() {
     // damit die komplette Tourplanung sichtbar ist.
     adopt.disabled = received.stops.length === 0;
     document.getElementById('qr-scan-matchinfo').textContent = missing === 0
-        ? 'Alle Stopps sind in den lokalen Kundendaten vorhanden.'
+        ? t('qr.match.all')
         : matched.length === 0
-            ? 'Diese Kunden sind lokal noch nicht vorhanden – beim Übernehmen werden sie angelegt, damit die ganze Tour sichtbar ist.'
-            : `${matched.length} von ${received.stops.length} Stopps sind lokal vorhanden; ${missing} werden beim Übernehmen neu angelegt.`;
+            ? t('qr.match.none')
+            : t('qr.match.some', { matched: matched.length, total: received.stops.length, missing });
     if (ambiguous > 0) {
-        document.getElementById('qr-scan-matchinfo').textContent += ` ${ambiguous === 1 ? 'Eine Kundennummer gibt' : `${ambiguous} Kundennummern gibt`} es lokal mehrfach – `
-            + 'diese Stopps werden mit den Daten aus dem QR-Code angelegt statt geraten.';
+        document.getElementById('qr-scan-matchinfo').textContent += ` ${t(
+            ambiguous === 1 ? 'qr.match.ambiguousOne' : 'qr.match.ambiguousMany',
+            { count: ambiguous }
+        )}`;
     }
 }
 
@@ -322,14 +347,14 @@ function customerFromStop(stop, i) {
     return {
         id: `qr-${Date.now().toString(36)}-${i}`,
         nummer: String(stop.nummer || '').trim(),
-        name: stop.name || 'Stopp',
+        name: stop.name || t('qr.customer.defaultStop'),
         strasse, plz, ort,
         vb: '', channel: '', gruppe: '', bezirk: '',
         ansprechpartner: '', telefon: String(stop.telefon || '').trim(), email: '',
         umsatz: null, rhythmusWochen: null, besuche: [],
         lat: Number(stop.lat), lng: Number(stop.lng), geo: 'exakt',
         ...(stop.coordinateSource ? { coordinateSource: stop.coordinateSource } : {}),
-        extra: { Herkunft: 'QR-Übergabe' },
+        extra: { Herkunft: t('qr.customer.source') },
         fromQr: true
     };
 }
@@ -368,7 +393,7 @@ function adoptReceivedTour() {
     state.tour.start = {
         lat: received.start.lat,
         lng: received.start.lng,
-        label: received.start.label || 'Übernommener Start',
+        label: received.start.label || t('qr.start.received'),
         ...(adresse ? { adresse } : {}),
         ...(coordinateSource ? { coordinateSource } : {}),
         ...(here ? { here: true } : {})
@@ -390,7 +415,10 @@ function adoptReceivedTour() {
     if (created.length > 0 || positioned > 0) emit('dataset:dirty'); // neue Kunden/Positionen lokal sichern
     scanDialog.close();
     showToast(created.length > 0
-        ? `Tour mit ${state.tour.stops.length} Stopps übernommen – ${created.length} neu${created.length === 1 ? 'er Kunde' : 'e Kunden'} angelegt.`
-        : `Tour mit ${state.tour.stops.length} Stopps übernommen.`,
+        ? t(created.length === 1 ? 'qr.adopt.createdOne' : 'qr.adopt.createdMany', {
+            stops: state.tour.stops.length,
+            created: created.length
+        })
+        : t('qr.adopt.done', { stops: state.tour.stops.length }),
         'success', 6000);
 }

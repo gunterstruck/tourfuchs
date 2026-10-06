@@ -577,9 +577,12 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   **„Meine Tour“**, Start-/Zielsuche, Umkreis bzw. Routenkorridor, Stoppliste,
   **„Reihenfolge optimieren“**, **„Route auf Karte anzeigen“** und gespeicherte
   Touren. Beim Umschalten werden bereits sichtbare dynamische Tour- und
-  Karteninhalte neu aufgebaut. Die erweiterten Service-Tagesvorschläge und die
-  Dialoge für Druck, Kalender, QR und Textübergabe folgen in einem eigenen
-  Schritt; noch nicht umgestellte Fachdialoge verwenden vorerst Deutsch.
+  Karteninhalte neu aufgebaut. Auch die QR-Übergabe ist übersetzt: Teilen,
+  Kamera-/Foto-Scan, Empfangszusammenfassung, Google-Maps-Teilstrecken,
+  Kalenderaktion und lokale Übernahme; das Datum der empfangenen Tour folgt der
+  gewählten Sprache. Die erweiterten Service-Tagesvorschläge sowie Druck- und
+  Textübergabe folgen in eigenen kleinen Schritten; noch nicht umgestellte
+  Fachdialoge verwenden vorerst Deutsch.
 
 ---
 
