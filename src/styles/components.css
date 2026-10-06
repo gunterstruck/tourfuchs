@@ -565,6 +565,31 @@
 .pulse { animation: gf-pulse 1s ease-out 3; }
 
 .button-column { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.tour-share-actions {
+    overflow: hidden;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-s, 8px);
+    background: var(--color-surface-2);
+}
+.tour-share-actions > summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 9px 12px;
+    cursor: pointer;
+    color: var(--color-primary-dark);
+    font-size: 0.86rem;
+    font-weight: 700;
+    list-style: none;
+}
+.tour-share-actions > summary::-webkit-details-marker { display: none; }
+.tour-share-actions > summary::after {
+    content: '▾';
+    transition: transform 0.16s ease;
+}
+.tour-share-actions[open] > summary::after { transform: rotate(180deg); }
+.tour-share-actions > .button-column { margin: 0; padding: 0 8px 8px; }
 /* Dezente Gruppen-Überschrift im Daten-Bereich (laden · sichern · Werkzeuge). */
 .data-section-label {
     margin: 14px 0 -2px;
@@ -1716,14 +1741,6 @@ body.reordering { cursor: grabbing; user-select: none; }
 .stop-actions .stop-briefing-icon { display: none; }
 .stop-actions button { padding: 2px 6px; font-size: 0.76rem; }
 
-/* QR-Übergabe ans Handy ist die WOW-Aktion – sobald eine Tour steht, hebt sie
-   sich im Aktionsstapel ab (steht direkt unter „In Google Maps navigieren"). */
-.qr-handoff:not(:disabled) {
-    background: var(--color-primary-light);
-    border-color: var(--color-primary);
-    color: var(--color-primary-dark);
-    font-weight: 700;
-}
 .stop-actions button { padding: 2px 7px; font-size: 0.8rem; }
 
 /* ---- Fokus-Modus (Handy UND Desktop): mehr Übersicht im Tourplaner ----------
