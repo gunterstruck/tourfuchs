@@ -753,7 +753,9 @@ function handlePopupAction(action, customerId) {
                 type: copied ? 'success' : 'error',
                 text: copied
                     ? t('customer.number.copied', { value })
-                    : t('customer.number.copyFailed')
+                    : t('customer.number.copyFailed'),
+                ms: copied ? 5500 : 4000,
+                prominent: copied
             });
         });
         return true;
@@ -1908,7 +1910,7 @@ export function customerPopupHtml(customer) {
     // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
     const clipboardNumber = customerNumberClipboardText(customer.nummer);
     const nr = profi && clipboardNumber
-        ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}">${escapeHtml(t('customer.number', { number: customer.nummer }))}</button>`
+        ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number', { number: customer.nummer }))}</span></button>`
         : '';
     const demoBadge = isDemoCustomer(customer)
         ? `<span class="popup-demo-badge">${escapeHtml(t('customer.demoBadge'))}</span>`
