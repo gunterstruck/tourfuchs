@@ -104,7 +104,7 @@ describe('Wissensbasis bildet den Code ab', () => {
 
 describe('„Was wir weggelassen haben" ist ehrlich', () => {
     const html = readProjectFile('index.html');
-    const block = html.slice(html.indexOf('info-omitted'), html.indexOf('<h3>Impressum</h3>'));
+    const block = html.slice(html.indexOf('info-omitted'), html.indexOf('data-i18n="info.legal.imprintTitle"'));
 
     it('existiert überhaupt', () => {
         expect(html).toContain('Was wir weggelassen haben');
@@ -129,7 +129,7 @@ describe('„Was wir weggelassen haben" ist ehrlich', () => {
 
     it('begründet jeden Eintrag statt ihn nur aufzuzählen', () => {
         const eintraege = block.match(/<dt>/g) || [];
-        const gruende = block.match(/<dd>/g) || [];
+        const gruende = block.match(/<dd(?:\s[^>]*)?>/g) || [];
         expect(eintraege.length).toBeGreaterThanOrEqual(5);
         expect(gruende).toHaveLength(eintraege.length);
     });
