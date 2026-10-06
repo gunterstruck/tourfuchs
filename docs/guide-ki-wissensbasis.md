@@ -586,10 +586,12 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Kennzeichnung, Start, Ziel, Telefonnummer, Rückweg und Streckenschätzung in
   der gewählten Sprache. Auch Kalendertermine beschriften Hauptansprechpartner,
   Telefon, Kundennummer, Auftrag, Anlass, Priorität, Verantwortung und Quelle
-  passend zur Sprache; die fachlichen Werte werden nicht verändert. Der Inhalt
-  der Druckausgabe sowie die erweiterten Service-Tagesvorschläge folgen in
-  eigenen kleinen Schritten; noch nicht umgestellte Fachdialoge verwenden
-  vorerst Deutsch.
+  passend zur Sprache; die fachlichen Werte werden nicht verändert. Auch der
+  gedruckte Tagesplan verwendet für Datum, Zusammenfassung, Ziel,
+  Besuchsrhythmus, Tabellenkopf, Planungshinweis, Demo-Warnung und die
+  Zurück-/Drucken-Leiste die gewählte Sprache. Die erweiterten
+  Service-Tagesvorschläge folgen in einem eigenen kleinen Schritt; noch nicht
+  umgestellte Fachdialoge verwenden vorerst Deutsch.
 
 ---
 
@@ -983,8 +985,8 @@ Sicherheitsregeln für Beispielkunden:
   werden aber nur simuliert. Dialer und Mailprogramm öffnen sich nicht.
 - **"Briefing"** zeigt eine lokale Ergebnisvorschau. Copilot wird für
   Beispielkunden weder geöffnet noch automatisch angesprochen.
-- Excel-, Text-, Druck- und Kalenderexporte werden mit
-  `DEMO - NICHT PRODUKTIV` gekennzeichnet.
+- Excel-, Text-, Druck- und Kalenderexporte werden mit einer deutlichen
+  Demo-Warnung in der gewählten Sprache gekennzeichnet.
 
 ### 7.3 Unterstützte Dateiformate
 
@@ -2035,7 +2037,8 @@ der Zwischenziele; TourFuchs übergibt deshalb nur die unterstützte Anzahl
 Nur Profi:
 
 - **"Tagesplan drucken"** erstellt einen Plan mit Ankunftszeiten, Adressen,
-  Kontakten und Checkboxen.
+  Kontakten und Checkboxen. Inhalt, Datum und Druckleiste folgen der gewählten
+  Sprache (Deutsch, Englisch, Französisch oder Spanisch).
 - **"Kalender-Export (.ics)"** erstellt einen Termin je Besuch.
 - **"Als Text kopieren (Outlook/Copilot)"** legt die Tour in die Zwischenablage.
 

@@ -6,10 +6,10 @@
 
 import { CONFIG } from '../core/config.js';
 import { currentLocale, t } from '../core/i18n.js';
-import { DEMO_DATA_LABEL, hasDemoCustomers, isDemoCustomer } from '../core/demoSafety.js';
+import { hasDemoCustomers, isDemoCustomer } from '../core/demoSafety.js';
 import { distanceKm } from '../services/geocode.js';
 import { zanoboMachineUrl } from '../services/zanobo.js';
-import { formatDateDe, lastVisit, agoText } from './visits.js';
+import { formatDate, lastVisit, agoText } from './visits.js';
 import { openPrintView } from '../ui/printView.js';
 
 export const DEFAULT_VISIT_MINUTES = 45; // Standard-Besuchsdauer (im UI einstellbar)
@@ -115,7 +115,7 @@ function hhmm(date) {
 
 /** Druckbaren Tagesplan in neuem Fenster öffnen */
 export function printDayPlan(start, stops, {
-    startTime = defaultStart(), tourName = 'Tagestour', visitMinutes = DEFAULT_VISIT_MINUTES,
+    startTime = defaultStart(), tourName = t('tour.print.defaultName'), visitMinutes = DEFAULT_VISIT_MINUTES,
     servicePlan = null, serviceVisits = [], destination = null
 } = {}) {
     const rows = exportRows(start, stops, startTime, visitMinutes, servicePlan, destination);
@@ -125,18 +125,19 @@ export function printDayPlan(start, stops, {
         ? Number(servicePlan.metrics.totalKm)
         : rows.reduce((sum, r) => sum + r.km, 0);
     const effectiveStart = planned ? `${servicePlan.workDate}T${servicePlan.shiftStart}` : startTime;
-    const dateStr = new Date(effectiveStart).toLocaleDateString('de-DE', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    const locale = currentLocale();
+    const dateStr = new Date(effectiveStart).toLocaleDateString(locale, { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
 
     const visitCount = rows.filter((row) => !row.isDestination).length;
     const body = rows.map((r, i) => {
         const c = r.customer;
         if (r.isDestination) {
-            const label = c.label || c.name || 'Ziel';
+            const label = c.label || c.name || t('tour.destination.heading');
             const where = c.adresse || [c.strasse, `${c.plz ?? ''} ${c.ort ?? ''}`.trim()].filter(Boolean).join(', ');
             return `<tr>
             <td class="num">🏁</td>
             <td class="time">${hhmm(r.arrival)}</td>
-            <td><b>Ziel: ${escapeHtml(label)}</b>${where ? `<br>${escapeHtml(where)}` : ''}</td>
+            <td><b>${escapeHtml(t('tour.print.destination', { label }))}</b>${where ? `<br>${escapeHtml(where)}` : ''}</td>
             <td class="check"></td>
         </tr>`;
         }
@@ -149,7 +150,7 @@ export function printDayPlan(start, stops, {
             return [
                 visit.workOrderId,
                 visit.reason,
-                visit.priority && `Priorität ${visit.priority}`,
+                visit.priority && t('tour.print.priority', { value: visit.priority }),
                 visit.assignedTo
             ].filter(Boolean).map(escapeHtml)
                 .concat(zanobo ? [`<a href="${escapeHtml(zanobo)}">🔊 Zanobo</a>`] : [])
@@ -163,13 +164,17 @@ export function printDayPlan(start, stops, {
                 ${escapeHtml(addr)}
                 ${contact ? `<br><span class="muted">${escapeHtml(contact)}</span>` : ''}
                 ${serviceDetails ? `<br><span class="service">${serviceDetails}</span>` : ''}
-                ${c.rhythmusWochen ? `<br><span class="muted">Rhythmus: ${c.rhythmusWochen} Wochen · letzter Besuch ${last ? formatDateDe(last) : '—'} (${agoText(last)})</span>` : ''}
+                ${c.rhythmusWochen ? `<br><span class="muted">${escapeHtml(t('tour.print.rhythm', {
+                    weeks: c.rhythmusWochen,
+                    date: last ? formatDate(last, locale) : '—',
+                    relative: last ? agoText(last, new Date(), locale) : t('tour.print.never')
+                }))}</span>` : ''}
             </td>
             <td class="check">☐</td>
         </tr>`;
     }).join('');
 
-    const html = `<!DOCTYPE html><html lang="de"><head><meta charset="UTF-8">
+    const html = `<!DOCTYPE html><html lang="${locale}"><head><meta charset="UTF-8">
         <title>${escapeHtml(tourName)} – ${dateStr}</title>
         <style>
             body { font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif; color: #0f172a; margin: 24px; }
@@ -188,15 +193,21 @@ export function printDayPlan(start, stops, {
             @media print { body { margin: 0; } .noprint { display: none; } }
         </style></head><body>
         <h1>🦊 ${escapeHtml(tourName)}</h1>
-        ${demo ? `<p class="demo">${DEMO_DATA_LABEL}</p>` : ''}
-        <p class="sub">${dateStr} · Start ${planned ? escapeHtml(servicePlan.shiftStart) : hhmm(new Date(startTime))} bei „${escapeHtml(start.label)}" · ${visitCount} Besuche · ca. ${Math.round(totalKm)} km</p>
+        ${demo ? `<p class="demo">${escapeHtml(t('tour.export.demoLabel'))}</p>` : ''}
+        <p class="sub">${escapeHtml(t(visitCount === 1 ? 'tour.print.summaryOne' : 'tour.print.summaryMany', {
+            date: dateStr,
+            time: planned ? servicePlan.shiftStart : hhmm(new Date(startTime)),
+            label: start.label,
+            count: visitCount,
+            km: Math.round(totalKm)
+        }))}</p>
         <table>
-            <thead><tr><th>#</th><th>Ankunft</th><th>Kunde</th><th>✓</th></tr></thead>
+            <thead><tr><th>#</th><th>${escapeHtml(t('tour.print.arrival'))}</th><th>${escapeHtml(t('tour.print.customer'))}</th><th>✓</th></tr></thead>
             <tbody>${body}</tbody>
         </table>
-        <p class="foot">${planned
-            ? `Bestätigter Service-Tagesvorschlag · Rückkehr ${escapeHtml(String(servicePlan?.metrics?.finishAt || '').slice(11, 16) || '—')} · Fahrzeiten bleiben Planungsschätzungen.`
-            : `Zeiten geschätzt (${visitMinutes} min je Besuch, ${AVG_SPEED_KMH} km/h Fahrt).`} Erstellt mit TourFuchs Vertrieb.</p>
+        <p class="foot">${escapeHtml(planned
+            ? t('tour.print.confirmedFoot', { time: String(servicePlan?.metrics?.finishAt || '').slice(11, 16) || '—' })
+            : t('tour.print.estimatedFoot', { minutes: visitMinutes, speed: AVG_SPEED_KMH }))} ${escapeHtml(t('tour.print.createdWith'))}</p>
         </body></html>`;
 
     return openPrintView(html);
