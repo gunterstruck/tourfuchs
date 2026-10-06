@@ -596,9 +596,11 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Planungsgründe, Zielkonflikt, ausgelassene Einsätze und Übernahmeaktion und
   wird bei einem Sprachwechsel neu aufgebaut. Auch Ersetzen-Abfrage,
   Bestätigungszustand sowie Rückmeldungen bei geänderten Zeiten, Einsätzen oder
-  Tourstopps folgen der gewählten Sprache. Service-Zusatzangaben an bereits
-  übernommenen Tourstopps folgen separat; noch nicht umgestellte Fachdialoge
-  verwenden vorerst Deutsch.
+  Tourstopps folgen der gewählten Sprache. An bereits übernommenen Tourstopps
+  wechseln auch Hinweise zu Servicefilter-Ausnahmen sowie der Zanobo-Hinweis
+  und die Anhören-Aktion mit der Sprache. Noch nicht umgestellte Fachdialoge
+  verwenden vorerst Deutsch; Französisch und Spanisch werden als nächstes
+  vollständig geprüft.
 
 ---
 

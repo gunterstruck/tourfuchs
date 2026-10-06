@@ -52,6 +52,12 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             .toBe('4 arrêts de service ajoutés. Les horaires et raisons restent enregistrés dans le planning.');
         expect(translate('es', 'tour.service.confirm.replaceStops'))
             .toBe('¿Sustituir las paradas actuales por esta propuesta diaria de servicio?');
+        expect(translate('en', 'tour.service.stop.outsideFilter'))
+            .toBe('Outside service filter');
+        expect(translate('fr', 'tour.service.stop.listen'))
+            .toBe('🔊 Écouter');
+        expect(translate('es', 'tour.service.stop.scopeWarningMany', { count: 2 }))
+            .toBe('2 puntos de cliente seleccionados están fuera del filtro de servicio y se mantienen deliberadamente en la ruta.');
     });
 
     it('rendert Start, Ziel, Stopps, Vorschläge und Touraktionen aus dem Katalog', () => {
@@ -84,7 +90,11 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.service.toast.jobOutdated',
             'tour.service.confirm.replaceStops',
             'tour.service.confirmed.title',
-            'tour.service.confirmed.hint'
+            'tour.service.confirmed.hint',
+            'tour.service.stop.scopeWarningOne',
+            'tour.service.stop.outsideFilter',
+            'tour.service.stop.zanoboTitle',
+            'tour.service.stop.listen'
         ]) expect(panel, key).toContain(key);
         expect(panel).toContain('tradeoffLine(entries.length, omittedRows.map((item) => item.reason), currentLocale())');
         expect(panel).toContain('renderSavedTours(); renderServiceDayPreview();');

@@ -1450,7 +1450,7 @@ function renderStops() {
     const serviceExceptions = serviceScopeExceptionIds(stops);
     const exceptionCount = serviceExceptions.size;
     const exceptionWarning = exceptionCount
-        ? `<div class="tour-scope-warning" role="status">ℹ️ ${exceptionCount} bereits gewählte${exceptionCount === 1 ? 'r Kundenpunkt liegt' : ' Kundenpunkte liegen'} außerhalb des Servicefilters und ${exceptionCount === 1 ? 'bleibt' : 'bleiben'} bewusst in der Tour.</div>`
+        ? `<div class="tour-scope-warning" role="status">ℹ️ ${escapeHtml(t(exceptionCount === 1 ? 'tour.service.stop.scopeWarningOne' : 'tour.service.stop.scopeWarningMany', { count: exceptionCount }))}</div>`
         : '';
     const explicitDest = destPoint();
     const autoLastStopIsDestination = !state.tour.roundTrip && !explicitDest && stops.length > 0;
@@ -1486,7 +1486,7 @@ function renderStops() {
             const serviceReason = linkedVisits.map((visit) => visit.reason).filter(Boolean).join(' + ');
             const zanoboUrl = zanoboMachineUrl(linkedVisits.find((visit) => String(visit.assetId ?? '').trim())?.assetId);
             const servicePlanLine = planned
-                ? `<span class="service-stop-plan">🛠️ ${planned.map((entry) => `${escapeHtml(formatPlanTime(entry.start))}–${escapeHtml(formatPlanTime(entry.end))}`).join(' + ')}${serviceReason ? ` · ${escapeHtml(serviceReason)}` : ''}${zanoboUrl ? ` · <a class="zanobo-link" href="${escapeHtml(zanoboUrl)}" target="_blank" rel="noopener noreferrer" title="Zanobo vergleicht das Betriebsgeräusch mit der Referenz der Anlage – Orientierung, keine Diagnose.">🔊 Anhören</a>` : ''}</span>`
+                ? `<span class="service-stop-plan">🛠️ ${planned.map((entry) => `${escapeHtml(formatPlanTime(entry.start))}–${escapeHtml(formatPlanTime(entry.end))}`).join(' + ')}${serviceReason ? ` · ${escapeHtml(serviceReason)}` : ''}${zanoboUrl ? ` · <a class="zanobo-link" href="${escapeHtml(zanoboUrl)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(t('tour.service.stop.zanoboTitle'))}">${escapeHtml(t('tour.service.stop.listen'))}</a>` : ''}</span>`
                 : '';
             const last = lastVisit(c);
             const visitDetail = done
@@ -1497,7 +1497,7 @@ function renderStops() {
             <div class="stop-row${autoLastStopIsDestination && i === stops.length - 1 ? ' final-row' : ''}${done ? ' stop-visited' : ''}">
                 <span class="stop-num" data-visit-node="${i}" title="${escapeHtml(t(done ? 'tour.stops.mobileVisited' : 'tour.stops.mobileMarkVisited'))}">${i + 1}</span>
                 <span class="stop-name" title="${escapeHtml(c.name)}">
-                    <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? `<span class="route-role">${escapeHtml(t('tour.stops.destination'))}</span>` : ''}${outsideServiceScope ? '<span class="route-role scope-exception">Außerhalb Servicefilter</span>' : ''}</span>
+                    <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? `<span class="route-role">${escapeHtml(t('tour.stops.destination'))}</span>` : ''}${outsideServiceScope ? `<span class="route-role scope-exception">${escapeHtml(t('tour.service.stop.outsideFilter'))}</span>` : ''}</span>
                     <span class="stop-sub muted small">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${visitDetail ? ` · ${escapeHtml(visitDetail)}` : ''}</span>
                     ${servicePlanLine ? `<span class="stop-plan-line">${servicePlanLine}</span>` : ''}
                     <button type="button" class="stop-briefing stop-briefing-inline" data-briefing="${i}" title="${escapeHtml(briefingTitle)}">${escapeHtml(t('tour.stops.briefing'))}</button>

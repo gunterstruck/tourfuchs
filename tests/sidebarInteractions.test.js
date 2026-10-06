@@ -129,7 +129,7 @@ describe('Sidebar-Bedienung', () => {
         expect(doc.getElementById('tour-sales-priority')).not.toBeNull();
         expect(contractsCss).toMatch(/#tour-sales-priority\[hidden\][\s\S]*?display:\s*none\s*!important;/);
         expect(tourPanelSource).toContain('syncModeSpecificTourControls();');
-        expect(tourPanelSource).toContain('Außerhalb Servicefilter');
+        expect(tourPanelSource).toContain("t('tour.service.stop.outsideFilter')");
         expect(mapSource).toContain("state.ui.mode !== 'service' || state.ui.activeTab === 'tour'");
         expect(mapSource).toContain("on('tab:changed', refreshAll)");
     });
