@@ -589,9 +589,11 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   passend zur Sprache; die fachlichen Werte werden nicht verändert. Auch der
   gedruckte Tagesplan verwendet für Datum, Zusammenfassung, Ziel,
   Besuchsrhythmus, Tabellenkopf, Planungshinweis, Demo-Warnung und die
-  Zurück-/Drucken-Leiste die gewählte Sprache. Die erweiterten
-  Service-Tagesvorschläge folgen in einem eigenen kleinen Schritt; noch nicht
-  umgestellte Fachdialoge verwenden vorerst Deutsch.
+  Zurück-/Drucken-Leiste die gewählte Sprache. In der erweiterten
+  Service-Tagesplanung folgen Arbeitsende, Titel, Techniker-/Teamauswahl,
+  Qualifikationen, Erklärung und Berechnungsaktion ebenfalls der Sprache. Die
+  dynamische Ergebnisvorschau folgt in einem eigenen kleinen Schritt; noch
+  nicht umgestellte Fachdialoge verwenden vorerst Deutsch.
 
 ---
 

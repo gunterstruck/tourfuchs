@@ -495,7 +495,7 @@
                             <input type="time" id="plan-time" value="08:00"></label>
                         <label class="plan-field"><span data-i18n="tour.plan.visitMinutes">Besuch (Min.)</span>
                             <input type="number" id="plan-visit-min" value="45" min="10" max="240" step="5"></label>
-                        <label id="service-plan-end-field" class="plan-field" hidden>Arbeitsende
+                        <label id="service-plan-end-field" class="plan-field" hidden><span data-i18n="tour.service.workEnd">Arbeitsende</span>
                             <input type="time" id="service-plan-end" value="17:00"></label>
                     </div>
                     <p class="muted small" data-i18n="tour.plan.hint">Datum, Startzeit und Besuchsdauer für den Tagesplan-Druck, die Kalender-Termine (.ics) und die QR-Übergabe.</p>
@@ -503,14 +503,14 @@
 
                 <section id="service-day-planner" class="service-day-planner" hidden>
                     <div class="service-day-planner-head">
-                        <div><b>✨ Erklärbarer Tagesvorschlag</b><small>Ein Techniker · ein Tag · lokale Planung ohne Live-Verkehr</small></div>
+                        <div><b data-i18n="tour.service.proposalTitle">✨ Erklärbarer Tagesvorschlag</b><small data-i18n="tour.service.proposalSubtitle">Ein Techniker · ein Tag · lokale Planung ohne Live-Verkehr</small></div>
                     </div>
                     <div class="service-day-plan-settings">
-                        <label>Techniker / Team<select id="service-plan-assignee"><option value="">Alle offenen Einsätze</option></select></label>
-                        <label>Verfügbare Qualifikationen<input id="service-plan-skills" type="text" placeholder="z. B. Elektro, SPS" autocomplete="off"></label>
+                        <label><span data-i18n="tour.service.assignee">Techniker / Team</span><select id="service-plan-assignee"><option value="" data-i18n="tour.service.allOpen">Alle offenen Einsätze</option></select></label>
+                        <label><span data-i18n="tour.service.skills">Verfügbare Qualifikationen</span><input id="service-plan-skills" type="text" placeholder="z. B. Elektro, SPS" data-i18n-placeholder="tour.service.skillsPlaceholder" autocomplete="off"></label>
                     </div>
-                    <p class="muted small">Start und Ziel oben festlegen. Ohne Ziel plant TourFuchs die Rückkehr zum Start. Zeitfenster, Einsatzdauer und Arbeitsende bleiben harte Grenzen.</p>
-                    <button id="btn-service-day-preview" class="primary" type="button">Tagesvorschlag berechnen</button>
+                    <p class="muted small" data-i18n="tour.service.hint">Start und Ziel oben festlegen. Ohne Ziel plant TourFuchs die Rückkehr zum Start. Zeitfenster, Einsatzdauer und Arbeitsende bleiben harte Grenzen.</p>
+                    <button id="btn-service-day-preview" class="primary" type="button" data-i18n="tour.service.calculate">Tagesvorschlag berechnen</button>
                     <div id="service-day-preview" aria-live="polite"></div>
                 </section>
 

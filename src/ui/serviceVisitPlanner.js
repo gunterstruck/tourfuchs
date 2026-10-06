@@ -24,6 +24,7 @@ import { normalizeCustomerNumber, isPlanningRelevantServiceContract } from '../f
 import { ZANOBO_DEFAULT_BASE, setZanoboBaseUrl, zanoboBaseUrl, zanoboMachineUrl } from '../services/zanobo.js';
 import { flyToCustomer } from '../features/map.js';
 import { todayIso } from '../features/visits.js';
+import { t } from '../core/i18n.js';
 
 const el = (id) => document.getElementById(id);
 const visits = () => Array.isArray(state.serviceVisits) ? state.serviceVisits : [];
@@ -140,7 +141,7 @@ function renderAssigneeOptions() {
         const select = el(id);
         if (!select) continue;
         const current = select.value;
-        const first = id === 'service-plan-assignee' ? 'Alle offenen Einsätze' : 'Alle';
+        const first = id === 'service-plan-assignee' ? t('tour.service.allOpen') : 'Alle';
         select.innerHTML = `<option value="">${first}</option>${values.map((value) => `<option value="${escapeHtml(value)}">${escapeHtml(value)}</option>`).join('')}`;
         if (values.includes(current)) select.value = current;
     }
@@ -522,6 +523,7 @@ export function initServiceVisitPlanner() {
     on('service-contracts:changed', renderAll);
     on('service-customer-scope:changed', renderAll);
     on('service-visits:open', openCustomerVisits);
+    on('locale:changed', renderAssigneeOptions);
     on('app:ready', renderAll);
     renderAll();
 }
