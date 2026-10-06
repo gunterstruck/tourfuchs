@@ -584,9 +584,12 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   erstellten Kalenderdateien und erfolgreicher oder fehlgeschlagener Textkopie
   erscheinen ebenfalls passend zur Sprache. Eine als Text kopierte Tour enthält
   Kennzeichnung, Start, Ziel, Telefonnummer, Rückweg und Streckenschätzung in
-  der gewählten Sprache. Die Inhalte der erzeugten Druck- und Kalenderausgaben
-  sowie die erweiterten Service-Tagesvorschläge folgen in eigenen kleinen
-  Schritten; noch nicht umgestellte Fachdialoge verwenden vorerst Deutsch.
+  der gewählten Sprache. Auch Kalendertermine beschriften Hauptansprechpartner,
+  Telefon, Kundennummer, Auftrag, Anlass, Priorität, Verantwortung und Quelle
+  passend zur Sprache; die fachlichen Werte werden nicht verändert. Der Inhalt
+  der Druckausgabe sowie die erweiterten Service-Tagesvorschläge folgen in
+  eigenen kleinen Schritten; noch nicht umgestellte Fachdialoge verwenden
+  vorerst Deutsch.
 
 ---
 
