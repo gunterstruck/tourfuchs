@@ -1877,6 +1877,11 @@ export function customerPopupHtml(customer) {
         .filter(Boolean).map(escapeHtml).join(' · ');
     const hierarchy = [customer.channel, customer.gruppe, customer.bezirk]
         .filter(Boolean).map(escapeHtml).join(' › ');
+    const representative = String(customer.vb ?? '').trim();
+    const assignment = [
+        hierarchy,
+        representative ? escapeHtml(t('customer.representative', { name: representative })) : ''
+    ].filter(Boolean).join(' · ');
     const rawRevenue = customer.umsatz;
     const hasRevenue = rawRevenue !== null
         && rawRevenue !== undefined
@@ -1902,7 +1907,7 @@ export function customerPopupHtml(customer) {
         <h3>${escapeHtml(customer.name)}${demoBadge}${nr}</h3>
         ${addr ? `<p class="popup-addr">${addr}${geoNote ? ` <span class="muted small popup-geo-note">${escapeHtml(geoNote)}</span>` : ''}</p>` : ''}
         ${revenueHtml}
-        ${profi && hierarchy ? `<p class="muted small popup-meta">${hierarchy}</p>` : ''}
+        ${profi && assignment ? `<p class="muted small popup-meta">${assignment}</p>` : ''}
         ${contactBlockHtml(customer)}
         ${serviceVisitsBlockHtml(customer)}
         ${serviceContractsBlockHtml(customer)}
