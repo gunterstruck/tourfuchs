@@ -22,6 +22,7 @@ import { showToast } from './toast.js';
 import { fileSlug, territoryLabel } from '../features/territoryPills.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
+import { t } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -615,21 +616,21 @@ function updateMobileNextStep() {
     // für „Kunden in meiner Nähe" – abgeschnitten ist schlimmer als kurz.
     const narrow = narrowQuery.matches;
     let action = 'nearby';
-    let text = narrow ? 'In der Nähe' : 'Kunden in meiner Nähe';
+    let text = t(narrow ? 'mobile.next.nearbyShort' : 'mobile.next.nearbyLong');
     let glyph = '📍';
     if (!state.tour.start) {
         action = 'nearby';
-        text = narrow ? 'In der Nähe' : 'Kunden in meiner Nähe';
+        text = t(narrow ? 'mobile.next.nearbyShort' : 'mobile.next.nearbyLong');
         glyph = '📍';
     } else if (state.tour.stops.length === 0) {
         action = 'plan';
-        text = narrow ? 'Tour planen' : 'Tour ab hier planen';
+        text = t(narrow ? 'mobile.next.planShort' : 'mobile.next.planLong');
         glyph = '🚩';
     } else {
         // Stopps vorhanden, Route noch nicht auf der Karte (mapFocus-Fall ist
         // oben schon ausgeschlossen) – der nächste Zug ist „Route zeigen".
         action = 'route';
-        text = narrow ? 'Route zeigen' : 'Route auf die Karte';
+        text = t(narrow ? 'mobile.next.routeShort' : 'mobile.next.routeLong');
         glyph = '🗺️';
     }
     btn.dataset.action = action;
@@ -1475,6 +1476,7 @@ export function initSidebar() {
         applyMode(state.ui.mode, false, false);
         applySidebar();
     });
+    on('locale:changed', updateMobileNextStep);
 
     // Gebietsebene
     const levelSelect = document.getElementById('level-select');
