@@ -98,6 +98,7 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         expect(html).toContain('data-action="copy-customer-number"');
         expect(html).toContain('title="Kundennummer als [4711] in die Zwischenablage kopieren"');
         expect(html).toContain('aria-label="Kundennummer als [4711] in die Zwischenablage kopieren"');
+        expect(html).toContain('<span aria-hidden="true">⧉</span>');
         expect(html).toContain('Nr. 00004711');
     });
 
