@@ -61,6 +61,7 @@ describe('Kundensuche und Kundenkarte in vier Sprachen', () => {
         expect(html).toContain('Last visit:');
         expect(html).toContain('every 4 weeks');
         expect(html).toContain('📞 Call');
+        expect(html).toContain('title="Copy customer number to the clipboard as [4711]"');
         expect(html).toContain('Set as start');
         expect(html).toContain('Add to tour');
         expect(html).toContain('Prepare a customer briefing prompt');
