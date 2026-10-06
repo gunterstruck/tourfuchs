@@ -17,6 +17,7 @@ import {
 } from '../features/visitReport.js';
 import { todayIso } from '../features/visits.js';
 import { showToast } from './toast.js';
+import { t } from '../core/i18n.js';
 
 const excel = () => import('../services/excel.js');
 
@@ -33,12 +34,12 @@ function entriesFor(id) {
 
 function render() {
     const list = dialog.querySelector('#visit-report-ranges');
-    list.innerHTML = VISIT_REPORT_RANGES.map(({ id, label }) => {
+    list.innerHTML = VISIT_REPORT_RANGES.map(({ id }) => {
         const count = entriesFor(id).length;
         return `<label class="visit-report-range">
             <input type="radio" name="visit-report-range" value="${id}"${id === range ? ' checked' : ''}>
-            <span>${escapeHtml(label)}</span>
-            <b>${count} ${count === 1 ? 'Besuch' : 'Besuche'}</b>
+            <span>${escapeHtml(t(`report.${id}`))}</span>
+            <b>${escapeHtml(t(count === 1 ? 'report.count.one' : 'report.count.many', { count }))}</b>
         </label>`;
     }).join('');
     list.querySelectorAll('input').forEach((input) => input.addEventListener('change', () => {
@@ -53,8 +54,8 @@ function syncConfirm() {
     const button = dialog.querySelector('#visit-report-share');
     button.disabled = count === 0;
     button.textContent = count === 0
-        ? 'Keine Besuche im Zeitraum'
-        : `📤 ${count} ${count === 1 ? 'Besuch' : 'Besuche'} weitergeben`;
+        ? t('report.empty')
+        : t(count === 1 ? 'report.shareCount.one' : 'report.shareCount.many', { count });
 }
 
 export function openVisitReport() {
@@ -173,4 +174,5 @@ export function initVisitReport() {
     on('app:ready', syncButton);
     on('visits:changed', syncButton);
     on('customers:changed', syncButton);
+    on('locale:changed', () => { if (dialog?.open) render(); syncButton(); });
 }

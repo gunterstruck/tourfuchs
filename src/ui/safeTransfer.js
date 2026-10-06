@@ -24,6 +24,7 @@ import {
 import { openSetupDialog } from './lockVault.js';
 import { showToast } from './toast.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
+import { t } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -88,9 +89,7 @@ async function openExportDialog() {
         showToast('Schlüssel-QR konnte nicht erzeugt werden.', 'error');
         return;
     }
-    document.getElementById('safe-export-info').innerHTML =
-        `Verschlüsselte Datei mit <b>${transferCountText(bundle)}</b> heruntergeladen. `
-        + 'Bring sie aufs Handy (Mail, Cloud, USB) und scanne dort diesen QR-Schlüssel.';
+    document.getElementById('safe-export-info').textContent = t('safeExport.info', { count: transferCountText(bundle) });
     const keyText = document.getElementById('safe-export-keytext');
     if (keyText) keyText.value = bundle.keyQr;
     exportDialog.showModal();

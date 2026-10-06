@@ -206,8 +206,8 @@
                             <button id="btn-import-notes" type="button" hidden>⬇ Hinweise zum letzten Import (.xlsx)</button>
                             <button id="btn-geocode">🎯 Adressen exakt verorten</button>
                             <div id="geocode-progress" class="muted small" style="display:none"></div>
-                            <button id="btn-export">💾 Als Excel exportieren</button>
-                            <button id="btn-visit-report-data" type="button" title="Nur die besuchten Kunden, eine Zeile je Besuch">📤 Besuchsbericht (Excel)</button>
+                            <button id="btn-export" data-i18n="export.excel">💾 Als Excel exportieren</button>
+                            <button id="btn-visit-report-data" type="button" title="Nur die besuchten Kunden, eine Zeile je Besuch" data-i18n="export.visitReport">📤 Besuchsbericht (Excel)</button>
                             <button id="btn-clear" class="danger">🗑 Daten löschen</button>
                         </div>
                     </div>
@@ -238,7 +238,7 @@
                         <h3 id="safe-transfer-title">🧳 Sicherer Umzug</h3>
                         <p id="safe-transfer-note" class="muted small">Daten verschlüsselt auf ein anderes Gerät bringen: Datei und Schlüssel (QR) reisen getrennt – die Datei ist ohne Schlüssel wertlos.</p>
                         <div class="button-column" id="safe-transfer-actions">
-                            <button id="btn-safe-export">🧳 Verschlüsselt exportieren (Datei + QR)</button>
+                            <button id="btn-safe-export" data-i18n="safeExport.open">🧳 Verschlüsselt exportieren (Datei + QR)</button>
                             <button id="btn-safe-receive">📥 Daten empfangen (Datei + Schlüssel)</button>
                         </div>
                         </div><!-- /.vault-details-body -->
@@ -775,13 +775,13 @@
 
         <!-- Excel-Export: alle Kunden oder nur die gefilterten? -->
         <dialog id="export-choice-dialog" class="geocode-offer-dialog" aria-labelledby="export-choice-title">
-            <h2 id="export-choice-title">⬇ Excel exportieren</h2>
+            <h2 id="export-choice-title" data-i18n="export.choice.title">⬇ Excel exportieren</h2>
             <p id="export-choice-lead"></p>
             <div class="geocode-offer-actions">
-                <button type="button" id="export-choice-filtered">Nur gefilterte</button>
-                <button type="button" id="export-choice-all" class="primary">Alle Kunden</button>
+                <button type="button" id="export-choice-filtered" data-i18n="export.choice.filtered">Nur gefilterte</button>
+                <button type="button" id="export-choice-all" class="primary" data-i18n="export.choice.all">Alle Kunden</button>
             </div>
-            <p class="muted small geocode-offer-foot">Mit allen Spalten: Originalspalten der Importdatei, Besuche, Verortung und Ansprechpartner. <button type="button" id="export-choice-cancel" class="export-choice-cancel">Abbrechen</button></p>
+            <p class="muted small geocode-offer-foot"><span data-i18n="export.choice.foot">Mit allen Spalten: Originalspalten der Importdatei, Besuche, Verortung und Ansprechpartner.</span> <button type="button" id="export-choice-cancel" class="export-choice-cancel" data-i18n="export.choice.cancel">Abbrechen</button></p>
         </dialog>
 
         <!-- Fortschritt der Verortung im Hintergrund -->
@@ -881,24 +881,24 @@
         </dialog>
 
         <!-- Besuchsbericht: Besuche vom Handy als kleine Excel-Datei weitergeben -->
-        <dialog id="visit-report-dialog" class="visit-report-dialog" aria-label="Besuche weitergeben">
+        <dialog id="visit-report-dialog" class="visit-report-dialog" aria-label="Besuche weitergeben" data-i18n-aria-label="report.title">
             <header>
-                <h2>📤 Besuche weitergeben</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="report.title">📤 Besuche weitergeben</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <div class="visit-report-body">
-                <p>TourFuchs synchronisiert nichts über das Internet. Deine Besuche gehen deshalb als <b>kleine Excel-Datei</b> weiter: nur die besuchten Kunden, eine Zeile je Besuch – mit Kundennummer, Datum und Adresse.</p>
-                <div id="visit-report-ranges" class="visit-report-ranges" role="radiogroup" aria-label="Zeitraum"></div>
+                <p data-i18n="report.intro">TourFuchs synchronisiert nichts über das Internet. Deine Besuche gehen deshalb als kleine Excel-Datei weiter: nur die besuchten Kunden, eine Zeile je Besuch – mit Kundennummer, Datum und Adresse.</p>
+                <div id="visit-report-ranges" class="visit-report-ranges" role="radiogroup" aria-label="Zeitraum" data-i18n-aria-label="report.range"></div>
                 <ul class="visit-report-uses">
-                    <li><b>CRM:</b> Datei importieren oder die Besuche dort nachtragen.</li>
-                    <li><b>KI:</b> Datei anhängen – „trag das ein" oder „schreib meinen Wochenbericht".</li>
-                    <li><b>Desktop:</b> In TourFuchs über „Eigene Daten laden" öffnen – die Besuche werden über die Kundennummer nachgetragen, sonst ändert sich nichts.</li>
+                    <li data-i18n="report.crm">CRM: Datei importieren oder die Besuche dort nachtragen.</li>
+                    <li data-i18n="report.ai">KI: Datei anhängen – „trag das ein" oder „schreib meinen Wochenbericht".</li>
+                    <li data-i18n="report.desktop">Desktop: In TourFuchs über „Eigene Daten laden" öffnen – die Besuche werden über die Kundennummer nachgetragen, sonst ändert sich nichts.</li>
                 </ul>
-                <p class="muted small">Die Datei enthält Kundennamen. Teile sie nur über die Wege deiner Organisation (Firmen-Mail, Teams, OneDrive).</p>
+                <p class="muted small" data-i18n="report.security">Die Datei enthält Kundennamen. Teile sie nur über die Wege deiner Organisation (Firmen-Mail, Teams, OneDrive).</p>
             </div>
             <footer>
-                <button type="button" id="visit-report-cancel">Abbrechen</button>
-                <button type="button" id="visit-report-share" class="primary">📤 Weitergeben</button>
+                <button type="button" id="visit-report-cancel" data-i18n="report.cancel">Abbrechen</button>
+                <button type="button" id="visit-report-share" class="primary" data-i18n="report.share">📤 Weitergeben</button>
             </footer>
         </dialog>
 
@@ -1448,26 +1448,26 @@
         </dialog>
 
         <!-- Sicherer Umzug: verschlüsselt exportieren (Desktop) -->
-        <dialog id="safe-export-dialog" aria-label="Verschlüsselt exportieren">
+        <dialog id="safe-export-dialog" aria-label="Verschlüsselt exportieren" data-i18n-aria-label="safeExport.title">
             <header>
-                <h2>🧳 Verschlüsselt exportieren</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="safeExport.title">🧳 Verschlüsselt exportieren</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <div class="safe-body">
                 <canvas id="safe-export-canvas"></canvas>
                 <p id="safe-export-info" class="muted small"></p>
                 <ol class="safe-steps">
-                    <li>Die heruntergeladene Datei <b>.tfsafe</b> aufs Handy bringen (Mail, Cloud, USB).</li>
-                    <li>In TourFuchs auf dem Handy <b>„Daten empfangen"</b> öffnen, die Datei wählen.</li>
-                    <li>Diesen <b>Schlüssel-QR</b> mit der App scannen – fertig.</li>
+                    <li data-i18n="safeExport.step1">Die heruntergeladene .tfsafe-Datei aufs Handy bringen (Mail, Cloud, USB).</li>
+                    <li data-i18n="safeExport.step2">In TourFuchs auf dem Handy „Daten empfangen" öffnen, die Datei wählen.</li>
+                    <li data-i18n="safeExport.step3">Diesen Schlüssel-QR mit der App scannen – fertig.</li>
                 </ol>
-                <p class="muted small"><b>Wichtig:</b> Schlüssel und Datei getrennt halten. Wer nur die Datei hat, kann nichts entschlüsseln. Der Schlüssel wird nicht übers Netz übertragen.</p>
+                <p class="muted small" data-i18n="safeExport.warning">Wichtig: Schlüssel und Datei getrennt halten. Wer nur die Datei hat, kann nichts entschlüsseln. Der Schlüssel wird nicht übers Netz übertragen.</p>
                 <details class="safe-fallback">
-                    <summary>Schlüssel als Text (falls Scannen nicht klappt)</summary>
-                    <textarea id="safe-export-keytext" rows="2" readonly aria-label="Schlüssel als Text"></textarea>
+                    <summary data-i18n="safeExport.fallback">Schlüssel als Text (falls Scannen nicht klappt)</summary>
+                    <textarea id="safe-export-keytext" rows="2" readonly aria-label="Schlüssel als Text" data-i18n-aria-label="safeExport.keyLabel"></textarea>
                 </details>
                 <div class="button-column">
-                    <button id="safe-export-download">💾 Datei erneut herunterladen</button>
+                    <button id="safe-export-download" data-i18n="safeExport.download">💾 Datei erneut herunterladen</button>
                 </div>
             </div>
         </dialog>

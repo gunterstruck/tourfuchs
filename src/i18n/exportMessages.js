@@ -1,0 +1,70 @@
+const de = {
+    'export.excel': '💾 Als Excel exportieren', 'export.visitReport': '📤 Besuchsbericht (Excel)',
+    'export.choice.title': '⬇ Excel exportieren', 'export.choice.filtered': 'Nur gefilterte', 'export.choice.all': 'Alle Kunden',
+    'export.choice.foot': 'Mit allen Spalten: Originalspalten der Importdatei, Besuche, Verortung und Ansprechpartner.',
+    'export.choice.cancel': 'Abbrechen', 'export.choice.lead': 'Ein Filter ist aktiv: {visible} von {all} Kunden sind sichtbar. Was soll in die Excel-Datei?',
+    'export.choice.filteredCount': 'Nur die {count} gefilterten', 'export.choice.allCount': 'Alle {count} Kunden',
+    'report.title': '📤 Besuche weitergeben', 'report.intro': 'TourFuchs synchronisiert nichts über das Internet. Deine Besuche gehen deshalb als kleine Excel-Datei weiter: nur die besuchten Kunden, eine Zeile je Besuch – mit Kundennummer, Datum und Adresse.',
+    'report.range': 'Zeitraum', 'report.unsent': 'Seit dem letzten Bericht', 'report.today': 'Heute', 'report.week': 'Diese Woche',
+    'report.count.one': '{count} Besuch', 'report.count.many': '{count} Besuche', 'report.empty': 'Keine Besuche im Zeitraum',
+    'report.shareCount.one': '📤 {count} Besuch weitergeben', 'report.shareCount.many': '📤 {count} Besuche weitergeben',
+    'report.crm': 'CRM: Datei importieren oder die Besuche dort nachtragen.', 'report.ai': 'KI: Datei anhängen – „trag das ein“ oder „schreib meinen Wochenbericht“.',
+    'report.desktop': 'Desktop: In TourFuchs über „Eigene Daten laden“ öffnen – die Besuche werden über die Kundennummer nachgetragen, sonst ändert sich nichts.',
+    'report.security': 'Die Datei enthält Kundennamen. Teile sie nur über die Wege deiner Organisation (Firmen-Mail, Teams, OneDrive).',
+    'report.cancel': 'Abbrechen', 'report.share': '📤 Weitergeben',
+    'safeExport.open': '🧳 Verschlüsselt exportieren (Datei + QR)', 'safeExport.title': '🧳 Verschlüsselt exportieren',
+    'safeExport.step1': 'Die heruntergeladene .tfsafe-Datei aufs Handy bringen (Mail, Cloud, USB).',
+    'safeExport.step2': 'In TourFuchs auf dem Handy „Daten empfangen“ öffnen und die Datei wählen.',
+    'safeExport.step3': 'Diesen Schlüssel-QR mit der App scannen – fertig.',
+    'safeExport.warning': 'Wichtig: Schlüssel und Datei getrennt halten. Wer nur die Datei hat, kann nichts entschlüsseln. Der Schlüssel wird nicht übers Netz übertragen.',
+    'safeExport.fallback': 'Schlüssel als Text (falls Scannen nicht klappt)', 'safeExport.keyLabel': 'Schlüssel als Text',
+    'safeExport.download': '💾 Datei erneut herunterladen',
+    'safeExport.info': 'Verschlüsselte Datei mit {count} heruntergeladen. Bring sie aufs Handy (Mail, Cloud, USB) und scanne dort diesen QR-Schlüssel.'
+};
+
+const en = {
+    'export.excel': '💾 Export as Excel', 'export.visitReport': '📤 Visit report (Excel)',
+    'export.choice.title': '⬇ Export Excel', 'export.choice.filtered': 'Filtered only', 'export.choice.all': 'All customers',
+    'export.choice.foot': 'Includes all columns: original import columns, visits, positioning and contacts.', 'export.choice.cancel': 'Cancel',
+    'export.choice.lead': 'A filter is active: {visible} of {all} customers are visible. What should the Excel file contain?',
+    'export.choice.filteredCount': 'Only the {count} filtered', 'export.choice.allCount': 'All {count} customers',
+    'report.title': '📤 Share visits', 'report.intro': 'TourFuchs does not synchronise online. Your visits are therefore passed on as a small Excel file: only visited customers, one row per visit, with customer number, date and address.',
+    'report.range': 'Period', 'report.unsent': 'Since the last report', 'report.today': 'Today', 'report.week': 'This week',
+    'report.count.one': '{count} visit', 'report.count.many': '{count} visits', 'report.empty': 'No visits in this period',
+    'report.shareCount.one': '📤 Share {count} visit', 'report.shareCount.many': '📤 Share {count} visits',
+    'report.crm': 'CRM: Import the file or record the visits there.', 'report.ai': 'AI: Attach the file and ask it to record the visits or write your weekly report.',
+    'report.desktop': 'Desktop: Open it in TourFuchs via “Load your own data”. Visits are matched by customer number; nothing else changes.',
+    'report.security': 'The file contains customer names. Share it only through channels approved by your organisation.',
+    'report.cancel': 'Cancel', 'report.share': '📤 Share',
+    'safeExport.open': '🧳 Export encrypted (file + QR)', 'safeExport.title': '🧳 Export encrypted',
+    'safeExport.step1': 'Move the downloaded .tfsafe file to your phone (email, cloud or USB).', 'safeExport.step2': 'Open “Receive data” in TourFuchs on the phone and select the file.',
+    'safeExport.step3': 'Scan this key QR code with the app – done.', 'safeExport.warning': 'Important: Keep the key and file separate. The file alone cannot be decrypted. The key is not sent over the internet.',
+    'safeExport.fallback': 'Key as text (if scanning fails)', 'safeExport.keyLabel': 'Key as text', 'safeExport.download': '💾 Download file again',
+    'safeExport.info': 'Encrypted file containing {count} downloaded. Move it to your phone and scan this QR key there.'
+};
+
+const fr = {
+    'export.excel': '💾 Exporter vers Excel', 'export.visitReport': '📤 Rapport de visites (Excel)', 'export.choice.title': '⬇ Exporter vers Excel',
+    'export.choice.filtered': 'Filtrés uniquement', 'export.choice.all': 'Tous les clients', 'export.choice.foot': 'Toutes les colonnes sont incluses : importation, visites, localisation et contacts.', 'export.choice.cancel': 'Annuler',
+    'export.choice.lead': 'Un filtre est actif : {visible} clients sur {all} sont visibles. Que doit contenir le fichier Excel ?', 'export.choice.filteredCount': 'Seulement les {count} filtrés', 'export.choice.allCount': 'Les {count} clients',
+    'report.title': '📤 Partager les visites', 'report.intro': 'TourFuchs ne synchronise rien sur Internet. Les visites sont donc transmises dans un petit fichier Excel : uniquement les clients visités, une ligne par visite, avec numéro client, date et adresse.',
+    'report.range': 'Période', 'report.unsent': 'Depuis le dernier rapport', 'report.today': 'Aujourd’hui', 'report.week': 'Cette semaine', 'report.count.one': '{count} visite', 'report.count.many': '{count} visites', 'report.empty': 'Aucune visite sur cette période',
+    'report.shareCount.one': '📤 Partager {count} visite', 'report.shareCount.many': '📤 Partager {count} visites', 'report.crm': 'CRM : importez le fichier ou saisissez-y les visites.', 'report.ai': 'IA : joignez le fichier pour enregistrer les visites ou rédiger le rapport hebdomadaire.',
+    'report.desktop': 'Ordinateur : ouvrez-le dans TourFuchs via « Charger vos données ». Les visites sont associées par numéro client ; rien d’autre ne change.', 'report.security': 'Le fichier contient des noms de clients. Partagez-le uniquement par les canaux autorisés par votre organisation.', 'report.cancel': 'Annuler', 'report.share': '📤 Partager',
+    'safeExport.open': '🧳 Exporter chiffré (fichier + QR)', 'safeExport.title': '🧳 Exporter chiffré', 'safeExport.step1': 'Transférez le fichier .tfsafe téléchargé vers le téléphone (e-mail, cloud ou USB).', 'safeExport.step2': 'Ouvrez « Recevoir des données » dans TourFuchs sur le téléphone et choisissez le fichier.', 'safeExport.step3': 'Scannez ce QR de clé avec l’application – terminé.',
+    'safeExport.warning': 'Important : conservez la clé et le fichier séparément. Le fichier seul ne peut pas être déchiffré. La clé n’est pas transmise sur Internet.', 'safeExport.fallback': 'Clé sous forme de texte (si le scan échoue)', 'safeExport.keyLabel': 'Clé sous forme de texte', 'safeExport.download': '💾 Télécharger à nouveau le fichier', 'safeExport.info': 'Fichier chiffré contenant {count} téléchargé. Transférez-le au téléphone et scannez-y cette clé QR.'
+};
+
+const es = {
+    'export.excel': '💾 Exportar a Excel', 'export.visitReport': '📤 Informe de visitas (Excel)', 'export.choice.title': '⬇ Exportar a Excel',
+    'export.choice.filtered': 'Solo filtrados', 'export.choice.all': 'Todos los clientes', 'export.choice.foot': 'Incluye todas las columnas: importación, visitas, ubicación y contactos.', 'export.choice.cancel': 'Cancelar',
+    'export.choice.lead': 'Hay un filtro activo: se ven {visible} de {all} clientes. ¿Qué debe contener el archivo Excel?', 'export.choice.filteredCount': 'Solo los {count} filtrados', 'export.choice.allCount': 'Los {count} clientes',
+    'report.title': '📤 Compartir visitas', 'report.intro': 'TourFuchs no sincroniza nada por Internet. Las visitas se comparten en un pequeño archivo Excel: solo clientes visitados, una fila por visita, con número de cliente, fecha y dirección.',
+    'report.range': 'Periodo', 'report.unsent': 'Desde el último informe', 'report.today': 'Hoy', 'report.week': 'Esta semana', 'report.count.one': '{count} visita', 'report.count.many': '{count} visitas', 'report.empty': 'No hay visitas en este periodo',
+    'report.shareCount.one': '📤 Compartir {count} visita', 'report.shareCount.many': '📤 Compartir {count} visitas', 'report.crm': 'CRM: importa el archivo o registra allí las visitas.', 'report.ai': 'IA: adjunta el archivo para registrar las visitas o redactar el informe semanal.',
+    'report.desktop': 'Escritorio: ábrelo en TourFuchs desde «Cargar tus datos». Las visitas se asocian por número de cliente; nada más cambia.', 'report.security': 'El archivo contiene nombres de clientes. Compártelo solo por los canales autorizados de tu organización.', 'report.cancel': 'Cancelar', 'report.share': '📤 Compartir',
+    'safeExport.open': '🧳 Exportar cifrado (archivo + QR)', 'safeExport.title': '🧳 Exportar cifrado', 'safeExport.step1': 'Lleva el archivo .tfsafe descargado al teléfono (correo, nube o USB).', 'safeExport.step2': 'Abre «Recibir datos» en TourFuchs en el teléfono y selecciona el archivo.', 'safeExport.step3': 'Escanea este QR de clave con la aplicación y listo.',
+    'safeExport.warning': 'Importante: mantén la clave y el archivo separados. El archivo por sí solo no se puede descifrar. La clave no se transmite por Internet.', 'safeExport.fallback': 'Clave como texto (si falla el escaneo)', 'safeExport.keyLabel': 'Clave como texto', 'safeExport.download': '💾 Descargar el archivo de nuevo', 'safeExport.info': 'Archivo cifrado con {count} descargado. Llévalo al teléfono y escanea allí esta clave QR.'
+};
+
+export const EXPORT_MESSAGES = Object.freeze({ de: Object.freeze(de), en: Object.freeze(en), fr: Object.freeze(fr), es: Object.freeze(es) });
