@@ -606,7 +606,10 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   mobilen Karten-Hauptansicht wechseln außerdem Tresor-Einstieg, Nachtmodus,
   nächster Schritt, Lasso, Kartenbezeichnung und Kundenstapel sofort zwischen
   DE/EN/FR/ES; Französisch und Spanisch sind dafür bei 390 × 844 Pixeln im
-  laufenden Browser geprüft.
+  laufenden Browser geprüft. Im oberen Info-Bereich folgen außerdem Live-Demo,
+  Guide, Darstellung, exakte Adressverortung, Projektbeschreibung und
+  Feedback-Links der Sprache; auch dynamische Verortungsstände werden neu
+  aufgebaut. Datenschutz-FAQ, Impressum und Quellen folgen separat.
 
 ---
 

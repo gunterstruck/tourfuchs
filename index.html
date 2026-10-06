@@ -1054,15 +1054,15 @@
                 <button class="dialog-close" aria-label="Schließen" data-i18n-aria-label="dialog.close" data-i18n="dialog.close">Schließen</button>
             </header>
             <div class="info-content">
-                <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;">🎬 Funktionen entdecken (Live-Demos)</button>
-                <button type="button" class="js-open-guide guide-open" style="width:100%;margin-bottom:8px;">🦊 Frag den TourFuchs-Guide <small>(ChatGPT – extern)</small></button>
-                <button type="button" id="btn-first-steps-restore" class="only-desktop" style="width:100%;margin-bottom:12px;">🦊 Erste Schritte anzeigen</button>
+                <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;" data-i18n="info.showcase">🎬 Funktionen entdecken (Live-Demos)</button>
+                <button type="button" class="js-open-guide guide-open" style="width:100%;margin-bottom:8px;"><span data-i18n="info.guide">🦊 Frag den TourFuchs-Guide</span> <small data-i18n="info.guideExternal">(ChatGPT – extern)</small></button>
+                <button type="button" id="btn-first-steps-restore" class="only-desktop" style="width:100%;margin-bottom:12px;" data-i18n="info.firstSteps">🦊 Erste Schritte anzeigen</button>
                 <div class="info-setting info-theme" role="group" aria-labelledby="theme-setting-title">
-                    <span><b id="theme-setting-title">🎨 Darstellung</b><br><span class="muted small">Automatisch folgt dem Hell-/Dunkelmodus des Geräts.</span></span>
+                    <span><b id="theme-setting-title" data-i18n="theme.title">🎨 Darstellung</b><br><span class="muted small" data-i18n="theme.hint">Automatisch folgt dem Hell-/Dunkelmodus des Geräts.</span></span>
                     <div class="segmented theme-switch">
-                        <button type="button" data-theme-choice="auto" aria-pressed="true">Automatisch</button>
-                        <button type="button" data-theme-choice="light" aria-pressed="false">☀️ Hell</button>
-                        <button type="button" data-theme-choice="dark" aria-pressed="false">🌙 Dunkel</button>
+                        <button type="button" data-theme-choice="auto" aria-pressed="true" data-i18n="theme.auto">Automatisch</button>
+                        <button type="button" data-theme-choice="light" aria-pressed="false" data-i18n="theme.light">☀️ Hell</button>
+                        <button type="button" data-theme-choice="dark" aria-pressed="false" data-i18n="theme.dark">🌙 Dunkel</button>
                     </div>
                 </div>
                 <div class="info-setting info-language" role="group" aria-labelledby="language-setting-title">
@@ -1078,18 +1078,18 @@
                 <div class="info-setting-group">
                     <label class="info-setting">
                         <input type="checkbox" id="exact-geocode-toggle">
-                        <span><b>📍 Adressen genau verorten</b><br><span class="muted small">Kunden mit Straße über OpenStreetMap auf die genaue Position setzen. Übertragen werden nur Straße, PLZ und Ort.</span></span>
+                        <span><b data-i18n="info.geocode.title">📍 Adressen genau verorten</b><br><span class="muted small" data-i18n="info.geocode.hint">Kunden mit Straße über OpenStreetMap auf die genaue Position setzen. Übertragen werden nur Straße, PLZ und Ort.</span></span>
                     </label>
                     <div id="exact-geocode-state" class="geocode-state" role="status" aria-live="polite" hidden>
                         <span class="geocode-state-text"></span>
-                        <button type="button" id="exact-geocode-now" hidden>Jetzt verorten</button>
+                        <button type="button" id="exact-geocode-now" hidden data-i18n="info.geocode.now">Jetzt verorten</button>
                     </div>
                 </div>
-                <p>Kundenlisten aus Excel auf der Deutschlandkarte: Vertriebsgebiete (Landkreise & Postleitzahlen), Team-Filter und Besuchsplanung mit Tourenoptimierung. Optional mit verschlüsseltem Datentresor.</p>
-                <p class="note-private"><b>Privates, nicht-kommerzielles Projekt.</b> Nutzung auf eigene Gefahr, ohne Gewähr und ohne Haftung jeglicher Art.</p>
-                <p><b>💬 Feedback &amp; Ideen:</b> Fehler gefunden oder einen Wunsch?
-                    <a href="https://github.com/gunterstruck/tourfuchs/issues" target="_blank" rel="noopener">Auf GitHub melden</a> ·
-                    <a class="nowrap" href="mailto:tourfuchs@online.de?subject=TourFuchs%20Feedback">E-Mail schreiben</a></p>
+                <p data-i18n="info.summary">Kundenlisten aus Excel auf der Deutschlandkarte: Vertriebsgebiete (Landkreise & Postleitzahlen), Team-Filter und Besuchsplanung mit Tourenoptimierung. Optional mit verschlüsseltem Datentresor.</p>
+                <p class="note-private"><b data-i18n="info.privateTitle">Privates, nicht-kommerzielles Projekt.</b> <span data-i18n="info.privateBody">Nutzung auf eigene Gefahr, ohne Gewähr und ohne Haftung jeglicher Art.</span></p>
+                <p><b data-i18n="info.feedbackTitle">💬 Feedback &amp; Ideen:</b> <span data-i18n="info.feedbackQuestion">Fehler gefunden oder einen Wunsch?</span>
+                    <a href="https://github.com/gunterstruck/tourfuchs/issues" target="_blank" rel="noopener" data-i18n="info.feedbackGithub">Auf GitHub melden</a> ·
+                    <a class="nowrap" href="mailto:tourfuchs@online.de?subject=TourFuchs%20Feedback" data-i18n="info.feedbackEmail">E-Mail schreiben</a></p>
                 <section class="privacy-faq" aria-labelledby="privacy-faq-title">
                     <h3 id="privacy-faq-title">🔒 Datenschutz – häufige Fragen</h3>
                     <p>Local First: Die Kundenliste wird auf Ihrem Gerät verarbeitet und gespeichert. Welche Grenzen und freiwilligen Übertragungswege es gibt, erklären die Antworten unten.</p>

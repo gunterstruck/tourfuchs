@@ -20,6 +20,7 @@ import { isEnabled as vaultEnabled, isUnlocked as vaultUnlocked, onVault } from 
 import { groupExactGeocodeCandidates, geocodeExact, abandonGeocodeRuns } from '../services/geocode.js';
 import { saveDataset } from '../services/storage.js';
 import { showToast } from './toast.js';
+import { currentLocale, t, translate } from '../core/i18n.js';
 
 export const EXACT_GEOCODE_PREF_KEY = 'tf_exact_geocode';   // 'yes' | 'no'
 // Der freie Dienst erlaubt etwa eine Anfrage pro Sekunde.
@@ -83,9 +84,9 @@ function renderStatus(done, total) {
 }
 
 /** Fortschritt als „427 von 3.441". */
-export function exactGeocodeCountText(done, total) {
-    const fmt = (n) => (Number(n) || 0).toLocaleString('de-DE');
-    return `${fmt(done)} von ${fmt(total)}`;
+export function exactGeocodeCountText(done, total, locale = currentLocale()) {
+    const fmt = (n) => (Number(n) || 0).toLocaleString(locale);
+    return translate(locale, 'info.geocode.count', { done: fmt(done), total: fmt(total) });
 }
 
 /** Zahlen für die Statuszeile: nur eigene Kunden mit Straße. */
@@ -112,26 +113,26 @@ function renderInfoState() {
     let line = '';
     let offerNow = false;
     if (handle) {
-        line = `⏳ Läuft gerade: ${progress.done} von ${progress.total} Adressen geprüft – etwa eine pro Sekunde.`;
+        line = t('info.geocode.running', progress);
     } else if (withStreet === 0) {
-        line = state.customers.length ? 'Keine eigenen Kunden mit Straße – sie liegen auf der Mitte ihrer PLZ.' : '';
+        line = state.customers.length ? t('info.geocode.noStreet') : '';
     } else if (preference !== 'yes') {
-        line = `Aus – ${exact} von ${withStreet} Kunden mit Straße sind adressgenau, die übrigen liegen auf der PLZ-Mitte.`;
+        line = t('info.geocode.off', { exact, withStreet });
     } else if (lastOutcome === 'offline' || (typeof navigator !== 'undefined' && navigator.onLine === false && pending > 0)) {
-        line = `📶 Wartet auf Internet – ${exact} von ${withStreet} adressgenau. Geht von selbst weiter.`;
+        line = t('info.geocode.offline', { exact, withStreet });
     } else if (lastOutcome === 'service' && pending > 0) {
-        line = `OpenStreetMap antwortet gerade nicht – ${exact} von ${withStreet} adressgenau. Neuer Versuch beim nächsten Start.`;
+        line = t('info.geocode.service', { exact, withStreet });
         offerNow = true;
     } else if (lastOutcome === 'paused' && pending > 0) {
-        line = `Angehalten – ${exact} von ${withStreet} adressgenau. Geht beim nächsten Start weiter.`;
+        line = t('info.geocode.paused', { exact, withStreet });
         offerNow = true;
     } else if (pending > 0 && lastOutcome === 'done') {
-        line = `✓ ${exact} von ${withStreet} Kunden adressgenau. ${withStreet - exact} Adressen hat OpenStreetMap nicht gefunden – sie bleiben auf der PLZ-Mitte.`;
+        line = t('info.geocode.notFound', { exact, withStreet, missing: withStreet - exact });
     } else if (pending > 0) {
-        line = `${exact} von ${withStreet} Kunden adressgenau – ${pending} Adressen stehen noch aus.`;
+        line = t('info.geocode.pending', { exact, withStreet, pending });
         offerNow = true;
     } else {
-        line = `✓ Alle ${withStreet} Kunden mit Straße sind adressgenau verortet.`;
+        line = t('info.geocode.all', { withStreet });
     }
     box.hidden = !line;
     if (text) text.textContent = line;
@@ -319,4 +320,5 @@ export function initExactGeocoding() {
     on('dataset:cleared', abandonGeocodeRuns);
     on('customers:changed', renderInfoState);
     on('showcase:running', onShowcaseRunning);
+    on('locale:changed', renderInfoState);
 }
