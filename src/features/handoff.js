@@ -6,6 +6,7 @@
 
 import { visitStatus, lastVisit, agoText, formatDateDe, STATUS_LABELS } from './visits.js';
 import { DEMO_DATA_LABEL, isDemoCustomer } from '../core/demoSafety.js';
+import { t } from '../core/i18n.js';
 
 /** Text in die Zwischenablage kopieren (mit Fallback für ältere Browser) */
 export async function copyText(text) {
@@ -62,7 +63,7 @@ function tourLine(c) {
     const parts = [`${isDemoCustomer(c) ? '[DEMO] ' : ''}${c.name}`];
     const addr = addressOf(c);
     if (addr) parts.push(addr);
-    if (c.telefon) parts.push(`Tel: ${c.telefon}`);
+    if (c.telefon) parts.push(t('tour.export.phone', { phone: c.telefon }));
     return parts.join(' · ');
 }
 
@@ -72,13 +73,18 @@ function tourLine(c) {
  * @param {Array} stops  Zwischenstopps (Kunden)
  * @param {object|null} destination  Zielkunde/-punkt
  */
-export function tourText(start, stops, destination, { tourName = 'Tagestour', roadKm = null, roundTrip = false } = {}) {
+export function tourText(start, stops, destination, { tourName = null, roadKm = null, roundTrip = false } = {}) {
     const demo = [start, ...(stops || []), destination].filter(Boolean).some(isDemoCustomer);
-    const lines = demo ? [DEMO_DATA_LABEL, `Tour: ${tourName}`] : [`Tour: ${tourName}`];
-    if (start) lines.push(`Start: ${start.label || addressOf(start)}`);
+    const name = tourName || t('tour.saved.defaultName');
+    const title = t('tour.export.textTitle', { name });
+    const lines = demo ? [t('tour.export.demoLabel'), title] : [title];
+    if (start) lines.push(t('tour.export.start', { label: start.label || addressOf(start) }));
     stops.forEach((c, i) => lines.push(`${i + 1}. ${tourLine(c)}`));
-    if (destination) lines.push(`Ziel: ${tourLine(destination)}`);
-    if (roundTrip && start) lines.push(`Zurück zum Start: ${start.label || addressOf(start)}`);
-    if (roadKm) lines.push(`Strecke ca. ${Math.round(roadKm)} km${roundTrip ? ' (Rundreise)' : ''} – Luftlinie geschätzt.`);
+    if (destination) lines.push(t('tour.export.destination', { label: tourLine(destination) }));
+    if (roundTrip && start) lines.push(t('tour.export.returnStart', { label: start.label || addressOf(start) }));
+    if (roadKm) lines.push(t('tour.export.distance', {
+        km: Math.round(roadKm),
+        roundTrip: roundTrip ? t('tour.export.roundTrip') : ''
+    }));
     return lines.join('\n');
 }

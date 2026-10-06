@@ -582,10 +582,11 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Kalenderaktion und lokale Übernahme; das Datum der empfangenen Tour folgt der
   gewählten Sprache. Hinweise zu Google-Maps-Grenzen, blockierten Druck-Pop-ups,
   erstellten Kalenderdateien und erfolgreicher oder fehlgeschlagener Textkopie
-  erscheinen ebenfalls passend zur Sprache. Die Inhalte der erzeugten Druck-,
-  Kalender- und Textausgaben sowie die erweiterten Service-Tagesvorschläge
-  folgen in eigenen kleinen Schritten; noch nicht umgestellte Fachdialoge
-  verwenden vorerst Deutsch.
+  erscheinen ebenfalls passend zur Sprache. Eine als Text kopierte Tour enthält
+  Kennzeichnung, Start, Ziel, Telefonnummer, Rückweg und Streckenschätzung in
+  der gewählten Sprache. Die Inhalte der erzeugten Druck- und Kalenderausgaben
+  sowie die erweiterten Service-Tagesvorschläge folgen in eigenen kleinen
+  Schritten; noch nicht umgestellte Fachdialoge verwenden vorerst Deutsch.
 
 ---
 
