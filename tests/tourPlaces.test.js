@@ -297,7 +297,7 @@ describe('Straße und Hausnummer am eigenen Ort', () => {
 
     it('fragt die Straße nur, wo sie etwas ändert, und schlägt sie nicht nach', () => {
         const tourPanel = read('src/ui/tourPanel.js');
-        expect(tourPanel).toContain('Straße und Hausnummer in ${point.ort} (optional, nur für die Navigation)');
+        expect(tourPanel).toContain("t('tour.place.streetPrompt', { city: point.ort })");
         // Kein Nachschlagen: Die Eingabe wird mitgeschrieben, nicht verortet.
         expect(tourPanel).not.toMatch(/geocodeExact|nominatim/i);
     });
