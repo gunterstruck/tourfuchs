@@ -580,9 +580,12 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Karteninhalte neu aufgebaut. Auch die QR-Übergabe ist übersetzt: Teilen,
   Kamera-/Foto-Scan, Empfangszusammenfassung, Google-Maps-Teilstrecken,
   Kalenderaktion und lokale Übernahme; das Datum der empfangenen Tour folgt der
-  gewählten Sprache. Die erweiterten Service-Tagesvorschläge sowie Druck- und
-  Textübergabe folgen in eigenen kleinen Schritten; noch nicht umgestellte
-  Fachdialoge verwenden vorerst Deutsch.
+  gewählten Sprache. Hinweise zu Google-Maps-Grenzen, blockierten Druck-Pop-ups,
+  erstellten Kalenderdateien und erfolgreicher oder fehlgeschlagener Textkopie
+  erscheinen ebenfalls passend zur Sprache. Die Inhalte der erzeugten Druck-,
+  Kalender- und Textausgaben sowie die erweiterten Service-Tagesvorschläge
+  folgen in eigenen kleinen Schritten; noch nicht umgestellte Fachdialoge
+  verwenden vorerst Deutsch.
 
 ---
 
