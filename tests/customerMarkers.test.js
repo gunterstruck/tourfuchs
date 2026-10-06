@@ -11,6 +11,7 @@ import {
     customerMarkerMode,
     customerMarkerModeClass
 } from '../src/features/customerMarkers.js';
+import { translate } from '../src/core/i18n.js';
 
 describe('Lebendige Kunden-Kacheln', () => {
     it('enthüllt Information progressiv mit dem Kartenzoom', () => {
@@ -77,6 +78,9 @@ describe('Lebendige Kunden-Kacheln', () => {
             planning: true,
             colorFor: () => '#2563eb'
         })).toMatchObject({ color: '#2563eb', accent: '#2563eb', kind: 'assigned' });
+        expect(customerClusterSummary(customers, {
+            translate: (key, values) => translate('fr', key, values)
+        }).context).toBe('2 clients dans cette zone');
     });
 
     it('macht gemischte und unzugeordnete Planungsstapel explizit', () => {
@@ -103,7 +107,7 @@ describe('Lebendige Kunden-Kacheln', () => {
         expect(map).toContain('customerMarkerAddress(customer)');
         expect(map).toContain('customer-stack-card');
         expect(map).toContain('customer-stack-discovery-label');
-        expect(map).toContain('Tippe einen Kundenstapel an');
+        expect(map).toContain("t('customer.cluster.discover')");
         expect(map).toContain('territory-stack-card');
         expect(map).toContain('tl-dimension');
         expect(map).toContain("? 'Bezirk'");
