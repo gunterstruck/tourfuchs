@@ -46,6 +46,12 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             .toBe('Compétence requise manquante');
         expect(translate('es', 'tour.service.preview.omittedMany', { count: 3 }))
             .toBe('3 trabajos sin planificar · Mostrar motivos');
+        expect(translate('en', 'tour.service.confirmed.hint', { time: '16:45' }))
+            .toBe('Return 16:45. Manual changes discard the fixed times.');
+        expect(translate('fr', 'tour.service.toast.acceptedMany', { count: 4 }))
+            .toBe('4 arrêts de service ajoutés. Les horaires et raisons restent enregistrés dans le planning.');
+        expect(translate('es', 'tour.service.confirm.replaceStops'))
+            .toBe('¿Sustituir las paradas actuales por esta propuesta diaria de servicio?');
     });
 
     it('rendert Start, Ziel, Stopps, Vorschläge und Touraktionen aus dem Katalog', () => {
@@ -73,7 +79,12 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.service.preview.omittedMany',
             'tour.service.preview.accept',
             'tour.service.reason.missingSkills',
-            'tour.service.planReason.slaFirst'
+            'tour.service.planReason.slaFirst',
+            'tour.service.toast.discardedManual',
+            'tour.service.toast.jobOutdated',
+            'tour.service.confirm.replaceStops',
+            'tour.service.confirmed.title',
+            'tour.service.confirmed.hint'
         ]) expect(panel, key).toContain(key);
         expect(panel).toContain('tradeoffLine(entries.length, omittedRows.map((item) => item.reason), currentLocale())');
         expect(panel).toContain('renderSavedTours(); renderServiceDayPreview();');
