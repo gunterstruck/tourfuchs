@@ -53,9 +53,9 @@ describe('Service-Zeitplan folgt Datum und Startzeit', () => {
 });
 
 describe('Sicherer Import meldet nur echten Erfolg', () => {
-    it('prüft das Speicherergebnis an allen drei Stellen', () => {
+    it('prüft das Speicherergebnis mit und ohne vorhandenen Tresor', () => {
         const ui = read('src/ui/safeTransfer.js');
-        expect(ui.match(/if \(!\(await persistReceived\(\)\)\) return;/g)).toHaveLength(3);
+        expect(ui.match(/if \(!\(await persistReceived\(\)\)\) return;/g)).toHaveLength(2);
         expect(ui).toContain('if (await saveDataset(datasetSnapshot())) return true;');
     });
 });
