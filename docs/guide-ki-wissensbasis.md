@@ -594,9 +594,11 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Qualifikationen, Erklärung und Berechnungsaktion ebenfalls der Sprache. Die
   dynamische Ergebnisvorschau übersetzt Stopps, Rückkehr, Auslastung,
   Planungsgründe, Zielkonflikt, ausgelassene Einsätze und Übernahmeaktion und
-  wird bei einem Sprachwechsel neu aufgebaut. Bestätigungszustand und
-  Rückmeldungen nach der Übernahme folgen separat; noch nicht umgestellte
-  Fachdialoge verwenden vorerst Deutsch.
+  wird bei einem Sprachwechsel neu aufgebaut. Auch Ersetzen-Abfrage,
+  Bestätigungszustand sowie Rückmeldungen bei geänderten Zeiten, Einsätzen oder
+  Tourstopps folgen der gewählten Sprache. Service-Zusatzangaben an bereits
+  übernommenen Tourstopps folgen separat; noch nicht umgestellte Fachdialoge
+  verwenden vorerst Deutsch.
 
 ---
 
