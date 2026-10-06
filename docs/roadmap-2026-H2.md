@@ -608,8 +608,10 @@ Interaktionen"):
    Nutzen brauchte einen Umweg über Marker und Popup. Desktop: „📋 Briefing"
    unter dem Kundennamen (nimmt dem Namen keine Breite); Handy: runder 📋-Knopf.
 2. **Tour-Schritte dauerhaft beschriftet** („Start · Vorschläge · Meine Tour"
-   statt „1"/„2") und nach der Startwahl „Kunden vorschlagen" hervorheben. *Als
-   Nächstes.*
+   statt „1"/„2") und nach der Startwahl den Vorschlags-Schritt hervorheben.
+   *06.10.2026 umgesetzt:* Alle drei Bezeichnungen bleiben im Fokus sichtbar;
+   kurze Übersetzungen halten die Leiste auch bei 390 px stabil. Der vorhandene
+   aktive Zustand hebt nach der Startwahl weiterhin „Vorschläge" hervor.
 3. **„Navigieren" als Hauptaktion**, Maps/QR/Druck/Kalender/Text/Rückblick unter
    „Teilen & Exportieren" bündeln. Die lange Schaltflächenliste nach der Tour
    ist die größte Aufmerksamkeits-Schuld in Moment A.
