@@ -1,6 +1,7 @@
-import { afterEach, describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { state } from '../src/core/state.js';
 import { customerPopupHtml } from '../src/features/map.js';
+import { copyCustomerNumber, customerNumberClipboardText } from '../src/features/handoff.js';
 
 const originalDepth = state.ui.depth;
 
@@ -21,6 +22,7 @@ const customer = (umsatz, overrides = {}) => ({
 
 afterEach(() => {
     state.ui.depth = originalDepth;
+    vi.unstubAllGlobals();
 });
 
 describe('Umsatz im Kunden-Popup', () => {
@@ -74,5 +76,39 @@ describe('Umsatz im Kunden-Popup', () => {
 
         expect(html).toContain('Direkt › West › Ruhr');
         expect(html).not.toContain('VB:');
+    });
+});
+
+describe('Kundennummer aus der Kundenkarte kopieren', () => {
+    it.each([
+        ['00004711', '[4711]'],
+        ['4711', '[4711]'],
+        ['0000', '[0]'],
+        ['  000AB12  ', '[AB12]'],
+        ['', '']
+    ])('formatiert %j als %j', (number, expected) => {
+        expect(customerNumberClipboardText(number)).toBe(expected);
+    });
+
+    it('macht die Nummer anklickbar und erklärt den konkreten Kopierwert', () => {
+        state.ui.depth = 'profi';
+
+        const html = customerPopupHtml(customer(45000, { nummer: '00004711' }));
+
+        expect(html).toContain('data-action="copy-customer-number"');
+        expect(html).toContain('title="Kundennummer als [4711] in die Zwischenablage kopieren"');
+        expect(html).toContain('aria-label="Kundennummer als [4711] in die Zwischenablage kopieren"');
+        expect(html).toContain('Nr. 00004711');
+    });
+
+    it('legt exakt den erklärten Wert in die Zwischenablage', async () => {
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        vi.stubGlobal('navigator', { clipboard: { writeText } });
+
+        await expect(copyCustomerNumber('00004711')).resolves.toEqual({
+            value: '[4711]',
+            copied: true
+        });
+        expect(writeText).toHaveBeenCalledWith('[4711]');
     });
 });

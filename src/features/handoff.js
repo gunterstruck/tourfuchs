@@ -31,6 +31,23 @@ export async function copyText(text) {
     }
 }
 
+/**
+ * Kundennummer für die Übergabe an andere Anwendungen: führende Nullen weg,
+ * anschließend in eckige Klammern. Eine reine Null bleibt als `[0]` erhalten.
+ */
+export function customerNumberClipboardText(number) {
+    const raw = String(number ?? '').trim();
+    if (!raw) return '';
+    const withoutLeadingZeros = raw.replace(/^0+/, '').trim() || '0';
+    return `[${withoutLeadingZeros}]`;
+}
+
+/** Kundennummer im Übergabeformat kopieren und Ergebnis samt Wert liefern. */
+export async function copyCustomerNumber(number) {
+    const value = customerNumberClipboardText(number);
+    return { value, copied: value ? await copyText(value) : false };
+}
+
 function addressOf(p) {
     return [p.strasse, `${p.plz ?? ''} ${p.ort ?? ''}`.trim()].filter(Boolean).join(', ');
 }

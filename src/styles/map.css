@@ -601,7 +601,22 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
 
 /* Kompakter Kunden-Popup-Kopf */
 .popup-customer h3 { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; }
-.popup-nr { font-size: 0.72rem; font-weight: 600; color: var(--color-text-muted, #64748b); }
+.popup-nr {
+    min-height: 0;
+    margin: 0;
+    padding: 1px 0;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: var(--color-text-muted, #64748b);
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-decoration: underline dotted;
+    text-underline-offset: 2px;
+    cursor: copy;
+}
+.popup-nr:hover:not(:disabled) { border-color: transparent; background: transparent; color: var(--color-primary-dark); }
+.popup-nr:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 .popup-customer .popup-addr { margin: 2px 0; }
 .popup-customer .popup-meta { margin: 2px 0 4px; }
 .popup-customer .popup-revenue {
