@@ -401,7 +401,7 @@ function invalidateAcceptedServicePlan(notify = false) {
     if (!clearServiceTourPlan()) return;
     serviceDayPreview = null;
     renderServiceDayPreview();
-    if (notify) showToast('Der bestätigte Service-Zeitplan wurde wegen der manuellen Touränderung verworfen.', 'info', 4500);
+    if (notify) showToast(t('tour.service.toast.discardedManual'), 'info', 4500);
 }
 
 function discardServicePlanForNewTiming() {
@@ -410,7 +410,7 @@ function discardServicePlanForNewTiming() {
     serviceDayPreview = null;
     renderServiceDayPreview();
     emit('tour:changed');
-    showToast('Datum oder Startzeit geändert – bitte den Service-Zeitplan neu vorschlagen lassen.', 'info', 4500);
+    showToast(t('tour.service.toast.timingChanged'), 'info', 4500);
 }
 
 function exactCustomerIndex() {
@@ -573,7 +573,7 @@ function renderServiceDayPreview() {
 function buildServiceDayPreview() {
     if (state.ui.mode !== 'service') return;
     if (!state.tour.start) {
-        showToast('Bitte zuerst einen Startpunkt wählen.', 'info');
+        showToast(t('tour.service.toast.chooseStart'), 'info');
         document.getElementById('tour-start')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
     }
@@ -584,7 +584,7 @@ function buildServiceDayPreview() {
     if (!groups.length) {
         serviceDayPreview = { result: { itinerary: [], unscheduled: [], metrics: {} }, preSkipped: skipped };
         renderServiceDayPreview();
-        showToast('In diesem Bezirk und Zeitraum gibt es keine eindeutig planbaren Einsätze.', 'info');
+        showToast(t('tour.service.toast.noJobs'), 'info');
         return;
     }
     const skillsInput = document.getElementById('service-plan-skills');
@@ -623,7 +623,7 @@ function discardServiceDayPreview(notify = false) {
     serviceDayPreview = null;
     serviceDayGroups = new Map();
     renderServiceDayPreview();
-    if (notify) showToast('Die Einsatzdaten haben sich geändert – bitte den Tagesvorschlag neu erstellen.', 'info', 4500);
+    if (notify) showToast(t('tour.service.toast.jobsChanged'), 'info', 4500);
 }
 
 /** Beruht der Vorschlag noch auf den aktuellen, planbaren Einsätzen? */
@@ -645,10 +645,10 @@ function acceptServiceDayPreview() {
     // nachsehen, ob jeder Einsatz noch existiert und planbar ist.
     if (!serviceDayPreviewCurrent(result)) {
         discardServiceDayPreview(false);
-        showToast('Mindestens ein Einsatz ist nicht mehr offen oder wurde geändert – bitte den Tagesvorschlag neu erstellen.', 'info', 5000);
+        showToast(t('tour.service.toast.jobOutdated'), 'info', 5000);
         return;
     }
-    if (state.tour.stops.length && !window.confirm('Die vorhandenen Tourstopps durch diesen Service-Tagesvorschlag ersetzen?')) return;
+    if (state.tour.stops.length && !window.confirm(t('tour.service.confirm.replaceStops'))) return;
     const stopIds = result.itinerary.map((entry) => entry.customer?.id).filter(Boolean);
     state.tour.stops = [...new Set(stopIds)];
     // Ein Kunde kann mehrere Stopps haben (unvereinbare Zeitfenster) – seine
@@ -680,7 +680,9 @@ function acceptServiceDayPreview() {
     if (!state.tour.destination) state.tour.roundTrip = true;
     document.getElementById('round-trip').checked = state.tour.roundTrip;
     emit('tour:changed');
-    showToast(`${state.tour.stops.length} Service-Stopps übernommen. Zeiten und Gründe bleiben am Plan gespeichert.`, 'success', 5000);
+    showToast(t(state.tour.stops.length === 1
+        ? 'tour.service.toast.acceptedOne'
+        : 'tour.service.toast.acceptedMany', { count: state.tour.stops.length }), 'success', 5000);
 }
 
 function focusServiceDayPlanner() {
@@ -688,7 +690,7 @@ function focusServiceDayPlanner() {
     window.setTimeout(() => {
         const planner = document.getElementById('service-day-planner');
         planner?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (!state.tour.start) showToast('Bezirk und Startpunkt wählen – danach erstellt TourFuchs den Tagesvorschlag.', 'info', 4500);
+        if (!state.tour.start) showToast(t('tour.service.toast.chooseScopeStart'), 'info', 4500);
         else buildServiceDayPreview();
     }, 0);
 }
@@ -1612,7 +1614,7 @@ function renderStops() {
             ? `, ${t('tour.summary.exportLimit', { count: CONFIG.tour.maxWaypoints + 1 })}`
             : '';
         summary.innerHTML = state.tour.servicePlan
-            ? `🛠️ <b>Bestätigter Service-Tagesplan</b> · ${state.tour.servicePlan.itinerary.length} Stopps · ca. ${Math.round(state.tour.servicePlan.metrics?.totalKm || roadKmEstimate)} km <span class="muted small">Rückkehr ${escapeHtml(formatPlanTime(state.tour.servicePlan.metrics?.finishAt))}. Manuelle Änderungen verwerfen die fixierten Zeiten.</span>`
+            ? `🛠️ <b>${escapeHtml(t('tour.service.confirmed.title'))}</b> · ${escapeHtml(t(state.tour.servicePlan.itinerary.length === 1 ? 'tour.service.confirmed.summaryOne' : 'tour.service.confirmed.summaryMany', { count: state.tour.servicePlan.itinerary.length, km: Math.round(state.tour.servicePlan.metrics?.totalKm || roadKmEstimate) }))} <span class="muted small">${escapeHtml(t('tour.service.confirmed.hint', { time: formatPlanTime(state.tour.servicePlan.metrics?.finishAt) }))}</span>`
             : `${escapeHtml(t('tour.summary.estimated', { roundTrip: rt }))} <b>~${Math.round(roadKmEstimate)} km</b> <span class="muted small">${escapeHtml(endHint)} ${escapeHtml(t('tour.summary.airKm', { km: Math.round(airKm) }))}${escapeHtml(exportHint)}.</span>`;
     } else {
         summary.innerHTML = '';
