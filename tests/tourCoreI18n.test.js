@@ -34,6 +34,10 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             .toBe('8 clients dans un rayon de 25 km');
         expect(translate('es', 'tour.stops.destinationLabel', { label: 'Aeropuerto' }))
             .toBe('Destino: Aeropuerto');
+        expect(translate('en', 'tour.toast.googleMapsLimit', { count: 8 }))
+            .toBe('Google Maps supports up to 8 stops – the first 8 will be transferred.');
+        expect(translate('fr', 'tour.toast.calendarCreated'))
+            .toBe('Fichier calendrier (.ics) créé avec un rendez-vous par visite.');
     });
 
     it('rendert Start, Ziel, Stopps, Vorschläge und Touraktionen aus dem Katalog', () => {
@@ -47,6 +51,10 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.suggestions.noneRadius',
             'tour.action.showRoute',
             'tour.toast.optimized',
+            'tour.toast.printPopup',
+            'tour.toast.calendarCreated',
+            'tour.toast.textCopied',
+            'tour.toast.googleMapsLimit',
             'tour.saved.none'
         ]) expect(panel, key).toContain(key);
     });
