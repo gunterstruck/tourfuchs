@@ -1,16 +1,21 @@
 # TourFuchs – Wettbewerb
 
-**Stand: 03.10.2026 · Rolle: Product Owner · Status: Arbeitsgrundlage**
+**Stand: 07.10.2026 · Rolle: Product Owner · Status: Arbeitsgrundlage**
 
-TourFuchs spielt auf **zwei Feldern** zugleich: **Tourenplanung** für den
+TourFuchs spielt auf **zwei Funktionsfeldern** zugleich: **Tourenplanung** für den
 Außendienstler (Moment A) und **Gebietsplanung** für die Vertriebsleitung
-(GeoFuchs, Moment B). Auf beiden Feldern gibt es etablierte Anbieter, aber
+(GeoFuchs, Moment B). Dazu kommt eine dritte Wettbewerbsachse:
+**Mitarbeiterautonomie statt zentraler Kontrollfähigkeit**. Auf den beiden
+Funktionsfeldern gibt es etablierte Anbieter, aber
 kaum einen, der beides in einem Werkzeug verbindet. Diese Seite beantwortet:
 
 1. Wer ist auf welchem Feld unterwegs, und wie werben die Anbieter?
 2. Was würde ein Wettbewerber tun, wenn er TourFuchs als Bedrohung sähe,
    etwa nach dem Rat einer KI?
 3. Wie stellen wir uns auf, und was folgt daraus für die Roadmap?
+
+Die verbindliche Kategorie, Werbebotschaft und die daraus folgenden roten
+Linien stehen in [Produktpositionierung](positionierung.md).
 
 > Die Recherche stützt sich auf öffentlich auffindbare Quellen (Stand oben). Sie
 > ist eine Momentaufnahme, keine vollständige Marktstudie. Was eine fremde KI
@@ -133,7 +138,63 @@ Gebiete per natürlicher Sprache im CRM („Zeig alle Leads im Umkreis von 50 km
 und optimiere die Route“). Langfristig ist das die größte Verschiebung im Markt.
 [MapCopilot (Inogic)](https://www.inogic.com/blog/2025/11/meet-mapcopilot-your-ai-powered-geo-mapping-companion-for-dynamics-365/)
 
-## 5. Werbung und Kurzfilme
+Die Entwicklung ist inzwischen konkreter: Badger Maps bietet seit August 2026
+einen MCP-Zugang für externe KI-Assistenten und nennt Routenplanung,
+Follow-up-Mails und Briefings als Anwendungsfälle. Salesforce und SPOTIO
+verbinden CRM-, Karten- und KI-Funktionen innerhalb ihrer Plattformen. Die
+Behauptung „Karte plus KI ist neu" wäre deshalb falsch.
+
+TourFuchs unterscheidet sich durch die **offene Arbeitsteilung**: Es liefert
+lokal den räumlichen Kontext und eine sichtbare Briefing-Übergabe; die bereits
+freigegebene Unternehmens-KI greift mit den Rechten des Mitarbeiters auf den
+aktuellen Firmenstand zu. TourFuchs braucht weder CRM-Anmeldung noch KI-API.
+
+- [Badger Maps: Verbindung mit externen KI-Assistenten](https://support.badgermapping.com/docs/maps-advanced/technical-support/how-to-connect-badger-maps-to-an-ai-assistant/)
+- [Badger Maps: Pre-Meeting Briefs](https://support.badgermapping.com/docs/maps-advanced/technical-support/how-to-connect-badger-maps-to-an-ai-assistant-for-pre-meeting-briefs/)
+- [Microsoft 365 Copilot: Sales Agent](https://learn.microsoft.com/en-us/microsoft-sales-copilot/use-sales-chat)
+- [Salesforce Agentforce Account Management](https://help.salesforce.com/s/articleView?id=sales.account_mgmt_overview.htm&language=en_US&type=5)
+- [SPOTIO-Plattform mit DASH und Next Best Action](https://spotio.com/platform/)
+
+## 5. Die dritte Achse: zentrale Kontrolle oder Mitarbeiterwerkzeug
+
+Die großen Plattformen verkaufen zentrale Sichtbarkeit als Nutzen. Das ist
+legitim, aber ein anderes Produktversprechen:
+
+| Anbieter | Öffentlich beschriebene zentrale Sicht |
+|---|---|
+| SPOTIO | GPS-verifizierte Besuche, aktuelle Teampositionen, Breadcrumbs, Routenhistorien, Audit-Logs und Leistungsansichten |
+| Map My Customers | GPS-Check-ins, automatische Besuchsdauer und Live-Karte für Manager |
+| Badger Maps | zeit- und ortsgestempelte Check-ins, Aktivitätsberichte, Manageransicht und Einsicht in Routen |
+| Salesforce Maps | zentrale CRM-Aktivitäten und Live-Layer; das frühere mobile Live Tracking wurde zum 31.08.2026 eingestellt |
+| **TourFuchs** | keine zentrale Mitarbeiteridentität, kein Hintergrund-GPS, kein Managerdashboard und keine automatische Aktivitätsmeldung |
+
+Quellen:
+
+- [SPOTIO: Sales Activity Tracking](https://spotio.com/features/sales-tracking/)
+- [Map My Customers: Location-Based Check-ins](https://mapmycustomers.com/features/location-check-ins)
+- [Badger Maps: Funktionen](https://www.badgermapping.com/features/)
+- [Salesforce Maps: Live Layers](https://help.salesforce.com/s/articleView?id=sales.salesforce_maps_setup_live_layers_create.htm&language=en_US&type=5)
+- [Salesforce: Ende des mobilen Live Tracking](https://help.salesforce.com/s/articleView?id=000390264&language=en_US&type=1)
+
+Für Deutschland ist das strategisch relevant: § 87 Abs. 1 Nr. 6 BetrVG nennt
+technische Einrichtungen zur Verhaltens- oder Leistungsüberwachung ausdrücklich
+als Mitbestimmungsthema. Nach der Rechtsprechung des Bundesarbeitsgerichts kommt
+es auf die objektive Eignung zur Überwachung an, nicht nur auf die erklärte
+Absicht. TourFuchs verspricht deshalb nicht „betriebsratsfrei", sondern eine
+schmalere und überprüfbare technische Architektur ohne zentralen Datenstrom für
+Leistungs-, Verhaltens- oder Standortprofile.
+
+- [§ 87 BetrVG](https://www.gesetze-im-internet.de/betrvg/__87.html)
+- [Bundesarbeitsgericht 1 ABR 16/23](https://www.bundesarbeitsgericht.de/entscheidung/1-abr-16-23/)
+- [§ 26 BDSG](https://www.gesetze-im-internet.de/bdsg_2018/__26.html)
+- [Art. 5 DSGVO](https://eur-lex.europa.eu/legal-content/DE/ALL/?uri=CELEX%3A32016R0679)
+
+**Wettbewerbsvorteil:** TourFuchs ist ein persönlicher Arbeitsraum. Der
+Mitarbeiter entscheidet, welche operativen Arbeitsdaten per Export, Prompt,
+Kalender oder Navigation bewusst nach außen gehen. Diese Grenze ist keine
+fehlende Teamfunktion, sondern Teil des Produkts.
+
+## 6. Werbung und Kurzfilme
 
 - Die Anbieter **erklären**: Demos, Tutorials, Webinare. RegioGraph zeigt
   Bildschirm-Anleitungen, portatour Produktvideos, Badger Maps setzt auf
@@ -144,8 +205,12 @@ und optimiere die Route“). Langfristig ist das die größte Verschiebung im Ma
 - **Rückmeldung aus der Praxis (03.10.2026):** Die Kunden als Lichter
   darzustellen kommt sehr gut an. Das bestätigt: Der Coolness-Faktor ist ein
   echter Unterschied, kein Beiwerk.
+- **Neue Botschaft (07.10.2026):** Nach dem sichtbaren Nutzen folgt das
+  Vertrauen: „Ein Werkzeug in der Hand des Mitarbeiters – kein Fenster auf den
+  Mitarbeiter." Keine Angstwerbung und keine Rechtsgarantie; jede Aussage wird
+  mit der konkreten lokalen Architektur erklärt.
 
-## 6. Was würde ein Wettbewerber tun? (Die Sicht einer „fremden KI“)
+## 7. Was würde ein Wettbewerber tun? (Die Sicht einer „fremden KI“)
 
 **Lageeinschätzung:** *„Kein Grund zur Panik.“* TourFuchs ist ein privates,
 frei nutzbares Projekt ohne Support, CRM-Abgleich, Team-Funktionen und Vertrag.
@@ -162,7 +227,7 @@ Die Wettbewerber verkaufen an **Unternehmen** (Einkauf, IT); TourFuchs erreicht
 | 6 | **Gebietsplaner vereinfachen:** RegioGraph & Co. bringen eine schlanke Browser-Version. | gering | mittel – träfe GeoFuchs |
 | 7 | **Den Entwickler ansprechen** – einstellen oder übernehmen. | gering | keine – eher eine Chance |
 
-## 7. Unser Schutz – was schwer zu kopieren ist
+## 8. Unser Schutz – was schwer zu kopieren ist
 
 1. **Null Hürde:** Browser, kein Login, keine IT-Freigabe, in einer Minute
    ausprobiert.
@@ -173,8 +238,13 @@ Die Wettbewerber verkaufen an **Unternehmen** (Einkauf, IT); TourFuchs erreicht
    ([Nutzungsnachweis](nutzungsnachweis.md)).
 4. **Insider im Konzern:** Der Entwickler kennt Abläufe, Firmen-KI und Kollegen.
 5. **Emotion:** die Lichterkarte und die Filme.
+6. **Mitarbeiterautonomie:** kein zentrales Verhaltens-, Leistungs- oder
+   Standortprofil als Nebenprodukt der Nutzung.
+7. **Offene KI-Brücke:** räumlicher Kontext aus TourFuchs, aktuelles Wissen aus
+   der bereits freigegebenen Unternehmens-KI, verbunden durch eine sichtbare
+   Nutzerhandlung.
 
-## 8. Unsere Antworten (Produktentscheidungen)
+## 9. Unsere Antworten (Produktentscheidungen)
 
 | Zug | Unsere Antwort |
 |---|---|
@@ -182,13 +252,14 @@ Die Wettbewerber verkaufen an **Unternehmen** (Einkauf, IT); TourFuchs erreicht
 | **Ideen nachbauen (3)** | Nicht verhindern, sondern schneller sein: Tempo durch echte Nutzer schlägt Nachbau. |
 | **Gratis-Einstieg (4)** | Wir sind schon frei nutzbar; unser Vorsprung ist die fehlende Hürde (kein Konto), nicht der Preis. |
 | **CRM / Copilot (5)** | **Mit Copilot arbeiten, nicht dagegen.** TourFuchs bereitet Prompts vor und sendet selbst nichts. |
+| **Zentrale Team- und Kontrollfunktionen** | Nicht nachbauen. Kein Hintergrund-GPS, keine Manager-Routensicht, keine Ranglisten und keine personenbezogene Ereignisstatistik im persönlichen Kern. Ein späterer Unternehmensbedarf wäre eine neue Produktentscheidung, kein stilles Feature. |
 | **Schlanke Gebietsplaner (6)** | Unser Gebietsplaner hängt am Werkzeug, das der Außendienst ohnehin nutzt – das kann ein reiner Gebietsplaner nicht nachbauen. |
 | **Generell** | **Schmal bleiben, nicht in Funktionen konkurrieren.** Kaufkraftdaten, CRM-Abgleich, Teams und Verträge sind das Heimspiel der Wettbewerber. Prüffrage aus Roadmap 1a: *„Hilft das unseren 10 Außendienstlern?“* |
 
 **Der beste Schutz:** 10 Menschen, die TourFuchs jede Woche nutzen – bevor es
 jemand anderes merkt.
 
-## 9. Was folgt für die Roadmap?
+## 10. Was folgt für die Roadmap?
 
 - **Reihenfolge bleibt:** erst der Außendienstler (Nische, Moment A), dann die
   Vertriebsleitung (GeoFuchs, Moment B). Die Leitung kommt am leichtesten dazu,
@@ -199,12 +270,14 @@ jemand anderes merkt.
 - **Keine neuen Funktionen** aus dieser Analyse. Der Baustopp bis zum Praxistest
   gilt weiter.
 
-## 10. Wann diese Seite neu ansehen?
+## 11. Wann diese Seite neu ansehen?
 
 - Ein Wettbewerber bringt einen Gratis-Tarif für Einzelne, eine
   Lichterkarte-ähnliche Ansicht oder einen schlanken Browser-Gebietsplaner.
 - Microsoft kündigt Touren- oder Gebietsplanung als Copilot-Funktion an.
 - Jemand stellt TourFuchs in einem Unternehmen als „Schatten-IT“ in Frage.
+- Ein Wunsch nach zentraler Synchronisation, Managerdashboard, Live-Ortung oder
+  automatischer CRM-Aktivitätsmeldung kommt auf.
 - Spätestens bei der Entscheidung über den Konzern-Betrieb.
 
 ---

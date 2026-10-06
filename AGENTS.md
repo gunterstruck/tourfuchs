@@ -1,6 +1,8 @@
 # Hinweise für KI-Assistenten (und Menschen), die an TourFuchs arbeiten
 
 **Zuerst lesen:** `docs/roadmap-2026-H2.md`
+- `docs/positionierung.md` – verbindliche Kategorie, Botschaften und rote
+  Linien; insbesondere keine zentrale Mitarbeiterkontrolle als stilles Feature.
 - Abschnitt **1a „Nische zuerst"** – Prüffrage für jede Idee: *„Hilft das unseren
   10 Außendienstlern?"*
 - Abschnitt **„Offene Themen mit Auslöser"** – Themen, die erst bei einem

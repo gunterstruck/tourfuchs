@@ -46,6 +46,15 @@ die Zahl der Funktionen.
 Wenn nein → Backlog, egal wie gut sie ist. GeoFuchs, ServiceFuchs und der
 Zeitraffer bleiben, wo sie sind, bis die Nische sie verlangt.
 
+**Produktgrenze seit 07.10.2026:** TourFuchs ist ein Werkzeug **für** den
+Mitarbeiter, keine zentrale Kontrollplattform **über** den Mitarbeiter. Kein
+Hintergrund-GPS, kein Managerblick auf Wege oder Touren, keine
+Mitarbeiterrankings und keine personenbezogene Bedienanalyse werden still als
+„Teamfunktion" ergänzt. Jeder Vorschlag muss zusätzlich beantworten, ob die
+Zusage „keine zentrale Leistungs-, Verhaltens- oder Standortauswertung" danach
+noch wörtlich stimmt. Die vollständige Marktposition, Werbesprache und roten
+Linien stehen in [Produktpositionierung](positionierung.md).
+
 **Wettbewerb:** Wir konkurrieren nicht in Funktionen (CRM-Abgleich, Teams,
 Verträge, Kaufkraftdaten sind das Heimspiel der Anbieter), sondern mit null
 Hürde, „Tour und Gebiet in einem Werkzeug“, nachprüfbarem Vertrauen und
