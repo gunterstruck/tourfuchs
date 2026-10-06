@@ -1412,35 +1412,35 @@
 
         <dialog id="qr-share-dialog">
             <header>
-                <h2 id="qr-share-title">📲 Tour an Handy übergeben</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 id="qr-share-title" data-i18n="qr.share.titleDesktop">📲 Tour an Handy übergeben</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <div class="qr-share-body">
                 <canvas id="qr-share-canvas"></canvas>
                 <p id="qr-share-info" class="muted small"></p>
-                <p class="muted small">Einfach mit der <b>normalen Handy-Kamera</b> scannen – der Link öffnet TourFuchs (installierte App oder Browser) direkt mit dieser Tour. Alternativ in TourFuchs <b>„Tour per QR übernehmen"</b> nutzen. Es wird nur die Tour übertragen – Bildschirm zu Kamera, ohne Netzwerk und ohne Server.</p>
+                <p class="muted small" data-i18n="qr.share.description">Mit der normalen Handy-Kamera scannen. Der Link öffnet TourFuchs direkt mit dieser Tour. Alternativ „Tour per QR übernehmen“ nutzen. Übertragen wird nur die Tour – Bildschirm zu Kamera, ohne Server.</p>
             </div>
         </dialog>
 
         <dialog id="qr-scan-dialog">
             <header>
-                <h2>📷 Tour per QR scannen</h2>
-                <button class="dialog-close" aria-label="Schließen">Schließen</button>
+                <h2 data-i18n="qr.scan.title">📷 Tour per QR scannen</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <div class="qr-scan-body">
                 <div id="qr-scan-live">
                     <video id="qr-scan-video" playsinline muted></video>
-                    <p id="qr-scan-status" class="muted small">Kamera auf den QR-Code am Desktop richten …</p>
-                    <label class="qr-scan-fallback">Kamera klappt nicht? <input type="file" id="qr-scan-file" accept="image/*" capture="environment"> Foto des QR-Codes wählen</label>
+                    <p id="qr-scan-status" class="muted small" data-i18n="qr.scan.aimInitial">Kamera auf den QR-Code am Desktop richten …</p>
+                    <label class="qr-scan-fallback"><span data-i18n="qr.scan.fallback">Kamera klappt nicht?</span> <input type="file" id="qr-scan-file" accept="image/*" capture="environment"> <span data-i18n="qr.scan.choosePhoto">Foto des QR-Codes wählen</span></label>
                 </div>
                 <div id="qr-scan-result" hidden>
                     <p id="qr-scan-summary"></p>
                     <div id="qr-scan-stoplist" class="scroll-list"></div>
                     <div class="button-column">
-                        <button id="qr-received-adopt" class="primary">➕ Als Tour übernehmen</button>
-                        <button id="qr-received-gmaps">🧭 In Google Maps navigieren</button>
+                        <button id="qr-received-adopt" class="primary" data-i18n="qr.received.adopt">➕ Als Tour übernehmen</button>
+                        <button id="qr-received-gmaps" data-i18n="qr.received.googleMaps">🧭 In Google Maps navigieren</button>
                         <div id="qr-received-legs" class="button-column" hidden></div>
-                        <button id="qr-received-ics">📅 Termine als Kalender (.ics)</button>
+                        <button id="qr-received-ics" data-i18n="qr.received.calendar">📅 Termine als Kalender (.ics)</button>
                     </div>
                     <p id="qr-scan-matchinfo" class="muted small"></p>
                 </div>

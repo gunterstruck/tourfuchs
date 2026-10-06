@@ -7,6 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 
 import { CONFIG } from './core/config.js';
+import { t } from './core/i18n.js';
 import { applyDemoStreets, demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
 import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
 import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './services/storage.js';
@@ -241,7 +242,7 @@ async function handleSharedTourFromUrl() {
     pendingSharedTour = null;
     const payload = await pending.payload;
     if (payload) openReceivedFromUrl(payload);
-    else emit('toast', { type: 'error', text: 'Der gescannte Tour-Link konnte nicht gelesen werden.' });
+    else emit('toast', { type: 'error', text: t('qr.scan.invalidLink') });
 }
 
 async function init() {
