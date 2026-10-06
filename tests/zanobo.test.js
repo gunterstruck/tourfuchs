@@ -62,7 +62,7 @@ describe('Zanobo-Brücke: Verdrahtung in der App', () => {
         expect(source('src/ui/tourPanel.js')).toContain('zanoboMachineUrl(');
         const exportSource = source('src/features/tourExport.js');
         expect(exportSource).toContain('zanoboMachineUrl(visit.assetId)');
-        expect(exportSource).toContain('Maschine anhören (Zanobo)');
+        expect(exportSource).toContain("t('tour.ics.listenMachine'");
     });
 
     it('bietet die Instanz-Einstellung im Einsätze-Tab an', () => {
