@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 30.09.2026 · App-Version 3.5.0
+Stand: 07.10.2026 · App-Version 3.7.0
 
 ## 1. Ziel der Schulung
 

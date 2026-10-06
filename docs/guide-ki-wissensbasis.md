@@ -186,6 +186,17 @@ eindeutig zeigt.
 Kundendaten räumlich handlungsfähig und übergibt den passenden Kundenkontext als
 lokal erzeugten Prompt an den internen KI-Assistenten des Nutzers.
 
+**Marktposition:** TourFuchs ist das persönliche, lokale Außendienst-Cockpit –
+kein kleines CRM und keine Managementplattform. Es verbindet Lichterkarte,
+Tour und Gebiet mit der bereits freigegebenen Unternehmens-KI. Dabei erzeugt es
+keine zentrale Leistungs-, Verhaltens- oder Standortauswertung: Betreiber und
+Führungskräfte erhalten aus TourFuchs keinen automatischen Zugriff auf
+Kundendaten, Touren, GPS-Positionen oder Besuchshistorien. Das macht eine
+rechtliche oder betriebliche Prüfung bei einer offiziellen Einführung nicht
+überflüssig; es ist eine technische Produktgrenze, keine Rechtsgarantie.
+
+Verbindliche Botschaften und rote Linien: [Produktpositionierung](positionierung.md).
+
 ### 2.2 Die drei Kernfragen
 
 1. **"Wo sind meine Kunden?"**

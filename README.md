@@ -19,6 +19,26 @@ TourFuchs beantwortet die drei Kernfragen im Vertriebsalltag:
 3. **„Was sollte ich vor dem Termin wissen?“** – TourFuchs erstellt lokal den
    passenden Prompt und öffnet den gewählten internen KI-Assistenten.
 
+### Warum TourFuchs anders ist
+
+- **Das Gebiet leuchtet:** Farbe zeigt den Besuchsstatus, die abgeflachte
+  Lichtgröße das Umsatzgewicht. Schwerpunkte und weiße Flecken werden intuitiv
+  sichtbar.
+- **Tour und Gebiet gehören zusammen:** Tagesplanung und strategische
+  Gebietsbetrachtung arbeiten auf demselben lokalen Datenbestand.
+- **Die Unternehmens-KI ergänzt TourFuchs:** TourFuchs liefert Kundenidentität,
+  räumliche Auswahl und Tourkontext; der freigegebene Assistent ergänzt das
+  aktuelle Wissen aus den internen Quellen des Nutzers.
+- **Ein Mitarbeiterwerkzeug, keine Kontrollplattform:** GPS, Touren,
+  Besuchshistorie und Kundendaten werden nicht zentral für Führungskräfte oder
+  den Betreiber bereitgestellt. Operative Arbeitsdaten werden nur durch eine
+  bewusste Nutzeraktion übergeben; die anonyme Nutzungszählung kennt keine
+  Bedienhandlungen.
+- **Offen ohne Lock-in:** kostenlos, quelloffen und unter MIT-Lizenz anpassbar.
+
+Die verbindliche Marktposition, Werbebotschaften und Grenzen für künftige
+Funktionen stehen in [Produktpositionierung](./docs/positionierung.md).
+
 Strategische Gebietsplanung und das Service-Vertragsradar bleiben vollständig
 erhalten, konkurrieren aber nicht mit diesem Tagesablauf. Beide sind
 **optionale Module**. Die Gebietsplanung ist für die aktuelle
