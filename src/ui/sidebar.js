@@ -22,7 +22,7 @@ import { showToast } from './toast.js';
 import { fileSlug, territoryLabel } from '../features/territoryPills.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
-import { t } from '../core/i18n.js';
+import { t, currentLocale } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -2316,10 +2316,10 @@ function chooseExportScope() {
     const dialog = document.getElementById('export-choice-dialog');
     // Kein Filter aktiv (oder nichts sichtbar): ohne Rückfrage alles.
     if (!dialog || visible.length === 0 || visible.length >= all.length) { runExport(all); return; }
-    const fmt = (n) => n.toLocaleString('de-DE');
-    document.getElementById('export-choice-lead').innerHTML = `Ein Filter ist aktiv: <b>${fmt(visible.length)}</b> von ${fmt(all.length)} Kunden sind sichtbar. Was soll in die Excel-Datei?`;
-    document.getElementById('export-choice-filtered').textContent = `Nur die ${fmt(visible.length)} gefilterten`;
-    document.getElementById('export-choice-all').textContent = `Alle ${fmt(all.length)} Kunden`;
+    const fmt = (n) => n.toLocaleString(currentLocale());
+    document.getElementById('export-choice-lead').textContent = t('export.choice.lead', { visible: fmt(visible.length), all: fmt(all.length) });
+    document.getElementById('export-choice-filtered').textContent = t('export.choice.filteredCount', { count: fmt(visible.length) });
+    document.getElementById('export-choice-all').textContent = t('export.choice.allCount', { count: fmt(all.length) });
     dialog.showModal();
 }
 

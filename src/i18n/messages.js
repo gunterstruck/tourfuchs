@@ -4,6 +4,7 @@ import { CUSTOMER_MESSAGES } from './customerMessages.js';
 import { TOUR_MESSAGES } from './tourMessages.js';
 import { TOUR_QR_MESSAGES } from './tourQrMessages.js';
 import { OMITTED_MESSAGES } from './omittedMessages.js';
+import { EXPORT_MESSAGES } from './exportMessages.js';
 
 /**
  * Zentrale Textkataloge. Neue Sprachen werden erst als „vollständig" markiert,
@@ -199,7 +200,8 @@ export const MESSAGES = Object.freeze({
         ...CUSTOMER_MESSAGES.de,
         ...TOUR_MESSAGES.de,
         ...TOUR_QR_MESSAGES.de,
-        ...OMITTED_MESSAGES.de
+        ...OMITTED_MESSAGES.de,
+        ...EXPORT_MESSAGES.de
     }),
     en: Object.freeze({
         'app.title': 'TourFuchs Sales – Customer map, tour planning & briefing',
@@ -389,7 +391,8 @@ export const MESSAGES = Object.freeze({
         ...CUSTOMER_MESSAGES.en,
         ...TOUR_MESSAGES.en,
         ...TOUR_QR_MESSAGES.en,
-        ...OMITTED_MESSAGES.en
+        ...OMITTED_MESSAGES.en,
+        ...EXPORT_MESSAGES.en
     }),
     fr: Object.freeze({
         'app.title': 'TourFuchs Ventes – Carte clients, tournées et briefing',
@@ -579,7 +582,8 @@ export const MESSAGES = Object.freeze({
         ...CUSTOMER_MESSAGES.fr,
         ...TOUR_MESSAGES.fr,
         ...TOUR_QR_MESSAGES.fr,
-        ...OMITTED_MESSAGES.fr
+        ...OMITTED_MESSAGES.fr,
+        ...EXPORT_MESSAGES.fr
     }),
     es: Object.freeze({
         'app.title': 'TourFuchs Ventas – Mapa de clientes, rutas y briefing',
@@ -769,6 +773,7 @@ export const MESSAGES = Object.freeze({
         ...CUSTOMER_MESSAGES.es,
         ...TOUR_MESSAGES.es,
         ...TOUR_QR_MESSAGES.es,
-        ...OMITTED_MESSAGES.es
+        ...OMITTED_MESSAGES.es,
+        ...EXPORT_MESSAGES.es
     })
 });
