@@ -165,14 +165,14 @@ export function initTourPanel() {
         const eff = effStops();
         if (!state.tour.start || eff.length === 0) return;
         if (!printDayPlan(state.tour.start, eff, { tourName: currentTourName(), ...planOptions(), destination: exportDestination() })) {
-            showToast('Bitte Pop-ups für den Druck erlauben.', 'error');
+            showToast(t('tour.toast.printPopup'), 'error');
         }
     });
     document.getElementById('btn-tour-ics').addEventListener('click', () => {
         const eff = effStops();
         if (!state.tour.start || eff.length === 0) return;
         downloadIcs(state.tour.start, eff, { tourName: currentTourName(), ...planOptions(), destination: exportDestination() });
-        showToast('Kalender-Datei (.ics) mit Terminen je Besuch erstellt.', 'success');
+        showToast(t('tour.toast.calendarCreated'), 'success');
     });
     document.getElementById('btn-tour-copy').addEventListener('click', async () => {
         const eff = effStops();
@@ -182,7 +182,7 @@ export function initTourPanel() {
             tourName: currentTourName(), roadKm, roundTrip: state.tour.roundTrip
         });
         const ok = await copyText(text);
-        showToast(ok ? 'Tour als Text in die Zwischenablage kopiert.' : 'Kopieren nicht möglich.', ok ? 'success' : 'error');
+        showToast(t(ok ? 'tour.toast.textCopied' : 'tour.toast.copyFailed'), ok ? 'success' : 'error');
     });
     document.getElementById('btn-tour-clear').addEventListener('click', () => {
         state.tour.stops = [];
@@ -1923,7 +1923,7 @@ function shareTourAsQr({ fromPhone = false } = {}) {
         roundTrip: state.tour.roundTrip
     });
     if (!payload) {
-        showToast('Keine verorteten Stopps in der Tour – QR-Übergabe nicht möglich.', 'info');
+        showToast(t('tour.toast.qrNoLocatedStops'), 'info');
         return;
     }
     openShareDialog(payload, {
@@ -1958,7 +1958,7 @@ function openInGoogleMaps() {
     // Rundreise: Das Ziel ist der Start, also passt ein Stopp weniger hinein.
     const capacity = googleMapsCapacity(state.tour.roundTrip);
     if (eff.length > capacity) {
-        showToast(`Google Maps unterstützt max. ${capacity} Stopps – es werden die ersten ${capacity} übergeben.`, 'info', 6000);
+        showToast(t('tour.toast.googleMapsLimit', { count: capacity }), 'info', 6000);
     }
     const link = googleMapsLink(state.tour.start, eff, state.tour.roundTrip);
     if (link) window.open(link, '_blank', 'noopener');
