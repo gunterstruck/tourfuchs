@@ -2612,9 +2612,12 @@ Daten ohne Tresor hier liegen, bleibt das **offene Schloss in der Kopfzeile
 hervorgehoben** – der Zustand ist dauerhaft sichtbar, ohne aufzuhalten.
 Verschlüsselt wird, wenn der Nutzer sich dafür entscheidet.
 
-Ausnahme: Beim **sicheren Umzug** (14.4) bleibt das Tresor-Setup erzwungen –
-wer Daten verschlüsselt von einem anderen Gerät empfängt, hat sich für Schutz
-bereits entschieden. Demo-Daten verlangen nie eine PIN.
+Das gilt ebenso beim **sicheren Umzug** (14.7): Die verschlüsselte Datei schützt
+den Transport, verpflichtet auf dem Zielgerät aber nicht zu einem lokalen
+Tresor. Nach dem Entschlüsseln werden die Daten direkt gespeichert; das offene
+Schloss bietet die freiwillige Aktivierung an. Ist dort bereits ein Tresor
+aktiv, wird dieser ohne neue PIN weiterverwendet. Demo-Daten verlangen nie eine
+PIN.
 
 Der Nutzer vergibt eine **PIN oder Passphrase mit mindestens sechs Zeichen**
 (gilt für Einrichten, PIN ändern und neue PIN nach Wiederherstellung). Eine
@@ -2694,8 +2697,10 @@ Alternativ bei geladenen Daten:
 
 1. `.tfsafe`-Datei wählen.
 2. Schlüssel-QR scannen oder Schlüsseltext eingeben.
-3. Daten entschlüsseln.
-4. direkt einen neuen lokalen Datentresor einrichten.
+3. Daten entschlüsseln und lokal speichern.
+4. Den lokalen Datentresor bei Bedarf anschließend freiwillig aktivieren. Ist
+   bereits ein Tresor aktiv, werden die empfangenen Daten darin gespeichert;
+   eine neue PIN ist nicht nötig.
 
 Falscher Schlüssel und beschädigte Datei werden erkannt.
 

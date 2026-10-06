@@ -3,7 +3,7 @@
  * Desktop: Kundendaten verschlüsselt als Datei exportieren und den Schlüssel
  *          als QR-Code am Bildschirm zeigen (getrennte Kanäle).
  * Handy:   Datei wählen, Schlüssel per Kamera scannen (oder eintippen),
- *          entschlüsseln und danach zum Tresor-Setup führen.
+ *          entschlüsseln und lokal speichern. Der Datentresor bleibt optional.
  * Es findet keinerlei Netzwerkübertragung der Daten statt.
  */
 
@@ -21,7 +21,6 @@ import {
     createSafeTransfer, readSafeFile, parseKeyQr,
     keyMatchesContainer, decryptSafeTransfer, SAFE_FILE_EXT
 } from '../features/safeTransfer.js';
-import { openSetupDialog } from './lockVault.js';
 import { showToast } from './toast.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
 import { t } from '../core/i18n.js';
@@ -338,26 +337,16 @@ async function applyImported(dataset) {
         })}) und im Tresor gesichert.`, 'success', 6000);
         return;
     }
-    // Kein Tresor aktiv -> Setup erzwingen, damit die Daten sofort geschützt sind.
-    openSetupDialog({
-        forced: true,
-        title: 'Importierte Daten schützen',
-        intro: 'Die empfangenen Kundendaten liegen jetzt auf diesem Gerät. Lege eine PIN fest, damit sie <b>AES-256-verschlüsselt</b> gespeichert und beim Öffnen der App per PIN entsperrt werden.',
-        onDone: async () => {
-            // Das Einrichten speichert bereits – hier noch einmal mit Ergebnis,
-            // damit „gesichert" nur erscheint, wenn es stimmt.
-            if (!(await persistReceived())) return;
-            showToast(`Daten empfangen (${transferCountText({
-                count: customers.length,
-                contractCount: serviceContracts.length,
-                visitCount: serviceVisits.length
-            })}) und mit dem Tresor gesichert.`, 'success', 6000);
-        },
-        onDismiss: async () => {
-            if (!(await persistReceived())) return;
-            showToast('Daten empfangen. Achtung: ohne Tresor unverschlüsselt gespeichert – du kannst ihn jederzeit im Tab „Daten" aktivieren.', 'info', 8000);
-        }
-    });
+    // Die Transportverschlüsselung endet nach dem Entschlüsseln. Ein lokaler
+    // Datentresor ist eine getrennte Entscheidung und darf den Import nicht
+    // mit einer PIN-Pflicht blockieren. Das offene Schloss bleibt als sichtbares
+    // Angebot; wer möchte, aktiviert den Tresor später unter „Daten".
+    if (!(await persistReceived())) return;
+    showToast(`Daten empfangen (${transferCountText({
+        count: customers.length,
+        contractCount: serviceContracts.length,
+        visitCount: serviceVisits.length
+    })}) und lokal gespeichert. Ohne Datentresor liegen sie auf diesem Gerät unverschlüsselt – du kannst ihn jederzeit unter „Daten" aktivieren.`, 'info', 9000);
 }
 
 /**
