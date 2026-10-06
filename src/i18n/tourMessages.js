@@ -4,7 +4,7 @@ export const TOUR_MESSAGES = Object.freeze({
         'tour.title': 'Besuchsplaner',
         'tour.scan': '📷 Tour per QR übernehmen',
         'tour.stepsAria': 'Tour-Schritte',
-        'tour.step.start': 'Startpunkt',
+        'tour.step.start': 'Start',
         'tour.step.suggestions': 'Vorschläge',
         'tour.step.mine': 'Meine Tour',
         'tour.overview': 'Übersicht anzeigen',
@@ -247,7 +247,7 @@ export const TOUR_MESSAGES = Object.freeze({
     }),
     en: Object.freeze({
         'tour.title': 'Visit planner', 'tour.scan': '📷 Import tour by QR', 'tour.stepsAria': 'Tour steps',
-        'tour.step.start': 'Starting point', 'tour.step.suggestions': 'Suggestions', 'tour.step.mine': 'My tour', 'tour.overview': 'Show overview',
+        'tour.step.start': 'Start', 'tour.step.suggestions': 'Suggestions', 'tour.step.mine': 'My tour', 'tour.overview': 'Show overview',
         'tour.mapView': 'Map view', 'tour.mapView.customers': 'Customers', 'tour.mapView.status': 'Status', 'tour.mapView.opportunities': '🎯 Opportunities',
         'tour.start.heading': '1. Starting point', 'tour.start.help': 'Start with your location, a customer or a place (station, office, hotel) – a place name or postal code is enough. Save frequent places with “★ remember”. TourFuchs then suggests suitable customers nearby or along the route.',
         'tour.start.myLocation': '📍 My location', 'tour.start.searchPlaceholder': '…or customer, place or postal code as start',
@@ -289,7 +289,7 @@ export const TOUR_MESSAGES = Object.freeze({
     }),
     fr: Object.freeze({
         'tour.title': 'Planificateur de visites', 'tour.scan': '📷 Importer une tournée par QR', 'tour.stepsAria': 'Étapes de la tournée',
-        'tour.step.start': 'Point de départ', 'tour.step.suggestions': 'Suggestions', 'tour.step.mine': 'Ma tournée', 'tour.overview': 'Afficher la vue d’ensemble',
+        'tour.step.start': 'Départ', 'tour.step.suggestions': 'Suggestions', 'tour.step.mine': 'Ma tournée', 'tour.overview': 'Afficher la vue d’ensemble',
         'tour.mapView': 'Vue de la carte', 'tour.mapView.customers': 'Clients', 'tour.mapView.status': 'Statut', 'tour.mapView.opportunities': '🎯 Opportunités',
         'tour.start.heading': '1. Point de départ', 'tour.start.help': 'Commencez avec votre position, un client ou un lieu (gare, bureau, hôtel) ; un nom de lieu ou un code postal suffit. Enregistrez les lieux fréquents avec « ★ mémoriser ». TourFuchs suggère ensuite des clients à proximité ou sur l’itinéraire.',
         'tour.start.myLocation': '📍 Ma position', 'tour.start.searchPlaceholder': '…ou client, lieu ou code postal comme départ',
@@ -331,7 +331,7 @@ export const TOUR_MESSAGES = Object.freeze({
     }),
     es: Object.freeze({
         'tour.title': 'Planificador de visitas', 'tour.scan': '📷 Importar ruta por QR', 'tour.stepsAria': 'Pasos de la ruta',
-        'tour.step.start': 'Punto de inicio', 'tour.step.suggestions': 'Sugerencias', 'tour.step.mine': 'Mi ruta', 'tour.overview': 'Mostrar resumen',
+        'tour.step.start': 'Inicio', 'tour.step.suggestions': 'Sugerencias', 'tour.step.mine': 'Mi ruta', 'tour.overview': 'Mostrar resumen',
         'tour.mapView': 'Vista del mapa', 'tour.mapView.customers': 'Clientes', 'tour.mapView.status': 'Estado', 'tour.mapView.opportunities': '🎯 Oportunidades',
         'tour.start.heading': '1. Punto de inicio', 'tour.start.help': 'Empieza desde tu ubicación, un cliente o un lugar (estación, oficina, hotel); basta con el nombre o el código postal. Guarda lugares frecuentes con «★ recordar». TourFuchs sugerirá clientes cercanos o a lo largo de la ruta.',
         'tour.start.myLocation': '📍 Mi ubicación', 'tour.start.searchPlaceholder': '…o cliente, lugar o código postal como inicio',

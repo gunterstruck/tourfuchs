@@ -71,8 +71,9 @@ describe('Fokus-Modus: mehr Übersicht im Tourplaner (Handy und Desktop)', () =>
         expect(components).toContain('body.tour-focus #tour-stepper');
     });
 
-    it('zeigt aktiven Schritt mit Text, die anderen nur als Ziffer', () => {
-        expect(components).toContain('.tour-step .ts-label { display: none; }');
-        expect(components).toContain('.tour-step.active .ts-label { display: inline; }');
+    it('beschriftet alle drei Schritte dauerhaft und teilt den Platz gleichmäßig', () => {
+        expect(components).toMatch(/\.tour-step \{[\s\S]*?flex: 1 1 0;/);
+        expect(components).toMatch(/\.tour-step \.ts-label \{[\s\S]*?display: inline;/);
+        expect(components).not.toContain('.tour-step .ts-label { display: none; }');
     });
 });
