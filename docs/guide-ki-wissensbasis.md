@@ -592,8 +592,11 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Zurück-/Drucken-Leiste die gewählte Sprache. In der erweiterten
   Service-Tagesplanung folgen Arbeitsende, Titel, Techniker-/Teamauswahl,
   Qualifikationen, Erklärung und Berechnungsaktion ebenfalls der Sprache. Die
-  dynamische Ergebnisvorschau folgt in einem eigenen kleinen Schritt; noch
-  nicht umgestellte Fachdialoge verwenden vorerst Deutsch.
+  dynamische Ergebnisvorschau übersetzt Stopps, Rückkehr, Auslastung,
+  Planungsgründe, Zielkonflikt, ausgelassene Einsätze und Übernahmeaktion und
+  wird bei einem Sprachwechsel neu aufgebaut. Bestätigungszustand und
+  Rückmeldungen nach der Übernahme folgen separat; noch nicht umgestellte
+  Fachdialoge verwenden vorerst Deutsch.
 
 ---
 
