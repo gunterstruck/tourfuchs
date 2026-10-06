@@ -4,7 +4,7 @@ import { customerPopupHtml } from '../src/features/map.js';
 
 const originalDepth = state.ui.depth;
 
-const customer = (umsatz) => ({
+const customer = (umsatz, overrides = {}) => ({
     id: 'kunde-1',
     nummer: '4711',
     name: 'Musterkunde GmbH',
@@ -15,7 +15,8 @@ const customer = (umsatz) => ({
     gruppe: 'West',
     bezirk: 'Ruhr',
     umsatz,
-    besuche: []
+    besuche: [],
+    ...overrides
 });
 
 afterEach(() => {
@@ -56,5 +57,22 @@ describe('Umsatz im Kunden-Popup', () => {
         expect(html).toContain('<span>Umsatz</span>');
         expect(html).toContain('45 T€');
         expect(html).not.toContain('Direkt › West › Ruhr');
+    });
+
+    it('zeigt den VB-Namen direkt hinter dem Vertriebsbezirk, sofern vorhanden', () => {
+        state.ui.depth = 'profi';
+
+        const html = customerPopupHtml(customer(45000, { vb: 'Eva Beispiel' }));
+
+        expect(html).toContain('Direkt › West › Ruhr · VB: Eva Beispiel');
+    });
+
+    it('lässt den VB-Zusatz bei einem leeren Wert weg', () => {
+        state.ui.depth = 'profi';
+
+        const html = customerPopupHtml(customer(45000, { vb: '   ' }));
+
+        expect(html).toContain('Direkt › West › Ruhr');
+        expect(html).not.toContain('VB:');
     });
 });

@@ -29,6 +29,10 @@ describe('Kundenliste von der Firmen-KI', () => {
         expect(prompt).toMatch(/die mir als Vertriebsmitarbeiter zugeordnet sind/);
     });
 
+    it.each(['VB Name', 'VB-Name'])('erkennt „%s“ als Vertriebsbeauftragten', (header) => {
+        expect(autoDetectMapping(['Kundenname', 'PLZ', header]).vb).toBe(header);
+    });
+
     it('eine so gebaute Tabelle läuft durch das Einfügen', () => {
         const headers = CUSTOMER_LIST_COLUMNS.map((c) => c.header);
         const row = ['4711', 'Muster GmbH', 'Hauptstr. 1', '45136', 'Essen', 'Eva Beispiel', 'West',
