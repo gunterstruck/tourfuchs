@@ -2448,6 +2448,13 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
 .toast.visible { opacity: 1; transform: translateY(0); }
 .toast-error { background: var(--color-danger); }
 .toast-success { background: var(--color-success); }
+.toast-prominent {
+    padding: 14px 22px;
+    font-size: 1rem;
+    font-weight: 750;
+    line-height: 1.35;
+    text-align: center;
+}
 
 /* PWA-Update-Hinweis */
 .pwa-update-banner,
