@@ -417,12 +417,18 @@ async function inspect(browser, format, baseUrl) {
     }
 
     // Zweite Frage: Kostet die Vertiefung den Rückweg? Dazu in den Tour-Reiter,
-    // dort in Schritt 1 tippen (= Fokus) und nachsehen, ob „☰ Übersicht" steht.
+    // dort auf den Titel von Schritt 1 tippen (= Fokus) und nachsehen, ob
+    // „☰ Übersicht" steht. Nicht die geometrische Mitte der ganzen Kopfzeile
+    // anklicken: Dort darf der eigenständige Hilfe-Punkt liegen, dessen Klick
+    // den Schritt bewusst nicht öffnet.
     let vertiefung = null;
     if (!format.touch) await waehleModus(page, 'aussendienst');
     if (await oeffneReiter(page, 'tour')) {
         const uebersicht = await page.evaluate(PROBE);
-        const getippt = await klicke(page, '#tab-tour .tour-acc[data-acc="start"] .acc-head');
+        const getippt = await klicke(
+            page,
+            '#tab-tour .tour-acc[data-acc="start"] .acc-head > [data-i18n="tour.start.heading"]'
+        );
         const fokus = getippt ? await page.evaluate(PROBE) : null;
         vertiefung = { uebersicht, fokus };
     }

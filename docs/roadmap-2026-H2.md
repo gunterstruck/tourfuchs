@@ -741,8 +741,9 @@ auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert i
 | 14.5 | **Dynamischer Kundenlisten-Import** | ✅ umgesetzt | Tabellenblatt, Kopfzeile, Feldnamen, Pflichtkennzeichnung, Einfügeschritte, Validierungsfehler, Speicherfehler und Importergebnis werden in DE/EN/FR/ES erzeugt. Bekannte Fehler aus Excel/CSV und Zwischenablage werden lokalisiert; Katalogtexte in Ergebnis-HTML werden maskiert. |
 | 14.6 | **Karten-Pin und eigene Orte** | ✅ umgesetzt | Auswahlleiste auf der Karte, Benennungsdialog, Start-/Zielentscheidung, Speichern, Ändern, Löschen, Ortsmittenhinweise und die Popup-Aktionen sind in DE/EN/FR/ES verfügbar. Eingesetzte Ortsnamen werden vor Popup-HTML maskiert. |
 | 14.7 | **Kundensuche und Kundenkarte** | ✅ umgesetzt | Globale Suchgruppen und Leermeldung, Kundenmarker, Kundensteckbrief, Besuchsrhythmus, Kontakte, Servicehinweise und direkte Kartenaktionen folgen DE/EN/FR/ES. Datum, relativer Besuch und Umsatz werden im Kundensteckbrief passend zur Sprache dargestellt; dynamische Texte werden vor Popup-HTML maskiert. |
-| 14.8 | **Tour, Navigation und Formate** | 🔜 als Nächstes | Vollständiger Tourplaner, Navigation, tourbezogene Meldungen sowie verbleibende Datums-, Zahlen- und Währungsdarstellung. |
-| 14.9 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
+| 14.8 | **Tourplaner-Kern** | ✅ umgesetzt | Start und Ziel, gemeinsame Orts-/Kundensuche, Umkreis- und Routenvorschläge, Stoppliste, Besuchsstatus, Reihenfolge, Streckenzusammenfassung, Routendarstellung und gespeicherte Touren folgen DE/EN/FR/ES. Ein Sprachwechsel rendert dynamische Tour- und Karteninhalte sofort neu; Nutzerdaten und Katalogtexte werden vor erzeugtem HTML maskiert. |
+| 14.9 | **Navigation, Übergaben und Service-Tagesplan** | 🔜 als Nächstes | Google-Maps-Grenzen, QR-Dialoge, Druck/Kalender/Textübergabe, Tour-Empfang und die erweiterte Service-Tagesplanung einschließlich ihrer Meldungen. |
+| 14.10 | **Französisch und Spanisch vollständig prüfen** | geplant | Kataloge, mobile Prüfung, Exporte, Hilfen und Rückfalltests. |
 
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 

@@ -10,7 +10,7 @@ describe('Briefing direkt am Tourstopp', () => {
     it('jeder Stopp trägt Briefing – Text unter dem Namen (Desktop) und runder Knopf (Handy)', () => {
         expect(panel).toContain('class="stop-briefing stop-briefing-inline" data-briefing="${i}"');
         expect(panel).toContain('class="stop-briefing stop-briefing-icon" data-briefing="${i}"');
-        expect(panel).toContain('📋 Briefing</button>');
+        expect(panel).toContain("t('tour.stops.briefing')");
     });
 
     it('öffnet denselben Dialog wie das Kunden-Popup', () => {

@@ -248,7 +248,8 @@ async function init() {
     // Darstellung zuerst: Schalter verdrahten, Gerätewechsel verfolgen.
     // Fensterhöhe zuerst: iOS liefert nach dem Entsperren teils ein falsches 100dvh.
     initViewportGuard();
-    initLanguage();
+    const language = initLanguage();
+    language.onChange((locale) => emit('locale:changed', locale));
     const theme = initTheme();
     // Mond/Sonne oben rechts: dunkler Stil + Lichterkarte mit einem Tipp.
     initNightToggle({ theme, onBasemapChanged: (fn) => on('basemap:changed', fn) });

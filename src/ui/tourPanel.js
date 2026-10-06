@@ -22,7 +22,7 @@ import { initTourQr, openShareDialog } from './tourQr.js';
 import { noteTourSharedToPhone } from './firstSteps.js';
 import { zanoboMachineUrl } from '../services/zanobo.js';
 import { copyText, tourText } from '../features/handoff.js';
-import { visitStatus, STATUS_COLORS, STATUS_LABELS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
+import { visitStatus, STATUS_COLORS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
 import { loadTours, saveTours } from '../services/storage.js';
 import { resolveTour, stampTourKeys, servicePlanBasis, servicePlanBasisMatches } from '../features/savedTourKeys.js';
 import { joinedWindow, windowForPlanningDay, earlierSla } from '../features/serviceJobGroups.js';
@@ -39,7 +39,7 @@ import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
 import { openAreaBriefing } from './areaBriefing.js';
 import { openCustomerBriefing } from './customerBriefing.js';
-import { t } from '../core/i18n.js';
+import { currentLocale, t } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -253,6 +253,7 @@ export function initTourPanel() {
     });
 
     on('tour:changed', renderPanel);
+    on('locale:changed', () => { renderPanel(); renderSavedTours(); });
     // Ein gemerkter oder gelöschter Ort ändert das Angebot am Chip („★ merken").
     on('places:changed', renderPanel);
     on('customers:changed', () => { pruneTourToScope(); renderTourScope(); renderPanel(); });
@@ -719,8 +720,8 @@ function applyTourMode(mode, doEmit = true) {
     // Schritt 1, keine eigene Stufe; es trägt deshalb keine Nummer mehr.
     const sh = document.getElementById('suggest-head');
     const mh = document.getElementById('mytour-head');
-    if (sh) sh.textContent = '2. Vorschläge';
-    if (mh) mh.textContent = '3. Meine Tour';
+    if (sh) sh.textContent = t('tour.suggestions.heading');
+    if (mh) mh.textContent = t('tour.mine.heading');
     updateSuggestModeUi();
     applyHiddenExpertSections();
     if (doEmit) emit('tour:changed');
@@ -912,7 +913,7 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoi
         const raw = input.value.trim();
         const run = ++sequence;
         if (raw.length < MIN_PLACE_QUERY) {
-            results.innerHTML = groupHtml('Karte', [mapRow(raw)]);
+            results.innerHTML = groupHtml(t('tour.search.map'), [mapRow(raw)]);
             wireMapChoice(raw);
             return;
         }
@@ -928,7 +929,7 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoi
         const own = searchOwnPlaces(raw, state.places, GROUP_LIMIT);
         const coords = parseCoordinateQuery(raw);
         const coordResults = coords
-            ? [{ kind: 'koordinaten', id: 'koordinaten', label: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`, detail: 'Eingefügte Koordinaten', ...coords, plz: '', ort: '' }]
+            ? [{ kind: 'koordinaten', id: 'koordinaten', label: `${coords.lat.toFixed(5)}, ${coords.lng.toFixed(5)}`, detail: t('customer.search.coordinates'), ...coords, plz: '', ort: '' }]
             : [];
         // Das Verzeichnis wird beim ersten Tippen aufgebaut; bis dahin stehen
         // Kunden und eigene Orte schon da.
@@ -946,17 +947,19 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoi
         const customers = matchingCustomers.slice(0, otherGroups ? GROUP_LIMIT : SINGLE_GROUP_LIMIT);
         const hiddenCustomers = matchingCustomers.length - customers.length;
         results.innerHTML = [
-            groupHtml('Eigene Orte', own.map((r) => placeRow(r, points.indexOf(r)))),
-            groupHtml(hiddenCustomers > 0 ? `Kunden (${customers.length} von ${matchingCustomers.length})` : 'Kunden', customers.map((c) => `
+            groupHtml(t('customer.search.savedPlaces'), own.map((r) => placeRow(r, points.indexOf(r)))),
+            groupHtml(hiddenCustomers > 0
+                ? t('customer.search.customersCount', { shown: customers.length, total: matchingCustomers.length })
+                : t('customer.search.customers'), customers.map((c) => `
                 <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
                     <b>${escapeHtml(c.name)}</b> <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}</span>
                 </button>`)),
-            groupHtml('Orte', [...coordResults, ...geo].map((r) => placeRow(r, points.indexOf(r)))),
-            groupHtml('Karte', [mapRow(raw)])
+            groupHtml(t('customer.search.places'), [...coordResults, ...geo].map((r) => placeRow(r, points.indexOf(r)))),
+            groupHtml(t('tour.search.map'), [mapRow(raw)])
         ].join('');
 
         if (!points.length && !customers.length) {
-            results.insertAdjacentHTML('afterbegin', '<p class="muted small result-empty">Kein bestehender Treffer – den Ort direkt auf der Karte setzen:</p>');
+            results.insertAdjacentHTML('afterbegin', `<p class="muted small result-empty">${escapeHtml(t('tour.search.noneExisting'))}</p>`);
         }
 
         results.querySelectorAll('[data-id]').forEach((btn) => {
@@ -979,9 +982,10 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoi
         });
         results.querySelectorAll('[data-drop]').forEach((btn) => {
             btn.addEventListener('click', () => {
-                if (!confirm('Diesen eigenen Ort löschen?')) return;
+                const ownPlace = state.places.find((place) => place.id === btn.dataset.drop);
+                if (!confirm(t('place.deleteConfirm', { label: ownPlace?.label || '' }))) return;
                 if (removePlace(btn.dataset.drop)) {
-                    showToast('Ort gelöscht.', 'success');
+                    showToast(t('place.deleted', { label: ownPlace?.label || '' }), 'success');
                     render();
                 }
             });
@@ -1002,7 +1006,7 @@ function wireTourPointSearch(inputId, resultsId, { onCustomer, onPlace, onMapPoi
 function wireRememberPlace(buttonId, point) {
     document.getElementById(buttonId)?.addEventListener('click', () => {
         const suggestion = point.ort && point.label !== point.ort ? point.label : (point.label || point.ort || '');
-        const name = prompt('Name für diesen Ort (z. B. „SIXT Essen Hbf"):', suggestion);
+        const name = prompt(t('tour.place.namePrompt'), suggestion);
         if (name === null) return;
         // Zweite, freiwillige Frage – und nur dort, wo sie etwas ändert: Ein Ort
         // aus dem Verzeichnis liegt in der Ortsmitte. Für die Umkreissuche
@@ -1011,7 +1015,7 @@ function wireRememberPlace(buttonId, point) {
         // mitgeschrieben und an Google Maps übergeben, wenn du dorthin
         // navigierst. Wer nichts einträgt, verliert nichts.
         const strasse = point.strasse || (point.ort
-            ? (prompt(`Straße und Hausnummer in ${point.ort} (optional, nur für die Navigation):`, '') ?? '')
+            ? (prompt(t('tour.place.streetPrompt', { city: point.ort }), '') ?? '')
             : '');
         const place = createOwnPlace({
             label: name,
@@ -1022,11 +1026,11 @@ function wireRememberPlace(buttonId, point) {
             ort: point.ort ?? ''
         });
         if (!place) {
-            showToast('Bitte einen Namen angeben.', 'info');
+            showToast(t('tour.place.nameRequired'), 'info');
             return;
         }
         if (!addPlace(place)) {
-            showToast(`Es passen ${CONFIG.tour.maxOwnPlaces} eigene Orte – bitte zuerst einen löschen (Suchfeld, ✕ am Ort).`, 'info', 6000);
+            showToast(t('tour.place.capacity', { count: CONFIG.tour.maxOwnPlaces }), 'info', 6000);
             return;
         }
         // Der Punkt in der Tour *wird* der gemerkte Ort: Er trägt ab jetzt den
@@ -1037,8 +1041,8 @@ function wireRememberPlace(buttonId, point) {
         point.label = place.label;
         if (place.strasse) point.strasse = place.strasse;
         showToast(place.strasse
-            ? `„${place.label}" gemerkt – Navigation zu ${place.strasse}.`
-            : `„${place.label}" gemerkt.`, 'success');
+            ? t('tour.place.rememberedNavigation', { label: place.label, street: place.strasse })
+            : t('tour.place.remembered', { label: place.label }), 'success');
         emit('tour:changed');
     });
 }
@@ -1187,7 +1191,9 @@ function toggleRouteLineMode() {
 
 function currentTourName() {
     const input = document.getElementById('tour-name');
-    return (input.value.trim()) || (state.tour.start ? `Tour ab ${state.tour.start.label}` : 'Tagestour');
+    return (input.value.trim()) || (state.tour.start
+        ? t('tour.saved.nameFromStart', { start: state.tour.start.label })
+        : t('tour.saved.defaultName'));
 }
 
 function renderPanel() {
@@ -1250,29 +1256,32 @@ function setTourFocus(on) {
 
 function tourAccSummaries() {
     const sumStart = document.getElementById('acc-sum-start');
-    if (sumStart) sumStart.textContent = state.tour.start ? `🚩 ${state.tour.start.label}` : 'noch offen';
+    if (sumStart) sumStart.textContent = state.tour.start ? `🚩 ${state.tour.start.label}` : t('tour.summary.open');
 
     const sumSuggest = document.getElementById('acc-sum-suggest');
     if (sumSuggest) {
         sumSuggest.textContent = state.tour.suggestMode === 'route'
-            ? 'entlang der Tour'
-            : `Umkreis ${state.tour.radiusKm} km`;
+            ? t('tour.summary.alongRoute')
+            : t('tour.summary.radius', { count: state.tour.radiusKm });
     }
 
     const sumMytour = document.getElementById('acc-sum-mytour');
     if (sumMytour) {
         const n = state.tour.stops.length;
         if (n === 0) {
-            sumMytour.textContent = 'noch leer';
+            sumMytour.textContent = t('tour.summary.empty');
         } else if (state.tour.mapFocus) {
-            sumMytour.textContent = `${n} Stopp${n === 1 ? '' : 's'} · auf Karte`;
+            sumMytour.textContent = t(n === 1 ? 'tour.summary.stopsMapOne' : 'tour.summary.stopsMapMany', { count: n });
         } else if (!state.tour.start) {
             // Ohne Startpunkt gibt es keine Strecke, die etwas aussagt – dann
             // lieber nur zählen, als eine Zahl zu erfinden.
-            sumMytour.textContent = `${n} Stopp${n === 1 ? '' : 's'} · Start fehlt`;
+            sumMytour.textContent = t(n === 1 ? 'tour.summary.stopsNoStartOne' : 'tour.summary.stopsNoStartMany', { count: n });
         } else {
             const { roadKmEstimate } = routeDistance(state.tour.start, effStops(), state.tour.roundTrip);
-            sumMytour.textContent = `${n} Stopp${n === 1 ? '' : 's'} · ~${Math.round(roadKmEstimate)} km`;
+            sumMytour.textContent = t(n === 1 ? 'tour.summary.stopsKmOne' : 'tour.summary.stopsKmMany', {
+                count: n,
+                km: Math.round(roadKmEstimate)
+            });
         }
     }
 }
@@ -1348,13 +1357,13 @@ function renderDest() {
     const el = document.getElementById('tour-dest');
     const d = state.tour.destination;
     if (!d) {
-        el.innerHTML = state.tour.roundTrip && state.tour.start
-            ? '<p class="muted small">Rundreise aktiv: Das Ziel ist automatisch wieder der Startpunkt.</p>'
-            : '<p class="muted small">Kein Ziel gewählt. Ohne Rundreise ist der letzte Stopp automatisch das Ziel.</p>';
+        el.innerHTML = `<p class="muted small">${escapeHtml(t(
+            state.tour.roundTrip && state.tour.start ? 'tour.destination.roundTrip' : 'tour.destination.none'
+        ))}</p>`;
         return;
     }
     el.innerHTML = `<div class="start-chip">🏁 <b>${escapeHtml(d.label)}</b>${refineButtonHtml(d, 'btn-dest-refine')}${rememberButtonHtml(d, 'btn-dest-remember')}
-        <button type="button" id="btn-dest-clear" class="chip-x" title="Ziel entfernen">✕</button></div>`;
+        <button type="button" id="btn-dest-clear" class="chip-x" title="${escapeHtml(t('tour.destination.remove'))}" aria-label="${escapeHtml(t('tour.destination.remove'))}">✕</button></div>`;
     wireRefinePlace('btn-dest-refine', d, 'destination');
     wireRememberPlace('btn-dest-remember', d);
     document.getElementById('btn-dest-clear').addEventListener('click', () => {
@@ -1373,12 +1382,12 @@ function renderDest() {
 function rememberButtonHtml(point, id) {
     if (!point || point.customerId || point.here) return '';
     if (findOwnPlaceForPoint(state.places, point)) return '';
-    return `<button type="button" class="chip-star" id="${id}" title="Diesen Ort merken" aria-label="Diesen Ort merken">★ merken</button>`;
+    return `<button type="button" class="chip-star" id="${id}" title="${escapeHtml(t('tour.place.remember'))}" aria-label="${escapeHtml(t('tour.place.remember'))}">${escapeHtml(t('tour.place.rememberShort'))}</button>`;
 }
 
 function refineButtonHtml(point, id) {
     if (!point || point.customerId || point.here) return '';
-    return `<button type="button" class="chip-pin" id="${id}" title="Position dieses Orts exakt auf der Karte setzen">📌 genauer</button>`;
+    return `<button type="button" class="chip-pin" id="${id}" title="${escapeHtml(t('tour.place.refine'))}">${escapeHtml(t('tour.place.refineShort'))}</button>`;
 }
 
 function wireRefinePlace(buttonId, point, target) {
@@ -1399,10 +1408,10 @@ function wireRefinePlace(buttonId, point, target) {
 function renderStart() {
     const el = document.getElementById('tour-start');
     if (!state.tour.start) {
-        el.innerHTML = '<p class="muted">Kein Startpunkt gewählt. Nutzen Sie Ihren Standort, einen eigenen Ort oder suchen Sie unten nach Kunde, Ort oder PLZ (auch Karten-Popup „Als Start“).</p>';
+        el.innerHTML = `<p class="muted">${escapeHtml(t('tour.start.none'))}</p>`;
         return;
     }
-    el.innerHTML = `<div class="start-chip">🚩 <b>${escapeHtml(state.tour.start.label)}</b>${refineButtonHtml(state.tour.start, 'btn-start-refine')}${rememberButtonHtml(state.tour.start, 'btn-start-remember')}<button type="button" class="chip-x" id="btn-start-clear" title="Startpunkt entfernen" aria-label="Startpunkt entfernen">✕</button></div>`;
+    el.innerHTML = `<div class="start-chip">🚩 <b>${escapeHtml(state.tour.start.label)}</b>${refineButtonHtml(state.tour.start, 'btn-start-refine')}${rememberButtonHtml(state.tour.start, 'btn-start-remember')}<button type="button" class="chip-x" id="btn-start-clear" title="${escapeHtml(t('tour.start.remove'))}" aria-label="${escapeHtml(t('tour.start.remove'))}">✕</button></div>`;
     wireRefinePlace('btn-start-refine', state.tour.start, 'start');
     wireRememberPlace('btn-start-remember', state.tour.start);
     document.getElementById('btn-start-clear')?.addEventListener('click', () => {
@@ -1444,25 +1453,29 @@ function renderStops() {
 
     if (stops.length === 0) {
         el.innerHTML = `${exceptionWarning}<div class="tour-empty-guide">
-            <b>Noch keine Stopps</b>
+            <b>${escapeHtml(t('tour.stops.empty'))}</b>
             <ol>
-                <li>Startpunkt wählen</li>
-                <li>Kunden aus Vorschlägen oder von der Karte hinzufügen</li>
-                <li>Route auf der Karte anzeigen</li>
+                <li>${escapeHtml(t('tour.stops.emptyStart'))}</li>
+                <li>${escapeHtml(t('tour.stops.emptyAdd'))}</li>
+                <li>${escapeHtml(t('tour.stops.emptyRoute'))}</li>
             </ol>
         </div>`;
     } else {
         const today = todayIso();   // lokaler Tag, nicht UTC
         // Mobiler Hinweis auf das Umsortieren (Desktop blendet ihn per CSS aus).
         const reorderHint = stops.length >= 2
-            ? '<p class="stop-reorder-hint muted small">↕ Zum Umsortieren einen Stopp halten und ziehen</p>'
+            ? `<p class="stop-reorder-hint muted small">${escapeHtml(t('tour.stops.reorder'))}</p>`
             : '';
         el.innerHTML = exceptionWarning + reorderHint + stops.map((c, i) => {
             const status = visitStatus(c);
             const done = lastVisit(c) === today;
             const outsideServiceScope = serviceExceptions.has(c.id);
+            const statusKeys = {
+                ok: 'customer.status.ok', faellig: 'customer.status.due',
+                ueberfaellig: 'customer.status.overdue', none: 'customer.status.none'
+            };
             const dot = status !== 'none'
-                ? `<span class="stop-status-dot" style="background:${STATUS_COLORS[status]}" title="${STATUS_LABELS[status]}"></span>`
+                ? `<span class="stop-status-dot" style="background:${STATUS_COLORS[status]}" title="${escapeHtml(t(statusKeys[status]))}"></span>`
                 : '';
             const planned = plannedEntries.get(c.id);
             const linkedVisits = (state.tour.serviceVisitByCustomer?.[c.id] || []).map((id) => visitsById.get(id)).filter(Boolean);
@@ -1471,21 +1484,26 @@ function renderStops() {
             const servicePlanLine = planned
                 ? `<span class="service-stop-plan">🛠️ ${planned.map((entry) => `${escapeHtml(formatPlanTime(entry.start))}–${escapeHtml(formatPlanTime(entry.end))}`).join(' + ')}${serviceReason ? ` · ${escapeHtml(serviceReason)}` : ''}${zanoboUrl ? ` · <a class="zanobo-link" href="${escapeHtml(zanoboUrl)}" target="_blank" rel="noopener noreferrer" title="Zanobo vergleicht das Betriebsgeräusch mit der Referenz der Anlage – Orientierung, keine Diagnose.">🔊 Anhören</a>` : ''}</span>`
                 : '';
+            const last = lastVisit(c);
+            const visitDetail = done
+                ? t('tour.stops.visitedToday')
+                : last ? t('tour.stops.lastVisit', { relative: agoText(last, new Date(), currentLocale()) }) : '';
+            const briefingTitle = t('tour.stops.briefingTitle', { name: c.name });
             return `
             <div class="stop-row${autoLastStopIsDestination && i === stops.length - 1 ? ' final-row' : ''}${done ? ' stop-visited' : ''}">
-                <span class="stop-num" data-visit-node="${i}" title="${done ? 'Heute besucht – am Handy zum erneuten Eintragen tippen' : 'Am Handy: auf den Punkt tippen = heute besucht'}">${i + 1}</span>
+                <span class="stop-num" data-visit-node="${i}" title="${escapeHtml(t(done ? 'tour.stops.mobileVisited' : 'tour.stops.mobileMarkVisited'))}">${i + 1}</span>
                 <span class="stop-name" title="${escapeHtml(c.name)}">
-                    <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? '<span class="route-role">Ziel</span>' : ''}${outsideServiceScope ? '<span class="route-role scope-exception">Außerhalb Servicefilter</span>' : ''}</span>
-                    <span class="stop-sub muted small">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${done ? ' · heute besucht' : (lastVisit(c) ? ` · zuletzt ${agoText(lastVisit(c))}` : '')}</span>
+                    <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? `<span class="route-role">${escapeHtml(t('tour.stops.destination'))}</span>` : ''}${outsideServiceScope ? '<span class="route-role scope-exception">Außerhalb Servicefilter</span>' : ''}</span>
+                    <span class="stop-sub muted small">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${visitDetail ? ` · ${escapeHtml(visitDetail)}` : ''}</span>
                     ${servicePlanLine ? `<span class="stop-plan-line">${servicePlanLine}</span>` : ''}
-                    <button type="button" class="stop-briefing stop-briefing-inline" data-briefing="${i}" title="Briefing für ${escapeHtml(c.name)} vorbereiten">📋 Briefing</button>
+                    <button type="button" class="stop-briefing stop-briefing-inline" data-briefing="${i}" title="${escapeHtml(briefingTitle)}">${escapeHtml(t('tour.stops.briefing'))}</button>
                 </span>
                 <span class="stop-actions">
-                    <button type="button" class="stop-briefing stop-briefing-icon" data-briefing="${i}" title="Briefing für ${escapeHtml(c.name)} vorbereiten" aria-label="Briefing für ${escapeHtml(c.name)}">📋</button>
-                    <button type="button" class="stop-visit${done ? ' is-done' : ''}" data-visit="${i}" title="${done ? 'Heute besucht' : 'Als heute besucht markieren'}">${done ? '✓' : '✓ Heute'}</button>
-                    <button type="button" data-up="${i}" title="Nach oben" ${i === 0 ? 'disabled' : ''}>↑</button>
-                    <button type="button" data-down="${i}" title="Nach unten" ${i === stops.length - 1 ? 'disabled' : ''}>↓</button>
-                    <button type="button" class="stop-remove" data-remove="${i}" title="Entfernen">✕</button>
+                    <button type="button" class="stop-briefing stop-briefing-icon" data-briefing="${i}" title="${escapeHtml(briefingTitle)}" aria-label="${escapeHtml(briefingTitle)}">📋</button>
+                    <button type="button" class="stop-visit${done ? ' is-done' : ''}" data-visit="${i}" title="${escapeHtml(t(done ? 'tour.stops.visitedTitle' : 'tour.stops.markVisited'))}">${done ? '✓' : escapeHtml(t('tour.stops.todayShort'))}</button>
+                    <button type="button" data-up="${i}" title="${escapeHtml(t('tour.stops.up'))}" ${i === 0 ? 'disabled' : ''}>↑</button>
+                    <button type="button" data-down="${i}" title="${escapeHtml(t('tour.stops.down'))}" ${i === stops.length - 1 ? 'disabled' : ''}>↓</button>
+                    <button type="button" class="stop-remove" data-remove="${i}" title="${escapeHtml(t('tour.stops.remove'))}">✕</button>
                 </span>
             </div>`;
         }).join('');
@@ -1503,7 +1521,7 @@ function renderStops() {
             markDirty(); // persistieren + Karte/Status neu zeichnen
             emit('visits:changed');
             renderPanel();
-            showToast(`Besuch bei ${c.name} für heute eingetragen.`, 'success');
+            showToast(t('customer.visit.saved', { name: c.name }), 'success');
         }));
 
         // Am Handy ist die Zeile einzeilig: Der grüne Tour-Punkt selbst dient als
@@ -1516,7 +1534,7 @@ function renderStops() {
             markDirty();
             emit('visits:changed');
             renderPanel();
-            showToast(`Besuch bei ${c.name} für heute eingetragen.`, 'success');
+            showToast(t('customer.visit.saved', { name: c.name }), 'success');
         }));
 
         el.querySelectorAll('[data-remove]').forEach((btn) => btn.addEventListener('click', () => {
@@ -1545,12 +1563,12 @@ function renderStops() {
     // Ziel als fester Streckenabschluss anzeigen
     if (explicitDest || state.tour.destination) {
         const d = state.tour.destination;
-        const label = d?.label || explicitDest?.name || 'Ziel';
+        const label = d?.label || explicitDest?.name || t('tour.stops.destination');
         el.insertAdjacentHTML('beforeend', `
             <div class="stop-row dest-row">
                 <span class="stop-num">🏁</span>
-                <span class="stop-name" title="${escapeHtml(label)}">Ziel: ${escapeHtml(label)}</span>
-                <span class="stop-actions"><button type="button" id="dest-row-x" title="Ziel entfernen">✕</button></span>
+                <span class="stop-name" title="${escapeHtml(label)}">${escapeHtml(t('tour.stops.destinationLabel', { label }))}</span>
+                <span class="stop-actions"><button type="button" id="dest-row-x" title="${escapeHtml(t('tour.destination.remove'))}">✕</button></span>
             </div>`);
         const x = document.getElementById('dest-row-x');
         if (x) x.addEventListener('click', () => {
@@ -1565,7 +1583,7 @@ function renderStops() {
             <div class="stop-row return-row">
                 <span class="stop-num">↩</span>
                 <span class="stop-name" title="${escapeHtml(state.tour.start.label)}">
-                    Ziel: zurück zum Start<br><span class="muted small">${escapeHtml(state.tour.start.label)}</span>
+                    ${escapeHtml(t('tour.stops.returnStart'))}<br><span class="muted small">${escapeHtml(state.tour.start.label)}</span>
                 </span>
             </div>`);
     }
@@ -1584,14 +1602,16 @@ function renderStops() {
     const eff = effStops();
     if (state.tour.start && eff.length > 0) {
         const { airKm, roadKmEstimate } = routeDistance(state.tour.start, eff, state.tour.roundTrip);
-        const rt = state.tour.roundTrip ? ' als Rundreise' : '';
+        const rt = state.tour.roundTrip ? t('tour.summary.asRoundTrip') : '';
         const endHint = state.tour.roundTrip
-            ? 'Ziel ist wieder der Start.'
-            : (explicitDest ? 'Ziel festgelegt.' : 'Letzter Stopp ist automatisch Ziel.');
-        const exportHint = eff.length > CONFIG.tour.maxWaypoints + 1 ? `, Google-Maps-Export: max. ${CONFIG.tour.maxWaypoints + 1} Stopps` : "";
+            ? t('tour.summary.endReturn')
+            : (explicitDest ? t('tour.summary.endFixed') : t('tour.summary.endLast'));
+        const exportHint = eff.length > CONFIG.tour.maxWaypoints + 1
+            ? `, ${t('tour.summary.exportLimit', { count: CONFIG.tour.maxWaypoints + 1 })}`
+            : '';
         summary.innerHTML = state.tour.servicePlan
             ? `🛠️ <b>Bestätigter Service-Tagesplan</b> · ${state.tour.servicePlan.itinerary.length} Stopps · ca. ${Math.round(state.tour.servicePlan.metrics?.totalKm || roadKmEstimate)} km <span class="muted small">Rückkehr ${escapeHtml(formatPlanTime(state.tour.servicePlan.metrics?.finishAt))}. Manuelle Änderungen verwerfen die fixierten Zeiten.</span>`
-            : `Geschätzte Strecke${rt}: <b>~${Math.round(roadKmEstimate)} km</b> <span class="muted small">${endHint} ${Math.round(airKm)} km Luftlinie${exportHint}.</span>`;
+            : `${escapeHtml(t('tour.summary.estimated', { roundTrip: rt }))} <b>~${Math.round(roadKmEstimate)} km</b> <span class="muted small">${escapeHtml(endHint)} ${escapeHtml(t('tour.summary.airKm', { km: Math.round(airKm) }))}${escapeHtml(exportHint)}.</span>`;
     } else {
         summary.innerHTML = '';
     }
@@ -1599,13 +1619,13 @@ function renderStops() {
     const optimizeButton = document.getElementById('btn-optimize');
     optimizeButton.disabled = Boolean(state.tour.servicePlan) || !(state.tour.start && tourStops().length >= 2);
     optimizeButton.title = state.tour.servicePlan
-        ? 'Reihenfolge und Zeiten stammen aus dem bestätigten Service-Tagesplan.'
-        : 'Reihenfolge optimieren';
+        ? t('tour.optimize.locked')
+        : t('tour.optimize.title');
     const routeFocus = document.getElementById('btn-route-focus');
     routeFocus.disabled = !hasRoute;
     routeFocus.textContent = !state.tour.mapFocus
-        ? '🗺️ Route auf Karte anzeigen'
-        : (state.tour.routeLineMode === 'road' ? '🗺️ Luftlinie anzeigen' : '🗺️ Straßenroute anzeigen');
+        ? t('tour.action.showRoute')
+        : (state.tour.routeLineMode === 'road' ? t('tour.action.showAirLine') : t('tour.action.showRoadRoute'));
     // Umschalter über der Karte spiegeln: nur sichtbar, wenn die Route liegt.
     // Er teilt sich die Knopfzeile mit „Lasso ziehen" – deshalb sitzt das
     // Wort „anzeigen" in einem eigenen Span, den schmale Schirme ausblenden.
@@ -1616,7 +1636,7 @@ function renderStops() {
         const icon = routeModeBtn.querySelector('.mns-icon');
         const text = routeModeBtn.querySelector('.fab-text');
         if (icon) icon.textContent = road ? '📏' : '🗺️';
-        if (text) text.textContent = road ? 'Luftlinie' : 'Straßenroute';
+        if (text) text.textContent = road ? t('tour.action.airLine') : t('tour.action.roadRoute');
     }
     document.getElementById('btn-gmaps').disabled = !hasRoute;
     document.getElementById('btn-tour-print').disabled = !hasRoute;
@@ -1760,18 +1780,18 @@ function updateSuggestModeUi() {
     document.querySelectorAll('#suggest-mode .seg').forEach((btn) => {
         btn.classList.toggle('active', btn.dataset.mode === state.tour.suggestMode);
     });
-    document.getElementById('radius-label').textContent = route ? 'Korridor (Abstand zur Route)' : 'Umkreis';
+    document.getElementById('radius-label').textContent = t(route ? 'tour.suggestions.corridor' : 'tour.suggestions.radius');
     document.getElementById('suggest-hint').textContent = route
         ? (!hasRoutingConsent()
-            ? 'Vorschläge entlang der direkten Verbindung. Für den tatsächlichen Straßenverlauf der Straßenroute (OSRM) zustimmen – siehe Datenschutz.'
+            ? t('tour.suggestions.directHint')
             : suggestionRoadLoading
-                ? 'Straßenroute wird berechnet. Danach erscheinen Kunden im Korridor entlang des tatsächlichen Straßenverlaufs.'
+                ? t('tour.suggestions.loadingHint')
                 : suggestionRoadFailed
-                    ? 'Straßenroute derzeit nicht verfügbar. Vorschläge verwenden vorübergehend die direkte Verbindung.'
+                    ? t('tour.suggestions.failedHint')
                     : suggestionRoadPath
-                        ? 'Kunden entlang der berechneten Straßenroute, höchstens so weit neben dem tatsächlichen Straßenverlauf.'
-                        : 'Kunden entlang der Tour. Sobald Start und Ziel feststehen, wird der Straßenverlauf berechnet.')
-        : 'Kunden im Umkreis des Startpunkts.';
+                        ? t('tour.suggestions.roadHint')
+                        : t('tour.suggestions.routeHint'))
+        : t('tour.suggestions.radiusHint');
 }
 
 /**
@@ -1805,7 +1825,7 @@ function renderSuggestions() {
         const key = routingKey(routePoints);
         if (key !== suggestionRoadKey) requestSuggestionRoadRoute(routePoints);
         if (suggestionRoadLoading) {
-            el.innerHTML = '<p class="muted"><span class="spinner"></span> Straßenroute und passende Kunden werden berechnet…</p>';
+            el.innerHTML = `<p class="muted"><span class="spinner"></span> ${escapeHtml(t('tour.suggestions.calculating'))}</p>`;
             updateAreaBriefingButton([], '');
             return;
         }
@@ -1824,29 +1844,34 @@ function renderSuggestions() {
         const noRoute = routeMode && effStops().length === 0;
         el.innerHTML = routeMode
             ? (noRoute
-                ? '<p class="muted">Für Vorschläge entlang der Strecke bitte ein <b>Ziel</b> wählen (oder einen Stopp hinzufügen). Dann werden Kunden entlang des Wegs vorgeschlagen.</p>'
-                : '<p class="muted">Keine weiteren (sichtbaren) Kunden im Korridor entlang der Strecke. Tipp: Korridor vergrößern.</p>')
-            : '<p class="muted">Keine weiteren (sichtbaren) Kunden im gewählten Umkreis.</p>';
+                ? `<p class="muted">${escapeHtml(t('tour.suggestions.needDestination'))}</p>`
+                : `<p class="muted">${escapeHtml(t('tour.suggestions.noneCorridor'))}</p>`)
+            : `<p class="muted">${escapeHtml(t('tour.suggestions.noneRadius'))}</p>`;
         return;
     }
     // Anzahl im Umkreis sichtbar machen: Der Regler „lebt" auch dann, wenn die
     // Liste aus Übersichtsgründen nur die nächsten Kunden zeigt.
     const totalNear = routeMode ? suggestions.length : countNearby(state.tour.start, pool, state.tour.radiusKm, exclude);
-    const countLine = routeMode
-        ? ''
-        : `<p class="suggestion-count muted small">${totalNear} Kunde${totalNear === 1 ? '' : 'n'} im Umkreis von ${state.tour.radiusKm} km${totalNear > suggestions.length ? ` · zeige die ${suggestions.length} nächsten` : ''}</p>`;
+    const countLine = routeMode ? '' : `<p class="suggestion-count muted small">${escapeHtml(t(
+        totalNear === 1 ? 'tour.suggestions.countOne' : 'tour.suggestions.countMany',
+        { count: totalNear, radius: state.tour.radiusKm }
+    ))}${totalNear > suggestions.length ? ` · ${escapeHtml(t('tour.suggestions.showing', { count: suggestions.length }))}` : ''}</p>`;
     el.innerHTML = countLine + suggestions.map(({ customer: c, km }) => {
         const status = visitStatus(c);
+        const statusKeys = {
+            ok: 'customer.status.ok', faellig: 'customer.status.due',
+            ueberfaellig: 'customer.status.overdue', none: 'customer.status.none'
+        };
         const statusTag = c.rhythmusWochen
-            ? `<span class="mini-badge" style="background:${STATUS_COLORS[status]}" title="${STATUS_LABELS[status]}"></span>`
+            ? `<span class="mini-badge" style="background:${STATUS_COLORS[status]}" title="${escapeHtml(t(statusKeys[status]))}"></span>`
             : '';
         return `
         <div class="suggestion-row">
             <span class="dot" style="background:${repColor(c.vb)}"></span>
-            <button type="button" class="suggestion-name" data-fly="${escapeHtml(c.id)}" title="Auf Karte zeigen">
+            <button type="button" class="suggestion-name" data-fly="${escapeHtml(c.id)}" title="${escapeHtml(t('tour.suggestions.showMap'))}">
                 ${escapeHtml(c.name)} ${statusTag}<br><span class="muted small">${escapeHtml(c.plz)} ${escapeHtml(c.ort)} · ${km.toFixed(1)} km</span>
             </button>
-            <button type="button" class="suggestion-add" data-add="${escapeHtml(c.id)}" title="Zur Tour hinzufügen">＋</button>
+            <button type="button" class="suggestion-add" data-add="${escapeHtml(c.id)}" title="${escapeHtml(t('tour.suggestions.add'))}">＋</button>
         </div>`;
     }).join('');
 
@@ -1923,8 +1948,8 @@ function optimizeTour() {
     emit('tour:changed');
     const savedKm = (before - after) * CONFIG.tour.roadFactor;
     showToast(savedKm > 0.5
-        ? `Reihenfolge optimiert – spart ca. ${Math.round(savedKm)} km.`
-        : 'Reihenfolge ist bereits optimal.', 'success');
+        ? t('tour.toast.optimized', { km: Math.round(savedKm) })
+        : t('tour.toast.alreadyOptimal'), 'success');
 }
 
 function openInGoogleMaps() {
@@ -1942,15 +1967,15 @@ function openInGoogleMaps() {
 function showRouteOnMap() {
     const eff = effStops();
     if (!state.tour.start || eff.length === 0) {
-        showToast('Bitte Startpunkt und mindestens einen Stopp wählen.', 'info');
+        showToast(t('tour.toast.chooseRoute'), 'info');
         return;
     }
     if (state.tour.mapFocus) {
         const mode = toggleRouteLineMode();
         showRouteView();
         showToast(mode === 'road'
-            ? 'Straßenroute wird auf der Karte angezeigt.'
-            : 'Luftlinienroute wird auf der Karte angezeigt.',
+            ? t('tour.toast.roadShown')
+            : t('tour.toast.airShown'),
             'success', 2400);
         return;
     }
@@ -1960,8 +1985,8 @@ function showRouteOnMap() {
     window.setTimeout(() => {
         const ok = fitTourRoute();
         showToast(ok
-            ? 'Route und passende Vorschlagskunden werden auf der Karte angezeigt.'
-            : 'Route konnte noch nicht angezeigt werden.',
+            ? t('tour.toast.routeShown')
+            : t('tour.toast.routeFailed'),
             ok ? 'success' : 'info', 3000);
         emit('tour:changed');
     }, isPhoneUi() ? 140 : 0);
@@ -1992,7 +2017,7 @@ async function saveCurrentTour() {
     await saveTours(savedTours);
     document.getElementById('tour-name').value = '';
     renderSavedTours();
-    showToast(`Tour „${name}" gespeichert.`, 'success');
+    showToast(t('tour.toast.saved', { name }), 'success');
 }
 
 function loadSavedTour(id) {
@@ -2042,18 +2067,23 @@ function renderSavedTours() {
     const el = document.getElementById('saved-tours');
     if (!el) return;
     if (savedTours.length === 0) {
-        el.innerHTML = '<p class="muted small">Noch keine Touren gespeichert.</p>';
+        el.innerHTML = `<p class="muted small">${escapeHtml(t('tour.saved.none'))}</p>`;
         return;
     }
-    el.innerHTML = savedTours.map((t) => `
-        <div class="saved-tour-row">
-            <button type="button" class="saved-tour-load" data-load="${escapeHtml(t.id)}" title="Tour laden">
-                <b>${escapeHtml(t.name)}</b><br>
-                <span class="muted small">${t.stopIds.length} Stopp${t.stopIds.length === 1 ? '' : 's'} · ab ${escapeHtml(t.start.label)}${t.servicePlan ? ' · Service-Zeitplan' : ''}</span>
+    el.innerHTML = savedTours.map((savedTour) => {
+        const stopText = t(savedTour.stopIds.length === 1 ? 'tour.saved.stopsOne' : 'tour.saved.stopsMany', {
+            count: savedTour.stopIds.length,
+            start: savedTour.start.label
+        });
+        const planText = savedTour.servicePlan ? ` · ${t('tour.saved.servicePlan')}` : '';
+        return `<div class="saved-tour-row">
+            <button type="button" class="saved-tour-load" data-load="${escapeHtml(savedTour.id)}" title="${escapeHtml(t('tour.saved.load'))}">
+                <b>${escapeHtml(savedTour.name)}</b><br>
+                <span class="muted small">${escapeHtml(stopText)}${escapeHtml(planText)}</span>
             </button>
-            <button type="button" class="saved-tour-del" data-del="${escapeHtml(t.id)}" title="Löschen">🗑</button>
-        </div>
-    `).join('');
+            <button type="button" class="saved-tour-del" data-del="${escapeHtml(savedTour.id)}" title="${escapeHtml(t('tour.saved.delete'))}">🗑</button>
+        </div>`;
+    }).join('');
     el.querySelectorAll('[data-load]').forEach((btn) =>
         btn.addEventListener('click', () => loadSavedTour(btn.dataset.load)));
     el.querySelectorAll('[data-del]').forEach((btn) =>

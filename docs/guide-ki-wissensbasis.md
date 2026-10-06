@@ -572,9 +572,14 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   **„Orte“** und **„Keine Treffer“** ebenfalls passend zur Auswahl. In der
   Kundenkarte wechseln Umsatz, letzter Besuch, Rhythmus, Kontaktaktionen,
   Servicehinweise sowie **„Als Start“**, **„Als Ziel“**, **„Zur Tour“** und
-  **„Briefing“**; Datum und Umsatz werden dort sprachgerecht formatiert.
-  Noch nicht umgestellte Fachdialoge außerhalb von Import, eigenen Orten und
-  Kundenkarte verwenden vorerst den deutschen Ausgangstext.
+  **„Briefing“**; Datum und Umsatz werden dort sprachgerecht formatiert. Auch
+  der Tourplaner folgt der Sprache: **„Startpunkt“**, **„Vorschläge“**,
+  **„Meine Tour“**, Start-/Zielsuche, Umkreis bzw. Routenkorridor, Stoppliste,
+  **„Reihenfolge optimieren“**, **„Route auf Karte anzeigen“** und gespeicherte
+  Touren. Beim Umschalten werden bereits sichtbare dynamische Tour- und
+  Karteninhalte neu aufgebaut. Die erweiterten Service-Tagesvorschläge und die
+  Dialoge für Druck, Kalender, QR und Textübergabe folgen in einem eigenen
+  Schritt; noch nicht umgestellte Fachdialoge verwenden vorerst Deutsch.
 
 ---
 

@@ -97,6 +97,7 @@ describe('Strecke ohne Startpunkt', () => {
 
     it('nennt im Kurzstand „Start fehlt" statt einer erfundenen Zahl', () => {
         const panel = read('src/ui/tourPanel.js');
-        expect(panel).toContain('Start fehlt');
+        expect(panel).toContain("'tour.summary.stopsNoStartOne'");
+        expect(panel).toContain("'tour.summary.stopsNoStartMany'");
     });
 });
