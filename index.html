@@ -1091,34 +1091,34 @@
                     <a href="https://github.com/gunterstruck/tourfuchs/issues" target="_blank" rel="noopener" data-i18n="info.feedbackGithub">Auf GitHub melden</a> ·
                     <a class="nowrap" href="mailto:tourfuchs@online.de?subject=TourFuchs%20Feedback" data-i18n="info.feedbackEmail">E-Mail schreiben</a></p>
                 <section class="privacy-faq" aria-labelledby="privacy-faq-title">
-                    <h3 id="privacy-faq-title">🔒 Datenschutz – häufige Fragen</h3>
-                    <p>Local First: Die Kundenliste wird auf Ihrem Gerät verarbeitet und gespeichert. Welche Grenzen und freiwilligen Übertragungswege es gibt, erklären die Antworten unten.</p>
+                    <h3 id="privacy-faq-title" data-i18n="info.privacy.title">🔒 Datenschutz – häufige Fragen</h3>
+                    <p data-i18n="info.privacy.intro">Local First: Die Kundenliste wird auf Ihrem Gerät verarbeitet und gespeichert. Welche Grenzen und freiwilligen Übertragungswege es gibt, erklären die Antworten unten.</p>
                     <details>
-                        <summary>Wo werden meine Kundendaten gespeichert?</summary>
-                        <p>Import und Verarbeitung der Excel-/CSV-Liste erfolgen lokal im Browser. Der Kundendatensatz liegt in der lokalen Browser-Datenbank (IndexedDB). TourFuchs lädt diese Kundenliste nicht auf einen eigenen Server und synchronisiert sie nicht automatisch mit einer Cloud. Die Webseite und Karten benötigen dennoch Netzwerkzugriffe; die optionalen Übertragungswege sind unten aufgeführt.</p>
+                        <summary data-i18n="info.privacy.storageQuestion">Wo werden meine Kundendaten gespeichert?</summary>
+                        <p data-i18n="info.privacy.storageAnswer">Import und Verarbeitung der Excel-/CSV-Liste erfolgen lokal im Browser. Der Kundendatensatz liegt in der lokalen Browser-Datenbank (IndexedDB). TourFuchs lädt diese Kundenliste nicht auf einen eigenen Server und synchronisiert sie nicht automatisch mit einer Cloud. Die Webseite und Karten benötigen dennoch Netzwerkzugriffe; die optionalen Übertragungswege sind unten aufgeführt.</p>
                     </details>
                     <details>
-                        <summary>Wann werden externe Dienste angesprochen?</summary>
-                        <p>Die Webseite wird vom Hosting-Dienst geladen. Kartenkacheln kommen je nach Kartenstil von OpenStreetMap oder Esri; dabei erhalten die Anbieter unter anderem IP-Adresse und angeforderte Kartenausschnitte, nicht Ihre vollständige Kundenliste. Die normale PLZ-Verortung arbeitet mit den mitgelieferten Daten.</p>
-                        <p>Nur bei Nutzung der optionalen exakten Verortung wird die jeweilige Adresse an OpenStreetMap/Nominatim gesendet. Für die optionale Straßenroute gehen die Koordinaten der Wegpunkte an den Routing-Dienst OSRM. Beim Öffnen externer Navigation, beim Teilen oder Exportieren geben Sie ausgewählte Daten selbst weiter. Für vertrauliche Daten bitte nur betrieblich freigegebene Dienste verwenden.</p>
+                        <summary data-i18n="info.privacy.externalQuestion">Wann werden externe Dienste angesprochen?</summary>
+                        <p data-i18n="info.privacy.externalAnswer1">Die Webseite wird vom Hosting-Dienst geladen. Kartenkacheln kommen je nach Kartenstil von OpenStreetMap oder Esri; dabei erhalten die Anbieter unter anderem IP-Adresse und angeforderte Kartenausschnitte, nicht Ihre vollständige Kundenliste. Die normale PLZ-Verortung arbeitet mit den mitgelieferten Daten.</p>
+                        <p data-i18n="info.privacy.externalAnswer2">Nur bei Nutzung der optionalen exakten Verortung wird die jeweilige Adresse an OpenStreetMap/Nominatim gesendet. Für die optionale Straßenroute gehen die Koordinaten der Wegpunkte an den Routing-Dienst OSRM. Beim Öffnen externer Navigation, beim Teilen oder Exportieren geben Sie ausgewählte Daten selbst weiter. Für vertrauliche Daten bitte nur betrieblich freigegebene Dienste verwenden.</p>
                     </details>
                     <details>
-                        <summary>Ist das so sicher wie das Speichern auf meinem Smartphone?</summary>
-                        <p>Das Prinzip ist vergleichbar mit lokal gespeicherten Daten auf einem Smartphone: Der Schutz hängt wesentlich von Gerätesperre, Betriebssystem, Browserprofil und Zugriffsrechten ab. Eine pauschale Gleichwertigkeit oder Sicherheitsgarantie lässt sich daraus nicht ableiten. Nutzen Sie ein geschütztes, aktuelles Gerät und bei sensiblen Daten zusätzlich den TourFuchs-Datentresor. Auf einem entsperrten Gerät können andere Personen oder berechtigte Programme gegebenenfalls mitlesen.</p>
+                        <summary data-i18n="info.privacy.deviceQuestion">Ist das so sicher wie das Speichern auf meinem Smartphone?</summary>
+                        <p data-i18n="info.privacy.deviceAnswer">Das Prinzip ist vergleichbar mit lokal gespeicherten Daten auf einem Smartphone: Der Schutz hängt wesentlich von Gerätesperre, Betriebssystem, Browserprofil und Zugriffsrechten ab. Eine pauschale Gleichwertigkeit oder Sicherheitsgarantie lässt sich daraus nicht ableiten. Nutzen Sie ein geschütztes, aktuelles Gerät und bei sensiblen Daten zusätzlich den TourFuchs-Datentresor. Auf einem entsperrten Gerät können andere Personen oder berechtigte Programme gegebenenfalls mitlesen.</p>
                     </details>
                     <details>
-                        <summary>Verlassen Briefing-Prompts oder die Zwischenablage mein Gerät?</summary>
-                        <p>TourFuchs erzeugt den Prompt lokal und kopiert ihn erst auf Ihren Klick in die Zwischenablage. Es sendet den Prompt nicht automatisch an eine KI. Wenn Sie ihn in ein externes KI-Tool einfügen, übergeben Sie den Text an dieses Tool; dessen Verarbeitung richtet sich nach dem Anbieter und Ihren Unternehmenseinstellungen.</p>
-                        <p>Wichtig: Eine aktivierte Cloud-Zwischenablage, Geräte-Synchronisierung oder Clipboard-App kann kopierte Inhalte unabhängig von TourFuchs weitergeben. Für vertrauliche Inhalte diese Funktionen prüfen und gegebenenfalls deaktivieren. <a href="https://support.microsoft.com/de-de/windows/apps/using-the-clipboard" target="_blank" rel="noopener noreferrer">Microsoft: Zwischenablage und Synchronisierung</a>.</p>
+                        <summary data-i18n="info.privacy.clipboardQuestion">Verlassen Briefing-Prompts oder die Zwischenablage mein Gerät?</summary>
+                        <p data-i18n="info.privacy.clipboardAnswer1">TourFuchs erzeugt den Prompt lokal und kopiert ihn erst auf Ihren Klick in die Zwischenablage. Es sendet den Prompt nicht automatisch an eine KI. Wenn Sie ihn in ein externes KI-Tool einfügen, übergeben Sie den Text an dieses Tool; dessen Verarbeitung richtet sich nach dem Anbieter und Ihren Unternehmenseinstellungen.</p>
+                        <p><span data-i18n="info.privacy.clipboardAnswer2">Wichtig: Eine aktivierte Cloud-Zwischenablage, Geräte-Synchronisierung oder Clipboard-App kann kopierte Inhalte unabhängig von TourFuchs weitergeben. Für vertrauliche Inhalte diese Funktionen prüfen und gegebenenfalls deaktivieren.</span> <a href="https://support.microsoft.com/de-de/windows/apps/using-the-clipboard" target="_blank" rel="noopener noreferrer" data-i18n="info.privacy.clipboardLink">Microsoft: Zwischenablage und Synchronisierung</a>.</p>
                     </details>
                     <details>
-                        <summary>Kann ich die lokalen Daten zusätzlich verschlüsseln?</summary>
-                        <p>Ja. Über das Schloss bzw. den <b>Datentresor</b> lässt sich der gespeicherte Kundendatensatz mit <b>AES-256-GCM</b> verschlüsseln. Dazu gehören auch die im Datensatz enthaltenen Gebietszuordnungen, eigenen Orte, Verträge und Einsätze. Entsperrt wird mit PIN, optional über die unterstützte Face-/Touch-ID-Funktion. Bewahren Sie den Wiederherstellungscode sicher auf.</p>
-                        <p>Der Tresor verschlüsselt nicht pauschal die gesamte Browser-Datenbank: Einstellungen, separat gespeicherte Touren und Szenarien sind nicht vollständig davon umfasst. Ebenso wenig schützt er bereits exportierte Dateien, kopierte Prompts oder den während der Nutzung entschlüsselten Inhalt. Die ursprüngliche Excel-Datei bleibt unverändert an ihrem Speicherort.</p>
+                        <summary data-i18n="info.privacy.encryptionQuestion">Kann ich die lokalen Daten zusätzlich verschlüsseln?</summary>
+                        <p data-i18n="info.privacy.encryptionAnswer1">Ja. Über das Schloss bzw. den Datentresor lässt sich der gespeicherte Kundendatensatz mit AES-256-GCM verschlüsseln. Dazu gehören auch die im Datensatz enthaltenen Gebietszuordnungen, eigenen Orte, Verträge und Einsätze. Entsperrt wird mit PIN, optional über die unterstützte Face-/Touch-ID-Funktion. Bewahren Sie den Wiederherstellungscode sicher auf.</p>
+                        <p data-i18n="info.privacy.encryptionAnswer2">Der Tresor verschlüsselt nicht pauschal die gesamte Browser-Datenbank: Einstellungen, separat gespeicherte Touren und Szenarien sind nicht vollständig davon umfasst. Ebenso wenig schützt er bereits exportierte Dateien, kopierte Prompts oder den während der Nutzung entschlüsselten Inhalt. Die ursprüngliche Excel-Datei bleibt unverändert an ihrem Speicherort.</p>
                     </details>
                     <details>
-                        <summary>Was passiert beim Löschen von Browserdaten oder Gerätewechsel?</summary>
-                        <p>Lokale Browserdaten können beim Zurücksetzen des Browsers oder durch Speicherbereinigung verloren gehen. TourFuchs hat keine serverseitige Sicherung Ihrer Kundenliste. Verwenden Sie vor einem Gerätewechsel den vorgesehenen verschlüsselten Datentransfer und bewahren Sie Sicherungen sowie Schlüssel getrennt und geschützt auf.</p>
+                        <summary data-i18n="info.privacy.deletionQuestion">Was passiert beim Löschen von Browserdaten oder Gerätewechsel?</summary>
+                        <p data-i18n="info.privacy.deletionAnswer">Lokale Browserdaten können beim Zurücksetzen des Browsers oder durch Speicherbereinigung verloren gehen. TourFuchs hat keine serverseitige Sicherung Ihrer Kundenliste. Verwenden Sie vor einem Gerätewechsel den vorgesehenen verschlüsselten Datentransfer und bewahren Sie Sicherungen sowie Schlüssel getrennt und geschützt auf.</p>
                     </details>
                 </section>
                 <details class="info-omitted">
@@ -1173,22 +1173,22 @@
                     <p class="muted small">Diese Liste wächst. Wenn eine Funktion verschwindet, steht hier warum – auch dann, wenn die Entscheidung uns nicht schmeichelt.</p>
                 </details>
 
-                <h3>Impressum</h3>
-                <p>Verantwortlich gemäß § 5 TMG:<br>
+                <h3 data-i18n="info.legal.imprintTitle">Impressum</h3>
+                <p><span data-i18n="info.legal.responsible">Verantwortlich gemäß § 5 TMG:</span><br>
                 Günter Struck · Lönsberg 8 · 45136 Essen<br>
-                E-Mail: <a href="mailto:tourfuchs@online.de">tourfuchs@online.de</a></p>
-                <h3>Musik in den Mini-Schulungen</h3>
-                <p class="muted small">Optional: „Tropical Island House 2024“ von Sascha Ende (ende.app), CC BY 4.0.
-                    <a href="/license.html#schulungsmusik" target="_blank" rel="noopener">Musiknachweis &amp; Lizenz</a></p>
-                <h3>Datenquellen</h3>
+                <span data-i18n="info.legal.emailLabel">E-Mail:</span> <a href="mailto:tourfuchs@online.de">tourfuchs@online.de</a></p>
+                <h3 data-i18n="info.legal.musicTitle">Musik in den Mini-Schulungen</h3>
+                <p class="muted small"><span data-i18n="info.legal.musicText">Optional: „Tropical Island House 2024“ von Sascha Ende (ende.app), CC BY 4.0.</span>
+                    <a href="/license.html#schulungsmusik" target="_blank" rel="noopener" data-i18n="info.legal.musicLink">Musiknachweis &amp; Lizenz</a></p>
+                <h3 data-i18n="info.legal.sourcesTitle">Datenquellen</h3>
                 <ul>
-                    <li>Verwaltungsgrenzen: © GeoBasis-DE / BKG 2024, <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener">dl-de/by-2-0</a></li>
-                    <li>PLZ-Gebiete & -Koordinaten: © OpenStreetMap-Mitwirkende (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener">ODbL</a>)</li>
-                    <li>Kartendarstellung: © OpenStreetMap</li>
+                    <li><span data-i18n="info.legal.boundaries">Verwaltungsgrenzen:</span> © GeoBasis-DE / BKG 2024, <a href="https://www.govdata.de/dl-de/by-2-0" target="_blank" rel="noopener">dl-de/by-2-0</a></li>
+                    <li><span data-i18n="info.legal.postal">PLZ-Gebiete &amp; -Koordinaten:</span> © OpenStreetMap-Mitwirkende (<a href="https://opendatacommons.org/licenses/odbl/" target="_blank" rel="noopener">ODbL</a>)</li>
+                    <li><span data-i18n="info.legal.map">Kartendarstellung:</span> © OpenStreetMap</li>
                 </ul>
                 <p class="muted small">
-                    <a href="/datenschutz.html" target="_blank">Datenschutzerklärung</a> ·
-                    <a href="/license.html" target="_blank">Lizenz &amp; Rechtliches</a>
+                    <a href="/datenschutz.html" target="_blank" data-i18n="info.legal.privacyLink">Datenschutzerklärung</a> ·
+                    <a href="/license.html" target="_blank" data-i18n="info.legal.licenseLink">Lizenz &amp; Rechtliches</a>
                 </p>
             </div>
         </dialog>
