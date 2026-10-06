@@ -49,6 +49,7 @@ import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 import { isLightsBasemap, lightDotStyle, revenueReference } from './lightsMap.js';
 import { currentLocale, t } from '../core/i18n.js';
+import { copyCustomerNumber, customerNumberClipboardText } from './handoff.js';
 
 let map = null;
 let regionLayer = null;
@@ -743,6 +744,17 @@ function handlePopupAction(action, customerId) {
         emit('toast', {
             type: 'info',
             text: action === 'demo-call' ? t('customer.demo.call') : t('customer.demo.email')
+        });
+        return true;
+    }
+    if (action === 'copy-customer-number') {
+        copyCustomerNumber(customer.nummer).then(({ value, copied }) => {
+            emit('toast', {
+                type: copied ? 'success' : 'error',
+                text: copied
+                    ? t('customer.number.copied', { value })
+                    : t('customer.number.copyFailed')
+            });
         });
         return true;
     }
@@ -1894,8 +1906,9 @@ export function customerPopupHtml(customer) {
         : '';
     const profi = state.ui.depth === 'profi';
     // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
-    const nr = profi && customer.nummer
-        ? `<span class="popup-nr">${escapeHtml(t('customer.number', { number: customer.nummer }))}</span>`
+    const clipboardNumber = customerNumberClipboardText(customer.nummer);
+    const nr = profi && clipboardNumber
+        ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}">${escapeHtml(t('customer.number', { number: customer.nummer }))}</button>`
         : '';
     const demoBadge = isDemoCustomer(customer)
         ? `<span class="popup-demo-badge">${escapeHtml(t('customer.demoBadge'))}</span>`
