@@ -549,16 +549,21 @@
                 <div id="tour-stops"></div>
                 <p id="tour-summary"></p>
                 <div class="button-column">
-                    <button id="btn-optimize" class="primary" data-i18n="tour.action.optimize" disabled>⚡ Reihenfolge optimieren</button>
-                    <button id="btn-route-focus" data-i18n="tour.action.showRoute" disabled>🗺️ Route auf Karte anzeigen</button>
-                    <button id="btn-gmaps" data-i18n="tour.action.googleMaps" disabled>🧭 In Google Maps navigieren</button>
-                    <button id="btn-tour-qr" class="only-desktop qr-handoff" data-i18n="tour.action.handoffQr" disabled>📲 An Handy übergeben (QR)</button>
-                    <button id="btn-tour-qr-phone" class="only-mobile qr-handoff" data-i18n="tour.action.shareQr" disabled>📲 Tour per QR teilen</button>
-                    <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" data-i18n="tour.action.print" disabled>🖨️ Tagesplan drucken</button>
-                    <button id="btn-tour-ics" data-expert-section="tour-ics" data-i18n="tour.action.calendar" disabled>📅 Kalender-Export (.ics)</button>
-                    <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" data-i18n="tour.action.copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
-                    <button id="btn-day-review" class="btn-day-review" hidden>🌙 Feierabend-Rückblick</button>
-                    <button id="btn-visit-report" class="btn-visit-report" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
+                    <button id="btn-optimize" data-i18n="tour.action.optimize" disabled>⚡ Reihenfolge optimieren</button>
+                    <button id="btn-gmaps" class="primary" data-i18n="tour.action.googleMaps" disabled>🧭 In Google Maps navigieren</button>
+                    <details id="tour-share-actions" class="tour-share-actions">
+                        <summary data-i18n="tour.action.shareExport">Teilen &amp; Exportieren</summary>
+                        <div class="button-column">
+                            <button id="btn-route-focus" data-i18n="tour.action.showRoute" disabled>🗺️ Route auf Karte anzeigen</button>
+                            <button id="btn-tour-qr" class="only-desktop qr-handoff" data-i18n="tour.action.handoffQr" disabled>📲 An Handy übergeben (QR)</button>
+                            <button id="btn-tour-qr-phone" class="only-mobile qr-handoff" data-i18n="tour.action.shareQr" disabled>📲 Tour per QR teilen</button>
+                            <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" data-i18n="tour.action.print" disabled>🖨️ Tagesplan drucken</button>
+                            <button id="btn-tour-ics" data-expert-section="tour-ics" data-i18n="tour.action.calendar" disabled>📅 Kalender-Export (.ics)</button>
+                            <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" data-i18n="tour.action.copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
+                            <button id="btn-day-review" class="btn-day-review" data-i18n="tour.action.dayReview" hidden>🌙 Feierabend-Rückblick</button>
+                            <button id="btn-visit-report" class="btn-visit-report" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
+                        </div>
+                    </details>
                     <button id="btn-tour-clear" class="danger" data-i18n="tour.action.clear" disabled>✕ Tour leeren</button>
                 </div>
                 </div><!-- /.acc-body -->

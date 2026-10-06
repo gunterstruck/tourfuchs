@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 
-describe('Tour-Aktionen: Scan als Einstieg, QR prominent, Desktop-Timeline', () => {
+describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeline', () => {
     const html = read('index.html');
     const responsive = read('src/styles/responsive.css');
     const components = read('src/styles/components.css');
@@ -42,14 +42,45 @@ describe('Tour-Aktionen: Scan als Einstieg, QR prominent, Desktop-Timeline', () 
         expect(read('src/ui/tourQr.js')).toContain("querySelectorAll('[data-tour-scan]')");
     });
 
-    it('rückt die QR-Übergabe am Desktop nach oben und hebt sie hervor', () => {
+    it('macht Navigation zur Hauptaktion und bündelt die übrigen Ausgaben', () => {
+        expect(html).toMatch(/id="btn-gmaps"[^>]*class="primary"/);
+        expect(html).not.toMatch(/id="btn-optimize"[^>]*class="primary"/);
+        const groupStart = html.indexOf('id="tour-share-actions"');
+        const groupEnd = html.indexOf('</details>', groupStart);
+        const group = html.slice(groupStart, groupEnd);
+        expect(group).toContain('data-i18n="tour.action.shareExport"');
+        for (const id of [
+            'btn-route-focus',
+            'btn-tour-qr',
+            'btn-tour-qr-phone',
+            'btn-tour-print',
+            'btn-tour-ics',
+            'btn-tour-copy',
+            'btn-day-review',
+            'btn-visit-report'
+        ]) expect(group).toContain(`id="${id}"`);
         expect(html).toMatch(/id="btn-tour-qr"[^>]*class="[^"]*only-desktop[^"]*qr-handoff/);
         const gmapsIdx = html.indexOf('id="btn-gmaps"');
-        const qrIdx = html.indexOf('id="btn-tour-qr"');
-        const printIdx = html.indexOf('id="btn-tour-print"');
-        expect(qrIdx).toBeGreaterThan(gmapsIdx);
-        expect(qrIdx).toBeLessThan(printIdx);           // direkt unter „Google Maps"
-        expect(components).toContain('.qr-handoff:not(:disabled)');
+        expect(groupStart).toBeGreaterThan(gmapsIdx);
+        expect(components).toContain('.tour-share-actions > summary');
+        expect(components).not.toContain('.qr-handoff:not(:disabled)');
+    });
+
+    it.each([
+        ['de', 'Teilen & Exportieren'],
+        ['en', 'Share & export'],
+        ['fr', 'Partager et exporter'],
+        ['es', 'Compartir y exportar']
+    ])('übersetzt die Aktionsgruppe auf %s', (locale, label) => {
+        const messages = read('src/i18n/tourMessages.js');
+        expect(messages).toContain(`'tour.action.shareExport': '${label}'`);
+    });
+
+    it('übersetzt auch den dynamischen Feierabend-Knopf', () => {
+        const review = read('src/ui/dayReview.js');
+        expect(html).toContain('data-i18n="tour.action.dayReview"');
+        expect(review).toContain("t('tour.action.dayReviewCount'");
+        expect(review).toContain("on('locale:changed', syncButton)");
     });
 
     it('lässt den gewählten Startpunkt wieder entfernen (nicht nur ersetzen)', () => {

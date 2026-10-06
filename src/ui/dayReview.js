@@ -15,6 +15,7 @@ import { formatDateDe, agoText } from '../features/visits.js';
 import { formatRevenueFull, formatRevenueShort } from '../core/format.js';
 import { copyText } from '../features/handoff.js';
 import { showToast } from './toast.js';
+import { t } from '../core/i18n.js';
 
 let dialog = null;
 let body = null;
@@ -107,8 +108,8 @@ function syncButton() {
     recordDayReview(review);
     button.hidden = !review.hasAnything;
     button.textContent = review.visitedCount
-        ? `🌙 Feierabend (${review.visitedCount})`
-        : '🌙 Feierabend-Rückblick';
+        ? t('tour.action.dayReviewCount', { count: review.visitedCount })
+        : t('tour.action.dayReview');
 }
 
 export function initDayReview() {
@@ -130,6 +131,7 @@ export function initDayReview() {
     on('tour:changed', syncButton);
     on('customers:changed', syncButton);
     on('visits:changed', syncButton);
+    on('locale:changed', syncButton);
     // „Daten löschen" ist ein Neustart – wie beim Erste-Schritte-Fortschritt
     // gehört auch die Tageshistorie zum Bestand, der dabei verschwindet.
     on('dataset:cleared', clearDayLog);

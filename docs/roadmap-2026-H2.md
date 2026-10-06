@@ -613,8 +613,9 @@ Interaktionen"):
    kurze Übersetzungen halten die Leiste auch bei 390 px stabil. Der vorhandene
    aktive Zustand hebt nach der Startwahl weiterhin „Vorschläge" hervor.
 3. **„Navigieren" als Hauptaktion**, Maps/QR/Druck/Kalender/Text/Rückblick unter
-   „Teilen & Exportieren" bündeln. Die lange Schaltflächenliste nach der Tour
-   ist die größte Aufmerksamkeits-Schuld in Moment A.
+   „Teilen & Exportieren" bündeln. *06.10.2026 umgesetzt:* Google Maps ist die
+   einzige hervorgehobene Hauptaktion; Kartenansicht, Übergabe und Ausgaben
+   bleiben vollständig erhalten, liegen aber in einer übersetzten Klappgruppe.
 
 Gemerkt, nicht terminiert (in dieser Reihenfolge):
 
