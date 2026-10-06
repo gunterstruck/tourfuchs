@@ -6,6 +6,8 @@
  * geschaetzt; es gibt weder Netzwerkzugriffe noch versteckte Seiteneffekte.
  */
 
+import { translate } from '../core/i18n.js';
+
 const EARTH_RADIUS_KM = 6371;
 const ROAD_FACTOR = 1.3;
 const DEFAULT_DURATION_MIN = 60;
@@ -378,11 +380,13 @@ function reasonForJob(job, entry, context) {
  * @param {number} scheduledCount  eingeplante Stopps
  * @param {string[]} omittedReasons  ein lesbarer Grund je liegengebliebenem Einsatz
  */
-export function tradeoffLine(scheduledCount, omittedReasons = []) {
+export function tradeoffLine(scheduledCount, omittedReasons = [], locale = 'de') {
     const stops = Math.max(0, Math.round(Number(scheduledCount) || 0));
-    const gain = `Dringlichkeit zuerst, dann kurzer Weg: ${stops} Stopp${stops === 1 ? '' : 's'}`;
+    const gain = translate(locale, stops === 1
+        ? 'tour.service.tradeoff.gainOne'
+        : 'tour.service.tradeoff.gainMany', { count: stops });
     const reasons = omittedReasons.map((reason) => normalizeText(reason)).filter(Boolean);
-    if (!reasons.length) return `${gain} – nichts bleibt liegen.`;
+    if (!reasons.length) return translate(locale, 'tour.service.tradeoff.nothingLeft', { gain });
 
     const byReason = new Map();
     for (const reason of reasons) byReason.set(reason, (byReason.get(reason) ?? 0) + 1);
@@ -390,9 +394,15 @@ export function tradeoffLine(scheduledCount, omittedReasons = []) {
         .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0], 'de'))
         .slice(0, 2)
         .map(([reason, count]) => `${count}× ${reason}`);
-    const rest = byReason.size > 2 ? ', weitere Gründe unten' : '';
-    const left = reasons.length === 1 ? 'bleibt 1 Einsatz' : `bleiben ${reasons.length} Einsätze`;
-    return `${gain} – dafür ${left} liegen (${top.join(', ')}${rest}).`;
+    const rest = byReason.size > 2 ? translate(locale, 'tour.service.tradeoff.moreReasons') : '';
+    return translate(locale, reasons.length === 1
+        ? 'tour.service.tradeoff.leftOne'
+        : 'tour.service.tradeoff.leftMany', {
+        gain,
+        count: reasons.length,
+        reasons: top.join(', '),
+        rest
+    });
 }
 
 export function proposeServiceDay({

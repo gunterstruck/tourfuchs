@@ -40,6 +40,12 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             .toBe('Google Maps supports up to 8 stops – the first 8 will be transferred.');
         expect(translate('fr', 'tour.toast.calendarCreated'))
             .toBe('Fichier calendrier (.ics) créé avec un rendez-vous par visite.');
+        expect(translate('en', 'tour.service.preview.returnUtilization', { time: '16:30', percent: 82 }))
+            .toBe('Return 16:30 · 82% utilisation');
+        expect(translate('fr', 'tour.service.reason.missingSkills'))
+            .toBe('Compétence requise manquante');
+        expect(translate('es', 'tour.service.preview.omittedMany', { count: 3 }))
+            .toBe('3 trabajos sin planificar · Mostrar motivos');
     });
 
     it('rendert Start, Ziel, Stopps, Vorschläge und Touraktionen aus dem Katalog', () => {
@@ -60,6 +66,17 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.toast.googleMapsLimit',
             'tour.saved.none'
         ]) expect(panel, key).toContain(key);
+        for (const key of [
+            'tour.service.preview.noneTitle',
+            'tour.service.preview.stopDetail',
+            'tour.service.preview.returnUtilization',
+            'tour.service.preview.omittedMany',
+            'tour.service.preview.accept',
+            'tour.service.reason.missingSkills',
+            'tour.service.planReason.slaFirst'
+        ]) expect(panel, key).toContain(key);
+        expect(panel).toContain('tradeoffLine(entries.length, omittedRows.map((item) => item.reason), currentLocale())');
+        expect(panel).toContain('renderSavedTours(); renderServiceDayPreview();');
         expect(visits).toContain("t('tour.service.allOpen')");
         expect(visits).toContain("on('locale:changed', renderAssigneeOptions)");
     });
@@ -71,7 +88,7 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
         expect(panel).toContain("escapeHtml(t('tour.stops.destinationLabel', { label }))");
         expect(panel).toContain("const briefingTitle = t('tour.stops.briefingTitle'");
         expect(panel).toContain('escapeHtml(briefingTitle)');
-        expect(panel).toContain("on('locale:changed', () => { renderPanel(); renderSavedTours(); })");
+        expect(panel).toContain("on('locale:changed', () => { renderPanel(); renderSavedTours(); renderServiceDayPreview(); })");
         expect(main).toContain("emit('locale:changed', locale)");
         expect(map).toContain("on('locale:changed', refreshAll)");
         expect(map).toContain('marker.bindTooltip(escapeHtml(tooltipText))');

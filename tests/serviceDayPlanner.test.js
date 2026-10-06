@@ -350,4 +350,20 @@ describe('Verzichtszeile', () => {
         expect(tradeoffLine(0, [])).toContain('0 Stopps');
         expect(tradeoffLine(undefined, ['  ', null, 'echter Grund'])).toContain('1× echter Grund');
     });
+
+    it.each([
+        ['en', 'Urgency first, then a short route: 2 stops', 'this leaves 2 jobs unscheduled', '2× more urgent jobs take priority'],
+        ['fr', 'Urgence d’abord, puis trajet court : 2 arrêts', '2 interventions restent non planifiées', '2× les interventions plus urgentes sont prioritaires'],
+        ['es', 'Primero la urgencia y después el trayecto corto: 2 paradas', 'quedan 2 trabajos sin planificar', '2× los trabajos más urgentes tienen prioridad']
+    ])('übersetzt Gewinn und Verzicht auf %s', (locale, gain, left, reason) => {
+        const reasons = {
+            en: 'more urgent jobs take priority',
+            fr: 'les interventions plus urgentes sont prioritaires',
+            es: 'los trabajos más urgentes tienen prioridad'
+        };
+        const line = tradeoffLine(2, [reasons[locale], reasons[locale]], locale);
+        expect(line).toContain(gain);
+        expect(line).toContain(left);
+        expect(line).toContain(reason);
+    });
 });

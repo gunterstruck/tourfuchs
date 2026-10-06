@@ -253,7 +253,7 @@ export function initTourPanel() {
     });
 
     on('tour:changed', renderPanel);
-    on('locale:changed', () => { renderPanel(); renderSavedTours(); });
+    on('locale:changed', () => { renderPanel(); renderSavedTours(); renderServiceDayPreview(); });
     // Ein gemerkter oder gelöschter Ort ändert das Angebot am Chip („★ merken").
     on('places:changed', renderPanel);
     on('customers:changed', () => { pruneTourToScope(); renderTourScope(); renderPanel(); });
@@ -443,7 +443,7 @@ function buildServiceJobGroups(workDate) {
         if (assignee && visit.assignedTo !== assignee) continue;
         const customers = index.get(normalizeCustomerNumber(visit.customerNumber)) || [];
         if (customers.length !== 1) {
-            skipped.push({ visit, reason: 'Kunde nicht eindeutig zugeordnet' });
+            skipped.push({ visit, reasonCode: 'customer-not-unique' });
             continue;
         }
         const customer = customers[0];
@@ -453,7 +453,7 @@ function buildServiceJobGroups(workDate) {
         const startWindow = { value: dayWindow.start };
         const endWindow = { value: dayWindow.end };
         if (!dayWindow.matchesDate) {
-            skipped.push({ visit, customer, reason: 'Termin liegt an einem anderen Tag' });
+            skipped.push({ visit, customer, reasonCode: 'appointment-other-day' });
             continue;
         }
         const durationMin = Number(visit.durationMin) || Number(document.getElementById('plan-visit-min')?.value) || DEFAULT_VISIT_MINUTES;
@@ -500,25 +500,27 @@ function buildServiceJobGroups(workDate) {
 }
 
 function plannerReasonText(reason) {
-    const labels = {
-        'missing-skills': 'Qualifikation fehlt',
-        'missing-or-invalid-customer-coordinates': 'keine Kartenposition',
-        'time-window-missed': 'Zeitfenster nicht erreichbar',
-        'shift-end-exceeded': 'Rückkehr nach Arbeitsende',
-        'duration-exceeds-time-window': 'Einsatzdauer passt nicht ins Zeitfenster',
-        'no-feasible-insertion': 'kein freier Platz im Tagesplan',
-        'shift-capacity-kept-higher-urgency-jobs': 'dringendere Einsätze haben Vorrang',
-        'invalid-time-window': 'Zeitfenster ungültig'
+    const keys = {
+        'missing-skills': 'tour.service.reason.missingSkills',
+        'missing-or-invalid-customer-coordinates': 'tour.service.reason.missingCoordinates',
+        'time-window-missed': 'tour.service.reason.timeWindowMissed',
+        'shift-end-exceeded': 'tour.service.reason.shiftEndExceeded',
+        'duration-exceeds-time-window': 'tour.service.reason.durationExceedsWindow',
+        'no-feasible-insertion': 'tour.service.reason.noInsertion',
+        'shift-capacity-kept-higher-urgency-jobs': 'tour.service.reason.higherUrgency',
+        'invalid-time-window': 'tour.service.reason.invalidTimeWindow',
+        'customer-not-unique': 'tour.service.reason.customerNotUnique',
+        'appointment-other-day': 'tour.service.reason.otherDay'
     };
-    return labels[reason?.code] || String(reason?.code || 'nicht planbar').replace(/-/g, ' ');
+    return keys[reason?.code] ? t(keys[reason.code]) : t('tour.service.reason.notPlannable');
 }
 
 function planReasonText(entry, group) {
     const reasons = entry.reasons || [];
-    if (reasons.some((reason) => reason.code === 'sla-overdue-before-shift' || reason.code === 'sla-late')) return 'SLA zuerst';
-    if (reasons.some((reason) => reason.code === 'due-overdue')) return 'überfällig';
-    if (reasons.some((reason) => reason.code === 'due-today')) return 'heute fällig';
-    return group?.priority === 'KRITISCH' ? 'kritischer Einsatz' : 'kurzer sinnvoller Fahrtweg';
+    if (reasons.some((reason) => reason.code === 'sla-overdue-before-shift' || reason.code === 'sla-late')) return t('tour.service.planReason.slaFirst');
+    if (reasons.some((reason) => reason.code === 'due-overdue')) return t('tour.service.planReason.overdue');
+    if (reasons.some((reason) => reason.code === 'due-today')) return t('tour.service.planReason.dueToday');
+    return group?.priority === 'KRITISCH' ? t('tour.service.planReason.critical') : t('tour.service.planReason.shortRoute');
 }
 
 function formatPlanTime(value) {
@@ -534,36 +536,36 @@ function renderServiceDayPreview() {
     const entries = result.itinerary || [];
     const unscheduled = result.unscheduled || [];
     if (!entries.length) {
-        const firstReason = unscheduled[0]?.reasons?.[0];
-        target.innerHTML = `<div class="service-day-preview-card"><p class="service-day-unscheduled"><b>Kein machbarer Tagesvorschlag.</b><br>${escapeHtml(plannerReasonText(firstReason))}. Arbeitszeit, Qualifikationen oder Zeitfenster prüfen.</p></div>`;
+        const firstReason = unscheduled[0]?.reasons?.[0] || { code: preSkipped[0]?.reasonCode };
+        target.innerHTML = `<div class="service-day-preview-card"><p class="service-day-unscheduled"><b>${escapeHtml(t('tour.service.preview.noneTitle'))}</b><br>${escapeHtml(t('tour.service.preview.noneDetail', { reason: plannerReasonText(firstReason) }))}</p></div>`;
         return;
     }
     const rows = entries.map((entry) => {
         const group = serviceDayGroups.get(entry.jobId);
-        const reasons = group?.visits?.map((visit) => visit.reason).filter(Boolean).join(' + ') || 'Serviceeinsatz';
+        const reasons = group?.visits?.map((visit) => visit.reason).filter(Boolean).join(' + ') || t('tour.service.preview.defaultJob');
         return `<div class="service-day-preview-stop"><b>${escapeHtml(formatPlanTime(entry.start))}</b><div>
-            <strong>${escapeHtml(entry.customer?.name || 'Servicekunde')}</strong>
-            <small>${escapeHtml(reasons)} · ${entry.durationMin} Min. · ${Math.round(entry.km)} km Anfahrt</small>
+            <strong>${escapeHtml(entry.customer?.name || t('tour.service.preview.defaultCustomer'))}</strong>
+            <small>${escapeHtml(t('tour.service.preview.stopDetail', { reasons, minutes: entry.durationMin, km: Math.round(entry.km) }))}</small>
             <small>${escapeHtml(planReasonText(entry, group))}</small>
         </div></div>`;
     }).join('');
     const omitted = unscheduled.length + preSkipped.length;
     const omittedRows = [
         ...unscheduled.map((item) => ({
-            label: item.customer?.name || item.jobId || 'Einsatz',
+            label: item.customer?.name || item.jobId || t('tour.service.preview.job'),
             reason: plannerReasonText(item.reasons?.[0])
         })),
         ...preSkipped.map((item) => ({
-            label: item.customer?.name || item.visit?.workOrderId || 'Einsatz',
-            reason: item.reason
+            label: item.customer?.name || item.visit?.workOrderId || t('tour.service.preview.job'),
+            reason: plannerReasonText({ code: item.reasonCode })
         }))
     ];
     target.innerHTML = `<div class="service-day-preview-card">
-        <div class="service-day-preview-summary"><b>${entries.length} Stopps · ca. ${Math.round(result.metrics.totalKm)} km</b><span>Rückkehr ${escapeHtml(formatPlanTime(result.metrics.finishAt))} · ${Math.round(result.metrics.utilizationPct || 0)} % Auslastung</span></div>
-        <p class="service-day-tradeoff">${escapeHtml(tradeoffLine(entries.length, omittedRows.map((item) => item.reason)))}</p>
+        <div class="service-day-preview-summary"><b>${escapeHtml(t(entries.length === 1 ? 'tour.service.preview.summaryOne' : 'tour.service.preview.summaryMany', { count: entries.length, km: Math.round(result.metrics.totalKm) }))}</b><span>${escapeHtml(t('tour.service.preview.returnUtilization', { time: formatPlanTime(result.metrics.finishAt), percent: Math.round(result.metrics.utilizationPct || 0) }))}</span></div>
+        <p class="service-day-tradeoff">${escapeHtml(tradeoffLine(entries.length, omittedRows.map((item) => item.reason), currentLocale()))}</p>
         <div class="service-day-preview-list">${rows}</div>
-        ${omitted ? `<details class="service-day-unscheduled"><summary>${omitted} Einsatz${omitted === 1 ? '' : 'sätze'} nicht eingeplant · Gründe anzeigen</summary><ul>${omittedRows.slice(0, 12).map((item) => `<li><b>${escapeHtml(item.label)}:</b> ${escapeHtml(item.reason)}</li>`).join('')}</ul></details>` : ''}
-        <button type="button" id="btn-service-day-accept" class="primary">Vorschlag als Tour übernehmen</button>
+        ${omitted ? `<details class="service-day-unscheduled"><summary>${escapeHtml(t(omitted === 1 ? 'tour.service.preview.omittedOne' : 'tour.service.preview.omittedMany', { count: omitted }))}</summary><ul>${omittedRows.slice(0, 12).map((item) => `<li><b>${escapeHtml(item.label)}:</b> ${escapeHtml(item.reason)}</li>`).join('')}</ul></details>` : ''}
+        <button type="button" id="btn-service-day-accept" class="primary">${escapeHtml(t('tour.service.preview.accept'))}</button>
     </div>`;
     document.getElementById('btn-service-day-accept')?.addEventListener('click', acceptServiceDayPreview);
 }
