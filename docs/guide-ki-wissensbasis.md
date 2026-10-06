@@ -611,7 +611,8 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   Feedback-Links der Sprache; auch dynamische Verortungsstände werden neu
   aufgebaut. Auch Datenschutz-FAQ, Impressum, Musiknachweis, Datenquellen und
   Rechtliches-Links folgen der Sprache. Der redaktionelle Abschnitt „Was wir
-  weggelassen haben“ wird als eigenes kleines Paket nachgezogen.
+  weggelassen haben“ mit allen 15 Entscheidungen ist ebenfalls vollständig in
+  DE/EN/FR/ES verfügbar.
 
 ---
 

@@ -13,7 +13,7 @@ const placeholders = (message) => [...String(message).matchAll(/\{([A-Za-z0-9_]+
     .sort();
 
 const INTENTIONAL_GERMAN_EQUALS = Object.freeze({
-    fr: new Set(['customer.action.briefing', 'tour.stops.briefing']),
+    fr: new Set(['customer.action.briefing', 'tour.stops.briefing', 'info.omitted.version26']),
     es: new Set(['customer.demoBadge', 'customer.action.briefing', 'tour.stops.briefing'])
 });
 
