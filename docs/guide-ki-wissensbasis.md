@@ -609,7 +609,9 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   laufenden Browser geprüft. Im oberen Info-Bereich folgen außerdem Live-Demo,
   Guide, Darstellung, exakte Adressverortung, Projektbeschreibung und
   Feedback-Links der Sprache; auch dynamische Verortungsstände werden neu
-  aufgebaut. Datenschutz-FAQ, Impressum und Quellen folgen separat.
+  aufgebaut. Auch Datenschutz-FAQ, Impressum, Musiknachweis, Datenquellen und
+  Rechtliches-Links folgen der Sprache. Der redaktionelle Abschnitt „Was wir
+  weggelassen haben“ wird als eigenes kleines Paket nachgezogen.
 
 ---
 
