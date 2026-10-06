@@ -36,6 +36,15 @@ describe('Kundensuche und Kundenkarte in vier Sprachen', () => {
         expect(translate(locale, 'customer.search.none')).toBe(none);
     });
 
+    it.each([
+        ['de', 'VB: Eva Beispiel'],
+        ['en', 'Sales rep: Eva Beispiel'],
+        ['fr', 'Commercial : Eva Beispiel'],
+        ['es', 'Comercial: Eva Beispiel']
+    ])('übersetzt die VB-Zuordnung auf %s', (locale, expected) => {
+        expect(translate(locale, 'customer.representative', { name: 'Eva Beispiel' })).toBe(expected);
+    });
+
     it('rendert den Kundensteckbrief samt Aktionen und Formaten auf Englisch', () => {
         applyLocale('en', null);
         state.ui.depth = 'profi';
