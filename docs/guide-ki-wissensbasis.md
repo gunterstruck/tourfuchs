@@ -600,7 +600,9 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
   wechseln auch Hinweise zu Servicefilter-Ausnahmen sowie der Zanobo-Hinweis
   und die Anhören-Aktion mit der Sprache. Noch nicht umgestellte Fachdialoge
   verwenden vorerst Deutsch; Französisch und Spanisch werden als nächstes
-  vollständig geprüft.
+  vollständig geprüft. Die CI vergleicht dafür bereits alle Produktionskataloge
+  mit dem deutschen Schlüsselbestand, kontrolliert benannte Platzhalter und
+  meldet unbestätigte deutsche 1:1-Texte in Französisch oder Spanisch.
 
 ---
 

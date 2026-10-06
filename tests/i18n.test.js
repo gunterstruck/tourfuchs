@@ -1,13 +1,40 @@
 import { describe, expect, it } from 'vitest';
 import { JSDOM } from 'jsdom';
 import { createTranslator, translate, translateDocument } from '../src/core/i18n.js';
+import { MESSAGES } from '../src/i18n/messages.js';
 
 const catalogs = {
     de: { greeting: 'Hallo {name}', placeholder: 'Kunde suchen', close: 'Schließen' },
     en: { greeting: 'Hello {name}', placeholder: 'Search customers' }
 };
 
+const placeholders = (message) => [...String(message).matchAll(/\{([A-Za-z0-9_]+)\}/g)]
+    .map((match) => match[1])
+    .sort();
+
+const INTENTIONAL_GERMAN_EQUALS = Object.freeze({
+    fr: new Set(['customer.action.briefing', 'tour.stops.briefing']),
+    es: new Set(['customer.demoBadge', 'customer.action.briefing', 'tour.stops.briefing'])
+});
+
 describe('Übersetzungskatalog', () => {
+    it.each(['en', 'fr', 'es'])('hält den Produktionskatalog für %s vollständig', (locale) => {
+        expect(Object.keys(MESSAGES[locale]).sort()).toEqual(Object.keys(MESSAGES.de).sort());
+    });
+
+    it.each(['en', 'fr', 'es'])('bewahrt alle benannten Platzhalter in %s', (locale) => {
+        for (const key of Object.keys(MESSAGES.de)) {
+            expect(placeholders(MESSAGES[locale][key]), `${locale}:${key}`)
+                .toEqual(placeholders(MESSAGES.de[key]));
+        }
+    });
+
+    it.each(['fr', 'es'])('enthält in %s keine unbestätigten deutschen 1:1-Texte', (locale) => {
+        const unchanged = Object.keys(MESSAGES.de)
+            .filter((key) => MESSAGES[locale][key] === MESSAGES.de[key]);
+        expect(unchanged).toEqual([...INTENTIONAL_GERMAN_EQUALS[locale]]);
+    });
+
     it('übersetzt und setzt benannte Werte ein', () => {
         expect(translate('en-US', 'greeting', { name: 'Sam' }, catalogs)).toBe('Hello Sam');
     });
@@ -54,4 +81,3 @@ describe('Übersetzungskatalog', () => {
         expect(paragraph.querySelector('img')).toBeNull();
     });
 });
-
