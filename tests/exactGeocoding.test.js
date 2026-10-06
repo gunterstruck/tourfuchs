@@ -134,9 +134,12 @@ describe('Fortschritts-Pille', () => {
         const { exactGeocodeCountText } = await import('../src/ui/exactGeocoding.js');
         expect(exactGeocodeCountText(427, 3441)).toBe('427 von 3.441');
         expect(exactGeocodeCountText(10000, 10000)).toBe('10.000 von 10.000');
+        expect(exactGeocodeCountText(427, 3441, 'fr')).toBe('427 sur 3 441');
+        expect(exactGeocodeCountText(10000, 10000, 'es')).toBe('10.000 de 10.000');
         const { readFileSync } = await import('node:fs');
         const ui = readFileSync('src/ui/exactGeocoding.js', 'utf8');
         expect(ui).toContain('count.style.minWidth = `${exactGeocodeCountText(total, total).length}ch`');
+        expect(ui).toContain("on('locale:changed', renderInfoState)");
         const css = readFileSync('src/styles/components.css', 'utf8');
         const rule = css.slice(css.indexOf('.geocode-status b {'), css.indexOf('}', css.indexOf('.geocode-status b {')));
         expect(rule).toContain('tabular-nums');
