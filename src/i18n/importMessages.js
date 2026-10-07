@@ -1,6 +1,13 @@
 /** Texte des dynamischen Kundenlisten-Imports, getrennt vom App-Rahmen. */
 export const IMPORT_MESSAGES = Object.freeze({
     de: Object.freeze({
+        "import.wait.title": "Datei wird vorbereitet",
+        "import.wait.reading": "Datei wird gelesen …",
+        "import.wait.preparing": "Tabelle wird aufbereitet …",
+        "import.wait.columns": "Spalten werden erkannt …",
+        "import.wait.detail": "Bei umfangreichen Listen kann das etwas dauern. Deine Daten bleiben lokal. Anschließend kannst du die Spalten zuordnen.",
+        "import.wait.cancel": "Abbrechen",
+        "import.wait.workerFailed": "Die Hintergrundverarbeitung konnte nicht gestartet werden. Bitte lade die App neu und versuche es erneut.",
         'import.consentGranted': 'Berechtigung bestätigt – du wirst beim Import nicht mehr gefragt.',
         'import.consentRevoked': 'Berechtigung zurückgenommen. Beim nächsten Import wird wieder gefragt.',
         'import.selectFile': 'Bitte eine Excel- oder CSV-Datei wählen (.xlsx, .xlsm, .xls, .csv).',
@@ -84,6 +91,13 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.verortung': 'Verortung (Genauigkeit)'
     }),
     en: Object.freeze({
+        "import.wait.title": "Preparing file",
+        "import.wait.reading": "Reading file …",
+        "import.wait.preparing": "Preparing table …",
+        "import.wait.columns": "Detecting columns …",
+        "import.wait.detail": "Large lists may take a while. Your data stays local. You can assign the columns afterwards.",
+        "import.wait.cancel": "Cancel",
+        "import.wait.workerFailed": "Background processing could not start. Please reload the app and try again.",
         'import.consentGranted': 'Authorisation confirmed. You will not be asked again during import.',
         'import.consentRevoked': 'Authorisation withdrawn. You will be asked again during the next import.',
         'import.selectFile': 'Please select an Excel or CSV file (.xlsx, .xlsm, .xls, .csv).',
@@ -167,6 +181,13 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.verortung': 'Location accuracy'
     }),
     fr: Object.freeze({
+        "import.wait.title": "Préparation du fichier",
+        "import.wait.reading": "Lecture du fichier …",
+        "import.wait.preparing": "Préparation du tableau …",
+        "import.wait.columns": "Détection des colonnes …",
+        "import.wait.detail": "Les listes volumineuses peuvent prendre du temps. Vos données restent locales. Vous pourrez ensuite attribuer les colonnes.",
+        "import.wait.cancel": "Annuler",
+        "import.wait.workerFailed": "Le traitement en arrière-plan n’a pas pu démarrer. Rechargez l’application et réessayez.",
         'import.consentGranted': 'Autorisation confirmée. Elle ne sera plus demandée lors de l’import.',
         'import.consentRevoked': 'Autorisation retirée. Elle sera redemandée lors du prochain import.',
         'import.selectFile': 'Sélectionnez un fichier Excel ou CSV (.xlsx, .xlsm, .xls, .csv).',
@@ -250,6 +271,13 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.verortung': 'Précision de localisation'
     }),
     es: Object.freeze({
+        "import.wait.title": "Preparando el archivo",
+        "import.wait.reading": "Leyendo el archivo …",
+        "import.wait.preparing": "Preparando la tabla …",
+        "import.wait.columns": "Detectando columnas …",
+        "import.wait.detail": "Las listas grandes pueden tardar. Tus datos permanecen locales. Después podrás asignar las columnas.",
+        "import.wait.cancel": "Cancelar",
+        "import.wait.workerFailed": "No se pudo iniciar el procesamiento en segundo plano. Recarga la aplicación e inténtalo de nuevo.",
         'import.consentGranted': 'Autorización confirmada. No volverá a solicitarse durante la importación.',
         'import.consentRevoked': 'Autorización retirada. Volverá a solicitarse en la próxima importación.',
         'import.selectFile': 'Selecciona un archivo Excel o CSV (.xlsx, .xlsm, .xls, .csv).',

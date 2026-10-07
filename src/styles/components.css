@@ -3227,3 +3227,8 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
     border: 0;
     display: block;
 }
+.import-wait-dialog { width: min(440px, calc(100vw - 32px)); }
+.import-wait-dialog h2 { margin-top: 0; }
+#import-wait-file { overflow-wrap: anywhere; }
+#import-wait-phase { font-weight: 600; }
+.import-wait-dialog footer { display: flex; justify-content: flex-end; }

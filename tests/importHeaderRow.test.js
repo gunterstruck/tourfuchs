@@ -234,7 +234,7 @@ describe('Zuordnungsdialog macht Blatt und Überschriftenzeile korrigierbar', ()
 
     it('lädt die Datei bei geänderter Auswahl neu, statt sie erneut zu verlangen', () => {
         expect(wizard).toContain('reloadWorkbookSource');
-        expect(wizard).toContain('readWorkbook(parsed.file, { sheet, headerRow })');
+        expect(wizard).toContain('readFileWithFeedback(parsed.file, { sheet, headerRow })');
         // Der Dialog ist beim Wechsel schon offen – showModal() dürfte nicht erneut laufen.
         expect(wizard).toContain('if (!dialog.open) dialog.showModal()');
     });

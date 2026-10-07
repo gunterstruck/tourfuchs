@@ -1,6 +1,6 @@
 # TourFuchs - Export fuer Guided Agent / Custom GPT
 
-Generierter Uploadstand: Wissensbasis 3.17, App 3.7.0.
+Generierter Uploadstand: Wissensbasis 3.18, App 3.7.0.
 
 Diese Kopien nicht direkt bearbeiten. Die Quellen liegen unter `docs/` sowie im Repository-Stamm. Nach jeder Aenderung zuerst `npm run docs:pdf` und danach `npm run docs:gpt-upload` ausfuehren.
 

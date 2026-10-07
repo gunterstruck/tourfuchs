@@ -298,11 +298,12 @@ function sheetInfos(workbook) {
 /**
  * Datei einlesen.
  * @param {File} file
- * @param {{ sheet?: string, headerRow?: number }} options  Blatt und
+ * @param {{ sheet?: string, headerRow?: number, onPhase?: (phase: string) => void }} options  Blatt und
  *        Überschriftenzeile lassen sich von Hand vorgeben (Import-Dialog).
  */
-export async function readWorkbook(file, { sheet = null, headerRow = null } = {}) {
+export async function readWorkbook(file, { sheet = null, headerRow = null, onPhase = () => {} } = {}) {
     const buffer = await file.arrayBuffer();
+    onPhase('preparing');
     const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv';
     let workbook;
     if (isCsv) {
@@ -325,6 +326,7 @@ export async function readWorkbook(file, { sheet = null, headerRow = null } = {}
     } else {
         workbook = XLSX.read(buffer, { type: 'array', codepage: 65001 });
     }
+    onPhase('columns');
     const infos = sheetInfos(workbook);
     if (infos.length === 0) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Tabelle.' : 'Die Datei enthält kein Tabellenblatt.');
 
