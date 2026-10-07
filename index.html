@@ -549,12 +549,14 @@
                 <div id="tour-stops"></div>
                 <p id="tour-summary"></p>
                 <div class="button-column">
-                    <button id="btn-optimize" data-i18n="tour.action.optimize" disabled>⚡ Reihenfolge optimieren</button>
+                    <div class="tour-route-actions" role="group" aria-label="Tour bearbeiten und anzeigen" data-i18n-aria-label="tour.action.routeActionsAria">
+                        <button id="btn-optimize" data-i18n="tour.action.optimize" data-i18n-title="tour.optimize.title" disabled>⚡ Optimieren</button>
+                        <button id="btn-route-focus" data-i18n="tour.action.showRoute" disabled>🗺️ Tour anzeigen</button>
+                    </div>
                     <button id="btn-gmaps" class="primary" data-i18n="tour.action.googleMaps" disabled>🧭 In Google Maps navigieren</button>
                     <details id="tour-share-actions" class="tour-share-actions">
                         <summary data-i18n="tour.action.shareExport">Teilen &amp; Exportieren</summary>
                         <div class="button-column">
-                            <button id="btn-route-focus" data-i18n="tour.action.showRoute" disabled>🗺️ Route auf Karte anzeigen</button>
                             <button id="btn-tour-qr" class="only-desktop qr-handoff" data-i18n="tour.action.handoffQr" disabled>📲 An Handy übergeben (QR)</button>
                             <button id="btn-tour-qr-phone" class="only-mobile qr-handoff" data-i18n="tour.action.shareQr" disabled>📲 Tour per QR teilen</button>
                             <button id="btn-tour-print" class="expert-only expert-swipe-section" data-expert-section="tour-print" data-i18n="tour.action.print" disabled>🖨️ Tagesplan drucken</button>
