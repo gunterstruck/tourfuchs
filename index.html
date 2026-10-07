@@ -1342,6 +1342,14 @@
             </footer>
         </dialog>
 
+        <dialog id="import-wait-dialog" class="import-wait-dialog" aria-labelledby="import-wait-title" aria-describedby="import-wait-detail">
+            <h2 id="import-wait-title" data-i18n="import.wait.title">Datei wird vorbereitet</h2>
+            <p id="import-wait-file" class="muted small"></p>
+            <p id="import-wait-phase" role="status" aria-live="polite"></p>
+            <p id="import-wait-detail" data-i18n="import.wait.detail">Bei umfangreichen Listen kann das etwas dauern. Deine Daten bleiben lokal. Anschließend kannst du die Spalten zuordnen.</p>
+            <footer><button id="import-wait-cancel" type="button" data-i18n="import.wait.cancel">Abbrechen</button></footer>
+        </dialog>
+
         <!-- Berechtigung: einmalige Zusicherung, direkt im Fluss der gewollten
              Aktion. Wer bestätigt, landet ohne Umweg dort, wo er hinwollte –
              und wird danach nicht mehr gefragt (siehe withDataConsent). -->

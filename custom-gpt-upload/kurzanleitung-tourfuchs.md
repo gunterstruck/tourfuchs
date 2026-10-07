@@ -253,3 +253,7 @@ Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 - Alte PWA entfernen.
 - Seite neu laden.
 - App neu installieren.
+
+### Umfangreiche Excel-/CSV-Dateien einlesen
+
+Nach der Dateiauswahl zeigt TourFuchs „Datei wird vorbereitet“ mit Dateiname und Verarbeitungsschritt. Große Listen können eine Weile dauern; sie werden lokal im Hintergrund eingelesen. „Abbrechen“ oder Escape führt zurück, ohne den bisherigen Kundenbestand zu ändern. Danach öffnet sich „Spalten zuordnen“. Auch beim Wechsel von Tabellenblatt oder Überschriftenzeile erscheint der Wartedialog. Bei einem Lesefehler lässt sich die Auswahl wiederholen.

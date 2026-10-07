@@ -48,6 +48,7 @@ import { copyText } from '../features/handoff.js';
 import { resolveAssistant } from '../services/assistant.js';
 import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
 import { currentLocale, t } from '../core/i18n.js';
+import { readWorkbookInBackground } from '../services/workbookReader.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -61,6 +62,7 @@ let lastFileBase = 'TourFuchs';
 let welcomeDemoTimer = null;
 let welcomeDemoUserIntent = false;
 let demoLoadPromise = null;
+let activeWorkbookRead = null;
 const insideMobilePreview = new URLSearchParams(location.search).has('mobilePreview');
 // Dieselbe Schwelle wie in der Sidebar: darunter gilt die Handy-Bedienung.
 const mobileQuery = phoneFaceQuery();
@@ -73,6 +75,8 @@ const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
 ));
 
 const IMPORT_ERROR_KEYS = Object.freeze({
+    'Import worker could not start.': 'import.wait.workerFailed',
+    'Import worker response could not be read.': 'import.wait.workerFailed',
     'Die Zwischenablage ist leer.': 'import.error.emptyClipboard',
     'Es wurde nur eine Zeile gefunden. Bitte die Überschriftenzeile mit markieren.': 'import.error.oneRow',
     'Es wurde nur eine Spalte erkannt. Bitte mehrere Spalten aus der Tabelle markieren.': 'import.error.oneColumn',
@@ -92,6 +96,10 @@ function importErrorDetail(error) {
 export function initImportWizard() {
     dialog = document.getElementById('import-dialog');
     ownDataDialog = document.getElementById('own-data-dialog');
+    const waiting = document.getElementById('import-wait-dialog');
+    const cancelRead = () => activeWorkbookRead?.abort();
+    document.getElementById('import-wait-cancel')?.addEventListener('click', cancelRead);
+    waiting?.addEventListener('cancel', (event) => { event.preventDefault(); cancelRead(); });
 
     document.getElementById('btn-own-data')?.addEventListener('click', () => {
         // Nur reinschauen darf das Willkommen nicht dauerhaft beenden: kein
@@ -425,14 +433,14 @@ export function openMappingForShowcase(file) {
 }
 
 async function handleFile(file) {
+    if (activeWorkbookRead) return;
     const isExcel = /\.(xlsx|xlsm|xls|csv|ods)$/i.test(file.name);
     if (!isExcel) {
         showToast(t('import.selectFile'), 'error');
         return;
     }
     try {
-        const { readWorkbook } = await excel();
-        const workbook = await readWorkbook(file);
+        const workbook = await readFileWithFeedback(file);
         // Besuchsbericht vom Handy: nur Besuche nachtragen, keine neue Kundenliste.
         if (isVisitReportHeaders(workbook.headers)) {
             ownDataDialog?.close();
@@ -444,7 +452,37 @@ async function handleFile(file) {
         parsed = { ...workbook, fileName: file.name, file };
         await showMappingStep();
     } catch (error) {
+        if (error.name === 'AbortError') return;
         showToast(t('import.readFailed', { detail: importErrorDetail(error) }), 'error');
+    }
+}
+
+/** Replace the entry dialog while reading; cancel/error returns to the previous step. */
+async function readFileWithFeedback(file, options = {}) {
+    const waiting = document.getElementById('import-wait-dialog');
+    const previous = dialog?.open ? dialog : ownDataDialog;
+    const controller = new AbortController();
+    activeWorkbookRead = controller;
+    ownDataDialog?.close();
+    dialog?.close();
+    document.getElementById('import-wait-file').textContent = file.name;
+    const phase = document.getElementById('import-wait-phase');
+    phase.textContent = t('import.wait.reading');
+    waiting.showModal();
+    let success = false;
+    try {
+        // Let the replacement paint before starting the worker, even on a warm cache.
+        await new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+        const workbook = await readWorkbookInBackground(file, options, {
+            signal: controller.signal,
+            onPhase: (name) => { phase.textContent = t(`import.wait.${name}`); }
+        });
+        success = true;
+        return workbook;
+    } finally {
+        waiting.close();
+        activeWorkbookRead = null;
+        if (!success && previous && !previous.open) previous.showModal();
     }
 }
 
@@ -454,14 +492,13 @@ async function handleFile(file) {
  * bleibt der bisherige Stand bestehen – nur die Auswahlfelder springen zurück.
  */
 async function reloadWorkbookSource({ sheet = null, headerRow = null } = {}) {
-    if (!parsed?.file) return;
+    if (!parsed?.file || activeWorkbookRead) return;
     try {
-        const { readWorkbook } = await excel();
-        const workbook = await readWorkbook(parsed.file, { sheet, headerRow });
+        const workbook = await readFileWithFeedback(parsed.file, { sheet, headerRow });
         parsed = { ...workbook, fileName: parsed.fileName, file: parsed.file };
         await showMappingStep();
     } catch (error) {
-        showToast(t('import.selectionFailed', { detail: importErrorDetail(error) }), 'error', 6000);
+        if (error.name !== 'AbortError') showToast(t('import.selectionFailed', { detail: importErrorDetail(error) }), 'error', 6000);
         renderMappingSource();
     }
 }

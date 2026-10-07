@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.17 · Stand: 07.10.2026 · App-Version: 3.7.0**
+**Version 3.18 · Stand: 07.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Branch `main`, Commit `909329659e2664a541141026a32e82328200e843` (07.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `83d4456968c0f6da775a8d772f57c5b2c1d2b2dd` plus Importverbesserung dieses Dokumentationsstands (07.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -1107,6 +1107,16 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
    ![Einmalige Bestätigung der Berechtigung zur lokalen Datenverarbeitung](../public/docs/screenshots/BILD-IMPORT-02-berechtigung-bestaetigen.png)
 
    *BILD-IMPORT-02 - Die einmalige Berechtigungsbestätigung setzt den bereits begonnenen Importweg fort.*
+
+3. Beim Einlesen einer Datei erscheint **"Datei wird vorbereitet"** statt der
+   Importauswahl. Dateiname und Verarbeitungsschritt sind sichtbar:
+   **"Datei wird gelesen …"**, **"Tabelle wird aufbereitet …"**,
+   **"Spalten werden erkannt …"**. Umfangreiche Listen können länger dauern;
+   die Verarbeitung läuft lokal im Hintergrund. **"Abbrechen"** oder Escape
+   beendet das Einlesen und führt zum vorherigen Schritt zurück. Der vorhandene
+   Kundenbestand bleibt dabei erhalten. Dasselbe gilt beim Wechsel von
+   Tabellenblatt oder Überschriftenzeile. Bei Lesefehlern erscheint ein Hinweis;
+   die vorherige Auswahl bleibt verfügbar.
 
 4. Im Dialog **"Spalten zuordnen"** zuerst die Kopfzeile der Dateizeile prüfen
    (Dateiname, gelesenes **Blatt**, Zeilen- und Spaltenzahl) und bei Bedarf
@@ -4281,6 +4291,12 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - Diagnosebäume, Musterantworten, Mini-Schulungen und Systemprompt aktualisiert.
 
 ---
+
+### Änderungen in Version 3.18 (07.10.2026)
+
+- Große Excel-/CSV-Dateien werden lokal in einem Web Worker eingelesen.
+- Wartedialog mit Dateiname, Verarbeitungsschritt und Abbrechen statt blockierter Importauswahl.
+- Tabellenblatt- und Kopfzeilenwechsel nutzen denselben Ablauf; Abbruch und Fehler erhalten den bisherigen Stand.
 
 ### Änderungen in Version 3.17 (07.10.2026)
 

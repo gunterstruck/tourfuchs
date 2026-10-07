@@ -870,3 +870,7 @@ Ab Release 1 gilt für jeden PR:
   und Maßnahmen stehen in **`docs/go-to-market.md`** – dieses Dokument
   beschreibt das Produkt, jenes den Weg zum Nutzer. Der Verweis steht hier,
   weil die Trennung von außen wie eine Lücke aussieht.
+
+### Import-Rückmeldung bei großen Dateien (07.10.2026, umgesetzt)
+
+Excel-/CSV-Einlesen läuft lokal im Web Worker. Ein Wartedialog ersetzt die Importauswahl, nennt Dateiname und Verarbeitungsschritt und ermöglicht Abbrechen oder Escape. Auch Blatt-/Kopfzeilenwechsel bleiben bedienbar; Fehler und Abbruch erhalten den bisherigen Stand. Kein Upload und keine neue externe Verbindung.
