@@ -129,6 +129,41 @@ async function desktop(browser, baseUrl) {
         await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
     });
 
+    await step('Sidebar bis 150 % ziehen, speichern und frei verschoben skalieren', async () => {
+        await closeDialogs(page);
+        const panel = page.locator('#sidebar');
+        const handle = page.locator('#sidebar-resize');
+        const dragWidth = async (target) => {
+            const box = await panel.boundingBox();
+            const edge = await handle.boundingBox();
+            await page.mouse.move(edge.x + edge.width / 2, edge.y + 120);
+            await page.mouse.down();
+            await page.mouse.move(edge.x + edge.width / 2 + target - box.width, edge.y + 120, { steps: 8 });
+            await page.mouse.up();
+            await page.waitForFunction((expected) => Math.abs(document.getElementById('sidebar').getBoundingClientRect().width - expected) < 1, Math.max(340, Math.min(600, target)), { timeout: TIMEOUT });
+        };
+        await dragWidth(600);
+        await dragWidth(750);
+        if (await page.evaluate(() => localStorage.getItem('gf_sidebar_width')) !== '600') throw new Error('Breite wird nicht gespeichert');
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(() => document.getElementById('sidebar')?.getBoundingClientRect().width === 600, null, { timeout: TIMEOUT });
+        await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
+        await closeDialogs(page);
+        if (!await panel.evaluate((el) => el.classList.contains('open'))) await page.locator('#sidebar-toggle').click();
+        // Vor Koordinatenaktionen auch den Einblend-Übergang abwarten.
+        await page.locator('#sheet-grip').click({ trial: true });
+        const grip = await page.locator('#sheet-grip').boundingBox();
+        await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
+        await page.mouse.down();
+        await page.mouse.move(grip.x + grip.width / 2 + 120, grip.y + grip.height / 2, { steps: 8 });
+        await page.mouse.up();
+        await page.waitForSelector('#sidebar.floating-sidebar');
+        await dragWidth(550);
+        await page.locator('#sheet-grip').dblclick();
+        await dragWidth(200);
+        await dragWidth(400);
+    });
+
     await step('Datei im Worker lesen, Abbrechen und Fehler erhalten den Bestand', async () => {
         await closeDialogs(page);
         const before = await customerCount(page);
@@ -271,6 +306,12 @@ async function phone(browser, baseUrl) {
     page.on('pageerror', (e) => errors.push(String(e).slice(0, 160)));
 
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
+
+    await step('Handy bleibt bei gespeicherter 600-Pixel-Desktopbreite im Fenster', async () => {
+        await page.evaluate(() => { document.documentElement.style.setProperty('--sidebar-width', '600px'); });
+        const panel = await page.locator('#sidebar').boundingBox();
+        if (panel.width > 390 || await page.locator('#sidebar-resize').isVisible()) throw new Error('Desktopbreite beeinflusst Handy-Blatt');
+    });
 
     // Suchen → Treffer → Aktion im Kunden-Popup. Geklickt wird über das DOM:
     // Am Handy kann das Tour-Blatt Teile der Karte überdecken – geprüft wird
