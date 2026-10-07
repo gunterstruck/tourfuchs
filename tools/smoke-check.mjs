@@ -147,7 +147,11 @@ async function desktop(browser, baseUrl) {
         if (await page.evaluate(() => localStorage.getItem('gf_sidebar_width')) !== '600') throw new Error('Breite wird nicht gespeichert');
         await page.reload({ waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => document.getElementById('sidebar')?.getBoundingClientRect().width === 600, null, { timeout: TIMEOUT });
+        await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
         await closeDialogs(page);
+        if (!await panel.evaluate((el) => el.classList.contains('open'))) await page.locator('#sidebar-toggle').click();
+        // Vor Koordinatenaktionen auch den Einblend-Übergang abwarten.
+        await page.locator('#sheet-grip').click({ trial: true });
         const grip = await page.locator('#sheet-grip').boundingBox();
         await page.mouse.move(grip.x + grip.width / 2, grip.y + grip.height / 2);
         await page.mouse.down();
