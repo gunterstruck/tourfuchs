@@ -47,7 +47,7 @@ Ein Briefing ist kein Selbstzweck. Wenn der Assistent geantwortet hat, will man
 zwei oder drei der genannten Kunden auch tatsächlich anfahren – und die Auswahl
 liegt beim Zurückkommen noch auf der Karte.
 
-Deshalb trägt im **Profi-Modus** jede Zeile der Auswahlkarte ein Häkchen:
+Deshalb trägt jede Zeile der Auswahlkarte ein Häkchen:
 
 - **Ohne Häkchen** heißt der Knopf **🚩 Alle zur Tour** und tut genau das – der
   schnelle Weg, den es vorher schon gab.
@@ -204,7 +204,7 @@ zweite, erweitert um Geste und Rückweg der ersten.
    Modus ist wieder aus.
 4. **📋 Briefing über alle** → Mehrkunden-Briefing mit „die von mir auf der Karte
    markierte Fläche" als Gebiet.
-5. Profi-Modus: zwei Zeilen anhaken → der Knopf heißt **🚩 2 zur Tour**;
+5. Zwei Zeilen anhaken → der Knopf heißt **🚩 2 zur Tour**;
    drücken → die zwei stehen in der Tour, in der Liste mit ✓ **in Tour**, die
    Auswahl bleibt liegen, der Knopf heißt wieder **🚩 Alle zur Tour**.
 6. Karte verschieben → Auswahl verschwindet.

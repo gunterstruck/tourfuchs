@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.16 · Stand: 04.10.2026 · App-Version: 3.7.0**
+**Version 3.17 · Stand: 07.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -10,6 +10,8 @@ Weitergabe.
 **Quellenpriorität:** aktueller App-Code und sichtbare Beschriftungen vor älteren
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
+
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Branch `main`, Commit `909329659e2664a541141026a32e82328200e843` (07.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -49,7 +51,7 @@ der Einordnung fremder Dateien erwähnen.
 die Kundenlisten aus Excel auf die Karte bringt und den täglichen Außendienst
 auf drei Aufgaben fokussiert: **Kunden sehen, Tour planen, gut vorbereitet
 hinfahren.** Strategische Gebietsplanung und Service bleiben vollständig
-erhalten und bleiben optionale Profi-Module. Die Gebietsplanung ist
+erhalten und bleiben optionale Module. Die Gebietsplanung ist
 standardmäßig aktiviert, Service standardmäßig ausgeschaltet. Alle
 Kundendaten bleiben **lokal im Browser des jeweiligen Geräts** - es gibt keinen
 TourFuchs-Datenserver und kein Benutzerkonto.
@@ -151,7 +153,7 @@ Der Guide soll nicht:
 
 Beispiel:
 
-> Das spontane Kundenbriefing ist bereits im Basis-Modus verfügbar.
+> Das spontane Kundenbriefing ist ohne Moduswechsel verfügbar.
 >
 > **Klickpfad:** Kundenmarker -> "Briefing" -> "Prompt kopieren & Copilot
 > öffnen".
@@ -185,6 +187,17 @@ eindeutig zeigt.
 **Kunden sehen. Tour planen. Gut vorbereitet hinfahren.** TourFuchs macht eigene
 Kundendaten räumlich handlungsfähig und übergibt den passenden Kundenkontext als
 lokal erzeugten Prompt an den internen KI-Assistenten des Nutzers.
+
+**Marktposition:** TourFuchs ist das persönliche, lokale Außendienst-Cockpit –
+kein kleines CRM und keine Managementplattform. Es verbindet Lichterkarte,
+Tour und Gebiet mit der bereits freigegebenen Unternehmens-KI. Dabei erzeugt es
+keine zentrale Leistungs-, Verhaltens- oder Standortauswertung: Betreiber und
+Führungskräfte erhalten aus TourFuchs keinen automatischen Zugriff auf
+Kundendaten, Touren, GPS-Positionen oder Besuchshistorien. Das macht eine
+rechtliche oder betriebliche Prüfung bei einer offiziellen Einführung nicht
+überflüssig; es ist eine technische Produktgrenze, keine Rechtsgarantie.
+
+Verbindliche Botschaften und rote Linien: [Produktpositionierung](positionierung.md).
 
 ### 2.2 Die drei Kernfragen
 
@@ -224,9 +237,9 @@ Die Kundendatenbank wird dabei nicht übertragen.
 
 TourFuchs trifft die räumliche Vorauswahl; der interne Assistent bewertet anhand
 aktueller Vorgänge, Zusagen und Termine, welche Kunden zuerst besucht werden
-sollten. Dieser operative Mehrkunden-Weg bleibt eine Basis-Funktion.
+sollten. Dieser operative Mehrkunden-Weg gehört zum normalen Außendienstumfang.
 
-**5. Gebiete umbauen, ohne reale Daten sofort zu verändern (optionales Profi-Modul)**
+**5. Gebiete umbauen, ohne reale Daten sofort zu verändern (optionales Modul)**
 
 Landkreise oder PLZ-Gebiete lassen sich simuliert verschieben. Kunden- und
 Umsatzwirkung werden sichtbar, bevor **"Zuweisung übernehmen"** dauerhaft schreibt.
@@ -550,6 +563,67 @@ Nur den Stil ändern: unter ⓘ Info → 🎨 Darstellung auf 🌙 Dunkel tippen
 Hell-/Dunkelmodus deines Geräts. Wenn dich abends auch die helle Karte blendet:
 im Panel unter ‚Kartenstil' auf ‚Nacht' stellen. Für einen Überblick, wo alle
 Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
+
+### 4.8 Sprache: automatisch oder bewusst gewählt
+
+**Klickpfad:** `ⓘ Info -> "🌐 Sprache"` mit **Automatisch**, **Deutsch**,
+**Englisch**, **Französisch** und **Spanisch**.
+
+- **Automatisch** (Standard) liest ausschließlich lokal die bevorzugten
+  Gerätesprachen. `en-*`, `fr-*` und `es-*` wählen die entsprechende Sprache;
+  Deutsch und jede nicht unterstützte Sprache fallen auf Deutsch zurück.
+- Eine bewusste Auswahl gewinnt vor der Gerätesprache und bleibt nur in diesem
+  Browser gespeichert. Es wird keine Spracheinstellung übertragen.
+- Die Umstellung wird abschnittsweise ausgeliefert. App-Kopf, Hauptreiter,
+  Sprachwahl sowie der Einstieg bis zur statischen Spaltenzuordnung sind
+  übersetzt. Dazu gehören die sichtbaren Knöpfe **„Live-Demos starten“**,
+  **„Eigene Daten laden“**, **„Excel-/CSV-Datei auswählen“**,
+  **„Liste aus Excel einfügen“**, **„Bestätigen und weiter“** und
+  **„Importieren“**. Auch die danach erzeugten Feldnamen, Tabellen- und
+  Kopfzeilenhinweise, Validierungsfehler, Speicherfehler und das Importergebnis
+  folgen der Sprache. Die globale Suche zeigt **„Eigene Orte“**, **„Kunden“**,
+  **„Orte“** und **„Keine Treffer“** ebenfalls passend zur Auswahl. In der
+  Kundenkarte wechseln Umsatz, letzter Besuch, Rhythmus, Kontaktaktionen,
+  Servicehinweise sowie **„Als Start“**, **„Als Ziel“**, **„Zur Tour“** und
+  **„Briefing“**; Datum und Umsatz werden dort sprachgerecht formatiert. Auch
+  der Tourplaner folgt der Sprache: **„Startpunkt“**, **„Vorschläge“**,
+  **„Meine Tour“**, Start-/Zielsuche, Umkreis bzw. Routenkorridor, Stoppliste,
+  **„Optimieren“**, **„Tour anzeigen“** und gespeicherte
+  Touren. Beim Umschalten werden bereits sichtbare dynamische Tour- und
+  Karteninhalte neu aufgebaut. Auch die QR-Übergabe ist übersetzt: Teilen,
+  Kamera-/Foto-Scan, Empfangszusammenfassung, Google-Maps-Teilstrecken,
+  Kalenderaktion und lokale Übernahme; das Datum der empfangenen Tour folgt der
+  gewählten Sprache. Hinweise zu Google-Maps-Grenzen, blockierten Druck-Pop-ups,
+  erstellten Kalenderdateien und erfolgreicher oder fehlgeschlagener Textkopie
+  erscheinen ebenfalls passend zur Sprache. Eine als Text kopierte Tour enthält
+  Kennzeichnung, Start, Ziel, Telefonnummer, Rückweg und Streckenschätzung in
+  der gewählten Sprache. Auch Kalendertermine beschriften Hauptansprechpartner,
+  Telefon, Kundennummer, Auftrag, Anlass, Priorität, Verantwortung und Quelle
+  passend zur Sprache; die fachlichen Werte werden nicht verändert. Auch der
+  gedruckte Tagesplan verwendet für Datum, Zusammenfassung, Ziel,
+  Besuchsrhythmus, Tabellenkopf, Planungshinweis, Demo-Warnung und die
+  Zurück-/Drucken-Leiste die gewählte Sprache. In der erweiterten
+  Service-Tagesplanung folgen Arbeitsende, Titel, Techniker-/Teamauswahl,
+  Qualifikationen, Erklärung und Berechnungsaktion ebenfalls der Sprache. Die
+  dynamische Ergebnisvorschau übersetzt Stopps, Rückkehr, Auslastung,
+  Planungsgründe, Zielkonflikt, ausgelassene Einsätze und Übernahmeaktion und
+  wird bei einem Sprachwechsel neu aufgebaut. Auch Ersetzen-Abfrage,
+  Bestätigungszustand sowie Rückmeldungen bei geänderten Zeiten, Einsätzen oder
+  Tourstopps folgen der gewählten Sprache. An bereits übernommenen Tourstopps
+  wechseln auch Hinweise zu Servicefilter-Ausnahmen sowie der Zanobo-Hinweis
+  und die Anhören-Aktion mit der Sprache. Die CI vergleicht alle Produktionskataloge
+  mit dem deutschen Schlüsselbestand, kontrolliert benannte Platzhalter und
+  meldet unbestätigte deutsche 1:1-Texte in Französisch oder Spanisch. Auf der
+  mobilen Karten-Hauptansicht wechseln außerdem Tresor-Einstieg, Nachtmodus,
+  nächster Schritt, Lasso, Kartenbezeichnung und Kundenstapel sofort zwischen
+  DE/EN/FR/ES; Französisch und Spanisch sind dafür bei 390 × 844 Pixeln im
+  laufenden Browser geprüft. Im oberen Info-Bereich folgen außerdem Live-Demo,
+  Guide, Darstellung, exakte Adressverortung, Projektbeschreibung und
+  Feedback-Links der Sprache; auch dynamische Verortungsstände werden neu
+  aufgebaut. Auch Datenschutz-FAQ, Impressum, Musiknachweis, Datenquellen und
+  Rechtliches-Links folgen der Sprache. Der redaktionelle Abschnitt „Was wir
+  weggelassen haben“ mit allen 15 Entscheidungen ist ebenfalls vollständig in
+  DE/EN/FR/ES verfügbar.
 
 ---
 
@@ -943,8 +1017,8 @@ Sicherheitsregeln für Beispielkunden:
   werden aber nur simuliert. Dialer und Mailprogramm öffnen sich nicht.
 - **"Briefing"** zeigt eine lokale Ergebnisvorschau. Copilot wird für
   Beispielkunden weder geöffnet noch automatisch angesprochen.
-- Excel-, Text-, Druck- und Kalenderexporte werden mit
-  `DEMO - NICHT PRODUKTIV` gekennzeichnet.
+- Excel-, Text-, Druck- und Kalenderexporte werden mit einer deutlichen
+  Demo-Warnung in der gewählten Sprache gekennzeichnet.
 
 ### 7.3 Unterstützte Dateiformate
 
@@ -1449,11 +1523,11 @@ wird intuitiv mit zwei Fingern gezoomt.
 - bei PLZ-Verortung ist die Position nur näherungsweise.
 - in der Ansicht **"Status"** folgen Farben dem Besuchsstatus.
 
-### 8.5 Kunden-Popup in Basis
+### 8.5 Kunden-Popup
 
 ![Kunden-Popup eines synthetischen Schulungskunden mit der Aktion Briefing](../public/docs/screenshots/BILD-KUNDE-01-marker-mit-briefing.png)
 
-*BILD-KUNDE-01 - Der Einzelkundenweg: Kundenmarker öffnen und „Briefing" wählen; im Profi-Modus sind zusätzliche Details sichtbar.*
+*BILD-KUNDE-01 - Der Einzelkundenweg: Kundenmarker öffnen und „Briefing" wählen; alle verfügbaren Details sind ohne Moduswechsel sichtbar.*
 
 Das Popup zeigt je nach vorhandenen Daten:
 
@@ -1473,12 +1547,12 @@ Bei echten importierten Kunden öffnen **"Anrufen"** und **"E-Mail"** weiterhin
 die jeweilige Geräte-App. Bei Demo-Kunden zeigen dieselben Schaltflächen nur
 einen Hinweis; es wird keine externe Kontaktaktion gestartet.
 
-### 8.6 Kunden-Popup in Profi
+### 8.6 Weitere Kundendetails und kopierbare Nummer
 
-Zusätzlich:
+Je nach importierten Daten ebenfalls sichtbar:
 
-- Kundennummer
-- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk
+- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt, z. B. `000123` -> `[123]`; eine reine Null wird `[0]`. Die angezeigte Originalnummer wird nicht geändert.
+- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
 - **"Als Ziel"**
@@ -1486,7 +1560,7 @@ Zusätzlich:
 ### 8.7 Direkte Kundenaktionen
 
 - **"Als Start"** setzt den Kunden als Tourstart.
-- **"Als Ziel"** setzt im Profi-Modus den festen Endpunkt.
+- **"Als Ziel"** setzt den festen Endpunkt.
 - **"Zur Tour"** fügt ihn den Stopps hinzu.
 - **"Heute besucht"** dokumentiert lokal einen Besuch am heutigen Datum.
 - **"Briefing"** öffnet die Vorbereitung mit Microsoft 365 Copilot.
@@ -1529,10 +1603,15 @@ selbst ab.
 - die Qualität des Briefings hängt davon ab, auf welche internen Quellen der
   Assistent im Konto des Nutzers zugreifen darf.
 
-### 9.3 Der Weg: sofort nutzbar, in Basis und Profi identisch
+### 9.3 Der Weg: sofort nutzbar auf Desktop und Smartphone
 
 **Klickpfad:** Kundenmarker -> **"Briefing"** ->
 **"Prompt kopieren & <Assistent> öffnen"**.
+
+**Kürzerer Weg für geplante Besuche:** Jeder Stopp unter **"Meine Tour"** hat
+einen eigenen Briefing-Knopf – am Desktop **"📋 Briefing"** unter dem
+Kundennamen, am Handy der runde **📋**-Knopf neben dem Entfernen-Knopf. Er öffnet
+denselben Briefing-Dialog wie das Kunden-Popup.
 
 Dieser Klickpfad gilt für echte importierte Kundendaten. Bei Demo-Kunden endet
 der Klickpfad sicher in der lokalen Briefing-Vorschau mit **"Verstanden"**.
@@ -1594,12 +1673,9 @@ Nicht im Prompt enthalten:
 - Umsatz
 - Kartenkoordinaten
 
-### 9.5 Profi: Zielassistent wählen
+### 9.5 Zielassistent wählen
 
-In **Basis** ist das Ziel fest Microsoft 365 Copilot - ein Knopf, keine
-Entscheidung.
-
-Im **Profi**-Modus steht im Briefing-Dialog eingeklappt
+Microsoft 365 Copilot ist voreingestellt. Auf Desktop und Smartphone lässt sich der Zielassistent ohne Basis-/Profi-Umschalter ändern. Im Briefing-Dialog steht eingeklappt
 **"Ziel: <Assistent> · Anderen Assistenten wählen"**.
 
 **Klickpfad:** `"Briefing" -> "Anderen Assistenten wählen" -> Auswahl`.
@@ -1610,9 +1686,9 @@ gemerkt und ändert zwei Dinge: die geöffnete Adresse und die Quellenzeile im
 Prompt. Eine `http`-Adresse wird abgelehnt; eine unvollständige eigene Adresse
 fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
 
-![Profi-Kundenbriefing mit der Zeile Ziel und Anderen Assistenten wählen](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
+![Kundenbriefing mit der Zeile Ziel und Anderen Assistenten wählen](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
 
-*BILD-LASSO-07 - Im Profi-Modus wird das Ziel im Kundenbriefing gewählt; das Mehrkunden-Briefing verwendet dieselbe lokal gemerkte Wahl.*
+*BILD-LASSO-07 - Das Ziel wird im Kundenbriefing gewählt; das Mehrkunden-Briefing verwendet dieselbe lokal gemerkte Wahl.*
 
 ![Aufgeklappte Assistentenauswahl mit Copilot, Gemini, ChatGPT und eigenem Assistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
@@ -1642,9 +1718,9 @@ im Assistenten selbst absenden. Kein Login, kein API-Aufruf.
 
 *BILD-LASSO-05 - Der Prompt entsteht im Mehrkunden-Briefing und ist vor dem Kopieren vollständig einsehbar.*
 
-![Mehrkunden-Briefing im Basis-Modus mit festem Microsoft-365-Copilot-Ziel](../public/docs/screenshots/BILD-LASSO-06-basis-copilot.png)
+![Mehrkunden-Briefing mit voreingestelltem Microsoft-365-Copilot-Ziel](../public/docs/screenshots/BILD-LASSO-06-basis-copilot.png)
 
-*BILD-LASSO-06 - Basis hält den Weg bewusst einfach: prüfen, kopieren, Copilot öffnen; eingefügt und gesendet wird vom Nutzer.*
+*BILD-LASSO-06 - Mehrkunden-Briefing mit voreingestelltem Copilot: prüfen, kopieren, Assistent öffnen; eingefügt und gesendet wird vom Nutzer.*
 
 **Inhalt je Kunde - bewusst weniger als beim Einzelbriefing:**
 
@@ -1714,7 +1790,7 @@ Ablauf:
 3. "Briefing über alle" öffnet das Mehrkunden-Briefing aus 9.6 - **unverändert**:
    Das Lasso liefert nur die Auswahl, keinen eigenen Prompt.
 
-**Der Rückweg (Profi-Modus):** Jede Zeile der Auswahlkarte trägt ein Häkchen.
+**Der Rückweg:** Jede Zeile der Auswahlkarte trägt ein Häkchen.
 Ohne Häkchen heißt der Knopf "Alle zur Tour" und tut das auch; mit Häkchen heißt
 er "3 zur Tour" und meint genau die angehakten. Kunden, die schon in der Tour
 stehen, erscheinen mit einem Haken und "in Tour", aber ohne Kästchen. Nach dem
@@ -1788,7 +1864,7 @@ Weitere Details: `docs/kundenbriefing.md`.
 
 ## 10. Tourplanung im Außendienst
 
-### 10.1 Standardtour in Basis
+### 10.1 Standardtour
 
 **Klickpfad:** `"Außendienst" -> Tab "Tour"`.
 
@@ -1809,8 +1885,8 @@ Weitere Details: `docs/kundenbriefing.md`.
 4. Umkreis mit dem Regler anpassen.
 5. optional **"Überfällige zuerst"** aktivieren.
 6. Kunden aus Vorschlägen oder Karten-Popups mit **"Zur Tour"** hinzufügen.
-7. ab zwei Stopps **"Reihenfolge optimieren"**.
-8. **"Route auf Karte anzeigen"**.
+7. ab zwei Stopps **"⚡ Optimieren"**.
+8. **"🗺️ Tour anzeigen"**; danach bei Bedarf **"In Google Maps navigieren"**.
 9. bei Bedarf **"Straßenroute anzeigen"**.
 10. **"In Google Maps navigieren"**.
 
@@ -1844,9 +1920,15 @@ Pin mit Finger bzw. Maus ziehen, dann **"Position übernehmen"**. Anschließend
 braucht der Punkt einen Namen; das Häkchen **"Diesen Ort für spätere Touren
 merken"** ist vorausgewählt. Der gespeicherte Ort erscheint als eigener
 violetter Stern-Pin auf der Tourkarte. Sein Popup bietet **"Als Start"**,
-**"Als Ziel"** (Profi), **"Position ändern"** und **"Löschen"**. Am Start- oder
+**"Als Ziel"**, **"Position ändern"** und **"Löschen"**. Am Start- oder
 Zielchip öffnet **"📌 genauer"** denselben Ablauf für einen bereits gefundenen
 Ort.
+
+Bei englischer, französischer oder spanischer Oberfläche erscheinen auch diese
+sichtbaren Bezeichnungen – Kartenhinweis, **„Position übernehmen“**,
+Benennungsdialog, **„Als Start“**, **„Als Ziel“**, **„Position ändern“** und
+**„Löschen“** – in der gewählten Sprache. Name und exakte Koordinate des
+eigenen Orts bleiben unverändert lokal gespeichert.
 
 **Einen Ort merken:** Ist ein Ort als Start oder Ziel gewählt, steht am Chip der
 Knopf **"★ merken"**. Er fragt nach einem Namen; danach trägt der Startpunkt
@@ -1882,9 +1964,9 @@ Fälligkeiten oder Gebietsauswertungen mit. Eigene Orte werden zusammen mit den
 Kundendaten gespeichert und sind damit bei aktivem Datentresor verschlüsselt;
 "Alle Daten löschen" löscht sie mit.
 
-### 10.2 Profi-Erweiterungen
+### 10.2 Weitere Tourwerkzeuge
 
-Profi ergänzt:
+Diese Werkzeuge stehen ohne Moduswechsel zur Verfügung:
 
 - Kartenansicht **"Kunden"**, **"Status"**, **"Chancen"** – die Karten-
   Einfärbung liegt **nur auf dem Desktop** (dort ist die Karte sichtbar). Im
@@ -1898,7 +1980,7 @@ Profi ergänzt:
 - Tour als Text für Outlook/Copilot
 - gespeicherte Touren
 
-Auf dem Smartphone können Profi-Abschnitte seitlich weggewischt werden.
+Auf dem Smartphone können zusätzliche Tour-Abschnitte seitlich weggewischt werden.
 **"Ausgeblendete Elemente zurücksetzen"** stellt sie wieder her.
 
 ### 10.3 "Was ist in meiner Nähe?"
@@ -1943,7 +2025,7 @@ nicht automatisch eine Tour.
 
 ### 10.5 Optimierung
 
-**"Reihenfolge optimieren"** sortiert die gewählten Zwischenstopps mit
+**"⚡ Optimieren"** (Tooltip: Reihenfolge optimieren) sortiert die gewählten Zwischenstopps mit
 Nearest-Neighbor und 2-Opt. Start und optionales Ziel bleiben fest. Die Berechnung
 ist eine Streckenheuristik und keine Echtzeit-Verkehrsoptimierung.
 
@@ -1956,8 +2038,9 @@ ist eine Streckenheuristik und keine Echtzeit-Verkehrsoptimierung.
 
 ### 10.7 Luftlinie und Straßenroute
 
-Beim ersten **"Route auf Karte anzeigen"** erscheint die Luftlinie. Danach
-wechselt derselbe Button zwischen:
+**"🗺️ Tour anzeigen"** steht direkt neben **"⚡ Optimieren"** und richtet die Karte auf die Tour aus. Beim ersten Anzeigen erscheint die Luftlinie. Ein erneuter Klick behält den gewählten Linienmodus bei; er schaltet nicht zwischen Straße und Luftlinie um. Die frühere Beschriftung "Route auf Karte anzeigen" ist ersetzt.
+
+Nur der separate Karten-Umschalter wechselt zwischen:
 
 - **"Straßenroute anzeigen"**
 - **"Luftlinie anzeigen"**
@@ -1974,6 +2057,8 @@ verfügbar.
 
 ### 10.8 Google Maps
 
+**Navigation ist die hervorgehobene Hauptaktion.** QR-Übergabe, Druck, Kalender, Text und Rückblick stehen in der Klappgruppe **"Teilen & Exportieren"**. "Tour anzeigen" bleibt dagegen direkt neben "Optimieren" sichtbar.
+
 **"In Google Maps navigieren"** öffnet einen Directions-Link. Erst mit diesem
 bewussten Klick werden Routendaten an Google übergeben. Google begrenzt die Zahl
 der Zwischenziele; TourFuchs übergibt deshalb nur die unterstützte Anzahl
@@ -1981,10 +2066,11 @@ der Zwischenziele; TourFuchs übergibt deshalb nur die unterstützte Anzahl
 
 ### 10.9 Tagesplan und Kalender
 
-Nur Profi:
+Unter **"Teilen & Exportieren"**:
 
 - **"Tagesplan drucken"** erstellt einen Plan mit Ankunftszeiten, Adressen,
-  Kontakten und Checkboxen.
+  Kontakten und Checkboxen. Inhalt, Datum und Druckleiste folgen der gewählten
+  Sprache (Deutsch, Englisch, Französisch oder Spanisch).
 - **"Kalender-Export (.ics)"** erstellt einen Termin je Besuch.
 - **"Als Text kopieren (Outlook/Copilot)"** legt die Tour in die Zwischenablage.
 
@@ -2058,9 +2144,9 @@ Am Desktop: `Daten -> "📤 Besuchsbericht (Excel)"`.
 - **Datenschutz:** Die Datei enthält Kundennamen. Nur über die Wege der eigenen
   Organisation teilen. Das CRM bleibt die führende Quelle.
 
-### 10.11 Service-Fokus (Profi): Einsätze, Verträge und Tagesvorschlag
+### 10.11 Service-Fokus: Einsätze, Verträge und Tagesvorschlag
 
-Der Arbeitsfokus **"Service"** ist ein **optionales Profi-Modul** mit den Tabs
+Der Arbeitsfokus **"Service"** ist ein **optionales Modul** mit den Tabs
 **"Einsätze"**, **"Verträge"** und **"Tour"**. Er ist standardmäßig ausgeblendet
 und wird unter **🧩 Erweiterungen → ServiceFuchs**
 aktiviert (die Wahl wird lokal gemerkt). Er hält zwei getrennte Zusatzbestände
@@ -2192,11 +2278,7 @@ Mobil gibt es **einen** Bereich: die **Tour**. Eine Reiterleiste steht deshalb
 nicht mehr im Bild. Was man sieht, entscheidet allein die Höhe des Blatts:
 **unten = Karte, oben = Tour**.
 
-Fest unter der Topbar bleibt die Pille **"Basis" / "Profi"** – einzeilig, seit
-die Reiter „Karte | Tour" entfallen sind. Dass sie bleibt, ist eine bewusste
-Entscheidung vom 11.08.2026 und keine Übriggebliebene: Der Einwand gegen sie war
-immer der Platz, und der ist jetzt da. Gebietsplanung, Cockpit und Simulation
-sind bewusst Desktop-Aufgaben.
+Die frühere Pille **"Basis" / "Profi"** ist seit 26.09.2026 entfernt. Die Karte erhält den Platz zurück; der volle Außendienstumfang bleibt verfügbar. Gebietsplanung, Cockpit und Simulation sind bewusst Desktop-Aufgaben.
 
 Bis Version 3.2 standen dort zwei Reiter. Sie waren kein Bereichswechsel: „Karte"
 klappte das Blatt ein, „Tour" zog es auf – dasselbe, was Griff und "☰" tun. Drei
@@ -2253,8 +2335,7 @@ zeigt Kunden relativ zur Kartenmitte oder zum GPS-Standort. Zugeklappt trägt si
 Anzahl und Entfernung des nächsten Kunden; aufgeklappt fünf Zeilen, auf Wunsch
 alle (maximal zwölf).
 
-Basis zeigt Name, Ort, Entfernung und Umsatz. Profi ergänzt Besuchsstatus und
-Fälligkeitszähler.
+Die Liste zeigt Name, Ort, Entfernung, Umsatz, Besuchsstatus und Fälligkeitszähler; es gibt keinen Basis-/Profi-Wechsel.
 
 Berechnet wird nur, was zu sehen ist: Bei eingeklapptem Blatt ruht die Liste.
 
@@ -2299,7 +2380,7 @@ Desktop-only Geschichten und der QR-Sendeschritt werden ausgeblendet.
 
 ### 13.1 Gebietsansicht
 
-**Klickpfad im Standard:** `Profi -> Gebietsplanung -> Tab Gebiete`.
+**Klickpfad im Standard:** `🧩 Erweiterungen -> GeoFuchs -> Gebietsplanung -> Tab Gebiete`.
 
 Die Moduloption **"GeoFuchs (Gebietsplanung & -management)"** ist standardmäßig
 aktiviert. Sie kann unter `🧩 Erweiterungen` bewusst ausgeschaltet
@@ -2373,7 +2454,7 @@ Ein Klick auf eine Fläche zeigt:
 - Kundenzahl
 - Umsatz gesamt
 - Verteilung **Vertriebsbezirk · Kunden · Umsatz**
-- in Profi zusätzlich die namentliche Kundenliste
+- zusätzlich die namentliche Kundenliste
 
 Am Desktop kann der Nutzer:
 
@@ -2539,9 +2620,12 @@ Daten ohne Tresor hier liegen, bleibt das **offene Schloss in der Kopfzeile
 hervorgehoben** – der Zustand ist dauerhaft sichtbar, ohne aufzuhalten.
 Verschlüsselt wird, wenn der Nutzer sich dafür entscheidet.
 
-Ausnahme: Beim **sicheren Umzug** (14.4) bleibt das Tresor-Setup erzwungen –
-wer Daten verschlüsselt von einem anderen Gerät empfängt, hat sich für Schutz
-bereits entschieden. Demo-Daten verlangen nie eine PIN.
+Das gilt ebenso beim **sicheren Umzug** (14.7): Die verschlüsselte Datei schützt
+den Transport, verpflichtet auf dem Zielgerät aber nicht zu einem lokalen
+Tresor. Nach dem Entschlüsseln werden die Daten direkt gespeichert; das offene
+Schloss bietet die freiwillige Aktivierung an. Ist dort bereits ein Tresor
+aktiv, wird dieser ohne neue PIN weiterverwendet. Demo-Daten verlangen nie eine
+PIN.
 
 Der Nutzer vergibt eine **PIN oder Passphrase mit mindestens sechs Zeichen**
 (gilt für Einrichten, PIN ändern und neue PIN nach Wiederherstellung). Eine
@@ -2621,8 +2705,10 @@ Alternativ bei geladenen Daten:
 
 1. `.tfsafe`-Datei wählen.
 2. Schlüssel-QR scannen oder Schlüsseltext eingeben.
-3. Daten entschlüsseln.
-4. direkt einen neuen lokalen Datentresor einrichten.
+3. Daten entschlüsseln und lokal speichern.
+4. Den lokalen Datentresor bei Bedarf anschließend freiwillig aktivieren. Ist
+   bereits ein Tresor aktiv, werden die empfangenen Daten darin gespeichert;
+   eine neue PIN ist nicht nötig.
 
 Falscher Schlüssel und beschädigte Datei werden erkannt.
 
@@ -2713,7 +2799,7 @@ Dienste übergeben.
 | Adressen exakt verorten | bewusster Klick bei Echtdaten | Straße, PLZ, Ort | Nominatim/OpenStreetMap |
 | Straßenroute/Korridor | nach Zustimmung | Koordinaten der Routenpunkte | OSRM |
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |
-| Basis-Briefing | Nutzer fügt Prompt ein und sendet | im Prompt sichtbare Identität und Tourkontext | Microsoft 365 Copilot |
+| Kundenbriefing | Nutzer fügt Prompt ein und sendet | im Prompt sichtbare Identität und Tourkontext | Microsoft 365 Copilot |
 | Kundenbriefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | Name, Nummer, PLZ/Ort, Hauptkontakt, Tourkontext | vom Nutzer gewählter Assistent |
 | Mehrkunden-Briefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | je Kunde Name, Nummer, PLZ/Ort, Fälligkeit, letzter Besuch; höchstens 12 Kunden | vom Nutzer gewählter Assistent |
 | Demo-Kontakt und Demo-Briefing | Klick auf sichtbare Demo-Aktion | keine externe Übertragung; lokale Simulation/Vorschau | nur TourFuchs im Browser |
@@ -2804,8 +2890,8 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Export | `Daten -> "Als Excel exportieren"` |
 | Kunde suchen | `Topbar -> "Kunde, Ort, PLZ suchen..." -> Kundentreffer` |
 | Mobile Ansicht prüfen | `Topbar -> Smartphone-Symbol "Mobile Außendienst & Tour"` |
-| Kundenbriefing Basis | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
-| Kundenbriefing Profi | `Profi -> Kundenmarker -> "Briefing" -> "Ziel: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
+| Kundenbriefing | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
+| Zielassistent wählen | ` Kundenmarker -> "Briefing" -> "Ziel: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
 | Mehrkunden-Briefing Tour | `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"` |
 | Mehrkunden-Briefing Umgebung | `Blatt aufziehen (Schreibtisch: Tab "Tour") -> "In der Nähe" aufklappen -> Kartenmitte/Standort -> "Wen zuerst? Briefing für diese Umgebung"` |
 | Demo-Briefing | `Demo-Kundenmarker -> "Briefing" -> lokale Ergebnisvorschau -> "Verstanden"` |
@@ -2815,8 +2901,8 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Tour starten | `Außendienst -> Tour -> Startpunkt` (optional vorher den Bezirk einschränken) |
 | GPS-Start | `Außendienst -> Tour -> "Mein Standort"` |
 | Kunde zur Tour | `Vorschlag oder Kunden-Popup -> "Zur Tour"` |
-| Reihenfolge | `Tour -> "Reihenfolge optimieren"` |
-| Route zeigen | `Tour -> "Route auf Karte anzeigen"` |
+| Reihenfolge | `Tour -> "Optimieren"` |
+| Route zeigen | `Tour -> "Tour anzeigen"` |
 | Straßenroute | `Tour -> "Straßenroute anzeigen" -> Zustimmung` |
 | Google Maps | `Tour -> "In Google Maps navigieren"` |
 | Desktop-QR | `Tour -> "An Handy übergeben (QR)"` |
@@ -2906,7 +2992,7 @@ Lösung: Luftlinie weiterverwenden, Verbindung prüfen und erneut auf
 
 ### 18.7 Briefing öffnet Copilot, Prompt steht aber nicht im Eingabefeld
 
-Das ist der erwartete Basisweg. Browser dürfen fremde Websites nicht automatisch
+Das ist der erwartete Briefing-Weg. Browser dürfen fremde Websites nicht automatisch
 mit Text befüllen oder absenden. Der Prompt liegt in der Zwischenablage. In
 Assistenten einfügen, prüfen und selbst absenden.
 
@@ -3029,8 +3115,8 @@ altem Namen alte PWA entfernen und neu installieren.
 
 ### Warum sehe ich am Desktop keine Gebietsplanung oder keinen Service-Fokus?
 
-> Beide Bereiche sind optionale Profi-Module. Die Gebietsplanung ist im Standard
-> bereits aktiviert und erscheint am Desktop nach dem Wechsel auf `Profi`.
+> Beide Bereiche sind optionale Module. Die Gebietsplanung ist im Standard
+> bereits aktiviert und erscheint am Desktop als Kärtchen in der Kopfzeile.
 > Wurde sie früher bewusst ausgeschaltet, lässt sie sich unter
 > `🧩 Erweiterungen` wieder aktivieren. Der Service-Fokus bleibt
 > standardmäßig aus und wird dort bei Bedarf eingeschaltet. Der normale
@@ -3244,7 +3330,7 @@ wieder; die Installation bleibt über das Browsermenü möglich.
 
 **Ziel:** einen Vertriebsbezirk bewerten.
 
-1. Am Desktop **„Profi"** wählen.
+1. TourFuchs am Desktop öffnen.
 2. **„🧩 Erweiterungen"** öffnen.
 3. **„GeoFuchs (Gebietsplanung & -management)"** aktivieren.
 4. **„Gebietsplanung" -> „Gebiete"**.
@@ -3257,7 +3343,7 @@ wieder; die Installation bleibt über das Browsermenü möglich.
 
 **Ziel:** eine Gebietsverschiebung sicher testen.
 
-**Voraussetzung:** Desktop, Profi und aktiviertes Modul
+**Voraussetzung:** Desktop und aktiviertes Modul
 **„GeoFuchs (Gebietsplanung & -management)"**.
 
 1. Landkreis-Ebene wählen.
@@ -3293,7 +3379,7 @@ Vier Ebenen erklären:
 3. Google Maps: bewusste Routenübergabe.
 4. Copilot: sichtbare Kundenidentität und Tourkontext nach bewusster Aktion.
 
-**Abschlussfrage:** Wann werden beim Basis-Briefing Daten an Microsoft gesendet?
+**Abschlussfrage:** Wann werden beim Kundenbriefing Daten an Microsoft gesendet?
 
 ---
 
@@ -3323,7 +3409,7 @@ Danach:
 
 > Das geht ohne jede Einrichtung: Kunden-Popup -> "Briefing" ->
 > "Prompt kopieren & Assistent öffnen". Die Antwort entsteht im Assistenten,
-> nicht in TourFuchs. Im Profi-Modus ist wählbar, welcher Assistent geöffnet wird.
+> nicht in TourFuchs. Im Briefing-Dialog ist wählbar, welcher Assistent geöffnet wird.
 
 ### 21.4 "Ich möchte Gebiete fairer verteilen"
 
@@ -3353,7 +3439,7 @@ Der Guide:
 1. benennt zuerst den sichtbaren Bereich.
 2. erklärt dessen Zweck.
 3. nennt den nächsten sichtbaren Button statt ungenauer Koordinaten.
-4. weist auf Modal, Scrollbereich, Basis/Profi oder Gerät hin.
+4. weist auf Dialog, Scrollbereich, Modul oder Gerät hin.
 5. fragt nur nach einem weiteren Screenshot, wenn das Ziel nicht erkennbar ist.
 
 ---
@@ -3371,7 +3457,7 @@ Der Guide:
 
 Gut:
 
-`Profi -> Kundenmarker -> "Briefing" -> "Expertenfall: Briefing direkt in TourFuchs"`.
+`Kundenmarker -> "Briefing" -> "Anderen Assistenten wählen"`.
 
 Schlecht:
 
@@ -3470,11 +3556,11 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 13. **Bleiben lokale Daten beim PWA-Update erhalten?**
     Ja, solange nicht allgemeine Browserdaten gelöscht werden.
 14. **Ist "Briefing" nur Profi?**
-    Nein, der manuelle Weg ist in Basis und Profi sichtbar.
-15. **Wann sendet der Basisweg Daten an Microsoft?**
+    Nein. Briefing und Zielwahl stehen ohne Moduswechsel zur Verfügung.
+15. **Wann sendet der Briefing-Weg Daten an Microsoft?**
     Erst wenn der Nutzer den Prompt in Copilot einfügt und absendet.
-16. **Welche Daten sendet der direkte Profiweg nicht?**
-    Vollständige Liste, Telefon, E-Mail, Umsatz und Koordinaten.
+16. **Gibt es einen direkten KI-Aufruf in TourFuchs?**
+    Nein. TourFuchs bereitet nur den Prompt lokal vor; der Nutzer sendet im freigegebenen Assistenten selbst.
 17. **Findet die Suche eine Stadt ohne Kunden?**
     Ja, über das lokale Verzeichnis der PLZ-Ortszentren; die Auswahl bewegt die
     Karte, legt aber noch keinen eigenen Ort an.
@@ -3488,11 +3574,10 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
     Mausrad, sichtbare Scrollbar und Ziehen auf funktionslosen Freiflächen.
 21. **Ist Gebietsplanung standardmäßig sichtbar?**
     Als Modul ist sie standardmäßig aktiviert. Der Arbeitsfokus erscheint am
-    Desktop nach dem Wechsel auf „Profi". Unter „🧩 Erweiterungen" kann
+    Desktop als Kärtchen in der Kopfzeile. Unter „🧩 Erweiterungen" kann
     die Gebietsplanung bewusst aus- und wieder eingeschaltet werden.
-22. **Ist Basis nur für Anfänger gedacht?**
-    Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi ergänzt
-    Spezial-, Konfigurations- und Administrationswerkzeuge.
+22. **Gibt es noch Basis und Profi?**
+    Nein. Seit 26.09.2026 ist der volle Außendienstumfang ohne Umschalten verfügbar.
 
 ---
 
@@ -3500,8 +3585,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 
 - **TourFuchs Vertrieb:** lokal-first PWA für Kundenkarte, Tour und Briefing;
   Produktversprechen: „Kunden sehen. Tour planen. Gut vorbereitet hinfahren."
-- **Basis:** vollständiger ruhiger Außendienstweg, auch für erfahrene Nutzer.
-- **Profi:** zusätzliche Spezial-, Konfigurations- und Administrationswerkzeuge.
+- **Ansicht:** voller Außendienstumfang ohne Basis-/Profi-Umschalter.
 - **Erweiterung (Paket):** am Desktop einzeln einschaltbarer Zusatzbereich mit
   eigenem Namen: **GeoFuchs** (Gebietsplanung & -management) und **ServiceFuchs**
   (Serviceverträge & Einsatzplanung). Eingeschaltete Pakete stehen am Desktop
@@ -3526,7 +3610,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - **Nominatim:** optionaler Dienst für exakte Adressverortung.
 - **OSRM:** externer Dienst für Straßenroute auf OSM-Basis.
 - **Corporate Copilot:** Microsoft 365 Copilot im Arbeitskonto.
-- **Zielassistent:** das im Profi-Modus wählbare KI-Werkzeug, das beim Briefing geöffnet wird.
+- **Zielassistent:** das lokal wählbare KI-Werkzeug, das beim Briefing geöffnet wird.
 - **Briefing:** kompakte, kundenspezifische Vorbereitung aus lokalem Kontext und
   dem berechtigten Firmenwissen im Assistenten des Nutzers.
 - **Datentresor:** optionale lokale AES-256-Verschlüsselung.
@@ -3538,6 +3622,8 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 ---
 
 ## 26. Pflege und Änderungsprotokoll
+
+**Historischer Änderungsverlauf:** Die folgenden Einträge beschreiben frühere Releases. Frühere Basis-/Profi-Regeln und entfernte KI-Anbindungen sind keine aktuellen Bedienanweisungen; für Antworten gelten die Kapitel 1-25 und die Schnellreferenz.
 
 ### 26.1 Bei jeder Produktveränderung prüfen
 
@@ -3695,7 +3781,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
   Außendienst fokussiert: **Kunden sehen. Tour planen. Gut vorbereitet
   hinfahren.**
 - **GeoFuchs (Gebietsplanung & -management)** und **ServiceFuchs (Vertragsradar & Einsätze)** sind
-  optionale Profi-Module und am Desktop einzeln schaltbar. Gebietsplanung ist
+  optionale Module und am Desktop einzeln schaltbar. Gebietsplanung ist
   standardmäßig aktiv, Service standardmäßig aus. Bestehende Fachfunktionen und
   Daten bleiben erhalten.
 - Basis ist ausdrücklich der vollständige tägliche Arbeitsmodus, nicht ein
@@ -4196,6 +4282,15 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 ---
 
+### Änderungen in Version 3.17 (07.10.2026)
+
+- Quellstand auf main-Commit 9093296 festgehalten; App-Version weiterhin 3.7.0.
+- Veraltete Basis-/Profi-Klickpfade und Einschränkungen entfernt.
+- Touraktionen: Optimieren und Tour anzeigen nebeneinander; Navigation als Hauptaktion, Ausgaben unter Teilen & Exportieren.
+- Wiederholtes Tour anzeigen behält Luftlinie/Straßenroute bei; nur der Karten-Umschalter ändert den Modus.
+- VB-Name und kopierbare Kundennummer in der Kundenkarte ergänzt.
+- DE/EN/FR/ES, freiwilliger Tresor nach sicherem Umzug und persönliche Produktpositionierung mit den Begleitdokumenten abgeglichen.
+
 ## 27. Schnellreferenz
 
 | Thema | Verbindliche Kurzantwort |
@@ -4207,12 +4302,10 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Smartphone | Karte, Kunden, Briefing, Tour, Navigation, QR-Empfang |
 | Tablet | zwei Gesichter, die Haltung entscheidet: **quer = Schreibtisch, hochkant = Touransicht wie Smartphone**. Keine eigene Tablet-Ansicht. Drehen setzt die Darstellung zurück, nie die Arbeit |
 | Desktop-Handyvorschau | "Mobile Außendienst & Tour"; startet tourfokussiert, zeigt aber den vollständigen mobilen Außendienstweg |
-| Basis | ruhiger Kernweg, Briefing inklusive |
-| Profi | Spezial-, Konfigurations- und Administrationswerkzeuge; kein „besserer Außendienstmodus" |
-| Erweiterungen | GeoFuchs (Gebietsplanung & -management) sowie ServiceFuchs (Vertragsradar & Einsätze); Gebietsplanung standardmäßig an, Service aus, am Desktop unter Profi einzeln schaltbar |
+| Ansicht | voller Außendienstumfang; Basis-/Profi-Umschalter seit 26.09.2026 entfernt |
+| Erweiterungen | GeoFuchs (Gebietsplanung & -management) sowie ServiceFuchs (Vertragsradar & Einsätze); Gebietsplanung standardmäßig an, Service aus, am Desktop unter „🧩 Erweiterungen“ einzeln schaltbar |
 | Suche | eigene Orte, Kunden, lokale PLZ-Ortszentren und Koordinaten; keine freie Straßenadresssuche im Netz |
-| Briefing Basis | Prompt anzeigen/kopieren, Copilot öffnen, Nutzer sendet selbst |
-| Briefing Profi | derselbe Weg, zusätzlich Zielassistent wählbar |
+| Briefing | Prompt lokal anzeigen/kopieren, gewählten Assistenten öffnen; Nutzer fügt ein und sendet selbst |
 | Import-Matching | Kundennummer, sonst Name + PLZ |
 | Ort | für Anzeige und Stadtsuche empfohlen |
 | Lokale Daten | IndexedDB; Einstellungen/Sicherheitsmeta lokal |
@@ -4227,7 +4320,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Live-Demos | nur auf Klick: Willkommens-Panel "Lieber zuschauen?" oder Info |
 | Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten – auch beim Scrollen – zur Zeile ein; Abwahl über Info umkehrbar |
 | Ruhige Oberfläche | zwei Muster: Langes startet zugeklappt und nennt in der Kopfzeile, was drin ist; beim Scrollen in den Inhalt treten Kartenstil, Beispieldaten-Streifen und Checkliste zurück. Nur wenn dabei etwas zu gewinnen ist – sonst bleibt alles stehen |
-| Service-Fokus | optionales Profi-Modul; Verträge + Einsätze getrennt, Join nur über Kundennummer; erklärbarer Tagesvorschlag |
+| Service-Fokus | optionales Modul; Verträge + Einsätze getrennt, Join nur über Kundennummer; erklärbarer Tagesvorschlag |
 | Zanobo | Link-out je Anlagen-ID (`#/m/<id>`, Fragment bleibt lokal); Vergleich statt Diagnose; Standard zanobo.vercel.app |
 | Update | App-Dateien neu, lokale Daten bleiben erhalten |
 | Vor Löschen | Export empfehlen |

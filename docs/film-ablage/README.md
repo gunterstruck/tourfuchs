@@ -30,7 +30,7 @@ Film.
 2. Die sechs Dateien dieses Ordners dort hochladen.
 3. Im Film den Prompt aus TourFuchs einfügen und absenden.
 
-Wird ChatGPT verwendet, gehört im Profi-Modus unter **Daten → Briefing-Ziel**
+Wird ChatGPT verwendet, gehört im Briefing-Dialog unter **„Anderen Assistenten wählen“**
 auch ChatGPT eingestellt – sonst steht im Film auf dem Knopf „Microsoft 365
 Copilot öffnen" und im nächsten Bild geht etwas anderes auf.
 
