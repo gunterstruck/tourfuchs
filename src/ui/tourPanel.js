@@ -157,9 +157,9 @@ export function initTourPanel() {
     updateSuggestModeUi();
 
     document.getElementById('btn-optimize').addEventListener('click', optimizeTour);
-    document.getElementById('btn-route-focus').addEventListener('click', showRouteOnMap);
+    document.getElementById('btn-route-focus').addEventListener('click', () => showRouteOnMap(false));
     // Umschalter über der Karte nutzt denselben Ablauf (toggelt Luftlinie/Straße).
-    document.getElementById('btn-route-mode')?.addEventListener('click', showRouteOnMap);
+    document.getElementById('btn-route-mode')?.addEventListener('click', () => showRouteOnMap(true));
     document.getElementById('btn-gmaps').addEventListener('click', openInGoogleMaps);
     document.getElementById('btn-tour-print').addEventListener('click', () => {
         const eff = effStops();
@@ -1627,9 +1627,6 @@ function renderStops() {
         : t('tour.optimize.title');
     const routeFocus = document.getElementById('btn-route-focus');
     routeFocus.disabled = !hasRoute;
-    routeFocus.textContent = !state.tour.mapFocus
-        ? t('tour.action.showRoute')
-        : (state.tour.routeLineMode === 'road' ? t('tour.action.showAirLine') : t('tour.action.showRoadRoute'));
     // Umschalter über der Karte spiegeln: nur sichtbar, wenn die Route liegt.
     // Er teilt sich die Knopfzeile mit „Lasso ziehen" – deshalb sitzt das
     // Wort „anzeigen" in einem eigenen Span, den schmale Schirme ausblenden.
@@ -1968,13 +1965,13 @@ function openInGoogleMaps() {
     if (link) window.open(link, '_blank', 'noopener');
 }
 
-function showRouteOnMap() {
+function showRouteOnMap(toggleLineMode = false) {
     const eff = effStops();
     if (!state.tour.start || eff.length === 0) {
         showToast(t('tour.toast.chooseRoute'), 'info');
         return;
     }
-    if (state.tour.mapFocus) {
+    if (state.tour.mapFocus && toggleLineMode) {
         const mode = toggleRouteLineMode();
         showRouteView();
         showToast(mode === 'road'
@@ -1983,8 +1980,9 @@ function showRouteOnMap() {
             'success', 2400);
         return;
     }
+    const firstReveal = !state.tour.mapFocus;
     state.tour.mapFocus = true;
-    state.tour.routeLineMode = 'air';
+    if (firstReveal) state.tour.routeLineMode = 'air';
     showRouteView();
     window.setTimeout(() => {
         const ok = fitTourRoute();

@@ -17,9 +17,9 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
     });
 
     it.each([
-        ['en', 'Visit planner', '…or customer, place or postal code as start', '⚡ Optimise order', '✨ Explainable day proposal', 'Calculate day proposal'],
-        ['fr', 'Planificateur de visites', '…ou client, lieu ou code postal comme départ', '⚡ Optimiser l’ordre', '✨ Proposition de journée explicable', 'Calculer la proposition du jour'],
-        ['es', 'Planificador de visitas', '…o cliente, lugar o código postal como inicio', '⚡ Optimizar orden', '✨ Propuesta diaria explicable', 'Calcular propuesta diaria']
+        ['en', 'Visit planner', '…or customer, place or postal code as start', '⚡ Optimise', '✨ Explainable day proposal', 'Calculate day proposal'],
+        ['fr', 'Planificateur de visites', '…ou client, lieu ou code postal comme départ', '⚡ Optimiser', '✨ Proposition de journée explicable', 'Calculer la proposition du jour'],
+        ['es', 'Planificador de visitas', '…o cliente, lugar o código postal como inicio', '⚡ Optimizar', '✨ Propuesta diaria explicable', 'Calcular propuesta diaria']
     ])('übersetzt den statischen Tourkern auf %s', (locale, title, startPlaceholder, optimise, serviceTitle, calculate) => {
         const dom = new JSDOM(read('index.html'));
         translateDocument(dom.window.document, locale);
@@ -70,7 +70,6 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.stops.briefingTitle',
             'tour.summary.estimated',
             'tour.suggestions.noneRadius',
-            'tour.action.showRoute',
             'tour.toast.optimized',
             'tour.toast.printPopup',
             'tour.toast.calendarCreated',
@@ -78,6 +77,7 @@ describe('Tourplaner-Kern in vier Sprachen', () => {
             'tour.toast.googleMapsLimit',
             'tour.saved.none'
         ]) expect(panel, key).toContain(key);
+        expect(read('index.html')).toContain('data-i18n="tour.action.showRoute"');
         for (const key of [
             'tour.service.preview.noneTitle',
             'tour.service.preview.stopDetail',
