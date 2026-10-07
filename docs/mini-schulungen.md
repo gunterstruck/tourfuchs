@@ -79,3 +79,7 @@ Musiksteuerung: `src/features/showcaseMusic.js`; Quelldatei: `public/audio/tropi
 Nach Ablaufänderungen die angezeigten ungefähren Dauern nachmessen. Die Zeiten gelten ohne manuelle Pausen; Kartenladezeiten und Umfang des eigenen Bestands können sie verändern.
 
 Relevante Tests: `tests/stories.test.js`, `tests/showcasePlayback.test.js`, `tests/demoRouteReveal.test.js`, `tests/showcaseOnboarding.test.js`, `tests/firstSteps.test.js`. Für echte Browser-Durchläufe: `npm run demo-check` (öffnet die Auswahl über „🎬 Alle Demos“ im Beispieldaten-Streifen).
+
+## Aktuelle Bedienbegriffe (07.10.2026)
+
+„Startpunkt · Vorschläge · Meine Tour“ bleiben dauerhaft beschriftet. „⚡ Optimieren“ und „🗺️ Tour anzeigen“ stehen nebeneinander; erneutes Anzeigen ändert den Linienmodus nicht. Google Maps ist die Hauptaktion, die weiteren Übergaben und Ausgaben stehen unter „Teilen & Exportieren“. Basis/Profi ist entfernt. Ein lokaler Tresor bleibt auch nach sicherem Import freiwillig. Die App-Sprache ist unter Info -> Sprache lokal wählbar (Automatisch oder DE/EN/FR/ES).

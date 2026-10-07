@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Kurzanleitung
 
-Stand: 30.09.2026 · App-Version 3.5.0
+Stand: 07.10.2026 · App-Version 3.7.0
 
 ## 1. App starten
 
@@ -34,12 +34,12 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 ## 3. Karte nutzen
 
 - Suche oben für Kunde, Ort, PLZ oder Kundennummer.
-- Marker anklicken, um Kundendetails zu sehen.
+- Marker anklicken, um Kundendetails und einen vorhandenen VB-Namen zu sehen. Die hervorgehobene Kundennummer lässt sich lokal kopieren; führende Nullen werden beim Kopieren entfernt und die Nummer in eckige Klammern gesetzt (000123 -> [123]).
 - Kartenstil wechseln: Hell, Standard oder Satellit.
 - Bezirkszuordnung und Bezirksfarben als Orientierung nutzen.
 - Im Tab **Filter** bei Bedarf **"Umsatz von-bis"** aktivieren. Ohne gültigen
   Umsatzwert wird ein Kunde dann ausgeblendet; `0 EUR` ist ein eigener Wert.
-- Strategische Flächenwerkzeuge nur bei aktiviertem Profi-Modul verwenden.
+- Strategische Flächenwerkzeuge nur bei aktiviertem Modul verwenden.
 
 ### Live-Demos steuern
 
@@ -87,18 +87,17 @@ Wichtig:
 - Für reine Demo-Kunden gibt es keinen echten Prompt und keinen Assistenten-Start.
 - Ein Popup-Blocker kann das Öffnen verhindern; der Prompt kann trotzdem in der Zwischenablage liegen.
 
-## 4a. Basis und Profi beim Briefing
+## 4a. Zielassistent wählen
 
-- **Basis:** festes Ziel Microsoft 365 Copilot.
-- **Profi:** „Ziel: … · Anderen Assistenten wählen" im Kundenbriefing; die Wahl gilt auch für das Mehrkunden-Briefing.
+Microsoft 365 Copilot ist voreingestellt. „Ziel: … · Anderen Assistenten wählen“ steht ohne Moduswechsel zur Verfügung; die lokal gemerkte Wahl gilt auch für das Mehrkunden-Briefing. Basis/Profi gibt es seit 26.09.2026 nicht mehr.
 
-![Profi-Briefing mit aufgeklappter Assistentenauswahl](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
+![Briefing mit aufgeklappter Assistentenauswahl](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
 *BILD-LASSO-08 - Copilot, Gemini, ChatGPT oder eigener HTTPS-Assistent; TourFuchs sendet nichts selbst.*
 
 ## 5. Gebiets-Cockpit
 
-Voraussetzung: Desktop und aktiviertes Profi-Modul.
+Voraussetzung: Desktop und aktiviertes Modul.
 
 1. `🧩 Erweiterungen` öffnen.
 2. `GeoFuchs (Gebietsplanung & -management)` aktivieren.
@@ -153,8 +152,11 @@ Vorschläge · Meine Tour** eingeklappt. Ein Tipp auf einen Schritt zoomt hinein
    einschränken will, tippt auf die Zeile „🗺️ Bezirk: Alle Bezirke · ändern ▸".)
 4. Kunden im Umkreis oder entlang der Tour anzeigen.
 5. Kunden zur Tour hinzufügen.
-6. Reihenfolge optimieren.
-7. Route anzeigen oder an Google Maps übergeben.
+6. „⚡ Optimieren“ wählen (ab zwei Stopps).
+7. Direkt daneben „🗺️ Tour anzeigen“ wählen; erneutes Anzeigen behält den Linienmodus bei.
+8. „In Google Maps navigieren“ ist die Hauptaktion. QR, Druck, Kalender, Text und Rückblick stehen unter „Teilen & Exportieren“.
+
+Luftlinie/Straßenroute wird nur mit dem separaten Karten-Umschalter gewechselt; Straßenrouting benötigt Zustimmung.
 
 ![Tour-Reiter mit Startpunkt, Vorschlägen und Meine Tour](../public/docs/screenshots/BILD-TOUR-01-tourplanung.png)
 
@@ -186,7 +188,7 @@ standardmäßig eingeschaltet, ServiceFuchs zunächst aus. Beide werden am Deskt
 unter **🧩 Erweiterungen** einzeln ein- oder ausgeschaltet und stehen dann als
 Kärtchen neben „TourFuchs Vertrieb" in der Kopfzeile. Am Handy gibt es sie nicht.
 
-Karte, Kunden, Briefing und Tour bleiben der normale Basis-Ablauf. Komplexe
+Karte, Kunden, Briefing und Tour bleiben der normale Außendienst-Ablauf. Komplexe
 Gebietsplanung bitte am Desktop durchführen.
 
 ![Mobile Lasso-Auswahl mit vollständig sichtbaren Abschlussaktionen](../public/docs/screenshots/BILD-LASSO-MOBIL-03-auswahlkarte.png)
@@ -209,10 +211,17 @@ kein Fehler sind:
 
 Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 
+## 9a. Sprache und Schutz
+
+- `ⓘ Info -> 🌐 Sprache`: Automatisch, Deutsch, Englisch, Französisch oder Spanisch. Die Auswahl bleibt lokal; nicht unterstützte Gerätesprachen fallen auf Deutsch zurück.
+- Der Datentresor ist freiwillig, auch nach dem Entschlüsseln einer .tfsafe-Datei. Ein vorhandener Tresor wird weiterverwendet. Transportverschlüsselung und lokale Speicherung sind getrennte Schutzentscheidungen.
+- TourFuchs ist ein persönliches Außendienst-Cockpit; es stellt Führungskräften keinen automatischen Zugriff auf Touren, GPS oder Besuchshistorien bereit.
+
 ## 10. Datenschutz
 
-- Kundendaten bleiben lokal im Browser.
+- Kundendaten bleiben lokal im Browser. Anonyme Seitenaufrufe werden seit 03.10.2026 gezählt; keine eigenen Bedienereignisse oder Kundendaten.
 - OSM-Geocoding sendet nur Adresse, PLZ und Ort.
+- Straßenrouting über OSRM erhält nach Zustimmung nur Koordinaten.
 - Google Maps erhält Daten erst bei bewusster Übergabe.
 - Beim Briefing erzeugt und kopiert TourFuchs den Prompt lokal. Übertragen wird
   er erst, wenn der Nutzer ihn im Assistenten selbst einfügt und absendet.

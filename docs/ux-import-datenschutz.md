@@ -4,7 +4,7 @@
 
 - Kunden- und Gebietsbriefing bestätigen das erfolgreiche Kopieren ausdrücklich: „Prompt erfolgreich in die Zwischenablage kopiert“. Ein Hinweis bleibt im Dialog sichtbar; zusätzlich erscheint eine zehn Sekunden lange Meldung. Bei verweigertem Clipboard-Zugriff wird kein Erfolg behauptet, sondern manuelles Kopieren erklärt.
 - „Alles auswählen“ und „Alle abwählen“ stehen oberhalb der Filterliste. Bei aktivem Suchbegriff beziehen sich beide Aktionen wie bisher auf die Treffer.
-- Neue Desktop-Installationen starten in Profi/Gebietsplanung. Gespeicherte Basis-/Modusentscheidungen und eine ausdrücklich deaktivierte Gebietsplanung bleiben respektiert. Smartphone und hochkantige Tablet-Touransicht behalten den mobilen Außendienst-Einstieg.
+- Neue Installationen starten im Außendienst mit vollem Umfang; einen Basis-/Profi-Umschalter gibt es nicht mehr. GeoFuchs ist standardmäßig aktiviert, ServiceFuchs aus. Eine bewusst deaktivierte Gebietsplanung bleibt respektiert. Smartphone und hochkantige Tablet-Touransicht zeigen den mobilen Außendienst-Einstieg.
 - Die automatische Beispieldaten-Demo setzt den aktuellen Modus nicht mehr auf Außendienst zurück.
 - Die Mini-Demos unter „Erste Schritte“ starten auf allen Geräten eingeklappt. Manuelles Aufklappen und gespeicherte Entscheidungen bleiben möglich.
 - Der Datei-Auswahlbutton ist auf allen Geräten der erste, grün hervorgehobene Importweg. Tabellen-Einfügen bleibt daneben als Alternative verfügbar. Die Datei wird lokal gelesen, nicht hochgeladen.

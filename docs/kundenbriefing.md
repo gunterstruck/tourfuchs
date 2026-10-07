@@ -3,6 +3,8 @@
 Das Kundenbriefing beantwortet die Frage „Was weiß meine Firma über diesen Kunden,
 bevor ich hineingehe?" – ohne dass TourFuchs selbst zu einem KI-Werkzeug wird.
 
+**Dokumentationsstand:** 07.10.2026 · main 9093296 · App 3.7.0. Der Zielassistent ist auf Desktop und Smartphone ohne Moduswechsel wählbar.
+
 ## Der Weg – bewusst genau einer
 
 1. Kunden auf der Karte oder in der Tour öffnen → **📋 Briefing**.
@@ -12,7 +14,7 @@ bevor ich hineingehe?" – ohne dass TourFuchs selbst zu einem KI-Werkzeug wird.
 4. Im Assistenten einfügen und **selbst absenden**.
 
 TourFuchs **meldet sich nirgends an, ruft keine KI-API auf und holt keine Antwort
-zurück**. Der einzige Moment, in dem Kundendaten das Gerät verlassen, ist Ihr eigenes
+zurück**. Für diesen Briefing-Weg ist der Übertragungsschritt Ihr eigenes
 Absenden im Assistenten – ein Schritt, den Sie sehen und kontrollieren.
 
 > **Produktentscheidung 25.07.2026:** Die frühere automatische Entra-/Graph-Anbindung
@@ -34,12 +36,9 @@ selbstverständlich nie die übrige Kundenliste.
 Für technisch markierte **Demo-Kunden** wird gar kein Prompt erzeugt und kein
 Assistent geöffnet – der Dialog zeigt nur eine lokale Ergebnisvorschau.
 
-## Zielassistent wählen (nur Profi)
+## Zielassistent wählen
 
-In **Basis** ist das Ziel fest Microsoft 365 Copilot – ein Knopf, keine Entscheidung.
-
-Im **Profi-Modus** lässt sich im Briefing-Dialog unter „Ziel: … · Anderen Assistenten
-wählen" umstellen auf:
+Microsoft 365 Copilot ist voreingestellt. Ohne Basis-/Profi-Wechsel lässt sich im Briefing-Dialog unter „Ziel: … · Anderen Assistenten wählen“ umstellen auf:
 
 | Auswahl | Adresse | Quellen im Prompt |
 |---|---|---|
@@ -184,9 +183,9 @@ Liegen im Gebiet nur Demo-Kunden, wird kein Prompt gebaut und kein Assistent ge�
 
 ## Prüfschritte
 
-1. Basis-Modus, echter Kunde → Dialog zeigt Prompt, **keine** Assistentenwahl,
+1. Echter Kunde → Dialog zeigt Prompt und eingeklappte Assistentenwahl,
    Knopf lautet „Prompt kopieren & Microsoft 365 Copilot öffnen".
-2. Profi-Modus → Auswahl aufklappen, **Google Gemini** wählen: Knopftext und
+2. Auswahl aufklappen, **Google Gemini** wählen: Knopftext und
    Quellenzeile im Prompt wechseln sofort.
 3. **Eigener Assistent** mit `http://…` → sichtbare Fehlermeldung, Ziel bleibt gültig.
 4. Demo-Kunde → Demo-Vorschau, kein Fenster öffnet sich, nichts wird kopiert.
