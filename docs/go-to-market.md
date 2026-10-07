@@ -1,6 +1,6 @@
 # 🦊 TourFuchs – Onboarding & Go-to-Market
 
-**Stand:** 25.07.2026 · **Rolle:** Product Owner · **Status:** Entscheidungsvorlage
+**Stand:** 07.10.2026 (Produktabgleich; frühere PO-Entscheidungen behalten ihr Datum) · **Rolle:** Product Owner · **Status:** Entscheidungsvorlage
 
 ---
 
@@ -389,7 +389,7 @@ Also habe ich die Frage umgedreht: Was, wenn die Daten das Gerät gar nicht erst
 verlassen?
 
 Kundenliste einfügen, Karte, Tourplanung, Navigation – alles rechnet im Browser.
-Kein Konto, kein Server, kein Tracking. Optional AES-256-verschlüsselt hinter
+Kein Konto und kein TourFuchs-Kundendatenserver. Kundendaten bleiben lokal; anonyme Seitenaufrufe werden gezählt, keine eigenen Bedienereignisse. Optional AES-256-verschlüsselt hinter
 einer PIN.
 
 Was das kostet: keine Synchronisierung, kein Team-Zugriff, kein zentrales

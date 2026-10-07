@@ -299,16 +299,16 @@ die sonst in den Kommentaren landet.
 
 `npm run film` bringt das alles selbst mit: eigenes Browserfenster in
 1920 × 1080, keine Lesezeichenleiste, keine Benachrichtigungen, und die Demo
-schaltet den Profi-Modus ohnehin ein (nur dort trägt die Auswahlkarte Häkchen –
+arbeitet mit dem vollen Außendienstumfang (jede Auswahlzeile trägt ein Häkchen –
 der Schluss „2 zur Tour" ist genau das).
 
 Wer trotzdem selbst aufnimmt:
 
 - Fenster 1920 × 1080, keine Lesezeichenleiste, Benachrichtigungen aus,
   neutraler Hintergrund.
-- **Profi-Modus einschalten**, bevor die Aufnahme läuft – das gibt ein ruhigeres
+- **Vollen Außendienstumfang verwenden** (kein Basis-/Profi-Umschalter mehr) – das gibt ein ruhigeres
   Bild, als wenn die Demo mittendrin umschaltet.
-- Assistent im Profi-Modus auf **ChatGPT** stellen (Daten → Briefing-Ziel), wenn
+- Assistent im Briefing-Dialog über **„Anderen Assistenten wählen“** auf **ChatGPT** stellen, wenn
   Weg A gewählt wurde – sonst steht auf dem Knopf „Microsoft 365 Copilot
   öffnen" und im nächsten Bild geht ChatGPT auf. Solche Kleinigkeiten fallen im
   Film sofort auf.
@@ -495,7 +495,7 @@ danach kommen – oder gar nicht.
 
 1. Fantasieliste einfügen → 12 Kunden auf der Karte, **kein**
    Beispieldaten-Streifen mehr.
-2. Profi-Modus an, Briefing-Ziel auf den gewünschten Assistenten gestellt.
+2. Briefing-Dialog öffnen und den gewünschten Zielassistenten wählen (ohne Moduswechsel).
 3. Live-Demo einmal komplett durchlaufen lassen und dieselben drei Punkte
    prüfen.
 4. Erst dann aufnehmen. Die Demo verändert die Tour nur vorübergehend und stellt

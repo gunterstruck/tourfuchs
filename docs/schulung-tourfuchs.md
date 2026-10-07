@@ -11,8 +11,8 @@ Diese Schulung befähigt Anwenderinnen und Anwender, TourFuchs Vertrieb sicher i
 - Vertriebsbezirke und Vertriebsgruppen als Orientierung interpretieren können
 - Besuchstouren auf Desktop und Smartphone planen können
 - mit dem Lasso mehrere Kunden auswählen und daraus bewusst ein Mehrkunden-Briefing vorbereiten können
-- Kunden- und Mehrkunden-Briefing sowie Basis-/Profi-Unterschiede sicher erklären können
-- optionale Profi-Module gezielt aktivieren können
+- Kunden- und Mehrkunden-Briefing sowie die freie Zielassistentenwahl sicher erklären können
+- optionale Module gezielt aktivieren können
 - bei Bedarf das Gebiets-Cockpit und Simulation als optionale Vertiefung nutzen können
 - Datenschutz, lokale Speicherung und PWA-Verhalten verstehen
 - typische Fehler selbst erkennen und beheben können
@@ -139,7 +139,7 @@ Typische Tabs:
 
 Der Außendienst-Modus ist für Kundenkarte und Besuchsplanung optimiert.
 
-### Gebietsplanung-Modus (optionales Profi-Modul)
+### Gebietsplanung-Modus (optionales Modul)
 
 Typische Tabs:
 
@@ -149,18 +149,13 @@ Typische Tabs:
 
 Der Gebietsplanung-Modus ist für Analyse, Flächen, Cockpit und Simulation gedacht.
 
-### Basis und Profi
+### Eine Ansicht mit vollem Umfang
 
-**Basis** zeigt den vollständigen ruhigen Außendienstweg und reicht auch für
-erfahrene Außendienstmitarbeitende. Beim Briefing ist Microsoft 365 Copilot das
-feste Ziel. **Profi** ergänzt Spezial-, Konfigurations- und
-Administrationswerkzeuge sowie die Wahl des Zielassistenten. Profi bedeutet
-nicht „besserer Außendienst". Das Briefing selbst ist in beiden Tiefen
-verfügbar.
+Basis/Profi ist seit 26.09.2026 entfernt. Desktop und Smartphone bieten den vollständigen Außendienstumfang ohne Umschalten. Microsoft 365 Copilot ist voreingestellt; „Ziel: … · Anderen Assistenten wählen“ steht für Kunden- und Mehrkunden-Briefings zur Verfügung. GeoFuchs und ServiceFuchs bleiben gesonderte optionale Module am Desktop.
 
-![Profi-Kundenbriefing mit sichtbarer Zielzeile](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
+![Kundenbriefing mit sichtbarer Zielzeile](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
 
-*BILD-LASSO-07 - Nur Profi zeigt „Ziel: … · Anderen Assistenten wählen"; der Nutzer sendet den Prompt trotzdem immer selbst ab.*
+*BILD-LASSO-07 - Die Zielzeile zeigt „Ziel: … · Anderen Assistenten wählen"; der Nutzer sendet den Prompt trotzdem immer selbst ab.*
 
 ![Aufgeklappte Wahl zwischen Microsoft 365 Copilot, Google Gemini, ChatGPT und eigenem Assistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
@@ -377,7 +372,7 @@ Der Ablauf wird in der Schulung bewusst in zwei fachliche Stufen getrennt:
    Erst jetzt öffnet TourFuchs das Mehrkunden-Briefing, baut den Prompt lokal und
    zeigt ihn zur Prüfung.
 3. **Bewusst übergeben:** „Prompt kopieren & Microsoft 365 Copilot öffnen" in
-   Basis beziehungsweise das gewählte Ziel in Profi. Der Nutzer fügt den Prompt
+   das lokal gewählte Ziel (voreingestellt Microsoft 365 Copilot). Der Nutzer fügt den Prompt
    im Assistenten ein, prüft ihn und sendet ihn selbst ab.
 
 ![Auswahlkarte nach dem geschlossenen Lasso](../public/docs/screenshots/BILD-LASSO-04-auswahlkarte.png)
@@ -946,7 +941,7 @@ Plane eine Tour:
 7. Welche Daten werden bei optionaler OSM-Geocodierung gesendet?
 8. Was sollte vor dem Löschen lokaler Daten gemacht werden?
 9. Wo werden Gebietsplanung und ServiceFuchs (Vertragsradar & Einsätze) aktiviert?
-10. Ist Basis nur für unerfahrene Außendienstmitarbeitende gedacht?
+10. Muss man für Zielassistent, Zielpunkt oder Export auf Profi umschalten?
 
 ## 26. Antworten zu den Prüfungsfragen
 
@@ -959,10 +954,7 @@ Plane eine Tour:
 7. Nur Straße, PLZ und Ort; keine Kundenidentität oder Geschäftsdaten.
 8. Bei Bedarf einen Excel-Export erstellen.
 9. Am Desktop unter `🧩 Erweiterungen`.
-10. Nein. Basis enthält den vollständigen täglichen Außendienstweg; Profi
-    ergänzt Spezial-, Konfigurations- und Administrationswerkzeuge.
-7. Nur neutrale Adressdaten wie Straße, PLZ und Ort.
-8. Ein Excel-Export, falls die Daten noch gebraucht werden.
+10. Nein. Den Basis-/Profi-Umschalter gibt es nicht mehr; der volle Außendienstumfang ist verfügbar. Optionale Module werden gesondert aktiviert.
 
 ## 27. Trainer-Hinweise
 
@@ -981,3 +973,15 @@ Plane eine Tour:
 - Nicht jede Analyse gehört aufs Handy.
 - Eine Simulation ist erst dann echt, wenn sie übernommen wird.
 - Datenschutz beginnt beim sauberen Import und endet beim bewussten Export oder Löschen.
+
+## Aktualisierung 07.10.2026: Bedienung und Guide
+
+Geprüft gegen main-Commit 9093296, App-Version 3.7.0. „Startpunkt · Vorschläge · Meine Tour“ bleiben dauerhaft beschriftet. Unter „Meine Tour“ stehen „⚡ Optimieren“ und „🗺️ Tour anzeigen“ nebeneinander; wiederholtes Anzeigen behält den Linienmodus bei. Nur der separate Karten-Umschalter wechselt Luftlinie/Straßenroute. „In Google Maps navigieren“ ist die Hauptaktion; QR, Druck, Kalender, Text und Rückblick liegen unter „Teilen & Exportieren“.
+
+Kundenkarten zeigen bei vorhandenen Daten den VB-Namen. Die hervorgehobene Kundennummer wird auf Klick lokal kopiert, ohne führende Nullen und in eckigen Klammern (000123 -> [123]); ihre gespeicherte Form bleibt unverändert.
+
+Unter „ⓘ Info -> 🌐 Sprache“ gilt Automatisch oder die lokale Wahl DE/EN/FR/ES. Import, Suche, Kundenkarte, Tour, QR, Ausgaben und die dokumentierten Service-/Info-Bereiche folgen der Sprache. Nicht unterstützte Gerätesprachen fallen auf Deutsch zurück. Nutzerdaten werden nicht übersetzt.
+
+Der Tresor ist freiwillig, auch nach sicherem Umzug. .tfsafe schützt den Transport; ohne vorhandenen Tresor erfolgt die Speicherung am Zielgerät zunächst unverschlüsselt. Ein bereits aktiver Tresor wird weiterverwendet.
+
+TourFuchs ist das persönliche lokale Außendienst-Cockpit mit freigegebener Unternehmens-KI, ohne zentrale Mitarbeiterkontrolle. Anonyme Seitenaufrufzählung ist offengelegt; Kundendaten und Bedienhandlungen werden dabei nicht übertragen. Für die offizielle Einführung bleibt eine betriebliche Prüfung erforderlich.

@@ -1,6 +1,6 @@
 # 🦊 TourFuchs Vertrieb – Produkt-Roadmap H2/2026
 
-**Stand:** 12.08.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
+**Stand:** 07.10.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
 
 ---
 
@@ -221,7 +221,7 @@ Website mit Offline-Cache, nicht eine App, die im System verankert ist.
 | # | Item | Status | Ergebnis |
 |---|---|---|---|
 | 5.1 | **Automatische Copilot-Anbindung entfernen** | ✅ umgesetzt | Grundsatzentscheidung: TourFuchs ist kein KI-Werkzeug. Der Entra-/Graph-Weg (Anmeldung mit Arbeitskonto, Copilot-Antwort im Dialog) verlangte IT-Freigaben, band an einen Anbieter und stand quer zum Lokal-first-Versprechen. Es bleibt: Prompt lokal bauen, kopieren, Assistent öffnen, Nutzer sendet selbst. MSAL ist aus dem Projekt entfernt. |
-| 5.2 | **Zielassistent wählbar (Profi)** | ✅ umgesetzt | Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT oder eigene https-Adresse. Die Wahl passt auch die Quellenzeile im Prompt an. Basis bleibt ein Knopf ohne Entscheidung. |
+| 5.2 | **Zielassistent wählbar (Profi)** | ✅ umgesetzt | Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT oder eigene https-Adresse. Die Wahl passt auch die Quellenzeile im Prompt an. Historischer Stand; seit 26.09.2026 ist die Zielwahl ohne Basis-/Profi-Umschalter verfügbar. |
 | 5.3 | **Kundenliste einfügen statt exportieren** | ✅ umgesetzt | Strg+C in Excel, Strg+V in TourFuchs. Erkennt Tab/Semikolon/Komma anhand der gleichmäßigsten Tabelle. Ab der Spaltenzuordnung identisch zum Datei-Import. |
 | 5.4 | **PWA ins Betriebssystem einhängen** | ✅ umgesetzt | Datei-Handler (.xlsx/.xls/.csv), Teilen-Ziel (Android, lokal im Service Worker), Icon-Kurzbefehle, Screenshot fürs Install-UI. Das Installations-Angebot kommt erst, wenn eigene Daten geladen und eine Tour geplant ist. |
 | 5.6 | **Feierabend-Rückblick** | ✅ umgesetzt | Der Tag in Zahlen: Besuche, geschätzte Strecke, abgearbeitete Überfällige, offen Gebliebenes – als Text kopierbar. Schließt die eigentliche Lücke hinter 2.4: Erfasst wurde schon, zurückgemeldet nichts. |
@@ -643,6 +643,8 @@ Gemerkt, nicht terminiert (in dieser Reihenfolge):
 9. **GitHub-Homepage-Link** im Repository zeigt auf eine 404-Seite → auf die
    Vercel-Adresse umstellen (Repository-Einstellung, kein Code).
 
+**Nachtrag 07.10.2026:** „⚡ Optimieren“ und „🗺️ Tour anzeigen“ stehen direkt nebeneinander. Anzeigen richtet die Karte auf die Tour aus und behält bei Wiederholung den Linienmodus; nur der separate Karten-Umschalter wechselt Luftlinie/Straßenroute. Ausgaben bleiben unter „Teilen & Exportieren“.
+
 ### Zur Diskussion: Mobile Hauptoberfläche „Kunde finden → Briefing oder Tour → Navigieren" *(Vorschlag 04.10.2026, nicht entschieden)*
 
 **Idee:** Am Handy wird genau dieser Ablauf zur Hauptoberfläche; alles andere
@@ -736,7 +738,7 @@ reduziert werden darf.
 Kundentyp. Die existierende Regel aus Release 11 bleibt damit intakt: Kundenzahl,
 Umsatz, Fälligkeit und Gebiete kennen den Punkt nicht; Tour und Navigation schon.
 
-### Release 14 – „Spricht meine Sprache" *(05.10.2026 begonnen)*
+### Release 14 – „Spricht meine Sprache" *(05.10.2026 begonnen, dokumentierter Umfang umgesetzt)*
 
 Anlass ist der Nutzerwunsch, TourFuchs bei englischer, französischer oder
 spanischer Gerätesprache automatisch in derselben Sprache zu zeigen. Die
@@ -754,7 +756,7 @@ auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert i
 | 14.6 | **Karten-Pin und eigene Orte** | ✅ umgesetzt | Auswahlleiste auf der Karte, Benennungsdialog, Start-/Zielentscheidung, Speichern, Ändern, Löschen, Ortsmittenhinweise und die Popup-Aktionen sind in DE/EN/FR/ES verfügbar. Eingesetzte Ortsnamen werden vor Popup-HTML maskiert. |
 | 14.7 | **Kundensuche und Kundenkarte** | ✅ umgesetzt | Globale Suchgruppen und Leermeldung, Kundenmarker, Kundensteckbrief, Besuchsrhythmus, Kontakte, Servicehinweise und direkte Kartenaktionen folgen DE/EN/FR/ES. Datum, relativer Besuch und Umsatz werden im Kundensteckbrief passend zur Sprache dargestellt; dynamische Texte werden vor Popup-HTML maskiert. |
 | 14.8 | **Tourplaner-Kern** | ✅ umgesetzt | Start und Ziel, gemeinsame Orts-/Kundensuche, Umkreis- und Routenvorschläge, Stoppliste, Besuchsstatus, Reihenfolge, Streckenzusammenfassung, Routendarstellung und gespeicherte Touren folgen DE/EN/FR/ES. Ein Sprachwechsel rendert dynamische Tour- und Karteninhalte sofort neu; Nutzerdaten und Katalogtexte werden vor erzeugtem HTML maskiert. |
-| 14.9 | **Navigation, Übergaben und Service-Tagesplan** | ✅ umgesetzt | QR-Teilen, Kamera-/Foto-Scan, Empfangszusammenfassung, Teilstrecken, Kalenderaktion und lokale Übernahme folgen DE/EN/FR/ES. Textübergabe, Kalenderexport und gedruckter Tagesplan verwenden die gewählte Sprache, ohne fachliche Werte zu verändern. In der erweiterten Service-Tagesplanung sind Bedienelemente, Ergebnisvorschau, Planungsgründe, Zielkonflikt, Ersetzen-Abfrage, Bestätigungszustand und alle Rückmeldungen bis zur Übernahme übersetzt. Auch Servicefilter-Ausnahmen sowie Zanobo-Hinweis und Anhören-Aktion an übernommenen Stopps wechseln mit der Sprache. Als nächstes folgt die vollständige Prüfung von Französisch und Spanisch. |
+| 14.9 | **Navigation, Übergaben und Service-Tagesplan** | ✅ umgesetzt | QR-Teilen, Kamera-/Foto-Scan, Empfangszusammenfassung, Teilstrecken, Kalenderaktion und lokale Übernahme folgen DE/EN/FR/ES. Textübergabe, Kalenderexport und gedruckter Tagesplan verwenden die gewählte Sprache, ohne fachliche Werte zu verändern. In der erweiterten Service-Tagesplanung sind Bedienelemente, Ergebnisvorschau, Planungsgründe, Zielkonflikt, Ersetzen-Abfrage, Bestätigungszustand und alle Rückmeldungen bis zur Übernahme übersetzt. Auch Servicefilter-Ausnahmen sowie Zanobo-Hinweis und Anhören-Aktion an übernommenen Stopps wechseln mit der Sprache. Die vollständige Katalog- und Rückfallprüfung ist mit 14.10 umgesetzt. |
 | 14.10 | **Französisch und Spanisch vollständig prüfen** | ✅ umgesetzt | Die CI sichert vollständige Katalogschlüssel, identische Platzhalter und ausdrücklich bestätigte sprachübergreifende Begriffe ab. Die mobile Karten-Hauptansicht ist für Französisch und Spanisch bei 390 × 844 Pixeln geprüft; Tresor-Einstieg, Nachtmodus, nächster Schritt, Lasso, Kartenbezeichnung und Kundenstapel sind übersetzt. Im Info-Dialog sind Live-Demo, Guide, Darstellung, exakte Adressverortung samt Status, Projektbeschreibung, Feedback, Datenschutz, Rechtliches und alle 15 Entscheidungen unter „Was wir weggelassen haben“ geprüft. Excel-Auswahl, Besuchsbericht und verschlüsselter Export folgen ebenfalls der Sprache. Ein Dokumenttest prüft automatische EN/FR/ES-Auswahl, deutschen Rückfall und den Vorrang einer gespeicherten Wahl. |
 
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
@@ -826,7 +828,7 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
     Auftragseingänge als optionale Importspalten (Datum, Kategorie, Wert).
   - *Bewertung:* hoher Wow-Faktor, kein Beitrag zu Moment A/B, Aufwand für die
     PWA derzeit nicht zu rechtfertigen → **bewusst nicht jetzt**.
-- Mehrsprachigkeit, weitere Kartenanbieter: kein Beitrag zu Moment A/B.
+- Weitere Kartenanbieter bleiben Backlog. Mehrsprachigkeit DE/EN/FR/ES ist mit Release 14 umgesetzt.
   (*Themes* sind seit 02.10.2026 da: Aurora hell/dunkel, Kartenstile „Nacht" und
   „✨ Lichterkarte" – siehe Wissensbasis 4.7/8.3.)
 
@@ -858,7 +860,7 @@ Ab Release 1 gilt für jeden PR:
 
 ---
 
-## 4. Erfolgsmessung (ohne Tracking – Selbsttest-Kriterien)
+## 4. Erfolgsmessung (Selbsttests und offengelegte anonyme Seitenaufrufe)
 
 - **Moment A:** Vom App-Start bis zur startklaren Tagestour ≤ 30 s, ≤ 3 Interaktionen.
 - **Moment B:** Von „Cockpit öffnen" bis exportierter Entscheidungsvorlage ≤ 10 min.
