@@ -33,6 +33,11 @@ describe('Route-Reveal auf dem Handy: Karte frei, Tour nicht nach oben gequetsch
             tourPanel.indexOf('function showRouteOnMap(') + 900);
         expect(show).toContain('showRouteView()');
         expect(show).not.toContain('showMapView()');
+        // Der direkte Knopf hat genau eine Aufgabe: Tour wieder auf der Karte
+        // zeigen. Nur der beschriftete Kartenknopf darf Luftlinie/Straße wechseln.
+        expect(tourPanel).toContain("getElementById('btn-route-focus').addEventListener('click', () => showRouteOnMap(false))");
+        expect(tourPanel).toContain("getElementById('btn-route-mode')?.addEventListener('click', () => showRouteOnMap(true))");
+        expect(show).toContain('state.tour.mapFocus && toggleLineMode');
     });
 
     it('kennt keinen versteckten Luftlinie/Straße-Umschalter am Karten-Reiter', () => {

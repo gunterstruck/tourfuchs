@@ -45,12 +45,17 @@ describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeli
     it('macht Navigation zur Hauptaktion und bündelt die übrigen Ausgaben', () => {
         expect(html).toMatch(/id="btn-gmaps"[^>]*class="primary"/);
         expect(html).not.toMatch(/id="btn-optimize"[^>]*class="primary"/);
+        const routeActionsStart = html.indexOf('class="tour-route-actions"');
+        const routeActionsEnd = html.indexOf('</div>', routeActionsStart);
+        const routeActions = html.slice(routeActionsStart, routeActionsEnd);
+        expect(routeActions).toContain('id="btn-optimize"');
+        expect(routeActions).toContain('id="btn-route-focus"');
+        expect(routeActions.indexOf('btn-optimize')).toBeLessThan(routeActions.indexOf('btn-route-focus'));
         const groupStart = html.indexOf('id="tour-share-actions"');
         const groupEnd = html.indexOf('</details>', groupStart);
         const group = html.slice(groupStart, groupEnd);
         expect(group).toContain('data-i18n="tour.action.shareExport"');
         for (const id of [
-            'btn-route-focus',
             'btn-tour-qr',
             'btn-tour-qr-phone',
             'btn-tour-print',
@@ -59,9 +64,13 @@ describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeli
             'btn-day-review',
             'btn-visit-report'
         ]) expect(group).toContain(`id="${id}"`);
+        expect(group).not.toContain('id="btn-route-focus"');
         expect(html).toMatch(/id="btn-tour-qr"[^>]*class="[^"]*only-desktop[^"]*qr-handoff/);
         const gmapsIdx = html.indexOf('id="btn-gmaps"');
+        expect(routeActionsStart).toBeLessThan(gmapsIdx);
         expect(groupStart).toBeGreaterThan(gmapsIdx);
+        expect(components).toContain('.tour-route-actions');
+        expect(components).toContain('grid-template-columns: repeat(2, minmax(0, 1fr))');
         expect(components).toContain('.tour-share-actions > summary');
         expect(components).not.toContain('.qr-handoff:not(:disabled)');
     });
@@ -74,6 +83,17 @@ describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeli
     ])('übersetzt die Aktionsgruppe auf %s', (locale, label) => {
         const messages = read('src/i18n/tourMessages.js');
         expect(messages).toContain(`'tour.action.shareExport': '${label}'`);
+    });
+
+    it.each([
+        ['de', '⚡ Optimieren', '🗺️ Tour anzeigen'],
+        ['en', '⚡ Optimise', '🗺️ Show tour'],
+        ['fr', '⚡ Optimiser', '🗺️ Voir la tournée'],
+        ['es', '⚡ Optimizar', '🗺️ Ver ruta']
+    ])('hält die beiden direkten Touraktionen auf %s kurz', (locale, optimize, showTour) => {
+        const messages = read('src/i18n/tourMessages.js');
+        expect(messages).toContain(`'tour.action.optimize': '${optimize}'`);
+        expect(messages).toContain(`'tour.action.showRoute': '${showTour}'`);
     });
 
     it('übersetzt auch den dynamischen Feierabend-Knopf', () => {
