@@ -63,6 +63,7 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **Zweck:** Zeigt, wo automatische Zuordnungen vor dem Import kontrolliert werden.
 - **Relevante Schaltflächen:** Auswahllisten je Feld, „Weitere Felder", „Importieren".
 - **Klickpfad:** `Liste einfügen oder Datei wählen -> „Spalten zuordnen"`.
+- **Bei einer Datei:** Zuerst erscheint „Datei wird vorbereitet“ mit Dateiname und Verarbeitungsschritt. Große Listen brauchen Zeit; „Abbrechen“ oder Escape führt zurück, ohne den vorhandenen Kundenbestand zu ändern.
 - **Erwartetes Ergebnis:** Nach Prüfung und „Importieren" wird die synthetische Liste lokal zur Kundenkarte.
 - **Hilft bei Fragen:** „Wo ordne ich die PLZ zu?", „Was heißt automatisch erkannt?", „Wo sind optionale Felder?"
 - **Alternativtext:** Breiter Zuordnungsdialog mit Tabellenzeilen für Kundenname, PLZ, Ort, Vertriebsbezirk, Vertriebsgruppe und Umsatz. Jede Zeile zeigt die erkannte Quellspalte und synthetische Beispielwerte; unten führt „Importieren" weiter.

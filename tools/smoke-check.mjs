@@ -129,6 +129,25 @@ async function desktop(browser, baseUrl) {
         await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
     });
 
+    await step('Datei im Worker lesen, Abbrechen und Fehler erhalten den Bestand', async () => {
+        await closeDialogs(page);
+        const before = await customerCount(page);
+        await page.locator('#file-input').setInputFiles({ name: 'worker.csv', mimeType: 'text/csv', buffer: Buffer.from(FIXTURE) });
+        await page.waitForSelector('#import-dialog[open]', { timeout: TIMEOUT });
+        await page.waitForFunction(() => document.getElementById('mapping-file-info')?.textContent.includes('worker.csv'), null, { timeout: TIMEOUT });
+        if (await page.locator('#import-wait-dialog').evaluate(el => el.open)) throw new Error('Wartedialog bleibt offen');
+        const mapping = await page.locator('#mapping-file-info').textContent();
+        await page.locator('#file-input').setInputFiles({ name: 'large.csv', mimeType: 'text/csv', buffer: Buffer.from(FIXTURE + '\n' + Array(20000).fill(FIXTURE.split('\n')[1]).join('\n')) });
+        await page.waitForSelector('#import-wait-dialog[open]', { timeout: TIMEOUT });
+        await page.keyboard.press('Escape');
+        await page.waitForSelector('#import-dialog[open]', { timeout: TIMEOUT });
+        if (await page.locator('#mapping-file-info').textContent() !== mapping) throw new Error('Abbruch verändert Zuordnung');
+        await page.locator('#file-input').setInputFiles({ name: 'broken.csv', mimeType: 'text/csv', buffer: Buffer.from('nur eine Zeile') });
+        await page.waitForSelector('#toasts .toast-error', { timeout: TIMEOUT });
+        await page.waitForSelector('#import-dialog[open]', { timeout: TIMEOUT });
+        if (await customerCount(page) !== before) throw new Error('Einlesen verändert vorhandene Kunden');
+    });
+
     await step('Reimport behält lokal erfasste Besuche', async () => {
         await closeDialogs(page);
         // Besuch bei „Smoke Test Nord" eintragen (Suche → Popup → besucht).
