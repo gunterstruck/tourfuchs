@@ -257,3 +257,7 @@ Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 ### Umfangreiche Excel-/CSV-Dateien einlesen
 
 Nach der Dateiauswahl zeigt TourFuchs „Datei wird vorbereitet“ mit Dateiname und Verarbeitungsschritt. Große Listen können eine Weile dauern; sie werden lokal im Hintergrund eingelesen. „Abbrechen“ oder Escape führt zurück, ohne den bisherigen Kundenbestand zu ändern. Danach öffnet sich „Spalten zuordnen“. Auch beim Wechsel von Tabellenblatt oder Überschriftenzeile erscheint der Wartedialog. Bei einem Lesefehler lässt sich die Auswahl wiederholen.
+
+### Mehr Platz im Desktop-Panel
+
+Den rechten Rand des Panels mit der Maus ziehen: 340 bis 600 Pixel, maximal 150 % der Standardbreite von 400 Pixeln. Die Breite wird lokal gespeichert und nach dem Neuladen wiederhergestellt. Das funktioniert auch bei frei verschobenem Panel.

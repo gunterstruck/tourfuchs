@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.18 · Stand: 07.10.2026 · App-Version: 3.7.0**
+**Version 3.19 · Stand: 07.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `83d4456968c0f6da775a8d772f57c5b2c1d2b2dd` plus Importverbesserung dieses Dokumentationsstands (07.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `8184ec358793a8564fc1cbe7ad0624a71a30dd59` plus Sidebarverbesserung dieses Dokumentationsstands (07.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -466,8 +466,10 @@ wird ausschließlich mit **Plus/Minus** unten rechts eingestellt.
   150 % in 10-Prozent-Schritten. Mobil ist diese zusätzliche Steuerung
   ausgeblendet.
 - **Doppelklick auf die Prozentanzeige:** zurück auf 100 %.
-- **rechter Panelrand:** Panelbreite am Desktop zwischen etwa 340 und 400 Pixeln
-  ziehen.
+- **rechter Panelrand:** Panelbreite am Desktop zwischen 340 und 600 Pixeln
+  ziehen. 400 Pixel sind die Standardbreite; 600 Pixel entsprechen 150 %.
+  Die Breite wird lokal gespeichert und nach dem Neuladen wiederhergestellt.
+  Auch frei verschobene Panels lassen sich so verbreitern.
 - **oberer grauer Griff, senkrecht ziehen:** Panelhöhe ändern.
 - **Tipp auf den Griff:** Blatt ein-/ausklappen (Handy und Tablet hochkant).
 - **oberer Griff, am Desktop waagerecht ziehen:** Panel frei verschieben.
@@ -4291,6 +4293,11 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - Diagnosebäume, Musterantworten, Mini-Schulungen und Systemprompt aktualisiert.
 
 ---
+
+### Änderungen in Version 3.19 (07.10.2026)
+
+- Desktop-Sidebar am rechten Rand bis 600 Pixel verbreiterbar (150 % der Standardbreite).
+- Breitenänderung funktioniert auch bei frei verschobenem Panel; Speicherung bleibt lokal.
 
 ### Änderungen in Version 3.18 (07.10.2026)
 

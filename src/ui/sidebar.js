@@ -67,7 +67,7 @@ const SHEET_HEIGHT_KEY = 'gf_sheet_height';
 const PANEL_ZOOM_KEY = 'tf_panel_zoom';
 const OPTIONAL_FILTERS_KEY = 'gf_optional_filter_dimensions';
 const SIDEBAR_MIN = 340;
-const SIDEBAR_MAX = 400;
+const SIDEBAR_MAX = 600; // 150 % der Standardbreite (400 px)
 const SHEET_MIN_HEIGHT = 140; // reicht für Griff + Tabs
 const SHEET_COLLAPSE_MS = 280; // etwas länger als der Einklapp-Übergang (0.24 s)
 let collapseSheetTimer = null;
@@ -314,21 +314,25 @@ function initDesktopSidebarResize() {
     if (Number.isFinite(saved)) setSidebarWidth(saved);
 
     let resizing = false;
+    let startX = 0;
+    let startWidth = 0;
     handle.addEventListener('pointerdown', (ev) => {
-        if (isSheetUi()) return;
+        if (isSheetUi() || ev.button !== 0) return;
+        startX = ev.clientX;
+        startWidth = sidebar.getBoundingClientRect().width;
         resizing = true;
         handle.setPointerCapture?.(ev.pointerId);
         document.body.classList.add('sidebar-resizing');
     });
     handle.addEventListener('pointermove', (ev) => {
         if (!resizing) return;
-        setSidebarWidth(ev.clientX);
+        setSidebarWidth(startWidth + ev.clientX - startX);
     });
     const stopResize = (ev) => {
         if (!resizing) return;
         resizing = false;
         document.body.classList.remove('sidebar-resizing');
-        setSidebarWidth(ev.clientX, true);
+        setSidebarWidth(startWidth + ev.clientX - startX, true);
     };
     handle.addEventListener('pointerup', stopResize);
     handle.addEventListener('pointercancel', () => {
