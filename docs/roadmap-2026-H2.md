@@ -874,3 +874,7 @@ Ab Release 1 gilt für jeden PR:
 ### Import-Rückmeldung bei großen Dateien (07.10.2026, umgesetzt)
 
 Excel-/CSV-Einlesen läuft lokal im Web Worker. Ein Wartedialog ersetzt die Importauswahl, nennt Dateiname und Verarbeitungsschritt und ermöglicht Abbrechen oder Escape. Auch Blatt-/Kopfzeilenwechsel bleiben bedienbar; Fehler und Abbruch erhalten den bisherigen Stand. Kein Upload und keine neue externe Verbindung.
+
+### Desktop-Sidebar bis 150 % verbreitern (07.10.2026, umgesetzt)
+
+Am rechten Panelrand per Maus zwischen 340 und 600 Pixeln ziehen; Standardbreite 400 Pixel. Die lokal gespeicherte Breite wird nach dem Neuladen wiederhergestellt. Frei verschobene Panels verwenden dieselbe relative Ziehbewegung.
