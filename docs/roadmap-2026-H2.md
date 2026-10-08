@@ -884,7 +884,7 @@ Am rechten Panelrand per Maus zwischen 340 und 600 Pixeln ziehen; Standardbreite
 Direktes Nutzerfeedback aus dem Smartphone-Praxistest: Der native Einzelauswahl-Scroller für mehrere tausend Bezirkswerte war nicht suchbar und fachlich zu eng. Das mobile Tourgesicht besitzt deshalb einen eigenen **„🗺️ Planungsbereich“** als Bottom-Sheet:
 
 - Suche findet Werte und beim Vertriebsbezirk auch den zugehörigen VB-Namen.
-- Mehrfachauswahl über Vertriebsbezirk, Vertriebsgruppe, Channel, Kundentyp und geeignete Zusatzspalten; ODER innerhalb, UND zwischen Kategorien.
+- Mehrfachauswahl über die im Desktop-Filter eingeblendeten Kategorien; optionale Ebenen werden ausschließlich am Desktop aktiviert oder entfernt und lokal gespeichert. ODER innerhalb, UND zwischen Kategorien.
 - Kartenflächen wahlweise automatisch, nach Channel, Vertriebsgruppe, Vertriebsbezirk oder ganz ohne Flächen; Kundenlichter und Route bleiben führend.
 - Bestehende Tourstopps werden durch neue Filter nie still gelöscht, sondern als außerhalb des Planungsbereichs markiert.
 - Filter und Kartenwahl bleiben lokal gespeichert. Desktop-Markup und Desktop-Bedienung bleiben unverändert.

@@ -6,6 +6,11 @@ export function planningDimensionValue(customer, def) {
     return String(raw ?? '').trim() || UNASSIGNED;
 }
 
+export function enabledPlanningDimensionDefs(defs, dims, enabledIds) {
+    const enabled = new Set(enabledIds || []);
+    return defs.filter((def) => enabled.has(def.id) && dims?.[def.id]?.active);
+}
+
 /** Leere Auswahl bedeutet bewusst „alle Werte dieser Kategorie“. */
 export function planningSelectionsFromDimensions(defs, dims, legacyDistrict = '__all__') {
     const selections = new Map();

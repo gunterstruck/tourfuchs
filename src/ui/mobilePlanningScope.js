@@ -3,12 +3,14 @@ import { currentLocale, t } from '../core/i18n.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 import {
     applyPlanningSelections,
+    enabledPlanningDimensionDefs,
     planningScopeCustomers,
     planningSelectionsFromDimensions,
     planningValueCounts,
     planningValueSearchText
 } from '../features/planningScope.js';
 import { showToast } from './toast.js';
+import { desktopFilterDimensionIds } from './sidebar.js';
 
 const LIST_LIMIT = 60;
 const MAP_MODES = ['auto', 'channel', 'gruppe', 'bezirk', 'none'];
@@ -30,7 +32,11 @@ const dimensionLabel = (def) => {
 };
 
 function activeDefs() {
-    return filterDimensionDefs().filter((def) => state.dims[def.id]?.active);
+    return enabledPlanningDimensionDefs(
+        filterDimensionDefs(),
+        state.dims,
+        desktopFilterDimensionIds()
+    );
 }
 
 function resultCustomers() {
