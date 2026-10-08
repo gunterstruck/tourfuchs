@@ -34,6 +34,16 @@ describe('iPhone, installierte App: Statusleiste und Fensterhöhe', () => {
         expect(read('src/main.js')).toContain('initViewportGuard();');
     });
 
+    it('berechnet Leaflet nach einer echten Änderung der Kartenfläche neu', () => {
+        const map = read('src/features/map.js');
+        expect(map).toContain("typeof ResizeObserver === 'function'");
+        expect(map).toContain('mapResizeObserver.observe(map.getContainer());');
+        expect(map).toContain('map.invalidateSize({ pan: false, debounceMoveend: true });');
+        // Ein bloßer window.resize-Handler wäre zu früh: --app-height wird erst
+        // im nächsten Layout-Frame korrigiert. Entscheidend ist der Container.
+        expect(map.indexOf('new ResizeObserver')).toBeGreaterThan(map.indexOf("window.addEventListener('resize', refitOpenPopup"));
+    });
+
     it('die Kopfzeile wächst um die Statusleiste und rückt ihren Inhalt darunter', () => {
         const vars = read('src/styles/variables.css');
         expect(vars).toContain('--safe-top: env(safe-area-inset-top, 0px);');
