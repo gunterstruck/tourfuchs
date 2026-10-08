@@ -311,8 +311,11 @@ function renderTourScope() {
         const mapMode = t(`tour.scope.mobile.map.${state.ui.mobileAreaColorMode || 'auto'}`);
         scope.innerHTML = `<button type="button" id="mobile-planning-scope-open" class="mobile-planning-scope-open">
             <span class="mobile-planning-scope-icon" aria-hidden="true">🗺️</span>
-            <span class="mobile-planning-scope-copy"><b>${escapeHtml(t('tour.scope.mobile.title'))}</b><small>${escapeHtml(filterSummary)} · ${availableCustomers.length} ${escapeHtml(t('tour.scope.mobile.customers'))}<br>${escapeHtml(t('tour.scope.mobile.mapSummary', { mode: mapMode }))}</small></span>
-            <span class="mobile-planning-scope-change">${escapeHtml(t('tour.scope.mobile.change'))} ›</span>
+            <span class="mobile-planning-scope-copy">
+                <span class="mobile-planning-scope-heading"><b>${escapeHtml(t('tour.scope.mobile.buttonTitle'))}</b><small>${escapeHtml(filterSummary)}</small></span>
+                <span class="mobile-planning-scope-meta"><strong>${availableCustomers.length} ${escapeHtml(t('tour.scope.mobile.customers'))}</strong><span>· ${escapeHtml(t('tour.scope.mobile.mapSummary', { mode: mapMode }))}</span></span>
+            </span>
+            <span class="mobile-planning-scope-change" aria-hidden="true">›</span>
         </button>`;
         updatePlannerVisibility();
         return;
