@@ -112,6 +112,10 @@ export const state = {
         // 0 = jede zugewiesene Fläche darf Farbe tragen. Ab 1 werden nur
         // Gebiete mit mindestens so vielen aktuell sichtbaren Kunden gefärbt.
         minRegionCustomers: 0,
+        // Mobile Kartenflächen bleiben eine eigenständige Orientierungsebene:
+        // Kundenlichter und Tourmarker bleiben immer sichtbar. Desktop verwendet
+        // weiterhin ausschließlich `colorMode`.
+        mobileAreaColorMode: 'auto',
         // Am Handy startet das Blatt eingeklappt – der erste Blick gehört der
         // Karte. Ab Tablet-Breite ist das Panel Teil der Arbeitsfläche (unten
         // als Blatt, am Schreibtisch seitlich) und startet offen.
