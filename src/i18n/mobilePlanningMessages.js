@@ -1,6 +1,6 @@
 export const MOBILE_PLANNING_MESSAGES = Object.freeze({
     de: Object.freeze({
-        'tour.scope.mobile.kicker': 'Tour eingrenzen', 'tour.scope.mobile.title': '🗺️ Planungsbereich',
+        'tour.scope.mobile.kicker': 'Tour eingrenzen', 'tour.scope.mobile.title': '🗺️ Planungsbereich', 'tour.scope.mobile.buttonTitle': 'Planungsbereich',
         'tour.scope.mobile.filterTab': 'Filter', 'tour.scope.mobile.mapTab': 'Karte färben',
         'tour.scope.mobile.all': 'Alle Bereiche', 'tour.scope.mobile.activeFilters': '{count} Filter aktiv', 'tour.scope.mobile.customers': 'Kunden',
         'tour.scope.mobile.mapSummary': 'Karte: {mode}', 'tour.scope.mobile.change': 'Ändern',
@@ -25,7 +25,7 @@ export const MOBILE_PLANNING_MESSAGES = Object.freeze({
         'tour.filter.stop.outsideFilter': 'Außerhalb Planungsbereich'
     }),
     en: Object.freeze({
-        'tour.scope.mobile.kicker': 'Narrow the tour', 'tour.scope.mobile.title': '🗺️ Planning area',
+        'tour.scope.mobile.kicker': 'Narrow the tour', 'tour.scope.mobile.title': '🗺️ Planning area', 'tour.scope.mobile.buttonTitle': 'Planning area',
         'tour.scope.mobile.filterTab': 'Filters', 'tour.scope.mobile.mapTab': 'Colour map',
         'tour.scope.mobile.all': 'All areas', 'tour.scope.mobile.activeFilters': '{count} filters active', 'tour.scope.mobile.customers': 'customers',
         'tour.scope.mobile.mapSummary': 'Map: {mode}', 'tour.scope.mobile.change': 'Change',
@@ -44,7 +44,7 @@ export const MOBILE_PLANNING_MESSAGES = Object.freeze({
         'tour.filter.stop.scopeWarningOne': '1 selected customer is outside the planning area and deliberately remains in the tour.', 'tour.filter.stop.scopeWarningMany': '{count} selected customers are outside the planning area and deliberately remain in the tour.', 'tour.filter.stop.outsideFilter': 'Outside planning area'
     }),
     fr: Object.freeze({
-        'tour.scope.mobile.kicker': 'Limiter la tournée', 'tour.scope.mobile.title': '🗺️ Zone de planification',
+        'tour.scope.mobile.kicker': 'Limiter la tournée', 'tour.scope.mobile.title': '🗺️ Zone de planification', 'tour.scope.mobile.buttonTitle': 'Zone de planification',
         'tour.scope.mobile.filterTab': 'Filtres', 'tour.scope.mobile.mapTab': 'Colorer la carte',
         'tour.scope.mobile.all': 'Toutes les zones', 'tour.scope.mobile.activeFilters': '{count} filtres actifs', 'tour.scope.mobile.customers': 'clients',
         'tour.scope.mobile.mapSummary': 'Carte : {mode}', 'tour.scope.mobile.change': 'Modifier',
@@ -63,7 +63,7 @@ export const MOBILE_PLANNING_MESSAGES = Object.freeze({
         'tour.filter.stop.scopeWarningOne': '1 client sélectionné est hors de la zone et reste volontairement dans la tournée.', 'tour.filter.stop.scopeWarningMany': '{count} clients sélectionnés sont hors de la zone et restent volontairement dans la tournée.', 'tour.filter.stop.outsideFilter': 'Hors zone de planification'
     }),
     es: Object.freeze({
-        'tour.scope.mobile.kicker': 'Limitar la ruta', 'tour.scope.mobile.title': '🗺️ Área de planificación',
+        'tour.scope.mobile.kicker': 'Limitar la ruta', 'tour.scope.mobile.title': '🗺️ Área de planificación', 'tour.scope.mobile.buttonTitle': 'Área de planificación',
         'tour.scope.mobile.filterTab': 'Filtros', 'tour.scope.mobile.mapTab': 'Colorear mapa',
         'tour.scope.mobile.all': 'Todas las áreas', 'tour.scope.mobile.activeFilters': '{count} filtros activos', 'tour.scope.mobile.customers': 'clientes',
         'tour.scope.mobile.mapSummary': 'Mapa: {mode}', 'tour.scope.mobile.change': 'Cambiar',

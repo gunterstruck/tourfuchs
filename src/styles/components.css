@@ -1412,15 +1412,37 @@
 .tour-scope select { width: 100%; margin: 4px 0 8px; }
 .tour-scope p { margin: 0; }
 .mobile-planning-scope-open {
-    width: 100%; display: flex; align-items: center; gap: 10px;
-    text-align: left; padding: 10px 12px; border-radius: var(--radius-l);
-    border: 1px solid color-mix(in srgb, var(--color-primary) 38%, var(--color-border));
-    background: color-mix(in srgb, var(--color-primary-light) 88%, transparent);
+    width: 100%; display: grid; grid-template-columns: 42px minmax(0, 1fr) 30px;
+    align-items: center; gap: 11px; min-height: 78px;
+    text-align: left; padding: 11px 12px; border-radius: 22px;
+    border: 1px solid color-mix(in srgb, var(--color-primary) 52%, var(--color-border));
+    background: linear-gradient(135deg,
+        color-mix(in srgb, var(--color-primary-light) 92%, var(--color-surface)),
+        color-mix(in srgb, var(--color-primary) 10%, var(--color-surface)));
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--color-primary) 12%, transparent);
 }
-.mobile-planning-scope-icon { font-size: 1.2rem; }
-.mobile-planning-scope-copy { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.mobile-planning-scope-copy small { color: var(--color-muted); line-height: 1.3; }
-.mobile-planning-scope-change { color: var(--color-primary); font-weight: 700; white-space: nowrap; }
+.mobile-planning-scope-open:hover { border-color: var(--color-primary); transform: translateY(-1px); }
+.mobile-planning-scope-icon {
+    width: 42px; height: 42px; display: grid; place-items: center;
+    border-radius: 14px; font-size: 1.25rem;
+    background: color-mix(in srgb, var(--color-primary) 18%, var(--color-surface));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 32%, transparent);
+}
+.mobile-planning-scope-copy { min-width: 0; display: grid; gap: 5px; }
+.mobile-planning-scope-heading { min-width: 0; display: flex; align-items: center; gap: 7px; }
+.mobile-planning-scope-heading b { min-width: 0; font-size: 1rem; line-height: 1.15; }
+.mobile-planning-scope-heading small {
+    flex: 0 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    padding: 2px 7px; border-radius: 999px; color: var(--color-primary); font-size: 0.7rem; font-weight: 750;
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+.mobile-planning-scope-meta { min-width: 0; display: flex; flex-wrap: wrap; gap: 1px 5px; color: var(--color-muted); font-size: 0.79rem; line-height: 1.25; }
+.mobile-planning-scope-meta strong { color: var(--color-text); font-weight: 700; }
+.mobile-planning-scope-change {
+    width: 30px; height: 30px; display: grid; place-items: center;
+    border-radius: 50%; color: var(--color-primary); font-size: 1.45rem; font-weight: 500;
+    background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
 
 .mobile-planning-scope-dialog {
     width: min(620px, calc(100vw - 24px)); max-width: 620px; max-height: min(860px, calc(100dvh - 24px));
