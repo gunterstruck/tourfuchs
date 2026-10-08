@@ -2372,7 +2372,10 @@ vorbehalten.
 Im Sheet funktionieren Scrollbar, Finger-Scrollen und Ziehen auf Freiflächen.
 Die Karte wird mobil mit zwei Fingern gezoomt. Sowohl die zusätzlichen
 Karten-Zoomtasten als auch die Desktop-Panel-Skalierung sind dort bewusst
-ausgeblendet.
+ausgeblendet. Ändert sich die verfügbare Bildschirmhöhe nach Entsperren,
+App-Wechsel, Drehung oder Schließen der Tastatur, beobachtet TourFuchs die
+tatsächliche Kartenfläche und lässt Leaflet seine Kacheln neu berechnen. So
+bleibt unter der Karte keine dunkle Fläche aus der vorherigen Fensterhöhe.
 
 ### 12.3 In der Nähe
 

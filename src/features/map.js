@@ -103,6 +103,8 @@ let markerHintTarget = null;
 let clusterHintTimer = 0;
 let clusterHintTarget = null;
 let popupFitFrame = 0;
+let mapResizeFrame = 0;
+let mapResizeObserver = null;
 let levelLoadSequence = 0;
 let loadingLevel = null;
 const ROUTE_HUE_START = 0;      // rot
@@ -708,6 +710,26 @@ export function initMap(containerId) {
     document.getElementById('sidebar')?.addEventListener('transitionend', (event) => {
         if (event.propertyName === 'transform' || event.propertyName === 'height') refitOpenPopup();
     });
+
+    // Leaflet hört selbst auf window.resize. Die App-Höhe wird auf Mobilgeräten
+    // aber erst danach per --app-height an die echte Layout-Höhe angepasst
+    // (z. B. nach Entsperren, App-Wechsel oder geschlossener Tastatur). Dann ist
+    // #map bereits größer, während Leaflet noch Kacheln für die alte Höhe hält –
+    // unten bleibt der dunkle Kartenhintergrund frei. Der Container ist deshalb
+    // die verlässliche Quelle: Erst sein tatsächlicher Resize löst die
+    // Neuberechnung aus, unabhängig von der Reihenfolge der Browser-Ereignisse.
+    mapResizeObserver?.disconnect();
+    if (typeof ResizeObserver === 'function') {
+        mapResizeObserver = new ResizeObserver(() => {
+            cancelAnimationFrame(mapResizeFrame);
+            mapResizeFrame = requestAnimationFrame(() => {
+                if (!map) return;
+                map.invalidateSize({ pan: false, debounceMoveend: true });
+                refitOpenPopup();
+            });
+        });
+        mapResizeObserver.observe(map.getContainer());
+    }
 
     syncEffectiveLevel();
     return map;
