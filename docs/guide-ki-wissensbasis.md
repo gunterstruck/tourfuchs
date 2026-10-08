@@ -1910,9 +1910,12 @@ die ausgewählten Stopps.
 **Klickpfad Smartphone:** `Tour-Blatt öffnen -> "🗺️ Planungsbereich"`.
 
 Der Reiter **„Filter“** ersetzt die nicht durchsuchbare native Bezirksliste.
-Die Kategorien stammen aus der importierten Datei: **Vertriebsbezirk**,
-**Vertriebsgruppe**, **Channel**, **Kundentyp** und geeignete textliche
-Zusatzspalten. Das Suchfeld findet den Kategorienwert; beim Vertriebsbezirk
+Die Kategorien entsprechen ausschließlich den im Desktop-Tab **„Filter“**
+eingeblendeten Ebenen. Standard sind **Vertriebsbezirk**, **Vertriebsgruppe**
+und **Kundentyp**. **Channel** oder geeignete textliche Zusatzspalten erscheinen
+mobil erst, nachdem sie am Desktop über **„+ Ebene hinzufügen“** aktiviert
+wurden; ausblenden lassen sie sich ebenfalls nur dort. Diese Desktop-Auswahl
+bleibt lokal gespeichert. Das Suchfeld findet den Kategorienwert; beim Vertriebsbezirk
 zusätzlich den Namen des **Vertriebsbeauftragten (VB)**. Mehrere gewählte Werte
 einer Kategorie gelten als **ODER**, verschiedene Kategorien als **UND**. Keine
 Auswahl in einer Kategorie bedeutet **alle**. Die laufende Trefferzahl steht

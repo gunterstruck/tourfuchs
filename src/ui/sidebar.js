@@ -2089,6 +2089,17 @@ function optionalFilterEnabled(id) {
     return !!filterUI.enabled[id];
 }
 
+/**
+ * Die mobile Tour darf nur Filter zeigen, die der Nutzer in der Desktop-
+ * Filteransicht bewusst eingeblendet hat. Welche optionalen Ebenen dazugehören,
+ * bleibt eine Desktop-Einstellung und wird dort lokal gespeichert.
+ */
+export function desktopFilterDimensionIds() {
+    return filterDimensionDefs()
+        .map((def) => def.id)
+        .filter(optionalFilterEnabled);
+}
+
 function migrateActiveOptionalFilters() {
     let changed = false;
     for (const def of filterDimensionDefs()) {

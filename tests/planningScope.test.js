@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
     applyPlanningSelections,
+    enabledPlanningDimensionDefs,
     planningScopeCustomers,
     planningSelectionsFromDimensions,
     planningValueCounts,
@@ -27,6 +28,25 @@ function dimensions() {
 }
 
 describe('mobiler Planungsbereich', () => {
+    it('zeigt nur die im Desktop eingeblendeten und im Datensatz aktiven Kategorien', () => {
+        const withExtra = [
+            ...defs,
+            { id: 'channel', field: 'channel' },
+            { id: 'extra:quelldatei', field: 'Quelldatei', custom: true }
+        ];
+        const dims = {
+            ...dimensions(),
+            channel: { active: true, values: new Map() },
+            'extra:quelldatei': { active: true, values: new Map() }
+        };
+        for (const id of ['bezirk', 'gruppe', 'kundentyp']) dims[id].active = true;
+        expect(enabledPlanningDimensionDefs(
+            withExtra,
+            dims,
+            ['bezirk', 'gruppe', 'kundentyp', 'channel']
+        ).map((def) => def.id)).toEqual(['bezirk', 'gruppe', 'kundentyp', 'channel']);
+    });
+
     it('verknüpft Werte einer Kategorie mit ODER und Kategorien mit UND', () => {
         const selected = new Map([
             ['bezirk', new Set(['Nord', 'Süd'])],
