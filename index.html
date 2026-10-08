@@ -545,7 +545,10 @@
                 <div class="tour-acc" data-acc="mytour">
                 <h3 class="acc-head" role="button" tabindex="0" aria-expanded="true"><span id="mytour-head" data-i18n="tour.mine.heading">3. Meine Tour</span> <span class="help-dot" tabindex="0" title="Tippe Kunden aus den Vorschlägen oder aus Karten-Popups zur Tour. Karte zeigt die Reihenfolge farbig von Rot nach Lila." data-i18n-title="tour.mine.help">?</span><span class="acc-summary" id="acc-sum-mytour"></span><span class="acc-caret" aria-hidden="true">▾</span></h3>
                 <div class="acc-body">
-                <label class="check-inline" data-expert-section="round-trip"><input type="checkbox" id="round-trip"> <span data-i18n="tour.roundTrip">🔁 Rundreise (zurück zum Start)</span></label>
+                <div class="tour-quick-actions">
+                    <label class="check-inline" data-expert-section="round-trip"><input type="checkbox" id="round-trip"> <span data-i18n="tour.roundTrip">🔁 Rundreise (zurück zum Start)</span></label>
+                    <button id="btn-tour-clear" class="tour-clear-action" data-i18n="tour.action.clear" disabled hidden>↺ Tour leeren</button>
+                </div>
                 <div id="tour-stops"></div>
                 <p id="tour-summary"></p>
                 <div class="button-column">
@@ -566,7 +569,6 @@
                             <button id="btn-visit-report" class="btn-visit-report" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
                         </div>
                     </details>
-                    <button id="btn-tour-clear" class="danger" data-i18n="tour.action.clear" disabled>✕ Tour leeren</button>
                 </div>
                 </div><!-- /.acc-body -->
                 </div><!-- /.tour-acc mytour -->

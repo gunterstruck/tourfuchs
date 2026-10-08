@@ -565,6 +565,31 @@
 .pulse { animation: gf-pulse 1s ease-out 3; }
 
 .button-column { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.tour-quick-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    min-height: 38px;
+    margin: 2px 0 8px;
+}
+.tour-clear-action {
+    flex: 0 0 auto;
+    min-height: 34px;
+    padding: 6px 11px;
+    border-color: color-mix(in srgb, var(--color-text-muted) 30%, var(--color-border));
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text-muted);
+    font-size: 0.78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.tour-clear-action:hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--color-primary) 42%, var(--color-border));
+    background: var(--color-surface-2);
+    color: var(--color-primary-dark);
+}
 .tour-route-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1665,9 +1690,10 @@ body:not(.depth-profi) .profi-only { display: none !important; }
 }
 .place-pin-remember { margin: 0; }
 .place-pin-dialog footer { margin-top: 2px; }
-/* Ziel-Zeile in der Tourliste (fester Streckenabschluss) */
-.stop-row.dest-row { background: #fef2f2; border-radius: var(--radius-l); }
-.stop-row.dest-row .stop-num { background: #b91c1c; }
+/* Ziel ist ein Wegpunkt, keine Warnung: Violett unterscheidet es klar vom
+   Start und von Statusfarben, ohne Gefahr oder Fehler zu signalisieren. */
+.stop-row.dest-row { background: #f5f3ff; border-radius: var(--radius-l); }
+.stop-row.dest-row .stop-num { background: #7c3aed; }
 .stop-row.final-row {
     background: #f8fafc;
     border-radius: var(--radius-l);
@@ -1683,8 +1709,8 @@ body:not(.depth-profi) .profi-only { display: none !important; }
     margin-left: 6px;
     padding: 1px 8px;
     border-radius: var(--radius-pill);
-    background: #fee2e2;
-    color: #991b1b;
+    background: #ede9fe;
+    color: #5b21b6;
     font-size: 0.68rem;
     font-weight: 800;
     text-transform: uppercase;

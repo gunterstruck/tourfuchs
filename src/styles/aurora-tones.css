@@ -214,7 +214,7 @@
     color: rgb(239, 149, 149);
 }
 :where(.aurora-dark) .stop-row.dest-row {
-    background: rgba(240, 76, 76, 0.18);
+    background: rgba(139, 92, 246, 0.18);
 }
 :where(.aurora-dark) .stop-row.final-row {
     background: rgba(119, 158, 197, 0.18);
@@ -223,8 +223,8 @@
     background: rgba(76, 148, 240, 0.18);
 }
 :where(.aurora-dark) .route-role {
-    background: rgba(240, 76, 76, 0.18);
-    color: rgb(237, 151, 151);
+    background: rgba(139, 92, 246, 0.2);
+    color: rgb(196, 181, 253);
 }
 :where(.aurora-dark) .tour-empty-guide {
     border: 1px dashed rgba(152, 113, 244, 0.34);
