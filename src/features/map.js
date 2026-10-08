@@ -656,6 +656,7 @@ export function initMap(containerId) {
     on('service-contracts:changed', refreshAll);
     on('service-visits:changed', refreshAll);
     on('colormode:changed', applyView);
+    on('mobile-area-color:changed', applyView);
     on('basemap:changed', applyBasemap);
     on('showcase:running', (running) => {
         showcaseRunning = Boolean(running);
@@ -830,6 +831,31 @@ function firstActiveAttr(list) {
 function resolveView() {
     const mode = state.colorMode;
     const z = map ? map.getZoom() : CONFIG.map.defaultZoom;
+
+    // Das mobile Tourgesicht hält Kundenpunkte und Route stets im Vordergrund.
+    // Die gewählte Gebietsebene ist nur eine leise Orientierung darunter und
+    // verändert deshalb den Desktop-Farbmodus nicht.
+    if (isMobileMap() && state.ui.mode === 'aussendienst') {
+        const areaMode = state.ui.mobileAreaColorMode || 'auto';
+        let paint = null;
+        if (areaMode === 'bezirk') paint = firstActiveAttr(['bezirk', 'gruppe', 'channel']);
+        else if (areaMode === 'gruppe') paint = firstActiveAttr(['gruppe', 'bezirk', 'channel']);
+        else if (areaMode === 'channel') paint = firstActiveAttr(['channel', 'gruppe', 'bezirk']);
+        else if (areaMode === 'auto') {
+            paint = z >= CONFIG.map.lodBezirkZoom
+                ? firstActiveAttr(['bezirk', 'gruppe', 'channel'])
+                : z >= CONFIG.map.lodGroupZoom
+                    ? firstActiveAttr(['gruppe', 'channel', 'bezirk'])
+                    : firstActiveAttr(['channel', 'gruppe', 'bezirk']);
+        }
+        return {
+            paint,
+            markers: true,
+            labels: false,
+            markerBy: mode === 'status' ? 'status' : 'vb',
+            mobileOverlay: areaMode !== 'none'
+        };
+    }
 
     if (mode === 'status') return { paint: null, markers: true, labels: false, markerBy: 'status' };
     if (mode === 'rep') return { paint: 'vb', markers: true, labels: false, markerBy: 'vb' };
@@ -1177,7 +1203,7 @@ function baseStyleFor(feature) {
     }
     if (currentView.paint === 'luecken') return styleLuecken(feature);
     if (currentView.paint && !regionMeetsCustomerMinimum(feature)) return sparseRegionStyle();
-    if (state.ui.mode === 'aussendienst' && currentView.markers) {
+    if (state.ui.mode === 'aussendienst' && currentView.markers && !currentView.mobileOverlay) {
         return {
             ...CONFIG.regionStyle.default,
             color: '#94a3b8',
@@ -1191,7 +1217,9 @@ function baseStyleFor(feature) {
     if (!info) return { ...CONFIG.regionStyle.default };
 
     const territory = !currentView.markers; // Flächenansicht: kräftiger füllen
-    const maxOpacity = territory ? (info.assignedOnly ? 0.4 : 0.62) : 0.2;
+    const maxOpacity = currentView.mobileOverlay
+        ? (info.assignedOnly ? 0.3 : 0.48)
+        : territory ? (info.assignedOnly ? 0.4 : 0.62) : 0.2;
     const { fillColor, fillOpacity } = compositeFill(info.shares, maxOpacity);
     return {
         fillColor,

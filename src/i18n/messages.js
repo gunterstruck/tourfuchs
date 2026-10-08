@@ -2,6 +2,7 @@ import { IMPORT_MESSAGES } from './importMessages.js';
 import { PLACE_MESSAGES } from './placeMessages.js';
 import { CUSTOMER_MESSAGES } from './customerMessages.js';
 import { TOUR_MESSAGES } from './tourMessages.js';
+import { MOBILE_PLANNING_MESSAGES } from './mobilePlanningMessages.js';
 import { TOUR_QR_MESSAGES } from './tourQrMessages.js';
 import { OMITTED_MESSAGES } from './omittedMessages.js';
 import { EXPORT_MESSAGES } from './exportMessages.js';
@@ -199,6 +200,7 @@ export const MESSAGES = Object.freeze({
         ...PLACE_MESSAGES.de,
         ...CUSTOMER_MESSAGES.de,
         ...TOUR_MESSAGES.de,
+        ...MOBILE_PLANNING_MESSAGES.de,
         ...TOUR_QR_MESSAGES.de,
         ...OMITTED_MESSAGES.de,
         ...EXPORT_MESSAGES.de
@@ -390,6 +392,7 @@ export const MESSAGES = Object.freeze({
         ...PLACE_MESSAGES.en,
         ...CUSTOMER_MESSAGES.en,
         ...TOUR_MESSAGES.en,
+        ...MOBILE_PLANNING_MESSAGES.en,
         ...TOUR_QR_MESSAGES.en,
         ...OMITTED_MESSAGES.en,
         ...EXPORT_MESSAGES.en
@@ -581,6 +584,7 @@ export const MESSAGES = Object.freeze({
         ...PLACE_MESSAGES.fr,
         ...CUSTOMER_MESSAGES.fr,
         ...TOUR_MESSAGES.fr,
+        ...MOBILE_PLANNING_MESSAGES.fr,
         ...TOUR_QR_MESSAGES.fr,
         ...OMITTED_MESSAGES.fr,
         ...EXPORT_MESSAGES.fr
@@ -772,6 +776,7 @@ export const MESSAGES = Object.freeze({
         ...PLACE_MESSAGES.es,
         ...CUSTOMER_MESSAGES.es,
         ...TOUR_MESSAGES.es,
+        ...MOBILE_PLANNING_MESSAGES.es,
         ...TOUR_QR_MESSAGES.es,
         ...OMITTED_MESSAGES.es,
         ...EXPORT_MESSAGES.es

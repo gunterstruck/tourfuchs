@@ -18,6 +18,7 @@ import { initSidebar, applyMode, autoRevealIfEmpty, showDataView, showMapView } 
 import { isPhoneUi, releaseInheritedOrientationLock } from './core/viewport.js';
 import { initImportWizard } from './ui/importWizard.js';
 import { initTourPanel } from './ui/tourPanel.js';
+import { initMobilePlanningScope } from './ui/mobilePlanningScope.js';
 import { openReceivedFromUrl } from './ui/tourQr.js';
 import { initSafeTransfer } from './ui/safeTransfer.js';
 import { decodeTourText, hasSharedTour } from './features/tourShare.js';
@@ -69,6 +70,9 @@ async function restorePersistedState() {
     emit('level:control-changed');
     state.filters.revenue = normalizeRevenueFilter(settings?.revenueFilter);
     state.ui.minRegionCustomers = normalizeMinimumRegionCustomers(settings?.minRegionCustomers);
+    state.ui.mobileAreaColorMode = ['auto', 'channel', 'gruppe', 'bezirk', 'none'].includes(settings?.mobileAreaColorMode)
+        ? settings.mobileAreaColorMode
+        : 'auto';
     emit('filters:changed');
     emit('region-threshold:changed');
     if (settings?.radiusKm) state.tour.radiusKm = settings.radiusKm;
@@ -81,7 +85,7 @@ async function restorePersistedState() {
         if (basemapSelect) basemapSelect.value = state.basemap;
         emit('basemap:changed');
     }
-    const validModes = ['auto', 'rep', 'bezirk', 'gruppe', 'status', 'luecken'];
+    const validModes = ['auto', 'rep', 'bezirk', 'gruppe', 'channel', 'status', 'luecken'];
     if (validModes.includes(settings?.colorMode)) {
         state.colorMode = settings.colorMode;
         const sel = document.getElementById('colormode-select');
@@ -274,6 +278,7 @@ async function init() {
     initPlacePicker();
     initImportWizard();
     initTourPanel();
+    initMobilePlanningScope();
     initCockpit();
     initRegionEditor();
     initSearch();

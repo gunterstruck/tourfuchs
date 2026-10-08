@@ -9,7 +9,7 @@
  */
 
 import { CONFIG } from '../core/config.js';
-import { state, on, emit, getCustomer, repColor, customerInTourScope, markDirty, clearServiceTourPlan, addPlace, removePlace, UNASSIGNED } from '../core/state.js';
+import { state, on, emit, getCustomer, repColor, customerInTourScope, markDirty, clearServiceTourPlan, addPlace, removePlace, filterDimensionDefs, UNASSIGNED } from '../core/state.js';
 import {
     MIN_PLACE_QUERY, loadPlaceIndex, searchGeoPlaces, searchOwnPlaces,
     parseCoordinateQuery, tourPointFromResult, createOwnPlace, findOwnPlaceForPoint
@@ -40,6 +40,7 @@ import { areaLabelFor } from '../features/areaBriefing.js';
 import { openAreaBriefing } from './areaBriefing.js';
 import { openCustomerBriefing } from './customerBriefing.js';
 import { currentLocale, t } from '../core/i18n.js';
+import { activeDimensionFilters } from '../features/territoryVisibility.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -106,6 +107,10 @@ export function initTourPanel() {
         renderPanel();
     });
     scopeEl.addEventListener('click', (e) => {
+        if (e.target.closest('#mobile-planning-scope-open')) {
+            emit('mobile-planning-scope:open');
+            return;
+        }
         if (e.target.closest('#scope-toggle')) { scopeExpanded = true; renderTourScope(); }
     });
 
@@ -294,6 +299,21 @@ function renderTourScope() {
     if (state.customers.length === 0) {
         scope.hidden = true;
         state.tour.bezirk = '__all__';
+        updatePlannerVisibility();
+        return;
+    }
+    if (isPhoneUi() && state.ui.mode === 'aussendienst') {
+        scope.hidden = false;
+        const filters = activeDimensionFilters(state.dims, filterDimensionDefs());
+        const filterSummary = filters.length
+            ? t('tour.scope.mobile.activeFilters', { count: filters.length })
+            : t('tour.scope.mobile.all');
+        const mapMode = t(`tour.scope.mobile.map.${state.ui.mobileAreaColorMode || 'auto'}`);
+        scope.innerHTML = `<button type="button" id="mobile-planning-scope-open" class="mobile-planning-scope-open">
+            <span class="mobile-planning-scope-icon" aria-hidden="true">🗺️</span>
+            <span class="mobile-planning-scope-copy"><b>${escapeHtml(t('tour.scope.mobile.title'))}</b><small>${escapeHtml(filterSummary)} · ${availableCustomers.length} ${escapeHtml(t('tour.scope.mobile.customers'))}<br>${escapeHtml(t('tour.scope.mobile.mapSummary', { mode: mapMode }))}</small></span>
+            <span class="mobile-planning-scope-change">${escapeHtml(t('tour.scope.mobile.change'))} ›</span>
+        </button>`;
         updatePlannerVisibility();
         return;
     }
@@ -1437,6 +1457,19 @@ function serviceScopeExceptionIds(stops) {
     return new Set([...routeIds].filter((id) => !serviceIds.has(id)));
 }
 
+function salesScopeExceptionIds(stops) {
+    if (state.ui.mode !== 'aussendienst') return new Set();
+    const filters = activeDimensionFilters(state.dims, filterDimensionDefs());
+    if (!filters.length) return new Set();
+    const visibleIds = new Set(modeVisibleCustomers().map((customer) => customer.id));
+    const routeIds = new Set([
+        state.tour.start?.customerId,
+        ...stops.map((customer) => customer.id),
+        state.tour.destination?.customerId
+    ].filter(Boolean));
+    return new Set([...routeIds].filter((id) => !visibleIds.has(id)));
+}
+
 function renderStops() {
     const el = document.getElementById('tour-stops');
     const stops = state.tour.stops.map(getCustomer).filter(Boolean);
@@ -1448,10 +1481,13 @@ function renderStops() {
     }
     const visitsById = new Map((state.serviceVisits || []).map((visit) => [visit.id, visit]));
     const serviceExceptions = serviceScopeExceptionIds(stops);
-    const exceptionCount = serviceExceptions.size;
-    const exceptionWarning = exceptionCount
-        ? `<div class="tour-scope-warning" role="status">ℹ️ ${escapeHtml(t(exceptionCount === 1 ? 'tour.service.stop.scopeWarningOne' : 'tour.service.stop.scopeWarningMany', { count: exceptionCount }))}</div>`
-        : '';
+    const salesExceptions = salesScopeExceptionIds(stops);
+    const serviceCount = serviceExceptions.size;
+    const salesCount = salesExceptions.size;
+    const exceptionWarning = [
+        serviceCount ? t(serviceCount === 1 ? 'tour.service.stop.scopeWarningOne' : 'tour.service.stop.scopeWarningMany', { count: serviceCount }) : '',
+        salesCount ? t(salesCount === 1 ? 'tour.filter.stop.scopeWarningOne' : 'tour.filter.stop.scopeWarningMany', { count: salesCount }) : ''
+    ].filter(Boolean).map((text) => `<div class="tour-scope-warning" role="status">ℹ️ ${escapeHtml(text)}</div>`).join('');
     const explicitDest = destPoint();
     const autoLastStopIsDestination = !state.tour.roundTrip && !explicitDest && stops.length > 0;
 
@@ -1474,6 +1510,7 @@ function renderStops() {
             const status = visitStatus(c);
             const done = lastVisit(c) === today;
             const outsideServiceScope = serviceExceptions.has(c.id);
+            const outsideSalesScope = salesExceptions.has(c.id);
             const statusKeys = {
                 ok: 'customer.status.ok', faellig: 'customer.status.due',
                 ueberfaellig: 'customer.status.overdue', none: 'customer.status.none'
@@ -1497,7 +1534,7 @@ function renderStops() {
             <div class="stop-row${autoLastStopIsDestination && i === stops.length - 1 ? ' final-row' : ''}${done ? ' stop-visited' : ''}">
                 <span class="stop-num" data-visit-node="${i}" title="${escapeHtml(t(done ? 'tour.stops.mobileVisited' : 'tour.stops.mobileMarkVisited'))}">${i + 1}</span>
                 <span class="stop-name" title="${escapeHtml(c.name)}">
-                    <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? `<span class="route-role">${escapeHtml(t('tour.stops.destination'))}</span>` : ''}${outsideServiceScope ? `<span class="route-role scope-exception">${escapeHtml(t('tour.service.stop.outsideFilter'))}</span>` : ''}</span>
+                    <span class="stop-title">${dot}${escapeHtml(c.name)}${autoLastStopIsDestination && i === stops.length - 1 ? `<span class="route-role">${escapeHtml(t('tour.stops.destination'))}</span>` : ''}${outsideServiceScope ? `<span class="route-role scope-exception">${escapeHtml(t('tour.service.stop.outsideFilter'))}</span>` : ''}${outsideSalesScope ? `<span class="route-role scope-exception">${escapeHtml(t('tour.filter.stop.outsideFilter'))}</span>` : ''}</span>
                     <span class="stop-sub muted small">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${visitDetail ? ` · ${escapeHtml(visitDetail)}` : ''}</span>
                     ${servicePlanLine ? `<span class="stop-plan-line">${servicePlanLine}</span>` : ''}
                     <button type="button" class="stop-briefing stop-briefing-inline" data-briefing="${i}" title="${escapeHtml(briefingTitle)}">${escapeHtml(t('tour.stops.briefing'))}</button>

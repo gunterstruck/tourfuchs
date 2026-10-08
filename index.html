@@ -686,6 +686,44 @@
             </form>
         </dialog>
 
+        <!-- Mobile Touransicht: ein einziger, durchsuchbarer Planungsbereich
+             ersetzt den ungeeigneten nativen Bezirks-Scroller. Desktop nutzt
+             unverändert seine bestehende Seitenleiste und Bezirksauswahl. -->
+        <dialog id="mobile-planning-scope-dialog" class="mobile-planning-scope-dialog" aria-labelledby="mobile-planning-scope-title">
+            <div class="mobile-planning-scope-sheet">
+                <header class="mobile-planning-scope-header">
+                    <div>
+                        <span class="planning-scope-kicker" data-i18n="tour.scope.mobile.kicker">Tour eingrenzen</span>
+                        <h2 id="mobile-planning-scope-title" data-i18n="tour.scope.mobile.title">🗺️ Planungsbereich</h2>
+                        <p id="mobile-planning-scope-result" class="muted small"></p>
+                    </div>
+                    <button type="button" class="dialog-close" data-mobile-planning-close data-i18n="dialog.close">Schließen</button>
+                </header>
+                <div class="planning-scope-tabs" role="tablist" aria-label="Planungsbereich">
+                    <button id="planning-scope-filter-tab" type="button" role="tab" aria-selected="true" aria-controls="planning-scope-filter-panel" data-planning-tab="filter" data-i18n="tour.scope.mobile.filterTab">Filter</button>
+                    <button id="planning-scope-map-tab" type="button" role="tab" aria-selected="false" aria-controls="planning-scope-map-panel" data-planning-tab="map" data-i18n="tour.scope.mobile.mapTab">Karte färben</button>
+                </div>
+                <section id="planning-scope-filter-panel" class="planning-scope-panel" role="tabpanel" aria-labelledby="planning-scope-filter-tab">
+                    <div id="planning-scope-categories" class="planning-scope-categories" aria-label="Filterkategorien"></div>
+                    <label class="planning-scope-search">
+                        <span data-i18n="tour.scope.mobile.search">Suchen</span>
+                        <input id="planning-scope-search" type="search" autocomplete="off" data-i18n-placeholder="tour.scope.mobile.searchPlaceholder" placeholder="Wert oder VB-Name">
+                    </label>
+                    <div id="planning-scope-values" class="planning-scope-values"></div>
+                    <p id="planning-scope-more" class="muted small" hidden></p>
+                    <p class="planning-scope-rule muted small" data-i18n="tour.scope.mobile.rule">Innerhalb einer Kategorie gilt ODER, zwischen Kategorien UND.</p>
+                </section>
+                <section id="planning-scope-map-panel" class="planning-scope-panel planning-scope-map-panel" role="tabpanel" aria-labelledby="planning-scope-map-tab" hidden>
+                    <p class="muted small" data-i18n="tour.scope.mobile.mapHint">Die Flächen liegen dezent hinter Kundenlichtern und Route.</p>
+                    <div id="planning-scope-map-options" class="planning-scope-map-options"></div>
+                </section>
+                <footer class="mobile-planning-scope-footer">
+                    <button id="planning-scope-reset" type="button" data-i18n="tour.scope.mobile.reset">Zurücksetzen</button>
+                    <button id="planning-scope-apply" type="button" class="primary" data-i18n="tour.scope.mobile.apply">Übernehmen</button>
+                </footer>
+            </div>
+        </dialog>
+
         <!-- Zentrale, nicht-blockierende Begrüßung über der Karte.
              Erscheint bei jedem Start, solange nur Beispieldaten laufen. Zwei
              gleichwertige Wege: TourFuchs in Aktion sehen (startet nach zehn

@@ -1629,6 +1629,7 @@ export function initSidebar() {
         // sonst begrüßt dasselbe Willkommen zweimal übereinander.
         if (open && state.customers.length === 0) showMapView(false);
     });
+    on('settings:persist', persistSettings);
     renderDataStatus();
     syncRevenueFilterControls();
     renderTeamFilters();
@@ -1798,6 +1799,7 @@ export function captureShowcaseFilters() {
         reps: structuredClone(state.reps),
         levelMode: state.levelMode, fixedLevel: state.fixedLevel, colorMode: state.colorMode,
         minimum: state.ui.minRegionCustomers, opportunity: state.ui.opportunityOnly,
+        mobileAreaColorMode: state.ui.mobileAreaColorMode,
         activeTab: state.ui.activeTab,
         filterUI: structuredClone({ expanded: filterUI.expanded, search: filterUI.search }),
         levelBeforeHide: levelBeforeHide && { ...levelBeforeHide }
@@ -1820,6 +1822,7 @@ export function captureShowcaseFilters() {
         state.colorMode = saved.colorMode;
         state.ui.minRegionCustomers = saved.minimum;
         state.ui.opportunityOnly = saved.opportunity;
+        state.ui.mobileAreaColorMode = saved.mobileAreaColorMode;
         Object.assign(filterUI, saved.filterUI);
         levelBeforeHide = saved.levelBeforeHide;
         document.getElementById('colormode-select').value = saved.colorMode;
@@ -1830,6 +1833,7 @@ export function captureShowcaseFilters() {
         emit('region-threshold:changed');
         emit('level:control-changed');
         emit('colormode:changed');
+        emit('mobile-area-color:changed');
         showcaseSettingsPaused = false;
     };
 }
@@ -1853,6 +1857,7 @@ function persistSettings() {
         levelMode: state.levelMode,
         fixedLevel: state.fixedLevel,
         colorMode: state.colorMode,
+        mobileAreaColorMode: state.ui.mobileAreaColorMode,
         basemap: state.basemap,
         repVisibility: Object.fromEntries([...state.reps].map(([k, v]) => [k, v.visible])),
         repColors: Object.fromEntries([...state.reps].map(([k, v]) => [k, v.color])),
