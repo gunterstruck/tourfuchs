@@ -75,6 +75,27 @@ describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeli
         expect(components).not.toContain('.qr-handoff:not(:disabled)');
     });
 
+    it('hält „Tour leeren" oben erreichbar und kehrt zur normalen Karte zurück', () => {
+        const panel = read('src/ui/tourPanel.js');
+        const mineStart = html.indexOf('data-acc="mytour"');
+        const stopsIdx = html.indexOf('id="tour-stops"', mineStart);
+        const clearIdx = html.indexOf('id="btn-tour-clear"', mineStart);
+        expect(clearIdx).toBeGreaterThan(mineStart);
+        expect(clearIdx).toBeLessThan(stopsIdx);
+        expect(html).toContain('class="tour-clear-action"');
+        expect(responsive).toContain('[data-acc="mytour"] .tour-quick-actions');
+        expect(panel).toContain('state.tour.mapFocus = false;');
+        expect(panel).toContain('showMapView(false);');
+        expect(panel).toContain("showToast(t('tour.toast.cleared')");
+    });
+
+    it('kennzeichnet das Ziel ruhig violett statt als rote Warnung', () => {
+        expect(components).toContain('.stop-row.dest-row { background: #f5f3ff;');
+        expect(components).toContain('.stop-row.dest-row .stop-num { background: #7c3aed; }');
+        expect(components).toContain('background: #ede9fe;');
+        expect(components).not.toContain('.stop-row.dest-row { background: #fef2f2;');
+    });
+
     it.each([
         ['de', 'Teilen & Exportieren'],
         ['en', 'Share & export'],

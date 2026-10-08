@@ -2361,7 +2361,13 @@ gleiche Höhe, neben 🖊️ „Lasso ziehen".
 
 **„Meine Tour" (mobil):** Die Stopps sind kompakte **Ein-Zeilen-Karten** mit
 durchgehender grüner Tourlinie. Umsortiert wird per **Halten & Ziehen**; ein
-**Fokus-Modus** gibt dem gerade aktiven Element mehr Platz.
+**Fokus-Modus** gibt dem gerade aktiven Element mehr Platz. **„↺ Tour leeren"**
+steht direkt am Anfang des Bereichs und bleibt beim Scrollen einer langen Tour
+erreichbar. Die Aktion entfernt Start, Ziel und Stopps, beendet den Tour-Fokus,
+klappt das mobile Blatt ein und zeigt wieder die normale Karte mit allen Kunden
+des weiterhin gültigen Planungsbereichs und der gesetzten Filter. Ein Ziel ist
+violett gekennzeichnet; Rot bleibt Warnungen und fachlichen Statussignalen
+vorbehalten.
 
 Im Sheet funktionieren Scrollbar, Finger-Scrollen und Ziehen auf Freiflächen.
 Die Karte wird mobil mit zwei Fingern gezoomt. Sowohl die zusätzlichen

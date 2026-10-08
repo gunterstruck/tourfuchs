@@ -348,6 +348,15 @@
     }
     /* Kein doppelter Scroller: In der offenen Gruppe scrollt die acc-body. */
     #tab-tour.active .tour-acc.open .scroll-list { max-height: none; overflow: visible; }
+    /* Tour zurücksetzen bleibt auch bei langer Stoppliste am oberen Rand des
+       internen Scrollbereichs erreichbar. */
+    #tab-tour.active [data-acc="mytour"] .tour-quick-actions {
+        position: sticky;
+        top: 0;
+        z-index: 4;
+        padding: 6px 2px;
+        background: var(--color-surface);
+    }
     /* Dieselbe Deckelung für die offene „In der Nähe"-Karte: Sie darf den
        Prozess darunter nicht aus dem Bild schieben. */
     #tab-tour.active .nearby-card.open .acc-body {

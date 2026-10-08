@@ -33,7 +33,7 @@ import { proposeServiceDay, tradeoffLine } from '../features/serviceDayPlanner.j
 import { isPhoneUi } from '../core/viewport.js';
 import { serviceVisitWindow, isSchedulableServiceVisit } from '../features/serviceVisits.js';
 import { normalizeCustomerNumber } from '../features/serviceContracts.js';
-import { showRouteView, isPanelPinching } from './sidebar.js';
+import { showMapView, showRouteView, isPanelPinching } from './sidebar.js';
 import { showToast } from './toast.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
@@ -195,7 +195,15 @@ export function initTourPanel() {
         state.tour.destination = null;
         state.tour.mapFocus = false;
         clearAcceptedServicePlan();
+        // „Tour leeren" beendet die Planung vollständig: Auf dem Handy wird
+        // das Blatt eingeklappt, auf allen Ansichten endet der Schritt-Fokus.
+        // Bezirk und Filter bleiben erhalten – die normale Karte zeigt danach
+        // wieder alle Kunden des aktuellen Planungsbereichs.
+        setTourFocus(false);
+        openTourAcc(null);
+        showMapView(false);
         emit('tour:changed');
+        showToast(t('tour.toast.cleared'), 'success', 4200);
     });
     document.getElementById('btn-tour-save').addEventListener('click', saveCurrentTour);
 
@@ -1687,7 +1695,10 @@ function renderStops() {
     const phoneQr = document.getElementById('btn-tour-qr-phone');
     if (phoneQr) phoneQr.disabled = !hasRoute;
     document.getElementById('btn-tour-save').disabled = !hasRoute;
-    document.getElementById('btn-tour-clear').disabled = !(state.tour.start || state.tour.destination || stops.length > 0);
+    const clearButton = document.getElementById('btn-tour-clear');
+    const canClear = Boolean(state.tour.start || state.tour.destination || stops.length > 0);
+    clearButton.disabled = !canClear;
+    clearButton.hidden = !canClear;
 }
 
 /**
