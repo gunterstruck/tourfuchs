@@ -27,6 +27,7 @@ let dialog = null;
 let body = null;
 let footer = null;
 let currentPrompt = '';
+let previewActive = false;
 let currentAssistant = null;
 
 const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, (char) => (
@@ -55,14 +56,14 @@ function renderDemoOnly() {
 function render(selection, areaLabel, { preview = false } = {}) {
     const { included, total, truncated } = selection;
     // Dieselbe Zielwahl wie im Kundenbriefing, dieselbe gespeicherte Wahl.
-    const withChooser = customerBriefingFlow(state.ui.depth) === 'choice';
+    const withChooser = preview || customerBriefingFlow(state.ui.depth) === 'choice';
     body.innerHTML = `
         <div class="briefing-customer">
             <b>${escapeHtml(areaLabel)}</b>
             <span>${included.length} von ${total} ${total === 1 ? 'Kunde' : 'Kunden'}</span>
         </div>
         <div class="briefing-state briefing-manual">
-            <span class="briefing-kicker">${preview ? 'Beispiel · nur zur Ansicht' : 'Direkt nutzbar'}</span>
+            <span class="briefing-kicker">${preview ? 'Demo · lokal kopierbar' : 'Direkt nutzbar'}</span>
             <h3>Wen zuerst besuchen?</h3>
             ${truncated ? `<p class="area-truncated">Der Prompt enthält die ${AREA_BRIEFING_LIMIT} nächstgelegenen Kunden. Eine längere Liste macht das Briefing nicht besser, nur unschärfer.</p>` : ''}
             <details class="area-customers">
@@ -104,24 +105,23 @@ function render(selection, areaLabel, { preview = false } = {}) {
         wireAssistantChooser(body, 'area-briefing', (assistant) => {
             currentAssistant = assistant;
             rebuild();
-            renderFooter(preview);
-        });
+            renderFooter();
+        }, { persist: !preview });
     }
-    renderFooter(preview);
+    renderFooter();
 }
 
-function renderFooter(preview) {
-    if (preview) {
-        // Derselbe Knopf, aber ohne Wirkung: Die Vorführung zeigt, wo er sitzt,
-        // kopiert aber nichts und öffnet keinen Assistenten.
-        footer.innerHTML = `<button type="button" class="primary" data-area-open disabled title="In der Vorführung wird nichts kopiert">Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`;
-        return;
-    }
+function renderFooter() {
     footer.innerHTML = `<button type="button" class="primary" data-area-open>Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`;
     footer.querySelector('[data-area-open]')?.addEventListener('click', openAssistant);
 }
 
 async function openAssistant() {
+    if (previewActive) {
+        const copied = await copyText(currentPrompt);
+        showBriefingCopyResult(dialog?.open ? body : null, copied, currentAssistant.label, { demo: true });
+        return;
+    }
     const copyPromise = copyText(currentPrompt);
     const assistantLabel = currentAssistant.label;
     launchAssistant(currentAssistant);
@@ -135,11 +135,12 @@ async function openAssistant() {
  * @param {string} areaLabel    Beschreibung des Gebiets („Umkreis von 25 km …")
  */
 export function openAreaBriefing(customers, areaLabel, { preview = false } = {}) {
+    previewActive = preview;
     if (!dialog) initAreaBriefing();
     if (!dialog) return;
 
     // `preview` nur für die Live-Demos: Dort darf auch mit Beispielkunden
-    // sichtbar werden, wie der Prompt aussieht – kopiert wird dabei nichts.
+    // sichtbar werden, wie der Prompt aussieht und lokal kopiert wird.
     const selection = preview
         ? areaBriefingSelection(customers, { includeDemo: true })
         : areaBriefingSelection(customers);

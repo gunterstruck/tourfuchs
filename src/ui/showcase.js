@@ -35,7 +35,8 @@ import { peekRoadRoute, registerStaticRoutes, routingKey } from '../services/rou
 import { openSetupDialog, showRecoveryCodeForDemo } from './lockVault.js';
 import { flyToCustomer, fitToCustomers, fitTourRoute, focusMapArea, closeMapPopups, getMap } from '../features/map.js';
 import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSheetForDemo, collapseSheetForDemo, restoreSheetAfterDemo, settleSheetAfterShowcase, applyMode } from './sidebar.js';
-import { showKeyStepForDemo } from './safeTransfer.js';
+import { beginReceiveDemo } from './safeTransfer.js';
+import { createSafeTransfer } from '../features/safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog, setCustomerBriefingPreview } from './customerBriefing.js';
 import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPreview } from './lasso.js';
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
@@ -112,6 +113,7 @@ let origConfirm = null;       // Originales window.confirm während patchConfirm
 let priorMode = null;         // Arbeitsfokus vor der Demo (zum Zurücksetzen)
 let showcaseTourPlan = null;  // reproduzierbare Start-/Stoppwahl der aktuellen Demo
 let demoTour = null;          // Tour-Demo: Zuhause, Ziel, Kunden auf dem Weg
+let receiveDemoBundle = null;
 let pasteDemoConsent = null;  // Berechtigungs-Bestätigung vor der Einfüge-Vorführung
 let stepMode = false;         // „⏭": Schritt für Schritt, gilt für die ganze Runde
 let progressAt = null;        // { i, n } – für die Anzeige des Schritt-Modus
@@ -741,10 +743,9 @@ function scopedWithCoords() {
 /**
  * Stehen eigene Kunden bereit – oder ist das hier eine Kulisse?
  *
- * Davon hängt ab, was die Vorführung beim Briefing überhaupt zeigen KANN: Mit
- * Beispielkunden gibt es bewusst keinen Prompt. Gezählt wird gegen zwei, weil
- * das Gebiets-Briefing erst ab zwei echten Kunden angeboten wird – bei einem
- * einzelnen führt das Kundenbriefing weiter.
+ * Eigene Kunden bestimmen die Ansprache der Vorführung. Gezählt wird gegen
+ * zwei, weil die reguläre Mehrkunden-Auswahl mindestens zwei Kunden braucht.
+ * Die geführte Vorschau zeigt auch mit Beispieldaten den vollständigen Prompt.
  */
 function hasOwnCustomers() {
     let real = 0;
@@ -1355,22 +1356,40 @@ const HELPERS = {
         if (btn) await clickEl('#btn-safe-receive');
         else (document.getElementById('btn-safe-receive') || document.getElementById('btn-safe-receive-ob'))?.click();
         await resolveEl('#safe-receive-dialog[open]', 3000);
+        beginReceiveDemo();
+        receiveDemoBundle = await createSafeTransfer({
+            fileName: 'TourFuchs-Demo-Kollegen.xlsx',
+            customers: [
+                { id: 'receive-demo-1', nummer: 'DEMO-001', name: 'TourFuchs Demo · Technik', plz: '45136', ort: 'Essen', lat: 51.43, lng: 7.03, demo: true },
+                { id: 'receive-demo-2', nummer: 'DEMO-002', name: 'TourFuchs Demo · Handel', plz: '44135', ort: 'Dortmund', lat: 51.51, lng: 7.46, demo: true }
+            ]
+        });
+        guard();
         await sleep(500);
     },
     async showReceiveKeyStep() {
-        // Schritt 2 zeigen: Scanner-Bereich + manuelles Schlüsselfeld (ohne Kamera).
-        showKeyStepForDemo();
+        const input = document.getElementById('safe-file-input');
+        const files = new DataTransfer();
+        files.items.add(new File([JSON.stringify(receiveDemoBundle.container)], 'TourFuchs-Demo-Kollegen.tfsafe', { type: 'application/json' }));
+        input.files = files.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        if (!await resolveEl('#safe-step-key:not([hidden])', 4000)) throw new Error('Verschlüsselte Demo-Datei konnte nicht gelesen werden.');
         await sleep(800);
     },
     async typeReceiveKeyDemo() {
-        // Den Eintipp-Fallback sichtbar aufklappen und einen Demo-Schlüssel
-        // tippen – ohne „Entschlüsseln" zu drücken (es gibt ja keine Datei).
+        // Den Eintipp-Fallback öffnen und den passenden Schlüssel zur zuvor
+        // gewählten, tatsächlich verschlüsselten Demo-Datei einfügen.
         const details = document.querySelector('#safe-step-key details.safe-fallback');
         if (details && !details.open) {
             await clickEl('#safe-step-key details.safe-fallback summary');
             await sleep(500);
         }
-        await typeInto('#safe-key-input', 'TFK1:DEMO-SCHLÜSSEL');
+        await fillNoFocus('#safe-key-input', receiveDemoBundle.keyQr);
+        await sleep(700);
+    },
+    async decryptReceiveDemo() {
+        await clickEl('#safe-key-submit');
+        if (!await resolveEl('#safe-step-demo-result:not([hidden])', 4000)) throw new Error('Demo-Datei konnte nicht entschlüsselt werden.');
         await sleep(700);
     },
     async closeReceive() {
@@ -1588,7 +1607,7 @@ const HELPERS = {
     async revealCustomerPrompt() {
         const sel = '#customer-briefing-dialog .briefing-prompt-visible';
         const details = await resolveEl(sel, 1600);
-        if (!details) return;
+        if (!details) throw new Error('Der vollständige Kundenprompt fehlt.');
         if (!details.open) await clickEl(`${sel} summary`);
         await sleep(500);
         details.querySelector('pre')?.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
@@ -1667,12 +1686,12 @@ const HELPERS = {
      * Der Klick auf „🔍 Vollständigen Prompt ansehen" macht sie nachprüfbar.
      *
      * Mit Beispielkunden zeigt die Vorführung denselben Block als Ansicht
-     * (`preview`); fehlt er trotzdem, tut der Helfer nichts.
+     * (`preview`); fehlt er trotzdem, meldet die Vorführung einen Fehler.
      */
     async revealAreaPrompt() {
         const sel = '#area-briefing-dialog .briefing-prompt-visible';
         const details = await resolveEl(sel, 1600);
-        if (!details) return;
+        if (!details) throw new Error('Der vollständige Mehrkunden-Prompt fehlt.');
         if (!details.open) await clickEl(`${sel} summary`);
         await sleep(500);
         // Der Prompt ist länger als der Dialog hoch ist. Sein Anfang trägt die
@@ -1694,8 +1713,10 @@ const HELPERS = {
      * werden soll er nicht, aber erkennbar bleiben, dass da nichts versteckt ist.
      */
     async scrollPromptThrough() {
-        const pre = await resolveEl('#area-briefing-dialog .briefing-prompt-visible pre', 1600);
-        if (!pre) return;
+        const pre = await resolveEl('dialog[open] .briefing-prompt-visible pre', 1600);
+        if (!pre?.textContent.trim()) throw new Error('Der vollständige Briefing-Prompt fehlt.');
+        pre.scrollIntoView({ behavior: prefersReduced ? 'auto' : 'smooth', block: 'start' });
+        await sleep(800);
         const weg = pre.scrollHeight - pre.clientHeight;
         if (weg <= 0) { await sleep(800); return; }
         const schritte = prefersReduced ? 1 : 26;
@@ -2058,6 +2079,7 @@ function cleanup(story) {
     if (qr?.open) qr.close();
     const recv = document.getElementById('safe-receive-dialog');
     if (recv?.open) recv.close();
+    receiveDemoBundle = null;
     const briefing = document.getElementById('customer-briefing-dialog');
     if (briefing?.open) briefing.close();
     // Lasso: Auch bei Abbruch mitten im Zug darf weder der Zeichenmodus noch
@@ -2465,7 +2487,7 @@ function startImportHelp(storyId) {
     startStory(story);
 }
 
-/** Demo-Übersicht öffnen – für die Pille „🎬 Live-Demos" über der Karte. */
+/** Demo-Übersicht öffnen – für „Live-Demos“ rechts in der Desktop-Kopfzeile. */
 export function openShowcaseOverview() {
     openPanel();
 }

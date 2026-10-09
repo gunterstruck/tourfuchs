@@ -51,7 +51,7 @@ export function assistantChooserHtml(currentAssistant, prefix, scopeNote = 'Gilt
  * @param {string} prefix
  * @param {(assistant: object) => void} onChange  mit dem neuen, gültigen Ziel
  */
-export function wireAssistantChooser(root, prefix, onChange) {
+export function wireAssistantChooser(root, prefix, onChange, { persist = true } = {}) {
     const apply = (id) => {
         const urlField = root.querySelector(`#${prefix}-assistant-url`);
         const errorBox = root.querySelector('.briefing-assistant-error');
@@ -60,7 +60,8 @@ export function wireAssistantChooser(root, prefix, onChange) {
         if (errorBox) { errorBox.hidden = true; errorBox.textContent = ''; }
         let assistant;
         try {
-            assistant = resolveAssistant(saveAssistantChoice({ id, customUrl: urlField?.value }));
+            const choice = { id, customUrl: urlField?.value };
+            assistant = resolveAssistant(persist ? saveAssistantChoice(choice) : choice);
         } catch (error) {
             // Unvollständige eigene Adresse: Auswahl stehen lassen, Grund nennen,
             // Knopf so lange auf dem zuletzt gültigen Ziel belassen.

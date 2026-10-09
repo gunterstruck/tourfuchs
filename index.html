@@ -60,6 +60,16 @@
             <button id="btn-vault-toggle" class="icon-button" hidden aria-label="Tresor sperren" title="Tresor jetzt sperren">🔓</button>
             <!-- Mond/Sonne: ein Tipp schaltet komplett um – dunkler Stil + Lichterkarte bzw. zurück. -->
             <button id="btn-night" class="icon-button night-toggle" type="button" aria-pressed="false" aria-label="Nachtansicht: dunkler Stil mit Lichterkarte" title="Nachtansicht: jeder Kunde ein Licht">🌙</button>
+            <button id="btn-demos-pill" class="demo-launcher only-desktop" type="button" aria-label="Alle Live-Demos anzeigen" data-i18n-aria-label="shell.demosTitle" title="Alle Live-Demos anzeigen" data-i18n-title="shell.demosTitle">
+                <span class="demo-launcher-icon" aria-hidden="true">
+                    <svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" focusable="false">
+                        <path d="m3 7 17-4 1 4L4 11Z M8 6l3 3 M14 4.5l3 3.5"/>
+                        <path d="M4 11h17v9a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1Z"/>
+                        <path d="m10 14 5 2.5-5 2.5Z"/>
+                    </svg>
+                </span>
+                <span data-i18n="shell.demos">Live-Demos</span>
+            </button>
             <button id="btn-info" class="icon-button" aria-label="Info & Impressum" data-i18n-aria-label="shell.info">ⓘ</button>
         </header>
 
@@ -618,12 +628,6 @@
                 <span class="mns-icon" aria-hidden="true">📋</span>
                 <span class="mns-label">Briefing für mein Gebiet</span>
             </button>
-            <!-- Live-Demos auch mit eigenen Daten erreichbar (Schreibtisch). -->
-            <button id="btn-demos-pill" class="map-fab demos-fab only-desktop" type="button" hidden>
-                <span class="mns-icon" aria-hidden="true">🎬</span>
-                <span class="mns-label">Live-Demos</span>
-                <span class="demos-fab-new" hidden></span>
-            </button>
         </div>
 
         <main id="map" role="application" aria-label="Deutschlandkarte" data-i18n-aria-label="mobile.map.label"></main>
@@ -885,9 +889,9 @@
                     <h3 id="own-data-safe-title" data-i18n="ownData.safeTitle">🔐 Verschlüsselte TourFuchs-Datei</h3>
                     <p class="muted small" data-i18n="ownData.safeDescription">Für eine .tfsafe-Datei von einem anderen Gerät. Danach scannst du den getrennten Schlüssel-QR.</p>
                     <button id="btn-safe-receive-ob" class="primary" data-i18n="ownData.safeOpen">Verschlüsselte Datei öffnen</button>
-                    <!-- Die Empfangs-Demo gibt es nur am Handy; am Schreibtisch keine
-                         Zeile statt einer unpassenden Demo. -->
-                    <button type="button" class="linklike own-data-demo only-mobile" data-demo-story="empfang" data-i18n="ownData.safeDemo">▶ Wie geht das? Live-Demo ansehen (30 s)</button>
+                    <!-- Derselbe vorbereitete Datenbestand lässt sich am Desktop
+                         und Handy ohne erneute Feldzuordnung übernehmen. -->
+                    <button type="button" class="linklike own-data-demo" data-demo-story="empfang" data-i18n="ownData.safeDemo">▶ Wie geht das? Live-Demo ansehen</button>
                 </section>
                 <!-- Eine einzelne Tour von einem anderen Handy: keine Datei, nur
                      ein QR-Code – auch ganz ohne eigene Kundendaten nutzbar. -->
@@ -1540,9 +1544,14 @@
                         <input type="file" id="safe-file-input" accept=".tfsafe,application/json">
                     </label>
                 </div>
+                <div id="safe-step-demo-result" hidden>
+                    <h3>Vorschau: Datei entschlüsselt</h3>
+                    <p id="safe-demo-result" role="status"></p>
+                    <p class="muted small">Die Feldzuordnung ist bereits enthalten. Beim echten Import werden die Kunden direkt übernommen. Diese Vorführung verwendet nur Beispieldaten und verändert deinen Bestand nicht.</p>
+                </div>
                 <div id="safe-step-key" hidden>
                     <p id="safe-file-meta" class="muted small" hidden></p>
-                    <p class="muted small">Schritt 2 von 2: Scanne den <b>Schlüssel-QR</b> vom Desktop.</p>
+                    <p class="muted small">Schritt 2 von 2: Scanne den <b>Schlüssel-QR</b> oder füge den getrennt erhaltenen Schlüssel unten ein.</p>
                     <video id="safe-scan-video" playsinline muted></video>
                     <p id="safe-scan-status" class="muted small">Kamera auf den Schlüssel-QR am Desktop richten …</p>
                     <label class="qr-scan-fallback">Kamera klappt nicht? <input type="file" id="safe-scan-photo" accept="image/*" capture="environment"> Foto des QR-Codes wählen</label>

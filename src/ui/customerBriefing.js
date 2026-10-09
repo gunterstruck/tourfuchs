@@ -86,7 +86,7 @@ function wireClose() {
 
 /** Prompt an den gewählten Assistenten anpassen (Quellenzeile unterscheidet sich). */
 // Nur in der Live-Demo: Auch für Beispielkunden wird der Prompt gezeigt – als
-// reine Ansicht, der Kopier-Knopf ist gesperrt. Außerhalb der Vorführung
+// lokale Vorschau mit Kopieraktion, ohne externes Fenster. Außerhalb der Vorführung
 // bleibt es bei der geschützten Demo-Karte (renderDemo).
 let briefingPreview = false;
 
@@ -95,7 +95,7 @@ export function setCustomerBriefingPreview(on) {
 }
 
 function previewActive() {
-    return briefingPreview && isDemoCustomer(currentCustomer);
+    return briefingPreview;
 }
 
 function rebuildPrompt() {
@@ -108,18 +108,15 @@ function rebuildPrompt() {
 }
 
 function actionFooter() {
-    if (previewActive()) {
-        setFooter(`<button type="button" class="primary" data-briefing-open disabled title="In der Vorführung wird nichts kopiert">Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`);
-        return;
-    }
     setFooter(`<button type="button" class="primary" data-briefing-open>Prompt kopieren &amp; ${escapeHtml(currentAssistant.label)} öffnen</button>`);
     footer.querySelector('[data-briefing-open]')?.addEventListener('click', openAssistant);
 }
 
 function renderBriefing({ withChooser = false } = {}) {
+    withChooser ||= previewActive();
     body.innerHTML = `${identityHtml(currentCustomer)}
         <div class="briefing-state briefing-manual">
-            <span class="briefing-kicker">${previewActive() ? 'Beispiel · nur zur Ansicht' : 'Direkt nutzbar'}</span>
+            <span class="briefing-kicker">${previewActive() ? 'Demo · lokal kopierbar' : 'Direkt nutzbar'}</span>
             <h3>Dein Kundenbriefing ist vorbereitet</h3>
             <p class="briefing-manual-note"><b>Im Assistenten:</b> Prompt einfügen und selbst absenden. Erst dann werden die enthaltenen Daten übertragen.</p>
             ${withChooser ? assistantChooserHtml(currentAssistant, 'customer-briefing') : ''}
@@ -133,7 +130,7 @@ function renderBriefing({ withChooser = false } = {}) {
             rebuildPrompt();
             fillVisiblePrompt();
             actionFooter();
-        });
+        }, { persist: !previewActive() });
     }
     // Der Prompt wird sofort neu gebaut und angezeigt: Der Nutzer soll die
     // Wirkung seiner Quelle hier sehen, nicht erst im Assistenten.
@@ -163,6 +160,11 @@ function renderDemo() {
 }
 
 async function openAssistant() {
+    if (previewActive()) {
+        const copied = await copyText(currentPrompt);
+        showBriefingCopyResult(dialog?.open ? body : null, copied, currentAssistant.label, { demo: true });
+        return;
+    }
     if (isDemoCustomer(currentCustomer)) {
         renderDemo();
         return;

@@ -178,8 +178,8 @@ describe('Showcase-Stories: Guardrail', () => {
 
     it('am fokussierten Desktop entfallen Empfangs- und deaktivierte Modul-Stories', () => {
         const ids = visibleStories({ isDesktop: true }).map((s) => s.id);
-        expect(ids).toEqual(['tour', 'handy-qr', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'tresor']);
-        expect(ids).not.toContain('empfang');
+        expect(ids).toEqual(['tour', 'handy-qr', 'briefing', 'chancen', 'excel-karte', 'import-zuordnung', 'empfang', 'tresor']);
+        expect(ids).toContain('empfang');
         expect(ids).not.toContain('simulation');
         expect(ids).not.toContain('service-tag');
     });
@@ -436,13 +436,13 @@ describe('Showcase-Stories: Guardrail', () => {
                 expect(texts).toMatch(/freigegeben.*Microsoft 365 Copilot/);
                 expect(texts).toContain('Datenschutz');
                 expect(texts).toContain('Tour planen');
-                expect(texts).toContain('nichts kopiert und kein Assistent geöffnet');
+                expect(texts).toContain('lokal kopiert; kein Assistent geöffnet');
                 expect(steps.some((step) => step.key === 'lassoPickedToTour')).toBe(true);
             }
         }
         expect(showcaseSource).toContain("areaLabelFor({ mode: 'lasso' }), { preview: true }");
         const ui = readFileSync(resolve(process.cwd(), 'src/ui/areaBriefing.js'), 'utf8');
-        expect(ui).toContain('data-area-open disabled');
+        expect(ui).not.toContain('data-area-open disabled');
     });
 
     it('lässt die Auswahl für den Rückweg liegen, statt sie mit dem Dialog wegzuräumen', () => {
@@ -469,7 +469,7 @@ describe('Showcase-Stories: Guardrail', () => {
         const texts = briefing.steps.map((step) => step.text || '').join(' ');
         expect(texts).toContain('Zwischenablage');
         expect(texts).toMatch(/freigegeben.*Microsoft 365 Copilot/);
-        expect(texts).toContain('nichts kopiert und kein Assistent geöffnet');
+        expect(texts).toContain('lokal kopiert; kein Assistent geöffnet');
         expect(briefing.steps.some((step) => step.sel === '#customer-briefing-footer')).toBe(true);
         // Start zu Hause in Dortmund – wie in der Tour-Demo.
         expect(briefing.steps.some((step) => step.key === 'pickHome')).toBe(true);
@@ -539,7 +539,7 @@ describe('Live-Demos direkt im Fenster „Eigene Daten laden"', () => {
 
     it('bietet beim Excel-Import die Import-Demo und bei .tfsafe (nur Handy) die Empfangs-Demo an', () => {
         expect(dialog).toContain('data-demo-story="import-zuordnung"');
-        expect(dialog).toMatch(/class="linklike own-data-demo only-mobile" data-demo-story="empfang"/);
+        expect(dialog).toMatch(/class="linklike own-data-demo" data-demo-story="empfang"/);
         for (const id of ['import-zuordnung', 'empfang']) expect(STORIES.some((s) => s.id === id)).toBe(true);
     });
 
@@ -566,7 +566,7 @@ describe('Aufs Handy schließt an die Tour-Demo an', () => {
     it('zeigt das Kundenbriefing in der Demo als Vorschau, außerhalb bleibt die Sperre', () => {
         const ui = readFileSync(resolve(process.cwd(), 'src/ui/customerBriefing.js'), 'utf8');
         expect(ui).toContain("if (isDemoCustomer(customer) && !briefingPreview)");
-        expect(ui).toContain('data-briefing-open disabled');
+        expect(ui).not.toContain('data-briefing-open disabled');
         expect(showcase).toContain('setCustomerBriefingPreview(true);');
         expect(showcase).toContain('setCustomerBriefingPreview(false);');
     });

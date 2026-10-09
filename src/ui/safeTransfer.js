@@ -35,6 +35,7 @@ let videoStream = null;
 let scanLoopId = 0;
 let lastExport = null;     // { container, keyQr, count } zum erneuten Download
 let pendingContainer = null; // im Empfang gewählte, noch nicht entschlüsselte Datei
+let receiveDemo = null; // isolierte Vorführung, niemals im eigenen Datenbestand speichern
 
 export function initSafeTransfer() {
     exportDialog = document.getElementById('safe-export-dialog');
@@ -45,7 +46,7 @@ export function initSafeTransfer() {
 
     exportDialog.querySelector('.dialog-close').addEventListener('click', () => exportDialog.close());
     receiveDialog.querySelector('.dialog-close').addEventListener('click', () => receiveDialog.close());
-    receiveDialog.addEventListener('close', stopCamera);
+    receiveDialog.addEventListener('close', () => { stopCamera(); receiveDemo = null; pendingContainer = null; });
 
     document.getElementById('btn-safe-export')?.addEventListener('click', openExportDialog);
     document.getElementById('btn-safe-receive')?.addEventListener('click', openReceiveDialog);
@@ -121,6 +122,7 @@ function transferCountText(meta) {
 
 // ---- Empfang (Handy) ----
 function openReceiveDialog() {
+    receiveDemo = null;
     pendingContainer = null;
     showStep('file');
     document.getElementById('safe-file-meta').hidden = true;
@@ -132,31 +134,15 @@ function openReceiveDialog() {
 function showStep(step) {
     document.getElementById('safe-step-file').hidden = step !== 'file';
     document.getElementById('safe-step-key').hidden = step !== 'key';
-    if (step === 'key') startCamera();
+    document.getElementById('safe-step-demo-result').hidden = step !== 'demo-result';
+    if (step === 'key' && !receiveDemo) startCamera();
     else stopCamera();
 }
 
-/**
- * Für die Live-Demo: den Schlüssel-Schritt zeigen (Scanner-Bereich, Foto-Fallback
- * und manuelles Eingabefeld) OHNE die Kamera zu starten – so gibt es keinen
- * Berechtigungs-Dialog. Die eingesetzten Beispielwerte werden beim nächsten
- * echten Öffnen wieder zurückgesetzt.
- */
-export function showKeyStepForDemo() {
-    if (!receiveDialog) receiveDialog = document.getElementById('safe-receive-dialog');
-    if (!receiveDialog) return;
-    if (!receiveDialog.open) receiveDialog.showModal();
-    const meta = document.getElementById('safe-file-meta');
-    if (meta) { meta.innerHTML = '🔒 Verschlüsselte Datei · <b>48 Kunden</b> · erstellt am 04.07.2026, 10:00'; meta.hidden = false; }
-    document.getElementById('safe-step-file').hidden = true;
-    document.getElementById('safe-step-key').hidden = false;
-    const status = document.getElementById('safe-scan-status');
-    if (status) status.textContent = 'Kamera auf den Schlüssel-QR am Desktop richten … (Vorschau)';
-    const details = document.querySelector('#safe-step-key details');
-    if (details) details.open = true;
-    const input = document.getElementById('safe-key-input');
-    if (input) input.value = 'TFK1:a1b2c3d4e5f6:s3hr-l4ngerSchluessel…';
-    // Kamera bewusst NICHT starten (kein getUserMedia in der Demo).
+/** Echte Datei- und Schlüsselprüfung in einer isolierten Demo ohne Kamera oder Speicherung. */
+export function beginReceiveDemo() {
+    receiveDemo = {};
+    showStep('file');
 }
 
 /**
@@ -187,11 +173,13 @@ export function safeFileProblemText(problem, file) {
 }
 
 async function onFileChosen(e) {
+    const demo = receiveDemo;
     const file = e.target.files?.[0];
     e.target.value = '';
     if (!file) return;
     let bytes;
     try { bytes = await file.arrayBuffer(); } catch { showToast('Datei konnte nicht gelesen werden.', 'error'); return; }
+    if (demo && (receiveDemo !== demo || !receiveDialog.open)) return;
     const { container, problem } = readSafeFile(bytes);
     if (!container) {
         showToast(safeFileProblemText(problem, file), 'error', 12000);
@@ -205,6 +193,7 @@ async function onFileChosen(e) {
     meta.innerHTML = `🔒 Verschlüsselte Datei · <b>${transferCountText(container)}</b> · erstellt am ${escapeHtml(created)}`;
     meta.hidden = false;
     showStep('key');
+    if (demo) document.getElementById('safe-scan-status').textContent = 'Demo: Schlüssel einfügen – die Kamera bleibt aus.';
 }
 
 async function startCamera() {
@@ -275,6 +264,7 @@ function onKeyEntered() {
 }
 
 async function handleKeyText(text) {
+    const demo = receiveDemo;
     const parsed = parseKeyQr(text);
     if (!parsed) {
         showToast('Das ist kein TourFuchs-Schlüssel (TFK1:…).', 'error');
@@ -294,6 +284,13 @@ async function handleKeyText(text) {
         dataset = await decryptSafeTransfer(pendingContainer, parsed.keyB64);
     } catch {
         showToast('Entschlüsselung fehlgeschlagen – Schlüssel falsch oder Datei beschädigt.', 'error', 6000);
+        return;
+    }
+    if (demo) {
+        if (receiveDemo !== demo || !receiveDialog.open) return;
+        const customers = Array.isArray(dataset?.customers) ? dataset.customers : [];
+        document.getElementById('safe-demo-result').textContent = `${customers.length} Kunden entschlüsselt: ${customers.map((c) => `[${c.nummer}] ${c.name}`).join(' · ')}`;
+        showStep('demo-result');
         return;
     }
     await applyImported(dataset);

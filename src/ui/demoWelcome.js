@@ -206,6 +206,7 @@ export function initDemoWelcome() {
     // „Live-Demos ansehen" quittiert; das Öffnen des Schaufensters übernimmt das
     // Showcase-Modul (dort ist der Knopf mitregistriert).
     document.getElementById('btn-demo-welcome-demos')?.addEventListener('click', dismiss);
+    document.getElementById('btn-demos-pill')?.addEventListener('click', dismiss);
     document.getElementById('btn-demo-welcome-ack')?.addEventListener('click', explore);
     document.getElementById('btn-demo-welcome-close')?.addEventListener('click', explore);
 

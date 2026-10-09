@@ -28,7 +28,7 @@ const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const OUTPUT = resolve(ROOT, 'public/docs/screenshots');
 const FIXTURE = readFileSync(resolve(ROOT, 'tools/fixtures/docs-screenshot-customers.tsv'), 'utf8');
 const APP_VERSION = JSON.parse(readFileSync(resolve(ROOT, 'package.json'), 'utf8')).version;
-const CAPTURE_DATE = '2026-10-07';
+const CAPTURE_DATE = '2026-10-09';
 const sleep = (ms) => new Promise((done) => setTimeout(done, ms));
 
 const DESKTOP = { name: 'desktop', width: 1440, height: 900, hasTouch: false };
