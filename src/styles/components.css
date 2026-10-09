@@ -2133,12 +2133,12 @@ body.offers-receded #demo-banner {
 .geocode-state button { min-height: 32px; padding: 4px 12px; border-radius: 999px; font-size: 0.82rem; }
 
 /* Zentraler Willkommens-Hinweis über der Karte (nicht blockierend): liegt über
-   dem Kartenbereich rechts der Sidebar, lässt die Karte darunter aber bedienbar
+   dem ganzen Kartenbereich, lässt die Karte darunter aber bedienbar
    (der Rahmen selbst fängt keine Klicks, nur die Karte). */
 .demo-welcome {
     position: absolute;
     top: var(--topbar-height);
-    left: var(--sidebar-width, 0px);
+    left: 0;
     right: 0;
     bottom: 0;
     z-index: 1055; /* über der Sidebar (1050), unter echten Dialogen */
@@ -2149,6 +2149,8 @@ body.offers-receded #demo-banner {
     pointer-events: none;
 }
 .demo-welcome[hidden] { display: none; }
+/* Auch ein frei verschobenes Panel und sein Ausblend-Übergang bleiben verborgen. */
+body.desktop-welcome-open .sidebar { visibility: hidden; }
 .demo-welcome-card {
     pointer-events: auto;
     position: relative;

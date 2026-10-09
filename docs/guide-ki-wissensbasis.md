@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.20 · Stand: 08.10.2026 · App-Version: 3.7.0**
+**Version 3.21 · Stand: 09.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `38296ad` plus mobiler Planungsbereich dieses Dokumentationsstands (08.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `cc4f779e7235bb04e31a7ee4bcd7eb7835295c35` plus ruhiger Desktop-Einstieg und Kunden-Kopierformat dieses Dokumentationsstands (09.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -651,10 +651,16 @@ erst einmal vorführen lassen möchten. Technische Unteroptionen erscheinen erst
 nach **"Eigene Daten laden"**.
 
 Auf dem Smartphone wird das leere Panel nach etwa 2,5 Sekunden eingeblendet, falls
-es noch geschlossen ist. Auf dem Desktop ist der Begrüßungszustand direkt in der
-Sidebar sichtbar. Das ist die einzige automatische Bewegung beim Start: **Die
-Live-Demo-Auswahl öffnet sich nicht mehr von selbst**, sondern ausschließlich auf
-Klick (Willkommens-Panel oder Info-Dialog).
+es noch geschlossen ist. Auf dem Desktop tritt die Sidebar zunächst hinter der
+zentralen Startauswahl zurück. **„Verstanden – erst umsehen“**, das Schließen
+der Begrüßung oder ein Tipp auf deren freie Fläche öffnet das Desktop-Panel
+automatisch. Die Live-Demo blendet das Panel für ihre Bedienwege ein; nach Ende
+oder Abbruch bleibt es sichtbar. **„Eigene Daten laden“** hält es während der
+Importauswahl geschlossen und öffnet es nach einem erfolgreichen Kundenimport.
+Bei einem Start mit bereits gespeicherten eigenen Daten ist das Desktop-Panel
+wie gewohnt direkt sichtbar. Die Auswahl einzelner Live-Demos öffnet sich auf
+Klick (Willkommens-Panel oder Info-Dialog); der direkte Demo-Selbststart bei
+Beispieldaten ist nachfolgend beschrieben.
 
 Solange nur Beispieldaten laufen, liegt bei **jedem Start** zusätzlich **mittig
 über der Karte** eine ruhige, nicht-blockierende Begrüßung („Willkommen bei
@@ -1563,7 +1569,7 @@ einen Hinweis; es wird keine externe Kontaktaktion gestartet.
 
 Je nach importierten Daten ebenfalls sichtbar:
 
-- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt, z. B. `000123` -> `[123]`; eine reine Null wird `[0]`. Die angezeigte Originalnummer wird nicht geändert.
+- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Dahinter folgt ein Leerzeichen und der Kundenname, z. B. `000123`, `Musterkunde GmbH` -> `[123] Musterkunde GmbH`; eine reine Null wird `[0] Kundenname`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
 - Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
@@ -4330,6 +4336,13 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - Diagnosebäume, Musterantworten, Mini-Schulungen und Systemprompt aktualisiert.
 
 ---
+
+### Änderungen in Version 3.21 (09.10.2026)
+
+- Desktop-Panel bleibt bei sichtbarer Startauswahl geschlossen; die Begrüßung ist über der ganzen Karte zentriert.
+- Umschauen sowie Ende oder Abbruch einer Demo machen das Desktop-Panel automatisch verfügbar; eigener Kundenimport öffnet es nach erfolgreicher Übernahme.
+- Kundennummer-Kopie enthält zusätzlich den Namen im Format `[Kundennummer] Kundenname`; führende Nullen entfallen weiterhin nur beim Kopieren.
+- PDF, Systemprompt und Custom-GPT-Uploadpaket mit Guide 3.21 synchronisiert, einschließlich der mobilen Änderungen aus 3.20.
 
 ### Änderungen in Version 3.20 (08.10.2026)
 

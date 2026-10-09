@@ -64,7 +64,7 @@ async function step(name, fn) {
         console.log(`  ✓ ${name} (${Math.round((Date.now() - started) / 100) / 10} s)`);
     } catch (error) {
         failures += 1;
-        console.log(`  ✗ ${name}: ${String(error.message || error).split('\n')[0]}`);
+        console.log(`  ✗ ${name}: ${String(error.message || error)}`);
     }
 }
 
@@ -106,6 +106,33 @@ async function desktop(browser, baseUrl) {
 
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
 
+    await step('Startauswahl allein, Panel beim Umschauen und nach der Demo', async () => {
+        const welcome = page.locator('#demo-welcome');
+        const panelOpen = () => page.waitForFunction(() => document.getElementById('sidebar')?.classList.contains('open'), null, { timeout: TIMEOUT });
+        const startSelection = async () => {
+            await welcome.waitFor({ state: 'visible', timeout: TIMEOUT });
+            await page.waitForFunction(() => !document.getElementById('sidebar').classList.contains('open') && getComputedStyle(document.getElementById('sidebar')).visibility === 'hidden', null, { timeout: TIMEOUT });
+            const box = await welcome.boundingBox();
+            if (Math.abs(box.x + box.width / 2 - 720) > 1) throw new Error('Startauswahl ist nicht über der ganzen Karte zentriert');
+        };
+        const restartWelcome = async () => {
+            await page.evaluate(() => sessionStorage.removeItem('tf_demo_welcome_ack'));
+            await page.reload({ waitUntil: 'domcontentloaded' });
+            await startSelection();
+        };
+        await startSelection();
+        await page.locator('#btn-demo-welcome-ack').click();
+        await panelOpen();
+        await restartWelcome();
+        await page.locator('#btn-demo-welcome-demos').click();
+        await page.waitForSelector('.sc-running');
+        await panelOpen();
+        await page.locator('.sc-cancel').click();
+        await page.waitForFunction(() => !document.body.classList.contains('sc-running'), null, { timeout: TIMEOUT });
+        await panelOpen();
+        await restartWelcome();
+    });
+
     await step('Eigene Liste importieren (Einfügen → Zuordnen → Karte)', async () => {
         await closeDialogs(page);
         // Solange die Begrüßung steht, trägt sie das Angebot – sonst der Demo-Streifen.
@@ -113,6 +140,7 @@ async function desktop(browser, baseUrl) {
         if (await welcomeOwn.isVisible().catch(() => false)) await welcomeOwn.click();
         else await page.locator('#btn-demo-own-data').click({ timeout: TIMEOUT });
         await page.waitForSelector('#own-data-dialog[open]', { timeout: TIMEOUT });
+        if (await page.locator('#sidebar').evaluate((el) => el.classList.contains('open'))) throw new Error('Panel öffnet hinter der Importauswahl');
         await page.locator('#btn-paste').click();
         await page.waitForSelector('#consent-dialog[open]', { timeout: TIMEOUT });
         await page.locator('#consent-confirm').click();
@@ -127,6 +155,19 @@ async function desktop(browser, baseUrl) {
         if (await confirmReplace.isVisible({ timeout: 3000 }).catch(() => false)) await confirmReplace.click();
         await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === true, null, { timeout: TIMEOUT });
         await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
+    });
+
+    await step('Kundennummer mit Namen in die Zwischenablage kopieren', async () => {
+        await closeDialogs(page);
+        await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: baseUrl });
+        await page.locator('#global-search').fill('Smoke Test Nord');
+        await page.locator('#search-results .result-row[data-id]').first().click();
+        await page.locator('.leaflet-popup [data-action="copy-customer-number"]').click();
+        const copied = await page.evaluate(() => navigator.clipboard.readText());
+        if (copied !== '[SMOKE-1] Smoke Test Nord') throw new Error(`Falscher Kopierwert: ${copied}`);
+        // Die Kopieraktion schließt das Popup bereits selbst.
+        await page.evaluate(() => document.querySelector('.leaflet-popup-close-button')?.click());
+        await page.locator('#global-search').fill('');
     });
 
     await step('Sidebar bis 150 % ziehen, speichern und frei verschoben skalieren', async () => {

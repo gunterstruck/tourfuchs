@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 07.10.2026 · App-Version 3.7.0
+Stand: 09.10.2026 · App-Version 3.7.0
 
 ## 1. Ziel der Schulung
 
@@ -993,3 +993,11 @@ Nach der Dateiauswahl zeigt TourFuchs „Datei wird vorbereitet“ mit Dateiname
 ### Mehr Platz im Desktop-Panel
 
 Den rechten Rand des Panels mit der Maus ziehen: 340 bis 600 Pixel, maximal 150 % der Standardbreite von 400 Pixeln. Die Breite wird lokal gespeichert und nach dem Neuladen wiederhergestellt. Das funktioniert auch bei frei verschobenem Panel.
+
+### Ruhiger Start und Kunden-Kopie (09.10.2026)
+
+Bei Beispieldaten bleibt das Desktop-Panel zunächst geschlossen. „Verstanden – erst umsehen“ öffnet es; während und nach der Live-Demo steht es automatisch zur Verfügung. „Eigene Daten laden“ öffnet zuerst den Importdialog und nach erfolgreicher Übernahme das Panel. Bereits gespeicherte eigene Daten starten mit sichtbarem Desktop-Panel.
+
+In der Kundenkarte kopiert ein Klick auf die Kundennummer die Zeile `[Kundennummer] Kundenname`, z. B. `[123] Musterkunde GmbH`. Führende Nullen werden nur beim Kopieren entfernt; die Originalnummer bleibt erhalten.
+
+Auf dem Smartphone bietet „Planungsbereich“ durchsuchbare Mehrfachfilter über die am Desktop aktivierten Kategorien und eine dezente Kartenfärbung. Tourstopps außerhalb des Filters bleiben erhalten. „↺ Tour leeren“ beendet die Tour und kehrt zur normalen Karte mit den weiterhin gesetzten Filtern zurück.

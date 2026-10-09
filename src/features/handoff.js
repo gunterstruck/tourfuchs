@@ -33,18 +33,20 @@ export async function copyText(text) {
 
 /**
  * Kundennummer für die Übergabe an andere Anwendungen: führende Nullen weg,
- * anschließend in eckige Klammern. Eine reine Null bleibt als `[0]` erhalten.
+ * anschließend in eckige Klammern, dahinter der Kundenname als eine Zeile.
+ * Eine reine Null bleibt als `[0]` erhalten.
  */
-export function customerNumberClipboardText(number) {
+export function customerNumberClipboardText(number, name = '') {
     const raw = String(number ?? '').trim();
     if (!raw) return '';
     const withoutLeadingZeros = raw.replace(/^0+/, '').trim() || '0';
-    return `[${withoutLeadingZeros}]`;
+    const customerName = String(name ?? '').replace(/\s+/g, ' ').trim();
+    return `[${withoutLeadingZeros}]${customerName ? ` ${customerName}` : ''}`;
 }
 
-/** Kundennummer im Übergabeformat kopieren und Ergebnis samt Wert liefern. */
-export async function copyCustomerNumber(number) {
-    const value = customerNumberClipboardText(number);
+/** Kundennummer und Namen im Übergabeformat kopieren; Ergebnis samt Wert liefern. */
+export async function copyCustomerNumber(number, name = '') {
+    const value = customerNumberClipboardText(number, name);
     return { value, copied: value ? await copyText(value) : false };
 }
 

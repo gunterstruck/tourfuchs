@@ -301,3 +301,7 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **TourFuchs bereitet den Prompt vor und kopiert ihn.** Der Nutzer fügt ihn im Assistenten ein, prüft ihn und sendet ihn selbst ab.
 - **Ein Popup-Blocker kann das Öffnen verhindern.** Der Prompt kann trotzdem in der Zwischenablage liegen und bleibt im Dialog sichtbar.
 - **Der dokumentierte Ablauf endet in TourFuchs.** Kein Bild zeigt eine geöffnete Copilot-, Gemini-, ChatGPT- oder interne Unternehmenssitzung.
+
+## Bedienhinweise zum aktuellen Guide 3.21 (09.10.2026)
+
+Die abgebildeten Beispielansichten bleiben Orientierung. Beim Desktop-Erststart steht heute die Startauswahl allein über der Karte; das Panel erscheint beim Umschauen und während/nach der Demo. Die Kundennummer in der Kundenkarte kopiert `[Kundennummer] Kundenname`. Der mobile Planungsbereich bietet durchsuchbare Mehrfachfilter und Kartenfärbung; bereits gewählte Tourstopps bleiben bei Filterwechseln erhalten.
