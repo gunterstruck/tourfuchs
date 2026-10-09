@@ -48,3 +48,9 @@ export function takeInterruptedImport({ storage = globalThis.localStorage, now =
     if (!note || !Number.isFinite(note.at) || now - note.at > IMPORT_IN_FLIGHT_MAX_AGE_MS || now < note.at) return null;
     return { name: String(note.name || ''), size: Number(note.size) || 0 };
 }
+
+/** 0:07, 1:45 … – Minuten und Sekunden für die laufende Uhr im Wartedialog. */
+export function formatElapsed(totalSeconds) {
+    const seconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+    return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
+}

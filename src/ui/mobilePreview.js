@@ -4,7 +4,7 @@
  */
 
 import { state, on } from '../core/state.js';
-import { showDataView } from './sidebar.js';
+import { showDataView, showTourView } from './sidebar.js';
 import { phoneFaceQuery } from '../core/viewport.js';
 
 const PARAM = 'mobilePreview';
@@ -27,8 +27,15 @@ export function canOfferMobilePreviewTeaser({
     return desktop && appReady && hasCustomers && !seen && !blocked;
 }
 
-export function shouldFocusPreviewData({ requestedFocus = '' } = {}) {
-    return requestedFocus === 'daten';
+/**
+ * Womit die Vorschau startet. Sie soll zeigen, was das echte Handy zeigt: Mit
+ * Kundendaten gibt es dort keinen Daten-Reiter, nur die Tour (mit Filter,
+ * Briefing, Planung). Bis 09.10.2026 öffnete die Vorschau trotzdem „Daten" –
+ * ein Bereich, den das Handy mit Daten gar nicht hat, und ohne Filter.
+ */
+export function previewFocus({ requestedFocus = '', hasCustomers = false } = {}) {
+    if (requestedFocus === 'daten' || requestedFocus === 'tour') return requestedFocus;
+    return hasCustomers ? 'tour' : 'daten';
 }
 
 function readSeen() {
@@ -40,7 +47,7 @@ function markSeen() {
 }
 
 function previewUrl(cacheBust = '') {
-    const params = new URLSearchParams({ [PARAM]: '1', [FOCUS_PARAM]: 'daten' });
+    const params = new URLSearchParams({ [PARAM]: '1', [FOCUS_PARAM]: 'auto' });
     if (cacheBust) params.set('t', cacheBust);
     return `${location.pathname}?${params}`;
 }
@@ -49,16 +56,17 @@ export function initMobilePreview() {
     const params = new URLSearchParams(location.search);
     const btn = document.getElementById('btn-mobile-preview');
 
-    // Innerhalb der Vorschau: keine Verschachtelung. Der Daten-Bereich öffnet
-    // sich nach dem Laden, ohne die gespeicherte Desktop-Ansicht zu verändern.
+    // Innerhalb der Vorschau: keine Verschachtelung. Nach dem Laden öffnet sich
+    // wie am Handy die Tour (mit Daten) bzw. „Daten" (ohne), ohne die
+    // gespeicherte Desktop-Ansicht zu verändern.
     if (params.has(PARAM)) {
         if (btn) btn.hidden = true;
         document.documentElement.classList.add('in-mobile-preview');
         on('app:ready', () => {
             const hasCustomers = state.customers.length > 0;
-            if (shouldFocusPreviewData({ requestedFocus: params.get(FOCUS_PARAM) })) {
-                showDataView(false);
-            }
+            const focus = previewFocus({ requestedFocus: params.get(FOCUS_PARAM), hasCustomers });
+            if (focus === 'tour') showTourView(false);
+            else showDataView(false);
             window.parent.postMessage({ type: PREVIEW_READY_MESSAGE, hasCustomers }, location.origin);
         });
         return;

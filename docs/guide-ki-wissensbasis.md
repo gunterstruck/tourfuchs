@@ -1160,8 +1160,9 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 3. Beim Einlesen einer Datei erscheint **"Datei wird vorbereitet"** statt der
    Importauswahl. Dateiname und Verarbeitungsschritt sind sichtbar:
    **"Datei wird gelesen …"**, **"Tabelle wird aufbereitet …"**,
-   **"Spalten werden erkannt …"**. Umfangreiche Listen können länger dauern;
-   die Verarbeitung läuft lokal im Hintergrund. **"Abbrechen"** oder Escape
+   **"Spalten werden erkannt …"**. Große Listen brauchen am Handy bis zu
+   2 Minuten (Hinweis im Dialog; eine mitlaufende Uhr **"Läuft seit 0:45"**
+   zeigt, dass TourFuchs arbeitet); die Verarbeitung läuft lokal im Hintergrund. **"Abbrechen"** oder Escape
    beendet das Einlesen und führt zum vorherigen Schritt zurück. Der vorhandene
    Kundenbestand bleibt dabei erhalten. Dasselbe gilt beim Wechsel von
    Tabellenblatt oder Überschriftenzeile. Bei Lesefehlern erscheint ein Hinweis;
@@ -2455,7 +2456,10 @@ Drehhinweis erscheinen.
 Am Desktop öffnet das Topbar-Symbol **"Mobile Außendienst & Tour"** eine
 gerahmte Smartphone-Ansicht. Sie ist kein reiner Tourenplaner: Kundenkarte,
 Kundensuche, Kunden-Popup, Briefing, Tour und Navigation bleiben erreichbar.
-Für den schnellen Nutzennachweis startet die Vorschau im geöffneten Tour-Bereich.
+Sie startet wie das echte Handy: Mit Kundendaten im geöffneten Tour-Bereich
+(„Besuchsplaner"; gefiltert wird über **„Planungsbereich"**), ohne Kundendaten im
+Bereich „Daten". Bis 09.10.2026 öffnete die Vorschau auch mit Kundendaten
+„Daten" – einen Bereich, den das Handy mit Daten nicht hat, und ohne Filter.
 
 Sobald erstmals Kundendaten vorhanden sind und kein Dialog oder anderer
 Onboarding-Schritt die Aufmerksamkeit beansprucht, inszeniert TourFuchs diesen
@@ -2842,6 +2846,7 @@ Datei je nach Auswahl aus; TourFuchs prüft den Inhalt selbst. Weitere Befunde:
 
 | Befund | Bedeutung / Rat |
 |---|---|
+| **Fenster „Datei ist gesperrt"** mit der Frage **„Liegt die Datei wirklich auf diesem Handy – im Ordner „Downloads"?"** | Seit 09.10.2026 (zweite Runde): Bei einem Zugriffsfehler öffnet sich dieses Fenster über allem, mit dem Knopf **„Datei aus Downloads wählen"**, der die Auswahl sofort neu öffnet. Unten klein: Dateiname, Größe, Fehlertyp. |
 | **konnte nicht gelesen werden [NotReadableError]** | Der Browser darf die Datei nicht lesen – im Firmenbereich (OneDrive, Teams, Outlook, Arbeitsprofil) sperrt oft eine Richtlinie den Zugriff, oder die Datei liegt nur in der Cloud. Datei zuerst vollständig aufs Gerät herunterladen und aus „Downloads" wählen. |
 | **Es ist keine Datei angekommen / Keine Datei gewählt** | Die Auswahl wurde ohne Datei geschlossen. Fehlte die Datei oder war sie ausgegraut: Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Datei dort speichern (z. B. über Outlook oder OneDrive der Firma). |
 
@@ -3211,8 +3216,10 @@ einige Inhalte entfernt"): Dem Browser ist der Speicher ausgegangen.
 
 - Seit 09.10.2026 liest TourFuchs nur noch das benötigte Tabellenblatt und
   speichersparend (gemessen: rund 40 % weniger Speicher, dreimal so schnell).
-- Der Wartedialog nennt Dateiname und Größe; am Handy erscheint bei großen
-  Dateien vorab der Hinweis „Große Datei für ein Handy …".
+- Der Wartedialog nennt Dateiname und Größe und sagt: große Listen brauchen
+  am Handy bis zu 2 Minuten. Am Handy erscheint bei großen Dateien zusätzlich
+  hervorgehoben „Große Datei: Das dauert am Handy oft 1–2 Minuten …", und eine
+  Uhr („Läuft seit 1:12") zeigt, dass nichts hängt.
 - Wird die Seite trotzdem verworfen, meldet TourFuchs beim nächsten Start:
   **„Der Import von „…" (… MB) wurde nicht abgeschlossen …"**.
 - Abhilfe: am Desktop importieren und per „Sicherer Umzug" aufs Handy bringen –
@@ -3222,8 +3229,11 @@ einige Inhalte entfernt"): Dem Browser ist der Speicher ausgegangen.
 not be read, typically due to permission problems …"**: Der Browser durfte die
 Datei auswählen, aber nicht lesen. Typisch im Firmenbereich (Intune-Arbeitsprofil,
 OneDrive, Teams, Outlook), wenn die Datei nur in der Cloud liegt oder eine
-Richtlinie den Zugriff sperrt. Seit 09.10.2026 steht dort verständlich:
-„Der Browser darf die Datei nicht lesen …". Abhilfe: Datei zuerst vollständig
+Richtlinie den Zugriff sperrt. Seit 09.10.2026 öffnet sich das Fenster
+**„Datei ist gesperrt"** mit einer einzigen, groß abgesetzten Prüffrage:
+**„Liegt die Datei wirklich auf diesem Handy – im Ordner „Downloads"?"** –
+darunter kurz das Wie und der Knopf **„Datei aus Downloads wählen"**. Gilt für
+den Excel-Import und für „Daten empfangen". Abhilfe: Datei zuerst vollständig
 aufs Gerät herunterladen und aus „Downloads" wählen.
 
 ---

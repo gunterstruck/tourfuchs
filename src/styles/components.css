@@ -3332,3 +3332,34 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 #import-wait-file { overflow-wrap: anywhere; }
 #import-wait-phase { font-weight: 600; }
 .import-wait-dialog footer { display: flex; justify-content: flex-end; }
+
+/* Wartedialog: Hinweis für große Dateien deutlich, nicht grau. */
+.import-wait-hint {
+    margin: 8px 0;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: var(--color-primary-light, #f0fdfa);
+    border: 1px solid var(--color-primary, #0d9488);
+    color: var(--color-text);
+    font-weight: 600;
+}
+#import-wait-elapsed { font-variant-numeric: tabular-nums; margin: 4px 0; }
+
+/* Datei gesperrt: eine große Prüffrage, darunter knapp das Wie. */
+.file-access-dialog { width: min(440px, calc(100vw - 32px)); }
+.file-access-dialog h2 { margin-top: 0; }
+.file-access-question {
+    margin: 10px 0 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    background: #fef3c7;
+    border: 2px solid #f59e0b;
+    color: #78350f;
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+.file-access-question::before { content: "📥 "; }
+#file-access-detail { overflow-wrap: anywhere; }
+.file-access-dialog footer { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
+.file-access-dialog footer .primary { font-weight: 700; }

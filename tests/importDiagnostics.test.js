@@ -110,3 +110,57 @@ describe('Excel: nur das benötigte Blatt, speichersparend', () => {
         expect(excel).toContain("if (Array.isArray(sheet['!data']))");
     });
 });
+
+describe('Gesperrte Datei: eine große Prüffrage statt Textwand', () => {
+    it('erkennt Zugriffsfehler am Namen', async () => {
+        const { isFileAccessError } = await import('../src/ui/fileAccessHelp.js');
+        expect(isFileAccessError({ name: 'NotReadableError' })).toBe(true);
+        expect(isFileAccessError({ name: 'SecurityError' })).toBe(true);
+        expect(isFileAccessError({ name: 'RangeError' })).toBe(false);
+        expect(isFileAccessError(null)).toBe(false);
+    });
+
+    it('zeigt das Fenster mit Datei, Größe, Fehlertyp – und der Knopf öffnet die Auswahl neu', async () => {
+        const { showFileAccessHelp } = await import('../src/ui/fileAccessHelp.js');
+        const html = read('index.html');
+        const start = html.indexOf('<dialog id="file-access-dialog"');
+        document.body.innerHTML = html.slice(start, html.indexOf('</dialog>', start) + 9);
+        const dialog = document.getElementById('file-access-dialog');
+        dialog.showModal = function () { this.open = true; };
+        dialog.close = function () { this.open = false; };
+        let retried = 0;
+        expect(showFileAccessHelp({ name: 'FY27.xlsx', size: 24_500_000 }, { name: 'NotReadableError' }, { retry: () => { retried += 1; } })).toBe(true);
+        expect(dialog.open).toBe(true);
+        expect(document.getElementById('file-access-question').textContent).toContain('Downloads');
+        expect(document.getElementById('file-access-detail').textContent).toBe('FY27.xlsx · 23,4 MB · [NotReadableError]');
+        document.getElementById('file-access-retry').click();
+        expect(dialog.open).toBe(false);
+        expect(retried).toBe(1);
+        // Ohne Wiederholen-Aktion kein Knopf, der ins Leere führt.
+        showFileAccessHelp({ name: 'a.xlsx', size: 1 }, { name: 'NotReadableError' });
+        expect(document.getElementById('file-access-retry').hidden).toBe(true);
+    });
+
+    it('ist in Import und Empfang angebunden', () => {
+        expect(read('src/ui/importWizard.js')).toContain("showFileAccessHelp(file, error, { retry: () => document.getElementById('file-input')?.click() })");
+        expect(read('src/ui/safeTransfer.js')).toContain("showFileAccessHelp(file, error, { retry: () => document.getElementById('safe-file-input')?.click() })");
+    });
+
+    it.each(['de', 'en', 'fr', 'es'])('hat Fenster- und Wartetexte in %s', (locale) => {
+        for (const key of ['fileAccess.title', 'fileAccess.question', 'fileAccess.why', 'fileAccess.fix', 'fileAccess.retry', 'fileAccess.close', 'import.wait.elapsed']) {
+            expect(MESSAGES[locale][key], `${locale}:${key}`).toBeTruthy();
+        }
+        expect(MESSAGES[locale]['import.wait.detail']).toMatch(/2/);
+    });
+});
+
+describe('Wartedialog: Geduld mit Ansage', () => {
+    it('nennt bis zu 2 Minuten und zeigt eine laufende Uhr', async () => {
+        expect(MESSAGES.de['import.wait.detail']).toContain('bis zu 2 Minuten');
+        expect(MESSAGES.de['import.wait.largeMobile']).toContain('1–2 Minuten');
+        const { formatElapsed } = await import('../src/features/importInFlight.js');
+        expect(formatElapsed(7)).toBe('0:07');
+        expect(formatElapsed(105)).toBe('1:45');
+        expect(read('src/ui/importWizard.js')).toContain('clearInterval(clock);');
+    });
+});
