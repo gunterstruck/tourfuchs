@@ -1649,6 +1649,31 @@ Je nach importierten Daten ebenfalls sichtbar:
 - Besuchsrhythmus
 - **"Als Ziel"**
 
+### 8.6a Abschnitt „Zuständig" (internes Kundenteam)
+
+Seit 09.10.2026. Enthält die importierte Liste Rollenspalten – erkannt werden
+**VK**, **OM**, **TSP TC**, **RTC**, **TAM**, **Account Manager**,
+**EB-Berater** und **Innendienst** –, zeigt das Popup den eingeklappten
+Abschnitt **"👥 Zuständig (n)"**:
+
+- je gefüllter Rolle eine Zeile mit Name oder Abteilung; leere Rollen entfallen
+- eine Telefonnummer in der Zelle (z. B. `Vera Kunz 0171 2223344`) wird
+  erkannt und ist antippbar (📞, öffnet die Telefon-App)
+- in der Kopfzeile **Abzeichen**: der Wert aus **"PA Kundenanfrage"** (z. B.
+  „PI-Partner Kunde") und **"Named Account"** (bei „ja/x/1" steht „Named
+  Account"), dazu **Account Name** (nur wenn er vom Kundennamen abweicht) und
+  **Account Cluster**
+- **IFA-Nr.** und **USt-IdNr** erscheinen nicht im Popup; sie bleiben im Export
+
+Das **Kunden-Briefing** nennt Account, Kennzeichen und das interne Kundenteam
+mit Namen als Suchhilfe für den Assistenten – **ohne Telefonnummern**.
+
+Die Rollen kommen typischerweise aus einer zweiten Komplettliste
+(Zuständigkeitsliste), die per Abgleich (siehe 7.6) zum Kundenstamm kommt.
+Spalten mit 2 bis 80 verschiedenen Textwerten (z. B. **Account Cluster**,
+**Reg. VReg**) lassen sich am Desktop zusätzlich als Filterebene nutzen
+(**"+ Ebene hinzufügen"**).
+
 ### 8.7 Direkte Kundenaktionen
 
 - **"Als Start"** setzt den Kunden als Tourstart.

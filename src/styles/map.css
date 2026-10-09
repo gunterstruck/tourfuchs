@@ -893,3 +893,32 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
 @media (prefers-reduced-motion: reduce) {
     .leaflet-lights-pane, .lights-zooming .leaflet-lights-pane { transition: none; }
 }
+
+/* „Zuständig": internes Kundenteam, Abzeichen und Account. */
+.popup-team { margin: 4px 0; font-size: 0.82rem; }
+.popup-team summary {
+    cursor: pointer;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 4px 6px;
+    list-style-position: inside;
+}
+.popup-team-title { font-weight: 700; }
+.popup-team-head { display: flex; flex-wrap: wrap; gap: 4px 6px; margin: 4px 0; font-size: 0.82rem; }
+.popup-team-badge {
+    display: inline-block;
+    padding: 1px 7px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-primary, #0d9488) 14%, transparent);
+    color: var(--color-primary-dark, #0f766e);
+    font-size: 0.74rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.popup-team-account { color: var(--color-text-muted, #64748b); font-size: 0.78rem; }
+.popup-team ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 3px; }
+.popup-team li { display: grid; grid-template-columns: 7.2em 1fr auto; gap: 6px; align-items: baseline; }
+.popup-team-role { color: var(--color-text-muted, #64748b); font-weight: 600; }
+.popup-team-name { overflow-wrap: anywhere; }
+.popup-team-tel { white-space: nowrap; text-decoration: none; font-weight: 600; }
