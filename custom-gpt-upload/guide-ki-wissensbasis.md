@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.19 · Stand: 07.10.2026 · App-Version: 3.7.0**
+**Version 3.21 · Stand: 09.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `8184ec358793a8564fc1cbe7ad0624a71a30dd59` plus Sidebarverbesserung dieses Dokumentationsstands (07.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `cc4f779e7235bb04e31a7ee4bcd7eb7835295c35` plus ruhiger Desktop-Einstieg und Kunden-Kopierformat dieses Dokumentationsstands (09.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -651,10 +651,16 @@ erst einmal vorführen lassen möchten. Technische Unteroptionen erscheinen erst
 nach **"Eigene Daten laden"**.
 
 Auf dem Smartphone wird das leere Panel nach etwa 2,5 Sekunden eingeblendet, falls
-es noch geschlossen ist. Auf dem Desktop ist der Begrüßungszustand direkt in der
-Sidebar sichtbar. Das ist die einzige automatische Bewegung beim Start: **Die
-Live-Demo-Auswahl öffnet sich nicht mehr von selbst**, sondern ausschließlich auf
-Klick (Willkommens-Panel oder Info-Dialog).
+es noch geschlossen ist. Auf dem Desktop tritt die Sidebar zunächst hinter der
+zentralen Startauswahl zurück. **„Verstanden – erst umsehen“**, das Schließen
+der Begrüßung oder ein Tipp auf deren freie Fläche öffnet das Desktop-Panel
+automatisch. Die Live-Demo blendet das Panel für ihre Bedienwege ein; nach Ende
+oder Abbruch bleibt es sichtbar. **„Eigene Daten laden“** hält es während der
+Importauswahl geschlossen und öffnet es nach einem erfolgreichen Kundenimport.
+Bei einem Start mit bereits gespeicherten eigenen Daten ist das Desktop-Panel
+wie gewohnt direkt sichtbar. Die Auswahl einzelner Live-Demos öffnet sich auf
+Klick (Willkommens-Panel oder Info-Dialog); der direkte Demo-Selbststart bei
+Beispieldaten ist nachfolgend beschrieben.
 
 Solange nur Beispieldaten laufen, liegt bei **jedem Start** zusätzlich **mittig
 über der Karte** eine ruhige, nicht-blockierende Begrüßung („Willkommen bei
@@ -1563,7 +1569,7 @@ einen Hinweis; es wird keine externe Kontaktaktion gestartet.
 
 Je nach importierten Daten ebenfalls sichtbar:
 
-- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt, z. B. `000123` -> `[123]`; eine reine Null wird `[0]`. Die angezeigte Originalnummer wird nicht geändert.
+- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Dahinter folgt ein Leerzeichen und der Kundenname, z. B. `000123`, `Musterkunde GmbH` -> `[123] Musterkunde GmbH`; eine reine Null wird `[0] Kundenname`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
 - Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
@@ -1884,15 +1890,15 @@ Weitere Details: `docs/kundenbriefing.md`.
 
 *BILD-TOUR-01 - TourFuchs zeigt die drei Planungsstufen; der Nutzer öffnet und füllt sie bewusst selbst.*
 
-1. Nichts. Geplant wird über **alle Vertriebsbezirke**. Wer einschränken will,
-   tippt auf die Zeile **"🗺️ Bezirk: Alle Bezirke · N Kunden · ändern ▸"** und
-   wählt unter **"Auf welchen Bezirk einschränken?"**; über **"Alle Bezirke"**
-   geht es genauso zurück. Enthalten die Daten nur einen Bezirk, fehlt die
-   Zeile ganz.
+1. Nichts. Geplant wird über **alle Kunden**. Am Desktop schränkt die Zeile
+   **"🗺️ Bezirk: Alle Bezirke · N Kunden · ändern ▸"** bei Bedarf auf einen
+   Bezirk ein. Auf dem Smartphone öffnet **"🗺️ Planungsbereich"** die
+   durchsuchbare Mehrfachauswahl aus Vertriebsbezirk, Vertriebsgruppe, Channel,
+   Kundentyp und geeigneten Zusatzspalten (siehe 10.1a).
 2. **"Mein Standort"** nutzen oder im Feld
    **"...oder Kunde, Ort oder PLZ als Start"** suchen. Das Feld findet dreierlei:
    **eigene Orte**, **Kunden** und **Orte** aus dem mitgelieferten
-   Postleitzahl-Verzeichnis (siehe 10.1a).
+   Postleitzahl-Verzeichnis (siehe 10.1b).
 3. Datum, Startzeit und **"Besuch (Min.)"** einstellen.
 4. Umkreis mit dem Regler anpassen.
 5. optional **"Überfällige zuerst"** aktivieren.
@@ -1905,7 +1911,35 @@ Weitere Details: `docs/kundenbriefing.md`.
 Der Nutzer baut die Tour bewusst selbst. TourFuchs schlägt vor und optimiert nur
 die ausgewählten Stopps.
 
-### 10.1a Orte als Start und Ziel (Station, Büro, Hotel)
+### 10.1a Mobiler Planungsbereich und Kartenfärbung
+
+**Klickpfad Smartphone:** `Tour-Blatt öffnen -> "🗺️ Planungsbereich"`.
+
+Der Reiter **„Filter“** ersetzt die nicht durchsuchbare native Bezirksliste.
+Die Kategorien entsprechen ausschließlich den im Desktop-Tab **„Filter“**
+eingeblendeten Ebenen. Standard sind **Vertriebsbezirk**, **Vertriebsgruppe**
+und **Kundentyp**. **Channel** oder geeignete textliche Zusatzspalten erscheinen
+mobil erst, nachdem sie am Desktop über **„+ Ebene hinzufügen“** aktiviert
+wurden; ausblenden lassen sie sich ebenfalls nur dort. Diese Desktop-Auswahl
+bleibt lokal gespeichert. Das Suchfeld findet den Kategorienwert; beim Vertriebsbezirk
+zusätzlich den Namen des **Vertriebsbeauftragten (VB)**. Mehrere gewählte Werte
+einer Kategorie gelten als **ODER**, verschiedene Kategorien als **UND**. Keine
+Auswahl in einer Kategorie bedeutet **alle**. Die laufende Trefferzahl steht
+oben im Blatt.
+
+Der Reiter **„Karte färben“** bietet **„Automatisch“**, **„Nach Channel“**,
+**„Nach Vertriebsgruppe“**, **„Nach Vertriebsbezirk“** und **„Keine Flächen“**.
+Die Farbe liegt nur dezent hinter Kundenlichtern, Markern und Route. Automatisch
+wechselt die Gebietsebene passend zum Zoom. **„Zurücksetzen“** setzt Filter und
+Kartenwahl zurück; **„Übernehmen“** speichert beides lokal.
+
+Sicherheitsregel: Bereits gewählte Tourstopps werden beim Filtern nie gelöscht.
+Sie bleiben in der Tour und tragen dort den Hinweis **„Außerhalb
+Planungsbereich“**. So ändert ein Analysefilter keine bewusst geplante Route.
+Das Desktop-Gesicht verwendet weiterhin unverändert seine bestehende
+Bezirksauswahl und den Filter-Tab.
+
+### 10.1b Orte als Start und Ziel (Station, Büro, Hotel)
 
 **Klickpfad:** `"Außendienst" -> "Tour" -> Schritt 1 -> Feld "...oder Kunde, Ort
 oder PLZ als Start"`.
@@ -2333,12 +2367,21 @@ gleiche Höhe, neben 🖊️ „Lasso ziehen".
 
 **„Meine Tour" (mobil):** Die Stopps sind kompakte **Ein-Zeilen-Karten** mit
 durchgehender grüner Tourlinie. Umsortiert wird per **Halten & Ziehen**; ein
-**Fokus-Modus** gibt dem gerade aktiven Element mehr Platz.
+**Fokus-Modus** gibt dem gerade aktiven Element mehr Platz. **„↺ Tour leeren"**
+steht direkt am Anfang des Bereichs und bleibt beim Scrollen einer langen Tour
+erreichbar. Die Aktion entfernt Start, Ziel und Stopps, beendet den Tour-Fokus,
+klappt das mobile Blatt ein und zeigt wieder die normale Karte mit allen Kunden
+des weiterhin gültigen Planungsbereichs und der gesetzten Filter. Ein Ziel ist
+violett gekennzeichnet; Rot bleibt Warnungen und fachlichen Statussignalen
+vorbehalten.
 
 Im Sheet funktionieren Scrollbar, Finger-Scrollen und Ziehen auf Freiflächen.
 Die Karte wird mobil mit zwei Fingern gezoomt. Sowohl die zusätzlichen
 Karten-Zoomtasten als auch die Desktop-Panel-Skalierung sind dort bewusst
-ausgeblendet.
+ausgeblendet. Ändert sich die verfügbare Bildschirmhöhe nach Entsperren,
+App-Wechsel, Drehung oder Schließen der Tastatur, beobachtet TourFuchs die
+tatsächliche Kartenfläche und lässt Leaflet seine Kacheln neu berechnen. So
+bleibt unter der Karte keine dunkle Fläche aus der vorherigen Fensterhöhe.
 
 ### 12.3 In der Nähe
 
@@ -4293,6 +4336,21 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 - Diagnosebäume, Musterantworten, Mini-Schulungen und Systemprompt aktualisiert.
 
 ---
+
+### Änderungen in Version 3.21 (09.10.2026)
+
+- Desktop-Panel bleibt bei sichtbarer Startauswahl geschlossen; die Begrüßung ist über der ganzen Karte zentriert.
+- Umschauen sowie Ende oder Abbruch einer Demo machen das Desktop-Panel automatisch verfügbar; eigener Kundenimport öffnet es nach erfolgreicher Übernahme.
+- Kundennummer-Kopie enthält zusätzlich den Namen im Format `[Kundennummer] Kundenname`; führende Nullen entfallen weiterhin nur beim Kopieren.
+- PDF, Systemprompt und Custom-GPT-Uploadpaket mit Guide 3.21 synchronisiert, einschließlich der mobilen Änderungen aus 3.20.
+
+### Änderungen in Version 3.20 (08.10.2026)
+
+- Mobiler „🗺️ Planungsbereich“ mit Suche nach Kategorienwert und VB-Name.
+- Mehrfachfilter über Bezirk, Gruppe, Channel, Kundentyp und geeignete Zusatzspalten.
+- Dezente mobile Kartenfärbung nach Auto, Channel, Gruppe oder Bezirk; Kundenlichter und Route bleiben sichtbar.
+- Bestehende Tourstopps außerhalb des Filters bleiben erhalten und werden gekennzeichnet.
+- Desktop-Ansicht und Desktop-Bezirksauswahl bleiben unverändert.
 
 ### Änderungen in Version 3.19 (07.10.2026)
 

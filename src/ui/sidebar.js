@@ -40,6 +40,14 @@ function toHexColor(value) {
 }
 
 let autoRevealTimer = null;
+let desktopWelcomePending = false;
+
+function revealDesktopSidebar() {
+    if (isSheetUi()) return;
+    desktopWelcomePending = false;
+    state.ui.sidebarOpen = true;
+    applySidebar();
+}
 let demoSheetSnapshot = null;
 let levelBeforeHide = null;
 
@@ -563,6 +571,11 @@ export function applyDataPanelLayout() {
 function applySidebar() {
     const sidebar = document.getElementById('sidebar');
     if (!sidebar) return;
+    // Die Startauswahl erhält die volle Aufmerksamkeit, auch nach Gerätewechsel.
+    if (isDemoWelcomeOpen() && !isSheetUi() && !document.body.classList.contains('sc-running')) {
+        desktopWelcomePending = true;
+        state.ui.sidebarOpen = false;
+    }
     sidebar.classList.toggle('open', state.ui.sidebarOpen);
     document.getElementById('sidebar-toggle').setAttribute('aria-expanded', String(state.ui.sidebarOpen));
     const grip = document.getElementById('sheet-grip');
@@ -1607,6 +1620,7 @@ export function initSidebar() {
     // Datenquellen (Verträge, Serviceeinsätze) behalten ihren Fachdialog offen.
     on('data:imported', (payload) => {
         if (isMobileUi() && !payload?.type) showMapView(false);
+        else if (!payload?.type && desktopWelcomePending) revealDesktopSidebar();
     });
 
     on('customers:changed', () => {
@@ -1627,8 +1641,15 @@ export function initSidebar() {
         renderDataStatus();
         // Handy: Steht die Begrüßung vor leerer Karte, bleibt das Blatt unten –
         // sonst begrüßt dasselbe Willkommen zweimal übereinander.
-        if (open && state.customers.length === 0) showMapView(false);
+        if (open && !isSheetUi()) {
+            desktopWelcomePending = true;
+            state.ui.sidebarOpen = false;
+            applySidebar();
+        } else if (open && state.customers.length === 0) showMapView(false);
     });
+    on('demo-welcome:explore', revealDesktopSidebar);
+    // Die Demo braucht ihre Bedienelemente; nach Ende oder Abbruch bleiben sie erreichbar.
+    on('showcase:running', revealDesktopSidebar);
     on('settings:persist', persistSettings);
     renderDataStatus();
     syncRevenueFilterControls();

@@ -90,14 +90,24 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         expect(customerNumberClipboardText(number)).toBe(expected);
     });
 
+    it.each([
+        ['00004711', 'Musterkunde GmbH', '[4711] Musterkunde GmbH'],
+        ['0000', 'Null GmbH', '[0] Null GmbH'],
+        [' 000AB12 ', '  A & B\nGmbH  ', '[AB12] A & B GmbH'],
+        ['4711', '', '[4711]'],
+        ['', 'Musterkunde', '']
+    ])('kopiert Nummer und Namen als eine Zeile (%j, %j)', (number, name, expected) => {
+        expect(customerNumberClipboardText(number, name)).toBe(expected);
+    });
+
     it('macht die Nummer anklickbar und erklärt den konkreten Kopierwert', () => {
         state.ui.depth = 'profi';
 
         const html = customerPopupHtml(customer(45000, { nummer: '00004711' }));
 
         expect(html).toContain('data-action="copy-customer-number"');
-        expect(html).toContain('title="Kundennummer als [4711] in die Zwischenablage kopieren"');
-        expect(html).toContain('aria-label="Kundennummer als [4711] in die Zwischenablage kopieren"');
+        expect(html).toContain('title="Kundennummer und Name als [4711] Musterkunde GmbH in die Zwischenablage kopieren"');
+        expect(html).toContain('aria-label="Kundennummer und Name als [4711] Musterkunde GmbH in die Zwischenablage kopieren"');
         expect(html).toContain('<span aria-hidden="true">⧉</span>');
         expect(html).toContain('Nr. 00004711');
     });
@@ -106,10 +116,10 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         const writeText = vi.fn().mockResolvedValue(undefined);
         vi.stubGlobal('navigator', { clipboard: { writeText } });
 
-        await expect(copyCustomerNumber('00004711')).resolves.toEqual({
-            value: '[4711]',
+        await expect(copyCustomerNumber('00004711', 'Musterkunde GmbH')).resolves.toEqual({
+            value: '[4711] Musterkunde GmbH',
             copied: true
         });
-        expect(writeText).toHaveBeenCalledWith('[4711]');
+        expect(writeText).toHaveBeenCalledWith('[4711] Musterkunde GmbH');
     });
 });

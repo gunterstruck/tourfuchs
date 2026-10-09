@@ -889,3 +889,7 @@ Direktes Nutzerfeedback aus dem Smartphone-Praxistest: Der native Einzelauswahl-
 - Kartenflächen wahlweise automatisch, nach Channel, Vertriebsgruppe, Vertriebsbezirk oder ganz ohne Flächen; Kundenlichter und Route bleiben führend.
 - Bestehende Tourstopps werden durch neue Filter nie still gelöscht, sondern als außerhalb des Planungsbereichs markiert.
 - Filter und Kartenwahl bleiben lokal gespeichert. Desktop-Markup und Desktop-Bedienung bleiben unverändert.
+
+### Ruhiger Desktop-Einstieg und Kunden-Kopie (09.10.2026, umgesetzt)
+
+Die zentrale Startauswahl erhält die volle Kartenfläche; das Desktop-Panel bleibt geschlossen. Beim Umschauen, während/nach der Demo und nach erfolgreichem eigenem Kundenimport steht es automatisch bereit. Ein Klick auf die Kundennummer kopiert `[Kundennummer] Kundenname` mit der bisherigen Nullenkürzung. Beide Änderungen erleichtern den Einstieg bzw. die Weitergabe im Außendienst-Alltag.
