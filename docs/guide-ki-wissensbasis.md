@@ -1308,7 +1308,7 @@ dafür nötige Ereignis nicht. Dort zeigt dasselbe Angebot deshalb den einzigen
 Weg, den es gibt: **Teilen → "Zum Home-Bildschirm"**. Das trifft besonders den
 Fall, in dem die Tour gerade per QR-Scan im Handy-Browser gelandet ist.
 
-### 7.6 Erneuter Import und vollständige Ersetzung
+### 7.6 Erneuter Import: Abgleich mit dem Bestand
 
 ![Daten-Reiter mit Export und dem Einstieg für eine andere vollständige Liste](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
 
@@ -1322,8 +1322,29 @@ die nie echt war. Sobald ein einziger echter Kunde, eine eigene
 Gebietszuordnung oder eine eigene Vertragsquelle dabei ist, greift der Schutz
 wieder vollständig.
 
-Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
-kein Delta und kein Upsert. TourFuchs liest und prüft die Datei zuerst. Sind
+**Seit 09.10.2026: Abgleich statt Blindersatz.** Eine Excel-/CSV-Datei mit
+Kundenzeilen ist die Wahrheit **für die Spalten, die sie enthält** – und nur
+dafür. Je Kunde (Kundennummer, sonst Name + PLZ) gilt:
+
+- Spalte steht in der Datei → Wert aus der Datei, **auch eine leere Zelle**
+  (z. B. ein ausgetragener VK).
+- Spalte steht nicht in der Datei → der bisherige Wert **bleibt** (z. B.
+  Straße, Ansprechpartner, Umsatz, Zuständigkeiten aus einer anderen Liste).
+- Die **Position** (auch adressgenau) bleibt, solange die Anschrift gleich ist.
+- Erfasste **Besuche** und in TourFuchs gesetzte Pins bleiben.
+
+Damit lassen sich zwei Komplettlisten mit verschiedenen Spalten abwechselnd
+einlesen, z. B. die Kundenstammliste (mit Straße) und eine Zuständigkeitsliste
+(Kd-Nr., VK, OM, TAM, Account Manager …, ohne Straße). **"Kd-Nr."** wird dabei
+automatisch als Kundennummer erkannt.
+
+**Fehlende Kunden:** Fehlen Kunden des Bestands in der Datei, fragt der
+Änderungsbericht **"Behalten"** (die Datei ergänzt nur) oder **"Entfernen"** (die
+Datei ist die neue Fassung der ganzen Liste). Vorgeschlagen ist "Behalten", wenn
+die Datei Angaben des Bestands nicht enthält – sie steht dann unter **"Bleibt
+erhalten"** –, sonst "Entfernen". Die Zahlen im Bericht folgen der Wahl.
+
+TourFuchs liest und prüft die Datei zuerst. Sind
 bereits Kunden vorhanden, erscheint vor jeder Änderung der **Änderungsbericht**
 **"Was ändert sich?"**:
 
@@ -1344,7 +1365,8 @@ Standardabfrage.
 
 Nach Bestätigung werden gemeinsam ersetzt:
 
-- bisherige Kunden und ihre lokal ergänzten Besuchs-/Kontaktdaten
+- bisherige Kunden – nach den Regeln des Abgleichs oben (was die Datei nicht
+  enthält, bleibt)
 - aktuelle Tour, Start, Ziel und Stopps
 - bisherige Gebietszuordnungen; Flächenzeilen der neuen Datei werden anschließend
   neu aufgebaut

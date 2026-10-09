@@ -188,7 +188,10 @@ export function extractDelimitedGrid(text) {
  * `{ headers, rows }` mit einem Objekt je Datenzeile.
  */
 export function parseClipboardTable(text) {
-    const raw = String(text ?? '').replace(/^﻿/, '').replace(/\s+$/, '');
+    // Am Ende nur Zeilenumbrüche und Leerzeichen kappen, keine Tabs: Excel
+    // kopiert leere Zellen am Zeilenende als Tabs. Fielen die in der letzten
+    // Zeile weg, hätte sie zu wenige Spalten – und ginge lautlos verloren.
+    const raw = String(text ?? '').replace(/^﻿/, '').replace(/[ \r\n]+$/, '');
     if (!raw.trim()) throw new Error('Die Zwischenablage ist leer.');
 
     // Reihenfolge: Markdown ist eindeutig erkennbar und geht vor. Danach der
@@ -197,7 +200,9 @@ export function parseClipboardTable(text) {
     const markdown = extractMarkdownGrid(raw);
     const delimited = markdown ? null : extractDelimitedGrid(raw);
     const delimiter = markdown ? 'markdown' : (delimited?.delimiter ?? detectDelimiter(raw));
-    const grid = markdown || delimited?.grid || splitRows(raw, delimiter);
+    const grid = [...(markdown || delimited?.grid || splitRows(raw, delimiter))];
+    // Rein leere Schlusszeilen (nur Tabs) zählen nicht als Datenzeilen.
+    while (grid.length && grid[grid.length - 1].every((cell) => String(cell ?? '').trim() === '')) grid.pop();
 
     if (grid.length < 2) {
         throw new Error('Es wurde nur eine Zeile gefunden. Bitte die Überschriftenzeile mit markieren.');
