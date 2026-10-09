@@ -526,6 +526,16 @@ async function openTourTab() {
     showTourView();
     await sleep(200);
 }
+/** Warten, bis die Karte nicht mehr zoomt oder schwenkt (höchstens `maxMs`), plus kurze Ruhe. */
+async function mapSettled(maxMs = 4000) {
+    const map = getMap();
+    const started = Date.now();
+    while (map && (map._animatingZoom || map._panAnim?._inProgress) && Date.now() - started < maxMs) {
+        await sleep(100);
+    }
+    await sleep(300);
+}
+
 async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
     const el = await moveToEl(sel);
     if (!el) return false;
@@ -1474,10 +1484,19 @@ const HELPERS = {
         await fillNoFocus('#min-region-customers', '1');
         fitToCustomers();
         await sleep(1000);
-        const tile = await resolveEl('.territory-stack-card', 12000);
-        if (!tile) throw new Error('Die Gebietskachel ist noch nicht verfügbar. Bitte nach dem Laden der Karte erneut starten.');
-        await clickEl('.territory-stack-card');
-        if (!await resolveEl('#territory-summary-dialog[open]', 3000)) throw new Error('Die große Gebietskachel konnte nicht geöffnet werden.');
+        // Mit eigenen Daten zoomt die Karte oft weit hinein (nur eine Region);
+        // solange sie sich bewegt, baut Leaflet die Kacheln neu auf und ein
+        // Klick träfe eine gerade ersetzte Kachel. Erst warten, bis sie steht,
+        // dann bis zu dreimal versuchen – jeweils mit frisch gesuchter Kachel.
+        await mapSettled();
+        for (let attempt = 1; attempt <= 3; attempt++) {
+            const tile = await resolveEl('.territory-stack-card', attempt === 1 ? 12000 : 4000);
+            if (!tile) throw new Error('Die Gebietskachel ist noch nicht verfügbar. Bitte nach dem Laden der Karte erneut starten.');
+            await clickEl('.territory-stack-card');
+            if (await resolveEl('#territory-summary-dialog[open]', 3000)) return;
+            await mapSettled();
+        }
+        throw new Error('Die große Gebietskachel konnte nicht geöffnet werden.');
     },
     async overviewZoom() {
         await clickEl('#territory-summary-focus');

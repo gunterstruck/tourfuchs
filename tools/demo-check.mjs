@@ -117,7 +117,12 @@ async function startPreview(port) {
 async function openPanel(page) {
     // Die Begrüßung zählt sonst ab und startet nach zehn Sekunden von selbst.
     await page.locator('#btn-demo-welcome-ack').click({ timeout: 2000 }).catch(() => {});
-    for (const sel of ['#btn-demo-overview', '#btn-showcase-ob', '#btn-showcase']) {
+    // Die mobile Vorschau kann sich am Desktop beim Start öffnen und liegt
+    // dann über allem – vorher schließen.
+    await page.evaluate(() => document.querySelector('#mobile-preview:not([hidden]) [data-mp-close]')?.click()).catch(() => {});
+    // Seit 09.10.2026 steht „Live-Demos" dauerhaft im Desktop-Kopf; das
+    // Desktop-Panel (mit Demo-Streifen) ist beim Start geschlossen.
+    for (const sel of ['#btn-demos-pill', '#btn-demo-overview', '#btn-showcase-ob', '#btn-showcase']) {
         const el = page.locator(sel).first();
         if (await el.count() && await el.isVisible().catch(() => false)) {
             await el.click({ timeout: 5000 }).catch(() => {});
