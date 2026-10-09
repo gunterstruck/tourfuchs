@@ -2460,8 +2460,9 @@ Drehhinweis erscheinen.
 Am Desktop öffnet das Topbar-Symbol **"Mobile Außendienst & Tour"** eine
 gerahmte Smartphone-Ansicht. Sie ist kein reiner Tourenplaner: Kundenkarte,
 Kundensuche, Kunden-Popup, Briefing, Tour und Navigation bleiben erreichbar.
-Sie startet wie das echte Handy: Mit Kundendaten im geöffneten Tour-Bereich
-(„Besuchsplaner"; gefiltert wird über **„Planungsbereich"**), ohne Kundendaten im
+Sie startet wie das echte Handy: Mit Kundendaten auf der **Karte** – Blatt
+eingeklappt, **ganz Deutschland im Bild**; Tour, Filter (**„Planungsbereich"**)
+und Briefing öffnen sich über das Blatt. Ohne Kundendaten startet sie im
 Bereich „Daten". Bis 09.10.2026 öffnete die Vorschau auch mit Kundendaten
 „Daten" – einen Bereich, den das Handy mit Daten nicht hat, und ohne Filter.
 
