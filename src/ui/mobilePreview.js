@@ -4,7 +4,8 @@
  */
 
 import { state, on } from '../core/state.js';
-import { showDataView, showTourView } from './sidebar.js';
+import { showDataView, showMapView } from './sidebar.js';
+import { fitGermany } from '../features/map.js';
 import { phoneFaceQuery } from '../core/viewport.js';
 
 const PARAM = 'mobilePreview';
@@ -29,13 +30,14 @@ export function canOfferMobilePreviewTeaser({
 
 /**
  * Womit die Vorschau startet. Sie soll zeigen, was das echte Handy zeigt: Mit
- * Kundendaten gibt es dort keinen Daten-Reiter, nur die Tour (mit Filter,
- * Briefing, Planung). Bis 09.10.2026 öffnete die Vorschau trotzdem „Daten" –
- * ein Bereich, den das Handy mit Daten gar nicht hat, und ohne Filter.
+ * Kundendaten die Karte (Blatt eingeklappt, ganz Deutschland im Bild) – Tour,
+ * Filter und Briefing liegen eine Geste entfernt im Blatt. Ohne Daten „Daten".
+ * Bis 09.10.2026 öffnete die Vorschau „Daten" – einen Bereich, den das Handy
+ * mit Daten gar nicht hat.
  */
 export function previewFocus({ requestedFocus = '', hasCustomers = false } = {}) {
-    if (requestedFocus === 'daten' || requestedFocus === 'tour') return requestedFocus;
-    return hasCustomers ? 'tour' : 'daten';
+    if (requestedFocus === 'daten' || requestedFocus === 'karte') return requestedFocus;
+    return hasCustomers ? 'karte' : 'daten';
 }
 
 function readSeen() {
@@ -56,8 +58,8 @@ export function initMobilePreview() {
     const params = new URLSearchParams(location.search);
     const btn = document.getElementById('btn-mobile-preview');
 
-    // Innerhalb der Vorschau: keine Verschachtelung. Nach dem Laden öffnet sich
-    // wie am Handy die Tour (mit Daten) bzw. „Daten" (ohne), ohne die
+    // Innerhalb der Vorschau: keine Verschachtelung. Nach dem Laden zeigt sie
+    // wie am Handy die Karte (mit Daten) bzw. „Daten" (ohne), ohne die
     // gespeicherte Desktop-Ansicht zu verändern.
     if (params.has(PARAM)) {
         if (btn) btn.hidden = true;
@@ -65,8 +67,12 @@ export function initMobilePreview() {
         on('app:ready', () => {
             const hasCustomers = state.customers.length > 0;
             const focus = previewFocus({ requestedFocus: params.get(FOCUS_PARAM), hasCustomers });
-            if (focus === 'tour') showTourView(false);
-            else showDataView(false);
+            if (focus === 'karte') {
+                showMapView(false);
+                // Die Vorschau teilt sich den gespeicherten Kartenausschnitt mit
+                // dem Desktop – am Handyformat soll aber ganz Deutschland passen.
+                requestAnimationFrame(() => fitGermany());
+            } else showDataView(false);
             window.parent.postMessage({ type: PREVIEW_READY_MESSAGE, hasCustomers }, location.origin);
         });
         return;

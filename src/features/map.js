@@ -2381,6 +2381,19 @@ export function fitToCustomers() {
     });
 }
 
+/** Ganz Deutschland ins Bild – Rand von Sylt bis Oberstdorf, Aachen bis Görlitz. */
+export const GERMANY_BOUNDS = [[47.27, 5.87], [55.06, 15.04]];
+
+export function fitGermany() {
+    if (!map) return;
+    const padding = fitPadding(24);
+    map.fitBounds(GERMANY_BOUNDS, {
+        paddingTopLeft: padding.topLeft,
+        paddingBottomRight: padding.bottomRight,
+        animate: false
+    });
+}
+
 export function getMap() {
     return map;
 }
