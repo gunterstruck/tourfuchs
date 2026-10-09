@@ -651,7 +651,7 @@
         </section>
 
         <div id="dropzone" class="dropzone"><div data-i18n="import.dropzone">📥 Excel- oder CSV-Datei hier ablegen</div></div>
-        <div id="toasts" class="toasts" aria-live="polite"></div>
+        <div id="toasts" class="toasts" aria-live="polite" popover="manual"></div>
 
         <!-- Bestätigung für einen frei auf der Karte gesetzten Ort. Die Karte
              selbst bleibt die Eingabe; dieses Blatt gibt dem Punkt nur seinen
@@ -1390,6 +1390,7 @@
             <h2 id="import-wait-title" data-i18n="import.wait.title">Datei wird vorbereitet</h2>
             <p id="import-wait-file" class="muted small"></p>
             <p id="import-wait-phase" role="status" aria-live="polite"></p>
+            <p id="import-wait-hint" class="muted small" hidden></p>
             <p id="import-wait-detail" data-i18n="import.wait.detail">Bei umfangreichen Listen kann das etwas dauern. Deine Daten bleiben lokal. Anschließend kannst du die Spalten zuordnen.</p>
             <footer><button id="import-wait-cancel" type="button" data-i18n="import.wait.cancel">Abbrechen</button></footer>
         </dialog>
@@ -1541,8 +1542,12 @@
                 <div id="safe-step-file">
                     <p class="muted small">Schritt 1 von 2: Wähle die verschlüsselte Umzugsdatei (<b>.tfsafe</b>), die du vom Desktop bekommen hast.</p>
                     <label class="safe-file-pick">📄 Umzugsdatei wählen
-                        <input type="file" id="safe-file-input" accept=".tfsafe,application/json">
+                        <!-- Bewusst ohne Dateityp-Filter: Android kennt „.tfsafe" nicht und
+                             graut die Datei sonst je nach Dateiauswahl aus. Den Inhalt prüft
+                             TourFuchs selbst (readSafeFile). -->
+                        <input type="file" id="safe-file-input">
                     </label>
+                    <p id="safe-file-status" class="safe-file-status small" role="alert" hidden></p>
                 </div>
                 <div id="safe-step-demo-result" hidden>
                     <h3>Vorschau: Datei entschlüsselt</h3>

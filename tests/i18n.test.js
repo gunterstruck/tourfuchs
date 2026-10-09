@@ -12,9 +12,10 @@ const placeholders = (message) => [...String(message).matchAll(/\{([A-Za-z0-9_]+
     .map((match) => match[1])
     .sort();
 
+// 'import.wait.size' ist ein reines Format („{file} · {size}") ohne Wörter.
 const INTENTIONAL_GERMAN_EQUALS = Object.freeze({
-    fr: new Set(['customer.action.briefing', 'tour.stops.briefing', 'info.omitted.version26']),
-    es: new Set(['customer.demoBadge', 'customer.action.briefing', 'tour.stops.briefing'])
+    fr: new Set(['customer.action.briefing', 'tour.stops.briefing', 'info.omitted.version26', 'import.wait.size']),
+    es: new Set(['customer.demoBadge', 'customer.action.briefing', 'tour.stops.briefing', 'import.wait.size'])
 });
 
 describe('Übersetzungskatalog', () => {
@@ -32,7 +33,7 @@ describe('Übersetzungskatalog', () => {
     it.each(['fr', 'es'])('enthält in %s keine unbestätigten deutschen 1:1-Texte', (locale) => {
         const unchanged = Object.keys(MESSAGES.de)
             .filter((key) => MESSAGES[locale][key] === MESSAGES.de[key]);
-        expect(unchanged).toEqual([...INTENTIONAL_GERMAN_EQUALS[locale]]);
+        expect(unchanged.sort()).toEqual([...INTENTIONAL_GERMAN_EQUALS[locale]].sort());
     });
 
     it('übersetzt und setzt benannte Werte ein', () => {

@@ -180,6 +180,15 @@
     color: var(--color-primary-dark, #0f766e);
 }
 .safe-file-pick input { display: block; margin-top: 8px; width: 100%; }
+/* Rückmeldung zur gewählten Datei – im Dialog, nicht dahinter. */
+.safe-file-status { margin: 10px 0 0; line-height: 1.4; }
+.safe-file-status[data-kind="error"] {
+    padding: 8px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--color-danger, #dc2626);
+    color: var(--color-danger, #dc2626);
+    font-weight: 600;
+}
 .safe-fallback { font-size: 0.85rem; }
 .safe-fallback summary { cursor: pointer; color: #64748b; }
 .safe-fallback textarea {
