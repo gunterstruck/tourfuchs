@@ -5,6 +5,12 @@ import { initFirstSteps } from '../src/ui/firstSteps.js';
 
 vi.mock('../src/ui/showcase.js', () => ({ startShowcaseStory: vi.fn(() => true) }));
 vi.mock('../src/ui/demoWelcome.js', () => ({ isDemoWelcomeOpen: () => false }));
+// „Erste Schritte" gibt es nur noch am Handy – das Gesicht ist hier umschaltbar.
+const face = vi.hoisted(() => ({ phone: false }));
+vi.mock('../src/core/viewport.js', async (importOriginal) => ({
+    ...(await importOriginal()),
+    isPhoneUi: () => face.phone
+}));
 const html = readFileSync('index.html', 'utf8');
 const sidebar = readFileSync('src/ui/sidebar.js', 'utf8');
 
@@ -19,6 +25,7 @@ describe('Planungsstart und sichtbare Bedienhilfen', () => {
         expect(section).toContain('Alle abwählen');
     });
     it('hält Mini-Demos beim ersten Start und nach automatischer Demo eingeklappt, aber bedienbar', () => {
+        face.phone = true;
         localStorage.clear();
         document.body.innerHTML = '<div id="first-steps"></div>';
         state.customers = [{ id: 'a' }];state.tour.stops = [];state.fileName = 'Demo-Daten';
@@ -32,6 +39,12 @@ describe('Planungsstart und sichtbare Bedienhilfen', () => {
         expect(host.querySelectorAll('.first-steps-action')).toHaveLength(4);
         host.querySelector('.first-steps-later').click();
         expect(host.classList.contains('collapsed')).toBe(true);
+        // Am Desktop: keine Checkliste – dort führen die „Live-Demos" oben rechts.
+        face.phone = false;
+        emit('customers:changed');
+        expect(host.hidden).toBe(true);
+        expect(host.innerHTML).toBe('');
+        face.phone = true;
     });
     it('bietet eine zugängliche, zunächst eingeklappte Datenschutz-FAQ mit Grenzen des Local-First-Modells', () => {
         const doc = new DOMParser().parseFromString(html, 'text/html');

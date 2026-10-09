@@ -744,8 +744,11 @@ erreichbar.
 
 ### 5.5 "Erste Schritte"-Checkliste
 
-Nach dem ersten Datenbestand (Demo oder eigene Liste) erscheint oben in der
-Sidebar die Karte **"Erste Schritte"** mit vier Punkten:
+Nach dem ersten Datenbestand (Demo oder eigene Liste) erscheint **auf dem
+Smartphone** oben im Blatt die Karte **"Erste Schritte"** mit vier Punkten.
+**Am Desktop gibt es sie seit 09.10.2026 nicht mehr:** Dort führen die
+**"Live-Demos"** oben rechts; die Checkliste daneben war ein doppeltes Angebot.
+Die Punkte:
 
 1. **Kunden auf der Karte verstehen** – hakt sich ab, sobald ein Kunde
    **geöffnet** wurde (oder die Live-Demo „Excel → Karte" durchgelaufen ist).
@@ -786,8 +789,9 @@ Die Karte kennt **drei Zustände**:
   Hinweiskarte steht noch im Bild** (siehe 5.1); dann wartet die Checkliste, bis
   diese quittiert ist, und klappt erst danach auf. **"Später"** klappt manuell ein.
 - **Abgewählt:** nur über den ausdrücklichen Link **"Nicht mehr zeigen"**.
-  Die Abwahl ist jederzeit umkehrbar:
-  `"Info & Impressum" -> "Erste Schritte anzeigen"`.
+  Zurück kommt die Checkliste mit einem bewussten **"Daten löschen"** (siehe
+  unten). Den früheren Desktop-Knopf `"Info & Impressum" -> "Erste Schritte
+  anzeigen"` gibt es mit der Desktop-Checkliste nicht mehr.
 
 Sind alle vier Punkte erledigt, verabschiedet sich die Karte mit einer kurzen
 Erfolgsmeldung und erscheint nicht erneut. Ein bewusstes **"Daten löschen"**

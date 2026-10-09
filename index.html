@@ -70,7 +70,15 @@
                 </span>
                 <span data-i18n="shell.demos">Live-Demos</span>
             </button>
-            <button id="btn-info" class="icon-button" aria-label="Info & Impressum" data-i18n-aria-label="shell.info">ⓘ</button>
+            <!-- ⓘ als Zeichnung statt Schriftzeichen: Das Zeichen „ⓘ" ist je nach System
+                 dünn und klein und passte nicht zu den runden Knöpfen daneben. -->
+            <button id="btn-info" class="icon-button info-button" aria-label="Info & Impressum" data-i18n-aria-label="shell.info" title="Info & Impressum">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" focusable="false">
+                    <circle cx="12" cy="12" r="9.5"/>
+                    <path d="M12 11v6"/>
+                    <circle cx="12" cy="7.4" r="0.6" fill="currentColor"/>
+                </svg>
+            </button>
         </header>
 
         <!-- Mobiler Kopf-Streifen: trug bis zum 26.09.2026 die Basis/Profi-Pille.
@@ -1107,7 +1115,7 @@
             <div class="info-content">
                 <button type="button" id="btn-showcase" class="primary" style="width:100%;margin-bottom:8px;" data-i18n="info.showcase">🎬 Funktionen entdecken (Live-Demos)</button>
                 <button type="button" class="js-open-guide guide-open" style="width:100%;margin-bottom:8px;"><span data-i18n="info.guide">🦊 Frag den TourFuchs-Guide</span> <small data-i18n="info.guideExternal">(ChatGPT – extern)</small></button>
-                <button type="button" id="btn-first-steps-restore" class="only-desktop" style="width:100%;margin-bottom:12px;" data-i18n="info.firstSteps">🦊 Erste Schritte anzeigen</button>
+                <button type="button" id="btn-first-steps-restore" class="only-desktop" hidden style="width:100%;margin-bottom:12px;" data-i18n="info.firstSteps">🦊 Erste Schritte anzeigen</button>
                 <div class="info-setting info-theme" role="group" aria-labelledby="theme-setting-title">
                     <span><b id="theme-setting-title" data-i18n="theme.title">🎨 Darstellung</b><br><span class="muted small" data-i18n="theme.hint">Automatisch folgt dem Hell-/Dunkelmodus des Geräts.</span></span>
                     <div class="segmented theme-switch">
