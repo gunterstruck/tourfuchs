@@ -24,6 +24,7 @@ import {
 import { showToast } from './toast.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
 import { t } from '../core/i18n.js';
+import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -197,7 +198,7 @@ export function safeFileReadErrorText(error, file) {
     const size = Number(file?.size) || 0;
     const which = `„${file?.name || 'Datei'}" (${size < 1024 ? `${size} Byte` : `${Math.round(size / 1024).toLocaleString('de-DE')} KB`})`;
     const reason = error?.name ? ` [${error.name}]` : '';
-    return `${which} konnte nicht gelesen werden${reason}. Im Firmenbereich (OneDrive, Teams, Outlook, Arbeitsprofil) sperrt oft eine Richtlinie den Zugriff, oder die Datei liegt nur in der Cloud. Abhilfe: Datei zuerst vollständig aufs Gerät herunterladen und dann aus „Downloads" wählen.`;
+    return `Liegt die Datei wirklich auf diesem Handy – im Ordner „Downloads"? ${which} konnte nicht gelesen werden${reason}. Im Firmenbereich (OneDrive, Teams, Outlook, Arbeitsprofil) sperrt oft eine Richtlinie den Zugriff, oder die Datei liegt nur in der Cloud. Abhilfe: Datei zuerst vollständig aufs Gerät herunterladen und dann aus „Downloads" wählen.`;
 }
 
 async function onFileChosen(e) {
@@ -213,7 +214,10 @@ async function onFileChosen(e) {
     try { bytes = await file.arrayBuffer(); } catch (error) {
         const text = safeFileReadErrorText(error, file);
         setFileStatus(text, 'error');
-        showToast(text, 'error', 12000);
+        // Gesperrte Datei: große Prüffrage über dem Dialog, Knopf öffnet die Auswahl neu.
+        if (!(isFileAccessError(error) && showFileAccessHelp(file, error, { retry: () => document.getElementById('safe-file-input')?.click() }))) {
+            showToast(text, 'error', 12000);
+        }
         return;
     }
     if (demo && (receiveDemo !== demo || !receiveDialog.open)) return;

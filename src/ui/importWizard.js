@@ -49,8 +49,9 @@ import { resolveAssistant } from '../services/assistant.js';
 import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
 import { currentLocale, t } from '../core/i18n.js';
 import { readWorkbookInBackground } from '../services/workbookReader.js';
+import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
 import {
-    LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatFileSize, noteImportInFlight, takeInterruptedImport
+    LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatElapsed, formatFileSize, noteImportInFlight, takeInterruptedImport
 } from '../features/importInFlight.js';
 
 let dialog = null;
@@ -477,6 +478,8 @@ async function handleFile(file) {
         await showMappingStep();
     } catch (error) {
         if (error.name === 'AbortError') return;
+        // Gesperrte Datei: eine große Prüffrage („liegt sie in Downloads?") statt Toast.
+        if (isFileAccessError(error) && showFileAccessHelp(file, error, { retry: () => document.getElementById('file-input')?.click() })) return;
         showToast(t('import.readFailed', { detail: importErrorDetail(error) }), 'error');
     }
 }
@@ -498,6 +501,18 @@ async function readFileWithFeedback(file, options = {}) {
     }
     const phase = document.getElementById('import-wait-phase');
     phase.textContent = t('import.wait.reading');
+    // Laufende Uhr: zeigt, dass TourFuchs arbeitet und nicht hängt (große
+    // Listen brauchen am Handy bis zu zwei Minuten).
+    const elapsed = document.getElementById('import-wait-elapsed');
+    const startedAt = Date.now();
+    const tick = () => {
+        if (!elapsed) return;
+        const seconds = Math.floor((Date.now() - startedAt) / 1000);
+        elapsed.textContent = t('import.wait.elapsed', { time: formatElapsed(seconds) });
+        elapsed.hidden = seconds < 3;
+    };
+    tick();
+    const clock = setInterval(tick, 1000);
     waiting.showModal();
     // Verwirft der Browser die Seite mitten im Lesen (Speichermangel), endet
     // dieser Code nie. Die Notiz überlebt das Neuladen und erklärt es beim Start.
@@ -513,6 +528,7 @@ async function readFileWithFeedback(file, options = {}) {
         success = true;
         return workbook;
     } finally {
+        clearInterval(clock);
         clearImportInFlight();
         waiting.close();
         activeWorkbookRead = null;
@@ -532,7 +548,9 @@ async function reloadWorkbookSource({ sheet = null, headerRow = null } = {}) {
         parsed = { ...workbook, fileName: parsed.fileName, file: parsed.file };
         await showMappingStep();
     } catch (error) {
-        if (error.name !== 'AbortError') showToast(t('import.selectionFailed', { detail: importErrorDetail(error) }), 'error', 6000);
+        if (error.name !== 'AbortError' && !(isFileAccessError(error) && showFileAccessHelp(parsed.file, error))) {
+            showToast(t('import.selectionFailed', { detail: importErrorDetail(error) }), 'error', 6000);
+        }
         renderMappingSource();
     }
 }

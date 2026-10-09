@@ -1390,9 +1390,25 @@
             <h2 id="import-wait-title" data-i18n="import.wait.title">Datei wird vorbereitet</h2>
             <p id="import-wait-file" class="muted small"></p>
             <p id="import-wait-phase" role="status" aria-live="polite"></p>
-            <p id="import-wait-hint" class="muted small" hidden></p>
-            <p id="import-wait-detail" data-i18n="import.wait.detail">Bei umfangreichen Listen kann das etwas dauern. Deine Daten bleiben lokal. Anschließend kannst du die Spalten zuordnen.</p>
+            <p id="import-wait-elapsed" class="muted small" aria-hidden="true" hidden></p>
+            <p id="import-wait-hint" class="import-wait-hint small" hidden></p>
+            <p id="import-wait-detail" data-i18n="import.wait.detail">Große Listen brauchen am Handy bis zu 2 Minuten – bitte warten, TourFuchs arbeitet. Deine Daten bleiben lokal. Anschließend kannst du die Spalten zuordnen.</p>
             <footer><button id="import-wait-cancel" type="button" data-i18n="import.wait.cancel">Abbrechen</button></footer>
+        </dialog>
+
+        <!-- Datei gesperrt (NotReadableError u. a.): Im Firmenbereich die häufigste
+             Ursache – und schnell behoben. Deshalb eine einzige, große Prüffrage
+             statt eines langen Meldungstexts, der weggeklickt wird. -->
+        <dialog id="file-access-dialog" class="file-access-dialog" aria-labelledby="file-access-title" aria-describedby="file-access-question">
+            <h2 id="file-access-title" data-i18n="fileAccess.title">Datei ist gesperrt</h2>
+            <p id="file-access-question" class="file-access-question" data-i18n="fileAccess.question">Liegt die Datei wirklich auf diesem Handy – im Ordner „Downloads“?</p>
+            <p class="small" data-i18n="fileAccess.why">Direkt aus OneDrive, Teams, Outlook oder SharePoint geöffnet, sperrt der Firmenbereich die Datei oft.</p>
+            <p class="small" data-i18n="fileAccess.fix">So geht’s: Datei zuerst herunterladen, dann hier erneut wählen – aus „Downloads“.</p>
+            <p id="file-access-detail" class="muted small"></p>
+            <footer>
+                <button id="file-access-close" type="button" data-i18n="fileAccess.close">Schließen</button>
+                <button id="file-access-retry" type="button" class="primary" data-i18n="fileAccess.retry">Datei aus Downloads wählen</button>
+            </footer>
         </dialog>
 
         <!-- Berechtigung: einmalige Zusicherung, direkt im Fluss der gewollten
