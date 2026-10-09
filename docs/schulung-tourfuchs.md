@@ -107,7 +107,7 @@ Oben befinden sich:
 
 - Menü-Schalter
 - TourFuchs-Logo
-- Suche nach Kunde, Ort, PLZ oder Kundennummer
+- Suche nach Kunde, Ort, PLZ oder Kundennummer. Die Treffer zeigen `[Kundennummer] Kundenname` mit der vollständigen Originalnummer, darunter PLZ, Ort und gegebenenfalls VB. Ohne Nummer steht nur der Name; das gilt auch am Handy.
 - Mobile-Vorschau
 - Info und Rechtliches
 
@@ -1001,3 +1001,10 @@ Bei Beispieldaten bleibt das Desktop-Panel zunächst geschlossen. „Verstanden 
 In der Kundenkarte kopiert ein Klick auf die Kundennummer die Zeile `[Kundennummer] Kundenname`, z. B. `[123] Musterkunde GmbH`. Führende Nullen werden nur beim Kopieren entfernt; die Originalnummer bleibt erhalten.
 
 Auf dem Smartphone bietet „Planungsbereich“ durchsuchbare Mehrfachfilter über die am Desktop aktivierten Kategorien und eine dezente Kartenfärbung. Tourstopps außerhalb des Filters bleiben erhalten. „↺ Tour leeren“ beendet die Tour und kehrt zur normalen Karte mit den weiterhin gesetzten Filtern zurück.
+
+
+## Ergänzungen vom 09.10.2026 (Guide 3.22)
+
+- Desktop: „Live-Demos“ mit grünem Filmsymbol steht dauerhaft oben rechts und öffnet die Übersicht der verfügbaren Geschichten; am Handy bleibt der Info-Zugang.
+- „Verschlüsselte Kundendaten übernehmen“ ist am Desktop und Handy verfügbar: Ein Kollege importiert Excel und ordnet Felder einmal zu, exportiert unter „Sicherer Umzug“ und gibt die .tfsafe-Datei sowie den Schlüssel getrennt weiter. Die Empfänger müssen keine Felder mehr zuordnen. Die Demo entschlüsselt echte Beispieldaten in einer isolierten Vorschau; der eigene Bestand bleibt erhalten. Der lokale PIN-Tresor bleibt freiwillig.
+- Die Briefing-Demos zeigen die Auswahl des KI-Partners, den vollständigen angepassten Prompt und die lokale Kopieraktion. Die gespeicherte KI-Wahl bleibt erhalten; in der Vorführung wird kein Assistent geöffnet.

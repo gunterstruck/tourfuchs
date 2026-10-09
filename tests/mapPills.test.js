@@ -31,12 +31,14 @@ describe('Pillen über der Karte', () => {
         expect(fileSlug('')).toBe('gebiet');
     });
 
-    it('zeigt Briefing und Export nur in der Gebietsplanung und die Demo-Pille nur mit eigenen Daten am Schreibtisch', () => {
+    it('zeigt Gebiets-Briefing im Gebiet und den Demo-Zugang dauerhaft in der Desktop-Kopfzeile', () => {
         const pills = read('src/ui/mapPills.js');
         const html = read('index.html');
         expect(pills).toContain("state.ui.mode === 'gebietsplanung' && hasData");
-        expect(pills).toContain('demos.hidden = !hasData || isDemoDataset(state.customers);');
-        expect(html).toContain('id="btn-demos-pill" class="map-fab demos-fab only-desktop"');
+        expect(pills).not.toContain('demos.hidden =');
+        const header = html.slice(html.indexOf('<header class="topbar">'), html.indexOf('</header>'));
+        expect(header).toContain('id="btn-demos-pill" class="demo-launcher only-desktop"');
+        expect(header).toContain('data-i18n="shell.demos"');
         expect(html).toContain('id="btn-territory-briefing"');
         // „Gebiet exportieren" ist entfallen – der eine Excel-Export fragt
         // bei aktivem Filter „alle oder nur die gefilterten?".

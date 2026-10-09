@@ -55,14 +55,22 @@
 /**
  * Der Weg vom Prompt zum Briefing – in Lasso- und Briefing-Demo gleich
  * erzählt, in mehreren kurzen Blasen statt einem langen Satz. Gezeigt wird
- * nur: Die Vorführung kopiert nichts und öffnet keinen Assistenten.
+ * der erzeugte Prompt und die lokale Kopie. Die Demo öffnet keinen Assistenten.
  */
 const promptWay = (footerSel) => [
+    { t: 'click', sel: `${footerSel.replace('-footer', '-body')} .briefing-assistant summary` },
+    { t: 'say', text: 'Hier wählst du deinen KI-Partner: Microsoft 365 Copilot, Google Gemini, ChatGPT oder die eigene Firmen-KI. Nutze nur den freigegebenen Assistenten.', sel: `${footerSel.replace('-footer', '-body')} .briefing-assistant`, ms: 5000 },
+    { t: 'click', sel: `${footerSel.replace('-footer', '-body')} input[value="chatgpt"]` },
+    { t: 'say', text: 'Zum Beispiel ChatGPT: Ziel, Prompt und Knopf passen sich sofort an. Deine gespeicherte Wahl bleibt in dieser Demo erhalten.', sel: footerSel, ms: 3400 },
+    { t: 'click', sel: `${footerSel.replace('-footer', '-body')} .briefing-assistant summary` },
+    { t: 'say', text: 'Das ist jetzt der vollständige, für diesen KI-Partner erzeugte Prompt. Kunden, Kontext und Auftrag sind vor dem Kopieren lesbar.', sel: `${footerSel.replace('-footer', '-body')} .briefing-prompt-visible`, ms: 4200 },
+    { t: 'run', key: 'scrollPromptThrough' },
     { t: 'say', text: '① Ein Klick legt den Prompt in die Zwischenablage.', sel: footerSel, ms: 3000 },
+    { t: 'click', sel: `${footerSel} button` },
     { t: 'say', text: '② Dann öffnest du die KI, die deine Firma freigegeben hat – zum Beispiel Microsoft 365 Copilot. Kundendaten gehören aus Datenschutzgründen nur dorthin.', ms: 5200 },
     { t: 'say', text: '③ Einfügen und selbst absenden – TourFuchs ruft keine KI-Schnittstelle auf. Zurück kommt dein Briefing: wen zuerst und warum.', ms: 4600 },
     { t: 'say', text: '④ Mit dem Briefing zurück zu TourFuchs und die Tour planen.', ms: 3000 },
-    { t: 'say', text: 'In dieser Vorführung wird nichts kopiert und kein Assistent geöffnet. Prüfe die Antwort der KI, bevor du entscheidest.', ms: 4000 }
+    { t: 'say', text: 'Der Prompt wurde lokal kopiert; kein Assistent geöffnet. Im Alltag öffnet derselbe Knopf zusätzlich deine KI. Prüfe deren Antwort, bevor du entscheidest.', ms: 4000 }
 ];
 const PROMPT_WAY = promptWay('#area-briefing-footer');
 
@@ -179,13 +187,13 @@ export const STORIES = [
         // steht. Die Frage kommt in jedem Konzern als zweite.
         //
         // Der Knopf „📋 Briefing über alle" wird sichtbar angetippt – auch mit
-        // Beispielkunden (in der Vorführung als reine Ansicht, siehe
+        // Beispielkunden (in der Vorführung lokal kopierbar, siehe
         // setLassoBriefingPreview).
         id: 'briefing',
         icon: '📋',
         title: 'Kunde(n) wählen / Briefing / Entscheiden / Tour wählen',
         blurb: 'Fläche umfahren, Prompt ansehen, mit deiner Firmen-KI entscheiden.',
-        duration: 88,   // 26.09.2026: Desktop und Handy je 89 s, 6 Klicks, alle sauber
+        duration: 119,  // 09.10.2026: Desktop 120 s, Handy 119 s, vollständiger Prompt + KI-Wahl + Kopie
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -220,8 +228,8 @@ export const STORIES = [
         icon: '🎯',
         title: 'Spontaner Termin? Briefing vorbereiten',
         blurb: 'Passenden Kunden finden, Prompt ansehen, mit der Firmen-KI vorbereiten.',
-        duration: 68,         // 26.09.2026: Desktop 69 s, 9 Klicks, alle sauber
-        durationMobile: 60,   // Handy 61 s
+        duration: 102,        // 09.10.2026: Desktop 103 s, vollständiger Prompt + KI-Wahl + Kopie
+        durationMobile: 95,   // Handy 96 s
         needsData: true,
         mutatesTour: true,
         steps: [
@@ -387,23 +395,24 @@ export const STORIES = [
     {
         id: 'empfang',
         icon: '📥',
-        title: 'Verschlüsselte Daten aufs Handy holen',
-        blurb: 'Datei wählen, Schlüssel scannen, fertig.',
-        duration: 29,
-        mobileOnly: true,     // Gegenstück zur Desktop-QR-Story; nur am Handy sinnvoll
-        needsData: true,
+        title: 'Verschlüsselte Kundendaten übernehmen',
+        blurb: 'Einmal Excel zuordnen – Kollegen importieren Datei und Schlüssel.',
+        duration: 58,  // 09.10.2026: Desktop 59 s, Handy 58 s, echte Datei- und Schlüsselprüfung
+        needsData: false,
         steps: [
-            { t: 'run', key: 'ensureDemo' },
             { t: 'run', key: 'openReceive' },
-            { t: 'say', text: 'Am Desktop hast du deine Daten verschlüsselt exportiert – so holst du sie sicher aufs Handy.', ms: 2600 },
-            { t: 'say', text: 'Schritt 1: die verschlüsselte Datei (.tfsafe) wählen, die du dir geschickt hast.', sel: '#safe-file-input', ms: 2800 },
+            { t: 'say', text: 'Ein Kollege importiert Excel und prüft die Feldzuordnung einmal. Danach exportiert er unter „Sicherer Umzug“ eine verschlüsselte .tfsafe-Datei.', ms: 5000 },
+            { t: 'say', text: 'Die Datei wird weitergegeben; der passende Schlüssel reist getrennt. Empfänger brauchen Excel und Feldzuordnung nicht erneut.', ms: 4200 },
+            { t: 'say', text: 'Schritt 1: die verschlüsselte Datei (.tfsafe) wählen, die du erhalten hast.', sel: '#safe-file-input', ms: 2800 },
             { t: 'run', key: 'showReceiveKeyStep' },
-            { t: 'say', text: 'Schritt 2: den Schlüssel-QR mit der Kamera scannen – der Schlüssel reist getrennt von der Datei.', sel: '#safe-scan-video', ms: 3000 },
-            { t: 'say', text: 'Kamera klappt nicht? Dann den Schlüssel einfach eintippen – so:', sel: '#safe-key-input', ms: 2200 },
+            { t: 'say', text: 'Schritt 2: den passenden Schlüssel einfügen. Alternativ lässt sich der Schlüssel-QR scannen.', sel: '#safe-step-key', ms: 3000 },
             { t: 'run', key: 'typeReceiveKeyDemo' },
-            { t: 'say', text: 'Danach noch eine eigene PIN festlegen – ab dann liegen die Daten verschlüsselt auf diesem Handy.', sel: '#safe-key-input', ms: 3000 },
+            { t: 'say', text: 'Jetzt „Entschlüsseln“: Die Datei wird lokal mit diesem Schlüssel geöffnet.', sel: '#safe-key-submit', ms: 2500 },
+            { t: 'run', key: 'decryptReceiveDemo' },
+            { t: 'say', text: 'Fertig: Die Kunden sind entschlüsselt, ohne erneute Feldzuordnung. Hier siehst du echte Beispieldaten in einer sicheren Vorschau; dein Bestand bleibt erhalten.', sel: '#safe-demo-result', ms: 4800 },
+            { t: 'say', text: 'Beim echten Import werden die Daten lokal übernommen. Ein vorhandener Bestand wird nach Rückfrage ersetzt. Der lokale PIN-Tresor bleibt eine eigene, freiwillige Entscheidung.', sel: '#safe-step-demo-result', ms: 4600 },
             { t: 'run', key: 'closeReceive' },
-            { t: 'say', text: 'Fertig: dieselben Kunden wie am Desktop – sicher in deiner Tasche, ganz ohne Cloud.', sel: '#map', ms: 3200, pos: 'bottom' }
+            { t: 'say', text: 'So kann jeder Kollege direkt mit derselben vorbereiteten Kundenliste arbeiten – am Desktop oder Handy.', sel: '#map', ms: 3200, pos: 'bottom' }
         ]
     },
     {
