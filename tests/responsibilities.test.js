@@ -28,7 +28,11 @@ describe('Name und Telefonnummer aus einer Zelle', () => {
         ['Vera Kunz 0171 2223344', 'Vera Kunz', '01712223344'],
         ['Olaf Meier, Tel. +49 (221) 555-12', 'Olaf Meier', '+4922155512'],
         ['EB Team 0221/99887', 'EB Team', '022199887'],
-        ['Technik-Team Köln', 'Technik-Team Köln', '']
+        ['Technik-Team Köln', 'Technik-Team Köln', ''],
+        // Echte Zellen aus der Zuständigkeitsliste (09.10.2026)
+        ['RC-DE DI S TSP TC Region OST', 'RC-DE DI S TSP TC Region OST', ''],
+        ['Zumann Barbara +49 (221) 84592648', 'Zumann Barbara', '+4922184592648'],
+        ['Thienel Sascha +49 (911) 958-21055', 'Thienel Sascha', '+4991195821055']
     ])('„%s"', (cell, name, tel) => {
         expect(splitContactText(cell)).toMatchObject({ name, tel });
     });
