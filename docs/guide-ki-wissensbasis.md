@@ -2833,6 +2833,18 @@ oft** erneut gewählt werden; TourFuchs merkt sich keine „verbrauchten" Dateie
 vor dem Übernehmen fragt es nur, ob die Daten auf dem Gerät ersetzt werden
 sollen.
 
+**Seit 09.10.2026:** Jede Rückmeldung steht **direkt im Dialog** „Daten
+empfangen" (rote Zeile unter „Umzugsdatei wählen") und zusätzlich als
+Einblendung, die über dem Dialog liegt. Vorher lag die Einblendung hinter dem
+Dialog – im Firmenbereich wirkte es, als „passiere nichts". Die Dateiauswahl
+filtert nicht mehr nach Dateityp: Android kennt `.tfsafe` nicht und graute die
+Datei je nach Auswahl aus; TourFuchs prüft den Inhalt selbst. Weitere Befunde:
+
+| Befund | Bedeutung / Rat |
+|---|---|
+| **konnte nicht gelesen werden [NotReadableError]** | Der Browser darf die Datei nicht lesen – im Firmenbereich (OneDrive, Teams, Outlook, Arbeitsprofil) sperrt oft eine Richtlinie den Zugriff, oder die Datei liegt nur in der Cloud. Datei zuerst vollständig aufs Gerät herunterladen und aus „Downloads" wählen. |
+| **Es ist keine Datei angekommen / Keine Datei gewählt** | Die Auswahl wurde ohne Datei geschlossen. Fehlte die Datei oder war sie ausgegraut: Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Datei dort speichern (z. B. über Outlook oder OneDrive der Firma). |
+
 ---
 
 ## 15. PWA-Installation und Updates
@@ -3190,6 +3202,29 @@ Möglichkeiten:
 
 App fokussieren oder neu öffnen, Update-Hinweis abwarten, Seite neu laden. Bei
 altem Namen alte PWA entfernen und neu installieren.
+
+### 18.20 Große Excel-Datei am Handy oder im Firmenbereich lässt sich nicht importieren
+
+**Fehlerbild A – bleibt bei „Tabelle wird aufbereitet …" stehen, dann startet
+die App neu** (Edge meldet „Um Speicherplatz zu sparen, hat Microsoft Edge
+einige Inhalte entfernt"): Dem Browser ist der Speicher ausgegangen.
+
+- Seit 09.10.2026 liest TourFuchs nur noch das benötigte Tabellenblatt und
+  speichersparend (gemessen: rund 40 % weniger Speicher, dreimal so schnell).
+- Der Wartedialog nennt Dateiname und Größe; am Handy erscheint bei großen
+  Dateien vorab der Hinweis „Große Datei für ein Handy …".
+- Wird die Seite trotzdem verworfen, meldet TourFuchs beim nächsten Start:
+  **„Der Import von „…" (… MB) wurde nicht abgeschlossen …"**.
+- Abhilfe: am Desktop importieren und per „Sicherer Umzug" aufs Handy bringen –
+  oder in Excel nur das benötigte Blatt als eigene Datei speichern.
+
+**Fehlerbild B – „Datei konnte nicht gelesen werden: The requested file could
+not be read, typically due to permission problems …"**: Der Browser durfte die
+Datei auswählen, aber nicht lesen. Typisch im Firmenbereich (Intune-Arbeitsprofil,
+OneDrive, Teams, Outlook), wenn die Datei nur in der Cloud liegt oder eine
+Richtlinie den Zugriff sperrt. Seit 09.10.2026 steht dort verständlich:
+„Der Browser darf die Datei nicht lesen …". Abhilfe: Datei zuerst vollständig
+aufs Gerät herunterladen und aus „Downloads" wählen.
 
 ---
 

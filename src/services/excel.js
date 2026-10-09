@@ -216,16 +216,24 @@ function usedRange(sheet) {
     if (declared && declared.s.r === 0 && declared.s.c === 0 && declared.e.r > declared.s.r) return sheet['!ref'];
 
     let found = null;
-    for (const key of Object.keys(sheet)) {
-        if (key.startsWith('!')) continue;
-        const { r, c } = XLSX.utils.decode_cell(key);
-        if (!(r >= 0) || !(c >= 0)) continue;
+    const include = (r, c) => {
+        if (!(r >= 0) || !(c >= 0)) return;
         if (!found) found = { s: { r, c }, e: { r, c } };
         else {
             if (r < found.s.r) found.s.r = r;
             if (c < found.s.c) found.s.c = c;
             if (r > found.e.r) found.e.r = r;
             if (c > found.e.c) found.e.c = c;
+        }
+    };
+    if (Array.isArray(sheet['!data'])) {
+        // Speichersparende Form (dense): Zellen liegen zeilenweise in `!data`.
+        sheet['!data'].forEach((row, r) => row?.forEach((cell, c) => { if (cell) include(r, c); }));
+    } else {
+        for (const key of Object.keys(sheet)) {
+            if (key.startsWith('!')) continue;
+            const { r, c } = XLSX.utils.decode_cell(key);
+            include(r, c);
         }
     }
     if (!found) return sheet['!ref'] ?? null;
@@ -324,8 +332,21 @@ export async function readWorkbook(file, { sheet = null, headerRow = null, onPha
         // interpretieren. Die Fachparser übernehmen Typisierung und Validierung.
         workbook = XLSX.read(text, { type: 'string', FS: separator, raw: true });
     } else {
-        workbook = XLSX.read(buffer, { type: 'array', codepage: 65001 });
+        // Zuerst nur Blattnamen und Sichtbarkeit (je Blatt eine Zeile). Das ganze
+        // Arbeitsbuch auf einmal zu lesen – jedes Blatt vollständig – kostete bei
+        // großen Konzernlisten („Alle Bereiche Gesamt") so viel Speicher, dass der
+        // Browser am Handy die Seite verwarf und neu lud. Gemessen mit 41 MB,
+        // drei Blättern, 80 000 Zeilen: 1 093 MB → 632 MB, 30 s → 9 s.
+        workbook = XLSX.read(buffer, { type: 'array', codepage: 65001, sheetRows: 1 });
     }
+    // Ein Blatt vollständig laden – bei Excel erst, wenn es gebraucht wird, und
+    // in der speichersparenden Form ohne Formatierung und Formeln.
+    const loadSheet = (name) => (isCsv
+        ? workbook.Sheets[name]
+        : XLSX.read(buffer, {
+            type: 'array', codepage: 65001, sheets: [name],
+            dense: true, cellStyles: false, cellHTML: false, cellFormula: false
+        }).Sheets[name]);
     onPhase('columns');
     const infos = sheetInfos(workbook);
     if (infos.length === 0) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Tabelle.' : 'Die Datei enthält kein Tabellenblatt.');
@@ -343,7 +364,7 @@ export async function readWorkbook(file, { sheet = null, headerRow = null, onPha
     // Eine von Hand gesetzte Überschriftenzeile gilt für das erste Blatt der
     // Auswahl; erst wenn dieses leer bleibt, wird auf dem nächsten wieder erkannt.
     for (const [i, info] of candidates.entries()) {
-        const result = tableFromSheet(workbook.Sheets[info.name], i === 0 ? headerRow : null);
+        const result = tableFromSheet(loadSheet(info.name), i === 0 ? headerRow : null);
         if (result.rows.length > 0) { table = result; chosen = info; break; }
     }
     if (!table) throw new Error(isCsv ? 'Die CSV-Datei enthält keine Datenzeilen.' : 'Das Tabellenblatt enthält keine Datenzeilen.');
