@@ -269,3 +269,16 @@ describe('Zellen mit Zeilenumbruch (aus Excel kopiert)', () => {
         expect(rows.map((r) => r.Kundenname).filter(Boolean)).toEqual(['Alpha GmbH', 'Beta AG']);
     });
 });
+
+describe('Excel-Kopie mit leeren Zellen am Zeilenende', () => {
+    it('verliert die letzte Zeile nicht, wenn ihre letzten Zellen leer sind', () => {
+        // Excel kopiert leere Zellen als Tabs – auch am Ende der letzten Zeile.
+        const { rows } = parseClipboardTable([
+            'Kd-Nr.\tKundenname\tPLZ\tVK\tOM',
+            '1001\tNord GmbH\t50667\tVera Kunz\tOlaf Meier',
+            '1004\tNeu GmbH\t20095\t\t'
+        ].join('\r\n') + '\r\n');
+        expect(rows.map((r) => r['Kd-Nr.'])).toEqual(['1001', '1004']);
+        expect(rows[1]).toMatchObject({ VK: '', OM: '' });
+    });
+});

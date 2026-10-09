@@ -407,7 +407,9 @@ export function autoDetectMapping(headers) {
                 // verbraucht werden; dasselbe gilt für andere exakte Feldnamen.
                 if (!matcher.exact && FIELDS.some((other) => other.key !== field.key
                     && other.synonyms.some((synonym) => normalizeHeader(synonym) === norm))) continue;
-                if (field.synonyms.some((s) => (matcher.exact || s.length > 2) && matcher.fn(norm, s))) {
+                // Synonyme genauso normalisieren wie die Überschrift: „Kd-Nr." wird zu
+                // „kd nr" – das Synonym „kd-nr" muss dann ebenfalls „kd nr" heißen.
+                if (field.synonyms.some((s) => (matcher.exact || s.length > 2) && matcher.fn(norm, normalizeHeader(s)))) {
                     mapping[field.key] = header;
                     used.add(header);
                     break;
