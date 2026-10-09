@@ -10,6 +10,7 @@
 
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
+import { responsibilityBriefingLines } from './responsibilities.js';
 
 const DEFAULT_SOURCE_INSTRUCTION = 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
 
@@ -38,6 +39,9 @@ function identityLines(customer) {
     if (value(customer.ansprechpartner)) {
         lines.push(`- Hauptansprechpartner: ${value(customer.ansprechpartner)}`);
     }
+    // Zuständigkeiten helfen dem Assistenten, Mails und Termine zuzuordnen
+    // (ohne Telefonnummern – die braucht er nicht).
+    lines.push(...responsibilityBriefingLines(customer));
     return lines;
 }
 
