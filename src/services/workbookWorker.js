@@ -1,7 +1,10 @@
 import { readWorkbook } from './excel.js';
 
-self.onmessage = async ({ data: { file, options } }) => {
+self.onmessage = async ({ data: { buffer, name, type, options } }) => {
     try {
+        // The main thread already read the bytes (see readFileBytes); give
+        // readWorkbook the small file-like surface it uses.
+        const file = { name, type, arrayBuffer: async () => buffer };
         const result = await readWorkbook(file, {
             ...options,
             onPhase: (phase) => self.postMessage({ type: 'phase', phase })
@@ -16,6 +19,6 @@ self.onmessage = async ({ data: { file, options } }) => {
         }
         self.postMessage({ type: 'result' });
     } catch (error) {
-        self.postMessage({ type: 'error', message: String(error?.message || error) });
+        self.postMessage({ type: 'error', message: String(error?.message || error), name: error?.name || '' });
     }
 };

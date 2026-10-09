@@ -2544,6 +2544,18 @@ dialog footer { margin-top: 14px; display: flex; justify-content: flex-end; gap:
     align-items: center;
     pointer-events: none;
 }
+/* Als Popover in der obersten Ebene (über modalen Dialogen): die Vorgaben des
+   Browsers für Popover (mittig, Rahmen, Hintergrund) zurücknehmen. */
+.toasts[popover] {
+    inset: auto auto 18px 50%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    overflow: visible;
+    width: max-content;
+    max-width: 92vw;
+}
 .toast {
     background: #1e293b;
     color: #f1f5f9;

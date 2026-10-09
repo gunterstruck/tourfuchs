@@ -55,7 +55,13 @@ export function initSafeTransfer() {
     document.getElementById('safe-export-download')?.addEventListener('click', () => {
         if (lastExport) downloadContainer(lastExport.container);
     });
-    document.getElementById('safe-file-input')?.addEventListener('change', onFileChosen);
+    const safeFileInput = document.getElementById('safe-file-input');
+    safeFileInput?.addEventListener('change', onFileChosen);
+    // Auswahl ohne Datei geschlossen (Chrome/Edge melden das als „cancel"):
+    // Ausgegraute Dateien im Firmenbereich sehen genau so aus – deshalb erklären.
+    safeFileInput?.addEventListener('cancel', () => setFileStatus(
+        'Keine Datei gewählt. Falls die Umzugsdatei in der Auswahl fehlte oder ausgegraut war: Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Datei dort speichern (z. B. über Outlook oder OneDrive der Firma) und erneut wählen.'
+    ));
     document.getElementById('safe-scan-photo')?.addEventListener('change', onScanPhoto);
     document.getElementById('safe-key-submit')?.addEventListener('click', onKeyEntered);
 }
@@ -126,6 +132,7 @@ function openReceiveDialog() {
     pendingContainer = null;
     showStep('file');
     document.getElementById('safe-file-meta').hidden = true;
+    setFileStatus('');
     const keyInput = document.getElementById('safe-key-input');
     if (keyInput) keyInput.value = '';
     receiveDialog.showModal();
@@ -172,19 +179,52 @@ export function safeFileProblemText(problem, file) {
     }
 }
 
+/**
+ * Rückmeldung direkt im Dialog – nicht nur als Einblendung. Im Firmenbereich
+ * (Intune-Arbeitsprofil) „passierte nichts": Die Fehlermeldung lag hinter dem
+ * offenen Dialog. Hier steht sie jetzt sichtbar, mit Dateiname und Größe.
+ */
+function setFileStatus(text, kind = 'info') {
+    const el = document.getElementById('safe-file-status');
+    if (!el) return;
+    el.textContent = text || '';
+    el.hidden = !text;
+    el.dataset.kind = kind;
+}
+
+/** Der Browser durfte die gewählte Datei nicht lesen – typisch im Firmenbereich. */
+export function safeFileReadErrorText(error, file) {
+    const size = Number(file?.size) || 0;
+    const which = `„${file?.name || 'Datei'}" (${size < 1024 ? `${size} Byte` : `${Math.round(size / 1024).toLocaleString('de-DE')} KB`})`;
+    const reason = error?.name ? ` [${error.name}]` : '';
+    return `${which} konnte nicht gelesen werden${reason}. Im Firmenbereich (OneDrive, Teams, Outlook, Arbeitsprofil) sperrt oft eine Richtlinie den Zugriff, oder die Datei liegt nur in der Cloud. Abhilfe: Datei zuerst vollständig aufs Gerät herunterladen und dann aus „Downloads" wählen.`;
+}
+
 async function onFileChosen(e) {
     const demo = receiveDemo;
     const file = e.target.files?.[0];
     e.target.value = '';
-    if (!file) return;
+    if (!file) {
+        setFileStatus('Es ist keine Datei angekommen. War die Datei in der Auswahl ausgegraut oder nicht zu sehen? Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Umzugsdatei dort speichern (z. B. über Outlook oder OneDrive der Firma) und erneut wählen.', 'error');
+        return;
+    }
+    setFileStatus(`Datei wird gelesen: „${file.name}" …`);
     let bytes;
-    try { bytes = await file.arrayBuffer(); } catch { showToast('Datei konnte nicht gelesen werden.', 'error'); return; }
+    try { bytes = await file.arrayBuffer(); } catch (error) {
+        const text = safeFileReadErrorText(error, file);
+        setFileStatus(text, 'error');
+        showToast(text, 'error', 12000);
+        return;
+    }
     if (demo && (receiveDemo !== demo || !receiveDialog.open)) return;
     const { container, problem } = readSafeFile(bytes);
     if (!container) {
-        showToast(safeFileProblemText(problem, file), 'error', 12000);
+        const text = safeFileProblemText(problem, file);
+        setFileStatus(text, 'error');
+        showToast(text, 'error', 12000);
         return;
     }
+    setFileStatus('');
     pendingContainer = container;
     const meta = document.getElementById('safe-file-meta');
     const created = container.createdAt

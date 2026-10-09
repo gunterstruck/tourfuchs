@@ -49,6 +49,9 @@ import { resolveAssistant } from '../services/assistant.js';
 import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
 import { currentLocale, t } from '../core/i18n.js';
 import { readWorkbookInBackground } from '../services/workbookReader.js';
+import {
+    LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatFileSize, noteImportInFlight, takeInterruptedImport
+} from '../features/importInFlight.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -87,8 +90,23 @@ const IMPORT_ERROR_KEYS = Object.freeze({
     'Das Tabellenblatt enthält keine Datenzeilen.': 'import.error.noSheetRows'
 });
 
+// Fehler, die der Browser beim Lesen der Datei meldet – nach ihrem Namen statt
+// nach dem (englischen, technischen) Text. Im Firmenbereich (Intune, OneDrive,
+// Teams, Outlook) ist `NotReadableError` der typische Fall.
+const IMPORT_ERROR_NAMES = Object.freeze({
+    NotReadableError: 'import.error.notReadable',
+    NotFoundError: 'import.error.notReadable',
+    SecurityError: 'import.error.notReadable'
+});
+
 function importErrorDetail(error) {
     const detail = String(error?.message || error || '');
+    const byName = IMPORT_ERROR_NAMES[error?.name];
+    if (byName) return t(byName);
+    // Speicher erschöpft (RangeError „Array buffer allocation failed", „Invalid array length" …)
+    if (error?.name === 'RangeError' || /out of memory|allocation failed|invalid array length/i.test(detail)) {
+        return t('import.error.memory');
+    }
     const key = IMPORT_ERROR_KEYS[detail];
     return key ? t(key) : detail;
 }
@@ -217,6 +235,12 @@ export function initImportWizard() {
     document.getElementById('mapping-confirm').addEventListener('click', confirmImport);
 
     on('app:ready', () => {
+        // Hat der Browser die Seite mitten im Import verworfen? Dann sagen, was
+        // passiert ist, statt still neu zu starten.
+        const interrupted = takeInterruptedImport();
+        if (interrupted) {
+            showToast(t('import.interrupted', { file: interrupted.name, size: formatFileSize(interrupted.size, currentLocale()) }), 'error', 20000);
+        }
         syncDemoRestoreOffer();
         // Migration für bereits leere Installationen: Frühere Versionen
         // merkten das Löschen, ließen das Willkommen aber dauerhaft erledigt.
@@ -465,10 +489,19 @@ async function readFileWithFeedback(file, options = {}) {
     activeWorkbookRead = controller;
     ownDataDialog?.close();
     dialog?.close();
-    document.getElementById('import-wait-file').textContent = file.name;
+    // Name und Größe: sofort sichtbar, ob es die richtige und vollständige Datei ist.
+    document.getElementById('import-wait-file').textContent = t('import.wait.size', { file: file.name, size: formatFileSize(file.size, currentLocale()) });
+    const hint = document.getElementById('import-wait-hint');
+    if (hint) {
+        hint.textContent = t('import.wait.largeMobile');
+        hint.hidden = !(mobileQuery.matches && Number(file.size) >= LARGE_MOBILE_FILE_BYTES);
+    }
     const phase = document.getElementById('import-wait-phase');
     phase.textContent = t('import.wait.reading');
     waiting.showModal();
+    // Verwirft der Browser die Seite mitten im Lesen (Speichermangel), endet
+    // dieser Code nie. Die Notiz überlebt das Neuladen und erklärt es beim Start.
+    noteImportInFlight(file);
     let success = false;
     try {
         // Let the replacement paint before starting the worker, even on a warm cache.
@@ -480,6 +513,7 @@ async function readFileWithFeedback(file, options = {}) {
         success = true;
         return workbook;
     } finally {
+        clearImportInFlight();
         waiting.close();
         activeWorkbookRead = null;
         if (!success && previous && !previous.open) previous.showModal();
