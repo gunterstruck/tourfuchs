@@ -81,12 +81,33 @@ function districtTable(districts) {
     </details>`;
 }
 
-function render(body, diff, warning) {
+/**
+ * Fehlende Kunden: entfernen oder behalten? Und was die Datei nicht kennt,
+ * bleibt ohnehin – das steht dabei, damit niemand um Straße & Co. fürchtet.
+ */
+function abgleichSection({ missingCount, keepMissing, carriedColumns }) {
+    const carried = carriedColumns.length
+        ? `<p class="diff-carried"><b>Bleibt erhalten</b> (steht nicht in dieser Datei): ${escapeHtml(carriedColumns.slice(0, 12).join(', '))}${carriedColumns.length > 12 ? ` und ${carriedColumns.length - 12} weitere` : ''}.</p>`
+        : '';
+    if (!missingCount) return carried;
+    const count = missingCount.toLocaleString('de-DE');
+    return `${carried}
+        <fieldset class="diff-missing-choice">
+            <legend>${count} ${missingCount === 1 ? 'Kunde fehlt' : 'Kunden fehlen'} in dieser Datei</legend>
+            <label><input type="radio" name="diff-missing" value="keep"${keepMissing ? ' checked' : ''}>
+                <span><b>Behalten</b> – die Datei ergänzt nur (z. B. eine Zuständigkeitsliste)</span></label>
+            <label><input type="radio" name="diff-missing" value="remove"${keepMissing ? '' : ' checked'}>
+                <span><b>Entfernen</b> – die Datei ist die neue Fassung der ganzen Liste</span></label>
+        </fieldset>`;
+}
+
+function render(body, diff, warning, abgleich = null) {
     const deltaCount = diff.totals.afterCount - diff.totals.beforeCount;
     const deltaUmsatz = diff.totals.afterUmsatz - diff.totals.beforeUmsatz;
 
     body.innerHTML = `
         <p class="diff-headline">${escapeHtml(diffHeadline(diff))}</p>
+        ${abgleich ? abgleichSection(abgleich) : ''}
         <div class="diff-stats">
             ${statTile('neue Kunden', diff.added.length.toLocaleString('de-DE'), 'diff-stat-up')}
             ${statTile('entfallen', diff.removed.length.toLocaleString('de-DE'), 'diff-stat-down')}
@@ -113,9 +134,11 @@ function render(body, diff, warning) {
 
 /**
  * Änderungsbericht zeigen und bestätigen lassen.
- * @returns {Promise<boolean>} true, wenn ersetzt werden soll
+ * Mit `abgleich` ({ missing, defaultKeep, carriedColumns }) liefert die
+ * Bestätigung `{ keepMissing }` statt `true`.
+ * @returns {Promise<boolean|{ keepMissing: boolean }>} false bei Abbruch
  */
-export function confirmImportWithDiff({ previous = [], incoming = [], sourceLabel, disablesVault = false } = {}) {
+export function confirmImportWithDiff({ previous = [], incoming = [], sourceLabel, disablesVault = false, abgleich = null } = {}) {
     const dialog = document.getElementById('import-diff-dialog');
     const body = document.getElementById('import-diff-body');
     if (!dialog || !body || typeof dialog.showModal !== 'function') {
@@ -125,13 +148,30 @@ export function confirmImportWithDiff({ previous = [], incoming = [], sourceLabe
         })));
     }
 
-    const diff = diffCustomerDatasets(previous, incoming);
     // Der bekannte Warntext ohne die Frage am Ende – die stellt der Knopf.
-    const warning = datasetReplacementMessage({ incomingCount: incoming.length, sourceLabel, disablesVault })
+    const warningFor = (count) => datasetReplacementMessage({ incomingCount: count, sourceLabel, disablesVault })
         .replace(/\n\nFortfahren\?$/, '')
         .split('\n\n').slice(1).join(' ');
 
-    render(body, diff, warning);
+    // Abgleich: Der Nutzer wählt, ob fehlende Kunden bleiben. Der Bericht
+    // rechnet jeweils mit dem Ergebnis, das er dann wirklich bekommt.
+    const missing = abgleich?.missing || [];
+    let keepMissing = Boolean(abgleich?.defaultKeep && missing.length);
+    const draw = () => {
+        const result = keepMissing ? [...incoming, ...missing] : incoming;
+        render(body, diffCustomerDatasets(previous, result), warningFor(result.length), abgleich ? {
+            missingCount: missing.length,
+            keepMissing,
+            carriedColumns: abgleich.carriedColumns || []
+        } : null);
+        body.querySelectorAll('input[name="diff-missing"]').forEach((input) => {
+            input.addEventListener('change', () => {
+                keepMissing = input.value === 'keep';
+                draw();
+            });
+        });
+    };
+    draw();
 
     return new Promise((resolve) => {
         let decided = false;
@@ -142,7 +182,7 @@ export function confirmImportWithDiff({ previous = [], incoming = [], sourceLabe
             resolve(value);
         };
         dialog.querySelector('[data-diff-cancel]').onclick = () => finish(false);
-        dialog.querySelector('[data-diff-confirm]').onclick = () => finish(true);
+        dialog.querySelector('[data-diff-confirm]').onclick = () => finish(abgleich ? { keepMissing } : true);
         dialog.querySelector('.dialog-close').onclick = () => finish(false);
         // Escape schließt den Dialog: Abbruch ist die sichere Antwort.
         dialog.addEventListener('close', () => finish(false), { once: true });

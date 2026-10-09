@@ -39,6 +39,7 @@ import { confirmDatasetReplacement, hasExistingDataset, onlyDemoDataPresent } fr
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 import { confirmImportWithDiff } from './importDiff.js';
 import { carryOverVisits } from '../features/datasetDiff.js';
+import { columnsNotInFile, mergeWithPrevious, missingCustomers } from '../features/importMerge.js';
 import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
@@ -854,6 +855,18 @@ async function confirmImport() {
     const carriedVisits = customers.length > 0 && !replacingDemoOnly && !isDemoDataset(state.customers)
         ? carryOverVisits(state.customers, customers)
         : 0;
+    // Abgleich statt Blindersatz: Was die Datei nicht enthält (Straße,
+    // Verortung, Zuständigkeiten aus einer anderen Liste …), bleibt erhalten.
+    let abgleich = null;
+    if (customers.length > 0 && !replacingDemoOnly && state.customers.length > 0 && !isDemoDataset(state.customers)) {
+        const source = { mapping, headers: parsed.headers || Object.keys(parsed.rows?.[0] || {}) };
+        const carriedColumns = columnsNotInFile(state.customers, source);
+        mergeWithPrevious(state.customers, customers, source);
+        // Kennt die Datei Angaben des Bestands nicht, ist sie eine zweite,
+        // ergänzende Liste: Fehlende Kunden dann vorgeschlagen behalten.
+        abgleich = { missing: missingCustomers(state.customers, customers), carriedColumns, defaultKeep: carriedColumns.length > 0 };
+    }
+    let keptMissing = [];
     if (customers.length > 0 && !replacingDemoOnly) {
         // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
         // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
@@ -862,7 +875,8 @@ async function confirmImport() {
             ? await confirmImportWithDiff({
                 previous: state.customers,
                 incoming: customers,
-                sourceLabel: t('import.selectedList')
+                sourceLabel: t('import.selectedList'),
+                abgleich
             })
             : confirmDatasetReplacement({
                 incomingCount: customers.length,
@@ -872,6 +886,7 @@ async function confirmImport() {
             showToast(t('import.canceled'), 'info', 5000);
             return;
         }
+        if (confirmed?.keepMissing) keptMissing = abgleich.missing;
     }
 
     dialog.close();
@@ -886,6 +901,8 @@ async function confirmImport() {
             }
             delete c._sheetRow; delete c._raw;
         }
+        // Behaltene Kunden kommen unverändert mit – sie stehen schon auf der Karte.
+        customers.push(...keptMissing);
         if (contactRows.length) attachContacts(customers, contactRows, errors);
         removeDemoContracts();
         removeDemoServiceVisits();
@@ -915,9 +932,9 @@ async function confirmImport() {
     // Ohne dauerhafte Speicherung wäre „importiert" eine halbe Wahrheit – die
     // Erfolgsmeldung entfällt dann, der Grund steht bereits als Fehler da.
     if (persisted) {
-        showImportResult({ customerCount: customers.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
+        showImportResult({ customerCount: customers.length - keptMissing.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
     } else if (errors.some((e) => e.Typ === 'Fehler')) {
-        showImportResult({ customerCount: customers.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
+        showImportResult({ customerCount: customers.length - keptMissing.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
     }
 
     // Eigene Kundendaten importiert -> erst den Befund zeigen, dann zum

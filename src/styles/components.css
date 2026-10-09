@@ -3363,3 +3363,17 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 #file-access-detail { overflow-wrap: anywhere; }
 .file-access-dialog footer { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 12px; }
 .file-access-dialog footer .primary { font-weight: 700; }
+
+/* Abgleich im Änderungsbericht: was bleibt, und fehlende Kunden behalten/entfernen. */
+.diff-carried { margin: 8px 0; font-size: 0.86rem; line-height: 1.4; }
+.diff-missing-choice {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 12px;
+    display: grid;
+    gap: 8px;
+}
+.diff-missing-choice legend { font-weight: 700; padding: 0 4px; }
+.diff-missing-choice label { display: flex; gap: 8px; align-items: flex-start; font-size: 0.88rem; cursor: pointer; }
+.diff-missing-choice input { margin-top: 3px; }
