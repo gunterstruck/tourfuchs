@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.21 · Stand: 09.10.2026 · App-Version: 3.7.0**
+**Version 3.22 · Stand: 09.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `cc4f779e7235bb04e31a7ee4bcd7eb7835295c35` plus ruhiger Desktop-Einstieg und Kunden-Kopierformat dieses Dokumentationsstands (09.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `edf80302f45715ab2be2d03c8fac64202732e33a` plus Kundennummern in der globalen Trefferliste, Desktop-Demo-Zugang und vollständige Empfangs-/Briefing-Demos dieses Dokumentationsstands (09.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -410,6 +410,15 @@ Heute gilt überall, was früher „Profi" freischaltete:
 
 ### 4.1 Topbar
 
+Am Desktop steht rechts dauerhaft **„Live-Demos“** mit grünem Filmsymbol.
+Tooltip und zugängliche Beschriftung: **„Alle Live-Demos anzeigen“**. Der Button
+öffnet die Übersicht aller für Gerät und aktivierte Module verfügbaren Demos,
+auch mit eigenen Daten oder leerem Bestand. Die Vorführung beginnt erst nach
+Auswahl. Am Handy ist dieser zusätzliche Kopfzeilen-Button ausgeblendet.
+Die Beschriftung folgt DE/EN/FR/ES. Der frühere Zugang über der Karte mit dem
+Zähler „neu“ ist ersetzt; die Übersicht markiert angesehene Geschichten weiter
+mit einem Haken.
+
 Die Topbar enthält:
 
 - **"Menü umschalten"** (`☰`)
@@ -730,7 +739,8 @@ erreichbar.
 
 ### 5.4 Demos später manuell öffnen
 
-**Klickpfad:** `"Info & Impressum" -> "Funktionen entdecken (Live-Demos)"`.
+**Klickpfad Desktop:** `Topbar rechts -> "Live-Demos"`.
+**Alternativ und am Handy:** `"Info & Impressum" -> "Funktionen entdecken (Live-Demos)"`.
 
 ### 5.5 "Erste Schritte"-Checkliste
 
@@ -850,7 +860,7 @@ Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
 | **"Was wäre wenn? Gebiete umbauen – ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
 | **"Dein Service-Tag, verständlich geplant"** | Ja, nach Aktivierung des Service-Moduls | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
-| **"Verschlüsselte Daten aufs Handy holen"** | Nein | Ja | `.tfsafe`-Datei wählen und getrennten Schlüssel scannen |
+| **"Verschlüsselte Kundendaten übernehmen"** | Ja | Ja | echte `.tfsafe`-Beispieldatei wählen, passenden Schlüssel einfügen und lokal entschlüsseln; keine erneute Feldzuordnung |
 
 Im Code existieren damit zwölf Geschichten. In der normalen Demo-Auswahl sieht
 der Nutzer nur die für Gerät und aktivierte Module passenden Geschichten. Die
@@ -895,12 +905,43 @@ Beispieldaten.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
+**Aktueller Ablauf (09.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
+mit Beispieldaten den tatsächlich erzeugten vollständigen Prompt. Die
+Vorführung klappt **„Anderen Assistenten wählen“** auf, zeigt Microsoft 365
+Copilot, Google Gemini, ChatGPT und **„Eigener Assistent“** und wählt beispielhaft
+ChatGPT. Der Prompt und der Knopf folgen dieser Wahl. Danach wird der angepasste
+Prompt lesbar von oben bis unten gezeigt und über den normalen Knopf lokal in
+die Zwischenablage kopiert. Die Demo öffnet keinen externen Assistenten und
+ändert die gespeicherte KI-Wahl nicht. Die Rückmeldung lautet **„Demo: Prompt
+kopiert. Kein Assistent geöffnet.“**; ein Kopierfehler wird als Fehler gemeldet.
+Die Vorschau trägt **„Demo · lokal kopierbar“**. Die Darstellung gilt am Desktop
+und Handy. Außerhalb der geführten Vorführung
+bleibt die Schutzkarte für Beispielkunden erhalten.
+
+Ungefähre Laufzeiten ohne manuelle Pause: Kundenbriefing **102 Sekunden am
+Desktop / 95 Sekunden am Handy**, Mehrkunden-Briefing **119 Sekunden**,
+Empfangs-Demo **58 Sekunden**. Kartenladezeiten und eigene Daten können die
+Dauer verändern; die Vorführung lässt sich jederzeit pausieren.
+
+**Empfangs-Demo:** **„Verschlüsselte Kundendaten übernehmen“** steht jetzt auf
+beiden Geräten und als Hilfe unter **„Eigene Daten laden“** bereit. Sie erklärt
+den Weg Excel importieren -> Felder einmal zuordnen -> **„Sicherer Umzug“** ->
+verschlüsselte Datei und getrennten Schlüssel an Kollegen geben. Die Demo liest
+eine echte, lokal erzeugte Beispieldatei und entschlüsselt sie mit dem passenden
+Schlüssel. **„Vorschau: Datei entschlüsselt“** zeigt die enthaltenen Kunden. Der
+eigene Bestand wird in der Vorführung nicht ersetzt oder gespeichert; die
+Kamera startet nicht. Beim echten Empfang werden die bereits zugeordneten
+Kunden direkt übernommen; ein vorhandener Bestand wird nach Rückfrage ersetzt.
+Ein lokaler PIN-Tresor ist freiwillig und von der Transportverschlüsselung
+getrennt. Abbruch schließt die Vorschau und entfernt die Demo-Datei samt Schlüssel.
+
 Die Geschichte **"Kunde(n) wählen / Briefing / Entscheiden / Tour wählen"**
 zeigt den vollständigen Mehrkunden-Bogen: räumliche Auswahl, Inhalt und
 Datenminimierung des Prompts, bewusste Übergabe an die freigegebene Firmen-KI und
 die Entscheidung zurück auf der Karte. (Bis 26.09.2026 waren das zwei Demos.) **"Spontaner Termin? Briefing vorbereiten"** zeigt den
-Einzelkunden-Weg. Mit reinen Demo-Kunden bleibt jede Geschichte bei einer lokalen
-Vorschau; erst eigene Kundendaten erzeugen einen echten Prompt.
+Einzelkunden-Weg. Beide Vorführungen erzeugen auch aus Beispielkunden einen
+vollständigen Prompt und kopieren ihn lokal. Eine externe KI wird dabei nicht
+geöffnet; außerhalb der Vorführung bleibt die Schutzkarte für Beispielkunden.
 
 ### 6.5 Besondere Regeln der Tresor-Demo
 
@@ -1450,11 +1491,17 @@ Reihenfolge und mit diesen Gruppennamen:
 | Gruppe | Was darin steht | Beispiel |
 |---|---|---|
 | **Eigene Orte** | selbst benannte Punkte (`state.places`) | `SIXT Essen Hbf` |
-| **Kunden** | Name, Ort, PLZ-Anfang, exakte Kundennummer | `Ruhrtechnik GmbH` |
+| **Kunden** | Name, Ort, PLZ-Anfang, exakte Kundennummer | `[000123] Ruhrtechnik GmbH` |
 | **Orte** | die gebündelten ~8.300 PLZ-Zentroide | `Essen`, `45127 Essen` |
 
 Eingefügte **Koordinaten** (`51.4560, 7.0100`) werden ebenfalls angenommen; das
 Ortsverzeichnis bleibt dann weg, weil die Koordinate bereits die Antwort ist.
+
+**Kundentreffer:** Die erste Zeile zeigt `[Kundennummer] Kundenname`, darunter
+PLZ, Ort und gegebenenfalls den VB-Namen. So sind gleichnamige Kunden auch auf
+Screenshots eindeutig. Die Nummer erscheint in ihrer gespeicherten Form,
+einschließlich führender Nullen. Ohne Nummer steht nur der Name. Lange Angaben
+werden umgebrochen. Das gilt auf Desktop und Handy.
 
 Umlaute und Schreibvarianten werden tolerant normalisiert, zum Beispiel `Koln`
 für `Köln`.
@@ -2922,7 +2969,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Ziel | Klickpfad |
 |---|---|
 | Demo-Daten laden | `Daten -> "App in 60 Sekunden erleben"` |
-| Live-Demos manuell | `Willkommens-Panel -> "Lieber zuschauen?"` oder `Info & Impressum -> "Funktionen entdecken (Live-Demos)"` |
+| Live-Demos manuell | Desktop: `Topbar rechts -> "Live-Demos"`; außerdem Willkommens-Panel oder `Info & Impressum -> "Funktionen entdecken (Live-Demos)"` |
 | Erste Schritte einklappen | `Erste-Schritte-Karte -> "Später"` (Zeile bleibt; Klick klappt wieder auf). Klappt auch von selbst ein, sobald man in den Panel-Inhalt scrollt |
 | Angebote zurückholen | im Panel wieder ganz nach oben scrollen – oder Bereich/Modus wechseln |
 | Vollständigen Briefing-Prompt lesen | `Briefing-Dialog -> "🔍 Vollständigen Prompt ansehen"` |
@@ -4337,6 +4384,15 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 ---
 
+### Änderungen in Version 3.22 (09.10.2026)
+
+- Globale Kundensuche zeigt `[Kundennummer] Kundenname` direkt in jedem Treffer, einschließlich führender Nullen; ohne Nummer bleibt der Name sichtbar.
+- Lange Kundennummern und Namen werden auf schmalen Bildschirmen umgebrochen.
+- Desktop-Kopfzeile zeigt dauerhaft „Live-Demos“ mit grünem Filmsymbol.
+- Empfangs-Demo auf beiden Geräten: echte verschlüsselte Beispieldatei und Schlüssel, lokale Entschlüsselung ohne erneute Feldzuordnung.
+- Briefing-Demos zeigen die KI-Auswahl, den angepassten vollständigen Prompt und das lokale Kopieren; gespeicherte Zielwahl bleibt erhalten, kein externer Assistent wird geöffnet.
+- PDF, Systemprompt und Custom-GPT-Uploadpaket mit Guide 3.22 synchronisiert.
+
 ### Änderungen in Version 3.21 (09.10.2026)
 
 - Desktop-Panel bleibt bei sichtbarer Startauswahl geschlossen; die Begrüßung ist über der ganzen Karte zentriert.
@@ -4398,7 +4454,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Undo | "Ein Schritt zurück", bis zu 30 Schritte |
 | Tresor | AES-256, PIN, Recovery, optional Face/Touch ID |
 | Sicherer Umzug | `.tfsafe` + getrennter Schlüssel-QR |
-| Live-Demos | nur auf Klick: Willkommens-Panel "Lieber zuschauen?" oder Info |
+| Live-Demos | Desktop direkt oben rechts „Live-Demos“; außerdem Willkommens-Panel oder Info; Empfangs- und Briefing-Demos auf beiden Geräten |
 | Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten – auch beim Scrollen – zur Zeile ein; Abwahl über Info umkehrbar |
 | Ruhige Oberfläche | zwei Muster: Langes startet zugeklappt und nennt in der Kopfzeile, was drin ist; beim Scrollen in den Inhalt treten Kartenstil, Beispieldaten-Streifen und Checkliste zurück. Nur wenn dabei etwas zu gewinnen ist – sonst bleibt alles stehen |
 | Service-Fokus | optionales Modul; Verträge + Einsätze getrennt, Join nur über Kundennummer; erklärbarer Tagesvorschlag |

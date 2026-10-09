@@ -106,6 +106,17 @@ async function desktop(browser, baseUrl) {
 
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
 
+    await step('Live-Demos rechts in der Desktop-Kopfzeile öffnen', async () => {
+        const launcher = page.locator('.topbar #btn-demos-pill');
+        if (!await launcher.isVisible()) throw new Error('Demo-Zugang fehlt im Desktop-Kopf');
+        await launcher.click();
+        await page.waitForSelector('#showcase-dialog[open] .sc-tile[data-story="empfang"]', { timeout: TIMEOUT });
+        if (await page.locator('#demo-welcome').isVisible()) throw new Error('Startauswahl bleibt hinter Demo-Übersicht offen');
+        await page.keyboard.press('Escape');
+        await page.evaluate(() => sessionStorage.removeItem('tf_demo_welcome_ack'));
+        await page.reload({ waitUntil: 'domcontentloaded' });
+    });
+
     await step('Startauswahl allein, Panel beim Umschauen und nach der Demo', async () => {
         const welcome = page.locator('#demo-welcome');
         const panelOpen = () => page.waitForFunction(() => document.getElementById('sidebar')?.classList.contains('open'), null, { timeout: TIMEOUT });
@@ -161,7 +172,10 @@ async function desktop(browser, baseUrl) {
         await closeDialogs(page);
         await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: baseUrl });
         await page.locator('#global-search').fill('Smoke Test Nord');
-        await page.locator('#search-results .result-row[data-id]').first().click();
+        const hit = page.locator('#search-results .result-row[data-id]').first();
+        await hit.waitFor({ state: 'visible', timeout: TIMEOUT });
+        if (await hit.locator('b').textContent() !== '[SMOKE-1] Smoke Test Nord') throw new Error('Kundennummer fehlt im Suchtreffer');
+        await hit.click();
         await page.locator('.leaflet-popup [data-action="copy-customer-number"]').click();
         const copied = await page.evaluate(() => navigator.clipboard.readText());
         if (copied !== '[SMOKE-1] Smoke Test Nord') throw new Error(`Falscher Kopierwert: ${copied}`);
@@ -349,6 +363,7 @@ async function phone(browser, baseUrl) {
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
 
     await step('Handy bleibt bei gespeicherter 600-Pixel-Desktopbreite im Fenster', async () => {
+        if (await page.locator('#btn-demos-pill').isVisible()) throw new Error('Desktop-Demo-Knopf steht im Handy-Kopf');
         await page.evaluate(() => { document.documentElement.style.setProperty('--sidebar-width', '600px'); });
         const panel = await page.locator('#sidebar').boundingBox();
         if (panel.width > 390 || await page.locator('#sidebar-resize').isVisible()) throw new Error('Desktopbreite beeinflusst Handy-Blatt');
@@ -368,6 +383,8 @@ async function phone(browser, baseUrl) {
             await page.waitForSelector('#search-results .result-row[data-id]', { timeout: TIMEOUT });
             const clicked = await page.evaluate(() => {
                 const row = document.querySelector('#search-results .result-row[data-id]');
+                const number = document.querySelector('#search-results .result-row[data-id] b')?.textContent;
+                if (row && !/^\[.+\] /.test(number || '')) throw new Error('Kundennummer fehlt im mobilen Suchtreffer');
                 row?.click();
                 return Boolean(row);
             });

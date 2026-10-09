@@ -154,7 +154,7 @@ export function initSearch() {
                     : t('customer.search.customers'),
                 hits.customers.map((c) => `
                     <button type="button" class="result-row" data-id="${escapeHtml(c.id)}">
-                        <b>${escapeHtml(c.name)}</b>
+                        <b>${String(c.nummer ?? '').trim() ? `[${escapeHtml(String(c.nummer).trim())}] ` : ''}${escapeHtml(c.name)}</b>
                         <span class="muted">${escapeHtml(c.plz)} ${escapeHtml(c.ort)}${c.vb ? ` · ${escapeHtml(c.vb)}` : ''}</span>
                     </button>`)
             ),

@@ -342,10 +342,6 @@
     color: rgb(147, 240, 182);
     background: var(--color-surface);
 }
-:where(.aurora-dark) .demos-fab-new {
-    background: rgba(240, 208, 76, 0.18);
-    color: rgb(244, 182, 143);
-}
 :where(.aurora-dark) .map-fab {
     border-left: 3px solid var(--color-primary, rgba(152, 113, 244, 0.7));
     background: rgba(22, 20, 46, 0.97);

@@ -1,6 +1,6 @@
 # 🦊 TourFuchs Vertrieb – Produkt-Roadmap H2/2026
 
-**Stand:** 07.10.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
+**Stand:** 09.10.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
 
 ---
 
@@ -787,7 +787,7 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
 |---|---|---|---|
 | **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT |
 | **Praxistest Firmen-KI-Kundenliste** | Der Verantwortliche hat den Prompt mit einem echten Firmen-Copilot getestet. | offen seit 03.10.2026 – Baustopp bis dahin | Abschnitt „Einstieg mit eigenen Daten" oben; Befund entscheidet über den nächsten Schritt |
-| **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | offen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren |
+| **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | 24-Stunden-Zwischenstand am 09.10.2026: 29 Besucher, 61 Aufrufe; erster Wochenwert noch offen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren. Der vom Verantwortlichen geteilte Screenshot belegt Interesse, noch keine regelmäßige Nutzung. |
 | **LinkedIn-Serie 2 „Für die Vertriebsleitung“** (GeoFuchs) | Serie 1 (Lichterkarte · Tour planen · Firmen-KI-Liste) ist gelaufen, und die Besucherzahlen bzw. Kommentare zeigen Interesse. | **Filme, Titelbilder und Post-Texte produziert (03.10.2026)** – Veröffentlichen wartet auf den Auslöser | Woche 4 „Deine Bezirke. Im Griff.“ (Lichter → Bezirksflächen → Bezirkskarte → Cockpit), Woche 5 „Gebiete umverteilen. In Minuten.“ (Was-wäre-wenn: Augsburg → Stuttgart, Alt/Neu auf der Karte), Woche 6 „Die Entscheidung. Auf einem Blatt.“ (Entscheidungsvorlage ohne Kundennamen). Skripte: `record-bezirke.mjs`, `record-umverteilen.mjs`, `record-vorlage.mjs`. Botschaft gegen teure Fachsoftware: „kostenlos im Browser, auf denselben Daten wie der Außendienst“. Film-Werkzeuge: `film/lichterkarte/` (neuer `film`-Typ in `stage.html` + Aufnahmeskript). Hintergrund: [Wettbewerb](wettbewerb.md). |
 
 ### Backlog & Vision (bewusst NICHT jetzt)
@@ -893,3 +893,12 @@ Direktes Nutzerfeedback aus dem Smartphone-Praxistest: Der native Einzelauswahl-
 ### Ruhiger Desktop-Einstieg und Kunden-Kopie (09.10.2026, umgesetzt)
 
 Die zentrale Startauswahl erhält die volle Kartenfläche; das Desktop-Panel bleibt geschlossen. Beim Umschauen, während/nach der Demo und nach erfolgreichem eigenem Kundenimport steht es automatisch bereit. Ein Klick auf die Kundennummer kopiert `[Kundennummer] Kundenname` mit der bisherigen Nullenkürzung. Beide Änderungen erleichtern den Einstieg bzw. die Weitergabe im Außendienst-Alltag.
+
+### Kundennummer im Suchtreffer (09.10.2026, umgesetzt)
+
+Die globale Suche zeigt je Kunde die vollständige Originalnummer in eckigen Klammern vor dem Namen. Das erleichtert die Unterscheidung gleichnamiger Kunden und macht Screenshots eindeutig. Kunden ohne Nummer bleiben mit Namen sichtbar; lange Angaben werden auf Desktop und Handy umgebrochen. Guide und Uploadunterlagen sind nachgezogen.
+
+
+### Demo-Zugang und vollständige Lernwege (09.10.2026, umgesetzt)
+
+„Live-Demos“ steht dauerhaft rechts im Desktop-Kopf mit grünem Filmsymbol. Die bisher nur mobile Empfangs-Demo zeigt jetzt auf beiden Geräten eine echte verschlüsselte Beispieldatei, den Schlüssel und die lokale Entschlüsselung ohne erneute Feldzuordnung. Die Briefing-Demos zeigen KI-Auswahl, vollständigen angepassten Prompt und die lokale Kopieraktion. Gespeicherte KI-Wahl und eigener Kundenbestand bleiben erhalten; keine externe KI wird geöffnet. Guide, PDF und Uploadunterlagen sind nachgezogen.
