@@ -23,6 +23,7 @@
 import { state, on, emit } from '../core/state.js';
 import { DEMO_WELCOME_AUTOSTART_SECONDS } from '../services/showcaseOnboarding.js';
 import { isDemoDataset } from '../core/demoSafety.js';
+import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 
 const ACK_KEY = 'tf_demo_welcome_ack';
 const insideMobilePreview = new URLSearchParams(location.search).has('mobilePreview');
@@ -78,6 +79,7 @@ function render() {
     // Handy: Solange die Karte offen ist, braucht der Beispieldaten-Streifen
     // seine Knöpfe nicht (die Karte trägt dieselben) – das Blatt rückt tiefer.
     document.body.classList.toggle('demo-welcome-open', !root.hidden);
+    document.body.classList.toggle('desktop-welcome-open', !root.hidden && !isPhoneUi());
     if (vorher !== !root.hidden) emit('demo-welcome:changed', !root.hidden);
     // Selbststart erst, wenn es etwas vorzuführen gibt.
     if (root.hidden || !isDemoDataset(state.customers)) stopAutostart(); else startAutostart();
@@ -87,6 +89,12 @@ function render() {
 function dismiss() {
     markAcknowledged();
     render();
+}
+
+/** Umschauen gibt am Desktop den Arbeitsbereich frei. */
+function explore() {
+    dismiss();
+    emit('demo-welcome:explore');
 }
 
 // ---- Selbststart der Vorführung ----
@@ -198,8 +206,8 @@ export function initDemoWelcome() {
     // „Live-Demos ansehen" quittiert; das Öffnen des Schaufensters übernimmt das
     // Showcase-Modul (dort ist der Knopf mitregistriert).
     document.getElementById('btn-demo-welcome-demos')?.addEventListener('click', dismiss);
-    document.getElementById('btn-demo-welcome-ack')?.addEventListener('click', dismiss);
-    document.getElementById('btn-demo-welcome-close')?.addEventListener('click', dismiss);
+    document.getElementById('btn-demo-welcome-ack')?.addEventListener('click', explore);
+    document.getElementById('btn-demo-welcome-close')?.addEventListener('click', explore);
 
     // Ein Tipp auf die Karte selbst quittiert ebenfalls.
     //
@@ -219,6 +227,7 @@ export function initDemoWelcome() {
         // Die eigenen Knöpfe behalten ihre Bedeutung; sie quittieren schon selbst.
         if (ev.target.closest('button, a[href], input, select, textarea, label')) return;
         dismiss();
+        emit('demo-welcome:explore');
     });
 
     // Echte Bedienung bricht den Selbststart ab – Karte schieben und zoomen
@@ -226,6 +235,7 @@ export function initDemoWelcome() {
     // Knopf das Ereignis nicht vorher verschluckt.
     watchDeliberateUse();
 
+    onFaceChange(render);
     on('app:ready', render);
     on('showcase:running', render);
     on('customers:changed', render);

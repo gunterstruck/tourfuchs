@@ -771,7 +771,7 @@ function handlePopupAction(action, customerId) {
         return true;
     }
     if (action === 'copy-customer-number') {
-        copyCustomerNumber(customer.nummer).then(({ value, copied }) => {
+        copyCustomerNumber(customer.nummer, customer.name).then(({ value, copied }) => {
             emit('toast', {
                 type: copied ? 'success' : 'error',
                 text: copied
@@ -1958,7 +1958,7 @@ export function customerPopupHtml(customer) {
         : '';
     const profi = state.ui.depth === 'profi';
     // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
-    const clipboardNumber = customerNumberClipboardText(customer.nummer);
+    const clipboardNumber = customerNumberClipboardText(customer.nummer, customer.name);
     const nr = profi && clipboardNumber
         ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number', { number: customer.nummer }))}</span></button>`
         : '';
