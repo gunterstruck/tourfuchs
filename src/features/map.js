@@ -9,6 +9,7 @@ import 'leaflet.markercluster';
 
 import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
+import { customerResponsibilities } from './responsibilities.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, filterDimensionDefs, UNASSIGNED } from '../core/state.js';
@@ -1839,6 +1840,31 @@ function contactBlockHtml(customer) {
     return parts.join('');
 }
 
+/**
+ * „Zuständig": internes Kundenteam aus der Zuständigkeitsliste – je Rolle eine
+ * Zeile, Telefonnummer antippbar. Abzeichen (PI-Partner, Named Account) und
+ * Account stehen in der Kopfzeile des Abschnitts, die Rollen eingeklappt
+ * darunter, damit die Kachel kompakt bleibt.
+ */
+function responsibilitiesBlockHtml(customer) {
+    const { roles, account, badges } = customerResponsibilities(customer);
+    if (!roles.length && !account && !badges.length) return '';
+    const badgeHtml = badges.map((badge) => `<span class="popup-team-badge">${escapeHtml(badge)}</span>`).join('');
+    const accountHtml = account ? `<span class="popup-team-account">${escapeHtml(account)}</span>` : '';
+    const head = `${badgeHtml}${accountHtml}`;
+    if (!roles.length) return `<p class="popup-team-head">${head}</p>`;
+    const rows = roles.map((role) => {
+        const call = role.tel
+            ? `<a class="popup-team-tel" href="tel:${escapeHtml(role.tel)}" title="${escapeHtml(t('customer.team.call', { role: role.label, name: role.name }))}">📞 ${escapeHtml(role.phone)}</a>`
+            : '';
+        return `<li><span class="popup-team-role">${escapeHtml(role.label)}</span><span class="popup-team-name">${escapeHtml(role.name || '–')}</span>${call}</li>`;
+    }).join('');
+    return `<details class="popup-team">
+        <summary><span class="popup-team-title">👥 ${escapeHtml(t('customer.team.title'))} <span class="muted">(${roles.length})</span></span>${head}</summary>
+        <ul>${rows}</ul>
+    </details>`;
+}
+
 function serviceContractsBlockHtml(customer) {
     if (state.ui.depth !== 'profi' || isMobileMap() || !customer.nummer) return '';
     const customerNumber = normalizeCustomerNumber(customer.nummer);
@@ -1974,6 +2000,7 @@ export function customerPopupHtml(customer) {
         ${revenueHtml}
         ${profi && assignment ? `<p class="muted small popup-meta">${assignment}</p>` : ''}
         ${contactBlockHtml(customer)}
+        ${responsibilitiesBlockHtml(customer)}
         ${serviceVisitsBlockHtml(customer)}
         ${serviceContractsBlockHtml(customer)}
         ${visitBlockHtml(customer)}
