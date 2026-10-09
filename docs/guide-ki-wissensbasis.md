@@ -2456,7 +2456,10 @@ Drehhinweis erscheinen.
 Am Desktop öffnet das Topbar-Symbol **"Mobile Außendienst & Tour"** eine
 gerahmte Smartphone-Ansicht. Sie ist kein reiner Tourenplaner: Kundenkarte,
 Kundensuche, Kunden-Popup, Briefing, Tour und Navigation bleiben erreichbar.
-Für den schnellen Nutzennachweis startet die Vorschau im geöffneten Tour-Bereich.
+Sie startet wie das echte Handy: Mit Kundendaten im geöffneten Tour-Bereich
+(„Besuchsplaner"; gefiltert wird über **„Planungsbereich"**), ohne Kundendaten im
+Bereich „Daten". Bis 09.10.2026 öffnete die Vorschau auch mit Kundendaten
+„Daten" – einen Bereich, den das Handy mit Daten nicht hat, und ohne Filter.
 
 Sobald erstmals Kundendaten vorhanden sind und kein Dialog oder anderer
 Onboarding-Schritt die Aufmerksamkeit beansprucht, inszeniert TourFuchs diesen

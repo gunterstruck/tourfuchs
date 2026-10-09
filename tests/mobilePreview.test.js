@@ -10,7 +10,7 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
             addEventListener: vi.fn(),
             removeEventListener: vi.fn()
         }));
-        const { canOfferMobilePreviewTeaser, shouldFocusPreviewData } = await import('../src/ui/mobilePreview.js');
+        const { canOfferMobilePreviewTeaser, previewFocus } = await import('../src/ui/mobilePreview.js');
 
         expect(canOfferMobilePreviewTeaser({
             desktop: true,
@@ -26,15 +26,18 @@ describe('Mobile Außendienst & Tour am Desktop', () => {
         ]) {
             expect(canOfferMobilePreviewTeaser(blocker)).toBe(false);
         }
-        expect(shouldFocusPreviewData({ requestedFocus: 'tour' })).toBe(false);
-        expect(shouldFocusPreviewData({ requestedFocus: 'daten' })).toBe(true);
+        // Wie das echte Handy: mit Daten die Tour (dort sitzt der Filter), ohne Daten „Daten".
+        expect(previewFocus({ requestedFocus: 'auto', hasCustomers: true })).toBe('tour');
+        expect(previewFocus({ requestedFocus: 'auto', hasCustomers: false })).toBe('daten');
+        expect(previewFocus({ requestedFocus: 'daten', hasCustomers: true })).toBe('daten');
     });
 
     it('öffnet die vorbereitete Tour-Vorschau ruhig und kehrt zum Einstieg zurück', () => {
         const source = readFileSync(resolve(process.cwd(), 'src/ui/mobilePreview.js'), 'utf8');
         const sidebar = readFileSync(resolve(process.cwd(), 'src/ui/sidebar.js'), 'utf8');
 
-        expect(source).toContain("[FOCUS_PARAM]: 'daten'");
+        expect(source).toContain("[FOCUS_PARAM]: 'auto'");
+        expect(source).toContain("if (focus === 'tour') showTourView(false);");
         expect(source).toContain('AUTO_TEASER_PREVIEW_MS = 2600');
         expect(source).toContain("PREVIEW_READY_MESSAGE = 'tourfuchs:mobile-preview-ready'");
         expect(source).toContain('type: PREVIEW_READY_MESSAGE, hasCustomers');
