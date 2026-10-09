@@ -22,12 +22,18 @@ export function isLightsBasemap(definition) {
     return Boolean(definition?.lights);
 }
 
+/**
+ * Seit 09.10.2026 20 % kleiner: Bei vielen Tausend Kunden verschwammen die
+ * Punkte zu Flächen. Antippen bleibt gut – der Renderer hat eigene Toleranz.
+ */
+export const LIGHT_SCALE = 0.8;
+
 /** Grundgröße je Zoomstufe: weit draußen winzig, nah dran gut antippbar. */
 export function baseLightRadius(zoom) {
-    if (zoom < 7) return 1.4;
-    if (zoom < 9) return 1.9;
-    if (zoom < 12) return 2.6;
-    return 3.4;
+    if (zoom < 7) return 1.4 * LIGHT_SCALE;
+    if (zoom < 9) return 1.9 * LIGHT_SCALE;
+    if (zoom < 12) return 2.6 * LIGHT_SCALE;
+    return 3.4 * LIGHT_SCALE;
 }
 
 /**

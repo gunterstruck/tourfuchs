@@ -32,7 +32,7 @@ import {
 import { showToast } from './toast.js';
 import { startShowcaseStory } from './showcase.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
-import { isPhoneUi } from '../core/viewport.js';
+import { isPhoneUi, phoneFaceQuery } from '../core/viewport.js';
 
 const COLLAPSE_FEEDBACK_MS = 4000;
 
@@ -77,8 +77,18 @@ function render() {
         dismissed: progress.dismissed
     });
 
+    // Nur am Handy: Am Desktop führen die „Live-Demos" oben rechts – die
+    // Checkliste daneben war doppeltes Angebot und Unruhe im Panel.
+    if (show && !isPhoneUi()) {
+        clearTimeout(collapseTimer);
+        container.hidden = true;
+        container.classList.remove('collapsed');
+        container.innerHTML = '';
+        return;
+    }
+
     if (!show) {
-        if (allDone && !progress.dismissed && state.customers.length > 0 && !celebrated) {
+        if (isPhoneUi() && allDone && !progress.dismissed && state.customers.length > 0 && !celebrated) {
             celebrated = true;
             showToast('🎉 Erste Schritte abgeschlossen – TourFuchs gehört jetzt dir.', 'success', 5000);
         }
@@ -90,9 +100,7 @@ function render() {
     }
 
     const done = new Set(progress.done);
-    // Gerätegerechte Liste (Desktop-Schwelle wie in der Showcase-Engine: 769px),
-    // damit die angebotene Demo genau die ist, die hier auch startet.
-    const steps = firstStepsFor({ isDesktop: !isPhoneUi() });
+    const steps = firstStepsFor({ isDesktop: false });
     const doneCount = steps.filter((step) => done.has(step.id)).length;
 
     if (effectiveCollapsed(progress)) {
@@ -115,12 +123,6 @@ function render() {
             <b>🦊 Erste Schritte</b>
             <span class="muted small">${doneCount}/${steps.length}</span>
         </div>
-        ${!isPhoneUi() && document.body.classList.contains('territory-planning-on') ? `
-            <button type="button" class="first-steps-action" data-showcase="bezirk-zum-kunden">
-                <span aria-hidden="true">🎯</span>
-                <span class="first-steps-text"><b>Vom Bezirk zum Kunden</b><small>Ganz Deutschland, dein Bezirk, ein Kunde</small></span>
-                <span aria-hidden="true">▶</span>
-            </button>` : ''}
         <ul class="first-steps-list">
             ${steps.map((step) => `
                 <li class="${done.has(step.id) ? 'done' : ''}">
@@ -183,6 +185,8 @@ export function initFirstSteps() {
     });
 
     on('customers:changed', render);
+    // Tablet drehen wechselt das Gesicht: hochkant Checkliste, quer keine.
+    phoneFaceQuery().addEventListener?.('change', render);
     on('tour:changed', render);
     on('app:ready', render);
     // Automatisch geladene Beispieldaten dürfen die Mini-Demos nicht aufklappen.
