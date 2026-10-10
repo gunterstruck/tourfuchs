@@ -1851,7 +1851,20 @@ erscheinen nur, wenn es dazu Daten gibt.
   neuen Tab (nur http/https).
 
 **Filter** (**"+ Ebene hinzufügen"**): **"Opportunity"** (mit/ohne offene),
-**"Opportunity-Phase"**, **"Produkt (PCK)"**.
+**"Opportunity-Phase"**, **"Produkt (PCK)"**, **"Cross-Selling-Chance"**.
+
+**Cross-Selling (seit 10.10.2026, 16.6):** Im Feld **"📦 Produkte"** steht oben
+**"💡 Cross-Selling-Chancen"** – Produktklassen, die **mindestens 40 %** der
+vergleichbaren Kunden kaufen, dieser aber nicht, je mit Begründung (z. B.
+"6 von 7 vergleichbaren Kunden in VBEZ 12 kaufen das – dieser nicht"); der Knopf
+trägt dann **"💡n"**. Vergleichbar = **gleicher Vertriebsbezirk**, nur Kunden,
+die überhaupt Produkte kaufen; sind es dort weniger als **5**, gilt die
+**Vertriebsgruppe**, sonst gibt es keinen Hinweis. Höchstens **3** Hinweise je
+Kunde. Keine KI, nur Zählen. Filter **"Cross-Selling-Chance"**: Produkt wählen,
+die Karte zeigt die Kunden, bei denen es eine Chance ist. Das Briefing nennt
+die Themen ("Mögliche Cross-Selling-Themen …") ohne Beträge und ohne Namen der
+Vergleichskunden und bittet den Assistenten, nur belegte Anknüpfungspunkte zu
+nennen.
 
 **Briefing:** nennt **offene Opportunities mit Name, Phase und Abschlussmonat**
 und die **wichtigsten Produktklassen** – **ohne** Beträge, Wettbewerber und

@@ -101,7 +101,7 @@ function previewActive() {
 function rebuildPrompt() {
     currentPrompt = buildCustomerBriefingPrompt(
         currentCustomer,
-        { ...customerBriefingContext(currentCustomer, state.tour, plannedDate()), preview: previewActive() },
+        { ...customerBriefingContext(currentCustomer, state.tour, plannedDate(), state.customers), preview: previewActive() },
         currentAssistant,
         loadBriefingSources()
     );

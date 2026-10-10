@@ -425,6 +425,84 @@ const OPEN_LABEL = 'mit offener Opportunity';
 const NONE_LABEL = 'ohne offene Opportunity';
 
 /** Filterebenen „Opportunity", „Opportunity-Phase", „Produkt (PCK)" – nur, wenn die Daten sie haben. */
+// ---- Cross-Selling (16.6) ----
+
+/** Ab so vielen vergleichbaren Kunden ist ein Anteil aussagekräftig. */
+export const CROSS_SELL_MIN_PEERS = 5;
+/** So viele der Vergleichskunden müssen die Produktklasse kaufen. */
+export const CROSS_SELL_MIN_SHARE = 0.4;
+/** Höchstens so viele Hinweise je Kunde – die Kachel bleibt ruhig. */
+export const CROSS_SELL_MAX = 3;
+
+const productKey = (p) => text(p?.pck) || text(p?.beschreibung);
+const boughtKeys = (customer) => new Set((customer?.produkte || []).filter((p) => (p.summe || 0) > 0 || Object.values(p.jahre || {}).some((v) => v > 0)).map(productKey).filter(Boolean));
+
+const crossSellCache = new WeakMap();
+
+/**
+ * Cross-Selling-Hinweise für alle Kunden: Produktklassen, die mindestens
+ * 40 % der vergleichbaren Kunden kaufen – dieser aber nicht. Vergleichbar =
+ * gleicher Vertriebsbezirk (nur Kunden, die überhaupt Produkte kaufen); sind
+ * es weniger als 5, die Vertriebsgruppe. Bewusst einfach und erklärbar: Jeder
+ * Hinweis nennt seinen Grund („7 von 10 Kunden in VBEZ 12").
+ *
+ * @returns {Map<string, {key:string,label:string,peers:number,buyers:number,scope:string}[]>} Kunden-ID → Hinweise
+ */
+export function crossSellIndex(customers = []) {
+    const cached = crossSellCache.get(customers);
+    if (cached && cached.size === customers.length) return cached.index;
+    const active = customers.filter((c) => boughtKeys(c).size > 0);
+    const labels = new Map();
+    for (const c of active) for (const p of c.produkte || []) if (productKey(p) && !labels.has(productKey(p))) labels.set(productKey(p), text(p.beschreibung) || text(p.pck));
+    const groupBy = (field) => {
+        const groups = new Map();
+        for (const c of active) {
+            const key = text(c[field]);
+            if (!key) continue;
+            if (!groups.has(key)) groups.set(key, []);
+            groups.get(key).push(c);
+        }
+        return groups;
+    };
+    const stats = (members) => {
+        const counts = new Map();
+        for (const c of members) for (const key of boughtKeys(c)) counts.set(key, (counts.get(key) || 0) + 1);
+        return counts;
+    };
+    const levels = ['bezirk', 'gruppe'].map((field) => {
+        const groups = groupBy(field);
+        const counts = new Map([...groups].map(([key, members]) => [key, { size: members.length, counts: stats(members) }]));
+        return { field, counts };
+    });
+    const index = new Map();
+    for (const customer of active) {
+        const own = boughtKeys(customer);
+        let chosen = null;
+        for (const { field, counts } of levels) {
+            const scope = text(customer[field]);
+            const group = scope ? counts.get(scope) : null;
+            // Vergleichskunden ohne den Kunden selbst.
+            if (group && group.size - 1 >= CROSS_SELL_MIN_PEERS) { chosen = { scope, group }; break; }
+        }
+        if (!chosen) continue;
+        const peers = chosen.group.size - 1;
+        const hints = [];
+        for (const [key, buyers] of chosen.group.counts) {
+            if (own.has(key)) continue;
+            if (buyers / peers >= CROSS_SELL_MIN_SHARE) hints.push({ key, label: labels.get(key) || key, peers, buyers, scope: chosen.scope });
+        }
+        hints.sort((a, b) => b.buyers - a.buyers || a.label.localeCompare(b.label, 'de'));
+        if (hints.length) index.set(customer.id, hints.slice(0, CROSS_SELL_MAX));
+    }
+    crossSellCache.set(customers, { size: customers.length, index });
+    return index;
+}
+
+/** Hinweise für einen Kunden (leer, wenn keine). */
+export function crossSellFor(customers, customer) {
+    return crossSellIndex(customers).get(customer?.id) || [];
+}
+
 export function salesDimensionDefs(customers = []) {
     const defs = [];
     if (customers.some((c) => Array.isArray(c?.opps) && c.opps.length)) {
@@ -438,6 +516,11 @@ export function salesDimensionDefs(customers = []) {
     }
     if (customers.some((c) => Array.isArray(c?.produkte) && c.produkte.length)) {
         defs.push({ id: 'produkt', field: 'produkt', label: 'Produkt (PCK)', values: (c) => [...new Set((c.produkte || []).map((p) => p.beschreibung || p.pck).filter(Boolean))] });
+        const index = crossSellIndex(customers);
+        if (index.size) {
+            // „Wo kann ich Antriebe anbieten?" – Produkt wählen, die Karte zeigt die Kunden.
+            defs.push({ id: 'cross-sell', field: 'cross-sell', label: 'Cross-Selling-Chance', values: (c) => (index.get(c?.id) || []).map((h) => h.label) });
+        }
     }
     return defs;
 }
@@ -448,7 +531,7 @@ export function salesDimensionDefs(customers = []) {
  * Für das KI-Briefing: offene Opportunities mit Namen und Phase, die
  * wichtigsten Produktklassen – ohne Beträge, Wettbewerber und Freitexte.
  */
-export function salesBriefingLines(customer) {
+export function salesBriefingLines(customer, crossSell = []) {
     const lines = [];
     const { open } = customerOpps(customer);
     if (open.length) {
@@ -460,5 +543,6 @@ export function salesBriefingLines(customer) {
     }
     const products = customerProducts(customer).slice(0, 5).map((p) => p.beschreibung || p.pck).filter(Boolean);
     if (products.length) lines.push(`- Wichtigste Produktklassen (Auftragseingang GJ24–26): ${products.join('; ')}`);
+    if (crossSell.length) lines.push(`- Mögliche Cross-Selling-Themen (bei vergleichbaren Kunden üblich, hier nicht gekauft): ${crossSell.join('; ')}`);
     return lines;
 }
