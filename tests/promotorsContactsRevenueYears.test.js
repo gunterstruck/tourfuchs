@@ -202,16 +202,24 @@ describe('Umsätze nach Geschäftsjahr', () => {
         expect(Object.keys(customers[0].extra)).toEqual(['Umsatz 2023', 'Umsatz 2024', 'Umsatz 2025']);
     });
 
-    it('GJ läuft (2026, noch ohne Zahlen), GJ-1 bis GJ-3 mit Veränderung zum Vorjahr', () => {
+    it('GJ26 steht oben (noch ohne Zahlen), darunter GJ25 bis GJ23 mit Veränderung zum Vorjahr', () => {
         const customer = { umsatzJahre: { 2023: 1000000, 2024: 1100000, 2025: 990000 } };
         expect(revenueYearRows(customer, TODAY)).toEqual([
-            { offset: 0, year: 2026, value: null, change: null },
-            { offset: 1, year: 2025, value: 990000, change: -10 },
-            { offset: 2, year: 2024, value: 1100000, change: 10 },
-            { offset: 3, year: 2023, value: 1000000, change: null }
+            { year: 2026, value: null, change: null },
+            { year: 2025, value: 990000, change: -10 },
+            { year: 2024, value: 1100000, change: 10 },
+            { year: 2023, value: 1000000, change: null }
         ]);
         expect(revenueBriefingLine(customer, (v) => `${v / 1000} T€`, TODAY))
-            .toBe('- Umsatz nach Geschäftsjahr: GJ-1 2025: 990 T€ (-10 % zum Vorjahr); GJ-2 2024: 1100 T€ (+10 % zum Vorjahr); GJ-3 2023: 1000 T€');
+            .toBe('- Umsatz nach Geschäftsjahr: GJ25: 990 T€ (-10 % zum Vorjahr); GJ24: 1100 T€ (+10 % zum Vorjahr); GJ23: 1000 T€');
+    });
+
+    it('Geschäftsjahr Okt.–Sep.: GJ26 ist abgeschlossen, GJ27 läuft schon – die Liste gibt das Jahr vor', () => {
+        expect(revenueYearOfHeader('Umsatz GJ26')).toBe(2026);
+        expect(revenueYearOfHeader('FY27')).toBe(2027);
+        const customer = { umsatzJahre: { 2025: 100, 2026: 120, 2027: 15 } };
+        expect(revenueYearRows(customer, TODAY).map((row) => row.year)).toEqual([2027, 2026, 2025, 2024]);
+        expect(revenueYearRows({ umsatzJahre: { 2026: 120 } }, TODAY)[0]).toEqual({ year: 2026, value: 120, change: null });
     });
 
     it('ein Reimport mit neueren Jahren behält ältere', () => {
@@ -252,7 +260,7 @@ describe('Kundenkachel', () => {
         const html = customerPopupHtml(kunde());
         expect(html).toContain('data-popup-section="revenue"');
         const year = new Date().getFullYear();
-        expect(html).toContain(`GJ-1 ${year - 1}`);
+        expect(html).toContain(`GJ${String(year - 1).slice(-2)}`);
         expect(html).toContain('noch keine Zahlen');
     });
 
@@ -279,7 +287,7 @@ describe('KI-Briefing', () => {
         const prompt = buildCustomerBriefingPrompt(nord, { today: TODAY });
         expect(prompt).toContain('- Promotoren: Paul Prom (Akku)');
         expect(prompt).toContain('- Ansprechpartner beim Kunden: Herr Groß (Einkauf)');
-        expect(prompt).toContain('- Umsatz nach Geschäftsjahr: GJ-1 2025: 990 T€ (-10 % zum Vorjahr); GJ-2 2024: 1.100 T€');
+        expect(prompt).toContain('- Umsatz nach Geschäftsjahr: GJ25: 990 T€ (-10 % zum Vorjahr); GJ24: 1.100 T€');
         expect(prompt).toContain('nenne den passenden Promotor');
         expect(prompt).toContain('Umsatzentwicklung bei Chance und Risiko');
         expect(prompt).not.toContain('0171');

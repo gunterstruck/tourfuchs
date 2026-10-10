@@ -5,11 +5,15 @@
  * „Umsatz 2024", „Umsatz GJ 2025". TourFuchs nutzt für Karte, Cockpit und
  * Filter weiterhin genau einen Umsatz (den jüngsten Jahrgang, siehe
  * `pickLatestRevenueHeader`). Die übrigen Jahre zeigt die Kundenkachel auf
- * Knopfdruck: laufendes Geschäftsjahr (GJ), GJ-1, GJ-2, GJ-3.
+ * Knopfdruck als „GJ26", „GJ25" …
  *
- * Geschäftsjahr = Kalenderjahr. Ein Doppeljahr („2024/25") zählt zum
- * hinteren Jahr. Plan-, Ziel-, Budget- und Potenzialspalten sind keine
- * Ist-Umsätze und werden nicht erkannt. Reine Logik, ohne DOM.
+ * Bewusst allgemein: Ein Geschäftsjahr heißt nach dem Jahr, in dem es
+ * überwiegend liegt – so benennen es die Firmen selbst (GJ26 = Okt. 2025 bis
+ * Sep. 2026 ebenso wie Jan. bis Dez. 2026). TourFuchs kennt den Startmonat
+ * nicht und braucht ihn nicht; es übernimmt das Jahr aus der Überschrift. Ein
+ * Doppeljahr („2025/26") zählt zum hinteren Jahr. Plan-, Ziel-, Budget- und
+ * Potenzialspalten sind keine Ist-Umsätze und werden nicht erkannt.
+ * Reine Logik, ohne DOM.
  */
 
 const norm = (header) => String(header ?? '').toLowerCase().replace(/[._\-/]/g, ' ').replace(/\s+/g, ' ').trim();
@@ -18,7 +22,7 @@ const REVENUE_WORD = /\b(umsatz|umsätze|umsaetze|ums|revenue|sales|ist)\b|umsat
 const FISCAL_PREFIX = /^(gj|fy|geschäftsjahr|geschaeftsjahr|wj)\s?\d/;
 const NOT_ACTUAL = /plan|ziel|budget|forecast|prognose|potenzial|potential|soll|delta|abweichung|veränderung|veraenderung|%/;
 
-/** Wie viele Geschäftsjahre die Kachel zeigt: GJ, GJ-1, GJ-2, GJ-3. */
+/** Wie viele Geschäftsjahre die Kachel zeigt. */
 export const REVENUE_YEAR_SLOTS = 4;
 
 /**
@@ -58,26 +62,30 @@ export function pickLatestRevenueHeader(currentHeader, headers = []) {
 }
 
 /**
- * Die vier Zeilen der Kachel. Laufendes GJ = Kalenderjahr von `today`.
- * @returns {{ offset:number, year:number, value:number|null, change:number|null }[]}
+ * Die vier Zeilen der Kachel, jüngstes Jahr zuerst. Oben steht das jüngere
+ * von aktuellem Kalenderjahr und jüngstem Jahr in den Daten: Hat die Liste
+ * schon GJ27 (z. B. bei Start im Oktober), beginnt sie dort; fehlt das
+ * laufende Jahr noch, steht es leer oben („noch keine Zahlen").
+ * @returns {{ year:number, value:number|null, change:number|null }[]}
  *   change = Veränderung zum Vorjahr in Prozent (nur wenn beide Jahre Werte haben)
  */
 export function revenueYearRows(customer, today = new Date()) {
     const years = customer?.umsatzJahre || {};
-    const current = today.getFullYear();
+    const dataYears = Object.keys(years).map(Number).filter(Number.isFinite);
+    const top = Math.max(today.getFullYear(), ...dataYears);
     const valueOf = (year) => {
         const value = years[year];
         return value === null || value === undefined || !Number.isFinite(Number(value)) ? null : Number(value);
     };
     const rows = [];
     for (let offset = 0; offset < REVENUE_YEAR_SLOTS; offset++) {
-        const year = current - offset;
+        const year = top - offset;
         const value = valueOf(year);
         const before = valueOf(year - 1);
         const change = value !== null && before !== null && before !== 0
             ? Math.round(((value - before) / Math.abs(before)) * 100)
             : null;
-        rows.push({ offset, year, value, change });
+        rows.push({ year, value, change });
     }
     return rows;
 }
@@ -87,9 +95,9 @@ export function hasRevenueYears(customer, today = new Date()) {
     return revenueYearRows(customer, today).some((row) => row.value !== null);
 }
 
-/** „GJ" für das laufende Jahr, sonst „GJ-1" … */
-export function fiscalYearLabel(offset) {
-    return offset === 0 ? 'GJ' : `GJ-${offset}`;
+/** 2026 → „GJ26" (Präfix je Sprache: FY26, Ex.26 …). */
+export function fiscalYearLabel(year, prefix = 'GJ') {
+    return `${prefix}${String(year).slice(-2)}`;
 }
 
 /**
@@ -101,7 +109,7 @@ export function revenueBriefingLine(customer, format, today = new Date()) {
     if (!rows.length) return '';
     const parts = rows.map((row) => {
         const change = row.change === null ? '' : ` (${row.change > 0 ? '+' : ''}${row.change} % zum Vorjahr)`;
-        return `${fiscalYearLabel(row.offset)} ${row.year}: ${format(row.value)}${change}`;
+        return `${fiscalYearLabel(row.year)}: ${format(row.value)}${change}`;
     });
     return `- Umsatz nach Geschäftsjahr: ${parts.join('; ')}`;
 }

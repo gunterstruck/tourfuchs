@@ -11,7 +11,7 @@ import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { customerResponsibilities } from './responsibilities.js';
 import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
-import { hasRevenueYears, revenueYearRows } from './revenueYears.js';
+import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, filterDimensionDefs, UNASSIGNED } from '../core/state.js';
@@ -1920,18 +1920,18 @@ function personListHtml(people, detailOf) {
     return `<ul class="popup-person-list">${rows}</ul>`;
 }
 
-/** Umsatz nach Geschäftsjahr: GJ (laufend), GJ-1 … GJ-3, mit Veränderung zum Vorjahr. */
+/** Umsatz nach Geschäftsjahr: GJ26, GJ25 … mit Veränderung zum Vorjahr. */
 function revenueYearsPanelHtml(customer, locale) {
-    const rows = revenueYearRows(customer).map((row) => {
-        const label = `${row.offset === 0 ? t('customer.revenue.fy') : `${t('customer.revenue.fy')}-${row.offset}`} ${row.year}`;
-        const note = row.offset === 0 && row.value === null ? t('customer.revenue.none') : '';
+    const rows = revenueYearRows(customer).map((row, index) => {
+        const label = fiscalYearLabel(row.year, t('customer.revenue.fy'));
+        const note = index === 0 && row.value === null ? t('customer.revenue.none') : '';
         const value = row.value === null
             ? `<span class="muted">${escapeHtml(note || '–')}</span>`
             : `<b title="${escapeHtml(formatRevenueFull(row.value, locale))}">${escapeHtml(formatRevenueShort(row.value, locale))}</b>`;
         const change = row.change === null
             ? ''
             : `<span class="popup-revenue-change ${row.change >= 0 ? 'is-up' : 'is-down'}" title="${escapeHtml(t('customer.revenue.change', { value: `${row.change > 0 ? '+' : ''}${row.change}` }))}">${row.change > 0 ? '▲ +' : row.change < 0 ? '▼ ' : '± '}${row.change} %</span>`;
-        return `<li><span class="popup-revenue-year">${escapeHtml(label)}${row.offset === 0 ? ` <small class="muted">${escapeHtml(t('customer.revenue.current'))}</small>` : ''}</span>${value}${change}</li>`;
+        return `<li><span class="popup-revenue-year">${escapeHtml(label)}</span>${value}${change}</li>`;
     }).join('');
     return `<div class="popup-panel popup-revenue-years" data-popup-panel="revenue" hidden>
         <p class="muted small">${escapeHtml(t('customer.revenue.yearsTitle'))}</p>

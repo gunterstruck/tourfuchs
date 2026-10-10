@@ -1443,7 +1443,7 @@ Gesamtsumme zur Plausibilitätsprüfung.
 
 **Mehrere Geschäftsjahre (seit 10.10.2026):** Spalten wie `Umsatz 2023`,
 `Umsatz 2024`, `Umsatz GJ 25`, `Umsatz 2024/25` (zählt zum hinteren Jahr) oder
-`GJ 2025` werden als Umsatz eines Geschäftsjahres erkannt. **Der jüngste
+`GJ 2025`, `GJ26` oder `FY27` werden als Umsatz eines Geschäftsjahres erkannt. **Der jüngste
 Jahrgang ist "der" Umsatz** für Karte, Cockpit und Filter; alle Jahre zeigt die
 Kundenkachel unter **"📊 Jahre"** (8.5a). Spalten mit Plan, Ziel, Budget,
 Forecast, Prognose oder Potenzial sind keine Ist-Umsätze und werden nicht als
@@ -1676,15 +1676,19 @@ einen Hinweis; es wird keine externe Kontaktaktion gestartet.
 
 Seit 10.10.2026. Bringt die importierte Liste Umsätze mehrerer
 Geschäftsjahre mit (7.9), trägt die Umsatzzeile den Knopf **"📊 Jahre"**. Er
-klappt **"Umsatz nach Geschäftsjahr"** auf:
+klappt **"Umsatz nach Geschäftsjahr"** auf – vier Jahre, jüngstes oben, z. B.
+**GJ26**, **GJ25**, **GJ24**, **GJ23**:
 
-- **GJ** – das laufende Geschäftsjahr (Kalenderjahr), mit `laufend`; ohne
-  Zahlen steht dort `noch keine Zahlen`
-- **GJ-1**, **GJ-2**, **GJ-3** – die drei Vorjahre mit Jahreszahl
-- je Jahr die Veränderung zum Vorjahr in Prozent (▲ grün / ▼ rot), wenn beide
-  Jahre Werte haben
+- je Jahr der Umsatz und die Veränderung zum Vorjahr in Prozent (▲ grün /
+  ▼ rot), wenn beide Jahre Werte haben
+- oben steht das jüngere von aktuellem Kalenderjahr und jüngstem Jahr in der
+  Liste; fehlen dafür noch Zahlen, steht dort `noch keine Zahlen`
 
-Geschäftsjahr = Kalenderjahr. Ohne Jahreswerte gibt es keinen Knopf.
+**Bewusst allgemein:** Ein Geschäftsjahr heißt nach dem Jahr, in dem es
+überwiegend liegt – GJ26 ist bei einem Geschäftsjahr Oktober bis September
+Okt. 2025 bis Sep. 2026, bei einem Kalender-Geschäftsjahr Jan. bis Dez. 2026.
+TourFuchs übernimmt das Jahr aus der Spaltenüberschrift und braucht den
+Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 
 ### 8.6 Weitere Kundendetails und kopierbare Nummer
 
