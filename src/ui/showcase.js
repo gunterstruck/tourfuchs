@@ -507,9 +507,24 @@ async function moveToEl(sel) {
     // samt Kopfleiste nach oben aus dem Bild.
     el.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
     await sleep(prefersReduced ? 60 : 260);
+    // Lange Wege (z. B. lange Gebietslisten mit eigenen Daten) scrollen länger
+    // als die feste Pause – sonst klickte die Demo auf einen Knopf, der noch
+    // außerhalb des Bildes lag.
+    await positionSettled(el);
     const c = centerOf(el);
     await moveTo(c.x, c.y);
     return el;
+}
+/** Warten, bis ein Element nicht mehr wandert (Scrollen fertig), höchstens `maxMs`. */
+async function positionSettled(el, maxMs = 1500) {
+    const started = Date.now();
+    let last = el.getBoundingClientRect();
+    while (Date.now() - started < maxMs) {
+        await sleep(80);
+        const now = el.getBoundingClientRect();
+        if (Math.abs(now.top - last.top) < 1 && Math.abs(now.left - last.left) < 1) return;
+        last = now;
+    }
 }
 /**
  * In den Tour-Bereich wechseln – am Schreibtisch über den Reiter, am Handy

@@ -60,6 +60,13 @@ describe('Live-Demos klicken auch nach dem Verschieben der Karte', () => {
         expect(click.indexOf('releaseMapClickGuard();')).toBeLessThan(click.indexOf('.click();'));
     });
 
+    it('klickt erst, wenn ein weit gescrollter Knopf im Bild steht', () => {
+        // Simulation mit vielen eigenen Bezirken: „Auswahl zuweisen" lag beim Klick noch außerhalb.
+        const move = showcase.slice(showcase.indexOf('async function moveToEl('), showcase.indexOf('async function positionSettled('));
+        expect(move.indexOf('await positionSettled(el);')).toBeGreaterThan(move.indexOf('scrollIntoView'));
+        expect(move.indexOf('await positionSettled(el);')).toBeLessThan(move.indexOf('centerOf(el)'));
+    });
+
     it('wartet nach dem Zoomen, bis Kacheln und Punkte nachgezogen sind', () => {
         const settle = Number(map.match(/const ZOOM_SETTLE_MS = (\d+);/)[1]);
         const body = showcase.slice(showcase.indexOf('async function mapSettled('), showcase.indexOf('function releaseMapClickGuard()'));
