@@ -11,7 +11,7 @@ import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { customerResponsibilities, splitContactText } from './responsibilities.js';
 import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
-import { crmLink, customerOpps, customerProducts, handover, productMix, safeLink } from './salesWorkbook.js';
+import { crmLink, crossSellFor, customerOpps, customerProducts, handover, productMix, safeLink } from './salesWorkbook.js';
 import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
@@ -1914,12 +1914,15 @@ function responsibilitiesBlockHtml(customer) {
     }
     const products = customerProducts(customer);
     const mix = productMix(customer);
+    const ideas = products.length ? crossSellFor(state.customers, customer) : [];
     if (products.length || mix.length) {
-        sections.push({ id: 'products', icon: '📦', label: t('customer.products.title'), count: products.length || mix.length, body: productsPanelHtml(products, mix) });
+        sections.push({ id: 'products', icon: '📦', label: t('customer.products.title'), count: products.length || mix.length,
+            hint: ideas.length ? { text: `💡${ideas.length}`, title: t('customer.crossSell.chipTitle', { count: ideas.length }) } : null,
+            body: productsPanelHtml(products, mix, ideas) });
     }
     if (!sections.length) return head;
     // Knopfzeile nebeneinander, darunter genau ein aufgeklapptes Feld.
-    const chips = sections.map((section) => `<button type="button" class="popup-chip" data-popup-section="${section.id}" aria-expanded="false">${section.icon} ${escapeHtml(section.label)} <span class="muted">(${section.count})</span></button>`).join('');
+    const chips = sections.map((section) => `<button type="button" class="popup-chip" data-popup-section="${section.id}" aria-expanded="false">${section.icon} ${escapeHtml(section.label)} <span class="muted">(${section.count})</span>${section.hint ? ` <span class="popup-chip-hint" title="${escapeHtml(section.hint.title)}">${escapeHtml(section.hint.text)}</span>` : ''}</button>`).join('');
     const panels = sections.map((section) => `<div class="popup-panel popup-team" data-popup-panel="${section.id}" hidden>${section.body}</div>`).join('');
     return `${head}<div class="popup-people"><div class="popup-chips">${chips}</div>${panels}</div>`;
 }
@@ -1972,8 +1975,12 @@ function oppsPanelHtml({ open, closed, openAmount }) {
 }
 
 /** Produktmix als Balken, darunter die Produktklassen mit dem größten Auftragseingang. */
-function productsPanelHtml(products, mix) {
+function productsPanelHtml(products, mix, ideas = []) {
     const locale = currentLocale();
+    // Cross-Selling (16.6): oben, mit Begründung – „7 von 10 Kunden in VBEZ 12".
+    const ideasHtml = ideas.length
+        ? `<div class="popup-ideas"><p class="popup-ideas-title">💡 ${escapeHtml(t('customer.crossSell.title'))}</p><ul class="popup-person-list">${ideas.map((idea) => `<li><span class="popup-person-name">${escapeHtml(idea.label)}</span><span class="popup-person-detail">${escapeHtml(t('customer.crossSell.reason', { buyers: idea.buyers, peers: idea.peers, scope: idea.scope }))}</span></li>`).join('')}</ul></div>`
+        : '';
     const bar = mix.length
         ? `<div class="popup-mix" role="img" aria-label="${escapeHtml(mix.map((m) => `${m.label} ${Math.round(m.share * 100)} %`).join(', '))}">${mix.map((m, i) => `<span class="popup-mix-part mix-${i}" style="flex:${Math.max(0.02, m.share)}" title="${escapeHtml(`${m.label} ${Math.round(m.share * 100)} %`)}"></span>`).join('')}</div>
            <p class="popup-mix-legend small">${mix.slice(0, 4).map((m, i) => `<span><i class="mix-${i}"></i>${escapeHtml(m.label)} ${Math.round(m.share * 100)} %</span>`).join('')}</p>`
@@ -1986,7 +1993,7 @@ function productsPanelHtml(products, mix) {
     }).join('');
     const more = products.length > 8 ? `<p class="muted small">${escapeHtml(t('customer.more', { count: products.length - 8 }))}</p>` : '';
     const head = products.length ? `<p class="muted small popup-panel-sum">${escapeHtml(t('customer.products.sum'))}</p>` : '';
-    return `${bar}${head}${rows ? `<ul class="popup-product-list">${rows}</ul>` : ''}${more}`;
+    return `${ideasHtml}${bar}${head}${rows ? `<ul class="popup-product-list">${rows}</ul>` : ''}${more}`;
 }
 
 /** „2027-03-31" → „03/2027". */

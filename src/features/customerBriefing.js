@@ -13,7 +13,7 @@ import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
 import { responsibilityBriefingLines } from './responsibilities.js';
 import { contactBriefingLines } from './customerContacts.js';
 import { revenueBriefingLine } from './revenueYears.js';
-import { salesBriefingLines } from './salesWorkbook.js';
+import { crossSellFor, salesBriefingLines } from './salesWorkbook.js';
 import { formatRevenueShort } from '../core/format.js';
 
 const DEFAULT_SOURCE_INSTRUCTION = 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
@@ -94,6 +94,9 @@ function focusHints(customer, plan) {
     if (plan.some((line) => line.startsWith('- Offene Opportunities:'))) {
         hints.push('Prüfe zu den offenen Opportunities den letzten Stand in Mails, Terminen und Chats: Was ist der nächste Schritt, und wartet jemand auf eine Antwort von mir?');
     }
+    if (plan.some((line) => line.startsWith('- Mögliche Cross-Selling-Themen'))) {
+        hints.push('Prüfe zu den genannten Cross-Selling-Themen, ob es Anknüpfungspunkte gibt (Projekte, Anfragen, Probleme) – nur mit Beleg, sonst weglassen.');
+    }
     if (plan.some((line) => line.startsWith('- Umsatz nach Geschäftsjahr:'))) {
         hints.push('Berücksichtige die Umsatzentwicklung bei Chance und Risiko; wiederhole die Zahlen nicht, sondern ordne sie ein.');
     }
@@ -114,7 +117,7 @@ export function buildCustomerBriefingPrompt(customer, context = {}, assistant = 
         ...revenueLines(customer, context.today || new Date()),
         // Offene Opportunities (Name, Phase, Abschluss) und Produktklassen –
         // ohne Beträge, Wettbewerber und Beschreibungstexte.
-        ...salesBriefingLines(customer)
+        ...salesBriefingLines(customer, context.crossSell || [])
     ];
     const localContext = plan.length
         ? `\nTourFuchs-Kontext:\n${plan.join('\n')}\n`
@@ -160,7 +163,7 @@ Qualitätsregeln:
 - Schreibe präzise, scanbar und auf Deutsch.`;
 }
 
-export function customerBriefingContext(customer, tour, plannedDate = '') {
+export function customerBriefingContext(customer, tour, plannedDate = '', customers = null) {
     const stopIndex = Array.isArray(tour?.stops) ? tour.stops.indexOf(customer.id) : -1;
     const visits = Array.isArray(customer.besuche) ? customer.besuche.filter(Boolean).sort() : [];
     return {
@@ -169,6 +172,8 @@ export function customerBriefingContext(customer, tour, plannedDate = '') {
         stopCount: Array.isArray(tour?.stops) ? tour.stops.length : 0,
         isStart: tour?.start?.customerId === customer.id,
         isDestination: tour?.destination?.customerId === customer.id,
-        lastLocalVisit: visits.at(-1) || ''
+        lastLocalVisit: visits.at(-1) || '',
+        // Nur Themennamen – keine Beträge, keine Kundennamen der Vergleichsgruppe.
+        ...(customers ? { crossSell: crossSellFor(customers, customer).map((hint) => hint.label) } : {})
     };
 }

@@ -955,6 +955,10 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
    Opportunities scrollen innerhalb des Feldes, die Kachel bleibt ruhig. */
 .popup-people .popup-panel { max-height: 240px; overflow-y: auto; overscroll-behavior: contain; }
 .popup-panel-sum { margin: 0 0 4px; }
+/* Cross-Selling: ein ruhiger Kasten oben im Produkte-Feld. */
+.popup-ideas { margin: 0 0 8px; padding: 6px 8px; border-radius: 8px; background: color-mix(in srgb, #eab308 14%, transparent); }
+.popup-ideas-title { margin: 0 0 4px; font-weight: 700; font-size: 0.8rem; }
+.popup-chip-hint { font-size: 0.72rem; }
 .popup-flags { display: inline-flex; flex-wrap: wrap; gap: 3px; margin-left: 4px; vertical-align: middle; }
 .popup-flag {
     padding: 0 6px;
