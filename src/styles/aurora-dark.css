@@ -159,7 +159,7 @@
 :where(.aurora-dark) button.danger:hover:not(:disabled) { background: rgba(248, 113, 113, 0.12); border-color: rgba(248, 113, 113, 0.45); }
 
 /* Eingaben */
-:where(.aurora-dark) input[type="search"], :where(.aurora-dark) input[type="text"], :where(.aurora-dark) input[type="number"], :where(.aurora-dark) input[type="email"], :where(.aurora-dark) input[type="date"], :where(.aurora-dark) input[type="time"], :where(.aurora-dark) input[type="password"], :where(.aurora-dark) select, :where(.aurora-dark) textarea {
+:where(.aurora-dark) input[type="search"], :where(.aurora-dark) input[type="text"], :where(.aurora-dark) input[type="url"], :where(.aurora-dark) input[type="number"], :where(.aurora-dark) input[type="email"], :where(.aurora-dark) input[type="date"], :where(.aurora-dark) input[type="time"], :where(.aurora-dark) input[type="password"], :where(.aurora-dark) select, :where(.aurora-dark) textarea {
     background: rgba(255, 255, 255, 0.05);
     border-color: var(--glass-edge);
     color: var(--color-text);
