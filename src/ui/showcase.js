@@ -507,9 +507,24 @@ async function moveToEl(sel) {
     // samt Kopfleiste nach oben aus dem Bild.
     el.scrollIntoView({ block: 'nearest', behavior: prefersReduced ? 'auto' : 'smooth' });
     await sleep(prefersReduced ? 60 : 260);
+    // Lange Wege (z. B. lange Gebietslisten mit eigenen Daten) scrollen länger
+    // als die feste Pause – sonst klickte die Demo auf einen Knopf, der noch
+    // außerhalb des Bildes lag.
+    await positionSettled(el);
     const c = centerOf(el);
     await moveTo(c.x, c.y);
     return el;
+}
+/** Warten, bis ein Element nicht mehr wandert (Scrollen fertig), höchstens `maxMs`. */
+async function positionSettled(el, maxMs = 1500) {
+    const started = Date.now();
+    let last = el.getBoundingClientRect();
+    while (Date.now() - started < maxMs) {
+        await sleep(80);
+        const now = el.getBoundingClientRect();
+        if (Math.abs(now.top - last.top) < 1 && Math.abs(now.left - last.left) < 1) return;
+        last = now;
+    }
 }
 /**
  * In den Tour-Bereich wechseln – am Schreibtisch über den Reiter, am Handy
@@ -533,7 +548,21 @@ async function mapSettled(maxMs = 4000) {
     while (map && (map._animatingZoom || map._panAnim?._inProgress) && Date.now() - started < maxMs) {
         await sleep(100);
     }
-    await sleep(300);
+    // Flächen, Kacheln und Punkte ziehen erst kurz nach dem letzten Zoomschritt
+    // nach (ZOOM_SETTLE_MS in map.js) – diese Zeit mit abwarten.
+    await sleep(450);
+}
+
+/**
+ * Leaflet merkt sich ein Verschieben der Karte bis zum nächsten Mausdruck und
+ * verwirft bis dahin Klicks auf Kartenelemente („nach dem Ziehen kein Klick").
+ * Die Demo klickt ohne Mausdruck: Hatte der Nutzer vorher die Karte
+ * verschoben, gingen alle Kartenklicks ins Leere – „Die große Gebietskachel
+ * konnte nicht geöffnet werden". Vor jedem Demo-Klick daher zurücksetzen.
+ */
+function releaseMapClickGuard() {
+    const draggable = getMap()?.dragging?._draggable;
+    if (draggable && !draggable._moving) draggable._moved = false;
 }
 
 async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
@@ -560,6 +589,7 @@ async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
     // Animation länger dauert. Genau diese Fehlerklasse hat `attention-check`
     // schon einmal getroffen (Wechsel von Tiefe/Modus baut die Reiterleiste neu).
     const frisch = document.querySelector(sel);
+    releaseMapClickGuard();
     (frisch && isVisible(frisch) ? frisch : el).click();
     await sleep(120);
     cursorEl.classList.remove('sc-click');

@@ -264,7 +264,10 @@ describe('Übergaben (16.5)', () => {
 
     it('Marker zeigen die Übergabe, Daten-Reiter bietet die Liste an', () => {
         const map = readFileSync('src/features/map.js', 'utf8');
-        expect(map).toContain("${transfer ? ' has-handover' : ''}");
+        // Rahmen nur bei aktivem Übergabe-Filter (sonst flächig violett), Text immer.
+        expect(map).toContain("${transfer && handoverRingActive() ? ' has-handover' : ''}");
+        expect(map).toContain("['uebergabe', 'uebergabe-von'].some(");
+        expect(map).toContain('const transferText = transfer ?');
         expect(readFileSync('src/styles/map.css', 'utf8')).toContain('.customer-marker-card.has-handover');
         expect(readFileSync('index.html', 'utf8')).toContain('id="btn-export-handover"');
         expect(readFileSync('src/ui/sidebar.js', 'utf8')).toContain('exportHandovers(visibleCustomers())');

@@ -59,6 +59,8 @@ import { copyCustomerNumber, customerNumberClipboardText } from './handoff.js';
 let map = null;
 let regionLayer = null;
 let clusterGroup = null;
+// Wartezeit nach dem letzten Zoomschritt, bevor Flächen, Kacheln und Punkte nachziehen.
+const ZOOM_SETTLE_MS = 160;
 let placeLayer = null;
 let tourLayer = null;
 
@@ -215,7 +217,7 @@ function maybeOfferCustomerMarkerHint() {
     if (!map || !clusterGroup || !canOfferCustomerMarkerHint({
         zoom: map.getZoom(),
         mobile: isMobileMap(),
-        hasCustomers: customerMarkers.length > 0,
+        hasCustomers: customerMarkers.length > 0 && map.hasLayer(clusterGroup),
         alreadyShown: discoveryJourneyDone() || markerHintOffers >= DISCOVERY_HINT_MAX_OFFERS,
         showcaseRunning: Boolean(document.querySelector('.sc-shield')),
         insidePreview: insideMobilePreview
@@ -540,8 +542,13 @@ export function initMap(containerId) {
     placeLayer = L.layerGroup().addTo(map);
     tourLayer = L.layerGroup().addTo(map);
 
-    // Zoom-Automatik: bei „auto" den Detailgrad neu bestimmen
-    map.on('zoomend', () => {
+    // Zoom-Automatik: bei „auto" den Detailgrad neu bestimmen. Mehrere
+    // Mausrad-Schritte hintereinander lösen das nur einmal aus – sonst rechnete
+    // die Karte bei großen Beständen nach jedem Schritt alles neu und ruckelte.
+    let zoomSettleTimer = null;
+    const afterZoom = () => {
+        zoomSettleTimer = null;
+        if (!map) return;
         syncCustomerMarkerMode();
         // Lichtpunkte wachsen mit der Zoomstufe.
         if (lightsActive()) renderMarkers();
@@ -550,10 +557,15 @@ export function initMap(containerId) {
         // Ebenenwechsel bzw. in der Farbautomatik – zu selten dafür.
         renderPlaces();
         const levelChanged = syncEffectiveLevel();
-        if (!levelChanged && state.colorMode === 'auto') applyView();
+        if (!levelChanged && state.colorMode === 'auto') applyView({ zoomOnly: true });
         else if (!levelChanged && currentView.labels) renderLabels();
         scheduleCustomerMarkerHint();
         scheduleCustomerClusterHint();
+    };
+    map.on('zoomend', () => {
+        syncCustomerMarkerMode();
+        clearTimeout(zoomSettleTimer);
+        zoomSettleTimer = setTimeout(afterZoom, ZOOM_SETTLE_MS);
     });
     // Lichterkarte: Während einer Zoombewegung würde Leaflet die Punkt-Ebene
     // mitstrecken – die Punkte blähten sich zu Flecken auf. Deshalb blenden sie
@@ -926,12 +938,18 @@ function resolveView() {
     return { paint: p, markers: false, labels: true, markerBy: 'bezirk' };
 }
 
-function applyView() {
+/**
+ * `zoomOnly`: Nur die Zoomstufe bzw. Gebietsebene hat sich geändert – die
+ * Kundenpunkte selbst sind dieselben. Dann werden sie nur ein- oder
+ * ausgeblendet statt neu gebaut (bei 12.000 Kunden ruckelte sonst jeder
+ * Zoom über die Kundenschwelle für Sekunden).
+ */
+function applyView({ zoomOnly = false } = {}) {
     currentView = simulationPreview
         ? { paint: simulationPreview.attr, markers: false, labels: false, markerBy: simulationPreview.attr }
         : resolveView();
     restyleRegions();
-    renderMarkers();
+    renderMarkers({ keep: zoomOnly });
     renderPlaces();
     renderLabels();
 }
@@ -968,7 +986,7 @@ export async function setLevel(level) {
     if (level === 'none' || !CONFIG.levels[level]?.file) {
         loadingLevel = null;
         emit('map:loading', false);
-        applyView();
+        applyView({ zoomOnly: true });
         return;
     }
 
@@ -1017,7 +1035,7 @@ export async function setLevel(level) {
         }
     }).addTo(map);
     regionLayer.bringToBack();
-    applyView();
+    applyView({ zoomOnly: true });
 }
 
 function computeStats() {
@@ -1733,6 +1751,19 @@ function markerColor(customer) {
     return repColor(customer.vb);
 }
 
+/**
+ * Übergabe-Rahmen nur, wenn gerade nach Übergaben gefiltert wird. Stehen in
+ * einer Neuordnung fast alle Kunden zur Übergabe an, wäre die Karte sonst
+ * flächig violett gestrichelt (PO, 10.10.2026). Der Hinweis im Kartentext und
+ * in der Kachel bleibt immer.
+ */
+function handoverRingActive() {
+    return ['uebergabe', 'uebergabe-von'].some((id) => {
+        const dim = state.dims?.[id];
+        return !!dim && [...dim.values.values()].some((value) => value.visible === false);
+    });
+}
+
 function customerIcon(customer) {
     const color = markerColor(customer);
     const inTour = state.tour.stops.includes(customer.id);
@@ -1754,7 +1785,7 @@ function customerIcon(customer) {
     const label = customerMarkerLabel(customer.name, { demo: isDemoCustomer(customer) });
     return L.divIcon({
         className: 'customer-marker-wrapper',
-        html: `<div class="customer-marker-card${customer.geo === 'plz' ? ' approx' : ''}${transfer ? ' has-handover' : ''}${inTour ? ' in-tour' : ''}${visitAccent}" style="--marker-color:${color}" title="${escapeHtml([label, address].filter(Boolean).join(' · '))}" aria-hidden="true">
+        html: `<div class="customer-marker-card${customer.geo === 'plz' ? ' approx' : ''}${transfer && handoverRingActive() ? ' has-handover' : ''}${inTour ? ' in-tour' : ''}${visitAccent}" style="--marker-color:${color}" title="${escapeHtml([label, address].filter(Boolean).join(' · '))}" aria-hidden="true">
             <span class="customer-marker-accent"></span>
             <span class="customer-marker-symbol"></span>
             <span class="customer-marker-copy">
@@ -2252,7 +2283,11 @@ export function customersOnMap() {
  * einmal, sobald der laufende Code fertig ist.
  */
 let markersQueued = false;
-function renderMarkers() {
+// Etwas außer der Zoomstufe hat sich geändert (Filter, Tour, Besuche, Sprache …):
+// Die Kundenpunkte müssen neu gebaut werden.
+let markersDirty = true;
+function renderMarkers({ keep = false } = {}) {
+    if (!keep) markersDirty = true;
     if (markersQueued) return;
     markersQueued = true;
     queueMicrotask(() => {
@@ -2271,11 +2306,36 @@ function renderMarkers() {
  */
 const MARKER_CHUNK = 1500;
 let markerDrawGeneration = 0;
+// Wofür die Punkte in `clusterGroup` vollständig gebaut sind (null: unvollständig/veraltet).
+let builtMarkerSignature = null;
+
+const markerSignature = () => [state.ui.mode, state.colorMode, currentView.markerBy, currentLocale(), isMobileMap()].join('|');
 
 function drawMarkers() {
     if (!clusterGroup) return;
     const generation = ++markerDrawGeneration;
     hideBusy('map');
+    const dirty = markersDirty;
+    markersDirty = false;
+    if (!currentView.markers && !lightsActive()) {
+        // Flächenansicht: Kundenpunkte nur ausblenden, nicht wegwerfen – beim
+        // Hineinzoomen sind sie sofort wieder da.
+        lightsLayer?.clearLayers();
+        if (map.hasLayer(clusterGroup)) map.removeLayer(clusterGroup);
+        if (dirty) {
+            clusterGroup.clearLayers();
+            customerMarkers = [];
+            builtMarkerSignature = null;
+        }
+        finishMarkers();
+        return;
+    }
+    if (!map.hasLayer(clusterGroup)) map.addLayer(clusterGroup);
+    if (!dirty && !lightsActive() && builtMarkerSignature === markerSignature()) {
+        finishMarkers();
+        return;
+    }
+    builtMarkerSignature = null;
     clusterGroup.clearLayers();
     lightsLayer?.clearLayers();
     customerMarkers = [];
@@ -2289,8 +2349,10 @@ function drawMarkers() {
         return;
     }
     const list = customersOnMap();
+    const signature = markerSignature();
     if (list.length <= MARKER_CHUNK) {
         clusterGroup.addLayers(customerMarkersFor(list, popupOptionsForCustomers));
+        builtMarkerSignature = signature;
         finishMarkers();
         return;
     }
@@ -2312,6 +2374,7 @@ function drawMarkers() {
             return;
         }
         hideBusy('map');
+        builtMarkerSignature = signature;
         finishMarkers();
     };
     showBusy('map', t('busy.map'));

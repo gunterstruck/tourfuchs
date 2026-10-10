@@ -402,8 +402,10 @@ describe('Gespeicherte Orte kommen mit den Kundenpunkten, nicht davor', () => {
         expect(map).toContain('if (!ownPlacesVisibleAtZoom(map.getZoom())) return;');
         // `applyView()` läuft nur bei Ebenenwechsel bzw. in der Farbautomatik.
         // Ohne diesen Aufruf bliebe der Pin beim Aufziehen der Karte weg.
-        const zoomend = map.slice(map.indexOf("map.on('zoomend'"), map.indexOf("map.on('movestart"));
+        // Seit 10.10.2026 läuft das gesammelt nach dem letzten Zoomschritt (`afterZoom`).
+        const zoomend = map.slice(map.indexOf('const afterZoom = () =>'), map.indexOf("map.on('movestart"));
         expect(zoomend).toContain('renderPlaces();');
+        expect(zoomend).toContain('setTimeout(afterZoom, ZOOM_SETTLE_MS)');
     });
 
     it('lässt Start und Ziel auf jeder Zoomstufe stehen', () => {

@@ -11,7 +11,7 @@ const exact = readFileSync(resolve(process.cwd(), 'src/ui/exactGeocoding.js'), '
 
 describe('Reaktionsfähig nach dem Entsperren', () => {
     it('fasst mehrere Neuzeichnungen der Kundenmarker zu einer zusammen', () => {
-        const body = map.slice(map.indexOf('function renderMarkers()'), map.indexOf('function drawMarkers()'));
+        const body = map.slice(map.indexOf('function renderMarkers('), map.indexOf('function drawMarkers()'));
         expect(body).toContain('if (markersQueued) return;');
         expect(body).toContain('queueMicrotask');
         expect(body).not.toContain('clearLayers');

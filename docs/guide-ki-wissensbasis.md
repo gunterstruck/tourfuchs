@@ -1868,9 +1868,11 @@ erscheinen nur, wenn es dazu Daten gibt.
 - **"🔁 Übergabe von …"** als Abzeichen, wenn "Übergabe notwendig" gesetzt ist
   und der VB gewechselt hat (Tooltip: von wem an wen).
 - **Übergaben auf der Karte (seit 10.10.2026, 16.5):** Kundenmarker mit
-  Übergabe tragen einen **gestrichelten violetten Rahmen** und in der Markerzeile
-  **"🔁 Übergabe von …"** (Violett, weil Orange/Rot den fälligen Besuchen
-  gehören; ein Kunde in der Tour behält den Tour-Rahmen). Filter **"Übergabe"**
+  Übergabe tragen in der Markerzeile **"🔁 Übergabe von …"**. Den
+  **gestrichelten violetten Rahmen** bekommen sie nur, solange der Filter
+  "Übergabe" oder "Übergabe von (VB alt)" eingeschränkt ist – sonst wäre die
+  Karte bei einer Neuordnung flächig violett (Violett, weil Orange/Rot den
+  fälligen Besuchen gehören; ein Kunde in der Tour behält den Tour-Rahmen). Filter **"Übergabe"**
   (mit/ohne) und **"Übergabe von (VB alt)"**: "Welche Kunden übernehme ich?" =
   Übergabe "mit" plus eigener Bezirk; "Wen gebe ich ab?" = "Übergabe von".
 - **"🔁 Übergabeliste (Excel)"** im Reiter **"Daten"** (nur sichtbar, wenn es
