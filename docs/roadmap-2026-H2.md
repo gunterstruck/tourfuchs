@@ -1,6 +1,6 @@
 # 🦊 TourFuchs Vertrieb – Produkt-Roadmap H2/2026
 
-**Stand:** 09.10.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
+**Stand:** 10.10.2026 · **Rolle:** Product Owner · **Status:** verbindliche Arbeitsgrundlage
 
 ---
 
@@ -580,6 +580,11 @@ das Finden einer fremden Adresse in einer fremden Stadt – genau das, was an
 
 ### Nächste Kandidaten (bewertet, noch nicht terminiert)
 
+> **Vorrang seit 10.10.2026:** Release 15 „Einmal verknüpfen, dann nur noch
+> aktualisieren" (unten) kommt vor allen folgenden Kandidaten – zuerst 15.1
+> „Importvorlage merken".
+
+
 1. **Weißfleck-Finder:** Gebiete mit Kunden, aber ohne Besuch seit N Monaten.
    Nutzt `visits.js` + `territory.js`, beides vorhanden.
 2. **Vorher/Nachher-Slider über der Karte** – seit 12.08.2026 der Erbe von
@@ -760,6 +765,53 @@ auslieferbaren Schritten, damit kein großer Übersetzungsumbau unkontrolliert i
 | 14.9 | **Navigation, Übergaben und Service-Tagesplan** | ✅ umgesetzt | QR-Teilen, Kamera-/Foto-Scan, Empfangszusammenfassung, Teilstrecken, Kalenderaktion und lokale Übernahme folgen DE/EN/FR/ES. Textübergabe, Kalenderexport und gedruckter Tagesplan verwenden die gewählte Sprache, ohne fachliche Werte zu verändern. In der erweiterten Service-Tagesplanung sind Bedienelemente, Ergebnisvorschau, Planungsgründe, Zielkonflikt, Ersetzen-Abfrage, Bestätigungszustand und alle Rückmeldungen bis zur Übernahme übersetzt. Auch Servicefilter-Ausnahmen sowie Zanobo-Hinweis und Anhören-Aktion an übernommenen Stopps wechseln mit der Sprache. Die vollständige Katalog- und Rückfallprüfung ist mit 14.10 umgesetzt. |
 | 14.10 | **Französisch und Spanisch vollständig prüfen** | ✅ umgesetzt | Die CI sichert vollständige Katalogschlüssel, identische Platzhalter und ausdrücklich bestätigte sprachübergreifende Begriffe ab. Die mobile Karten-Hauptansicht ist für Französisch und Spanisch bei 390 × 844 Pixeln geprüft; Tresor-Einstieg, Nachtmodus, nächster Schritt, Lasso, Kartenbezeichnung und Kundenstapel sind übersetzt. Im Info-Dialog sind Live-Demo, Guide, Darstellung, exakte Adressverortung samt Status, Projektbeschreibung, Feedback, Datenschutz, Rechtliches und alle 15 Entscheidungen unter „Was wir weggelassen haben“ geprüft. Excel-Auswahl, Besuchsbericht und verschlüsselter Export folgen ebenfalls der Sprache. Ein Dokumenttest prüft automatische EN/FR/ES-Auswahl, deutschen Rückfall und den Vorrang einer gespeicherten Wahl. |
 
+### Release 15 – „Einmal verknüpfen, dann nur noch aktualisieren" *(festgelegt 10.10.2026 – nächster Punkt, noch nicht gebaut)*
+
+**Anlass (PO, 10.10.2026):** Die Kolleginnen und Kollegen haben keine Lust,
+regelmäßig eine Excel-Liste von Hand hochzuladen und jedes Mal Spalten
+zuzuordnen. Wer nicht pflegt, hat veraltete Daten – und hört auf, TourFuchs zu
+nutzen. Wunsch: einmal hinterlegen, wo die aktuellen Daten liegen, danach nur
+noch **„Aktualisieren"** drücken; ein Fenster sagt, was sich geändert hat und
+was nicht lesbar war. Nischen-Prüffrage: Ja – das nimmt den 10 Außendienstlern
+die lästigste wiederkehrende Arbeit ab.
+
+**Warum kein SharePoint-Link, den TourFuchs selbst abruft:** Anders als beim
+Briefing (dort steht der Link nur im Prompt, die Firmen-KI sucht) müsste
+TourFuchs die Datei selbst holen. Das bräuchte eine Microsoft-Anmeldung mit
+App-Registrierung in der Firmen-IT (bricht „kein Login" und ist eine neue
+externe Verbindung), scheitert ohne sie an der Browser-Sperre für fremde
+Seiten (CORS), und ein „Jeder mit dem Link"-Freigabelink legte Kundendaten
+offen. → bleibt beim offenen Thema „Konzern betreibt TourFuchs selbst".
+
+**Der Weg stattdessen:** SharePoint-Bibliotheken sind auf Firmenrechnern über
+OneDrive synchronisiert – die Datei liegt im Explorer als normale Datei.
+OneDrive bringt die neue Fassung, TourFuchs liest sie lokal. Kein Netz, kein
+Login, keine Cloud bei TourFuchs, nichts Neues für `datenschutz.html`.
+
+| # | Item | Status | Inhalt |
+|---|---|---|---|
+| 15.1 | **Importvorlage merken** | offen – **als Erstes** | Erkennt TourFuchs eine Datei an ihren Spaltenüberschriften wieder (gleiche Überschriften wie beim letzten Import), übernimmt es die bestätigte Zuordnung **ohne Dialog**. Es erscheint nur das Ergebnisfenster: „1.240 Kunden · 12 geändert · 3 neu · 1 entfallen · 2 Hinweise", Fehler und Hinweise darin aufklappbar. Den Änderungsbericht („Behalten/Entfernen") gibt es nur noch, wenn Kunden fehlen. Neue oder fehlende Spalten → einmal nachfragen, Zuordnung zeigen. Mehrere Vorlagen nebeneinander (Kundenstamm, Zuständigkeitsliste, Promotoren, Umsätze). Gespeichert nur auf dem Gerät. Hilft sofort, auch beim normalen Hochladen und am Handy. |
+| 15.2 | **Datei verknüpfen + „🔄 Aktualisieren"** | offen | Unter „Daten": „Datei verknüpfen" (einmal im synchronisierten SharePoint-Ordner auswählen). Der Browser merkt sich den Dateizugriff dauerhaft auf dem Gerät (File System Access, Edge/Chrome am PC). „Aktualisieren" liest alle verknüpften Dateien nacheinander mit Vorlage (15.1) und Abgleich ein; Stand je Datei („zuletzt 10.10., 08:12") sichtbar. Nach einem Browser-Neustart fragt der Browser einmal „Zugriff erlauben?" – ein Klick, kein Login. Am Handy/iPad nicht verfügbar → dort bleibt Desktop → Handy per Umzugsdatei/QR. |
+| 15.3 | **Praxisprüfung Firmenrechner** | offen – vor 15.2 | Auf einem echten Firmenrechner mit Firmen-Edge prüfen, ob dauerhafter Dateizugriff erlaubt ist (IT-Richtlinien können ihn sperren) und ob der OneDrive-Ordner die Datei zuverlässig nachlädt. Ergebnis entscheidet, ob 15.2 so gebaut wird. |
+
+**Zentrale Ablage (PO baut einen SharePoint auf):** Empfehlung, damit 15.1/15.2
+reibungslos laufen:
+- **ein** Ordner, **eine Datei je Liste** (Kundenstamm, Zuständigkeiten,
+  Promotoren/Kontakte, Umsätze), **feste Dateinamen** – die neue Fassung
+  überschreibt die alte statt „Kunden_neu_final2.xlsx";
+- **Spaltenüberschriften nie umbenennen** – sie sind der Wiedererkennungsschlüssel
+  der Vorlage; neue Spalten hinten anfügen ist unkritisch;
+- Kundennummer in jeder Liste (Verknüpfung über „Kd-Nr.");
+- Zugriffsrechte bewusst setzen: Wer den Ordner synchronisiert, hat alle Kunden
+  darin auf dem Gerät. Brauchen Außendienstler nur ihr Gebiet, besser je
+  Bezirk/Region eine Datei bzw. einen Ordner;
+- den Ordner im Team per „Synchronisieren" bzw. „Verknüpfung zu Meine Dateien
+  hinzufügen" einbinden.
+
+**Bewusst nicht:** Abruf per Link oder über Microsoft Graph, automatisches
+Aktualisieren im Hintergrund ohne Knopfdruck (der Nutzer entscheidet, wann sich
+seine Daten ändern; laufende Tour bleibt geschützt).
+
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 
 Die größte Hürde vor echter Nutzung ist nicht eine fehlende Funktion, sondern
@@ -785,7 +837,7 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
 
 | Thema | Auslöser | Stand | Details |
 |---|---|---|---|
-| **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT |
+| **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT. Erst dann denkbar: Daten direkt aus SharePoint per Microsoft-Anmeldung (Graph) statt über OneDrive-Synchronisation (Release 15). |
 | **Praxistest Firmen-KI-Kundenliste** | Der Verantwortliche hat den Prompt mit einem echten Firmen-Copilot getestet. | offen seit 03.10.2026 – Baustopp bis dahin | Abschnitt „Einstieg mit eigenen Daten" oben; Befund entscheidet über den nächsten Schritt |
 | **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | 24-Stunden-Zwischenstand am 09.10.2026: 29 Besucher, 61 Aufrufe; erster Wochenwert noch offen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren. Der vom Verantwortlichen geteilte Screenshot belegt Interesse, noch keine regelmäßige Nutzung. |
 | **LinkedIn-Serie 2 „Für die Vertriebsleitung“** (GeoFuchs) | Serie 1 (Lichterkarte · Tour planen · Firmen-KI-Liste) ist gelaufen, und die Besucherzahlen bzw. Kommentare zeigen Interesse. | **Filme, Titelbilder und Post-Texte produziert (03.10.2026)** – Veröffentlichen wartet auf den Auslöser | Woche 4 „Deine Bezirke. Im Griff.“ (Lichter → Bezirksflächen → Bezirkskarte → Cockpit), Woche 5 „Gebiete umverteilen. In Minuten.“ (Was-wäre-wenn: Augsburg → Stuttgart, Alt/Neu auf der Karte), Woche 6 „Die Entscheidung. Auf einem Blatt.“ (Entscheidungsvorlage ohne Kundennamen). Skripte: `record-bezirke.mjs`, `record-umverteilen.mjs`, `record-vorlage.mjs`. Botschaft gegen teure Fachsoftware: „kostenlos im Browser, auf denselben Daten wie der Außendienst“. Film-Werkzeuge: `film/lichterkarte/` (neuer `film`-Typ in `stage.html` + Aufnahmeskript). Hintergrund: [Wettbewerb](wettbewerb.md). |
