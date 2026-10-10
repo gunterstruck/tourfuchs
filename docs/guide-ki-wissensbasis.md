@@ -1791,7 +1791,8 @@ Das Popup zeigt je nach vorhandenen Daten:
   die adressgenaue Verortung, bleibt eine **offene Kachel stehen**, bis man sie
   selbst schließt; der Punkt rückt erst danach an die genaue Adresse
   (seit 10.10.2026 – vorher schloss jeder Zwischenstand der Verortung die
-  Kachel, und die Karte „zuckte" etwa jede Minute).
+  Kachel, und die Karte „zuckte" etwa jede Minute). Das gilt auch in der
+  **Lichterkarte**; dort bleibt die Kachel zudem beim Zoomen offen.
 - Umsatz – sofern vorhanden als eigene hervorgehobene Zeile; auch ein expliziter
   Wert von `0 €` gilt als vorhanden
 - Hauptansprechpartner
@@ -1800,6 +1801,20 @@ Das Popup zeigt je nach vorhandenen Daten:
 - **"Als Start"**
 - **"Zur Tour"** beziehungsweise **"In Tour"**
 - **"Briefing"**
+
+**Aufbau (seit 10.10.2026):** oben **"Schließen"**, darunter der Name, in
+einer eigenen Zeile darunter Kundennummer und **"↗ SieSales"**, dann Adresse,
+Umsatz, Gebiet (Channel › Gruppe › Bezirk) und – in einer zweiten Zeile – der
+Vertriebsbeauftragte. Es folgen die Knöpfe (Kundenansprechpartner,
+Opportunities, Produkte …), der Besuchsblock („Zuletzt", **"Heute besucht"**,
+Rhythmus) und ganz unten die Tour-Knöpfe. Am Desktop ist die Kachel breiter
+und so hoch, wie die Karte Platz hat: Zugeklappt ist alles ohne Scrollen zu
+sehen. Erst ein aufgeklapptes Feld lässt die Kachel scrollen; die Tour-Knöpfe
+bleiben dabei unten stehen, und die Karte schwenkt nach, damit Name und
+„Schließen" im Bild bleiben. Am Handy nutzt die Kachel die Bildschirmbreite,
+bleibt kompakt (der Kundenpunkt bleibt darunter sichtbar), die Tour-Knöpfe
+stehen ebenfalls fest unten, und ein aufgeklapptes Feld rückt von selbst ins
+Bild.
 
 Bei echten importierten Kunden öffnen **"Anrufen"** und **"E-Mail"** weiterhin
 die jeweilige Geräte-App. Bei Demo-Kunden zeigen dieselben Schaltflächen nur
@@ -1828,7 +1843,7 @@ Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 Je nach importierten Daten ebenfalls sichtbar:
 
 - Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Dahinter folgt ein Leerzeichen und der Kundenname, z. B. `000123`, `Musterkunde GmbH` -> `[123] Musterkunde GmbH`; eine reine Null wird `[0] Kundenname`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
-- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Kahlbau Robert +49 (173) 6310304`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
+- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie darunter in eigener Zeile der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Kahlbau Robert +49 (173) 6310304`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
 - **"Als Ziel"**
@@ -1929,7 +1944,7 @@ erscheinen nur, wenn es dazu Daten gibt.
   GJ, offene Opportunities mit erwartetem AE, Kontakte, SieSales Link), sortiert
   nach VB alt → VB neu → Umsatz; Blatt **"Übersicht je VB"** je Paar VB alt → neu
   mit Kunden, Umsatz und offenen Opportunities.
-- **"↗ SieSales"** neben der Kundennummer öffnet den CRM-Link der Zeile in einem
+- **"↗ SieSales"** neben der Kundennummer (eigene Zeile unter dem Namen) öffnet den CRM-Link der Zeile in einem
   neuen Tab (nur http/https).
 
 **Filter** (**"+ Ebene hinzufügen"**): **"Opportunity"** (mit/ohne offene),
