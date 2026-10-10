@@ -58,6 +58,12 @@ import { copyCustomerNumber, customerNumberClipboardText } from './handoff.js';
 
 let map = null;
 let regionLayer = null;
+// Beim Ebenenwechsel bleibt die bisherige Fläche stehen, bis die neue fertig ist
+// (sonst blitzte die Karte bei jedem Zoom über eine Ebenengrenze leer auf).
+let staleRegionLayer = null;
+// Gebaute Flächen je Ebene: Beim Hin- und Herzoomen wird nicht jedes Mal neu
+// aus dem GeoJSON aufgebaut, nur neu eingefärbt.
+const regionLayerCache = new Map();
 let clusterGroup = null;
 // Wartezeit nach dem letzten Zoomschritt, bevor Flächen, Kacheln und Punkte nachziehen.
 const ZOOM_SETTLE_MS = 160;
@@ -475,10 +481,12 @@ function makePopupPanMap(popupEl) {
 }
 
 function customerClusterIcon(cluster) {
-    const customers = cluster.getAllChildMarkers()
-        .map((marker) => getCustomer(marker.options.customerId))
-        .filter(Boolean);
     const planning = state.ui.mode === 'gebietsplanung';
+    // Außerhalb der Gebietsplanung zählt der Stapel nur – dafür nicht bei jedem
+    // Zoom alle Kunden darunter einsammeln (bei 12.000 Kunden spürbar am Handy).
+    const customers = planning
+        ? cluster.getAllChildMarkers().map((marker) => getCustomer(marker.options.customerId)).filter(Boolean)
+        : new Array(cluster.getChildCount());
     const attr = planning && currentView.paint && currentView.paint !== 'luecken'
         ? currentView.paint
         : firstActiveAttr(['bezirk', 'gruppe', 'channel']);
@@ -979,11 +987,18 @@ export async function setLevel(level) {
     state.level = level;
     emit('level:resolved', { level, automatic: usesAutomaticLevel() });
     closeActiveRegionTooltip();
-    if (regionLayer) { map.removeLayer(regionLayer); regionLayer = null; }
-    if (labelLayer) labelLayer.clearLayers();
+    if (regionLayer) {
+        if (staleRegionLayer) map.removeLayer(staleRegionLayer);
+        staleRegionLayer = regionLayer;
+        setRegionLayerInteractive(staleRegionLayer, false);
+        regionLayer = null;
+    }
+    // Die Gebiets-Kacheln bleiben bis zum Neuzeichnen stehen (applyView).
     currentLevelData = null;
     featureByKey = new Map();
     if (level === 'none' || !CONFIG.levels[level]?.file) {
+        dropStaleRegionLayer();
+        if (labelLayer) labelLayer.clearLayers();
         loadingLevel = null;
         emit('map:loading', false);
         applyView({ zoomOnly: true });
@@ -997,6 +1012,8 @@ export async function setLevel(level) {
         loadedLevel = await loadLevel(level);
     } catch (error) {
         if (sequence !== levelLoadSequence) return;
+        dropStaleRegionLayer();
+        if (labelLayer) labelLayer.clearLayers();
         loadingLevel = null;
         emit('map:loading', false);
         emit('toast', { type: 'error', text: error.message });
@@ -1015,6 +1032,16 @@ export async function setLevel(level) {
 
     computeStats();
     currentView = resolveView();
+    const cacheKey = `${level}|${isMobileMap()}`;
+    const cached = regionLayerCache.get(cacheKey);
+    if (cached?.data === currentLevelData) {
+        regionLayer = cached.layer.addTo(map);
+        setRegionLayerInteractive(regionLayer, true);
+        regionLayer.bringToBack();
+        dropStaleRegionLayer();
+        applyView({ zoomOnly: true });
+        return;
+    }
     regionLayer = L.geoJSON(currentLevelData, {
         style: (feature) => styleFor(feature),
         attribution: CONFIG.levels[level].attribution,
@@ -1034,8 +1061,24 @@ export async function setLevel(level) {
             trackRegionTooltip(layer);
         }
     }).addTo(map);
+    regionLayerCache.set(cacheKey, { data: currentLevelData, layer: regionLayer });
     regionLayer.bringToBack();
+    dropStaleRegionLayer();
     applyView({ zoomOnly: true });
+}
+
+function dropStaleRegionLayer() {
+    if (staleRegionLayer && map) map.removeLayer(staleRegionLayer);
+    staleRegionLayer = null;
+}
+
+/** Eine stehengebliebene Fläche zeigt nur noch – Klicks und Tooltips gehen an die neue. */
+function setRegionLayerInteractive(layer, interactive) {
+    layer?.eachLayer((part) => {
+        const path = part.getElement?.();
+        if (path) path.style.pointerEvents = interactive ? '' : 'none';
+        if (!interactive) part.closeTooltip?.();
+    });
 }
 
 function computeStats() {
