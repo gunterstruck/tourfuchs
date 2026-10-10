@@ -228,6 +228,12 @@
                             <button type="submit" data-i18n="sources.add">+ Quelle hinzufügen</button>
                         </form>
                     </details>
+                    <!-- Importvorlagen (15.1): gemerkte Spaltenzuordnungen (ui/importTemplates.js). -->
+                    <details id="import-templates" class="data-sources import-templates">
+                        <summary><span data-i18n="templates.title">🧩 Gemerkte Importvorlagen</span> <span id="import-templates-summary" class="muted small"></span></summary>
+                        <p class="muted small" data-i18n="templates.hint">Nach jeder bestätigten Zuordnung merkt sich TourFuchs die Spalten der Liste. Kommt dieselbe Liste wieder, wird sie ohne „Spalten zuordnen“ übernommen – nur das Ergebnis erscheint. Gespeichert sind nur Spaltennamen und Zuordnung, lokal im Browser.</p>
+                        <ul id="import-templates-list" class="data-sources-list"></ul>
+                    </details>
                     <div id="data-actions">
                         <div class="button-column" id="data-primary-actions">
                             <button id="btn-upload-more">📤 Andere Excel- oder CSV-Liste laden</button>
@@ -1042,6 +1048,8 @@
                 <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
             </header>
             <p id="mapping-file-info" class="muted"></p>
+            <!-- Importvorlage (15.1): Hinweis, wenn die Zuordnung aus einer gemerkten Vorlage stammt. -->
+            <p id="mapping-template-note" class="mapping-template-note small" hidden></p>
             <!-- Blatt und Überschriftenzeile: erkannt, aber jederzeit korrigierbar.
                  Exporte aus Vertriebssystemen tragen oft Titelzeilen über der
                  Tabelle oder liefern mehrere Reiter in einer Datei. -->
