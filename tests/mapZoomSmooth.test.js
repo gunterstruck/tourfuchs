@@ -74,3 +74,55 @@ describe('Live-Demos klicken auch nach dem Verschieben der Karte', () => {
         expect(wait).toBeGreaterThan(settle);
     });
 });
+
+describe('Nach dem Herauszoomen keine einzelnen Punkte neben ihrem Stapel', () => {
+    // PO, 10.10.2026: „wenn ich einmal weggezoomt habe, sind immer noch einzelne
+    // Punkte an Kunden da, obwohl die in einem Stapel eingehen müssten".
+    // Gemessen (Handy, 12.500 Kunden, 12 → 7): bis zu 35 solcher Punkte und
+    // 20 Stapel einer vorigen Zoomstufe blieben stehen.
+    const marker = (id, parent) => ({ options: { customerId: id }, __parent: parent });
+    const cluster = (zoom, childCount, parent = null) => ({ _zoom: zoom, _childCount: childCount, __parent: parent });
+
+    it('räumt Kunden ab, die auf der aktuellen Stufe in einem Stapel ab Mindestgröße stecken', async () => {
+        const { strayStackedMarkers } = await import('../src/features/map.js');
+        const big = cluster(9, 12);                 // Stapel auf Stufe 9
+        const small = cluster(9, 3);                // kleine Gruppe auf Stufe 9: einzeln zeigen
+        const deepUnderBig = cluster(12, 2, cluster(10, 4, big));
+        const a = marker('a', deepUnderBig);
+        const b = marker('b', cluster(12, 1, small));
+        const stale = cluster(11, 7, big);          // Stapel der vorigen Stufe
+        const stray = strayStackedMarkers([a, b, big, stale], { zoom: 9, minSize: 6 });
+        expect(stray).toEqual([a, stale]);
+    });
+
+    it('lässt einen aufgefächerten Stapel (Spinne) in Ruhe', async () => {
+        const { strayStackedMarkers } = await import('../src/features/map.js');
+        const spider = cluster(18, 8);
+        const a = marker('a', spider);
+        expect(strayStackedMarkers([a, spider], { zoom: 17, minSize: 6, spiderfied: spider })).toEqual([]);
+    });
+
+    it('gleicht nach jeder Stapel-Animation ab – auch nach der Warteschlange von markercluster', () => {
+        expect(map).toContain("clusterGroup.on('animationend', scheduleStrayCheck);");
+        expect(map).toContain("map.on('zoomend', scheduleStrayCheck);");
+        expect(map).toMatch(/const STRAY_CHECK_DELAY_MS = (\d+);/);
+        expect(Number(map.match(/const STRAY_CHECK_DELAY_MS = (\d+);/)[1])).toBeGreaterThan(300);
+        expect(map).toContain('removeStrayStackedMarkers({ fill: true })');
+    });
+});
+
+describe('Ebenenwechsel ohne Leerblitzen', () => {
+    it('lässt die alte Fläche stehen, bis die neue fertig ist, und nutzt gebaute Flächen wieder', () => {
+        const setLevel = map.slice(map.indexOf('export async function setLevel('), map.indexOf('function dropStaleRegionLayer()'));
+        expect(setLevel).toContain('staleRegionLayer = regionLayer;');
+        expect(setLevel).not.toContain('if (labelLayer) labelLayer.clearLayers();\n    currentLevelData = null;');
+        expect(setLevel).toContain('regionLayerCache.get(cacheKey)');
+        expect(setLevel.indexOf('dropStaleRegionLayer();', setLevel.indexOf('}).addTo(map);'))).toBeGreaterThan(-1);
+    });
+
+    it('zählt Stapel außerhalb der Gebietsplanung, ohne alle Kunden einzusammeln', () => {
+        const icon = map.slice(map.indexOf('function customerClusterIcon('), map.indexOf('export function initMap('));
+        expect(icon).toContain('new Array(cluster.getChildCount())');
+        expect(icon.indexOf('getAllChildMarkers')).toBeGreaterThan(icon.indexOf('planning\n        ?'));
+    });
+});

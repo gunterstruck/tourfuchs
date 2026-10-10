@@ -58,6 +58,12 @@ import { copyCustomerNumber, customerNumberClipboardText } from './handoff.js';
 
 let map = null;
 let regionLayer = null;
+// Beim Ebenenwechsel bleibt die bisherige Fläche stehen, bis die neue fertig ist
+// (sonst blitzte die Karte bei jedem Zoom über eine Ebenengrenze leer auf).
+let staleRegionLayer = null;
+// Gebaute Flächen je Ebene: Beim Hin- und Herzoomen wird nicht jedes Mal neu
+// aus dem GeoJSON aufgebaut, nur neu eingefärbt.
+const regionLayerCache = new Map();
 let clusterGroup = null;
 // Wartezeit nach dem letzten Zoomschritt, bevor Flächen, Kacheln und Punkte nachziehen.
 const ZOOM_SETTLE_MS = 160;
@@ -71,6 +77,8 @@ let tourLayer = null;
 // Ist der Cluster kleiner als das Minimum, bringen wir stattdessen seine
 // einzelnen Kunden auf die Karte. Fügt sich in den normalen Add-/Remove-Zyklus.
 const CUSTOMER_MIN_CLUSTER_SIZE = 6;
+// Nach Stapel-Animationen: markercluster räumt über eine Warteschlange (300 ms) ab.
+const STRAY_CHECK_DELAY_MS = 400;
 if (L.MarkerCluster && !L.MarkerCluster.prototype.__minSizePatched) {
     const originalAddToMap = L.MarkerCluster.prototype._addToMap;
     L.MarkerCluster.prototype._addToMap = function (startPos) {
@@ -86,6 +94,56 @@ if (L.MarkerCluster && !L.MarkerCluster.prototype.__minSizePatched) {
         return originalAddToMap.call(this, startPos);
     };
     L.MarkerCluster.prototype.__minSizePatched = true;
+}
+
+/**
+ * Gegenstück zum Mindest-Stapel: markercluster räumt beim Herauszoomen nur
+ * Stapel ab, nicht die Einzelkunden, die der Eingriff oben für kleine Gruppen
+ * direkt auf die Karte gelegt hat. Gingen sie in einem größeren Stapel auf,
+ * blieben sie als einzelne Punkte neben dem Stapel stehen (PO, 10.10.2026:
+ * „nach dem Wegzoomen sind noch einzelne Punkte da"). Nach jeder Stapel-
+ * Animation daher abgleichen: Wer auf der aktuellen Stufe in einem Stapel ab
+ * Mindestgröße steckt, verschwindet als Einzelpunkt.
+ */
+export function strayStackedMarkers(featureLayers, { zoom, minSize, spiderfied = null }) {
+    const stray = [];
+    for (const layer of featureLayers) {
+        // Stapel einer anderen Zoomstufe: beim Herauszoomen liegen geblieben.
+        if (layer && typeof layer._childCount === 'number') {
+            if (layer._zoom !== zoom && layer !== spiderfied) stray.push(layer);
+            continue;
+        }
+        if (!layer?.options?.customerId) continue;
+        let parent = layer.__parent;
+        let insideSpider = false;
+        while (parent && parent._zoom > zoom) {
+            if (parent === spiderfied) insideSpider = true;
+            parent = parent.__parent;
+        }
+        if (parent === spiderfied) insideSpider = true;
+        // Aufgefächerter Stapel (Spinne): Seine Kunden stehen absichtlich einzeln.
+        if (insideSpider) continue;
+        if (parent && parent._zoom === zoom && parent._childCount >= minSize) stray.push(layer);
+    }
+    return stray;
+}
+
+function removeStrayStackedMarkers({ fill = false } = {}) {
+    if (!clusterGroup || !map?.hasLayer(clusterGroup)) return;
+    const zoom = clusterGroup._zoom ?? Math.round(map.getZoom());
+    const layers = [];
+    clusterGroup._featureGroup.eachLayer((layer) => layers.push(layer));
+    const stray = strayStackedMarkers(layers, {
+        zoom,
+        minSize: clusterGroup.options.minClusterSize || 0,
+        spiderfied: clusterGroup._spiderfied || null
+    });
+    for (const layer of stray) clusterGroup._featureGroup.removeLayer(layer);
+    // Nach dem Aufräumen: Was auf dieser Stufe im Bild fehlt, ergänzen (vorhandene
+    // Punkte und Stapel bleiben unberührt; kleine Gruppen über den Eingriff oben).
+    if (fill && stray.length && clusterGroup._topClusterLevel) {
+        clusterGroup._topClusterLevel._recursivelyAddChildrenToMap(null, zoom, clusterGroup._getExpandedVisibleBounds());
+    }
 }
 let labelLayer = null;
 let lightsLayer = null;     // Lichterkarte: Kunden als Lichtpunkte (Canvas)
@@ -475,10 +533,12 @@ function makePopupPanMap(popupEl) {
 }
 
 function customerClusterIcon(cluster) {
-    const customers = cluster.getAllChildMarkers()
-        .map((marker) => getCustomer(marker.options.customerId))
-        .filter(Boolean);
     const planning = state.ui.mode === 'gebietsplanung';
+    // Außerhalb der Gebietsplanung zählt der Stapel nur – dafür nicht bei jedem
+    // Zoom alle Kunden darunter einsammeln (bei 12.000 Kunden spürbar am Handy).
+    const customers = planning
+        ? cluster.getAllChildMarkers().map((marker) => getCustomer(marker.options.customerId)).filter(Boolean)
+        : new Array(cluster.getChildCount());
     const attr = planning && currentView.paint && currentView.paint !== 'luecken'
         ? currentView.paint
         : firstActiveAttr(['bezirk', 'gruppe', 'channel']);
@@ -530,6 +590,15 @@ export function initMap(containerId) {
         iconCreateFunction: customerClusterIcon
     });
     map.addLayer(clusterGroup);
+    // markercluster räumt zeitversetzt (Warteschlange ~300 ms) – danach noch einmal.
+    let strayTimer = null;
+    const scheduleStrayCheck = () => {
+        removeStrayStackedMarkers();
+        clearTimeout(strayTimer);
+        strayTimer = setTimeout(() => removeStrayStackedMarkers({ fill: true }), STRAY_CHECK_DELAY_MS);
+    };
+    clusterGroup.on('animationend', scheduleStrayCheck);
+    map.on('zoomend', scheduleStrayCheck);
     syncCustomerMarkerMode();
 
     labelLayer = L.layerGroup().addTo(map);
@@ -979,11 +1048,18 @@ export async function setLevel(level) {
     state.level = level;
     emit('level:resolved', { level, automatic: usesAutomaticLevel() });
     closeActiveRegionTooltip();
-    if (regionLayer) { map.removeLayer(regionLayer); regionLayer = null; }
-    if (labelLayer) labelLayer.clearLayers();
+    if (regionLayer) {
+        if (staleRegionLayer) map.removeLayer(staleRegionLayer);
+        staleRegionLayer = regionLayer;
+        setRegionLayerInteractive(staleRegionLayer, false);
+        regionLayer = null;
+    }
+    // Die Gebiets-Kacheln bleiben bis zum Neuzeichnen stehen (applyView).
     currentLevelData = null;
     featureByKey = new Map();
     if (level === 'none' || !CONFIG.levels[level]?.file) {
+        dropStaleRegionLayer();
+        if (labelLayer) labelLayer.clearLayers();
         loadingLevel = null;
         emit('map:loading', false);
         applyView({ zoomOnly: true });
@@ -997,6 +1073,8 @@ export async function setLevel(level) {
         loadedLevel = await loadLevel(level);
     } catch (error) {
         if (sequence !== levelLoadSequence) return;
+        dropStaleRegionLayer();
+        if (labelLayer) labelLayer.clearLayers();
         loadingLevel = null;
         emit('map:loading', false);
         emit('toast', { type: 'error', text: error.message });
@@ -1015,6 +1093,16 @@ export async function setLevel(level) {
 
     computeStats();
     currentView = resolveView();
+    const cacheKey = `${level}|${isMobileMap()}`;
+    const cached = regionLayerCache.get(cacheKey);
+    if (cached?.data === currentLevelData) {
+        regionLayer = cached.layer.addTo(map);
+        setRegionLayerInteractive(regionLayer, true);
+        regionLayer.bringToBack();
+        dropStaleRegionLayer();
+        applyView({ zoomOnly: true });
+        return;
+    }
     regionLayer = L.geoJSON(currentLevelData, {
         style: (feature) => styleFor(feature),
         attribution: CONFIG.levels[level].attribution,
@@ -1034,8 +1122,24 @@ export async function setLevel(level) {
             trackRegionTooltip(layer);
         }
     }).addTo(map);
+    regionLayerCache.set(cacheKey, { data: currentLevelData, layer: regionLayer });
     regionLayer.bringToBack();
+    dropStaleRegionLayer();
     applyView({ zoomOnly: true });
+}
+
+function dropStaleRegionLayer() {
+    if (staleRegionLayer && map) map.removeLayer(staleRegionLayer);
+    staleRegionLayer = null;
+}
+
+/** Eine stehengebliebene Fläche zeigt nur noch – Klicks und Tooltips gehen an die neue. */
+function setRegionLayerInteractive(layer, interactive) {
+    layer?.eachLayer((part) => {
+        const path = part.getElement?.();
+        if (path) path.style.pointerEvents = interactive ? '' : 'none';
+        if (!interactive) part.closeTooltip?.();
+    });
 }
 
 function computeStats() {
@@ -2383,6 +2487,7 @@ function drawMarkers() {
 }
 
 function finishMarkers() {
+    removeStrayStackedMarkers();
     scheduleCustomerMarkerHint();
     scheduleCustomerClusterHint();
     // Wer an der gezeichneten Menge hängt (Lasso), muss nachziehen. Sie ändert
