@@ -38,15 +38,32 @@ export function aggregateByRegion(level, geojson, customers) {
     } else if (level === 'kreise') {
         for (const c of customers) {
             if (c.lat === null || c.lng === null) continue;
-            for (const feature of geojson.features) {
-                if (pointInFeature(c.lng, c.lat, feature)) {
-                    addCustomer(ensure(regionKey(level, feature)), c);
-                    break;
-                }
-            }
+            const key = kreisKeyFor(c, geojson);
+            if (key) addCustomer(ensure(key), c);
         }
     }
     return stats;
+}
+
+/**
+ * Landkreis eines Kunden – je Kunde gemerkt, solange sich seine Koordinaten
+ * nicht ändern. Punkt-in-Polygon über rund 400 Kreise kostete bei 12.000
+ * Kunden fast eine Sekunde, und die Karte rechnete das bei jedem Zoom über
+ * eine Ebenengrenze neu (die Karte ruckelte).
+ */
+const kreisCache = new WeakMap();
+function kreisKeyFor(customer, geojson) {
+    const cached = kreisCache.get(customer);
+    if (cached && cached.geojson === geojson && cached.lat === customer.lat && cached.lng === customer.lng) return cached.key;
+    let key = null;
+    for (const feature of geojson.features) {
+        if (pointInFeature(customer.lng, customer.lat, feature)) {
+            key = regionKey('kreise', feature);
+            break;
+        }
+    }
+    kreisCache.set(customer, { geojson, lat: customer.lat, lng: customer.lng, key });
+    return key;
 }
 
 function addCustomer(entry, customer) {

@@ -533,7 +533,21 @@ async function mapSettled(maxMs = 4000) {
     while (map && (map._animatingZoom || map._panAnim?._inProgress) && Date.now() - started < maxMs) {
         await sleep(100);
     }
-    await sleep(300);
+    // Flächen, Kacheln und Punkte ziehen erst kurz nach dem letzten Zoomschritt
+    // nach (ZOOM_SETTLE_MS in map.js) – diese Zeit mit abwarten.
+    await sleep(450);
+}
+
+/**
+ * Leaflet merkt sich ein Verschieben der Karte bis zum nächsten Mausdruck und
+ * verwirft bis dahin Klicks auf Kartenelemente („nach dem Ziehen kein Klick").
+ * Die Demo klickt ohne Mausdruck: Hatte der Nutzer vorher die Karte
+ * verschoben, gingen alle Kartenklicks ins Leere – „Die große Gebietskachel
+ * konnte nicht geöffnet werden". Vor jedem Demo-Klick daher zurücksetzen.
+ */
+function releaseMapClickGuard() {
+    const draggable = getMap()?.dragging?._draggable;
+    if (draggable && !draggable._moving) draggable._moved = false;
 }
 
 async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
@@ -560,6 +574,7 @@ async function clickEl(sel, { keepOverlaysOutside = false } = {}) {
     // Animation länger dauert. Genau diese Fehlerklasse hat `attention-check`
     // schon einmal getroffen (Wechsel von Tiefe/Modus baut die Reiterleiste neu).
     const frisch = document.querySelector(sel);
+    releaseMapClickGuard();
     (frisch && isVisible(frisch) ? frisch : el).click();
     await sleep(120);
     cursorEl.classList.remove('sc-click');
