@@ -619,8 +619,9 @@ export function initMap(containerId) {
         zoomSettleTimer = null;
         if (!map) return;
         syncCustomerMarkerMode();
-        // Lichtpunkte wachsen mit der Zoomstufe.
-        if (lightsActive()) renderMarkers();
+        // Lichtpunkte wachsen mit der Zoomstufe – nur angepasst, nicht neu
+        // gebaut, damit eine offene Kundenkachel stehen bleibt.
+        if (lightsActive()) renderMarkers({ keep: true });
         // Gespeicherte Orte hängen an einer Zoomschwelle und müssen sie beim
         // Zoomen auch überqueren dürfen. `applyView()` läuft nur bei
         // Ebenenwechsel bzw. in der Farbautomatik – zu selten dafür.
@@ -933,8 +934,15 @@ function refreshAll() {
 let positionsPending = false;
 function refreshPositions() {
     positionsPending = false;
-    // Ohne sichtbare Kundenpunkte (Flächenansicht, Lichterkarte) wie bisher.
-    if (!map || !clusterGroup || lightsActive() || !currentView.markers || !map.hasLayer(clusterGroup)
+    if (lightsActive() && lightsLayer) {
+        // Lichterkarte: dieselbe Regel für die Lichtpunkte.
+        updateLights();
+        restyleRegions();
+        renderTour({ markers: false });
+        return;
+    }
+    // Ohne sichtbare Kundenpunkte (Flächenansicht) wie bisher.
+    if (!map || !clusterGroup || !currentView.markers || !map.hasLayer(clusterGroup)
         || builtMarkerSignature !== markerSignature()) {
         refreshAll();
         return;
@@ -957,6 +965,36 @@ function refreshPositions() {
     renderLabels();
     renderTour({ markers: false });
     finishMarkers();
+}
+
+/**
+ * Lichterkarte ohne Neuaufbau: Größe nach Zoomstufe, Position nach der
+ * Verortung. Ein Neuaufbau schlösse die offene Kundenkachel (PO, 10.10.2026:
+ * „nur noch in der Lichterkarte verschwindet die Kachel"). Ein Punkt mit
+ * offener Kachel wartet mit dem Umzug, bis sie geschlossen ist.
+ */
+function updateLights() {
+    if (!lightsLayer || !lightsRenderer) return;
+    const customers = customersOnMap();
+    const reference = revenueReference(customers.map((c) => c.umsatz));
+    const zoom = map.getZoom();
+    const dots = new Map();
+    lightsLayer.eachLayer((dot) => dots.set(dot.options.customerId, dot));
+    const added = [];
+    for (const customer of customers) {
+        const dot = dots.get(customer.id);
+        if (!dot) { added.push(customer); continue; }
+        dots.delete(customer.id);
+        dot.setStyle(lightDotStyle({ zoom, revenue: customer.umsatz, reference }));
+        const at = dot.getLatLng();
+        if (at.lat === customer.lat && at.lng === customer.lng) continue;
+        if (dot.isPopupOpen()) { positionsPending = true; continue; }
+        dot.setLatLng([customer.lat, customer.lng]);
+    }
+    for (const stale of dots.values()) {
+        if (!stale.isPopupOpen()) lightsLayer.removeLayer(stale);
+    }
+    if (added.length) drawLights(customerPopupOptions(), added, reference);
 }
 
 // ---- Ansicht / Detailgrad (Level of Detail) ----
@@ -2528,6 +2566,11 @@ function drawMarkers() {
         finishMarkers();
         return;
     }
+    if (!dirty && lightsActive() && lightsLayer?.getLayers().length) {
+        updateLights();
+        emit('map:markers-rendered');
+        return;
+    }
     builtMarkerSignature = null;
     clusterGroup.clearLayers();
     lightsLayer?.clearLayers();
@@ -2607,10 +2650,9 @@ function customerMarkersFor(customers, popupOptionsForCustomers) {
 }
 
 /** Lichterkarte: jeder sichtbare Kunde ein gelber Lichtpunkt (Größe = Umsatz). */
-function drawLights(popupOptionsForCustomers) {
+function drawLights(popupOptionsForCustomers, customers = customersOnMap(),
+    reference = revenueReference(customers.map((c) => c.umsatz))) {
     if (!lightsLayer || !lightsRenderer) return;
-    const customers = customersOnMap();
-    const reference = revenueReference(customers.map((c) => c.umsatz));
     const zoom = map.getZoom();
     const withTooltip = !isMobileMap();
     for (const customer of customers) {
