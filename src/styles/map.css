@@ -917,8 +917,46 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
     white-space: nowrap;
 }
 .popup-team-account { color: var(--color-text-muted, #64748b); font-size: 0.78rem; }
+/* Knopfzeile „Zuständig · Promotoren · Kundenansprechpartner" (und „Jahre"
+   beim Umsatz): nebeneinander, darunter höchstens ein offenes Feld. */
+.popup-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 4px 0; }
+.popup-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    min-height: 28px;
+    padding: 2px 8px;
+    border: 1px solid var(--color-border, #cbd5e1);
+    border-radius: 999px;
+    background: var(--color-surface, #fff);
+    color: var(--color-text);
+    font-size: 0.78rem;
+    font-weight: 650;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.popup-chip[aria-expanded="true"] {
+    border-color: var(--color-primary, #0d9488);
+    background: var(--color-primary-light);
+    color: var(--color-primary-dark, #0f766e);
+}
+.popup-chip:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.popup-panel { margin: 2px 0 6px; padding: 6px 8px; border-radius: var(--radius-m, 8px); background: var(--color-surface-muted, rgba(148, 163, 184, 0.12)); }
+.popup-person-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-size: 0.82rem; }
+.popup-person-list li { display: grid; gap: 1px; }
+.popup-person-name { font-weight: 650; overflow-wrap: anywhere; }
+.popup-person-detail { color: var(--color-text-muted, #64748b); font-size: 0.78rem; }
+.popup-person-links { display: flex; flex-wrap: wrap; gap: 2px 10px; }
+.popup-person-links .popup-team-tel { overflow-wrap: anywhere; white-space: normal; }
+.popup-revenue-value { display: inline-flex; align-items: center; gap: 6px; }
+.popup-revenue-years ul { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 3px; font-size: 0.82rem; }
+.popup-revenue-years li { display: grid; grid-template-columns: 1fr auto 4.6em; gap: 6px; align-items: baseline; }
+.popup-revenue-years p { margin: 0 0 2px; }
+.popup-revenue-change { font-size: 0.74rem; font-weight: 650; text-align: right; white-space: nowrap; }
+.popup-revenue-change.is-up { color: #15803d; }
+.popup-revenue-change.is-down { color: #b91c1c; }
 .popup-team ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 3px; }
-.popup-team li { display: grid; grid-template-columns: 7.2em 1fr auto; gap: 6px; align-items: baseline; }
+.popup-team-list li { display: grid; grid-template-columns: 7.2em 1fr auto; gap: 6px; align-items: baseline; }
 .popup-team-role { color: var(--color-text-muted, #64748b); font-weight: 600; }
 .popup-team-name { overflow-wrap: anywhere; }
 .popup-team-tel { white-space: nowrap; text-decoration: none; font-weight: 600; }

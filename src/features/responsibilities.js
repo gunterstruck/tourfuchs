@@ -96,6 +96,40 @@ export function isResponsibilityHeader(header) {
         || ACCOUNT_NAME.includes(key) || ACCOUNT_CLUSTER.includes(key);
 }
 
+/** Rollenspalte (VK, OM …) – die Filterebene „Zuständig · VK" ersetzt dort die rohe Zusatzspalte. */
+export function isRoleHeader(header) {
+    const key = norm(header);
+    return ROLE_COLUMNS.some((role) => role.headers.includes(key));
+}
+
+/**
+ * Filterebenen „Zuständig · VK", „Zuständig · OM" … – je Rolle, die in den
+ * Daten vorkommt. Gefiltert wird nach dem Namen ohne Telefonnummer, damit
+ * „Vera Kunz 0171 …" und „Vera Kunz" dieselbe Person bleiben. Anders als
+ * rohe Zusatzspalten gibt es keine Obergrenze an Werten: Die Liste hat eine
+ * Suche.
+ *
+ * Wofür: „Welche Kunden betreut Vera als VK?" – wen ich anrufe, kein
+ * Leistungsvergleich von Mitarbeitenden (docs/positionierung.md).
+ */
+export function teamDimensionDefs(customers = []) {
+    const defs = [];
+    for (const role of ROLE_COLUMNS) {
+        const nameOf = (customer) => {
+            const header = findHeader(customer?.extra, role.headers);
+            const value = header ? text(customer.extra[header]) : '';
+            return value ? splitContactText(value).name || value : '';
+        };
+        if (!customers.some((customer) => nameOf(customer))) continue;
+        const id = `team:${role.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        defs.push({ id, field: id, label: `Zuständig · ${role.label}`, values: (customer) => {
+            const name = nameOf(customer);
+            return name ? [name] : [];
+        } });
+    }
+    return defs;
+}
+
 /**
  * Zeilen fürs KI-Briefing: Rollen nur mit Namen (keine Telefonnummern – die
  * braucht der Assistent nicht), Account und Abzeichen als Suchhilfe.

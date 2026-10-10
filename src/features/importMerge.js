@@ -21,6 +21,7 @@
  * Liste ergänzt). Reine Logik, ohne DOM.
  */
 import { customerKey } from './datasetDiff.js';
+import { revenueYearHeaders } from './revenueYears.js';
 
 /** Einfache Felder: Zuordnungsschlüssel = Eigenschaft am Kunden. */
 const SIMPLE_FIELDS = [
@@ -41,7 +42,7 @@ const CONTACT_PROPS = ['ansprechpartner', 'telefon', 'email', 'contacts', 'prima
 
 /** Eigenschaften, die der Import selbst setzt – alles andere pflegt TourFuchs. */
 const FILE_PROPS = new Set([
-    'id', 'nummer', 'name', 'plz', 'lat', 'lng', 'geo', 'extra', 'besuche',
+    'id', 'nummer', 'name', 'plz', 'lat', 'lng', 'geo', 'extra', 'besuche', 'umsatzJahre',
     ...SIMPLE_FIELDS.map((field) => field.key), ...CONTACT_PROPS
 ]);
 
@@ -61,6 +62,9 @@ function byKey(customers) {
     }
     return map;
 }
+
+const contactIdentity = (contact) => [contact?.name, contact?.telefon, contact?.email, contact?.art || 'kunde']
+    .map((value) => norm(value)).join('|');
 
 function hasContacts(customer) {
     return CONTACT_PROPS.some((prop) => (prop === 'contacts' ? customer.contacts?.length > 0 : filled(customer[prop])));
@@ -118,6 +122,24 @@ export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, 
             for (const prop of CONTACT_PROPS) {
                 if (match[prop] === undefined) delete customer[prop];
                 else customer[prop] = prop === 'contacts' ? structuredClone(match[prop]) : match[prop];
+            }
+        } else {
+            // Die Datei führt bei ihren Kontakten – Promotoren und Kontakte aus
+            // einer eigenen Kontaktliste kennt sie aber gar nicht: Sie bleiben.
+            const kept = (match.contacts || []).filter((contact) => contact?.kontaktliste || contact?.art === 'promotor');
+            const known = new Set((customer.contacts || []).map(contactIdentity));
+            const add = kept.filter((contact) => !known.has(contactIdentity(contact)))
+                .map((contact) => ({ ...structuredClone(contact), primary: false }));
+            if (add.length) customer.contacts = [...(customer.contacts || []), ...add];
+        }
+
+        // Umsatzjahre: Jahre aus der Datei gelten, ältere Jahre bleiben.
+        if (match.umsatzJahre) {
+            const fileYears = new Set(revenueYearHeaders(headers).map((entry) => String(entry.year)));
+            const keptYears = Object.fromEntries(Object.entries(match.umsatzJahre)
+                .filter(([year]) => !fileYears.has(String(year))));
+            if (Object.keys(keptYears).length || !customer.umsatzJahre) {
+                customer.umsatzJahre = { ...keptYears, ...(customer.umsatzJahre || {}) };
             }
         }
 

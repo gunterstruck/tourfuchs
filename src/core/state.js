@@ -15,6 +15,8 @@ import { CONFIG } from './config.js';
 import { normalizeDemoCustomers } from './demoSafety.js';
 import { isPhoneUi } from './viewport.js';
 import { customerMatchesRevenueFilter } from './customerFilters.js';
+import { isRoleHeader, teamDimensionDefs } from '../features/responsibilities.js';
+import { promotorDimensionDefs } from '../features/customerContacts.js';
 
 /**
  * Planungsrelevante Gebietsebenen. Der Vertriebsbezirk ist die führende Ebene,
@@ -132,9 +134,18 @@ function slugId(value) {
         .replace(/^-+|-+$/g, '') || 'feld';
 }
 
-function dimensionValue(customer, def) {
-    const raw = def.custom ? customer.extra?.[def.field] : customer[def.field];
-    return String(raw ?? '').trim();
+/**
+ * Werte eines Kunden in einer Filterebene. Meist genau einer (Bezirk, Gruppe,
+ * Zusatzspalte); abgeleitete Ebenen (Zuständig, Promotor) bringen eine
+ * Funktion `values` mit und können mehrere liefern. Leer = „Ohne Zuordnung".
+ */
+export function dimensionValues(customer, def) {
+    if (typeof def?.values === 'function') {
+        return (def.values(customer) || []).map((value) => String(value ?? '').trim()).filter(Boolean);
+    }
+    const raw = def?.custom ? customer?.extra?.[def.field] : customer?.[def?.field];
+    const value = String(raw ?? '').trim();
+    return value ? [value] : [];
 }
 
 function inferExtraDimensions(customers) {
@@ -151,6 +162,8 @@ function inferExtraDimensions(customers) {
     const usedIds = new Set(DIMENSIONS.map((d) => d.id));
     const defs = [];
     for (const [header, values] of valuesByHeader.entries()) {
+        // Rollenspalten bekommen eine eigene Ebene „Zuständig · …" (ohne Telefonnummer).
+        if (isRoleHeader(header)) continue;
         const list = [...values];
         const hasText = list.some((value) => /[A-Za-zÄÖÜäöüß]/.test(value));
         if (!hasText || list.length < 2 || list.length > EXTRA_DIM_MAX_VALUES) continue;
@@ -425,7 +438,11 @@ export function setCustomers(customers, meta = {}) {
     const oldDims = state.dims || {};
     state.reps = new Map();
     state.dims = {};
-    state.extraDimensions = inferExtraDimensions(customers);
+    state.extraDimensions = [
+        ...inferExtraDimensions(customers),
+        ...teamDimensionDefs(customers),
+        ...promotorDimensionDefs(customers)
+    ];
 
     const repNames = [...new Set(customers.map((c) => c.vb || UNASSIGNED))]
         .sort((a, b) => a.localeCompare(b, 'de'));
@@ -440,8 +457,11 @@ export function setCustomers(customers, meta = {}) {
 
     // Vertriebshierarchie-Ebenen ableiten (inkl. stabiler Farbe je Wert)
     for (const def of filterDimensionDefs()) {
-        const active = customers.some((c) => dimensionValue(c, def) !== '');
-        const names = [...new Set(customers.map((c) => dimensionValue(c, def) || UNASSIGNED))]
+        const active = customers.some((c) => dimensionValues(c, def).length > 0);
+        const names = [...new Set(customers.flatMap((c) => {
+            const values = dimensionValues(c, def);
+            return values.length ? values : [UNASSIGNED];
+        }))]
             .sort((a, b) => a.localeCompare(b, 'de'));
         const oldValues = oldDims[def.id]?.values;
         const values = new Map();
@@ -537,8 +557,10 @@ export function isVisible(customer) {
     for (const def of filterDimensionDefs()) {
         const dim = state.dims[def.id];
         if (!dim?.active) continue;
-        const value = dim.values.get(dimensionValue(customer, def) || UNASSIGNED);
-        if (!(value?.visible ?? true)) return false;
+        // Mehrere Werte (zwei Promotoren): sichtbar, sobald einer ausgewählt ist.
+        const values = dimensionValues(customer, def);
+        const keys = values.length ? values : [UNASSIGNED];
+        if (!keys.some((key) => dim.values.get(key)?.visible ?? true)) return false;
     }
     return customerMatchesRevenueFilter(customer, state.filters.revenue);
 }

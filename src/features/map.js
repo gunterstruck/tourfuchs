@@ -10,6 +10,8 @@ import 'leaflet.markercluster';
 import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { customerResponsibilities } from './responsibilities.js';
+import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
+import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, filterDimensionDefs, UNASSIGNED } from '../core/state.js';
@@ -579,6 +581,7 @@ export function initMap(containerId) {
         decoratePopup(el);
         makePopupPanMap(el);
         el.querySelector('[data-popup-close]')?.addEventListener('click', () => map.closePopup());
+        wirePopupSections(el);
         el.querySelectorAll('[data-action]:not([data-action="edit-region"])').forEach((btn) => {
             btn.addEventListener('click', () => {
                 const keepOpen = handlePopupAction(btn.dataset.action, btn.dataset.id);
@@ -1759,6 +1762,31 @@ function customerIcon(customer) {
     });
 }
 
+/**
+ * Knöpfe „Zuständig", „Promotoren", „Kundenansprechpartner" und „Jahre":
+ * ein Klick klappt das zugehörige Feld auf, ein zweiter wieder zu. In einer
+ * Knopfzeile ist immer höchstens ein Feld offen.
+ */
+function wirePopupSections(el) {
+    el.querySelectorAll('[data-popup-section]').forEach((button) => {
+        button.addEventListener('click', (ev) => {
+            ev.stopPropagation();
+            const group = button.closest('.popup-people');
+            if (!group) return;
+            const open = button.getAttribute('aria-expanded') !== 'true';
+            group.querySelectorAll('[data-popup-section]').forEach((other) => other.setAttribute('aria-expanded', 'false'));
+            group.querySelectorAll('[data-popup-panel]').forEach((panel) => { panel.hidden = true; });
+            if (open) {
+                button.setAttribute('aria-expanded', 'true');
+                const panel = group.querySelector(`[data-popup-panel="${button.dataset.popupSection}"]`);
+                if (panel) panel.hidden = false;
+            }
+            // Kein popup.update(): Es baut den Inhalt neu auf und klappt das Feld
+            // sofort wieder zu. Die Kachel wächst ohnehin nach oben mit.
+        });
+    });
+}
+
 function customerPopupOptions() {
     // Handy: die Kachel nutzt die Bildschirmbreite (abzüglich Rand), damit
     // Knöpfe und „alle 4 Wochen" nicht gestaucht oder abgeschnitten werden.
@@ -1848,21 +1876,67 @@ function contactBlockHtml(customer) {
  */
 function responsibilitiesBlockHtml(customer) {
     const { roles, account, badges } = customerResponsibilities(customer);
-    if (!roles.length && !account && !badges.length) return '';
+    const { promotors, customerContacts } = customerContactGroups(customer);
+    const withContacts = showsCustomerContacts(customerContacts);
     const badgeHtml = badges.map((badge) => `<span class="popup-team-badge">${escapeHtml(badge)}</span>`).join('');
     const accountHtml = account ? `<span class="popup-team-account">${escapeHtml(account)}</span>` : '';
-    const head = `${badgeHtml}${accountHtml}`;
-    if (!roles.length) return `<p class="popup-team-head">${head}</p>`;
-    const rows = roles.map((role) => {
-        const call = role.tel
-            ? `<a class="popup-team-tel" href="tel:${escapeHtml(role.tel)}" title="${escapeHtml(t('customer.team.call', { role: role.label, name: role.name }))}">📞 ${escapeHtml(role.phone)}</a>`
-            : '';
-        return `<li><span class="popup-team-role">${escapeHtml(role.label)}</span><span class="popup-team-name">${escapeHtml(role.name || '–')}</span>${call}</li>`;
+    const head = badgeHtml || accountHtml ? `<p class="popup-team-head">${badgeHtml}${accountHtml}</p>` : '';
+    const sections = [];
+    if (roles.length) {
+        const rows = roles.map((role) => {
+            const call = role.tel
+                ? `<a class="popup-team-tel" href="tel:${escapeHtml(role.tel)}" title="${escapeHtml(t('customer.team.call', { role: role.label, name: role.name }))}">📞 ${escapeHtml(role.phone)}</a>`
+                : '';
+            return `<li><span class="popup-team-role">${escapeHtml(role.label)}</span><span class="popup-team-name">${escapeHtml(role.name || '–')}</span>${call}</li>`;
+        }).join('');
+        sections.push({ id: 'team', icon: '👥', label: t('customer.team.title'), count: roles.length, body: `<ul class="popup-team-list">${rows}</ul>` });
+    }
+    if (promotors.length) {
+        sections.push({ id: 'promotors', icon: '📣', label: t('customer.promotors.title'), count: promotors.length,
+            body: personListHtml(promotors, (person) => person.thema) });
+    }
+    if (withContacts) {
+        sections.push({ id: 'contacts', icon: '🤝', label: t('customer.contacts.title'), count: customerContacts.length,
+            body: personListHtml(customerContacts, (person) => [person.abteilung, person.primary ? t('customer.contacts.primary') : ''].filter(Boolean).join(' · ')) });
+    }
+    if (!sections.length) return head;
+    // Knopfzeile nebeneinander, darunter genau ein aufgeklapptes Feld.
+    const chips = sections.map((section) => `<button type="button" class="popup-chip" data-popup-section="${section.id}" aria-expanded="false">${section.icon} ${escapeHtml(section.label)} <span class="muted">(${section.count})</span></button>`).join('');
+    const panels = sections.map((section) => `<div class="popup-panel popup-team" data-popup-panel="${section.id}" hidden>${section.body}</div>`).join('');
+    return `${head}<div class="popup-people"><div class="popup-chips">${chips}</div>${panels}</div>`;
+}
+
+/** Personen mit Zusatzzeile (Thema bzw. Abteilung), Telefon und E-Mail antippbar. */
+function personListHtml(people, detailOf) {
+    const rows = people.map((person) => {
+        const name = person.name || person.email || person.phone || '–';
+        const detail = detailOf(person);
+        const links = [
+            person.tel ? `<a class="popup-team-tel" href="tel:${escapeHtml(person.tel)}" title="${escapeHtml(t('customer.contacts.call', { name }))}">📞 ${escapeHtml(person.phone)}</a>` : '',
+            person.email ? `<a class="popup-team-tel" href="mailto:${escapeHtml(person.email)}" title="${escapeHtml(t('customer.contacts.mail', { name }))}">✉️ ${escapeHtml(person.email)}</a>` : ''
+        ].filter(Boolean).join('');
+        return `<li><span class="popup-person-name">${escapeHtml(name)}</span>${detail ? `<span class="popup-person-detail">${escapeHtml(detail)}</span>` : ''}${links ? `<span class="popup-person-links">${links}</span>` : ''}</li>`;
     }).join('');
-    return `<details class="popup-team">
-        <summary><span class="popup-team-title">👥 ${escapeHtml(t('customer.team.title'))} <span class="muted">(${roles.length})</span></span>${head}</summary>
+    return `<ul class="popup-person-list">${rows}</ul>`;
+}
+
+/** Umsatz nach Geschäftsjahr: GJ26, GJ25 … mit Veränderung zum Vorjahr. */
+function revenueYearsPanelHtml(customer, locale) {
+    const rows = revenueYearRows(customer).map((row, index) => {
+        const label = fiscalYearLabel(row.year, t('customer.revenue.fy'));
+        const note = index === 0 && row.value === null ? t('customer.revenue.none') : '';
+        const value = row.value === null
+            ? `<span class="muted">${escapeHtml(note || '–')}</span>`
+            : `<b title="${escapeHtml(formatRevenueFull(row.value, locale))}">${escapeHtml(formatRevenueShort(row.value, locale))}</b>`;
+        const change = row.change === null
+            ? ''
+            : `<span class="popup-revenue-change ${row.change >= 0 ? 'is-up' : 'is-down'}" title="${escapeHtml(t('customer.revenue.change', { value: `${row.change > 0 ? '+' : ''}${row.change}` }))}">${row.change > 0 ? '▲ +' : row.change < 0 ? '▼ ' : '± '}${row.change} %</span>`;
+        return `<li><span class="popup-revenue-year">${escapeHtml(label)}</span>${value}${change}</li>`;
+    }).join('');
+    return `<div class="popup-panel popup-revenue-years" data-popup-panel="revenue" hidden>
+        <p class="muted small">${escapeHtml(t('customer.revenue.yearsTitle'))}</p>
         <ul>${rows}</ul>
-    </details>`;
+    </div>`;
 }
 
 function serviceContractsBlockHtml(customer) {
@@ -1979,9 +2053,14 @@ export function customerPopupHtml(customer) {
         && Number.isFinite(Number(rawRevenue));
     const revenue = hasRevenue ? Number(rawRevenue) : null;
     const locale = currentLocale();
-    const revenueHtml = hasRevenue
-        ? `<p class="popup-revenue"><span>${escapeHtml(t('customer.revenue'))}</span><b class="popup-umsatz" title="${escapeHtml(formatRevenueFull(revenue, locale))}">${escapeHtml(formatRevenueShort(revenue, locale))}</b></p>`
+    const years = hasRevenueYears(customer);
+    const yearsToggle = years
+        ? `<button type="button" class="popup-chip popup-revenue-toggle" data-popup-section="revenue" aria-expanded="false" title="${escapeHtml(t('customer.revenue.yearsTitle'))}">📊 ${escapeHtml(t('customer.revenue.years'))}</button>`
         : '';
+    const revenueLine = hasRevenue || years
+        ? `<p class="popup-revenue"><span>${escapeHtml(t('customer.revenue'))}</span><span class="popup-revenue-value">${hasRevenue ? `<b class="popup-umsatz" title="${escapeHtml(formatRevenueFull(revenue, locale))}">${escapeHtml(formatRevenueShort(revenue, locale))}</b>` : ''}${yearsToggle}</span></p>`
+        : '';
+    const revenueHtml = years ? `<div class="popup-people">${revenueLine}${revenueYearsPanelHtml(customer, locale)}</div>` : revenueLine;
     const profi = state.ui.depth === 'profi';
     // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
     const clipboardNumber = customerNumberClipboardText(customer.nummer, customer.name);

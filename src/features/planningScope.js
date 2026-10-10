@@ -1,9 +1,10 @@
 import { customerMatchesRevenueFilter } from '../core/customerFilters.js';
-import { UNASSIGNED } from '../core/state.js';
+import { UNASSIGNED, dimensionValues } from '../core/state.js';
 
-export function planningDimensionValue(customer, def) {
-    const raw = def?.custom ? customer?.extra?.[def.field] : customer?.[def?.field];
-    return String(raw ?? '').trim() || UNASSIGNED;
+/** Werte eines Kunden in einer Ebene; leer = „Ohne Zuordnung". Mehrere bei Promotoren. */
+export function planningDimensionValues(customer, def) {
+    const values = dimensionValues(customer, def);
+    return values.length ? values : [UNASSIGNED];
 }
 
 export function enabledPlanningDimensionDefs(defs, dims, enabledIds) {
@@ -34,7 +35,7 @@ export function customerMatchesPlanningSelections(customer, defs, selections, re
     return defs.every((def) => {
         const selected = selections.get(def.id);
         if (!selected?.size) return true;
-        return selected.has(planningDimensionValue(customer, def));
+        return planningDimensionValues(customer, def).some((value) => selected.has(value));
     });
 }
 
@@ -52,8 +53,9 @@ export function planningValueCounts(customers, defs, selections, dimensionId, re
     if (!def) return counts;
     for (const customer of customers) {
         if (!customerMatchesPlanningSelections(customer, otherDefs, selections, revenueFilter)) continue;
-        const value = planningDimensionValue(customer, def);
-        counts.set(value, (counts.get(value) ?? 0) + 1);
+        for (const value of planningDimensionValues(customer, def)) {
+            counts.set(value, (counts.get(value) ?? 0) + 1);
+        }
     }
     return counts;
 }
@@ -72,7 +74,7 @@ export function planningValueSearchText(value, def, customers) {
     const parts = [value];
     if (def?.id === 'bezirk') {
         const reps = new Set(customers
-            .filter((customer) => planningDimensionValue(customer, def) === value)
+            .filter((customer) => planningDimensionValues(customer, def).includes(value))
             .map((customer) => String(customer.vb ?? '').trim())
             .filter(Boolean));
         parts.push(...reps);
