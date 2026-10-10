@@ -78,7 +78,9 @@ describe('Wirkung auf den Import-Weg', () => {
     it('überspringt den Änderungsbericht nur gegen die Kulisse', () => {
         const wizard = source('src/ui/importWizard.js');
         expect(wizard).toContain('const replacingDemoOnly = onlyDemoDataPresent();');
-        expect(wizard).toContain('if (customers.length > 0 && !replacingDemoOnly) {');
+        expect(wizard).toContain('if (customers.length > 0 && !replacingDemoOnly && !quietTemplate) {');
+        // Importvorlage (15.1): Ohne Bericht nur, wenn kein Kunde fehlt.
+        expect(wizard).toContain('&& Boolean(abgleich) && abgleich.missing.length === 0;');
         // Der Bericht selbst bleibt unangetastet – nur wann er kommt, ändert sich.
         expect(wizard).toContain('await confirmImportWithDiff({');
     });

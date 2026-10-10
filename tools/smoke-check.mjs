@@ -219,8 +219,13 @@ async function desktop(browser, baseUrl) {
         await dragWidth(400);
     });
 
+    // Gemerkte Importvorlagen (15.1) würden dieselbe Liste ohne Zuordnung
+    // übernehmen – die folgenden Schritte prüfen den Weg von Hand.
+    const forgetImportTemplates = () => page.evaluate(() => localStorage.removeItem('tf_import_templates'));
+
     await step('Datei im Worker lesen, Abbrechen und Fehler erhalten den Bestand', async () => {
         await closeDialogs(page);
+        await forgetImportTemplates();
         const before = await customerCount(page);
         await page.locator('#file-input').setInputFiles({ name: 'worker.csv', mimeType: 'text/csv', buffer: Buffer.from(FIXTURE) });
         await page.waitForSelector('#import-dialog[open]', { timeout: TIMEOUT });
@@ -240,6 +245,7 @@ async function desktop(browser, baseUrl) {
 
     await step('Reimport behält lokal erfasste Besuche', async () => {
         await closeDialogs(page);
+        await forgetImportTemplates();
         // Besuch bei „Smoke Test Nord" eintragen (Suche → Popup → besucht).
         await page.fill('#global-search', 'Smoke Test Nord');
         await page.waitForSelector('#search-results .result-row', { timeout: TIMEOUT });
@@ -269,6 +275,29 @@ async function desktop(browser, baseUrl) {
         const raw = await rawStore(page, 'kundendaten');
         const nord = (raw?.customers || []).find((c) => c.nummer === 'SMOKE-1');
         if (!nord?.besuche?.includes(today)) throw new Error(`Besuch vom ${today} nach dem Reimport verloren`);
+    });
+
+    await step('Wiedererkannte Liste: ohne Zuordnung, nur Ergebnis (Importvorlage)', async () => {
+        await closeDialogs(page);
+        // Der vorige Schritt hat die Zuordnung bestätigt – dieselbe Liste kommt jetzt ohne Dialog.
+        await page.evaluate(() => document.getElementById('own-data-dialog').showModal());
+        await page.locator('#btn-paste').click();
+        const consent = page.locator('#consent-dialog[open] #consent-confirm');
+        if (await consent.isVisible({ timeout: 2000 }).catch(() => false)) await consent.click();
+        await page.waitForSelector('#paste-dialog[open]', { timeout: TIMEOUT });
+        await page.locator('#paste-input').fill(FIXTURE);
+        await page.waitForFunction(() => !document.getElementById('paste-confirm')?.disabled, null, { timeout: TIMEOUT });
+        await page.locator('#paste-confirm').click();
+        await page.waitForSelector('#import-result-dialog[open]', { timeout: TIMEOUT });
+        if (await page.locator('#import-dialog').evaluate((el) => el.open)) throw new Error('Zuordnung trotz Vorlage');
+        if (await page.locator('#import-diff-dialog').evaluate((el) => el.open)) throw new Error('Änderungsbericht ohne fehlende Kunden');
+        const title = await page.textContent('#import-result-dialog h2');
+        if (!/Liste aktualisiert/.test(title)) throw new Error(`Ergebnisfenster: ${title}`);
+        if (!await page.locator('#import-template-review').isVisible()) throw new Error('„Zuordnung prüfen" fehlt');
+        await closeDialogs(page);
+        // Erst das Schließen des Ergebnisfensters löst die Folgeangebote aus (Verortung …).
+        await sleep(1200);
+        await closeDialogs(page);
     });
 
     await step('Tresor einrichten, sperren und entsperren – Daten verschlüsselt', async () => {

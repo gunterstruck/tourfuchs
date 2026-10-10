@@ -3420,3 +3420,17 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 .data-source-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
 .data-source-form input { min-width: 0; }
 .data-source-form[hidden] { display: none; }
+
+/* Importvorlagen (15.1) */
+.mapping-template-note {
+    margin: 4px 0 8px;
+    padding: 7px 10px;
+    border-radius: var(--radius-l);
+    background: var(--color-primary-light);
+    color: var(--color-text);
+}
+.import-template-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.import-template-line button { font-size: 0.8rem; padding: 0.35em 0.75em; }
+.import-result-details { margin-top: 8px; }
+.import-result-details > summary { cursor: pointer; font-weight: 600; }
+.import-result-details .import-result-notes { max-height: 220px; overflow: auto; }
