@@ -839,7 +839,7 @@ offen, lange Felder scrollen in sich.
 | 16.2 | **Kontakte mit Sperrvermerken** | ✅ umgesetzt 10.10.2026 | DOI, „nicht anrufen", Werbesperre E-Mail, Opt-out; gesperrte Wege werden nicht angeboten; Löschvormerkung/inaktiv nicht übernommen; nicht im Briefing. |
 | 16.3 | **Opportunities** | ✅ umgesetzt 10.10.2026 | Knopf in der Kachel, Filter „Opportunity"/„Opportunity-Phase", Briefing mit Name/Phase/Abschluss ohne Beträge und Freitexte. Offen: Vorrang in den Tourvorschlägen. |
 | 16.4 | **Produkte (AE je PCK) und Produktmix** | ✅ umgesetzt 10.10.2026 | Knopf mit Mix-Balken und Produktklassen je GJ, Filter „Produkt (PCK)". |
-| 16.5 | **Übergaben alt → neu** | 🔶 Abzeichen umgesetzt | Abzeichen „🔁 Übergabe von …" in der Kachel. Offen: Übergaben auf der Karte (GeoFuchs) und Übergabeliste je VB als Excel. |
+| 16.5 | **Übergaben alt → neu** | ✅ umgesetzt 10.10.2026 | Abzeichen „🔁 Übergabe von …" in der Kachel; Marker mit gestricheltem violettem Rahmen und „🔁 Übergabe von …"; Filter „Übergabe" und „Übergabe von (VB alt)"; „🔁 Übergabeliste (Excel)" im Reiter Daten mit Blatt „Übergaben" (je Kunde) und „Übersicht je VB" (je Paar alt → neu, Kunden, Umsatz, offene Opps), folgt den Filtern. |
 | 16.6 | **Cross-Selling-Hinweise** | offen | „Kauft A, aber nicht B, was vergleichbare Kunden im Bezirk kaufen" als Chance auf der Karte. |
 | 16.7 | **Aktualisieren per Knopf** | offen (→ Release 15) | Die Mappe ist der erste echte Fall für „Datei verknüpfen + Aktualisieren". |
 

@@ -1,5 +1,5 @@
 const de = {
-    'export.excel': '💾 Als Excel exportieren', 'export.visitReport': '📤 Besuchsbericht (Excel)',
+    'export.excel': '💾 Als Excel exportieren', 'export.handover': '🔁 Übergabeliste (Excel)', 'export.handoverDone': '⬇ {count} Übergaben als Excel exportiert – mit Übersicht je VB.', 'export.handoverNone': 'In der aktuellen Auswahl gibt es keine Übergabe.', 'export.visitReport': '📤 Besuchsbericht (Excel)',
     'export.choice.title': '⬇ Excel exportieren', 'export.choice.filtered': 'Nur gefilterte', 'export.choice.all': 'Alle Kunden',
     'export.choice.foot': 'Mit allen Spalten: Originalspalten der Importdatei, Besuche, Verortung und Ansprechpartner.',
     'export.choice.cancel': 'Abbrechen', 'export.choice.lead': 'Ein Filter ist aktiv: {visible} von {all} Kunden sind sichtbar. Was soll in die Excel-Datei?',
@@ -23,7 +23,7 @@ const de = {
 };
 
 const en = {
-    'export.excel': '💾 Export as Excel', 'export.visitReport': '📤 Visit report (Excel)',
+    'export.excel': '💾 Export as Excel', 'export.handover': '🔁 Handover list (Excel)', 'export.handoverDone': '⬇ {count} handovers exported as Excel – with an overview per sales rep.', 'export.handoverNone': 'There is no handover in the current selection.', 'export.visitReport': '📤 Visit report (Excel)',
     'export.choice.title': '⬇ Export Excel', 'export.choice.filtered': 'Filtered only', 'export.choice.all': 'All customers',
     'export.choice.foot': 'Includes all columns: original import columns, visits, positioning and contacts.', 'export.choice.cancel': 'Cancel',
     'export.choice.lead': 'A filter is active: {visible} of {all} customers are visible. What should the Excel file contain?',
@@ -44,7 +44,7 @@ const en = {
 };
 
 const fr = {
-    'export.excel': '💾 Exporter vers Excel', 'export.visitReport': '📤 Rapport de visites (Excel)', 'export.choice.title': '⬇ Exporter vers Excel',
+    'export.excel': '💾 Exporter vers Excel', 'export.handover': '🔁 Liste des passations (Excel)', 'export.handoverDone': '⬇ {count} passations exportées vers Excel – avec un récapitulatif par commercial.', 'export.handoverNone': 'Aucune passation dans la sélection actuelle.', 'export.visitReport': '📤 Rapport de visites (Excel)', 'export.choice.title': '⬇ Exporter vers Excel',
     'export.choice.filtered': 'Filtrés uniquement', 'export.choice.all': 'Tous les clients', 'export.choice.foot': 'Toutes les colonnes sont incluses : importation, visites, localisation et contacts.', 'export.choice.cancel': 'Annuler',
     'export.choice.lead': 'Un filtre est actif : {visible} clients sur {all} sont visibles. Que doit contenir le fichier Excel ?', 'export.choice.filteredCount': 'Seulement les {count} filtrés', 'export.choice.allCount': 'Les {count} clients',
     'report.title': '📤 Partager les visites', 'report.intro': 'TourFuchs ne synchronise rien sur Internet. Les visites sont donc transmises dans un petit fichier Excel : uniquement les clients visités, une ligne par visite, avec numéro client, date et adresse.',
@@ -56,7 +56,7 @@ const fr = {
 };
 
 const es = {
-    'export.excel': '💾 Exportar a Excel', 'export.visitReport': '📤 Informe de visitas (Excel)', 'export.choice.title': '⬇ Exportar a Excel',
+    'export.excel': '💾 Exportar a Excel', 'export.handover': '🔁 Lista de traspasos (Excel)', 'export.handoverDone': '⬇ {count} traspasos exportados a Excel – con resumen por comercial.', 'export.handoverNone': 'No hay ningún traspaso en la selección actual.', 'export.visitReport': '📤 Informe de visitas (Excel)', 'export.choice.title': '⬇ Exportar a Excel',
     'export.choice.filtered': 'Solo filtrados', 'export.choice.all': 'Todos los clientes', 'export.choice.foot': 'Incluye todas las columnas: importación, visitas, ubicación y contactos.', 'export.choice.cancel': 'Cancelar',
     'export.choice.lead': 'Hay un filtro activo: se ven {visible} de {all} clientes. ¿Qué debe contener el archivo Excel?', 'export.choice.filteredCount': 'Solo los {count} filtrados', 'export.choice.allCount': 'Los {count} clientes',
     'report.title': '📤 Compartir visitas', 'report.intro': 'TourFuchs no sincroniza nada por Internet. Las visitas se comparten en un pequeño archivo Excel: solo clientes visitados, una fila por visita, con número de cliente, fecha y dirección.',
