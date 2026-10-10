@@ -415,7 +415,7 @@ describe('Gespeicherte Orte kommen mit den Kundenpunkten, nicht davor', () => {
         const map = read('src/features/map.js');
         const renderPlaces = map.slice(map.indexOf('function renderPlaces()'), map.indexOf('function resolvedTourDestination'));
         expect(renderPlaces).toContain('selected.has(place.id)');
-        const renderTour = map.slice(map.indexOf('function renderTour()'), map.indexOf('function renderTour()') + 1200);
+        const renderTour = map.slice(map.indexOf('function renderTour('), map.indexOf('function renderTour(') + 1400);
         expect(renderTour).toContain('if (start) {');
         expect(renderTour).not.toContain('ownPlacesVisibleAtZoom');
     });

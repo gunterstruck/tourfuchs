@@ -1630,8 +1630,12 @@ export function initSidebar() {
         else if (!payload?.type && desktopWelcomePending) revealDesktopSidebar();
     });
 
-    on('customers:changed', () => {
+    on('customers:changed', (info) => {
         renderDataStatus();
+        // Adressgenaue Verortung verschiebt nur Punkte: Filter, Legende und Modus
+        // bleiben. applyMode() hier löste sonst „mode:changed" aus – die Karte
+        // zeichnete alle Punkte neu und schloss die offene Kundenkachel.
+        if (info?.reason === 'positions') return;
         renderTeamFilters();
         renderLegend();
         renderTerritoryFilterSummary();
