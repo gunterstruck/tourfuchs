@@ -724,7 +724,13 @@ export function initMap(containerId) {
         }
     });
 
-    on('customers:changed', refreshAll);
+    on('customers:changed', (info) => {
+        if (info?.reason === 'positions') refreshPositions();
+        else refreshAll();
+    });
+    // Punkte, die wegen einer offenen Kachel gewartet haben, jetzt nachziehen.
+    // Einen Takt später: Während „popupclose" gilt die Kachel noch als offen.
+    map.on('popupclose', () => { if (positionsPending) setTimeout(refreshPositions, 0); });
     on('dataset:cleared', resetCustomerDiscoveryHints);
     on('customer:detail-opened', completeDiscoveryJourney);
     on('filters:changed', () => {
@@ -915,6 +921,42 @@ function handlePopupAction(action, customerId) {
 function refreshAll() {
     applyView();
     renderTour();
+}
+
+/**
+ * Adressgenaue Verortung: Zwischenstand (alle 60 s) und Ende verschieben nur
+ * Punkte. Früher baute das alle Kundenpunkte neu – und schloss dabei jede
+ * offene Kundenkachel (PO, 10.10.2026: „nach 30 s oder 1 min verschwindet die
+ * Kachel"). Jetzt rücken die vorhandenen Punkte an ihre neue Stelle; ein Punkt
+ * mit offener Kachel wartet, bis sie geschlossen ist.
+ */
+let positionsPending = false;
+function refreshPositions() {
+    positionsPending = false;
+    // Ohne sichtbare Kundenpunkte (Flächenansicht, Lichterkarte) wie bisher.
+    if (!map || !clusterGroup || lightsActive() || !currentView.markers || !map.hasLayer(clusterGroup)
+        || builtMarkerSignature !== markerSignature()) {
+        refreshAll();
+        return;
+    }
+    const byId = new Map(customerMarkers.map((entry) => [entry.customer.id, entry]));
+    const added = [];
+    for (const customer of customersOnMap()) {
+        const entry = byId.get(customer.id);
+        if (!entry) { added.push(customer); continue; }
+        const { marker } = entry;
+        const at = marker.getLatLng();
+        if (at.lat === customer.lat && at.lng === customer.lng) continue;
+        if (marker.isPopupOpen()) { positionsPending = true; continue; }
+        marker.setIcon(customerIcon(customer));     // „ca. (PLZ-Mitte)" fällt weg
+        marker.setLatLng([customer.lat, customer.lng]);
+    }
+    // Erstmals verortet (vorher ohne Position): dazulegen.
+    if (added.length) clusterGroup.addLayers(customerMarkersFor(added, customerPopupOptions()));
+    restyleRegions();
+    renderLabels();
+    renderTour({ markers: false });
+    finishMarkers();
 }
 
 // ---- Ansicht / Detailgrad (Level of Detail) ----
@@ -2665,10 +2707,15 @@ async function drawRoadRoute(routePts) {
     return true;
 }
 
-function renderTour() {
+/**
+ * Tour auf die Karte. `markers: false`: Nur die Route neu ziehen – die
+ * Kundenpunkte (und ihre offene Kachel) bleiben, z. B. wenn die Verortung
+ * nur Positionen verschoben hat.
+ */
+function renderTour({ markers = true } = {}) {
     roadRouteSeq += 1;
     tourLayer.clearLayers();
-    renderMarkers(); // "in-tour"-Status der Marker aktualisieren
+    if (markers) renderMarkers(); // "in-tour"-Status der Marker aktualisieren
 
     const { start, stopCustomers, dest, routePts } = currentTourRoutePoints();
     const hasRoute = start && routePts.length > 1;

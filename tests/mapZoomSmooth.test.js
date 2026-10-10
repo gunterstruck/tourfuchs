@@ -126,3 +126,26 @@ describe('Ebenenwechsel ohne Leerblitzen', () => {
         expect(icon.indexOf('getAllChildMarkers')).toBeGreaterThan(icon.indexOf('planning\n        ?'));
     });
 });
+
+describe('Offene Kundenkachel bleibt, während die Verortung im Hintergrund läuft', () => {
+    // PO, 10.10.2026: „Nach 30 s oder 1 min verschwindet die Kachel – soll bleiben,
+    // solange ich sie nicht selbst schließe." Ursache: Jeder Zwischenstand der
+    // adressgenauen Verortung baute alle Kundenpunkte neu (über refreshAll und
+    // über applyMode → „mode:changed" in der Seitenleiste) – sichtbar als Zucken.
+    const sidebar = read('src/ui/sidebar.js');
+
+    it('verschiebt bei reinen Positionsänderungen nur die vorhandenen Punkte', () => {
+        expect(map).toContain("if (info?.reason === 'positions') refreshPositions();");
+        const body = map.slice(map.indexOf('function refreshPositions()'), map.indexOf('// ---- Ansicht / Detailgrad'));
+        expect(body).toContain('marker.setLatLng([customer.lat, customer.lng]);');
+        expect(body).toContain('if (marker.isPopupOpen()) { positionsPending = true; continue; }');
+        expect(body).toContain('renderTour({ markers: false });');
+        expect(body).not.toContain('renderMarkers(');
+        expect(map).toContain("map.on('popupclose', () => { if (positionsPending) setTimeout(refreshPositions, 0); });");
+    });
+
+    it('lässt Seitenleiste und Modus bei reinen Positionsänderungen in Ruhe', () => {
+        const handler = sidebar.slice(sidebar.indexOf("on('customers:changed', (info) => {"));
+        expect(handler.indexOf("if (info?.reason === 'positions') return;")).toBeLessThan(handler.indexOf('applyMode(state.ui.mode'));
+    });
+});
