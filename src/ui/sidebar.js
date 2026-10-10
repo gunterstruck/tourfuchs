@@ -23,6 +23,7 @@ import { fileSlug, territoryLabel } from '../features/territoryPills.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 import { t, currentLocale } from '../core/i18n.js';
+import { handover } from '../features/salesWorkbook.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -1597,6 +1598,12 @@ export function initSidebar() {
         chooseExportScope();
     });
     document.getElementById('btn-clear').addEventListener('click', clearAllData);
+    // Übergabeliste (Release 16.5): folgt den aktiven Filtern – ohne Filter alle Übergaben.
+    document.getElementById('btn-export-handover')?.addEventListener('click', async () => {
+        const { exportHandovers } = await import('../services/excel.js');
+        const count = exportHandovers(visibleCustomers());
+        showToast(count ? t('export.handoverDone', { count: count.toLocaleString(currentLocale()) }) : t('export.handoverNone'), count ? 'success' : 'info', 5000);
+    });
     initExportChoice();
 
     document.getElementById('btn-mobile-clear-data')?.addEventListener('click', clearAllData);
@@ -1893,6 +1900,8 @@ function persistSettings() {
 // ---- Daten-Tab ----
 
 function renderDataStatus() {
+    const handoverButton = document.getElementById('btn-export-handover');
+    if (handoverButton) handoverButton.hidden = !state.customers.some((c) => handover(c));
     const onboarding = document.getElementById('onboarding');
     const loaded = document.getElementById('data-loaded');
     const el = document.getElementById('data-status');

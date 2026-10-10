@@ -307,6 +307,68 @@ export function handover(customer) {
     return { from, to, fromBezirk: cell(extra, 'VBEZ (Alt)'), toBezirk: text(customer?.bezirk) };
 }
 
+/** Übergabe-Zahlen eines Kunden für Liste und Übersicht. */
+function handoverFigures(customer) {
+    const { open, openAmount } = customerOpps(customer);
+    const revenue = Number(customer?.umsatz);
+    return {
+        revenue: Number.isFinite(revenue) ? revenue : 0,
+        openOpps: open.length,
+        openAmount,
+        contacts: (customer?.contacts || []).filter((c) => c && c.art !== 'promotor').length
+    };
+}
+
+/**
+ * Übergabeliste (16.5): eine Zeile je Kunde mit Übergabe, sortiert nach
+ * abgebendem VB, dann übernehmendem VB, dann Umsatz. Spaltenköpfe deutsch –
+ * die Datei geht an die Beteiligten.
+ */
+export function handoverRows(customers = []) {
+    return customers
+        .map((customer) => ({ customer, transfer: handover(customer) }))
+        .filter(({ transfer }) => transfer)
+        .map(({ customer, transfer }) => ({ customer, transfer, figures: handoverFigures(customer) }))
+        .sort((a, b) => a.transfer.from.localeCompare(b.transfer.from, 'de')
+            || (a.transfer.to || '').localeCompare(b.transfer.to || '', 'de')
+            || b.figures.revenue - a.figures.revenue)
+        .map(({ customer, transfer, figures }) => ({
+            'VB (Alt)': transfer.from,
+            'VB (Neu)': transfer.to,
+            'VBEZ (Alt)': transfer.fromBezirk,
+            'VBEZ (Neu)': transfer.toBezirk,
+            'Debitor': text(customer.nummer),
+            'IFA': text(customer.extra?.IFA),
+            'Accountname': text(customer.name),
+            'Straße': text(customer.strasse),
+            'PLZ': text(customer.plz),
+            'Ort': text(customer.ort),
+            'Umsatz (jüngstes GJ)': figures.revenue,
+            'Offene Opportunities': figures.openOpps,
+            'Erwarteter AE offen': figures.openAmount,
+            'Kontakte': figures.contacts,
+            'SieSales Link': crmLink(customer)
+        }));
+}
+
+/** Übersicht je Paar „VB alt → VB neu": Anzahl, Umsatz, offene Opportunities. */
+export function handoverSummary(customers = []) {
+    const pairs = new Map();
+    for (const customer of customers) {
+        const transfer = handover(customer);
+        if (!transfer) continue;
+        const key = `${transfer.from}\u0000${transfer.to}`;
+        const figures = handoverFigures(customer);
+        const entry = pairs.get(key) || { 'VB (Alt)': transfer.from, 'VB (Neu)': transfer.to, 'Kunden': 0, 'Umsatz (jüngstes GJ)': 0, 'Offene Opportunities': 0, 'Erwarteter AE offen': 0 };
+        entry['Kunden'] += 1;
+        entry['Umsatz (jüngstes GJ)'] += figures.revenue;
+        entry['Offene Opportunities'] += figures.openOpps;
+        entry['Erwarteter AE offen'] += figures.openAmount;
+        pairs.set(key, entry);
+    }
+    return [...pairs.values()].sort((a, b) => a['VB (Alt)'].localeCompare(b['VB (Alt)'], 'de') || a['VB (Neu)'].localeCompare(b['VB (Neu)'], 'de'));
+}
+
 // ---- Zusammenführen ----
 
 /**
@@ -368,6 +430,11 @@ export function salesDimensionDefs(customers = []) {
     if (customers.some((c) => Array.isArray(c?.opps) && c.opps.length)) {
         defs.push({ id: 'opp-offen', field: 'opp-offen', label: 'Opportunity', values: (c) => [customerOpps(c).open.length ? OPEN_LABEL : NONE_LABEL] });
         defs.push({ id: 'opp-phase', field: 'opp-phase', label: 'Opportunity-Phase', values: (c) => [...new Set(customerOpps(c).open.map((o) => (o.phase ? `Phase ${o.phase}` : '')).filter(Boolean))] });
+    }
+    if (customers.some((c) => handover(c))) {
+        // „Welche Kunden übernehme ich?" = Übergabe „mit" + VB (neu) – „Wen gebe ich ab?" = „Übergabe von".
+        defs.push({ id: 'uebergabe', field: 'uebergabe', label: 'Übergabe', values: (c) => [handover(c) ? 'mit Übergabe' : 'ohne Übergabe'] });
+        defs.push({ id: 'uebergabe-von', field: 'uebergabe-von', label: 'Übergabe von (VB alt)', values: (c) => { const h = handover(c); return h ? [h.from] : []; } });
     }
     if (customers.some((c) => Array.isArray(c?.produkte) && c.produkte.length)) {
         defs.push({ id: 'produkt', field: 'produkt', label: 'Produkt (PCK)', values: (c) => [...new Set((c.produkte || []).map((p) => p.beschreibung || p.pck).filter(Boolean))] });

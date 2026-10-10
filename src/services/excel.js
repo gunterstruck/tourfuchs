@@ -6,7 +6,7 @@
 
 import * as XLSX from 'xlsx';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
-import { SALES_SHEETS, SALES_SIDE_SHEETS, isSalesWorkbook } from '../features/salesWorkbook.js';
+import { SALES_SHEETS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
 import { loadDemoStreets, loadPlzCentroids, loadPlzPlaces } from './geocode.js';
 import {
     DEMO_DATA_LABEL,
@@ -1228,6 +1228,26 @@ export function exportCustomers(customers, { fileLabel = '' } = {}) {
     const base = demo ? 'tourfuchs-DEMO-nicht-produktiv' : 'tourfuchs-kunden';
     const prefix = fileLabel ? `${base}-${fileLabel}` : base;
     XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+}
+
+/**
+ * Übergabeliste (Release 16.5): Blatt „Übergaben" (je Kunde) und Blatt
+ * „Übersicht je VB" (je Paar VB alt → VB neu).
+ * @returns {number} Anzahl der Übergaben (0 = nichts exportiert)
+ */
+export function exportHandovers(customers, { fileLabel = '' } = {}) {
+    const rows = handoverRows(customers);
+    if (!rows.length) return 0;
+    const wb = XLSX.utils.book_new();
+    const sheet = XLSX.utils.json_to_sheet(rows);
+    sheet['!cols'] = [18, 18, 14, 14, 12, 12, 30, 24, 8, 18, 14, 10, 14, 9, 30].map((wch) => ({ wch }));
+    XLSX.utils.book_append_sheet(wb, sheet, 'Übergaben');
+    const summary = XLSX.utils.json_to_sheet(handoverSummary(customers));
+    summary['!cols'] = [18, 18, 8, 16, 12, 14].map((wch) => ({ wch }));
+    XLSX.utils.book_append_sheet(wb, summary, 'Übersicht je VB');
+    const prefix = fileLabel ? `tourfuchs-uebergaben-${fileLabel}` : 'tourfuchs-uebergaben';
+    XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
+    return rows.length;
 }
 
 /**
