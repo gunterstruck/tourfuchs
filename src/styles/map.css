@@ -948,6 +948,33 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
 .popup-person-detail { color: var(--color-text-muted, #64748b); font-size: 0.78rem; }
 .popup-person-links { display: flex; flex-wrap: wrap; gap: 2px 10px; }
 .popup-person-links .popup-team-tel { overflow-wrap: anywhere; white-space: normal; }
+/* Ein Feld wird nie länger als die halbe Kachel: Viele Kontakte oder
+   Opportunities scrollen innerhalb des Feldes, die Kachel bleibt ruhig. */
+.popup-people .popup-panel { max-height: 240px; overflow-y: auto; overscroll-behavior: contain; }
+.popup-panel-sum { margin: 0 0 4px; }
+.popup-flags { display: inline-flex; flex-wrap: wrap; gap: 3px; margin-left: 4px; vertical-align: middle; }
+.popup-flag {
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.popup-flag.is-ok { background: color-mix(in srgb, #16a34a 16%, transparent); color: #15803d; }
+.popup-flag.is-stop { background: color-mix(in srgb, #dc2626 14%, transparent); color: #b91c1c; }
+.popup-badge-handover { background: color-mix(in srgb, #d97706 18%, transparent); color: #b45309; }
+.popup-crm { text-decoration: none; cursor: pointer; }
+/* Produktmix: ein Balken, Farben nur zur Unterscheidung (Legende darunter). */
+.popup-mix { display: flex; height: 10px; margin: 2px 0 4px; border-radius: 999px; overflow: hidden; background: var(--color-border, #e2e8f0); }
+.popup-mix-part { min-width: 3px; }
+.mix-0 { background: #0d9488; } .mix-1 { background: #6366f1; } .mix-2 { background: #f59e0b; }
+.mix-3 { background: #ec4899; } .mix-4 { background: #64748b; } .mix-5 { background: #94a3b8; }
+.popup-mix-legend { display: flex; flex-wrap: wrap; gap: 2px 10px; margin: 0 0 6px; color: var(--color-text-muted, #64748b); }
+.popup-mix-legend i { display: inline-block; width: 8px; height: 8px; margin-right: 4px; border-radius: 2px; vertical-align: baseline; }
+.popup-product-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: 0.82rem; }
+.popup-product-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; }
+.popup-product-name { overflow-wrap: break-word; font-weight: 600; }
+.popup-product-list .popup-person-detail { grid-column: 1 / -1; }
 .popup-revenue-value { display: inline-flex; align-items: center; gap: 6px; }
 .popup-revenue-years ul { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 3px; font-size: 0.82rem; }
 .popup-revenue-years li { display: grid; grid-template-columns: 1fr auto 4.6em; gap: 6px; align-items: baseline; }

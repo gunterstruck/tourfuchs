@@ -18,7 +18,7 @@
 
 const norm = (header) => String(header ?? '').toLowerCase().replace(/[._\-/]/g, ' ').replace(/\s+/g, ' ').trim();
 
-const REVENUE_WORD = /\b(umsatz|umsätze|umsaetze|ums|revenue|sales|ist)\b|umsatz/;
+const REVENUE_WORD = /\b(umsatz|umsätze|umsaetze|ums|revenue|sales|ist|orders|ae)\b|umsatz|auftragseingang/;
 const FISCAL_PREFIX = /^(gj|fy|geschäftsjahr|geschaeftsjahr|wj)\s?\d/;
 const NOT_ACTUAL = /plan|ziel|budget|forecast|prognose|potenzial|potential|soll|delta|abweichung|veränderung|veraenderung|%/;
 
@@ -33,6 +33,8 @@ export const REVENUE_YEAR_SLOTS = 4;
 export function revenueYearOfHeader(header) {
     const h = norm(header);
     if (!h || NOT_ACTUAL.test(h)) return null;
+    // Spannen und Durchschnitte („Ø Orders FY24-26", „AE GJ24-26") sind kein einzelnes Jahr.
+    if (/\d{2}\s*[-–]\s*\d{2}/.test(String(header)) || /ø|durchschnitt|schnitt|summe/i.test(String(header))) return null;
     if (!REVENUE_WORD.test(h) && !FISCAL_PREFIX.test(h)) return null;
     // Doppeljahr: „2024 25" oder „2024 2025" → hinteres Jahr
     const span = h.match(/\b(20\d{2})\s(\d{2}|20\d{2})\b/);

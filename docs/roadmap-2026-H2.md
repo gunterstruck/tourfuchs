@@ -812,6 +812,40 @@ reibungslos laufen:
 Aktualisieren im Hintergrund ohne Knopfdruck (der Nutzer entscheidet, wann sich
 seine Daten ändern; laufende Tour bleibt geschützt).
 
+### Release 16 – „Eine Datei, alles drin" (Vertriebs-Arbeitsmappe) *(festgelegt und begonnen 10.10.2026)*
+
+**Anlass (PO, 10.10.2026):** Die zentrale Vertriebsdatei ist eine Excel-Mappe
+mit fünf Blättern: „VBEZ Übersicht" (Kundenstamm mit Auftragseingang FY24–26,
+Produktmix, VB alt/neu, CRM-Link), „Dateiübersicht" (Kontrollzahlen), „AE je
+PCK" (Auftragseingang je Produktklasse), „SieSales Kontakte" (mit Einwilligung
+und Sperrvermerken), „SieSales Opps". Nischen-Prüffrage: Ja – der
+Außendienstler sieht am Kunden, wen er anrufen **darf**, welche Chance offen
+ist, was der Kunde kauft und welche Kunden er neu übernimmt.
+
+**PO-Entscheidungen:** Schlüssel ist der **Debitor**; bei Dubletten gilt die
+spätere Zeile. Es gelten **VBEZ (Neu)** und **VB (Neu)** (Accountmanager).
+Status „commit, gewonnen …", Phase 0–5, offen/geschlossen. Detailblätter hängen
+über die IFA am Kunden.
+
+**Kachel-Konzept (PO: „darf beim Öffnen nicht überfrachtet sein"):** Ebene 1
+beim Öffnen – Name, Nummer, Anschrift, Umsatz, Zuordnung, eine Zeile Abzeichen
+(z. B. 🔁 Übergabe). Ebene 2 – eine Knopfzeile (Zuständig · Kundenansprechpartner
+· Promotoren · Opportunities · Produkte), Knöpfe nur mit Daten, genau ein Feld
+offen, lange Felder scrollen in sich.
+
+| # | Item | Status | Inhalt |
+|---|---|---|---|
+| 16.1 | **Arbeitsmappen-Import** | ✅ umgesetzt 10.10.2026 | Erkennung an den Blattnamen, alle Blätter in einem Zug ohne Zuordnungsdialog, Debitor-Schlüssel, Dublettenregel, Orders FY → Umsatzjahre, Kontrolle gegen „Dateiübersicht", Ergebnisfenster mit Zahlen und Hinweisen. |
+| 16.2 | **Kontakte mit Sperrvermerken** | ✅ umgesetzt 10.10.2026 | DOI, „nicht anrufen", Werbesperre E-Mail, Opt-out; gesperrte Wege werden nicht angeboten; Löschvormerkung/inaktiv nicht übernommen; nicht im Briefing. |
+| 16.3 | **Opportunities** | ✅ umgesetzt 10.10.2026 | Knopf in der Kachel, Filter „Opportunity"/„Opportunity-Phase", Briefing mit Name/Phase/Abschluss ohne Beträge und Freitexte. Offen: Vorrang in den Tourvorschlägen. |
+| 16.4 | **Produkte (AE je PCK) und Produktmix** | ✅ umgesetzt 10.10.2026 | Knopf mit Mix-Balken und Produktklassen je GJ, Filter „Produkt (PCK)". |
+| 16.5 | **Übergaben alt → neu** | 🔶 Abzeichen umgesetzt | Abzeichen „🔁 Übergabe von …" in der Kachel. Offen: Übergaben auf der Karte (GeoFuchs) und Übergabeliste je VB als Excel. |
+| 16.6 | **Cross-Selling-Hinweise** | offen | „Kauft A, aber nicht B, was vergleichbare Kunden im Bezirk kaufen" als Chance auf der Karte. |
+| 16.7 | **Aktualisieren per Knopf** | offen (→ Release 15) | Die Mappe ist der erste echte Fall für „Datei verknüpfen + Aktualisieren". |
+
+Keine neue externe Verbindung; der CRM-Link öffnet nur auf Klick einen Tab
+(in `datenschutz.html` offengelegt).
+
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 
 Die größte Hürde vor echter Nutzung ist nicht eine fehlende Funktion, sondern
