@@ -7,7 +7,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 
 import { CONFIG } from './core/config.js';
-import { t } from './core/i18n.js';
+import { currentLocale, t } from './core/i18n.js';
 import { applyDemoStreets, demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
 import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
 import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './services/storage.js';
@@ -46,6 +46,7 @@ import { initNightToggle } from './ui/nightToggle.js';
 import { initViewportGuard } from './ui/viewportGuard.js';
 import { startUsageCount } from './services/usageCount.js';
 import { initExactGeocoding } from './ui/exactGeocoding.js';
+import { hideBusy, showBusy } from './ui/busyIndicator.js';
 import { initMapPills } from './ui/mapPills.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
 import { initBriefingSources } from './ui/briefingSources.js';
@@ -94,6 +95,13 @@ async function restorePersistedState() {
     }
 
     const dataset = await loadDataset();
+    // Viele Kunden: Die nächsten Schritte rechnen am Stück. Vorher sagen, was
+    // passiert, und den Hinweis zeichnen lassen.
+    const storedCount = dataset?.customers?.length || 0;
+    if (storedCount >= LARGE_DATASET) {
+        showBusy('start', t('busy.startingCount', { count: storedCount.toLocaleString(currentLocale()) }));
+        await nextPaint();
+    }
     if (dataset?.territories) state.territories = dataset.territories;
     // Eigene Orte hängen nicht an der Kundenliste: Sie überleben deren Ersetzung
     // und stehen auch dann bereit, wenn noch gar keine Kunden geladen sind.
@@ -216,6 +224,10 @@ async function restorePersistedState() {
     }
 }
 
+/** Ab so vielen Kunden spürt man den Start – dann mit Zahl im Hinweis. */
+const LARGE_DATASET = 2000;
+const nextPaint = () => new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
+
 // Kundendaten nach inhaltlichen Änderungen (Besuch, Rhythmus, Gebiete) speichern – gedrosselt
 let saveTimer = null;
 function scheduleSave() {
@@ -254,6 +266,8 @@ async function init() {
     // Fensterhöhe zuerst: iOS liefert nach dem Entsperren teils ein falsches 100dvh.
     initViewportGuard();
     const language = initLanguage();
+    // Der Hinweis steht schon im HTML; ab hier gehört er dem Busy-Baustein.
+    showBusy('start', t('busy.starting'));
     language.onChange((locale) => emit('locale:changed', locale));
     const theme = initTheme();
     // Mond/Sonne oben rechts: dunkler Stil + Lichterkarte mit einem Tipp.
@@ -322,6 +336,7 @@ async function init() {
 
     // Persistierte Daten laden (bei aktivem Tresor erst nach dem Entsperren).
     async function bootData() {
+        showBusy('start', t('busy.starting'));
         try {
             await restorePersistedState();
         } catch (error) {
@@ -332,6 +347,10 @@ async function init() {
         handleSharedTourFromUrl();
         autoRevealIfEmpty();
         emit('app:ready');
+        // Erst ausblenden, wenn der Browser wieder zeichnen kann – den
+        // weiteren Kartenaufbau meldet die Karte selbst („Karte wird aktualisiert").
+        await nextPaint();
+        hideBusy('start');
     }
 
     // Migration/Konsistenz: Ein verwaister Tresor (aktiv, aber gar kein
@@ -345,6 +364,8 @@ async function init() {
     // Tresor: Ist er aktiv und gesperrt, zeigt initVault den Sperrbildschirm und
     // ruft bootData erst nach erfolgreichem Entsperren auf.
     const lockedAtStart = initVault({ bootData });
+    // Gesperrt: Der Sperrbildschirm steht vorn; geladen wird erst nach dem Entsperren.
+    if (lockedAtStart) hideBusy('start');
 
     window.addEventListener('hashchange', handleSharedTourFromUrl);
 
