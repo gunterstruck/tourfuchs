@@ -1964,19 +1964,60 @@ function wirePopupSections(el) {
                 if (panel) panel.hidden = false;
             }
             // Kein popup.update(): Es baut den Inhalt neu auf und klappt das Feld
-            // sofort wieder zu. Die Kachel wächst ohnehin nach oben mit.
+            // sofort wieder zu. Die Kachel wächst nach oben mit – ragt sie dann
+            // aus dem Bild, schwenkt die Karte nach.
+            requestAnimationFrame(() => {
+                keepPopupTopInView(el);
+                if (open) revealPopupPanel(el, group);
+            });
         });
     });
 }
+
+/**
+ * Scrollt die Kachel, falls das eben aufgeklappte Feld unter den Tour-Knöpfen
+ * läge (v. a. am Handy): Die Knopfzeile rückt nach oben, das Feld darunter
+ * ist zu sehen. Von Hand gescrollt – scrollIntoView verschöbe auch die Karte.
+ */
+function revealPopupPanel(el, group) {
+    const content = el.querySelector('.leaflet-popup-content');
+    const panel = group.querySelector('[data-popup-panel]:not([hidden])');
+    if (!content || !panel || content.scrollHeight <= content.clientHeight) return;
+    const box = content.getBoundingClientRect();
+    const actions = el.querySelector('.popup-actions')?.offsetHeight || 0;
+    if (panel.getBoundingClientRect().top < box.bottom - actions - 120) return;
+    const toolbar = el.querySelector('.popup-toolbar');
+    const stickyTop = toolbar && getComputedStyle(toolbar).position === 'sticky' ? toolbar.offsetHeight : 0;
+    const anchor = group.firstElementChild || panel;
+    content.scrollTop += anchor.getBoundingClientRect().top - box.top - stickyTop - 6;
+}
+
+/** Name und „Schließen" bleiben sichtbar, wenn ein Feld die Kachel nach oben wachsen lässt. */
+function keepPopupTopInView(el) {
+    if (!map || !el?.isConnected) return;
+    const wrapper = el.querySelector('.leaflet-popup-content-wrapper') || el;
+    const top = wrapper.getBoundingClientRect().top;
+    const limit = map.getContainer().getBoundingClientRect().top + currentPopupPadding().topLeft.y;
+    if (top < limit) map.panBy([0, Math.round(top - limit)]);
+}
+
+// Desktop: breit genug, dass die Knöpfe (Ansprechpartner, Opportunities,
+// Produkte) und der Besuchsblock je in eine Zeile passen.
+const CUSTOMER_POPUP_WIDTH = 480;
 
 function customerPopupOptions() {
     // Handy: die Kachel nutzt die Bildschirmbreite (abzüglich Rand), damit
     // Knöpfe und „alle 4 Wochen" nicht gestaucht oder abgeschnitten werden.
     if (isMobileMap()) {
-        const width = Math.max(240, Math.min(330, window.innerWidth - 56));
-        return popupOptions({ maxWidth: width, minWidth: width, className: 'customer-detail-popup' });
+        const width = Math.max(240, Math.min(360, window.innerWidth - 52));
+        return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup' });
     }
-    return popupOptions({ maxWidth: 300, className: 'customer-detail-popup' });
+    // Desktop: so hoch, wie die Karte Platz hat (Grenze im CSS) – zugeklappt
+    // ist alles zu sehen, Name bis Tour-Knöpfe. Erst aufgeklappte Felder lassen
+    // sie scrollen. Kein maxHeight von Leaflet: Es setzte eine feste Höhe, die
+    // beim Auf- und Zuklappen nicht mitginge.
+    const width = Math.min(CUSTOMER_POPUP_WIDTH, window.innerWidth - 80);
+    return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup' });
 }
 
 function animateCustomerMarkerOpen(marker) {
@@ -2293,7 +2334,7 @@ function serviceVisitsBlockHtml(customer) {
 export function customerPopupHtml(customer) {
     const inTour = state.tour.stops.includes(customer.id);
     const isDest = state.tour.destination?.customerId === customer.id;
-    // Kompakter Kopf: Adresse einzeilig, Kundennummer neben dem Namen. Umsatz
+    // Kompakter Kopf: Adresse einzeilig, Kundennummer unter dem Namen. Umsatz
     // bekommt bewusst eine eigene, klar beschriftete Zeile, damit er nicht
     // zwischen Hierarchie-Codes untergeht.
     const place = [customer.plz, customer.ort].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
@@ -2308,7 +2349,10 @@ export function customerPopupHtml(customer) {
             ? ` <a class="popup-team-tel" href="tel:${escapeHtml(representative.tel)}" title="${escapeHtml(t('customer.contacts.call', { name: representative.name }))}">📞 ${escapeHtml(representative.phone)}</a>`
             : ''}`
         : '';
-    const assignment = [hierarchy, representativeHtml].filter(Boolean).join(' · ');
+    // Gebiet und Vertriebsbeauftragter je in eigener Zeile – der Name bricht
+    // nicht mitten in der Hierarchie um.
+    const assignment = [hierarchy, representativeHtml].filter(Boolean)
+        .map((line) => `<span class="popup-meta-line">${line}</span>`).join('');
     const rawRevenue = customer.umsatz;
     const hasRevenue = rawRevenue !== null
         && rawRevenue !== undefined
@@ -2341,8 +2385,11 @@ export function customerPopupHtml(customer) {
     const geoNote = customer.geo === 'plz'
         ? t('customer.geo.postalApprox')
         : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
+    // Kopf: Name allein, darunter eine eigene Zeile für Kundennummer und CRM.
+    const idLine = nr || crmHtml ? `<p class="popup-idline">${nr}${crmHtml}</p>` : '';
     return `<div class="popup popup-customer">
-        <h3>${escapeHtml(customer.name)}${demoBadge}${nr}${crmHtml}</h3>
+        <h3>${escapeHtml(customer.name)}${demoBadge}</h3>
+        ${idLine}
         ${addr ? `<p class="popup-addr">${addr}${geoNote ? ` <span class="muted small popup-geo-note">${escapeHtml(geoNote)}</span>` : ''}</p>` : ''}
         ${revenueHtml}
         ${profi && assignment ? `<p class="muted small popup-meta">${assignment}</p>` : ''}
