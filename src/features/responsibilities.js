@@ -114,11 +114,29 @@ export function isRoleHeader(header) {
  */
 export function teamDimensionDefs(customers = []) {
     const defs = [];
+    // Einmal über alle Überschriften statt je Kunde und Filterdurchlauf suchen –
+    // bei über 10.000 Kunden zählt jeder Durchlauf (Start, jeder Filterklick).
+    const allHeaders = new Set();
+    for (const customer of customers) for (const header of Object.keys(customer?.extra || {})) allHeaders.add(header);
+    const names = new Map();   // Zelltext -> Name ohne Telefonnummer
+    const nameOfText = (raw) => {
+        const value = text(raw);
+        if (!value) return '';
+        let name = names.get(value);
+        if (name === undefined) { name = splitContactText(value).name || value; names.set(value, name); }
+        return name;
+    };
     for (const role of ROLE_COLUMNS) {
+        const headers = [...allHeaders].filter((header) => role.headers.includes(norm(header)));
+        if (!headers.length) continue;
         const nameOf = (customer) => {
-            const header = findHeader(customer?.extra, role.headers);
-            const value = header ? text(customer.extra[header]) : '';
-            return value ? splitContactText(value).name || value : '';
+            const extra = customer?.extra;
+            if (!extra) return '';
+            for (const header of headers) {
+                const name = nameOfText(extra[header]);
+                if (name) return name;
+            }
+            return '';
         };
         if (!customers.some((customer) => nameOf(customer))) continue;
         const id = `team:${role.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;

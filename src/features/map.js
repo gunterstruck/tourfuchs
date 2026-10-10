@@ -45,6 +45,7 @@ import {
     customerMarkerModeClass
 } from './customerMarkers.js';
 import { openRegionEditor } from '../ui/regionEditor.js';
+import { hideBusy, showBusy } from '../ui/busyIndicator.js';
 import { optionalModuleActive } from './optionalModules.js';
 import { activeDimensionFilters, regionMatchesActiveFilters } from './territoryVisibility.js';
 import { normalizeMinimumRegionCustomers, regionMeetsMinimum } from '../core/customerFilters.js';
@@ -2170,8 +2171,21 @@ function renderMarkers() {
     });
 }
 
+/**
+ * Ab so vielen Kunden wird die Karte in Portionen aufgebaut: Zwischen zwei
+ * Portionen darf der Browser zeichnen und auf Klicks reagieren, und der
+ * Hinweis „Karte wird aktualisiert" zählt mit. Vorher fror die Oberfläche
+ * bei über 10.000 Kunden nach jedem Filterklick für Sekunden ein.
+ * (Das eingebaute `chunkedLoading` von markercluster lässt sich nicht
+ * abbrechen – ein zweiter Filterklick hinterließe alte Punkte.)
+ */
+const MARKER_CHUNK = 1500;
+let markerDrawGeneration = 0;
+
 function drawMarkers() {
     if (!clusterGroup) return;
+    const generation = ++markerDrawGeneration;
+    hideBusy('map');
     clusterGroup.clearLayers();
     lightsLayer?.clearLayers();
     customerMarkers = [];
@@ -2184,8 +2198,49 @@ function drawMarkers() {
         emit('map:markers-rendered');
         return;
     }
+    const list = customersOnMap();
+    if (list.length <= MARKER_CHUNK) {
+        clusterGroup.addLayers(customerMarkersFor(list, popupOptionsForCustomers));
+        finishMarkers();
+        return;
+    }
+    const total = list.length;
+    const locale = currentLocale();
+    let done = 0;
+    const step = () => {
+        // Ein neuerer Aufbau hat begonnen: diesen hier still beenden.
+        if (generation !== markerDrawGeneration || !clusterGroup) return;
+        const slice = list.slice(done, done + MARKER_CHUNK);
+        clusterGroup.addLayers(customerMarkersFor(slice, popupOptionsForCustomers));
+        done += slice.length;
+        if (done < total) {
+            showBusy('map', t('busy.mapProgress', {
+                done: done.toLocaleString(locale),
+                total: total.toLocaleString(locale)
+            }));
+            setTimeout(step, 0);
+            return;
+        }
+        hideBusy('map');
+        finishMarkers();
+    };
+    showBusy('map', t('busy.map'));
+    // Erst den Hinweis zeichnen lassen, dann rechnen.
+    requestAnimationFrame(() => setTimeout(step, 0));
+}
+
+function finishMarkers() {
+    scheduleCustomerMarkerHint();
+    scheduleCustomerClusterHint();
+    // Wer an der gezeichneten Menge hängt (Lasso), muss nachziehen. Sie ändert
+    // sich nicht nur mit den Filtern, sondern auch beim Zoomen: In der
+    // Flächenansicht liegt kein einziger Marker auf der Karte.
+    emit('map:markers-rendered');
+}
+
+function customerMarkersFor(customers, popupOptionsForCustomers) {
     const markers = [];
-    for (const customer of customersOnMap()) {
+    for (const customer of customers) {
         const detailsLabel = t('customer.marker.detailsLabel', { name: customer.name });
         const marker = L.marker([customer.lat, customer.lng], {
             icon: customerIcon(customer),
@@ -2201,13 +2256,7 @@ function drawMarkers() {
         customerMarkers.push({ marker, customer });
         markers.push(marker);
     }
-    clusterGroup.addLayers(markers);
-    scheduleCustomerMarkerHint();
-    scheduleCustomerClusterHint();
-    // Wer an der gezeichneten Menge hängt (Lasso), muss nachziehen. Sie ändert
-    // sich nicht nur mit den Filtern, sondern auch beim Zoomen: In der
-    // Flächenansicht liegt kein einziger Marker auf der Karte.
-    emit('map:markers-rendered');
+    return markers;
 }
 
 /** Lichterkarte: jeder sichtbare Kunde ein gelber Lichtpunkt (Größe = Umsatz). */

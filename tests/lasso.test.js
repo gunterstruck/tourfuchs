@@ -466,7 +466,10 @@ describe('Lasso und Karte sehen dieselbe Menge', () => {
     it('hat genau eine Quelle, aus der auch gezeichnet wird', () => {
         // Sonst laufen die beiden Mengen beim nächsten Umbau wieder auseinander.
         expect(map).toContain('export function customersOnMap()');
-        expect(map).toContain('for (const customer of customersOnMap()) {');
+        // Gezeichnet wird (auch portionsweise) aus genau dieser Liste.
+        const draw = map.slice(map.indexOf('function drawMarkers()'), map.indexOf('function finishMarkers()'));
+        expect(draw).toContain('const list = customersOnMap();');
+        expect(draw).toContain('customerMarkersFor(list, popupOptionsForCustomers)');
         const quelle = map.slice(map.indexOf('export function customersOnMap()'), map.indexOf('function renderMarkers()'));
         expect(quelle).toContain('markerCustomers()');
         expect(quelle).toContain('state.ui.opportunityOnly');

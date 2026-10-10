@@ -33,10 +33,20 @@ export function todayInputValue(now = new Date()) {
  * Eine Quelle für alle: das Feld „Datum" der Plan-Einstellungen, sonst heute.
  * Bewusst hier und nicht in `visits.js` – das bleibt DOM-frei und testbar.
  */
+// Einmal je Durchlauf lesen: planningNow läuft beim Zeichnen für jeden Kunden.
+let planDateThisTurn = null;
+function planDateValue() {
+    if (planDateThisTurn === null) {
+        planDateThisTurn = (typeof document !== 'undefined'
+            ? document.getElementById('plan-date')?.value
+            : '') || '';
+        queueMicrotask(() => { planDateThisTurn = null; });
+    }
+    return planDateThisTurn;
+}
+
 export function planningNow(now = new Date()) {
-    const value = (typeof document !== 'undefined'
-        ? document.getElementById('plan-date')?.value
-        : '') || '';
+    const value = planDateValue();
     const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
     if (!match) return now;
     const [, y, m, d] = match.map(Number);

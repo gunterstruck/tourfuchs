@@ -178,8 +178,13 @@ function inferExtraDimensions(customers) {
     return defs.sort((a, b) => a.label.localeCompare(b.label, 'de'));
 }
 
+// Die Liste ändert sich nur mit dem Bestand (setCustomers); sie wird je
+// Sichtbarkeitsprüfung gebraucht und deshalb nicht jedes Mal neu gebaut.
+let defsCache = { extra: null, defs: [] };
 export function filterDimensionDefs() {
-    return [...DIMENSIONS, ...CUSTOMER_FILTER_DIMENSIONS, ...(state.extraDimensions || [])];
+    const extra = state.extraDimensions || [];
+    if (defsCache.extra !== extra) defsCache = { extra, defs: [...DIMENSIONS, ...CUSTOMER_FILTER_DIMENSIONS, ...extra] };
+    return defsCache.defs;
 }
 
 const listeners = new Map();
@@ -552,21 +557,42 @@ export function activeDims() {
     return filterDimensionDefs().map((def) => state.dims[def.id]).filter((d) => d?.active);
 }
 
-/** Ist der Kunde nach aktuellen Filtern sichtbar? */
-export function isVisible(customer) {
+/**
+ * Sichtbarkeitsprüfung für den aktuellen Filterstand. Ebenen, in denen nichts
+ * abgewählt ist, filtern nicht und werden übersprungen – bei über 10.000
+ * Kunden und einem Dutzend Ebenen ist das der Unterschied zwischen einem
+ * flüssigen und einem stockenden Filterklick.
+ */
+function visibilityPredicate() {
+    const checks = [];
     for (const def of filterDimensionDefs()) {
         const dim = state.dims[def.id];
         if (!dim?.active) continue;
-        // Mehrere Werte (zwei Promotoren): sichtbar, sobald einer ausgewählt ist.
-        const values = dimensionValues(customer, def);
-        const keys = values.length ? values : [UNASSIGNED];
-        if (!keys.some((key) => dim.values.get(key)?.visible ?? true)) return false;
+        let anyHidden = false;
+        for (const entry of dim.values.values()) {
+            if (entry?.visible === false) { anyHidden = true; break; }
+        }
+        if (anyHidden) checks.push({ def, values: dim.values });
     }
-    return customerMatchesRevenueFilter(customer, state.filters.revenue);
+    const revenue = state.filters.revenue;
+    return (customer) => {
+        for (const { def, values } of checks) {
+            // Mehrere Werte (zwei Promotoren): sichtbar, sobald einer ausgewählt ist.
+            const own = dimensionValues(customer, def);
+            const keys = own.length ? own : [UNASSIGNED];
+            if (!keys.some((key) => values.get(key)?.visible ?? true)) return false;
+        }
+        return customerMatchesRevenueFilter(customer, revenue);
+    };
+}
+
+/** Ist der Kunde nach aktuellen Filtern sichtbar? */
+export function isVisible(customer) {
+    return visibilityPredicate()(customer);
 }
 
 export function visibleCustomers() {
-    return state.customers.filter(isVisible);
+    return state.customers.filter(visibilityPredicate());
 }
 
 export function customerInTourScope(customer) {

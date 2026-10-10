@@ -1529,8 +1529,20 @@ mitgesendet.
   **„Anhalten"**. Die erste Zahl ist der Fortschritt, die zweite die
   Gesamtzahl (seit 27.09.2026 mit „von" und Tausenderpunkt, weil „427/3441" als
   abgeschnittene Zahl gelesen wurde). Im Info-Dialog steht der Stand dauerhaft.
+- **Seit 10.10.2026 zählt die Pille nur noch, was wirklich neu angefragt
+  wird**, und nennt daneben den erreichten Stand, z. B. **„📍 Verorte Adressen
+  90 von 8.041 · 4.012 schon adressgenau"** (am Handy in zweiter Zeile). Nach
+  einem Neustart übernimmt TourFuchs bereits gefundene Positionen sofort aus dem
+  Speicher – ohne Anfrage und ohne sie mitzuzählen. Früher lief der Zähler nach
+  jedem Start wieder bei 0 los und ging alle bekannten Adressen noch einmal
+  durch; das sah aus, als finge die Verortung von vorn an.
+- Adressen, die OpenStreetMap **nicht findet**, werden für genau diese Anschrift
+  nicht erneut als offen gezählt; ändert sich die Anschrift (neuer Import), wird
+  sie wieder versucht. Der Info-Dialog nennt am Ende, wie viele nicht gefunden
+  wurden. Während des Laufs zeigt er außerdem die ungefähre Restdauer.
 - Zwischenstände werden **höchstens einmal pro Minute** gespeichert und auf der
-  Karte gezeigt – so bleibt die App auch mit vielen tausend Kunden flüssig.
+  Karte gezeigt – so bleibt die App auch mit vielen tausend Kunden flüssig. Der
+  Adress-Speicher selbst wird alle zehn Anfragen gesichert.
 - Eine **Lasso-Auswahl bleibt dabei stehen**; ihre Leuchtpunkte wandern an die
   neuen Positionen (bis 27.09.2026 schloss jede Zwischenstation die Liste).
 - **Während einer Live-Demo ruht die Verortung** und läuft danach weiter.
@@ -1539,6 +1551,18 @@ mitgesendet.
 - **Große Bestände und Tresor:** Nach dem Entsperren zeichnet die Karte die
   Kunden nur noch einmal (bis 27.09.2026 mehrfach – mit einigen tausend Kunden
   wirkte das Handy danach sekundenlang eingefroren).
+
+**„Bitte warten" bei großen Beständen (seit 10.10.2026):** Beim Start steht
+sofort **„TourFuchs startet – Daten werden geladen …"**, mit vielen Kunden
+**„12.500 Kunden werden geladen – bitte warten …"**. Baut die Karte nach einem
+Filter oder Moduswechsel viele Kundenpunkte neu auf, steht **„Karte wird
+aktualisiert – 7.500 von 12.500 Kunden …"**; die Punkte kommen dabei in
+Portionen, die Oberfläche bleibt bedienbar. Der Hinweis erscheint erst nach
+etwa 0,4 Sekunden – was schneller geht, blinkt nicht auf. Ein neuer Filterklick
+während des Aufbaus beendet den alten Aufbau sauber. Zugleich wurden Start und
+Filter spürbar schneller: Filterebenen ohne Abwahl werden bei der Prüfung
+übersprungen (gemessen mit 12.500 Kunden: Start blockiert 0,9 statt 2,3 s,
+Filterklick in der Gebietsplanung praktisch ohne Wartezeit).
 
 ### 8.2 Globale Suche in der Kopfleiste
 

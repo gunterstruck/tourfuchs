@@ -20,7 +20,9 @@ describe('Reaktionsfähig nach dem Entsperren', () => {
     it('misst die Popup-Abstände einmal je Durchlauf, nicht je Kunde', () => {
         const body = map.slice(map.indexOf('function drawMarkers()'), map.indexOf('// ---- Tour-Anzeige'));
         expect(body.match(/customerPopupOptions\(\)/g)).toHaveLength(1);
-        expect(body.indexOf('customerPopupOptions()')).toBeLessThan(body.indexOf('for (const customer of customersOnMap())'));
+        expect(body.indexOf('customerPopupOptions()')).toBeLessThan(body.indexOf('customersOnMap()'));
+        // Die Marker-Erzeugung bekommt die gemessenen Abstände nur übergeben.
+        expect(body).toContain('function customerMarkersFor(customers, popupOptionsForCustomers)');
     });
 
     it('sichert den Verortungsfortschritt nach Zeit, nicht alle paar Adressen', () => {
