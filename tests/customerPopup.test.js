@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { state } from '../src/core/state.js';
 import { customerPopupHtml } from '../src/features/map.js';
 import { copyCustomerNumber, customerNumberClipboardText } from '../src/features/handoff.js';
@@ -121,5 +122,21 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
             copied: true
         });
         expect(writeText).toHaveBeenCalledWith('[4711] Musterkunde GmbH');
+    });
+});
+
+describe('Zuständig und VB mit Telefonnummer', () => {
+    it('zeigt den VB-Namen lesbar und die Nummer antippbar', () => {
+        state.ui.depth = 'profi';
+        const html = customerPopupHtml(customer(14000, { vb: 'Mustermann Robin +49 (170) 4445566' }));
+        expect(html).toContain('VB: Mustermann Robin');
+        expect(html).toContain('href="tel:+491704445566"');
+        expect(html).not.toContain('VB: Mustermann Robin +49');
+    });
+
+    it('legt die Telefonnummer unter den Namen, damit der Name nicht buchstabenweise umbricht', () => {
+        const css = readFileSync('src/styles/map.css', 'utf8');
+        expect(css).toContain('.popup-team-list .popup-team-tel { grid-column: 2;');
+        expect(css).not.toMatch(/\.popup-team-name \{[^}]*anywhere/);
     });
 });
