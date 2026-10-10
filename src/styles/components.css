@@ -1284,6 +1284,10 @@
     text-align: center;
 }
 .stat b { display: block; font-size: 1.1rem; }
+/* Ergebnis der Vertriebs-Arbeitsmappe: sechs Zahlen in zwei Reihen, darunter die Hinweise. */
+#import-result-body .stat-grid:has(> .stat:nth-child(6)) { grid-template-columns: repeat(3, 1fr); }
+.import-result-notes { margin: 6px 0 0; padding-left: 18px; color: var(--color-text-muted); }
+.import-result-notes li + li { margin-top: 3px; }
 .stat span { font-size: 0.72rem; color: var(--color-text-muted); }
 
 /* Team-Filter */

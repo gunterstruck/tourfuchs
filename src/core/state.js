@@ -17,6 +17,7 @@ import { isPhoneUi } from './viewport.js';
 import { customerMatchesRevenueFilter } from './customerFilters.js';
 import { isRoleHeader, teamDimensionDefs } from '../features/responsibilities.js';
 import { promotorDimensionDefs } from '../features/customerContacts.js';
+import { salesDimensionDefs } from '../features/salesWorkbook.js';
 
 /**
  * Planungsrelevante Gebietsebenen. Der Vertriebsbezirk ist die führende Ebene,
@@ -446,7 +447,8 @@ export function setCustomers(customers, meta = {}) {
     state.extraDimensions = [
         ...inferExtraDimensions(customers),
         ...teamDimensionDefs(customers),
-        ...promotorDimensionDefs(customers)
+        ...promotorDimensionDefs(customers),
+        ...salesDimensionDefs(customers)
     ];
 
     const repNames = [...new Set(customers.map((c) => c.vb || UNASSIGNED))]

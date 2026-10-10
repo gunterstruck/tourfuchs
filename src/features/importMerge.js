@@ -99,13 +99,18 @@ export function columnsNotInFile(previous = [], { mapping = {}, headers = [] } =
  *
  * @param {object[]} previous  bisheriger Bestand (bleibt unverändert)
  * @param {object[]} incoming  frisch eingelesene Kunden
- * @param {{ mapping: object, headers: string[] }} source  Zuordnung und Überschriften der Datei
+ * @param {{ mapping: object, headers: string[], contactsFromFile?: boolean, fileProps?: string[] }} source
+ *        Zuordnung und Überschriften der Datei; `contactsFromFile`/`fileProps`: Angaben, die die
+ *        Datei auf anderem Weg vollständig liefert (Vertriebs-Arbeitsmappe)
  * @returns {{ matched: number, keptCoordinates: number }}
  */
-export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, headers = [] } = {}) {
+export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, headers = [], contactsFromFile = false, fileProps = [] } = {}) {
     const before = byKey(previous);
     const fileHeaders = new Set(headers);
-    const fileHasContacts = CONTACT_MAPPING_KEYS.some((key) => mapping[key]);
+    // Vertriebs-Arbeitsmappe: Kontakte, Opportunities und Produkte kommen aus
+    // ihren eigenen Blättern – die Datei führt dann auch dort.
+    const fileHasContacts = contactsFromFile || CONTACT_MAPPING_KEYS.some((key) => mapping[key]);
+    const ownedByFile = new Set(fileProps);
     const fileHasCoordinates = Boolean(mapping.lat && mapping.lng);
     let matched = 0;
     let keptCoordinates = 0;
@@ -162,7 +167,7 @@ export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, 
 
         // Was TourFuchs selbst am Kunden führt (z. B. Herkunft eines gesetzten Pins).
         for (const [prop, value] of Object.entries(match)) {
-            if (!FILE_PROPS.has(prop) && !prop.startsWith('_') && !(prop in customer)) customer[prop] = value;
+            if (!FILE_PROPS.has(prop) && !ownedByFile.has(prop) && !prop.startsWith('_') && !(prop in customer)) customer[prop] = value;
         }
     }
     return { matched, keptCoordinates };

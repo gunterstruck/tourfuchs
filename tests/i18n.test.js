@@ -14,8 +14,9 @@ const placeholders = (message) => [...String(message).matchAll(/\{([A-Za-z0-9_]+
 
 // 'import.wait.size' ist ein reines Format („{file} · {size}") ohne Wörter.
 const INTENTIONAL_GERMAN_EQUALS = Object.freeze({
-    fr: new Set(['customer.action.briefing', 'tour.stops.briefing', 'info.omitted.version26', 'import.wait.size']),
-    es: new Set(['customer.demoBadge', 'customer.action.briefing', 'tour.stops.briefing', 'import.wait.size'])
+    // 'customer.crm.label' ist der Produktname „SieSales"; „Phase {phase}" heißt auf Französisch genauso.
+    fr: new Set(['customer.action.briefing', 'tour.stops.briefing', 'info.omitted.version26', 'import.wait.size', 'customer.crm.label', 'customer.opps.phase']),
+    es: new Set(['customer.demoBadge', 'customer.action.briefing', 'tour.stops.briefing', 'import.wait.size', 'customer.crm.label'])
 });
 
 describe('Übersetzungskatalog', () => {

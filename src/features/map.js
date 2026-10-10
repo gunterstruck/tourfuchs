@@ -11,6 +11,7 @@ import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
 import { customerResponsibilities, splitContactText } from './responsibilities.js';
 import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
+import { crmLink, customerOpps, customerProducts, handover, productMix, safeLink } from './salesWorkbook.js';
 import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
@@ -1879,7 +1880,11 @@ function responsibilitiesBlockHtml(customer) {
     const { roles, account, badges } = customerResponsibilities(customer);
     const { promotors, customerContacts } = customerContactGroups(customer);
     const withContacts = showsCustomerContacts(customerContacts);
-    const badgeHtml = badges.map((badge) => `<span class="popup-team-badge">${escapeHtml(badge)}</span>`).join('');
+    const transfer = handover(customer);
+    const transferHtml = transfer
+        ? `<span class="popup-team-badge popup-badge-handover" title="${escapeHtml(t('customer.handover.title', { from: transfer.from, to: transfer.to || '–' }))}">🔁 ${escapeHtml(t('customer.handover.badge', { from: transfer.from }))}</span>`
+        : '';
+    const badgeHtml = transferHtml + badges.map((badge) => `<span class="popup-team-badge">${escapeHtml(badge)}</span>`).join('');
     const accountHtml = account ? `<span class="popup-team-account">${escapeHtml(account)}</span>` : '';
     const head = badgeHtml || accountHtml ? `<p class="popup-team-head">${badgeHtml}${accountHtml}</p>` : '';
     const sections = [];
@@ -1898,7 +1903,16 @@ function responsibilitiesBlockHtml(customer) {
     }
     if (withContacts) {
         sections.push({ id: 'contacts', icon: '🤝', label: t('customer.contacts.title'), count: customerContacts.length,
-            body: personListHtml(customerContacts, (person) => [person.abteilung, person.primary ? t('customer.contacts.primary') : ''].filter(Boolean).join(' · ')) });
+            body: personListHtml(customerContacts, (person) => [person.abteilung, person.funktion, person.primary ? t('customer.contacts.primary') : ''].filter(Boolean).join(' · ')) });
+    }
+    const opps = customerOpps(customer);
+    if (opps.open.length || opps.closed.length) {
+        sections.push({ id: 'opps', icon: '💼', label: t('customer.opps.title'), count: opps.open.length, body: oppsPanelHtml(opps) });
+    }
+    const products = customerProducts(customer);
+    const mix = productMix(customer);
+    if (products.length || mix.length) {
+        sections.push({ id: 'products', icon: '📦', label: t('customer.products.title'), count: products.length || mix.length, body: productsPanelHtml(products, mix) });
     }
     if (!sections.length) return head;
     // Knopfzeile nebeneinander, darunter genau ein aufgeklapptes Feld.
@@ -1907,18 +1921,76 @@ function responsibilitiesBlockHtml(customer) {
     return `${head}<div class="popup-people"><div class="popup-chips">${chips}</div>${panels}</div>`;
 }
 
-/** Personen mit Zusatzzeile (Thema bzw. Abteilung), Telefon und E-Mail antippbar. */
+/**
+ * Personen mit Zusatzzeile (Thema bzw. Abteilung), Telefon und E-Mail
+ * antippbar. Sperrvermerke aus dem CRM gelten: „Nicht anrufen" zeigt keinen
+ * Anruf-Link, Werbesperre E-Mail/Opt-out keinen E-Mail-Link – stattdessen
+ * steht der Vermerk da.
+ */
 function personListHtml(people, detailOf) {
     const rows = people.map((person) => {
         const name = person.name || person.email || person.phone || '–';
         const detail = detailOf(person);
+        const call = (tel, phone) => `<a class="popup-team-tel" href="tel:${escapeHtml(tel)}" title="${escapeHtml(t('customer.contacts.call', { name }))}">📞 ${escapeHtml(phone)}</a>`;
         const links = [
-            person.tel ? `<a class="popup-team-tel" href="tel:${escapeHtml(person.tel)}" title="${escapeHtml(t('customer.contacts.call', { name }))}">📞 ${escapeHtml(person.phone)}</a>` : '',
-            person.email ? `<a class="popup-team-tel" href="mailto:${escapeHtml(person.email)}" title="${escapeHtml(t('customer.contacts.mail', { name }))}">✉️ ${escapeHtml(person.email)}</a>` : ''
+            person.tel && !person.noCall ? call(person.tel, person.phone) : '',
+            person.mobileTel && !person.noCall ? call(person.mobileTel, person.mobile) : '',
+            person.email && !person.noEmail ? `<a class="popup-team-tel" href="mailto:${escapeHtml(person.email)}" title="${escapeHtml(t('customer.contacts.mail', { name }))}">✉️ ${escapeHtml(person.email)}</a>` : '',
+            person.crm && safeLink(person.crm) ? `<a class="popup-team-tel" href="${escapeHtml(person.crm)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(t('customer.crm.open'))}">↗</a>` : ''
         ].filter(Boolean).join('');
-        return `<li><span class="popup-person-name">${escapeHtml(name)}</span>${detail ? `<span class="popup-person-detail">${escapeHtml(detail)}</span>` : ''}${links ? `<span class="popup-person-links">${links}</span>` : ''}</li>`;
+        const flags = [
+            person.doi ? `<span class="popup-flag is-ok" title="${escapeHtml(t('customer.contacts.doiTitle'))}">✓ DOI</span>` : '',
+            person.noCall && (person.tel || person.mobileTel) ? `<span class="popup-flag is-stop">⛔ ${escapeHtml(t('customer.contacts.noCall'))}</span>` : '',
+            person.noEmail && person.email ? `<span class="popup-flag is-stop">⛔ ${escapeHtml(t(person.optOut ? 'customer.contacts.optOut' : 'customer.contacts.noEmail'))}</span>` : ''
+        ].filter(Boolean).join('');
+        return `<li><span class="popup-person-name">${escapeHtml(name)}${flags ? ` <span class="popup-flags">${flags}</span>` : ''}</span>${detail ? `<span class="popup-person-detail">${escapeHtml(detail)}</span>` : ''}${links ? `<span class="popup-person-links">${links}</span>` : ''}</li>`;
     }).join('');
     return `<ul class="popup-person-list">${rows}</ul>`;
+}
+
+/** Offene Opportunities mit Phase, Abschluss, Betrag und Verantwortlichem; Abgeschlossene nur gezählt. */
+function oppsPanelHtml({ open, closed, openAmount }) {
+    const locale = currentLocale();
+    const rows = open.slice(0, 8).map((opp) => {
+        const meta = [
+            opp.phase ? t('customer.opps.phase', { phase: opp.phase }) : '',
+            opp.close ? t('customer.opps.close', { date: formatMonth(opp.close, locale) }) : '',
+            opp.amount ? formatRevenueShort(opp.amount, locale) : '',
+            opp.owner
+        ].filter(Boolean).join(' · ');
+        return `<li><span class="popup-person-name">${escapeHtml(opp.name)}</span>${meta ? `<span class="popup-person-detail">${escapeHtml(meta)}</span>` : ''}</li>`;
+    }).join('');
+    const summary = open.length
+        ? `<p class="muted small popup-panel-sum">${escapeHtml(t('customer.opps.sum', { count: open.length, amount: formatRevenueShort(openAmount, locale) }))}</p>`
+        : `<p class="muted small popup-panel-sum">${escapeHtml(t('customer.opps.noneOpen'))}</p>`;
+    const more = open.length > 8 ? `<p class="muted small">${escapeHtml(t('customer.more', { count: open.length - 8 }))}</p>` : '';
+    const closedLine = closed.length ? `<p class="muted small">${escapeHtml(t('customer.opps.closed', { count: closed.length }))}</p>` : '';
+    return `${summary}${rows ? `<ul class="popup-person-list">${rows}</ul>` : ''}${more}${closedLine}`;
+}
+
+/** Produktmix als Balken, darunter die Produktklassen mit dem größten Auftragseingang. */
+function productsPanelHtml(products, mix) {
+    const locale = currentLocale();
+    const bar = mix.length
+        ? `<div class="popup-mix" role="img" aria-label="${escapeHtml(mix.map((m) => `${m.label} ${Math.round(m.share * 100)} %`).join(', '))}">${mix.map((m, i) => `<span class="popup-mix-part mix-${i}" style="flex:${Math.max(0.02, m.share)}" title="${escapeHtml(`${m.label} ${Math.round(m.share * 100)} %`)}"></span>`).join('')}</div>
+           <p class="popup-mix-legend small">${mix.slice(0, 4).map((m, i) => `<span><i class="mix-${i}"></i>${escapeHtml(m.label)} ${Math.round(m.share * 100)} %</span>`).join('')}</p>`
+        : '';
+    const rows = products.slice(0, 8).map((p) => {
+        const years = Object.entries(p.jahre || {})
+            .filter(([, value]) => value)
+            .map(([year, value]) => `${String(year).slice(-2)}: ${formatRevenueShort(value, locale)}`).join(' · ');
+        return `<li><span class="popup-product-name">${escapeHtml(p.beschreibung || p.pck)}${p.pck && p.beschreibung ? ` <small class="muted">${escapeHtml(p.pck)}</small>` : ''}</span><b>${escapeHtml(formatRevenueShort(p.summe || 0, locale))}</b>${years ? `<span class="popup-person-detail">${escapeHtml(`GJ ${years}`)}</span>` : ''}</li>`;
+    }).join('');
+    const more = products.length > 8 ? `<p class="muted small">${escapeHtml(t('customer.more', { count: products.length - 8 }))}</p>` : '';
+    const head = products.length ? `<p class="muted small popup-panel-sum">${escapeHtml(t('customer.products.sum'))}</p>` : '';
+    return `${bar}${head}${rows ? `<ul class="popup-product-list">${rows}</ul>` : ''}${more}`;
+}
+
+/** „2027-03-31" → „03/2027". */
+function formatMonth(iso, locale) {
+    const m = /^(\d{4})-(\d{2})/.exec(String(iso || ''));
+    if (!m) return String(iso || '');
+    return new Date(Number(m[1]), Number(m[2]) - 1, 1).toLocaleDateString(locale, { month: '2-digit', year: 'numeric' });
 }
 
 /** Umsatz nach Geschäftsjahr: GJ26, GJ25 … mit Veränderung zum Vorjahr. */
@@ -2071,6 +2143,11 @@ export function customerPopupHtml(customer) {
     const nr = profi && clipboardNumber
         ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number', { number: customer.nummer }))}</span></button>`
         : '';
+    // Eigenes CRM (SieSales) – öffnet nur den Link im Browser, TourFuchs überträgt nichts.
+    const crm = crmLink(customer);
+    const crmHtml = crm
+        ? `<a class="popup-nr popup-crm" href="${escapeHtml(crm)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(t('customer.crm.open'))}">↗ ${escapeHtml(t('customer.crm.label'))}</a>`
+        : '';
     const demoBadge = isDemoCustomer(customer)
         ? `<span class="popup-demo-badge">${escapeHtml(t('customer.demoBadge'))}</span>`
         : '';
@@ -2078,7 +2155,7 @@ export function customerPopupHtml(customer) {
         ? t('customer.geo.postalApprox')
         : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
     return `<div class="popup popup-customer">
-        <h3>${escapeHtml(customer.name)}${demoBadge}${nr}</h3>
+        <h3>${escapeHtml(customer.name)}${demoBadge}${nr}${crmHtml}</h3>
         ${addr ? `<p class="popup-addr">${addr}${geoNote ? ` <span class="muted small popup-geo-note">${escapeHtml(geoNote)}</span>` : ''}</p>` : ''}
         ${revenueHtml}
         ${profi && assignment ? `<p class="muted small popup-meta">${assignment}</p>` : ''}
