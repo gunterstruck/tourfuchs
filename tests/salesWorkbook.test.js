@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import * as XLSX from 'xlsx';
+import { readFileSync } from 'node:fs';
 import { parseRows, readWorkbook } from '../src/services/excel.js';
 import {
     SALES_SHEETS, customerOpps, customerProducts, enrichSalesCustomers, fileOverviewCheck, flag, handover,
-    isSalesWorkbook, prepareMainRows, productMix, salesBriefingLines, salesDimensionDefs, salesMainMapping, share
+    handoverRows, handoverSummary, isSalesWorkbook, prepareMainRows, productMix, salesBriefingLines, salesDimensionDefs, salesMainMapping, share
 } from '../src/features/salesWorkbook.js';
 import { mergeWithPrevious } from '../src/features/importMerge.js';
 import { customerPopupHtml } from '../src/features/map.js';
@@ -156,7 +157,7 @@ describe('Vertriebs-Arbeitsmappe erkennen und einlesen', () => {
     it('bietet Filter nach Opportunity, Phase und Produkt', () => {
         const { customers } = importWorkbook();
         const defs = salesDimensionDefs(customers);
-        expect(defs.map((d) => d.label)).toEqual(['Opportunity', 'Opportunity-Phase', 'Produkt (PCK)']);
+        expect(defs.map((d) => d.label)).toEqual(['Opportunity', 'Opportunity-Phase', 'Übergabe', 'Übergabe von (VB alt)', 'Produkt (PCK)']);
         expect(defs[0].values(customers[0])).toEqual(['mit offener Opportunity']);
         expect(defs[0].values(customers[1])).toEqual(['ohne offene Opportunity']);
         expect(defs[1].values(customers[0])).toEqual(['Phase 3', 'Phase 1']);
@@ -222,5 +223,51 @@ describe('Erneuter Import der Arbeitsmappe', () => {
         mergeWithPrevious(before, next.customers, { mapping: next.mapping, headers: MAIN, contactsFromFile: true, fileProps: ['opps', 'produkte'] });
         expect(next.customers[0].contacts || []).toHaveLength(0);
         expect(next.customers[0].opps).toBeUndefined();
+    });
+});
+
+describe('Übergaben (16.5)', () => {
+    const withHandovers = () => {
+        const { customers } = importWorkbook();
+        // Ein zweiter Kunde von Bernd an Carla, einer ohne Übergabe bleibt Süd.
+        const extra = { ...customers[1], id: 'k-x', nummer: '0100', name: 'West KG', vb: 'Carla Neu', umsatz: 50000,
+            extra: { ...customers[1].extra, 'Übergabe notwendig': 'X', 'VB (Alt)': 'Bernd Alt', 'VBEZ (Alt)': 'VBEZ 11' } };
+        return [customers[0], extra, customers[1]];
+    };
+
+    it('Übergabeliste: je Kunde, sortiert nach VB alt, VB neu, Umsatz', () => {
+        const rows = handoverRows(withHandovers());
+        expect(rows.map((r) => [r['VB (Alt)'], r['VB (Neu)'], r.Accountname])).toEqual([
+            ['Bernd Alt', 'Anna Neu', 'Nord GmbH & Co.'],
+            ['Bernd Alt', 'Carla Neu', 'West KG']
+        ]);
+        expect(rows[0]).toMatchObject({ Debitor: '0042', IFA: '000123', 'Umsatz (jüngstes GJ)': 990000, 'Offene Opportunities': 2, 'Erwarteter AE offen': 150000, Kontakte: 2 });
+        // Ein unsicherer Link wird nicht in die Liste geschrieben.
+        expect(rows[0]['SieSales Link']).toBe('');
+    });
+
+    it('Übersicht je VB-Paar', () => {
+        expect(handoverSummary(withHandovers())).toEqual([
+            { 'VB (Alt)': 'Bernd Alt', 'VB (Neu)': 'Anna Neu', Kunden: 1, 'Umsatz (jüngstes GJ)': 990000, 'Offene Opportunities': 2, 'Erwarteter AE offen': 150000 },
+            { 'VB (Alt)': 'Bernd Alt', 'VB (Neu)': 'Carla Neu', Kunden: 1, 'Umsatz (jüngstes GJ)': 50000, 'Offene Opportunities': 0, 'Erwarteter AE offen': 0 }
+        ]);
+    });
+
+    it('Filter „Übergabe" und „Übergabe von (VB alt)"', () => {
+        const list = withHandovers();
+        const defs = salesDimensionDefs(list);
+        const byId = Object.fromEntries(defs.map((d) => [d.id, d]));
+        expect(byId.uebergabe.values(list[0])).toEqual(['mit Übergabe']);
+        expect(byId.uebergabe.values(list[2])).toEqual(['ohne Übergabe']);
+        expect(byId['uebergabe-von'].values(list[1])).toEqual(['Bernd Alt']);
+    });
+
+    it('Marker zeigen die Übergabe, Daten-Reiter bietet die Liste an', () => {
+        const map = readFileSync('src/features/map.js', 'utf8');
+        expect(map).toContain("${transfer ? ' has-handover' : ''}");
+        expect(readFileSync('src/styles/map.css', 'utf8')).toContain('.customer-marker-card.has-handover');
+        expect(readFileSync('index.html', 'utf8')).toContain('id="btn-export-handover"');
+        expect(readFileSync('src/ui/sidebar.js', 'utf8')).toContain('exportHandovers(visibleCustomers())');
+        for (const locale of ['de', 'en', 'fr', 'es']) expect(MESSAGES[locale]['export.handover'], locale).toBeTruthy();
     });
 });

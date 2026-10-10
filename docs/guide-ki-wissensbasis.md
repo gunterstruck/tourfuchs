@@ -1835,6 +1835,18 @@ erscheinen nur, wenn es dazu Daten gibt.
   der Mappe wird nie von selbst Hauptansprechpartner.
 - **"🔁 Übergabe von …"** als Abzeichen, wenn "Übergabe notwendig" gesetzt ist
   und der VB gewechselt hat (Tooltip: von wem an wen).
+- **Übergaben auf der Karte (seit 10.10.2026, 16.5):** Kundenmarker mit
+  Übergabe tragen einen **gestrichelten violetten Rahmen** und in der Markerzeile
+  **"🔁 Übergabe von …"** (Violett, weil Orange/Rot den fälligen Besuchen
+  gehören; ein Kunde in der Tour behält den Tour-Rahmen). Filter **"Übergabe"**
+  (mit/ohne) und **"Übergabe von (VB alt)"**: "Welche Kunden übernehme ich?" =
+  Übergabe "mit" plus eigener Bezirk; "Wen gebe ich ab?" = "Übergabe von".
+- **"🔁 Übergabeliste (Excel)"** im Reiter **"Daten"** (nur sichtbar, wenn es
+  Übergaben gibt): folgt den aktiven Filtern. Blatt **"Übergaben"** je Kunde (VB
+  alt/neu, VBEZ alt/neu, Debitor, IFA, Accountname, Anschrift, Umsatz jüngstes
+  GJ, offene Opportunities mit erwartetem AE, Kontakte, SieSales Link), sortiert
+  nach VB alt → VB neu → Umsatz; Blatt **"Übersicht je VB"** je Paar VB alt → neu
+  mit Kunden, Umsatz und offenen Opportunities.
 - **"↗ SieSales"** neben der Kundennummer öffnet den CRM-Link der Zeile in einem
   neuen Tab (nur http/https).
 

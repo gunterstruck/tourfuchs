@@ -282,6 +282,9 @@ body.place-picker-active #map .leaflet-overlay-pane path { pointer-events: none 
 .customer-marker-wrapper:focus .customer-marker-card,
 .customer-marker-card.is-opening { z-index: 1000; transform: translateY(-2px) scale(1.06); }
 .customer-marker-card.approx .customer-marker-symbol { outline: 1px dashed #fff; outline-offset: -3px; opacity: 0.92; }
+/* Übergabe (Release 16.5): gestrichelter Rahmen in Violett – Orange/Rot gehören
+   schon den fälligen Besuchen. „In Tour" (unten) hat Vorrang. */
+.customer-marker-card.has-handover { outline: 2px dashed #7c3aed; outline-offset: 2px; }
 .customer-marker-card.in-tour { outline: 3px solid #0d9488; outline-offset: 2px; }
 .customer-marker-card.visit-due {
     box-shadow: 0 0 0 2px #fff, 0 0 0 4px #f59e0b, 0 1px 4px rgba(0, 0, 0, 0.36);

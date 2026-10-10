@@ -1747,11 +1747,14 @@ function customerIcon(customer) {
         ? t(openVisits === 1 ? 'customer.service.openJob' : 'customer.service.openJobs', { count: openVisits })
         : (customer.rhythmusWochen ? customerStatusLabel(status) : '');
     const address = customerMarkerAddress(customer);
-    const detail = [address, context].filter(Boolean).join(' · ');
+    // Übergabe (Release 16.5): auf der Karte erkennbar, ohne die Kachel zu öffnen.
+    const transfer = state.ui.mode === 'service' ? null : handover(customer);
+    const transferText = transfer ? `🔁 ${t('customer.handover.badge', { from: transfer.from })}` : '';
+    const detail = [transferText, address, context].filter(Boolean).join(' · ');
     const label = customerMarkerLabel(customer.name, { demo: isDemoCustomer(customer) });
     return L.divIcon({
         className: 'customer-marker-wrapper',
-        html: `<div class="customer-marker-card${customer.geo === 'plz' ? ' approx' : ''}${inTour ? ' in-tour' : ''}${visitAccent}" style="--marker-color:${color}" title="${escapeHtml([label, address].filter(Boolean).join(' · '))}" aria-hidden="true">
+        html: `<div class="customer-marker-card${customer.geo === 'plz' ? ' approx' : ''}${transfer ? ' has-handover' : ''}${inTour ? ' in-tour' : ''}${visitAccent}" style="--marker-color:${color}" title="${escapeHtml([label, address].filter(Boolean).join(' · '))}" aria-hidden="true">
             <span class="customer-marker-accent"></span>
             <span class="customer-marker-symbol"></span>
             <span class="customer-marker-copy">
