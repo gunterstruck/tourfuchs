@@ -13,6 +13,7 @@ import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
 import { responsibilityBriefingLines } from './responsibilities.js';
 import { contactBriefingLines } from './customerContacts.js';
 import { revenueBriefingLine } from './revenueYears.js';
+import { salesBriefingLines } from './salesWorkbook.js';
 import { formatRevenueShort } from '../core/format.js';
 
 const DEFAULT_SOURCE_INSTRUCTION = 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
@@ -90,6 +91,9 @@ function focusHints(customer, plan) {
     if (contactBriefingLines(customer).some((line) => line.startsWith('- Promotoren:'))) {
         hints.push('Die genannten Promotoren betreuen den Kunden zu ihrem Thema: Prüfe, ob es zu diesen Themen aktuelle Anlässe, Aktionen oder offene Punkte gibt, und nenne den passenden Promotor dazu.');
     }
+    if (plan.some((line) => line.startsWith('- Offene Opportunities:'))) {
+        hints.push('Prüfe zu den offenen Opportunities den letzten Stand in Mails, Terminen und Chats: Was ist der nächste Schritt, und wartet jemand auf eine Antwort von mir?');
+    }
     if (plan.some((line) => line.startsWith('- Umsatz nach Geschäftsjahr:'))) {
         hints.push('Berücksichtige die Umsatzentwicklung bei Chance und Risiko; wiederhole die Zahlen nicht, sondern ordne sie ein.');
     }
@@ -105,7 +109,13 @@ export function buildCustomerBriefingPrompt(customer, context = {}, assistant = 
     // weiß besser als der Assistent, wo das Aktuelle liegt.
     const ownSources = briefingSourcesPromptBlock(sources);
     const identifiers = identityLines(customer);
-    const plan = [...tourLines(context), ...revenueLines(customer, context.today || new Date())];
+    const plan = [
+        ...tourLines(context),
+        ...revenueLines(customer, context.today || new Date()),
+        // Offene Opportunities (Name, Phase, Abschluss) und Produktklassen –
+        // ohne Beträge, Wettbewerber und Beschreibungstexte.
+        ...salesBriefingLines(customer)
+    ];
     const localContext = plan.length
         ? `\nTourFuchs-Kontext:\n${plan.join('\n')}\n`
         : '';

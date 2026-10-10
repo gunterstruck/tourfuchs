@@ -6,6 +6,7 @@
 
 import * as XLSX from 'xlsx';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
+import { SALES_SHEETS, SALES_SIDE_SHEETS, isSalesWorkbook } from '../features/salesWorkbook.js';
 import { loadDemoStreets, loadPlzCentroids, loadPlzPlaces } from './geocode.js';
 import {
     DEMO_DATA_LABEL,
@@ -367,6 +368,28 @@ export async function readWorkbook(file, { sheet = null, headerRow = null, onPha
     const named = sheet ? pool.filter((s) => s.name === sheet) : [];
     const candidates = named.length ? named : pool;
 
+    // Vertriebs-Arbeitsmappe (VBEZ Übersicht, Kontakte, Opps …): alle Blätter
+    // in einem Zug, Überschrift jeweils in Zeile 1 – ohne Zuordnungsdialog.
+    if (!isCsv && !sheet && isSalesWorkbook(infos.map((s) => s.name))) {
+        const read = (name) => (infos.some((s) => s.name === name) ? tableFromSheet(loadSheet(name), 1) : { headers: [], rows: [] });
+        const main = read(SALES_SHEETS.main);
+        const sideSheets = {};
+        for (const name of SALES_SIDE_SHEETS) sideSheets[name] = read(name).rows;
+        return {
+            headers: main.headers,
+            rows: main.rows,
+            sheetName: SALES_SHEETS.main,
+            sheetNames: infos.filter((s) => !s.hidden).map((s) => s.name),
+            hiddenSheetNames: infos.filter((s) => s.hidden).map((s) => s.name),
+            headerRow: 1,
+            autoHeaderRow: 1,
+            headerConfident: true,
+            headerOptions: main.headerOptions || [],
+            workbookKind: 'sales',
+            sideSheets
+        };
+    }
+
     let table = null;
     let chosen = null;
     // Eine von Hand gesetzte Überschriftenzeile gilt für das erste Blatt der
@@ -652,7 +675,9 @@ function syncPrimaryContact(customer) {
         return customer;
     }
     // Hauptansprechpartner ist immer ein Kontakt des Kunden – nie ein Promotor.
-    const candidates = contacts.filter((c) => c.art !== 'promotor');
+    // Kontakte aus der Vertriebs-Arbeitsmappe werden nie von selbst Hauptkontakt:
+    // Sie können „Nicht anrufen" tragen, der Hauptkontakt bekäme „Anrufen".
+    const candidates = contacts.filter((c) => c.art !== 'promotor' && (c.quelle !== 'arbeitsmappe' || c.primary));
     const primary = candidates.find((c) => c.primary) || candidates.find((c) => c.name) || candidates[0] || null;
     // Genau ein Hauptkontakt – über das Objekt, nicht über die ID: Ältere
     // Bestände können doppelte IDs tragen. Doppelte IDs werden dabei eindeutig.

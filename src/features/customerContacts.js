@@ -18,11 +18,21 @@ function contactView(contact) {
     return {
         name: text(contact.name),
         abteilung: text(contact.abteilung),
+        funktion: text(contact.funktion),
         thema: text(contact.thema),
         phone: text(contact.telefon),
         tel: telOf(contact.telefon),
+        mobile: text(contact.mobil),
+        mobileTel: telOf(contact.mobil),
         email: text(contact.email),
-        primary: !!contact.primary
+        crm: text(contact.crm),
+        primary: !!contact.primary,
+        // Sperrvermerke aus dem CRM (Vertriebs-Arbeitsmappe): Die Kachel bietet
+        // gesperrte Wege gar nicht erst an.
+        doi: !!contact.doi,
+        noCall: !!contact.nichtAnrufen,
+        noEmail: !!(contact.sperreEmail || contact.optOut),
+        optOut: !!contact.optOut
     };
 }
 
@@ -31,8 +41,11 @@ export function customerContactGroups(customer) {
     const contacts = (Array.isArray(customer?.contacts) ? customer.contacts : []).filter(Boolean);
     const promotors = contacts.filter((contact) => contact.art === 'promotor').map(contactView);
     const customerContacts = contacts.filter((contact) => contact.art !== 'promotor').map(contactView)
-        // Hauptansprechpartner zuerst.
-        .sort((a, b) => Number(b.primary) - Number(a.primary));
+        // Hauptansprechpartner zuerst, dann wer ohne Sperre erreichbar ist, dann nach Name.
+        .sort((a, b) => Number(b.primary) - Number(a.primary)
+            || Number(a.noCall && a.noEmail) - Number(b.noCall && b.noEmail)
+            || Number(b.doi) - Number(a.doi)
+            || a.name.localeCompare(b.name, 'de'));
     return { promotors, customerContacts };
 }
 
@@ -99,7 +112,10 @@ export function contactBriefingLines(customer) {
     const describe = (contact, detail) => (detail ? `${contact.name} (${detail})` : contact.name);
     const others = customerContacts
         .filter((contact) => contact.name && !(contact.primary && text(customer?.ansprechpartner) === contact.name && !contact.abteilung))
-        .map((contact) => describe(contact, contact.abteilung));
+        // Kontakte mit Sperrvermerk (Opt-out, Werbesperre, nicht anrufen) nennt das Briefing nicht.
+        .filter((contact) => !contact.optOut && !contact.noEmail && !contact.noCall)
+        .slice(0, 8)
+        .map((contact) => describe(contact, contact.abteilung || contact.funktion));
     if (others.length) lines.push(`- Ansprechpartner beim Kunden: ${others.join('; ')}`);
     const named = promotors.filter((p) => p.name).map((p) => describe(p, p.thema));
     if (named.length) lines.push(`- Promotoren: ${named.join('; ')}`);

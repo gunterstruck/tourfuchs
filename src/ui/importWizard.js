@@ -50,6 +50,7 @@ import { resolveAssistant } from '../services/assistant.js';
 import { assistantChooserHtml, launchAssistant, wireAssistantChooser } from './briefingAssistant.js';
 import { currentLocale, t } from '../core/i18n.js';
 import { readWorkbookInBackground } from '../services/workbookReader.js';
+import { SALES_SHEETS, enrichSalesCustomers, fileOverviewCheck, prepareMainRows, salesMainMapping } from '../features/salesWorkbook.js';
 import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
 import {
     LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatElapsed, formatFileSize, noteImportInFlight, takeInterruptedImport
@@ -476,6 +477,11 @@ async function handleFile(file) {
         // Die Datei bleibt greifbar: Blatt und Überschriftenzeile lassen sich im
         // Zuordnungsschritt umstellen, ohne die Datei erneut auszuwählen.
         parsed = { ...workbook, fileName: file.name, file };
+        if (workbook.workbookKind === 'sales') {
+            ownDataDialog?.close();
+            await importSalesWorkbook();
+            return;
+        }
         await showMappingStep();
     } catch (error) {
         if (error.name === 'AbortError') return;
@@ -820,9 +826,47 @@ async function confirmImport() {
         showToast(t('import.validationLocation'), 'error');
         return;
     }
+    await runImport(mapping);
+}
 
+/**
+ * Vertriebs-Arbeitsmappe (Release 16): fünf Blätter, feste Spalten – kein
+ * Zuordnungsdialog. Danach derselbe Weg wie jeder Import (Abgleich,
+ * Änderungsbericht), am Ende ein Ergebnisfenster mit Zahlen und Hinweisen.
+ */
+async function importSalesWorkbook() {
+    const mapping = salesMainMapping(parsed.headers || []);
+    if (!mapping.name || !mapping.plz) {
+        // Hauptblatt ohne erwartete Spalten: lieber von Hand zuordnen lassen.
+        await showMappingStep();
+        return;
+    }
+    const prepared = prepareMainRows(parsed.rows);
+    parsed = { ...parsed, rows: prepared.rows };
+    await runImport(mapping, { sales: prepared });
+}
+
+async function runImport(mapping, { sales = null } = {}) {
     const { parseRows, attachContacts } = await excel();
     const { customers, areaRows, contactRows, errors, skipped } = parseRows(parsed.rows, mapping);
+    let salesStats = null;
+    if (sales) {
+        salesStats = enrichSalesCustomers(customers, parsed.sideSheets || {});
+        const note = (grund) => errors.push({ Zeile: '—', Typ: 'Hinweis', Grund: grund });
+        if (sales.replaced) note(`${sales.replaced} Debitor(en) kamen mehrfach vor – jeweils die spätere Zeile gilt.`);
+        if (sales.withoutKey) note(`${sales.withoutKey} Zeile(n) ohne Debitor – zugeordnet über Name und PLZ.`);
+        const { unmatched } = salesStats;
+        if (unmatched.contacts) note(`${unmatched.contacts} Kontakt(e) mit einer IFA, die in „VBEZ Übersicht" fehlt – nicht übernommen.`);
+        if (unmatched.opps) note(`${unmatched.opps} Opportunity(s) mit einer IFA, die in „VBEZ Übersicht" fehlt – nicht übernommen.`);
+        if (unmatched.products) note(`${unmatched.products} Produktzeile(n) mit einer IFA, die in „VBEZ Übersicht" fehlt – nicht übernommen.`);
+        const side = parsed.sideSheets || {};
+        for (const grund of fileOverviewCheck(side[SALES_SHEETS.files] || [], {
+            [SALES_SHEETS.main]: sales.rows.length + sales.replaced,
+            [SALES_SHEETS.products]: (side[SALES_SHEETS.products] || []).length,
+            [SALES_SHEETS.contacts]: (side[SALES_SHEETS.contacts] || []).length,
+            [SALES_SHEETS.opps]: (side[SALES_SHEETS.opps] || []).length
+        })) note(grund);
+    }
 
     lastFileBase = (parsed.fileName || 'TourFuchs').replace(/\.[^.]+$/, '');
 
@@ -859,7 +903,12 @@ async function confirmImport() {
     // Verortung, Zuständigkeiten aus einer anderen Liste …), bleibt erhalten.
     let abgleich = null;
     if (customers.length > 0 && !replacingDemoOnly && state.customers.length > 0 && !isDemoDataset(state.customers)) {
-        const source = { mapping, headers: parsed.headers || Object.keys(parsed.rows?.[0] || {}) };
+        const source = {
+            mapping,
+            headers: parsed.headers || Object.keys(parsed.rows?.[0] || {}),
+            contactsFromFile: Boolean(sales),
+            fileProps: sales ? ['opps', 'produkte'] : []
+        };
         const carriedColumns = columnsNotInFile(state.customers, source);
         mergeWithPrevious(state.customers, customers, source);
         // Kennt die Datei Angaben des Bestands nicht, ist sie eine zweite,
@@ -931,10 +980,9 @@ async function confirmImport() {
     lastErrors = errors;
     // Ohne dauerhafte Speicherung wäre „importiert" eine halbe Wahrheit – die
     // Erfolgsmeldung entfällt dann, der Grund steht bereits als Fehler da.
-    if (persisted) {
-        showImportResult({ customerCount: customers.length - keptMissing.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
-    } else if (errors.some((e) => e.Typ === 'Fehler')) {
-        showImportResult({ customerCount: customers.length - keptMissing.length, contactCount: contactRows.length, areaCount, skipped, errors, replacedExisting });
+    const contactCount = salesStats ? salesStats.contacts : contactRows.length;
+    if (persisted || errors.some((e) => e.Typ === 'Fehler')) {
+        showImportResult({ customerCount: customers.length - keptMissing.length, contactCount, areaCount, skipped, errors, replacedExisting, workbook: salesStats });
     }
 
     // Eigene Kundendaten importiert -> erst den Befund zeigen, dann zum
@@ -1052,10 +1100,34 @@ function syncImportNotesButton() {
  * Daten-Tab herunterladbar, und der Befund („Das sagt Ihre Liste") sagt
  * dasselbe ohnehin besser.
  */
-function showImportResult({ customerCount, contactCount = 0, areaCount, skipped, errors, replacedExisting = false }) {
+function showImportResult({ customerCount, contactCount = 0, areaCount, skipped, errors, replacedExisting = false, workbook = null }) {
     const fehler = errors.filter((e) => e.Typ === 'Fehler').length;
     const hinweise = errors.filter((e) => e.Typ === 'Hinweis').length;
     syncImportNotesButton();
+    const title = resultDialog?.querySelector('h2');
+    if (title) title.textContent = t(workbook ? 'import.workbookTitle' : 'import.incompleteDialogTitle');
+
+    // Vertriebs-Arbeitsmappe: immer ein Fenster mit allen Zahlen – fünf Blätter
+    // in einem Zug verdienen eine Quittung, nicht nur einen Toast.
+    if (workbook) {
+        const stat = (count, key) => `<div class="stat"><b>${Number(count || 0).toLocaleString(currentLocale())}</b><span>${escapeHtml(t(key))}</span></div>`;
+        const notes = errors.filter((e) => e.Typ === 'Hinweis' || e.Typ === 'Fehler').slice(0, 8)
+            .map((e) => `<li>${escapeHtml(String(e.Grund || ''))}</li>`).join('');
+        document.getElementById('import-result-body').innerHTML = `
+            <div class="stat-grid">
+                ${stat(customerCount, 'import.statCustomers')}
+                ${stat(contactCount, 'import.statContacts')}
+                ${stat(workbook.opps, 'import.statOpps')}
+                ${stat(workbook.products, 'import.statProducts')}
+                ${stat(fehler, 'import.statErrors')}
+                ${stat(hinweise, 'import.statNotes')}
+            </div>
+            ${notes ? `<ul class="import-result-notes small">${notes}</ul>` : ''}
+            ${replacedExisting ? `<p class="muted small">${escapeHtml(t('import.replaced').trim())}</p>` : ''}
+        `;
+        resultDialog.showModal();
+        return;
+    }
 
     if (fehler === 0) {
         const parts = [];

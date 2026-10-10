@@ -45,6 +45,10 @@ export function readWorkbookInBackground(file, options = {}, { signal, onPhase }
                     if (data.type === 'phase') onPhase?.(data.phase);
                     else if (data.type === 'metadata') result = { ...data.metadata, rows: [] };
                     else if (data.type === 'rows') result.rows.push(...data.rows);
+                    else if (data.type === 'side') {
+                        result.sideSheets ||= {};
+                        (result.sideSheets[data.sheet] ||= []).push(...data.rows);
+                    }
                     else if (data.type === 'result') finish(null, result);
                     else if (data.type === 'error') {
                         const error = new Error(data.message);

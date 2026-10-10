@@ -1420,6 +1420,35 @@ Ohne Treffer erscheint die Zeile in der Fehlerliste.
   Abteilung des Hauptansprechpartners in **"Abteilung"** – beides nur, wenn es
   solche Angaben gibt. Die Datei lässt sich so wieder einlesen.
 
+### 7.7a Vertriebs-Arbeitsmappe (fünf Blätter in einem Zug)
+
+Seit 10.10.2026 (Release 16). Enthält eine Excel-Datei die Blätter
+**"VBEZ Übersicht"** und mindestens eines von **"Dateiübersicht"**, **"AE je
+PCK"**, **"SieSales Kontakte"**, **"SieSales Opps"**, erkennt TourFuchs sie an den
+**exakten Blattnamen** und liest alle Blätter in einem Zug – **ohne Dialog
+"Spalten zuordnen"**. Überschrift ist jeweils Zeile 1. Danach folgen wie bei
+jedem Import Abgleich und Änderungsbericht, am Ende das Fenster
+**"Vertriebs-Arbeitsmappe eingelesen"** mit Kunden, Kontakten, Opportunities,
+Produktzeilen, Fehlern und Hinweisen.
+
+- **Schlüssel ist der Debitor** ("Debitor (Kundenmaster)", sonst "Debitor
+  (VInfo)"). Kommt ein Debitor mehrfach vor, **gilt die spätere Zeile**.
+- Es gelten **"VBEZ (Neu)"** als Vertriebsbezirk und **"VB (Neu)"** als
+  Vertriebsbeauftragter (Accountmanager). "VB (Alt)", "VBEZ (Alt)" bleiben als
+  Zusatzspalte für die Übergabe.
+- **"Orders FY24/25/26"** werden die Umsatzjahre (8.5a); "Orders FY26" ist "der"
+  Umsatz. "Ø Orders FY24-26" und Spalten mit Spannen (GJ24-26) zählen nicht als Jahr.
+- Kontakte, Opportunities und Produktzeilen tragen nur die **IFA** ("IFA Nr",
+  "IfA", "IFA") und hängen an **allen Kunden mit dieser IFA**. Zeilen mit einer
+  IFA, die in "VBEZ Übersicht" fehlt, werden gezählt und als Hinweis gemeldet.
+- **"Dateiübersicht"** dient als Kontrolle: Weicht die gelesene Zeilenzahl eines
+  Blattes von der Angabe ab, steht das als Hinweis im Ergebnis.
+- Kontakte mit **Löschvormerkung** oder Status inaktiv werden nicht übernommen.
+- Ein erneuter Import der Mappe **ersetzt** Kontakte, Opportunities und
+  Produkte aus der Mappe; Promotoren und Kontakte aus einer eigenen Kontaktliste
+  (7.7) bleiben.
+- Kennungen (IFA, Debitor …) bleiben Text mit führenden Nullen.
+
 ### 7.8 Flächenzeilen
 
 Eine Zeile ohne Kundenname, aber mit **"Gebiet (LK/PLZ)"** und
@@ -1782,6 +1811,41 @@ bittet den Assistenten, zu den Themen der Promotoren aktuelle Anlässe zu
 prüfen. Mit Jahreswerten (8.5a) enthält es außerdem **"Umsatz nach
 Geschäftsjahr"** samt Veränderung zum Vorjahr und die Bitte, die Entwicklung bei
 Chance und Risiko einzuordnen.
+
+### 8.6c Opportunities, Produkte, Sperrvermerke, Übergabe (Vertriebs-Arbeitsmappe)
+
+Seit 10.10.2026 (Release 16). **Konzept der Kachel:** Beim Öffnen steht nur das
+Wichtigste – Name, Nummer, Anschrift, Umsatz, Zuordnung und höchstens eine Zeile
+Abzeichen. Alles Weitere steckt hinter Knöpfen in **einer** Knopfzeile; ein
+Klick klappt genau ein Feld auf, das bei langen Listen in sich scrollt. Knöpfe
+erscheinen nur, wenn es dazu Daten gibt.
+
+- **"💼 Opportunities (n)"** – n = offene. Kopfzeile "2 offen · 150 T€
+  erwartet", je Opportunity Name, Phase, Abschlussmonat, erwarteter
+  Auftragseingang, Verantwortlicher; Abgeschlossene nur als "+ 3 abgeschlossen".
+  **Offen** ist eine Opportunity, solange weder Status noch Prognosekategorie
+  "geschlossen", "gewonnen" oder "verloren" sagen.
+- **"📦 Produkte (n)"** – Produktmix als Balken (SCB, SSI, Service, Solution,
+  Software in %) und die Produktklassen (PCK) mit dem größten Auftragseingang
+  GJ24–26, je Jahr aufgeschlüsselt.
+- **"🤝 Kundenansprechpartner"** zeigt aus der Mappe zusätzlich Funktion,
+  Mobilnummer und Vermerke: **"✓ DOI"** (Double Opt-In), **"⛔ nicht anrufen"**
+  (dann **kein** Anruf-Link), **"⛔ keine Werbe-Mail"** bzw. **"⛔ Opt-out"**
+  (dann **kein** E-Mail-Link). Erreichbare Kontakte stehen oben. Ein Kontakt aus
+  der Mappe wird nie von selbst Hauptansprechpartner.
+- **"🔁 Übergabe von …"** als Abzeichen, wenn "Übergabe notwendig" gesetzt ist
+  und der VB gewechselt hat (Tooltip: von wem an wen).
+- **"↗ SieSales"** neben der Kundennummer öffnet den CRM-Link der Zeile in einem
+  neuen Tab (nur http/https).
+
+**Filter** (**"+ Ebene hinzufügen"**): **"Opportunity"** (mit/ohne offene),
+**"Opportunity-Phase"**, **"Produkt (PCK)"**.
+
+**Briefing:** nennt **offene Opportunities mit Name, Phase und Abschlussmonat**
+und die **wichtigsten Produktklassen** – **ohne** Beträge, Wettbewerber und
+Beschreibungstexte – und bittet den Assistenten, zu den Opportunities den
+letzten Stand und offene Antworten zu prüfen. Kontakte mit Sperrvermerk nennt
+es nicht.
 
 ### 8.7 Direkte Kundenaktionen
 
