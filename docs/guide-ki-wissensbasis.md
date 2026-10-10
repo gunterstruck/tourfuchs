@@ -1787,7 +1787,11 @@ Das Popup zeigt je nach vorhandenen Daten:
 
 - Kundenname
 - Straße sowie **PLZ + Ort**
-- Hinweis `ca. (PLZ-Mitte)` bei näherungsweiser Position
+- Hinweis `ca. (PLZ-Mitte)` bei näherungsweiser Position. Läuft im Hintergrund
+  die adressgenaue Verortung, bleibt eine **offene Kachel stehen**, bis man sie
+  selbst schließt; der Punkt rückt erst danach an die genaue Adresse
+  (seit 10.10.2026 – vorher schloss jeder Zwischenstand der Verortung die
+  Kachel, und die Karte „zuckte" etwa jede Minute).
 - Umsatz – sofern vorhanden als eigene hervorgehobene Zeile; auch ein expliziter
   Wert von `0 €` gilt als vorhanden
 - Hauptansprechpartner
