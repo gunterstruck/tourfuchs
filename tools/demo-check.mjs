@@ -140,6 +140,12 @@ async function openPanel(page) {
             if (await page.locator('#showcase-dialog .sc-tile').first().isVisible().catch(() => false)) return true;
         }
     }
+    // Mit eigenen Daten gibt es keinen Demo-Streifen; am Handy auch keine
+    // Kopfzeilen-Pille – dort führt der Weg über Info → „Funktionen entdecken".
+    if (await page.locator('#btn-info').isVisible().catch(() => false)) {
+        await page.locator('#btn-info').click({ timeout: 5000 }).catch(() => {});
+        await page.locator('#btn-showcase').click({ timeout: 5000 }).catch(() => {});
+    }
     return page.locator('#showcase-dialog .sc-tile').first().isVisible().catch(() => false);
 }
 

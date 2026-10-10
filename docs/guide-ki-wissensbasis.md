@@ -1738,6 +1738,11 @@ wird intuitiv mit zwei Fingern gezoomt.
   „Spinnennetzes"; ein kleiner Stapel (≤ 5) fächert mit **einem Tipp** auf.
 - **Kundennamen erscheinen erst im Nahbereich** (weiter draußen bleibt es ruhig);
   kleine Cluster lösen sich beim Reinzoomen etwas später auf.
+- Beim **Herauszoomen** gehen Einzelmarker und kleine Gruppen in den größeren
+  Stapel ein: Auf jeder Zoomstufe stehen dieselben Punkte und Stapel wie beim
+  Hineinzoomen (seit 10.10.2026; vorher blieben am Handy nach dem Herauszoomen
+  manchmal einzelne Punkte neben ihrem Stapel stehen). Beim Wechsel der
+  Gebietsebene bleibt die bisherige Fläche sichtbar, bis die neue fertig ist.
 - Kunden in der Tour werden hervorgehoben.
 - bei PLZ-Verortung ist die Position nur näherungsweise.
 - in der Ansicht **"Status"** folgen Farben dem Besuchsstatus.
