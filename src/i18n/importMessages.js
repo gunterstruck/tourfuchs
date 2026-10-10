@@ -100,7 +100,11 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.lng': 'Längengrad (optional)',
         'mapping.field.alleBesuche': 'Alle Besuche (Historie)',
         'mapping.field.weitereKontakte': 'Weitere Ansprechpartner',
-        'mapping.field.verortung': 'Verortung (Genauigkeit)'
+        'mapping.field.verortung': 'Verortung (Genauigkeit)',
+        'mapping.field.kontaktArt': 'Kontaktart (Promotor/Kunde)',
+        'mapping.field.abteilung': 'Abteilung',
+        'mapping.field.thema': 'Thema (Promotor)',
+        'mapping.field.promotoren': 'Promotoren'
     }),
     en: Object.freeze({
         "import.wait.title": "Preparing file",
@@ -202,7 +206,11 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.lng': 'Longitude (optional)',
         'mapping.field.alleBesuche': 'All visits (history)',
         'mapping.field.weitereKontakte': 'Additional contacts',
-        'mapping.field.verortung': 'Location accuracy'
+        'mapping.field.verortung': 'Location accuracy',
+        'mapping.field.kontaktArt': 'Contact type (promoter/customer)',
+        'mapping.field.abteilung': 'Department',
+        'mapping.field.thema': 'Topic (promoter)',
+        'mapping.field.promotoren': 'Promoters'
     }),
     fr: Object.freeze({
         "import.wait.title": "Préparation du fichier",
@@ -304,7 +312,11 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.lng': 'Longitude (facultatif)',
         'mapping.field.alleBesuche': 'Toutes les visites (historique)',
         'mapping.field.weitereKontakte': 'Contacts supplémentaires',
-        'mapping.field.verortung': 'Précision de localisation'
+        'mapping.field.verortung': 'Précision de localisation',
+        'mapping.field.kontaktArt': 'Type de contact (promoteur/client)',
+        'mapping.field.abteilung': 'Service',
+        'mapping.field.thema': 'Thème (promoteur)',
+        'mapping.field.promotoren': 'Promoteurs'
     }),
     es: Object.freeze({
         "import.wait.title": "Preparando el archivo",
@@ -406,6 +418,10 @@ export const IMPORT_MESSAGES = Object.freeze({
         'mapping.field.lng': 'Longitud (opcional)',
         'mapping.field.alleBesuche': 'Todas las visitas (historial)',
         'mapping.field.weitereKontakte': 'Contactos adicionales',
-        'mapping.field.verortung': 'Precisión de ubicación'
+        'mapping.field.verortung': 'Precisión de ubicación',
+        'mapping.field.kontaktArt': 'Tipo de contacto (promotor/cliente)',
+        'mapping.field.abteilung': 'Departamento',
+        'mapping.field.thema': 'Tema (promotor)',
+        'mapping.field.promotoren': 'Promotores'
     })
 });

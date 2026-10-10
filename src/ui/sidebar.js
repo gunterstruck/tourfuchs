@@ -4,7 +4,7 @@
  */
 
 import { CONFIG } from '../core/config.js';
-import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, setPlaces, clearServiceContracts, clearServiceVisits, filterDimensionDefs, datasetSnapshot } from '../core/state.js';
+import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, setPlaces, clearServiceContracts, clearServiceVisits, filterDimensionDefs, dimensionValues, datasetSnapshot } from '../core/state.js';
 import { exactGeocodeCandidates, groupExactGeocodeCandidates, abandonGeocodeRuns } from '../services/geocode.js';
 import { runExactGeocoding, cancelExactGeocoding, isExactGeocodingRunning, exactGeocodePreference } from './exactGeocoding.js';
 import { isDemoDataset, isDemoCustomer } from '../core/demoSafety.js';
@@ -2071,11 +2071,14 @@ function initRevenueFilterControls() {
 }
 
 /** Kunden je Feldwert zählen */
-function countBy(field) {
+/** Kunden je Wert einer Filterebene (auch Zusatzspalten und Mehrfachwerte wie Promotoren). */
+function countBy(sectionId) {
     const counts = new Map();
+    const def = filterDimensionDefs().find((d) => d.id === sectionId);
+    if (!def) return counts;
     for (const c of state.customers) {
-        const key = String(c[field] ?? '').trim() || UNASSIGNED;
-        counts.set(key, (counts.get(key) ?? 0) + 1);
+        const values = dimensionValues(c, def);
+        for (const key of values.length ? values : [UNASSIGNED]) counts.set(key, (counts.get(key) ?? 0) + 1);
     }
     return counts;
 }
@@ -2177,7 +2180,7 @@ function renderRows(section, counts, search) {
 }
 
 function renderSection(section) {
-    const counts = countBy(section.field);
+    const counts = countBy(section.id);
     const total = section.entries.length;
     const visN = section.entries.filter(([, v]) => v.visible).length;
     const expanded = !!filterUI.expanded[section.id];
@@ -2248,7 +2251,7 @@ function renderTeamFilters() {
 function renderSectionRows(sectionId) {
     const section = filterSections().find((s) => s.id === sectionId);
     const container = document.querySelector(`.filter-rows[data-rows="${sectionId}"]`);
-    if (section && container) container.innerHTML = renderRows(section, countBy(section.field), filterUI.search[sectionId] || '');
+    if (section && container) container.innerHTML = renderRows(section, countBy(section.id), filterUI.search[sectionId] || '');
 }
 
 /** Badge (sichtbar/gesamt) einer Ebene aktualisieren, ohne alles neu zu zeichnen */

@@ -1099,6 +1099,8 @@ Semikolon, Komma, Tab, UTF-8 und Windows-1252.
 | Hauptansprechpartner | optional | sichtbarer leitender Kontakt |
 | Telefon, E-Mail | optional | direkte Kontaktaktionen |
 | Umsatz | optional | Priorisierung und Gebietskennzahlen |
+| Umsatz je Geschäftsjahr (z. B. `Umsatz 2024`, `Umsatz 2025`) | optional | Knopf **"📊 Jahre"** in der Kundenkachel (siehe 8.5a) |
+| Kontaktart, Abteilung, Thema | nur Kontaktlisten | Promotoren und Kundenansprechpartner (siehe 7.7) |
 | Besuchsrhythmus, Letzter Besuch | optional | Status ok/bald fällig/überfällig |
 | Gebiet (LK/PLZ) | nur Flächenzeilen | Gebiet ohne Kunden zuordnen |
 
@@ -1395,6 +1397,29 @@ Kontakte werden ausschließlich über die Kundennummer mit vorhandenen Kunden
 verknüpft. Ein Feld **"Primärkontakt?"** kann den Hauptansprechpartner markieren.
 Ohne Treffer erscheint die Zeile in der Fehlerliste.
 
+**Seit 10.10.2026: Promotoren und Kundenansprechpartner.** Eine Kontaktliste
+(eine Zeile je Person) kennt zwei Arten von Kontakten:
+
+| Art | Typische Spalten | Erscheint in der Kachel unter |
+|---|---|---|
+| Kundenansprechpartner | Kd-Nr., Name bzw. Ansprechpartner, **Abteilung**, Telefon, E-Mail | **"🤝 Kundenansprechpartner"** |
+| Promotor | Kd-Nr., Name bzw. **Promotor**, Telefon, E-Mail, **Thema** | **"📣 Promotoren"** |
+
+- Die Art steht ausdrücklich in einer Spalte **"Kontaktart"** (Wert
+  `Promotor` oder `Kunde`) – oder TourFuchs erkennt sie an der Liste: Eine
+  Spalte **"Thema"** oder eine Namensspalte **"Promotor"** gibt es nur bei
+  Promotoren. Alles andere sind Kundenansprechpartner.
+- In einer Kontaktliste (ohne PLZ) ist **"Name"** die Person, nicht der
+  Kunde; zugeordnet wird über die Kundennummer.
+- Ein Promotor wird **nie** Hauptansprechpartner des Kunden.
+- Kontakte werden ergänzt; dieselbe Person (Name, Telefon, E-Mail, Art) wird
+  nicht doppelt angelegt. Ein späterer Reimport des Kundenstamms lässt
+  Promotoren und Kontakte aus einer Kontaktliste stehen.
+- Der Excel-Export schreibt sie in **"Weitere Ansprechpartner"** bzw.
+  **"Promotoren"** (`Name · Abteilung/Thema · Telefon · E-Mail`), die
+  Abteilung des Hauptansprechpartners in **"Abteilung"** – beides nur, wenn es
+  solche Angaben gibt. Die Datei lässt sich so wieder einlesen.
+
 ### 7.8 Flächenzeilen
 
 Eine Zeile ohne Kundenname, aber mit **"Gebiet (LK/PLZ)"** und
@@ -1415,6 +1440,14 @@ Beispiel `1.234,56`, `1,234.56`, `45000` oder `45.5`. Währungszeichen werden
 ignoriert. Überschriften mit `TEUR`, `Tsd EUR` oder `Mio EUR` werden auf volle
 Euro umgerechnet. Der Import zeigt bei erkannten Besonderheiten einen Hinweis mit
 Gesamtsumme zur Plausibilitätsprüfung.
+
+**Mehrere Geschäftsjahre (seit 10.10.2026):** Spalten wie `Umsatz 2023`,
+`Umsatz 2024`, `Umsatz GJ 25`, `Umsatz 2024/25` (zählt zum hinteren Jahr) oder
+`GJ 2025` werden als Umsatz eines Geschäftsjahres erkannt. **Der jüngste
+Jahrgang ist "der" Umsatz** für Karte, Cockpit und Filter; alle Jahre zeigt die
+Kundenkachel unter **"📊 Jahre"** (8.5a). Spalten mit Plan, Ziel, Budget,
+Forecast, Prognose oder Potenzial sind keine Ist-Umsätze und werden nicht als
+Jahr erkannt. Ein Reimport mit neueren Jahren behält ältere Jahre.
 
 ### 7.10 Fehler und Hinweise
 
@@ -1639,6 +1672,20 @@ Bei echten importierten Kunden öffnen **"Anrufen"** und **"E-Mail"** weiterhin
 die jeweilige Geräte-App. Bei Demo-Kunden zeigen dieselben Schaltflächen nur
 einen Hinweis; es wird keine externe Kontaktaktion gestartet.
 
+### 8.5a Umsatz nach Geschäftsjahr
+
+Seit 10.10.2026. Bringt die importierte Liste Umsätze mehrerer
+Geschäftsjahre mit (7.9), trägt die Umsatzzeile den Knopf **"📊 Jahre"**. Er
+klappt **"Umsatz nach Geschäftsjahr"** auf:
+
+- **GJ** – das laufende Geschäftsjahr (Kalenderjahr), mit `laufend`; ohne
+  Zahlen steht dort `noch keine Zahlen`
+- **GJ-1**, **GJ-2**, **GJ-3** – die drei Vorjahre mit Jahreszahl
+- je Jahr die Veränderung zum Vorjahr in Prozent (▲ grün / ▼ rot), wenn beide
+  Jahre Werte haben
+
+Geschäftsjahr = Kalenderjahr. Ohne Jahreswerte gibt es keinen Knopf.
+
 ### 8.6 Weitere Kundendetails und kopierbare Nummer
 
 Je nach importierten Daten ebenfalls sichtbar:
@@ -1653,8 +1700,11 @@ Je nach importierten Daten ebenfalls sichtbar:
 
 Seit 09.10.2026. Enthält die importierte Liste Rollenspalten – erkannt werden
 **VK**, **OM**, **TSP TC**, **RTC**, **TAM**, **Account Manager**,
-**EB-Berater** und **Innendienst** –, zeigt das Popup den eingeklappten
-Abschnitt **"👥 Zuständig (n)"**:
+**EB-Berater** und **Innendienst** –, zeigt das Popup den Knopf
+**"👥 Zuständig (n)"**. Seit 10.10.2026 stehen daneben, wenn vorhanden,
+**"📣 Promotoren (n)"** und **"🤝 Kundenansprechpartner (n)"** (siehe 8.6b).
+Ein Klick klappt das Feld darunter auf, ein zweiter wieder zu; es ist immer
+höchstens eines offen. Unter „Zuständig":
 
 - je gefüllter Rolle eine Zeile mit Name oder Abteilung; leere Rollen entfallen
 - eine Telefonnummer in der Zelle (z. B. `Vera Kunz 0171 2223344`) wird
@@ -1673,6 +1723,36 @@ Die Rollen kommen typischerweise aus einer zweiten Komplettliste
 Spalten mit 2 bis 80 verschiedenen Textwerten (z. B. **Account Cluster**,
 **Reg. VReg**) lassen sich am Desktop zusätzlich als Filterebene nutzen
 (**"+ Ebene hinzufügen"**).
+
+**Filtern nach Zuständigkeit (seit 10.10.2026):** Jede Rolle ist eine eigene
+Filterebene **"Zuständig · VK"**, **"Zuständig · OM"** usw. Gefiltert wird
+nach dem **Namen ohne Telefonnummer** – `Vera Kunz 0171 …` und `Vera Kunz`
+sind derselbe Eintrag. Anders als rohe Zusatzspalten gibt es keine Obergrenze
+von 80 Werten; die Liste hat ein Suchfeld. Zweck: „Welche Kunden betreut Vera
+als VK?" – wen ich anrufe, kein Leistungsvergleich von Mitarbeitenden.
+
+### 8.6b Promotoren und Kundenansprechpartner
+
+Seit 10.10.2026. Aus einer Kontaktliste (7.7):
+
+- **"📣 Promotoren (n)"**: je Promotor Name, **Thema** (was er promotet),
+  📞 Telefon und ✉️ E-Mail – beides antippbar.
+- **"🤝 Kundenansprechpartner (n)"**: je Person Name, **Abteilung**, 📞 Telefon
+  und ✉️ E-Mail; der Hauptansprechpartner steht oben und ist als
+  `Hauptansprechpartner` markiert. Gibt es nur den Hauptansprechpartner ohne
+  Abteilung, entfällt der Knopf – er steht ohnehin in der Kachel.
+
+**Filter:** **"Promotor"** (Namen) und **"Promotor-Thema"** sind eigene
+Filterebenen (**"+ Ebene hinzufügen"**). Ein Kunde mit zwei Promotoren
+erscheint bei beiden; er bleibt sichtbar, solange einer seiner Promotoren
+ausgewählt ist.
+
+**Briefing:** Das Kunden-Briefing nennt **"Ansprechpartner beim Kunden"** mit
+Abteilung und **"Promotoren"** mit Thema – **ohne Telefon und E-Mail** – und
+bittet den Assistenten, zu den Themen der Promotoren aktuelle Anlässe zu
+prüfen. Mit Jahreswerten (8.5a) enthält es außerdem **"Umsatz nach
+Geschäftsjahr"** samt Veränderung zum Vorjahr und die Bitte, die Entwicklung bei
+Chance und Risiko einzuordnen.
 
 ### 8.7 Direkte Kundenaktionen
 
