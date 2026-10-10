@@ -9,7 +9,7 @@ import 'leaflet.markercluster';
 
 import { CONFIG } from '../core/config.js';
 import { isPhoneUi } from '../core/viewport.js';
-import { customerResponsibilities } from './responsibilities.js';
+import { customerResponsibilities, splitContactText } from './responsibilities.js';
 import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
 import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
@@ -2042,11 +2042,14 @@ export function customerPopupHtml(customer) {
         .filter(Boolean).map(escapeHtml).join(' · ');
     const hierarchy = [customer.channel, customer.gruppe, customer.bezirk]
         .filter(Boolean).map(escapeHtml).join(' › ');
-    const representative = String(customer.vb ?? '').trim();
-    const assignment = [
-        hierarchy,
-        representative ? escapeHtml(t('customer.representative', { name: representative })) : ''
-    ].filter(Boolean).join(' · ');
+    // „Kahlbau Robert +49 (173) 6310304": Name lesbar, Nummer antippbar statt Fließtext.
+    const representative = splitContactText(customer.vb);
+    const representativeHtml = representative.name || representative.phone
+        ? `${escapeHtml(t('customer.representative', { name: representative.name || representative.phone }))}${representative.tel && representative.name
+            ? ` <a class="popup-team-tel" href="tel:${escapeHtml(representative.tel)}" title="${escapeHtml(t('customer.contacts.call', { name: representative.name }))}">📞 ${escapeHtml(representative.phone)}</a>`
+            : ''}`
+        : '';
+    const assignment = [hierarchy, representativeHtml].filter(Boolean).join(' · ');
     const rawRevenue = customer.umsatz;
     const hasRevenue = rawRevenue !== null
         && rawRevenue !== undefined

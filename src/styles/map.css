@@ -956,7 +956,10 @@ body.popup-panning .leaflet-popup-content-wrapper { cursor: grabbing; }
 .popup-revenue-change.is-up { color: #15803d; }
 .popup-revenue-change.is-down { color: #b91c1c; }
 .popup-team ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 3px; }
-.popup-team-list li { display: grid; grid-template-columns: 7.2em 1fr auto; gap: 6px; align-items: baseline; }
+.popup-team-list li { display: grid; grid-template-columns: 6.6em minmax(0, 1fr); column-gap: 8px; row-gap: 1px; align-items: baseline; }
+/* Telefonnummer unter den Namen statt daneben: Nebeneinander nahm die Nummer
+   ihre volle Breite, und der Name brach Buchstabe für Buchstabe um. */
+.popup-team-list .popup-team-tel { grid-column: 2; justify-self: start; }
 .popup-team-role { color: var(--color-text-muted, #64748b); font-weight: 600; }
-.popup-team-name { overflow-wrap: anywhere; }
+.popup-team-name { overflow-wrap: break-word; font-weight: 600; }
 .popup-team-tel { white-space: nowrap; text-decoration: none; font-weight: 600; }
