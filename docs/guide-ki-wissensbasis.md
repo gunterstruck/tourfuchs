@@ -1399,8 +1399,9 @@ SharePoint der Firma:
    gibt keine Anmeldung und keinen Abruf durch TourFuchs.
 3. **"🔄 Aktualisieren"** liest die neue Fassung über den gewohnten Import ein:
    Die Arbeitsmappe (7.7a) läuft in einem Zug ohne Zuordnungsdialog, mit
-   Ergebnisfenster; andere Listen gehen wie gewohnt durch "Spalten zuordnen"
-   und den Abgleich (7.6).
+   Ergebnisfenster; andere Listen gehen beim ersten Mal durch "Spalten
+   zuordnen", danach übernimmt die gemerkte Importvorlage (7.6b) die
+   Zuordnung ohne Dialog.
    - **Am PC mit Edge oder Chrome:** Beim ersten Mal wählt man die Datei im
      synchronisierten OneDrive-/SharePoint-Ordner aus. Der Browser merkt sich
      den Zugriff auf dem Gerät; danach genügt ein Klick. Nach einem
@@ -1416,6 +1417,35 @@ SharePoint der Firma:
 Gespeichert werden nur Name, Link, Zeitpunkt und der Dateiverweis – lokal im
 Browser, keine Kundendaten. **"Daten löschen"** vergisst Dateiverweise und
 Zeitpunkte; die Links bleiben als Einstellung stehen.
+
+### 7.6b Importvorlagen: Spalten einmal zuordnen, dann nur noch Ergebnis
+
+Seit 10.10.2026 (Release 15.1). Nach jedem Import mit **"Spalten zuordnen"**
+merkt sich TourFuchs die Spaltenüberschriften der Liste und die bestätigte
+Zuordnung als **Vorlage** (Name aus dem Dateinamen, z. B. "Kundenstamm"). Die
+Meldung danach sagt "Zuordnung als Vorlage „…" gemerkt".
+
+- **Dieselbe Liste wieder** (gleiche Überschriften, Reihenfolge und
+  Groß/Klein egal; auch über "🔄 Aktualisieren" einer Datenquelle, 7.6a):
+  **kein Dialog "Spalten zuordnen"**. Es erscheint nur das Fenster
+  **"Liste aktualisiert"** mit Kunden · geändert · neu · entfallen · Hinweise;
+  Hinweise und Fehler sind aufklappbar. **"✏️ Zuordnung prüfen"** öffnet die
+  Zuordnung dieser Liste, eine Korrektur wird für die Vorlage gemerkt.
+- **Fehlen Kunden** gegenüber dem Bestand, kommt wie gewohnt der
+  Änderungsbericht mit "Behalten/Entfernen" (7.6) – nur dann.
+- **Liste verändert** (Spalten neu oder entfallen): "Spalten zuordnen" öffnet
+  sich einmal, **vorbelegt** aus der Vorlage, mit Hinweis "neu: … – fehlt: …".
+  Neue Spalten werden automatisch erkannt; was man bewusst abgewählt hatte,
+  bleibt abgewählt.
+- Lag die Tabelle beim letzten Mal auf einem anderen Blatt oder unter einer
+  anderen Überschriftenzeile, liest TourFuchs die Datei einmal so und
+  vergleicht erneut.
+- Mehrere Vorlagen nebeneinander (Kundenstamm, Zuständigkeiten, Promotoren,
+  Umsätze …), höchstens 8. Unter **"Daten"** → **"🧩 Gemerkte Importvorlagen"**
+  stehen sie mit Spaltenzahl und letzter Nutzung; **"Vergessen"** löscht eine
+  Vorlage – beim nächsten Import dieser Liste erscheint wieder die Zuordnung.
+- Gespeichert sind nur Spaltennamen und Zuordnung, lokal im Browser – keine
+  Kundendaten. Die Vertriebs-Arbeitsmappe (7.7a) braucht keine Vorlage.
 
 ### 7.7 Getrennte Kontaktdatei
 

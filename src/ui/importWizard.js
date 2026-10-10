@@ -56,6 +56,11 @@ import {
     LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatElapsed, formatFileSize, isHeavyFile, noteImportInFlight,
     rememberHeavyFile, takeInterruptedImport
 } from '../features/importInFlight.js';
+import {
+    findImportTemplate, loadImportTemplates, mappingFromTemplate, rememberImportTemplate, saveImportTemplates,
+    templateNameFromFile, touchImportTemplate
+} from '../features/importTemplates.js';
+import { diffCustomerDatasets } from '../features/datasetDiff.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -70,6 +75,8 @@ let welcomeDemoTimer = null;
 let welcomeDemoUserIntent = false;
 let demoLoadPromise = null;
 let activeWorkbookRead = null;
+// Importvorlage (15.1) zur gerade gelesenen Datei: { template, auto, added, missing }.
+let templateContext = null;
 const insideMobilePreview = new URLSearchParams(location.search).has('mobilePreview');
 // Dieselbe Schwelle wie in der Sidebar: darunter gilt die Handy-Bedienung.
 const mobileQuery = phoneFaceQuery();
@@ -459,11 +466,15 @@ export function importExternalFile(file) {
  * Vorführung schließt den Dialog vor „Importieren".
  */
 export function openMappingForShowcase(file) {
-    return handleFile(file);
+    // Die Vorführung zeigt immer die Zuordnung – eine gemerkte Vorlage darf hier
+    // nie still importieren.
+    return handleFile(file, { useTemplates: false });
 }
 
-async function handleFile(file) {
+async function handleFile(file, { useTemplates = true } = {}) {
     if (activeWorkbookRead) return;
+    // Neue Datei: Eine Vorlage der vorigen Liste darf hier nichts vorbelegen.
+    templateContext = null;
     const isExcel = /\.(xlsx|xlsm|xls|csv|ods)$/i.test(file.name);
     if (!isExcel) {
         showToast(t('import.selectFile'), 'error');
@@ -497,7 +508,12 @@ async function handleFile(file) {
             await importSalesWorkbook();
             return;
         }
-        await showMappingStep();
+        if (!useTemplates) {
+            templateContext = null;
+            await showMappingStep();
+            return;
+        }
+        await continueWithTemplate();
     } catch (error) {
         if (error.name === 'AbortError') return;
         // Gesperrte Datei: eine große Prüffrage („liegt sie in Downloads?") statt Toast.
@@ -754,16 +770,82 @@ async function usePastedTable(text) {
     try {
         const { headers, rows } = parseClipboardTable(text);
         parsed = { headers, rows, fileName: t('import.pastedFile') };
-        await showMappingStep();
+        templateContext = null;
+        await continueWithTemplate();
     } catch (error) {
         showToast(t('import.pastedReadFailed', { detail: importErrorDetail(error) }), 'error', 6000);
     }
 }
 
+/**
+ * Importvorlage (15.1): Gleiche Liste wie zuletzt → Zuordnung ohne Dialog,
+ * nur das Ergebnisfenster. Etwas veränderte Liste → Zuordnung einmal zeigen,
+ * vorbelegt, mit Hinweis auf neue und fehlende Spalten. Sonst wie bisher.
+ */
+async function continueWithTemplate() {
+    const { autoDetectMapping } = await excel();
+    const templates = loadImportTemplates();
+    let match = findImportTemplate(templates, parsed.headers || []);
+    // Die Vorlage gilt einem anderen Blatt bzw. einer anderen Überschriftenzeile
+    // als der automatisch erkannten: einmal so lesen und erneut vergleichen.
+    if (!match?.exact && parsed.file) {
+        const other = templates.find((template) => template.sheetName
+            && (parsed.sheetNames || []).includes(template.sheetName)
+            && (template.sheetName !== parsed.sheetName || (template.headerRow && template.headerRow !== parsed.headerRow)));
+        if (other) {
+            try {
+                const workbook = await readFileWithFeedback(parsed.file, { sheet: other.sheetName, headerRow: other.headerRow || null });
+                const again = findImportTemplate([other], workbook.headers);
+                if (again?.exact) {
+                    parsed = { ...workbook, fileName: parsed.fileName, file: parsed.file };
+                    match = again;
+                }
+            } catch { /* bleibt beim zuerst gelesenen Blatt */ }
+        }
+    }
+    if (match?.exact) {
+        const mapping = mappingFromTemplate(match.template, parsed.headers, autoDetectMapping(parsed.headers));
+        if (!mappingProblem(mapping)) {
+            templateContext = { template: match.template, auto: true };
+            ownDataDialog?.close();
+            await runImport(mapping, { template: match.template });
+            return;
+        }
+    }
+    templateContext = match ? { template: match.template, auto: false, added: match.added, missing: match.missing } : null;
+    await showMappingStep();
+}
+
+/** Zuordnung unbrauchbar? Liefert die Meldung oder null. */
+function mappingProblem(mapping) {
+    const contactOnly = !mapping.name && !mapping.gebiet && mapping.nummer && (mapping.ansprechpartner || mapping.telefon || mapping.email);
+    if (!mapping.name && !mapping.gebiet && !contactOnly) return t('import.validationName');
+    if (mapping.name && !mapping.plz && !(mapping.lat && mapping.lng)) return t('import.validationLocation');
+    return null;
+}
+
+function renderTemplateNote() {
+    const note = document.getElementById('mapping-template-note');
+    if (!note) return;
+    const context = templateContext;
+    if (!context?.template) { note.hidden = true; note.textContent = ''; return; }
+    const list = (columns) => columns.slice(0, 6).join(', ') + (columns.length > 6 ? ' …' : '');
+    const details = [
+        context.added?.length ? t('import.template.added', { columns: list(context.added) }) : '',
+        context.missing?.length ? t('import.template.missing', { columns: list(context.missing) }) : ''
+    ].join('');
+    note.textContent = details
+        ? t('import.template.changedNote', { name: context.template.name, details })
+        : t('import.template.reviewNote', { name: context.template.name });
+    note.hidden = false;
+}
+
 async function showMappingStep() {
     const { FIELDS, autoDetectMapping } = await excel();
     const { headers, rows, fileName, file, sheetName } = parsed;
-    const mapping = autoDetectMapping(headers);
+    const autoMapping = autoDetectMapping(headers);
+    const mapping = templateContext?.template ? mappingFromTemplate(templateContext.template, headers, autoMapping) : autoMapping;
+    renderTemplateNote();
 
     const sheetInfo = file && sheetName ? t('import.sheetInfo', { sheet: sheetName }) : '';
     document.getElementById('mapping-file-info').textContent = t('import.fileInfo', {
@@ -832,16 +914,12 @@ async function confirmImport() {
         mapping[sel.dataset.field] = sel.value || null;
     });
 
-    const contactOnly = !mapping.name && !mapping.gebiet && mapping.nummer && (mapping.ansprechpartner || mapping.telefon || mapping.email);
-    if (!mapping.name && !mapping.gebiet && !contactOnly) {
-        showToast(t('import.validationName'), 'error');
+    const problem = mappingProblem(mapping);
+    if (problem) {
+        showToast(problem, 'error');
         return;
     }
-    if (mapping.name && !mapping.plz && !(mapping.lat && mapping.lng)) {
-        showToast(t('import.validationLocation'), 'error');
-        return;
-    }
-    await runImport(mapping);
+    await runImport(mapping, { remember: true });
 }
 
 /**
@@ -861,7 +939,7 @@ async function importSalesWorkbook() {
     await runImport(mapping, { sales: prepared });
 }
 
-async function runImport(mapping, { sales = null } = {}) {
+async function runImport(mapping, { sales = null, template = null, remember = false } = {}) {
     const { parseRows, attachContacts } = await excel();
     const { customers, areaRows, contactRows, errors, skipped } = parseRows(parsed.rows, mapping);
     let salesStats = null;
@@ -936,7 +1014,14 @@ async function runImport(mapping, { sales = null } = {}) {
         abgleich = { missing: missingCustomers(state.customers, customers), carriedColumns, defaultKeep: carriedColumns.length > 0 };
     }
     let keptMissing = [];
-    if (customers.length > 0 && !replacingDemoOnly) {
+    // Importvorlage (15.1): Fehlt kein Kunde, ist nichts zu entscheiden – kein
+    // Änderungsbericht, die Zahlen stehen danach im Ergebnisfenster. Fehlen
+    // Kunden, fragt der Bericht wie gewohnt „Behalten oder entfernen?".
+    let templateDiff = null;
+    const quietTemplate = Boolean(template) && customers.length > 0 && !replacingDemoOnly
+        && Boolean(abgleich) && abgleich.missing.length === 0;
+    if (quietTemplate) templateDiff = diffCustomerDatasets(state.customers, customers);
+    if (customers.length > 0 && !replacingDemoOnly && !quietTemplate) {
         // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
         // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
         // Ohne Vorbestand gibt es nichts zu vergleichen: kurze Standardabfrage.
@@ -999,12 +1084,35 @@ async function runImport(mapping, { sales = null } = {}) {
     // Für „Datenquellen": Stand der Quelle festhalten, sobald die Liste gespeichert ist.
     if (persisted) emit('import:completed', { fileName: parsed.fileName });
 
+    // Importvorlage merken (nach bestätigter Zuordnung) bzw. als benutzt vermerken.
+    let rememberedName = '';
+    if (persisted && remember && parsed.headers?.length) {
+        const { autoDetectMapping } = await excel();
+        rememberedName = templateContext?.template?.name || templateNameFromFile(parsed.fileName);
+        saveImportTemplates(rememberImportTemplate(loadImportTemplates(), {
+            headers: parsed.headers,
+            mapping,
+            detected: autoDetectMapping(parsed.headers),
+            name: rememberedName,
+            sheetName: parsed.sheetName || '',
+            headerRow: parsed.headerRow || 0,
+            replaceId: templateContext?.template?.id || ''
+        }));
+        emit('import:templates-changed');
+    } else if (persisted && template) {
+        saveImportTemplates(touchImportTemplate(loadImportTemplates(), template.id));
+        emit('import:templates-changed');
+    }
+
     lastErrors = errors;
     // Ohne dauerhafte Speicherung wäre „importiert" eine halbe Wahrheit – die
     // Erfolgsmeldung entfällt dann, der Grund steht bereits als Fehler da.
     const contactCount = salesStats ? salesStats.contacts : contactRows.length;
     if (persisted || errors.some((e) => e.Typ === 'Fehler')) {
-        showImportResult({ customerCount: customers.length - keptMissing.length, contactCount, areaCount, skipped, errors, replacedExisting, workbook: salesStats });
+        showImportResult({
+            customerCount: customers.length - keptMissing.length, contactCount, areaCount, skipped, errors, replacedExisting,
+            workbook: salesStats, template, templateDiff, rememberedName
+        });
     }
 
     // Eigene Kundendaten importiert -> erst den Befund zeigen, dann zum
@@ -1122,12 +1230,43 @@ function syncImportNotesButton() {
  * Daten-Tab herunterladbar, und der Befund („Das sagt Ihre Liste") sagt
  * dasselbe ohnehin besser.
  */
-function showImportResult({ customerCount, contactCount = 0, areaCount, skipped, errors, replacedExisting = false, workbook = null }) {
+function showImportResult({ customerCount, contactCount = 0, areaCount, skipped, errors, replacedExisting = false, workbook = null, template = null, templateDiff = null, rememberedName = '' }) {
     const fehler = errors.filter((e) => e.Typ === 'Fehler').length;
     const hinweise = errors.filter((e) => e.Typ === 'Hinweis').length;
     syncImportNotesButton();
     const title = resultDialog?.querySelector('h2');
-    if (title) title.textContent = t(workbook ? 'import.workbookTitle' : 'import.incompleteDialogTitle');
+    if (title) title.textContent = t(workbook ? 'import.workbookTitle' : template ? 'import.template.resultTitle' : 'import.incompleteDialogTitle');
+
+    // Importvorlage (15.1): ohne Zuordnung übernommen – das Ergebnisfenster ist
+    // die einzige Rückmeldung: Zahlen, aufklappbare Hinweise, Weg zur Zuordnung.
+    if (template && !workbook) {
+        const stat = (count, key) => `<div class="stat"><b>${Number(count || 0).toLocaleString(currentLocale())}</b><span>${escapeHtml(t(key))}</span></div>`;
+        const notes = errors.filter((e) => e.Typ === 'Hinweis' || e.Typ === 'Fehler').slice(0, 30)
+            .map((e) => `<li>${escapeHtml(String(e.Grund || ''))}</li>`).join('');
+        const diff = templateDiff;
+        document.getElementById('import-result-body').innerHTML = `
+            <div class="stat-grid">
+                ${stat(customerCount, 'import.statCustomers')}
+                ${diff ? stat(new Set([...diff.changed, ...diff.moved].map((entry) => entry.key)).size, 'import.statChanged') : ''}
+                ${stat(diff ? diff.added.length : customerCount, 'import.statNew')}
+                ${diff ? stat(diff.removed.length, 'import.statRemoved') : ''}
+                ${contactCount ? stat(contactCount, 'import.statContacts') : ''}
+                ${areaCount ? stat(areaCount, 'import.statAreas') : ''}
+                ${stat(hinweise, 'import.statNotes')}
+                ${fehler ? stat(fehler, 'import.statErrors') : ''}
+            </div>
+            ${notes ? `<details class="import-result-details"><summary>${escapeHtml(t('import.template.notesSummary', { count: hinweise + fehler }))}</summary><ul class="import-result-notes small">${notes}</ul></details>` : ''}
+            <p class="muted small import-template-line">${escapeHtml(t('import.template.used', { name: template.name }))}
+                <button type="button" class="link-button" id="import-template-review">${escapeHtml(t('import.template.review'))}</button></p>
+        `;
+        document.getElementById('import-template-review')?.addEventListener('click', () => {
+            resultDialog.close();
+            templateContext = { template, auto: false };
+            void showMappingStep();
+        }, { once: true });
+        resultDialog.showModal();
+        return;
+    }
 
     // Vertriebs-Arbeitsmappe: immer ein Fenster mit allen Zahlen – fünf Blätter
     // in einem Zug verdienen eine Quittung, nicht nur einen Toast.
@@ -1164,7 +1303,8 @@ function showImportResult({ customerCount, contactCount = 0, areaCount, skipped,
         const replacement = replacedExisting ? t('import.replaced') : '';
         // Hinweise gehen nicht verloren: Anzahl nennen und sagen, wo die Liste liegt.
         const notes = hinweise ? t('import.notes', { count: hinweise }) : '';
-        showToast(`${t('import.success', { items: parts.join(', ') })}${replacement}${notes}`, 'success', notes ? 8000 : 6000);
+        const remembered = rememberedName ? t('import.template.remembered', { name: rememberedName }) : '';
+        showToast(`${t('import.success', { items: parts.join(', ') })}${replacement}${notes}${remembered}`, 'success', notes || remembered ? 9000 : 6000);
         return;
     }
     const stat = (count, key) => `<div class="stat"><b>${count}</b><span>${escapeHtml(t(key))}</span></div>`;
