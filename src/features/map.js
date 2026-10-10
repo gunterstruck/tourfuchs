@@ -77,6 +77,8 @@ let tourLayer = null;
 // Ist der Cluster kleiner als das Minimum, bringen wir stattdessen seine
 // einzelnen Kunden auf die Karte. Fügt sich in den normalen Add-/Remove-Zyklus.
 const CUSTOMER_MIN_CLUSTER_SIZE = 6;
+// Nach Stapel-Animationen: markercluster räumt über eine Warteschlange (300 ms) ab.
+const STRAY_CHECK_DELAY_MS = 400;
 if (L.MarkerCluster && !L.MarkerCluster.prototype.__minSizePatched) {
     const originalAddToMap = L.MarkerCluster.prototype._addToMap;
     L.MarkerCluster.prototype._addToMap = function (startPos) {
@@ -92,6 +94,56 @@ if (L.MarkerCluster && !L.MarkerCluster.prototype.__minSizePatched) {
         return originalAddToMap.call(this, startPos);
     };
     L.MarkerCluster.prototype.__minSizePatched = true;
+}
+
+/**
+ * Gegenstück zum Mindest-Stapel: markercluster räumt beim Herauszoomen nur
+ * Stapel ab, nicht die Einzelkunden, die der Eingriff oben für kleine Gruppen
+ * direkt auf die Karte gelegt hat. Gingen sie in einem größeren Stapel auf,
+ * blieben sie als einzelne Punkte neben dem Stapel stehen (PO, 10.10.2026:
+ * „nach dem Wegzoomen sind noch einzelne Punkte da"). Nach jeder Stapel-
+ * Animation daher abgleichen: Wer auf der aktuellen Stufe in einem Stapel ab
+ * Mindestgröße steckt, verschwindet als Einzelpunkt.
+ */
+export function strayStackedMarkers(featureLayers, { zoom, minSize, spiderfied = null }) {
+    const stray = [];
+    for (const layer of featureLayers) {
+        // Stapel einer anderen Zoomstufe: beim Herauszoomen liegen geblieben.
+        if (layer && typeof layer._childCount === 'number') {
+            if (layer._zoom !== zoom && layer !== spiderfied) stray.push(layer);
+            continue;
+        }
+        if (!layer?.options?.customerId) continue;
+        let parent = layer.__parent;
+        let insideSpider = false;
+        while (parent && parent._zoom > zoom) {
+            if (parent === spiderfied) insideSpider = true;
+            parent = parent.__parent;
+        }
+        if (parent === spiderfied) insideSpider = true;
+        // Aufgefächerter Stapel (Spinne): Seine Kunden stehen absichtlich einzeln.
+        if (insideSpider) continue;
+        if (parent && parent._zoom === zoom && parent._childCount >= minSize) stray.push(layer);
+    }
+    return stray;
+}
+
+function removeStrayStackedMarkers({ fill = false } = {}) {
+    if (!clusterGroup || !map?.hasLayer(clusterGroup)) return;
+    const zoom = clusterGroup._zoom ?? Math.round(map.getZoom());
+    const layers = [];
+    clusterGroup._featureGroup.eachLayer((layer) => layers.push(layer));
+    const stray = strayStackedMarkers(layers, {
+        zoom,
+        minSize: clusterGroup.options.minClusterSize || 0,
+        spiderfied: clusterGroup._spiderfied || null
+    });
+    for (const layer of stray) clusterGroup._featureGroup.removeLayer(layer);
+    // Nach dem Aufräumen: Was auf dieser Stufe im Bild fehlt, ergänzen (vorhandene
+    // Punkte und Stapel bleiben unberührt; kleine Gruppen über den Eingriff oben).
+    if (fill && stray.length && clusterGroup._topClusterLevel) {
+        clusterGroup._topClusterLevel._recursivelyAddChildrenToMap(null, zoom, clusterGroup._getExpandedVisibleBounds());
+    }
 }
 let labelLayer = null;
 let lightsLayer = null;     // Lichterkarte: Kunden als Lichtpunkte (Canvas)
@@ -538,6 +590,15 @@ export function initMap(containerId) {
         iconCreateFunction: customerClusterIcon
     });
     map.addLayer(clusterGroup);
+    // markercluster räumt zeitversetzt (Warteschlange ~300 ms) – danach noch einmal.
+    let strayTimer = null;
+    const scheduleStrayCheck = () => {
+        removeStrayStackedMarkers();
+        clearTimeout(strayTimer);
+        strayTimer = setTimeout(() => removeStrayStackedMarkers({ fill: true }), STRAY_CHECK_DELAY_MS);
+    };
+    clusterGroup.on('animationend', scheduleStrayCheck);
+    map.on('zoomend', scheduleStrayCheck);
     syncCustomerMarkerMode();
 
     labelLayer = L.layerGroup().addTo(map);
@@ -2426,6 +2487,7 @@ function drawMarkers() {
 }
 
 function finishMarkers() {
+    removeStrayStackedMarkers();
     scheduleCustomerMarkerHint();
     scheduleCustomerClusterHint();
     // Wer an der gezeichneten Menge hängt (Lasso), muss nachziehen. Sie ändert
