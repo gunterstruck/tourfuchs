@@ -1,6 +1,6 @@
 # TourFuchs – Wettbewerb
 
-**Stand: 07.10.2026 · Rolle: Product Owner · Status: Arbeitsgrundlage**
+**Stand: 07.10.2026, ergänzt 10.10.2026 (Release 15/16) · Rolle: Product Owner · Status: Arbeitsgrundlage**
 
 TourFuchs spielt auf **zwei Funktionsfeldern** zugleich: **Tourenplanung** für den
 Außendienstler (Moment A) und **Gebietsplanung** für die Vertriebsleitung
@@ -155,6 +155,35 @@ aktuellen Firmenstand zu. TourFuchs braucht weder CRM-Anmeldung noch KI-API.
 - [Salesforce Agentforce Account Management](https://help.salesforce.com/s/articleView?id=sales.account_mgmt_overview.htm&language=en_US&type=5)
 - [SPOTIO-Plattform mit DASH und Next Best Action](https://spotio.com/platform/)
 
+## 4a. Neu seit Release 15/16 (10.10.2026): echte Firmendaten ohne Anbindung
+
+Mit Release 15 und 16 arbeitet TourFuchs mit den Listen, die im Konzern
+tatsächlich kursieren – ohne CRM-Schnittstelle, ohne Login, ohne Cloud bei
+TourFuchs. Das verschiebt die Lage auf der **Tour-Achse kaum**, stärkt aber den
+Kern „sofortiger Nutzen ohne Einführungsprojekt" deutlich.
+
+| Neu | Was es kann | Einordnung gegenüber dem Markt |
+|---|---|---|
+| **Vertriebs-Arbeitsmappe** (16.1–16.4) | Eine CRM-Export-Mappe mit fünf Blättern (Kunden, Kontakte mit Sperrvermerken, Opportunities, Produkte je PCK, Kontrollzahlen) in einem Zug, ohne Zuordnungsdialog. Kachel bleibt beim Öffnen schlank; Details hinter Knöpfen. | Die Plattformen holen dieselben Daten über eine **CRM-Synchronisation** (z. B. portatour mit Salesforce/Dynamics, Salesforce Maps im CRM). Das ist aktueller, braucht aber Anbindung, Rechte und meist die IT. TourFuchs nimmt den **Export, den der Außendienst ohnehin bekommt** – weniger aktuell, dafür sofort und lokal. |
+| **Übergaben alt → neu** (16.5) | Bei Neuordnungen: wer wen abgibt und übernimmt – auf der Karte, als Filter und als Übergabeliste je VB. | Gebietsplaner (RegioGraph, eSpatial) planen die Neuordnung; die **Umsetzung im Außendienst** (wen besuche ich zur Übergabe?) deckt TourFuchs auf denselben Daten ab wie die Tour. Das stärkt „Tour und Gebiet in einem". |
+| **Cross-Selling-Hinweise** (16.6) | „Kaufen ≥ 40 % der vergleichbaren Kunden im Bezirk, dieser nicht" – mit Begründung „x von y Kunden". | CRM-Plattformen bieten KI-gestützte Empfehlungen in der eigenen Cloud. TourFuchs bleibt **erklärbar und lokal** (Zählen statt Modell) und überlässt das Weitere der Firmen-KI per Briefing. Kein Wettbewerb um bessere Vorhersagen. |
+| **Datenquellen & Aktualisieren** (15.2) | Link zur Ablage (z. B. SharePoint) hinterlegen; „🔄 Aktualisieren" liest die synchronisierte Datei – TourFuchs ruft den Link nie selbst ab. | Wo andere synchronisieren, **aktualisiert der Nutzer bewusst**. Das ist schwächer als eine Live-Anbindung, aber ohne neue externe Verbindung und damit ohne neuen Prüfaufwand für IT und Datenschutz. |
+| **Importvorlagen** (15.1) | Einmal Spalten zuordnen; dieselbe Liste kommt danach ohne Dialog, nur mit „Liste aktualisiert: geändert · neu · entfallen". | Komfort, den Importfunktionen anderer Anbieter in ähnlicher Form kennen dürften (nicht im Einzelnen geprüft). **Kein Alleinstellungsmerkmal**, aber Voraussetzung dafür, dass der Export-Weg im Alltag trägt. |
+| **Große Bestände** (12.000+ Kunden) | Start, Filter, Zoom und Verortung auch mit Konzernlisten flüssig; zu große Mappen fallen auf das Kundenblatt zurück statt abzubrechen. | Für Plattformen selbstverständlich (Server). Für ein reines Browser-Werkzeug ohne Backend ist es die **Bedingung**, um mit echten Konzernlisten ernst genommen zu werden. |
+
+**Was das für die Botschaft heißt:** Nicht „wir können auch CRM", sondern
+**„Dein CRM-Export reicht."** Der Unterschied bleibt die Architektur: Die
+Daten liegen beim Mitarbeiter, aktualisiert wird bewusst, nichts synchronisiert
+im Hintergrund. Ehrlich dazusagen: Wer tagesaktuelle Opportunity-Stände braucht,
+ist mit einer CRM-Integration besser bedient – oder lässt sich den aktuellen
+Stand von der Firmen-KI im Briefing holen.
+
+**Was wir nicht behaupten:** „Einzigartig" für einzelne Funktionen. Belastbar
+ist die **Kombination** – Tour und Gebiet auf denselben Daten, Export statt
+Anbindung, lokal ohne Konto, KI-Briefing als offene Übergabe – in einem
+kostenlosen, quelloffenen Browser-Werkzeug. Auch das ist eine Einschätzung auf
+Basis öffentlicher Quellen, keine vollständige Marktstudie.
+
 ## 5. Die dritte Achse: zentrale Kontrolle oder Mitarbeiterwerkzeug
 
 Die großen Plattformen verkaufen zentrale Sichtbarkeit als Nutzen. Das ist
@@ -243,6 +272,11 @@ Die Wettbewerber verkaufen an **Unternehmen** (Einkauf, IT); TourFuchs erreicht
 7. **Offene KI-Brücke:** räumlicher Kontext aus TourFuchs, aktuelles Wissen aus
    der bereits freigegebenen Unternehmens-KI, verbunden durch eine sichtbare
    Nutzerhandlung.
+8. **Export statt Anbindung (seit 10.10.2026):** Die Vertriebs-Arbeitsmappe,
+   Datenquellen und Importvorlagen machen den vorhandenen CRM-Export zum
+   Arbeitsstand – ohne Schnittstelle, die eine IT freigeben müsste. Nachbauen
+   ließe sich das leicht; ein Plattformanbieter hat aber wenig Anlass, den Weg
+   an seiner Synchronisation vorbei bequem zu machen.
 
 ## 9. Unsere Antworten (Produktentscheidungen)
 
@@ -279,6 +313,10 @@ jemand anderes merkt.
 - Ein Wunsch nach zentraler Synchronisation, Managerdashboard, Live-Ortung oder
   automatischer CRM-Aktivitätsmeldung kommt auf.
 - Spätestens bei der Entscheidung über den Konzern-Betrieb.
+- Ein Wettbewerber bietet einen lokalen Import von CRM-Exporten mit
+  Übergaben/Cross-Selling ohne Konto an (betrifft Abschnitt 4a).
+- Nutzer fragen nach tagesaktuellen CRM-Ständen statt Export (Grenze von 4a;
+  Antwort bleibt: Firmen-KI im Briefing, kein eigener CRM-Abgleich).
 
 ---
 
