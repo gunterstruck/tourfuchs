@@ -840,7 +840,7 @@ offen, lange Felder scrollen in sich.
 | 16.3 | **Opportunities** | ✅ umgesetzt 10.10.2026 | Knopf in der Kachel, Filter „Opportunity"/„Opportunity-Phase", Briefing mit Name/Phase/Abschluss ohne Beträge und Freitexte. Offen: Vorrang in den Tourvorschlägen. |
 | 16.4 | **Produkte (AE je PCK) und Produktmix** | ✅ umgesetzt 10.10.2026 | Knopf mit Mix-Balken und Produktklassen je GJ, Filter „Produkt (PCK)". |
 | 16.5 | **Übergaben alt → neu** | ✅ umgesetzt 10.10.2026 | Abzeichen „🔁 Übergabe von …" in der Kachel; Marker mit gestricheltem violettem Rahmen und „🔁 Übergabe von …"; Filter „Übergabe" und „Übergabe von (VB alt)"; „🔁 Übergabeliste (Excel)" im Reiter Daten mit Blatt „Übergaben" (je Kunde) und „Übersicht je VB" (je Paar alt → neu, Kunden, Umsatz, offene Opps), folgt den Filtern. |
-| 16.6 | **Cross-Selling-Hinweise** | offen | „Kauft A, aber nicht B, was vergleichbare Kunden im Bezirk kaufen" als Chance auf der Karte. |
+| 16.6 | **Cross-Selling-Hinweise** | ✅ umgesetzt 10.10.2026 | Produktklassen, die ≥ 40 % der vergleichbaren Kunden (Bezirk, bei < 5 Vergleichskunden Vertriebsgruppe) kaufen, dieser nicht – max. 3, mit Begründung „x von y Kunden in VBEZ …". Im Feld 📦 Produkte (Knopf „💡n"), Filter „Cross-Selling-Chance" für die Karte, Briefing mit Themennamen ohne Beträge. Bewusst Zählen statt Modell: erklärbar. |
 | 16.7 | **Aktualisieren per Knopf** | offen (→ Release 15) | Die Mappe ist der erste echte Fall für „Datei verknüpfen + Aktualisieren". |
 
 Keine neue externe Verbindung; der CRM-Link öffnet nur auf Klick einen Tab

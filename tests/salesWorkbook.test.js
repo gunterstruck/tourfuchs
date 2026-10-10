@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { parseRows, readWorkbook } from '../src/services/excel.js';
 import {
     SALES_SHEETS, customerOpps, customerProducts, enrichSalesCustomers, fileOverviewCheck, flag, handover,
-    handoverRows, handoverSummary, isSalesWorkbook, prepareMainRows, productMix, salesBriefingLines, salesDimensionDefs, salesMainMapping, share
+    crossSellFor, crossSellIndex, handoverRows, handoverSummary, isSalesWorkbook, prepareMainRows, productMix, salesBriefingLines, salesDimensionDefs, salesMainMapping, share
 } from '../src/features/salesWorkbook.js';
 import { mergeWithPrevious } from '../src/features/importMerge.js';
 import { customerPopupHtml } from '../src/features/map.js';
@@ -269,5 +269,63 @@ describe('Übergaben (16.5)', () => {
         expect(readFileSync('index.html', 'utf8')).toContain('id="btn-export-handover"');
         expect(readFileSync('src/ui/sidebar.js', 'utf8')).toContain('exportHandovers(visibleCustomers())');
         for (const locale of ['de', 'en', 'fr', 'es']) expect(MESSAGES[locale]['export.handover'], locale).toBeTruthy();
+    });
+});
+
+describe('Cross-Selling (16.6)', () => {
+    const product = (pck, beschreibung, summe = 1000) => ({ pck, beschreibung, jahre: { 2024: summe }, summe });
+    // Bezirk A: 7 Kunden. Antriebe kaufen 5 von 6 Vergleichskunden, Software 2 von 6.
+    const bezirkA = () => Array.from({ length: 7 }, (_, i) => ({
+        id: `a${i}`, name: `A${i}`, bezirk: 'VBEZ 12', gruppe: 'VG 1',
+        produkte: [product('100', 'Steuerungen'), ...(i >= 1 && i <= 5 ? [product('200', 'Antriebe')] : []), ...(i >= 5 ? [product('300', 'Software')] : [])]
+    }));
+
+    it('schlägt vor, was mindestens 40 % der vergleichbaren Kunden kaufen – mit Begründung', () => {
+        const list = bezirkA();
+        expect(crossSellFor(list, list[0])).toEqual([{ key: '200', label: 'Antriebe', peers: 6, buyers: 5, scope: 'VBEZ 12' }]);
+        // a1 kauft Antriebe schon; Software kaufen nur 2 von 6 (33 %) – kein Hinweis.
+        expect(crossSellFor(list, list[1])).toEqual([]);
+        // a6 kauft Software und Steuerungen, nicht Antriebe.
+        expect(crossSellFor(list, list[6]).map((h) => h.label)).toEqual(['Antriebe']);
+    });
+
+    it('zu wenige Vergleichskunden im Bezirk: Vertriebsgruppe; zu wenige auch dort: kein Hinweis', () => {
+        const small = [
+            { id: 's0', bezirk: 'VBEZ 99', gruppe: 'VG 1', produkte: [product('100', 'Steuerungen')] },
+            { id: 's1', bezirk: 'VBEZ 99', gruppe: 'VG 1', produkte: [product('200', 'Antriebe')] }
+        ];
+        const list = [...bezirkA(), ...small];
+        expect(crossSellFor(list, small[0])[0]).toMatchObject({ label: 'Antriebe', scope: 'VG 1', peers: 8 });
+        const alone = [{ id: 'x', bezirk: 'B', gruppe: 'G', produkte: [product('1', 'Eins')] }, { id: 'y', bezirk: 'B', gruppe: 'G', produkte: [product('2', 'Zwei')] }];
+        expect(crossSellIndex(alone).size).toBe(0);
+    });
+
+    it('höchstens drei Hinweise; Kunden ohne Produkte bekommen keine', () => {
+        const many = Array.from({ length: 6 }, (_, i) => ({ id: `m${i}`, bezirk: 'B', produkte: ['1', '2', '3', '4', '5'].map((k) => product(k, `P${k}`)) }));
+        const target = { id: 't', bezirk: 'B', produkte: [product('9', 'Neun')] };
+        const none = { id: 'n', bezirk: 'B', produkte: [] };
+        const list = [...many, target, none];
+        expect(crossSellFor(list, target)).toHaveLength(3);
+        expect(crossSellFor(list, none)).toEqual([]);
+    });
+
+    it('Filter „Cross-Selling-Chance", Kachel mit 💡 und Begründung, Briefing nur Themennamen', async () => {
+        const { setCustomers, state } = await import('../src/core/state.js');
+        const list = bezirkA().map((c) => ({ ...c, plz: '50667', besuche: [] }));
+        const def = salesDimensionDefs(list).find((d) => d.id === 'cross-sell');
+        expect(def.label).toBe('Cross-Selling-Chance');
+        expect(def.values(list[0])).toEqual(['Antriebe']);
+        setCustomers(list);
+        const html = customerPopupHtml(state.customers[0]);
+        expect(html).toContain('💡1');
+        expect(html).toContain('5 von 6 vergleichbaren Kunden in VBEZ 12 kaufen das');
+        const { customerBriefingContext } = await import('../src/features/customerBriefing.js');
+        const context = customerBriefingContext(state.customers[0], {}, '', state.customers);
+        expect(context.crossSell).toEqual(['Antriebe']);
+        const prompt = buildCustomerBriefingPrompt(state.customers[0], context);
+        expect(prompt).toContain('- Mögliche Cross-Selling-Themen (bei vergleichbaren Kunden üblich, hier nicht gekauft): Antriebe');
+        expect(prompt).not.toContain('A1');
+        setCustomers([]);
+        for (const locale of ['de', 'en', 'fr', 'es']) expect(MESSAGES[locale]['customer.crossSell.reason'], locale).toContain('{buyers}');
     });
 });
