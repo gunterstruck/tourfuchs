@@ -470,7 +470,7 @@ describe('Lasso und Karte sehen dieselbe Menge', () => {
         const draw = map.slice(map.indexOf('function drawMarkers()'), map.indexOf('function finishMarkers()'));
         expect(draw).toContain('const list = customersOnMap();');
         expect(draw).toContain('customerMarkersFor(list, popupOptionsForCustomers)');
-        const quelle = map.slice(map.indexOf('export function customersOnMap()'), map.indexOf('function renderMarkers()'));
+        const quelle = map.slice(map.indexOf('export function customersOnMap()'), map.indexOf('function renderMarkers('));
         expect(quelle).toContain('markerCustomers()');
         expect(quelle).toContain('state.ui.opportunityOnly');
         expect(quelle).toContain('currentView.markers');
