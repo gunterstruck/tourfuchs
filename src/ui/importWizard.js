@@ -53,7 +53,8 @@ import { readWorkbookInBackground } from '../services/workbookReader.js';
 import { SALES_SHEETS, enrichSalesCustomers, fileOverviewCheck, prepareMainRows, salesMainMapping } from '../features/salesWorkbook.js';
 import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
 import {
-    LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatElapsed, formatFileSize, noteImportInFlight, takeInterruptedImport
+    LARGE_MOBILE_FILE_BYTES, clearImportInFlight, formatElapsed, formatFileSize, isHeavyFile, noteImportInFlight,
+    rememberHeavyFile, takeInterruptedImport
 } from '../features/importInFlight.js';
 
 let dialog = null;
@@ -102,14 +103,15 @@ const IMPORT_ERROR_NAMES = Object.freeze({
     SecurityError: 'import.error.notReadable'
 });
 
+// Speicher erschöpft (RangeError „Array buffer allocation failed", „Invalid array length" …)
+const isMemoryFailure = (error) => error?.name === 'RangeError'
+    || /out of memory|allocation failed|invalid array length/i.test(String(error?.message || error || ''));
+
 function importErrorDetail(error) {
     const detail = String(error?.message || error || '');
     const byName = IMPORT_ERROR_NAMES[error?.name];
     if (byName) return t(byName);
-    // Speicher erschöpft (RangeError „Array buffer allocation failed", „Invalid array length" …)
-    if (error?.name === 'RangeError' || /out of memory|allocation failed|invalid array length/i.test(detail)) {
-        return t('import.error.memory');
-    }
+    if (isMemoryFailure(error)) return t('import.error.memory');
     const key = IMPORT_ERROR_KEYS[detail];
     return key ? t(key) : detail;
 }
@@ -242,6 +244,7 @@ export function initImportWizard() {
         // passiert ist, statt still neu zu starten.
         const interrupted = takeInterruptedImport();
         if (interrupted) {
+            rememberHeavyFile(interrupted);
             showToast(t('import.interrupted', { file: interrupted.name, size: formatFileSize(interrupted.size, currentLocale()) }), 'error', 20000);
         }
         syncDemoRestoreOffer();
@@ -467,7 +470,19 @@ async function handleFile(file) {
         return;
     }
     try {
-        const workbook = await readFileWithFeedback(file);
+        let workbook;
+        // Diese Datei hat die Seite schon einmal aus dem Speicher geworfen: gleich schlank lesen.
+        const lean = isHeavyFile(file);
+        try {
+            workbook = await readFileWithFeedback(file, lean ? { salesDetails: false } : {});
+        } catch (error) {
+            // Speicher reichte nicht: noch einmal nur mit dem Kundenblatt – so wie
+            // vor der Vertriebs-Arbeitsmappe. Große Konzernlisten („Alle Bereiche
+            // Gesamt") lassen sich damit weiter einlesen; Kontakte, Opportunities
+            // und Produkte meldet das Ergebnisfenster als nicht gelesen.
+            if (lean || !isMemoryFailure(error) || !/\.(xlsx|xlsm|xls|ods)$/i.test(file.name)) throw error;
+            workbook = await readFileWithFeedback(file, { salesDetails: false });
+        }
         // Besuchsbericht vom Handy: nur Besuche nachtragen, keine neue Kundenliste.
         if (isVisitReportHeaders(workbook.headers)) {
             ownDataDialog?.close();
@@ -855,6 +870,7 @@ async function runImport(mapping, { sales = null } = {}) {
         const note = (grund) => errors.push({ Zeile: '—', Typ: 'Hinweis', Grund: grund });
         if (sales.replaced) note(`${sales.replaced} Debitor(en) kamen mehrfach vor – jeweils die spätere Zeile gilt.`);
         if (sales.withoutKey) note(`${sales.withoutKey} Zeile(n) ohne Debitor – zugeordnet über Name und PLZ.`);
+        if (parsed.sideSkipped) note('Kontakte, Opportunities und Produkte nicht gelesen: Die Datei ist für den Speicher dieses Geräts zu groß. Kunden sind vollständig übernommen. Die Detailblätter am PC importieren und per „Sicherer Umzug" übertragen – oder in Excel als eigene, kleinere Mappe speichern.');
         const { unmatched } = salesStats;
         if (unmatched.contacts) note(`${unmatched.contacts} Kontakt(e) mit einer IFA, die in „VBEZ Übersicht" fehlt – nicht übernommen.`);
         if (unmatched.opps) note(`${unmatched.opps} Opportunity(s) mit einer IFA, die in „VBEZ Übersicht" fehlt – nicht übernommen.`);
@@ -862,9 +878,11 @@ async function runImport(mapping, { sales = null } = {}) {
         const side = parsed.sideSheets || {};
         for (const grund of fileOverviewCheck(side[SALES_SHEETS.files] || [], {
             [SALES_SHEETS.main]: sales.rows.length + sales.replaced,
-            [SALES_SHEETS.products]: (side[SALES_SHEETS.products] || []).length,
-            [SALES_SHEETS.contacts]: (side[SALES_SHEETS.contacts] || []).length,
-            [SALES_SHEETS.opps]: (side[SALES_SHEETS.opps] || []).length
+            ...(parsed.sideSkipped ? {} : {
+                [SALES_SHEETS.products]: (side[SALES_SHEETS.products] || []).length,
+                [SALES_SHEETS.contacts]: (side[SALES_SHEETS.contacts] || []).length,
+                [SALES_SHEETS.opps]: (side[SALES_SHEETS.opps] || []).length
+            })
         })) note(grund);
     }
 
@@ -906,8 +924,10 @@ async function runImport(mapping, { sales = null } = {}) {
         const source = {
             mapping,
             headers: parsed.headers || Object.keys(parsed.rows?.[0] || {}),
-            contactsFromFile: Boolean(sales),
-            fileProps: sales ? ['opps', 'produkte'] : []
+            // Detailblätter aus Speichergründen übersprungen: Bisherige Kontakte,
+            // Opportunities und Produkte bleiben, statt zu verschwinden.
+            contactsFromFile: Boolean(sales) && !parsed.sideSkipped,
+            fileProps: sales && !parsed.sideSkipped ? ['opps', 'produkte'] : []
         };
         const carriedColumns = columnsNotInFile(state.customers, source);
         mergeWithPrevious(state.customers, customers, source);

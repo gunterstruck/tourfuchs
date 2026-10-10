@@ -1480,6 +1480,15 @@ Produktzeilen, Fehlern und Hinweisen.
   Produkte aus der Mappe; Promotoren und Kontakte aus einer eigenen Kontaktliste
   (7.7) bleiben.
 - Kennungen (IFA, Debitor …) bleiben Text mit führenden Nullen.
+- **Große Mappen:** Aus Kontakte-, Opps- und Produktblatt liest TourFuchs nur
+  die Spalten, die es auswertet. Reicht der Speicher des Geräts trotzdem nicht
+  ("Die Datei ist zu groß für den Speicher dieses Geräts"), liest TourFuchs
+  von selbst noch einmal **nur das Kundenblatt** – wie vor der Arbeitsmappe –
+  und meldet im Ergebnis "Kontakte, Opportunities und Produkte nicht gelesen".
+  Bisherige Kontakte, Opportunities und Produkte bleiben dann erhalten. Hat der
+  Browser die Seite beim Lesen verworfen, liest der nächste Versuch mit
+  derselben Datei gleich nur das Kundenblatt. Vollständig: am PC importieren
+  und per "Sicherer Umzug" übertragen.
 
 ### 7.8 Flächenzeilen
 
