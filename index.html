@@ -28,6 +28,12 @@
     <link rel="apple-touch-icon" href="/icons/icon-192.png">
 </head>
 <body>
+    <!-- Sofort sichtbar, bevor ein Skript läuft: Beim Start mit vielen Kunden
+         sieht man so, dass TourFuchs arbeitet (ui/busyIndicator.js). -->
+    <div id="app-busy" class="app-busy" role="status" aria-live="polite">
+        <span class="spinner" aria-hidden="true"></span>
+        <span class="app-busy-text" data-i18n="busy.starting">TourFuchs startet – Daten werden geladen …</span>
+    </div>
     <div id="app">
         <header class="topbar">
             <button id="sidebar-toggle" class="icon-button" aria-label="Menü umschalten" data-i18n-aria-label="shell.menu" aria-expanded="true">☰</button>
@@ -845,7 +851,7 @@
 
         <!-- Fortschritt der Verortung im Hintergrund -->
         <div id="geocode-status" class="geocode-status" role="status" hidden>
-            <span>📍 Verorte Adressen <b>0 von 0</b></span>
+            <span>📍 Verorte Adressen <b>0 von 0</b> <small class="geocode-status-found"></small></span>
             <button type="button" id="geocode-status-stop">Anhalten</button>
         </div>
 

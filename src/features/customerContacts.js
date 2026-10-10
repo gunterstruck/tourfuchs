@@ -49,14 +49,27 @@ export function showsCustomerContacts(customerContacts) {
 
 const uniqueSorted = (values) => [...new Set(values.filter(Boolean))].sort((a, b) => a.localeCompare(b, 'de'));
 
+// Schneller Weg für Filter: läuft je Kunde bei jedem Filterklick.
+function promotorField(customer, field) {
+    const contacts = customer?.contacts;
+    if (!Array.isArray(contacts) || !contacts.length) return [];
+    const values = [];
+    for (const contact of contacts) {
+        if (contact?.art !== 'promotor') continue;
+        const value = text(contact[field]);
+        if (value) values.push(value);
+    }
+    return values.length > 1 ? uniqueSorted(values) : values;
+}
+
 /** Filterwerte „Promotor": alle Promotoren-Namen des Kunden. */
 export function promotorNames(customer) {
-    return uniqueSorted(customerContactGroups(customer).promotors.map((p) => p.name));
+    return promotorField(customer, 'name');
 }
 
 /** Filterwerte „Promotor-Thema": alle Themen seiner Promotoren. */
 export function promotorTopics(customer) {
-    return uniqueSorted(customerContactGroups(customer).promotors.map((p) => p.thema));
+    return promotorField(customer, 'thema');
 }
 
 /**

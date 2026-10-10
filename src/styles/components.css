@@ -2094,6 +2094,14 @@ body.offers-receded #demo-banner {
     text-align: left;
 }
 .geocode-status button { flex: 0 0 auto; min-height: 30px; padding: 3px 12px; border-radius: 999px; font-size: 0.8rem; }
+/* „· 4.012 schon adressgenau": am Schreibtisch in derselben Zeile, am Handy
+   darunter – sonst würde die Pille breiter als der Bildschirm. */
+.geocode-status-found { color: var(--color-text-muted, #64748b); font-weight: 600; }
+@media (max-width: 600px) {
+    .geocode-status { border-radius: 18px; }
+    .geocode-status-found { display: block; font-size: 0.74rem; line-height: 1.2; }
+    .geocode-status-found:empty { display: none; }
+}
 @media (max-width: 380px) {
     .geocode-status { gap: 6px; padding-left: 10px; font-size: 0.78rem; }
 }

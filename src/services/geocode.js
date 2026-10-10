@@ -128,7 +128,15 @@ function nominatimAddressParams(c) {
  * Über das zurückgegebene Handle abbrechbar: handle.cancel()
  */
 export function exactGeocodeCandidates(customers) {
-    return (customers || []).filter((c) => !isDemoCustomer(c) && c.geo !== 'exakt' && c.strasse && (c.plz || c.ort));
+    return (customers || []).filter((c) => !isDemoCustomer(c) && c.geo !== 'exakt' && c.strasse && (c.plz || c.ort)
+        // Schon einmal gesucht und von OpenStreetMap nicht gefunden – für genau
+        // diese Anschrift nicht erneut zählen. Ändert sich die Anschrift, zählt sie wieder.
+        && c.geoExactMiss !== addressKey(c));
+}
+
+/** Kunden, deren Anschrift OpenStreetMap nicht gefunden hat (bleiben auf der PLZ). */
+export function exactGeocodeMisses(customers) {
+    return (customers || []).filter((c) => c.geo !== 'exakt' && c.strasse && c.geoExactMiss === addressKey(c)).length;
 }
 
 /**
@@ -185,8 +193,25 @@ export function geocodeExact(customers, onProgress) {
         wake = () => { clearTimeout(timer); wake = null; resolve(); };
     });
 
+    const apply = (group, result) => {
+        if (result) {
+            for (const c of group.customers) {
+                c.lat = result.lat;
+                c.lng = result.lng;
+                c.geo = 'exakt';
+                delete c.geoExactMiss;
+            }
+            return { updated: group.customers.length, failed: 0 };
+        }
+        if (result === null) {
+            for (const c of group.customers) c.geoExactMiss = group.key;
+            return { updated: 0, failed: group.customers.length };
+        }
+        return { updated: 0, failed: 0 };
+    };
+
     handle.run = (async () => {
-        if (groups.length === 0) { activeRuns.delete(handle); return { updated: 0, failed: 0, cancelled: false, serviceDown: false }; }
+        if (groups.length === 0) { activeRuns.delete(handle); return { updated: 0, failed: 0, cancelled: false, serviceDown: false, fromCache: 0 }; }
         const cache = await loadGeocodeCache();
         let updated = 0;
         let failed = 0;
@@ -194,77 +219,88 @@ export function geocodeExact(customers, onProgress) {
         let errorsInRow = 0;
         let serviceDown = false;
 
-        for (let i = 0; i < groups.length; i++) {
-            if (cancelled || !current()) break;
-            const group = groups[i];
+        // Was schon im Speicher steht, sofort übernehmen – ohne Anfrage und
+        // ohne mitzuzählen. Früher lief der Zähler nach jedem Neustart wieder
+        // bei 0 los und ging alle bekannten Adressen noch einmal durch; das
+        // sah aus, als finge die Verortung von vorn an.
+        const open = [];
+        let fromCache = 0;
+        for (const group of groups) {
+            const known = cache[group.key];
+            if (known === undefined) { open.push(group); continue; }
+            // Nur Gefundenes zählt als „aus dem Speicher"; früher nicht Gefundenes
+            // meldet der Lauf nicht noch einmal.
+            fromCache += apply(group, known).updated;
+        }
+        handle.total = open.length;
+        handle.fromCache = fromCache;
+        onProgress?.(0, open.length, { fromCache });
 
-            let result = cache[group.key];
-            if (result === undefined) {
-                if (requestsMade > 0) await pause(CONFIG.nominatim.delayMs);
-                if (cancelled) break;
-                requestsMade++;
-                try {
-                    const addressParams = nominatimAddressParams(group.sample);
-                    const params = new URLSearchParams({
-                        format: 'jsonv2',
-                        countrycodes: 'de',
-                        limit: '1',
-                        ...addressParams
-                    });
-                    controller = new AbortController();
-                    const timer = setTimeout(() => controller?.abort(), CONFIG.nominatim.timeout);
-                    const response = await fetch(`${CONFIG.nominatim.url}?${params}`, {
-                        signal: controller.signal,
-                        headers: { 'Accept-Language': 'de' }
-                    });
-                    clearTimeout(timer);
-                    if (!response.ok) {
-                        // 429 (zu viele Anfragen), 403 oder 5xx heißt „Dienst gerade
-                        // nicht bereit" – nicht „Adresse unbekannt". Früher wurde das
-                        // als „nicht gefunden" gespeichert und nie wieder versucht.
-                        const error = new Error(`Nominatim ${response.status}`);
-                        error.status = response.status;
-                        throw error;
-                    }
-                    const json = await response.json();
-                    result = json[0] ? { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) } : null;
-                    cache[group.key] = result;
-                    errorsInRow = 0;
-                    if (!current()) break;
-                    if (i % 10 === 0) await saveGeocodeCache(cache);
-                } catch (error) {
-                    result = undefined; // Netz- oder Dienstfehler: nicht als "nicht gefunden" cachen
-                    if (cancelled) break;
-                    errorsInRow += 1;
-                    // Dreimal hintereinander keine Antwort: aufhören statt weiter zu
-                    // klopfen. Beim nächsten Start oder nach einem Funkloch geht es
-                    // weiter; der Cache hält alles bisher Gefundene.
-                    if (errorsInRow >= 3) { serviceDown = true; break; }
-                    // Bei „zu viele Anfragen" deutlich länger warten.
-                    if (error?.status === 429) await pause(30000);
-                } finally {
-                    controller = null;
+        for (let i = 0; i < open.length; i++) {
+            if (cancelled || !current()) break;
+            const group = open[i];
+
+            let result;
+            if (requestsMade > 0) await pause(CONFIG.nominatim.delayMs);
+            if (cancelled) break;
+            requestsMade++;
+            try {
+                const addressParams = nominatimAddressParams(group.sample);
+                const params = new URLSearchParams({
+                    format: 'jsonv2',
+                    countrycodes: 'de',
+                    limit: '1',
+                    ...addressParams
+                });
+                controller = new AbortController();
+                const timer = setTimeout(() => controller?.abort(), CONFIG.nominatim.timeout);
+                const response = await fetch(`${CONFIG.nominatim.url}?${params}`, {
+                    signal: controller.signal,
+                    headers: { 'Accept-Language': 'de' }
+                });
+                clearTimeout(timer);
+                if (!response.ok) {
+                    // 429 (zu viele Anfragen), 403 oder 5xx heißt „Dienst gerade
+                    // nicht bereit" – nicht „Adresse unbekannt". Früher wurde das
+                    // als „nicht gefunden" gespeichert und nie wieder versucht.
+                    const error = new Error(`Nominatim ${response.status}`);
+                    error.status = response.status;
+                    throw error;
                 }
+                const json = await response.json();
+                result = json[0] ? { lat: parseFloat(json[0].lat), lng: parseFloat(json[0].lon) } : null;
+                cache[group.key] = result;
+                errorsInRow = 0;
+                if (!current()) break;
+                // Alle zehn Anfragen sichern: Schließt jemand die App, ist
+                // höchstens dieser kleine Rest beim nächsten Mal neu zu fragen.
+                if (requestsMade % 10 === 0) await saveGeocodeCache(cache);
+            } catch (error) {
+                result = undefined; // Netz- oder Dienstfehler: nicht als "nicht gefunden" cachen
+                if (cancelled) break;
+                errorsInRow += 1;
+                // Dreimal hintereinander keine Antwort: aufhören statt weiter zu
+                // klopfen. Beim nächsten Start oder nach einem Funkloch geht es
+                // weiter; der Cache hält alles bisher Gefundene.
+                if (errorsInRow >= 3) { serviceDown = true; break; }
+                // Bei „zu viele Anfragen" deutlich länger warten.
+                if (error?.status === 429) await pause(30000);
+            } finally {
+                controller = null;
             }
 
             // Ein Ergebnis gilt für alle Kunden mit exakt dieser Adresse.
-            if (result) {
-                for (const c of group.customers) {
-                    c.lat = result.lat;
-                    c.lng = result.lng;
-                    c.geo = 'exakt';
-                }
-                updated += group.customers.length;
-            } else if (result === null) {
-                failed += group.customers.length;
-            }
-            onProgress?.(i + 1, groups.length);
+            const counted = apply(group, result);
+            updated += counted.updated;
+            failed += counted.failed;
+            onProgress?.(i + 1, open.length, { fromCache });
         }
 
         activeRuns.delete(handle);
-        if (!current()) return { updated: 0, failed: 0, cancelled: true, serviceDown: false };
+        if (!current()) return { updated: 0, failed: 0, cancelled: true, serviceDown: false, fromCache: 0 };
         await saveGeocodeCache(cache);
-        return { updated, failed, cancelled, serviceDown };
+        // updated = in diesem Lauf neu gefunden; fromCache = aus dem Speicher übernommen.
+        return { updated, failed, cancelled, serviceDown, fromCache };
     })();
 
     return handle;

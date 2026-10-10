@@ -17,7 +17,7 @@
  */
 import { state, on, emit, datasetSnapshot } from '../core/state.js';
 import { isEnabled as vaultEnabled, isUnlocked as vaultUnlocked, onVault } from '../services/vault.js';
-import { groupExactGeocodeCandidates, geocodeExact, abandonGeocodeRuns } from '../services/geocode.js';
+import { groupExactGeocodeCandidates, geocodeExact, abandonGeocodeRuns, exactGeocodeMisses } from '../services/geocode.js';
 import { saveDataset } from '../services/storage.js';
 import { showToast } from './toast.js';
 import { currentLocale, t, translate } from '../core/i18n.js';
@@ -78,6 +78,14 @@ function renderStatus(done, total) {
             // Platz für den Endstand reservieren – die Pille springt beim Zählen nicht.
             count.style.minWidth = `${exactGeocodeCountText(total, total).length}ch`;
         }
+        // Was schon geschafft ist: Ohne diese Zahl sah jeder Neustart aus wie
+        // „fängt von vorn an", weil der Zähler nur die noch offenen Adressen zählt.
+        const found = box.querySelector('.geocode-status-found');
+        if (found) {
+            found.textContent = handle
+                ? t('info.geocode.found', { exact: exactCustomerCount().toLocaleString(currentLocale()) })
+                : '';
+        }
     }
     renderInfoState();
     emit('geocode:progress', { running: !!handle, done, total });
@@ -89,13 +97,23 @@ export function exactGeocodeCountText(done, total, locale = currentLocale()) {
     return translate(locale, 'info.geocode.count', { done: fmt(done), total: fmt(total) });
 }
 
+const ownWithStreet = (c) => c && c.demo !== true && c.dataOrigin !== 'tourfuchs-demo' && c.strasse;
+
+/** Eigene Kunden, die schon adressgenau liegen – schnell genug für jede Sekunde. */
+function exactCustomerCount(customers = state.customers) {
+    let exact = 0;
+    for (const c of customers || []) if (c?.geo === 'exakt' && ownWithStreet(c)) exact++;
+    return exact;
+}
+
 /** Zahlen für die Statuszeile: nur eigene Kunden mit Straße. */
 export function exactGeocodeSummary(customers = state.customers) {
-    const own = (customers || []).filter((c) => c && c.demo !== true && c.dataOrigin !== 'tourfuchs-demo' && c.strasse);
+    const own = (customers || []).filter(ownWithStreet);
     return {
         withStreet: own.length,
         exact: own.filter((c) => c.geo === 'exakt').length,
-        pending: pendingExactAddresses(customers)
+        pending: pendingExactAddresses(customers),
+        notFound: exactGeocodeMisses(own)
     };
 }
 
@@ -106,14 +124,23 @@ export function exactGeocodeSummary(customers = state.customers) {
 function renderInfoState() {
     const box = document.getElementById('exact-geocode-state');
     if (!box) return;
+    // Läuft die Verortung, kommt jede Sekunde ein Zwischenstand. Gezählt wird
+    // nur, wenn jemand hinsieht (Info offen) – bei 10.000 Kunden spart das Rechenzeit.
+    const dialog = box.closest('dialog');
+    if (handle && dialog && !dialog.open) return;
     const text = box.querySelector('.geocode-state-text');
     const now = box.querySelector('#exact-geocode-now');
     const preference = exactGeocodePreference();
-    const { withStreet, exact, pending } = exactGeocodeSummary();
+    const { withStreet, exact, pending, notFound } = exactGeocodeSummary();
     let line = '';
     let offerNow = false;
     if (handle) {
-        line = t('info.geocode.running', progress);
+        line = t('info.geocode.running', {
+            ...progress,
+            exact,
+            withStreet,
+            minutes: estimateMinutes(Math.max(0, progress.total - progress.done))
+        });
     } else if (withStreet === 0) {
         line = state.customers.length ? t('info.geocode.noStreet') : '';
     } else if (preference !== 'yes') {
@@ -126,8 +153,8 @@ function renderInfoState() {
     } else if (lastOutcome === 'paused' && pending > 0) {
         line = t('info.geocode.paused', { exact, withStreet });
         offerNow = true;
-    } else if (pending > 0 && lastOutcome === 'done') {
-        line = t('info.geocode.notFound', { exact, withStreet, missing: withStreet - exact });
+    } else if (pending === 0 && notFound > 0) {
+        line = t('info.geocode.notFound', { exact, withStreet, missing: notFound });
     } else if (pending > 0) {
         line = t('info.geocode.pending', { exact, withStreet, pending });
         offerNow = true;
@@ -188,8 +215,15 @@ export async function runExactGeocoding({ manual = false } = {}) {
     let result = { updated: 0, failed: 0, cancelled: true, serviceDown: false };
     let lastCheckpoint = Date.now();
     try {
-        handle = geocodeExact(customers, (done, total) => {
+        handle = geocodeExact(customers, (done, total, { fromCache = 0 } = {}) => {
             renderStatus(done, total);
+            // Aus dem Speicher übernommene Positionen sofort zeigen und sichern.
+            if (done === 0 && fromCache > 0) {
+                lastCheckpoint = Date.now();
+                emit('customers:changed', POSITIONS_ONLY);
+                if (customers === state.customers) saveDataset(datasetSnapshot());
+                return;
+            }
             // Unterwegs sichtbar machen, was schon sitzt – und sichern: Wird
             // der Lauf unterbrochen (Tresor sperrt, App geschlossen), ist der
             // Fortschritt nicht verloren. Nicht zu oft: Jede Zwischenstation
@@ -299,6 +333,7 @@ export function initExactGeocoding() {
         if (toggle.checked) { pausedThisVisit = false; runExactGeocoding(); } else cancelExactGeocoding();
     });
     syncInfoToggle();
+    document.getElementById('btn-info')?.addEventListener('click', () => setTimeout(renderInfoState, 0));
 
     document.getElementById('exact-geocode-now')?.addEventListener('click', () => {
         pausedThisVisit = false;
