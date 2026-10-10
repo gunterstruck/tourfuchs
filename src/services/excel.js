@@ -6,7 +6,7 @@
 
 import * as XLSX from 'xlsx';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
-import { SALES_SHEETS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
+import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
 import { loadDemoStreets, loadPlzCentroids, loadPlzPlaces } from './geocode.js';
 import {
     DEMO_DATA_LABEL,
@@ -318,7 +318,7 @@ function sheetInfos(workbook) {
  * @param {{ sheet?: string, headerRow?: number, onPhase?: (phase: string) => void }} options  Blatt und
  *        Überschriftenzeile lassen sich von Hand vorgeben (Import-Dialog).
  */
-export async function readWorkbook(file, { sheet = null, headerRow = null, onPhase = () => {} } = {}) {
+export async function readWorkbook(file, { sheet = null, headerRow = null, salesDetails = true, onPhase = () => {} } = {}) {
     const buffer = await file.arrayBuffer();
     onPhase('preparing');
     const isCsv = /\.csv$/i.test(file.name) || file.type === 'text/csv';
@@ -371,10 +371,12 @@ export async function readWorkbook(file, { sheet = null, headerRow = null, onPha
     // Vertriebs-Arbeitsmappe (VBEZ Übersicht, Kontakte, Opps …): alle Blätter
     // in einem Zug, Überschrift jeweils in Zeile 1 – ohne Zuordnungsdialog.
     if (!isCsv && !sheet && isSalesWorkbook(infos.map((s) => s.name))) {
-        const read = (name) => (infos.some((s) => s.name === name) ? tableFromSheet(loadSheet(name), 1) : { headers: [], rows: [] });
-        const main = read(SALES_SHEETS.main);
-        const sideSheets = {};
-        for (const name of SALES_SIDE_SHEETS) sideSheets[name] = read(name).rows;
+        const has = (name) => infos.some((s) => s.name === name);
+        const main = has(SALES_SHEETS.main) ? tableFromSheet(loadSheet(SALES_SHEETS.main), 1) : { headers: [], rows: [] };
+        // `salesDetails: false`: zweiter Versuch nach Speichermangel – nur das Kundenblatt.
+        const { sideSheets, sideSkipped } = salesDetails
+            ? readSalesSideSheets(has, loadSheet)
+            : { sideSheets: Object.fromEntries(SALES_SIDE_SHEETS.map((name) => [name, []])), sideSkipped: true };
         return {
             headers: main.headers,
             rows: main.rows,
@@ -386,7 +388,8 @@ export async function readWorkbook(file, { sheet = null, headerRow = null, onPha
             headerConfident: true,
             headerOptions: main.headerOptions || [],
             workbookKind: 'sales',
-            sideSheets
+            sideSheets,
+            sideSkipped
         };
     }
 
@@ -412,6 +415,65 @@ export async function readWorkbook(file, { sheet = null, headerRow = null, onPha
         headerOptions: table.headerOptions
     };
 }
+
+const normColumn = (value) => cellText(value).toLowerCase().replace(/\s+/g, ' ');
+const denseCellText = (cell) => (cell == null ? '' : String(cell.w ?? cell.v ?? ''));
+
+/**
+ * Detailblatt speichersparend lesen: Überschrift in Zeile 1, nur die Spalten
+ * aus `wanted` (unter genau diesem Namen), leere Werte weggelassen – direkt
+ * aus dem Blatt, ohne Zwischenkopie als Raster mit allen Spalten. Zeilen, die
+ * nur in anderen Spalten etwas tragen, zählen trotzdem mit (Kontrollzahlen der
+ * „Dateiübersicht").
+ */
+export function projectedRows(sheet, wanted) {
+    const data = sheet?.['!data'];
+    if (!Array.isArray(data)) return tableFromSheet(sheet, 1).rows;
+    const byName = new Map(wanted.map((name) => [normColumn(name), name]));
+    const columns = [];
+    (data[0] || []).forEach((cell, index) => {
+        const name = byName.get(normColumn(denseCellText(cell)));
+        // Doppelte Überschrift: die erste gilt (wie beim vollständigen Lesen).
+        if (name && !columns.some(([, taken]) => taken === name)) columns.push([index, name]);
+    });
+    const rows = [];
+    for (let r = 1; r < data.length; r++) {
+        const cells = data[r];
+        if (!cells?.some((cell) => cellText(denseCellText(cell)) !== '')) continue;
+        const row = {};
+        for (const [index, name] of columns) {
+            const value = denseCellText(cells[index]);
+            if (value !== '') row[name] = value;
+        }
+        rows.push(row);
+    }
+    return rows;
+}
+
+/**
+ * Detailblätter der Vertriebs-Arbeitsmappe nacheinander lesen: die kleine
+ * Dateiübersicht vollständig, die großen Blätter nur mit den nötigen Spalten.
+ * Reicht der Speicher trotzdem nicht, gilt wie vor der Arbeitsmappe nur das
+ * Kundenblatt (`sideSkipped`) – nie schlechter als früher.
+ */
+export function readSalesSideSheets(has, loadSheet) {
+    const sideSheets = {};
+    try {
+        for (const name of SALES_SIDE_SHEETS) {
+            if (!has(name)) { sideSheets[name] = []; continue; }
+            sideSheets[name] = name === SALES_SHEETS.files
+                ? tableFromSheet(loadSheet(name), 1).rows
+                : projectedRows(loadSheet(name), SALES_SIDE_COLUMNS);
+        }
+    } catch (error) {
+        if (!isMemoryError(error)) throw error;
+        return { sideSheets: Object.fromEntries(SALES_SIDE_SHEETS.map((name) => [name, []])), sideSkipped: true };
+    }
+    return { sideSheets, sideSkipped: false };
+}
+
+const isMemoryError = (error) => error?.name === 'RangeError'
+    || /out of memory|allocation failed|invalid array length/i.test(String(error?.message || error));
 
 /**
  * Automatische Zuordnung: Header -> internes Feld.

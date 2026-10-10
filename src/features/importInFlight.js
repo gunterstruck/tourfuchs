@@ -49,6 +49,28 @@ export function takeInterruptedImport({ storage = globalThis.localStorage, now =
     return { name: String(note.name || ''), size: Number(note.size) || 0 };
 }
 
+/**
+ * Datei, bei deren Lesen die Seite verworfen wurde: Beim nächsten Versuch mit
+ * derselben Datei (Name und Größe) liest TourFuchs gleich nur das Kundenblatt
+ * – sonst endete jeder Versuch wieder im Neuladen.
+ */
+export const HEAVY_FILE_KEY = 'tf_import_heavy';
+
+export function rememberHeavyFile(note, { storage = globalThis.localStorage } = {}) {
+    try {
+        storage?.setItem(HEAVY_FILE_KEY, JSON.stringify({ name: String(note?.name || ''), size: Number(note?.size) || 0 }));
+    } catch { /* ohne Speicher: kein Merken */ }
+}
+
+export function isHeavyFile(file, { storage = globalThis.localStorage } = {}) {
+    try {
+        const note = JSON.parse(storage?.getItem(HEAVY_FILE_KEY) || 'null');
+        return !!note && note.name === String(file?.name || '') && note.size === (Number(file?.size) || 0);
+    } catch {
+        return false;
+    }
+}
+
 /** 0:07, 1:45 … – Minuten und Sekunden für die laufende Uhr im Wartedialog. */
 export function formatElapsed(totalSeconds) {
     const seconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));

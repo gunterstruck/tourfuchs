@@ -25,6 +25,29 @@ export const SALES_SHEETS = Object.freeze({
 });
 export const SALES_SIDE_SHEETS = [SALES_SHEETS.files, SALES_SHEETS.products, SALES_SHEETS.contacts, SALES_SHEETS.opps];
 
+/**
+ * Die Spalten, die TourFuchs aus Kontakte-, Opps- und Produktblatt auswertet.
+ * Nur sie werden eingelesen: Die Detailblätter haben je 30–40 Spalten und
+ * zehntausende Zeilen – vollständig gelesen reichte bei einer 46-MB-Mappe der
+ * Speicher nicht mehr (PO, 10.10.2026). Ein Test hält die Liste mit den
+ * Lesestellen unten in Einklang.
+ */
+export const SALES_SIDE_COLUMNS = Object.freeze([
+    // Verknüpfung
+    'IFA', 'IFA Nr', 'IfA',
+    // Kontakte
+    'Löschvormerkung', 'Status', 'Akademischer Titel', 'Vorname', 'Nachname', 'Email', 'Telefon', 'Mobiltelefon',
+    'SieSales Link Kontakt', 'SieSales Link Kontakt_2', 'SieSales-ID', 'Anrede', 'Abteilung', 'Funktionsbeschreibung',
+    'Jobrolle (Eloqua)', 'Double Opt-In', 'Opt-Out', 'Nicht anrufen', 'Werbesperre Email', 'Werbesperre Post',
+    'Kontaktverantwortlicher',
+    // Opportunities
+    'Opportunityname', 'Opportunity-ID', 'Opportunityverantwortlicher', 'erwartete Auftragseingang', 'Phase',
+    'Prognosekategorie', 'Relevant für Forecast', 'Schlussmonat', 'Auftragseingang Datum (PM070)', 'Geschäftsjahr',
+    'Letztes Phaseänderungsdatum',
+    // Produkte
+    'PCK', 'PCK Beschreibung', '2024', '2025', '2026', 'AE GJ24-26'
+]);
+
 const text = (value) => String(value ?? '').trim();
 const normHeader = (value) => text(value).toLowerCase().replace(/\s+/g, ' ');
 
@@ -410,6 +433,8 @@ export function fileOverviewCheck(fileRows = [], read = {}) {
     ];
     const notes = [];
     for (const [column, sheet] of columns) {
+        // Nicht gelesene Blätter (aus Speichergründen übersprungen) nicht prüfen.
+        if (!(sheet in read)) continue;
         const expected = fileRows.reduce((sum, row) => sum + (amount(cell(row, column)) || 0), 0);
         const actual = read[sheet] ?? 0;
         if (expected > 0 && expected !== actual) {
