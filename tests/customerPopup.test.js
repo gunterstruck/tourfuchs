@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { state } from '../src/core/state.js';
 import { customerPopupHtml } from '../src/features/map.js';
 import { copyCustomerNumber, customerNumberClipboardText } from '../src/features/handoff.js';
@@ -62,12 +63,33 @@ describe('Umsatz im Kunden-Popup', () => {
         expect(html).not.toContain('Direkt › West › Ruhr');
     });
 
-    it('zeigt den VB-Namen direkt hinter dem Vertriebsbezirk, sofern vorhanden', () => {
+    it('zeigt den VB-Namen in eigener Zeile unter dem Vertriebsbezirk, sofern vorhanden', () => {
         state.ui.depth = 'profi';
 
         const html = customerPopupHtml(customer(45000, { vb: 'Eva Beispiel' }));
 
-        expect(html).toContain('Direkt › West › Ruhr · VB: Eva Beispiel');
+        expect(html).toContain('<span class="popup-meta-line">Direkt › West › Ruhr</span><span class="popup-meta-line">VB: Eva Beispiel</span>');
+    });
+
+    it('stellt Kundennummer und CRM-Link in eine eigene Zeile unter den Namen', () => {
+        state.ui.depth = 'profi';
+
+        const html = customerPopupHtml(customer(45000, { nummer: '1429247', extra: { 'SieSales Link': 'https://crm.example/1429247' } }));
+        const heading = html.slice(html.indexOf('<h3>'), html.indexOf('</h3>'));
+
+        expect(heading).not.toContain('popup-nr');
+        expect(html).toMatch(/<\/h3>\s*<p class="popup-idline"><button type="button" class="popup-nr"[^]*class="popup-nr popup-crm" href="https:\/\/crm\.example\/1429247"/);
+    });
+
+    it('Desktop: breite Kachel, Tour-Knöpfe bleiben beim Scrollen unten stehen', () => {
+        const map = readFileSync(resolve(process.cwd(), 'src/features/map.js'), 'utf8');
+        const css = readFileSync(resolve(process.cwd(), 'src/styles/map.css'), 'utf8');
+        expect(map).toContain('const CUSTOMER_POPUP_WIDTH = 480;');
+        expect(css).toMatch(/\.popup-customer \.popup-actions \{\s*position: sticky;\s*bottom: 0;/);
+        expect(css).toContain('.customer-detail-popup .leaflet-popup-content { max-height: max(380px, calc(100dvh - 230px)); }');
+        // Aufklappen: Kachel bleibt im Bild, das Feld rückt in Sicht.
+        expect(map).toContain('keepPopupTopInView(el);');
+        expect(map).toContain('if (open) revealPopupPanel(el, group);');
     });
 
     it('lässt den VB-Zusatz bei einem leeren Wert weg', () => {

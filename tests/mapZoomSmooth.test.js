@@ -144,6 +144,19 @@ describe('Offene Kundenkachel bleibt, während die Verortung im Hintergrund läu
         expect(map).toContain("map.on('popupclose', () => { if (positionsPending) setTimeout(refreshPositions, 0); });");
     });
 
+    it('Lichterkarte: Lichtpunkte rücken nach bzw. wachsen mit, ohne Neuaufbau', () => {
+        // PO, 10.10.2026: „nur noch im Lichterkarten-Modus am Desktop verschwindet die Kachel".
+        const body = map.slice(map.indexOf('function refreshPositions()'), map.indexOf('// ---- Ansicht / Detailgrad'));
+        expect(body.indexOf('updateLights();')).toBeLessThan(body.indexOf('refreshAll();'));
+        const update = map.slice(map.indexOf('function updateLights()'), map.indexOf('// ---- Ansicht / Detailgrad'));
+        expect(update).toContain('dot.setStyle(lightDotStyle(');
+        expect(update).toContain('if (dot.isPopupOpen()) { positionsPending = true; continue; }');
+        expect(update).not.toContain('clearLayers');
+        // Zoom: Lichtpunkte nur anpassen (keep), drawMarkers baut sie dann nicht neu.
+        expect(map).toContain('if (lightsActive()) renderMarkers({ keep: true });');
+        expect(map).toContain('if (!dirty && lightsActive() && lightsLayer?.getLayers().length) {\n        updateLights();');
+    });
+
     it('lässt Seitenleiste und Modus bei reinen Positionsänderungen in Ruhe', () => {
         const handler = sidebar.slice(sidebar.indexOf("on('customers:changed', (info) => {"));
         expect(handler.indexOf("if (info?.reason === 'positions') return;")).toBeLessThan(handler.indexOf('applyMode(state.ui.mode'));

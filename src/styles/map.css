@@ -585,6 +585,10 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
     max-height: min(58dvh, 430px);
     overflow-y: auto;
 }
+/* Kundenkachel am Desktop: so hoch, wie die Karte unter Kopfzeile und
+   Rändern Platz hat – zugeklappt ist alles bis zu den Tour-Knöpfen sichtbar.
+   Am Handy gilt weiter die Regel unten im Handy-Block. */
+.customer-detail-popup .leaflet-popup-content { max-height: max(380px, calc(100dvh - 230px)); }
 .popup-toolbar {
     display: flex;
     align-items: center;
@@ -621,8 +625,12 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
 }
 .popup-nr:hover:not(:disabled) { border-color: var(--color-primary); background: var(--color-primary-light); }
 .popup-nr:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+.popup-customer h3 { margin-bottom: 2px; }
+/* Eigene Zeile unter dem Namen: Kundennummer und CRM-Link. */
+.popup-customer .popup-idline { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; margin: 0 0 6px; }
 .popup-customer .popup-addr { margin: 2px 0; }
 .popup-customer .popup-meta { margin: 2px 0 4px; }
+.popup-customer .popup-meta-line { display: block; }
 .popup-customer .popup-revenue {
     display: flex;
     align-items: baseline;
@@ -685,6 +693,16 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
    Beschriftung geschlossen unter das Symbol – nie „Als" | „Start". */
 .popup-actions button { display: inline-flex; align-items: center; justify-content: center; flex-wrap: wrap; column-gap: 4px; row-gap: 1px; min-width: 0; }
 .popup-actions .pa-label { white-space: nowrap; }
+/* Tour-Knöpfe bleiben unten stehen, auch wenn ein aufgeklapptes Feld die
+   Kachel scrollen lässt. */
+.popup-customer .popup-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    margin-top: 6px;
+    padding: 6px 0 0;
+    background: var(--color-surface, #fff);
+}
 /* Hinweis zur Ortung als Ganzes umbrechen (nicht „Straße, ohne" | „Hausnummer"). */
 .popup-geo-note { display: block; white-space: nowrap; }
 
@@ -756,6 +774,10 @@ button.contact-link {
    „alle 4 Woch…" abzuschneiden. */
 .visit-controls { flex-wrap: wrap; }
 .visit-controls .rhythm-select { flex: 1 1 7.6em; padding: 4px 20px 4px 6px; }
+/* „Zuletzt", „Heute besucht" und Rhythmus in einer Zeile, solange sie passen. */
+.popup-customer .visit-block { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.popup-customer .visit-block .visit-line { flex: 1 1 auto; margin: 0; }
+.popup-customer .visit-block .visit-controls { flex: 1 1 auto; justify-content: flex-end; }
 .status-badge {
     display: inline-block;
     color: #fff;
@@ -831,6 +853,9 @@ button.contact-link {
         margin: 10px 12px;
         max-height: min(52dvh, 380px);
     }
+    /* Kundenkachel: etwas mehr Höhe, weil die Tour-Knöpfe unten stehen
+       bleiben – die Karte mit dem Kundenpunkt bleibt darunter sichtbar. */
+    .customer-detail-popup .leaflet-popup-content { max-height: min(60dvh, 460px); }
     .leaflet-popup-content-wrapper {
         max-width: calc(100vw - 28px);
     }

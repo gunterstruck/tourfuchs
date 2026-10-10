@@ -619,8 +619,9 @@ export function initMap(containerId) {
         zoomSettleTimer = null;
         if (!map) return;
         syncCustomerMarkerMode();
-        // Lichtpunkte wachsen mit der Zoomstufe.
-        if (lightsActive()) renderMarkers();
+        // Lichtpunkte wachsen mit der Zoomstufe – nur angepasst, nicht neu
+        // gebaut, damit eine offene Kundenkachel stehen bleibt.
+        if (lightsActive()) renderMarkers({ keep: true });
         // Gespeicherte Orte hängen an einer Zoomschwelle und müssen sie beim
         // Zoomen auch überqueren dürfen. `applyView()` läuft nur bei
         // Ebenenwechsel bzw. in der Farbautomatik – zu selten dafür.
@@ -933,8 +934,15 @@ function refreshAll() {
 let positionsPending = false;
 function refreshPositions() {
     positionsPending = false;
-    // Ohne sichtbare Kundenpunkte (Flächenansicht, Lichterkarte) wie bisher.
-    if (!map || !clusterGroup || lightsActive() || !currentView.markers || !map.hasLayer(clusterGroup)
+    if (lightsActive() && lightsLayer) {
+        // Lichterkarte: dieselbe Regel für die Lichtpunkte.
+        updateLights();
+        restyleRegions();
+        renderTour({ markers: false });
+        return;
+    }
+    // Ohne sichtbare Kundenpunkte (Flächenansicht) wie bisher.
+    if (!map || !clusterGroup || !currentView.markers || !map.hasLayer(clusterGroup)
         || builtMarkerSignature !== markerSignature()) {
         refreshAll();
         return;
@@ -957,6 +965,36 @@ function refreshPositions() {
     renderLabels();
     renderTour({ markers: false });
     finishMarkers();
+}
+
+/**
+ * Lichterkarte ohne Neuaufbau: Größe nach Zoomstufe, Position nach der
+ * Verortung. Ein Neuaufbau schlösse die offene Kundenkachel (PO, 10.10.2026:
+ * „nur noch in der Lichterkarte verschwindet die Kachel"). Ein Punkt mit
+ * offener Kachel wartet mit dem Umzug, bis sie geschlossen ist.
+ */
+function updateLights() {
+    if (!lightsLayer || !lightsRenderer) return;
+    const customers = customersOnMap();
+    const reference = revenueReference(customers.map((c) => c.umsatz));
+    const zoom = map.getZoom();
+    const dots = new Map();
+    lightsLayer.eachLayer((dot) => dots.set(dot.options.customerId, dot));
+    const added = [];
+    for (const customer of customers) {
+        const dot = dots.get(customer.id);
+        if (!dot) { added.push(customer); continue; }
+        dots.delete(customer.id);
+        dot.setStyle(lightDotStyle({ zoom, revenue: customer.umsatz, reference }));
+        const at = dot.getLatLng();
+        if (at.lat === customer.lat && at.lng === customer.lng) continue;
+        if (dot.isPopupOpen()) { positionsPending = true; continue; }
+        dot.setLatLng([customer.lat, customer.lng]);
+    }
+    for (const stale of dots.values()) {
+        if (!stale.isPopupOpen()) lightsLayer.removeLayer(stale);
+    }
+    if (added.length) drawLights(customerPopupOptions(), added, reference);
 }
 
 // ---- Ansicht / Detailgrad (Level of Detail) ----
@@ -1964,19 +2002,60 @@ function wirePopupSections(el) {
                 if (panel) panel.hidden = false;
             }
             // Kein popup.update(): Es baut den Inhalt neu auf und klappt das Feld
-            // sofort wieder zu. Die Kachel wächst ohnehin nach oben mit.
+            // sofort wieder zu. Die Kachel wächst nach oben mit – ragt sie dann
+            // aus dem Bild, schwenkt die Karte nach.
+            requestAnimationFrame(() => {
+                keepPopupTopInView(el);
+                if (open) revealPopupPanel(el, group);
+            });
         });
     });
 }
+
+/**
+ * Scrollt die Kachel, falls das eben aufgeklappte Feld unter den Tour-Knöpfen
+ * läge (v. a. am Handy): Die Knopfzeile rückt nach oben, das Feld darunter
+ * ist zu sehen. Von Hand gescrollt – scrollIntoView verschöbe auch die Karte.
+ */
+function revealPopupPanel(el, group) {
+    const content = el.querySelector('.leaflet-popup-content');
+    const panel = group.querySelector('[data-popup-panel]:not([hidden])');
+    if (!content || !panel || content.scrollHeight <= content.clientHeight) return;
+    const box = content.getBoundingClientRect();
+    const actions = el.querySelector('.popup-actions')?.offsetHeight || 0;
+    if (panel.getBoundingClientRect().top < box.bottom - actions - 120) return;
+    const toolbar = el.querySelector('.popup-toolbar');
+    const stickyTop = toolbar && getComputedStyle(toolbar).position === 'sticky' ? toolbar.offsetHeight : 0;
+    const anchor = group.firstElementChild || panel;
+    content.scrollTop += anchor.getBoundingClientRect().top - box.top - stickyTop - 6;
+}
+
+/** Name und „Schließen" bleiben sichtbar, wenn ein Feld die Kachel nach oben wachsen lässt. */
+function keepPopupTopInView(el) {
+    if (!map || !el?.isConnected) return;
+    const wrapper = el.querySelector('.leaflet-popup-content-wrapper') || el;
+    const top = wrapper.getBoundingClientRect().top;
+    const limit = map.getContainer().getBoundingClientRect().top + currentPopupPadding().topLeft.y;
+    if (top < limit) map.panBy([0, Math.round(top - limit)]);
+}
+
+// Desktop: breit genug, dass die Knöpfe (Ansprechpartner, Opportunities,
+// Produkte) und der Besuchsblock je in eine Zeile passen.
+const CUSTOMER_POPUP_WIDTH = 480;
 
 function customerPopupOptions() {
     // Handy: die Kachel nutzt die Bildschirmbreite (abzüglich Rand), damit
     // Knöpfe und „alle 4 Wochen" nicht gestaucht oder abgeschnitten werden.
     if (isMobileMap()) {
-        const width = Math.max(240, Math.min(330, window.innerWidth - 56));
-        return popupOptions({ maxWidth: width, minWidth: width, className: 'customer-detail-popup' });
+        const width = Math.max(240, Math.min(360, window.innerWidth - 52));
+        return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup' });
     }
-    return popupOptions({ maxWidth: 300, className: 'customer-detail-popup' });
+    // Desktop: so hoch, wie die Karte Platz hat (Grenze im CSS) – zugeklappt
+    // ist alles zu sehen, Name bis Tour-Knöpfe. Erst aufgeklappte Felder lassen
+    // sie scrollen. Kein maxHeight von Leaflet: Es setzte eine feste Höhe, die
+    // beim Auf- und Zuklappen nicht mitginge.
+    const width = Math.min(CUSTOMER_POPUP_WIDTH, window.innerWidth - 80);
+    return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup' });
 }
 
 function animateCustomerMarkerOpen(marker) {
@@ -2293,7 +2372,7 @@ function serviceVisitsBlockHtml(customer) {
 export function customerPopupHtml(customer) {
     const inTour = state.tour.stops.includes(customer.id);
     const isDest = state.tour.destination?.customerId === customer.id;
-    // Kompakter Kopf: Adresse einzeilig, Kundennummer neben dem Namen. Umsatz
+    // Kompakter Kopf: Adresse einzeilig, Kundennummer unter dem Namen. Umsatz
     // bekommt bewusst eine eigene, klar beschriftete Zeile, damit er nicht
     // zwischen Hierarchie-Codes untergeht.
     const place = [customer.plz, customer.ort].map((value) => String(value ?? '').trim()).filter(Boolean).join(' ');
@@ -2308,7 +2387,10 @@ export function customerPopupHtml(customer) {
             ? ` <a class="popup-team-tel" href="tel:${escapeHtml(representative.tel)}" title="${escapeHtml(t('customer.contacts.call', { name: representative.name }))}">📞 ${escapeHtml(representative.phone)}</a>`
             : ''}`
         : '';
-    const assignment = [hierarchy, representativeHtml].filter(Boolean).join(' · ');
+    // Gebiet und Vertriebsbeauftragter je in eigener Zeile – der Name bricht
+    // nicht mitten in der Hierarchie um.
+    const assignment = [hierarchy, representativeHtml].filter(Boolean)
+        .map((line) => `<span class="popup-meta-line">${line}</span>`).join('');
     const rawRevenue = customer.umsatz;
     const hasRevenue = rawRevenue !== null
         && rawRevenue !== undefined
@@ -2341,8 +2423,11 @@ export function customerPopupHtml(customer) {
     const geoNote = customer.geo === 'plz'
         ? t('customer.geo.postalApprox')
         : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
+    // Kopf: Name allein, darunter eine eigene Zeile für Kundennummer und CRM.
+    const idLine = nr || crmHtml ? `<p class="popup-idline">${nr}${crmHtml}</p>` : '';
     return `<div class="popup popup-customer">
-        <h3>${escapeHtml(customer.name)}${demoBadge}${nr}${crmHtml}</h3>
+        <h3>${escapeHtml(customer.name)}${demoBadge}</h3>
+        ${idLine}
         ${addr ? `<p class="popup-addr">${addr}${geoNote ? ` <span class="muted small popup-geo-note">${escapeHtml(geoNote)}</span>` : ''}</p>` : ''}
         ${revenueHtml}
         ${profi && assignment ? `<p class="muted small popup-meta">${assignment}</p>` : ''}
@@ -2481,6 +2566,11 @@ function drawMarkers() {
         finishMarkers();
         return;
     }
+    if (!dirty && lightsActive() && lightsLayer?.getLayers().length) {
+        updateLights();
+        emit('map:markers-rendered');
+        return;
+    }
     builtMarkerSignature = null;
     clusterGroup.clearLayers();
     lightsLayer?.clearLayers();
@@ -2560,10 +2650,9 @@ function customerMarkersFor(customers, popupOptionsForCustomers) {
 }
 
 /** Lichterkarte: jeder sichtbare Kunde ein gelber Lichtpunkt (Größe = Umsatz). */
-function drawLights(popupOptionsForCustomers) {
+function drawLights(popupOptionsForCustomers, customers = customersOnMap(),
+    reference = revenueReference(customers.map((c) => c.umsatz))) {
     if (!lightsLayer || !lightsRenderer) return;
-    const customers = customersOnMap();
-    const reference = revenueReference(customers.map((c) => c.umsatz));
     const zoom = map.getZoom();
     const withTooltip = !isMobileMap();
     for (const customer of customers) {
