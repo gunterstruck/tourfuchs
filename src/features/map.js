@@ -2055,7 +2055,9 @@ function customerPopupOptions() {
     // sie scrollen. Kein maxHeight von Leaflet: Es setzte eine feste Höhe, die
     // beim Auf- und Zuklappen nicht mitginge.
     const width = Math.min(CUSTOMER_POPUP_WIDTH, window.innerWidth - 80);
-    return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup' });
+    // Eigene Klasse nur am Desktop – dort sind die Tour-Knöpfe große Pillen,
+    // am Handy bleibt alles, wie es ist.
+    return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup customer-popup-desktop' });
 }
 
 function animateCustomerMarkerOpen(marker) {

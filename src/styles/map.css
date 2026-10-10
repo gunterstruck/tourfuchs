@@ -703,6 +703,16 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
     padding: 6px 0 0;
     background: var(--color-surface, #fff);
 }
+/* Desktop: Tour-Knöpfe als richtige Pillen, doppelt so hoch wie zuvor. */
+.customer-popup-desktop .popup-actions { gap: 8px; }
+.customer-popup-desktop .popup-actions button {
+    min-height: 50px;
+    padding: 8px 12px;
+    border-radius: var(--radius-pill);
+    font-size: 0.88rem;
+    font-weight: 600;
+    column-gap: 6px;
+}
 /* Hinweis zur Ortung als Ganzes umbrechen (nicht „Straße, ohne" | „Hausnummer"). */
 .popup-geo-note { display: block; white-space: nowrap; }
 

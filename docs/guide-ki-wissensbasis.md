@@ -1807,7 +1807,8 @@ einer eigenen Zeile darunter Kundennummer und **"↗ SieSales"**, dann Adresse,
 Umsatz, Gebiet (Channel › Gruppe › Bezirk) und – in einer zweiten Zeile – der
 Vertriebsbeauftragte. Es folgen die Knöpfe (Kundenansprechpartner,
 Opportunities, Produkte …), der Besuchsblock („Zuletzt", **"Heute besucht"**,
-Rhythmus) und ganz unten die Tour-Knöpfe. Am Desktop ist die Kachel breiter
+Rhythmus) und ganz unten die Tour-Knöpfe – am Desktop als große Pillen
+(**"Als Start"**, **"Als Ziel"**, **"Zur Tour"**, **"Briefing"**). Am Desktop ist die Kachel breiter
 und so hoch, wie die Karte Platz hat: Zugeklappt ist alles ohne Scrollen zu
 sehen. Erst ein aufgeklapptes Feld lässt die Kachel scrollen; die Tour-Knöpfe
 bleiben dabei unten stehen, und die Karte schwenkt nach, damit Name und
