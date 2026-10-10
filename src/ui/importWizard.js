@@ -976,6 +976,8 @@ async function runImport(mapping, { sales = null } = {}) {
     }
     const persisted = await persistDataset();
     markShowcaseImportCompleted();
+    // Für „Datenquellen": Stand der Quelle festhalten, sobald die Liste gespeichert ist.
+    if (persisted) emit('import:completed', { fileName: parsed.fileName });
 
     lastErrors = errors;
     // Ohne dauerhafte Speicherung wäre „importiert" eine halbe Wahrheit – die

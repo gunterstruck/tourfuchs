@@ -59,7 +59,7 @@ button.primary:hover:not(:disabled) { background: var(--color-primary-dark); bor
 button.danger { color: var(--color-danger); }
 button.danger:hover:not(:disabled) { background: #fef2f2; border-color: #fecaca; }
 
-input[type="search"], input[type="text"], select {
+input[type="search"], input[type="text"], input[type="url"], select {
     font-family: inherit;
     font-size: 0.9rem;
     padding: 0.5em 0.7em;

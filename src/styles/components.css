@@ -3389,3 +3389,34 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 .diff-missing-choice legend { font-weight: 700; padding: 0 4px; }
 .diff-missing-choice label { display: flex; gap: 8px; align-items: flex-start; font-size: 0.88rem; cursor: pointer; }
 .diff-missing-choice input { margin-top: 3px; }
+
+/* Datenquellen unter „Daten" (Release 15, ui/dataSources.js) */
+.data-sources {
+    margin: 10px 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-l);
+    background: var(--color-surface);
+    overflow: hidden;
+}
+.data-sources > summary { padding: 9px 10px; cursor: pointer; font-weight: 800; }
+.data-sources > summary .muted { font-weight: 600; }
+.data-sources[open] > :not(summary) { margin-inline: 9px; }
+.data-sources[open] > :last-child { margin-bottom: 9px; }
+.data-sources-list { list-style: none; padding: 0; margin: 8px 0; display: grid; gap: 8px; }
+.data-source { border: 1px solid var(--color-border); border-radius: var(--radius-l); padding: 8px 9px; background: var(--color-surface-2); }
+.data-source-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; overflow-wrap: anywhere; }
+.data-source-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; align-items: center; }
+.data-source-actions button, .data-source-open { font-size: 0.8rem; padding: 0.4em 0.75em; }
+.data-source-refresh { font-weight: 700; }
+.data-source-open {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-pill);
+    background: var(--color-surface);
+    color: var(--color-text);
+    text-decoration: none;
+}
+.data-source-open:hover { background: var(--color-surface-2); }
+.data-source-actions .data-source-minor { border-color: transparent; background: transparent; color: var(--color-text-muted); }
+.data-source-form { display: grid; grid-template-columns: minmax(0, 1fr); gap: 6px; }
+.data-source-form input { min-width: 0; }
+.data-source-form[hidden] { display: none; }
