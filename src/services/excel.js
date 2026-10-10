@@ -5,6 +5,7 @@
  */
 
 import * as XLSX from 'xlsx';
+import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
 import { loadDemoStreets, loadPlzCentroids, loadPlzPlaces } from './geocode.js';
 import {
     DEMO_DATA_LABEL,
@@ -60,7 +61,14 @@ export const FIELDS = [
     // darf nicht als Historie erkannt werden.
     { key: 'alleBesuche', label: 'Alle Besuche (Historie)', required: false, synonyms: ['alle besuche', 'besuchshistorie', 'besuchsverlauf', 'visit history'] },
     { key: 'weitereKontakte', label: 'Weitere Ansprechpartner', required: false, synonyms: ['weitere ansprechpartner', 'weitere kontakte', 'zusätzliche ansprechpartner', 'zusaetzliche ansprechpartner'] },
-    { key: 'verortung', label: 'Verortung (Genauigkeit)', required: false, synonyms: ['verortung', 'verortungsgenauigkeit', 'geo genauigkeit', 'geo-genauigkeit'] }
+    { key: 'verortung', label: 'Verortung (Genauigkeit)', required: false, synonyms: ['verortung', 'verortungsgenauigkeit', 'geo genauigkeit', 'geo-genauigkeit'] },
+    // Kontaktlisten (eine Zeile je Kontakt, verknüpft über die Kundennummer):
+    // Kundenansprechpartner mit Abteilung, Promotoren mit ihrem Thema.
+    { key: 'kontaktArt', label: 'Kontaktart (Promotor/Kunde)', required: false, synonyms: ['kontaktart', 'kontakt art', 'kontakttyp', 'kontakt typ', 'art des kontakts'] },
+    { key: 'abteilung', label: 'Abteilung', required: false, synonyms: ['abteilung', 'abteilungsbezeichnung', 'department'] },
+    { key: 'thema', label: 'Thema (Promotor)', required: false, synonyms: ['thema', 'themengebiet', 'promotion thema', 'promotet', 'promotes'] },
+    // Rückweg der Exportspalte „Promotoren" (wie „Weitere Ansprechpartner").
+    { key: 'promotoren', label: 'Promotoren', required: false, synonyms: ['promotoren'] }
 ];
 
 function normalizeHeader(h) {
@@ -417,7 +425,37 @@ export function autoDetectMapping(headers) {
             }
         }
     }
+    // Mehrere Umsatzjahre („Umsatz 2023 … 2025"): der jüngste ist „der" Umsatz.
+    mapping.umsatz = pickLatestRevenueHeader(mapping.umsatz, headers);
+    applyContactListMapping(mapping, headers);
     return mapping;
+}
+
+const PROMOTOR_NAME_HEADER = /^promot(or|er|orin)( name)?$/;
+
+/**
+ * Kontaktliste statt Kundenstamm (keine PLZ, aber Abteilung/Thema/Kontaktart
+ * oder eine Spalte „Promotor"): Dort ist „Name" die Person, nicht der Kunde.
+ */
+function applyContactListMapping(mapping, headers) {
+    // Anschrift oder Koordinaten = Kundenliste, auch mit Spalte „Abteilung".
+    if (mapping.plz || mapping.strasse || (mapping.lat && mapping.lng)) return;
+    if (!mapping.ansprechpartner) {
+        const promotorHeader = headers.find((header) => PROMOTOR_NAME_HEADER.test(normalizeHeader(header)));
+        if (promotorHeader) {
+            mapping.ansprechpartner = promotorHeader;
+            if (mapping.name === promotorHeader) mapping.name = null;
+        }
+    }
+    const contactList = mapping.kontaktArt || mapping.abteilung || mapping.thema
+        || (mapping.ansprechpartner && PROMOTOR_NAME_HEADER.test(normalizeHeader(mapping.ansprechpartner)));
+    if (!contactList) return;
+    if (!mapping.ansprechpartner) {
+        const person = headers.find((header) => ['name', 'person', 'kontakt name', 'vor und nachname'].includes(normalizeHeader(header)));
+        mapping.ansprechpartner = person || mapping.name;
+    }
+    // Ein Kundenname macht die Zeile sonst zur (nicht verortbaren) Kundenzeile.
+    if (mapping.name === mapping.ansprechpartner || mapping.nummer) mapping.name = null;
 }
 
 function cleanPlz(value) {
@@ -546,13 +584,23 @@ function shortHash(value) {
     return hash.toString(36);
 }
 
-function contactFromValues({ nummer, name, telefon, email, primary, sheetRow }) {
+/** „Promotor", „Promoter", „PRO" … → 'promotor', alles andere → 'kunde'. */
+export function contactKind(value) {
+    return /promot|^pro$/i.test(String(value ?? '').trim()) ? 'promotor' : 'kunde';
+}
+
+function contactFromValues({ nummer, name, telefon, email, primary, sheetRow, art, abteilung, thema }) {
     const cleanName = String(name ?? '').trim();
     const cleanPhone = String(telefon ?? '').trim();
     const cleanEmail = String(email ?? '').trim();
     if (!cleanName && !cleanPhone && !cleanEmail) return null;
     const cleanNummer = String(nummer ?? '').trim();
+    const details = {};
+    if (art === 'promotor') details.art = 'promotor';
+    if (String(abteilung ?? '').trim()) details.abteilung = String(abteilung).trim();
+    if (String(thema ?? '').trim()) details.thema = String(thema).trim();
     return {
+        ...details,
         // Aus dem Inhalt, nicht aus der Excel-Zeile: Zwei Importe mit je einem
         // Kontakt in „Zeile 2" ergaben sonst dieselbe ID für Anna und Bernd.
         id: `ct-${cleanNummer || sheetRow}-${shortHash(`${cleanName.toLowerCase()}|${cleanPhone}|${cleanEmail.toLowerCase()}`)}`,
@@ -576,20 +624,23 @@ function contactFromValues({ nummer, name, telefon, email, primary, sheetRow }) 
 const PHONE_PATTERN = /^[+(]?[\d\s/().-]+$/;
 const looksLikePhone = (part) => PHONE_PATTERN.test(part) && (part.match(/\d/g) || []).length >= 5;
 
-function parseOtherContacts(value, nummer, sheetRow, onUnknown = () => {}) {
+function parseOtherContacts(value, nummer, sheetRow, onUnknown = () => {}, art = 'kunde') {
+    // Zweiter freier Teil: Abteilung (Ansprechpartner) bzw. Thema (Promotor).
+    const detailKey = art === 'promotor' ? 'thema' : 'abteilung';
     return String(value ?? '')
         .split(/\s*\|\s*|\n/)
         .map((entry) => entry.trim())
         .filter(Boolean)
         .map((entry) => {
-            const found = { name: '', telefon: '', email: '' };
+            const found = { name: '', telefon: '', email: '', [detailKey]: '' };
             for (const part of entry.split(/\s*·\s*/).map((p) => p.trim()).filter(Boolean)) {
                 if (!found.email && part.includes('@')) found.email = part;
                 else if (!found.telefon && looksLikePhone(part)) found.telefon = part;
                 else if (!found.name) found.name = part;
+                else if (!found[detailKey]) found[detailKey] = part;
                 else onUnknown(part); // nichts still verwerfen
             }
-            return contactFromValues({ nummer, ...found, primary: false, sheetRow });
+            return contactFromValues({ nummer, ...found, art, primary: false, sheetRow });
         })
         .filter(Boolean);
 }
@@ -600,7 +651,9 @@ function syncPrimaryContact(customer) {
         delete customer.contacts;
         return customer;
     }
-    const primary = contacts.find((c) => c.primary) || contacts.find((c) => c.name) || contacts[0];
+    // Hauptansprechpartner ist immer ein Kontakt des Kunden – nie ein Promotor.
+    const candidates = contacts.filter((c) => c.art !== 'promotor');
+    const primary = candidates.find((c) => c.primary) || candidates.find((c) => c.name) || candidates[0] || null;
     // Genau ein Hauptkontakt – über das Objekt, nicht über die ID: Ältere
     // Bestände können doppelte IDs tragen. Doppelte IDs werden dabei eindeutig.
     const seenIds = new Set();
@@ -610,6 +663,10 @@ function syncPrimaryContact(customer) {
         seenIds.add(id);
         return { ...c, id, primary: c === primary };
     });
+    if (!primary) {
+        delete customer.primaryContactId;
+        return customer;
+    }
     const chosen = customer.contacts[contacts.indexOf(primary)];
     customer.primaryContactId = chosen.id;
     customer.ansprechpartner = chosen.name || '';
@@ -686,7 +743,19 @@ export function parseRows(rows, mapping) {
     const contactRows = [];
     const errors = [];
     const seen = new Map(); // Dublettenschlüssel -> erste Zeilennummer
-    const mappedHeaders = new Set(Object.values(mapping).filter(Boolean));
+    // Umsatzjahre („Umsatz 2024", „GJ 2025") bleiben als Originalspalte in
+    // `extra` – auch die als „Umsatz" zugeordnete –, damit Export und Reimport
+    // sie verlustfrei wiederfinden. Kontaktart/Thema gehören nur in
+    // Kontaktzeilen; in einer Kundenzeile bleiben sie Zusatzspalte.
+    const allHeaders = [...new Set(rows.flatMap((row) => Object.keys(row || {})))];
+    const yearHeaders = revenueYearHeaders(allHeaders);
+    const keptInExtra = new Set([...yearHeaders.map((entry) => entry.header), mapping.kontaktArt, mapping.thema].filter(Boolean));
+    const mappedHeaders = new Set(Object.values(mapping).filter((header) => header && !keptInExtra.has(header)));
+    const yearColumns = yearHeaders.map(({ header, year }) => {
+        const scale = detectRevenueScale(header);
+        const { values } = parseAmountColumn(rows.map((row) => row[header]));
+        return { year, values: values.map((n) => scaleNumber(n, scale)) };
+    });
     let skipped = 0;
 
     const err = (sheetRow, grund, raw, typ = 'Fehler') => errors.push({ Zeile: sheetRow, Typ: typ, Grund: grund, ...raw });
@@ -718,12 +787,21 @@ export function parseRows(rows, mapping) {
         const name = get('name');
         const gebiet = get('gebiet');
         const nummer = get('nummer');
+        const contactRow = !name && !gebiet;
+        // Art des Kontakts: ausdrücklich („Kontaktart"), sonst verrät es die
+        // Liste – ein Thema oder eine Spalte „Promotor" gibt es nur bei Promotoren.
+        const art = get('kontaktArt')
+            ? contactKind(get('kontaktArt'))
+            : contactRow && (get('thema') || /promot/i.test(mapping.ansprechpartner || '')) ? 'promotor' : 'kunde';
         const contact = contactFromValues({
             nummer,
             name: get('ansprechpartner'),
             telefon: get('telefon'),
             email: get('email'),
             primary: parseBool(get('kontaktPrimaer')),
+            art: contactRow ? art : 'kunde',
+            abteilung: get('abteilung'),
+            thema: contactRow ? get('thema') : '',
             sheetRow
         });
 
@@ -731,9 +809,10 @@ export function parseRows(rows, mapping) {
         if (!name && !gebiet && !contact) { skipped++; return; }
 
         // Kontaktdatei: kein Kundenstamm, aber Kontaktinfos mit Kundennummer
-        if (!name && !gebiet && contact) {
+        if (contactRow && contact) {
             if (!nummer) { err(sheetRow, 'Kontaktzeile ohne Kundennummer - Zuordnung nicht möglich', row); return; }
-            contactRows.push({ ...contact, raw: row });
+            // Ein Promotor ist nie Hauptansprechpartner des Kunden.
+            contactRows.push({ ...contact, primary: contact.art === 'promotor' ? false : contact.primary, raw: row });
             return;
         }
 
@@ -808,6 +887,7 @@ export function parseRows(rows, mapping) {
             telefon: get('telefon'),
             email: get('email'),
             umsatz: umsatzByRow[index] ?? null,
+            ...(yearColumns.length ? { umsatzJahre: revenueYearsOfRow(yearColumns, index) } : {}),
             rhythmusWochen: parseWeeks(mapping.rhythmusWochen ? row[mapping.rhythmusWochen] : null),
             besuche: [...besuche].sort(),
             lat: hasCoords ? lat : null,
@@ -821,9 +901,14 @@ export function parseRows(rows, mapping) {
             _raw: row
         };
         const unknownParts = [];
-        const others = mapping.weitereKontakte
-            ? parseOtherContacts(row[mapping.weitereKontakte], nummer, sheetRow, (part) => unknownParts.push(part))
-            : [];
+        const others = [
+            ...(mapping.weitereKontakte
+                ? parseOtherContacts(row[mapping.weitereKontakte], nummer, sheetRow, (part) => unknownParts.push(part))
+                : []),
+            ...(mapping.promotoren
+                ? parseOtherContacts(row[mapping.promotoren], nummer, sheetRow, (part) => unknownParts.push(part), 'promotor')
+                : [])
+        ];
         if (unknownParts.length) {
             err(sheetRow, `Weitere Ansprechpartner: nicht zuordenbare Angabe übersprungen: ${unknownParts.slice(0, 3).join(', ')}`, row, 'Hinweis');
         }
@@ -843,6 +928,16 @@ export function parseRows(rows, mapping) {
     }
 
     return { customers, areaRows, contactRows, errors, skipped };
+}
+
+/** { 2025: 1200, 2024: 1100 } – nur Jahre mit lesbarem Wert. */
+function revenueYearsOfRow(yearColumns, index) {
+    const years = {};
+    for (const { year, values } of yearColumns) {
+        const value = values[index];
+        if (value !== null && value !== undefined && Number.isFinite(value) && !(year in years)) years[year] = value;
+    }
+    return years;
 }
 
 export function attachContacts(customers, contactRows, errors = []) {
@@ -868,10 +963,17 @@ export function attachContacts(customers, contactRows, errors = []) {
             name: contact.name,
             telefon: contact.telefon,
             email: contact.email,
-            primary: contact.primary
+            primary: contact.primary,
+            ...(contact.art ? { art: contact.art } : {}),
+            ...(contact.abteilung ? { abteilung: contact.abteilung } : {}),
+            ...(contact.thema ? { thema: contact.thema } : {}),
+            // Kommt aus einer eigenen Kontaktliste: Ein späterer Reimport des
+            // Kundenstamms (mit eigenen Kontaktspalten) lässt ihn stehen.
+            kontaktliste: true
         };
         const duplicate = existing.find((c) =>
-            (c.name || '') === next.name && (c.telefon || '') === next.telefon && (c.email || '') === next.email);
+            (c.name || '') === next.name && (c.telefon || '') === next.telefon && (c.email || '') === next.email
+            && (c.art || 'kunde') === (next.art || 'kunde'));
         // Eine spätere Zeile ohne Haupt-Markierung nimmt einem bestehenden
         // Hauptkontakt die Rolle nicht weg.
         const entry = duplicate ? Object.assign(duplicate, next, { primary: duplicate.primary || next.primary }) : next;
@@ -879,7 +981,7 @@ export function attachContacts(customers, contactRows, errors = []) {
         customer.contacts = existing;
         // Ausdrücklich als Hauptkontakt markiert (oder noch keiner da): genau
         // dieser Eintrag – über das Objekt, damit gleiche IDs nichts verwechseln.
-        if (next.primary || !customer.primaryContactId) {
+        if (next.art !== 'promotor' && (next.primary || !customer.primaryContactId)) {
             customer.contacts.forEach((c) => { c.primary = c === entry; });
         }
         syncPrimaryContact(customer);
@@ -973,7 +1075,9 @@ function geoFromExportLabel(label) {
 }
 
 function contactExportText(contact) {
-    return [contact?.name, contact?.telefon, contact?.email]
+    // Name zuerst, dann Abteilung bzw. Thema: Der Rückweg erkennt die freien
+    // Teile an ihrer Reihenfolge, Telefon und E-Mail an ihrer Form.
+    return [contact?.name, contact?.art === 'promotor' ? contact?.thema : contact?.abteilung, contact?.telefon, contact?.email]
         .map((value) => String(value ?? '').trim())
         .filter(Boolean)
         .join(' · ');
@@ -1002,9 +1106,15 @@ export function customerExportRows(customers) {
             if (!seenHeaders.has(header)) { seenHeaders.add(header); extraHeaders.push(header); }
         }
     }
+    const allContacts = list.flatMap((c) => (c?.contacts || []).filter(Boolean));
+    const withDepartment = allContacts.some((contact) => contact.primary && contact.abteilung);
+    const withPromotors = allContacts.some((contact) => contact.art === 'promotor');
     return list.map((c) => {
         const visits = [...new Set((c.besuche || []).filter(Boolean))].sort();
-        const others = (c.contacts || []).filter((contact) => contact && !contact.primary).map(contactExportText).filter(Boolean);
+        const contacts = (c.contacts || []).filter(Boolean);
+        const others = contacts.filter((contact) => !contact.primary && contact.art !== 'promotor').map(contactExportText).filter(Boolean);
+        const promotors = contacts.filter((contact) => contact.art === 'promotor').map(contactExportText).filter(Boolean);
+        const primary = contacts.find((contact) => contact.primary);
         const row = {
             'Datenstatus': isDemoCustomer(c) ? DEMO_DATA_LABEL : '',
             'Kundennummer': c.nummer,
@@ -1030,6 +1140,9 @@ export function customerExportRows(customers) {
             'Alle Besuche': visits.join('; '),
             'Weitere Ansprechpartner': others.join(' | ')
         };
+        // Nur wenn es sie im Bestand gibt – die übliche Liste bleibt schmal.
+        if (withDepartment) row['Abteilung'] = primary?.abteilung ?? '';
+        if (withPromotors) row['Promotoren'] = promotors.join(' | ');
         for (const header of extraHeaders) {
             // Eine Originalspalte, die wie eine TourFuchs-Spalte heißt, überschreibt sie nicht.
             const key = header in row ? `${header} (Original)` : header;

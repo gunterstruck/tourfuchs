@@ -11,6 +11,9 @@
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
 import { responsibilityBriefingLines } from './responsibilities.js';
+import { contactBriefingLines } from './customerContacts.js';
+import { revenueBriefingLine } from './revenueYears.js';
+import { formatRevenueShort } from '../core/format.js';
 
 const DEFAULT_SOURCE_INSTRUCTION = 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.';
 
@@ -42,7 +45,16 @@ function identityLines(customer) {
     // Zuständigkeiten helfen dem Assistenten, Mails und Termine zuzuordnen
     // (ohne Telefonnummern – die braucht er nicht).
     lines.push(...responsibilityBriefingLines(customer));
+    // Weitere Ansprechpartner (mit Abteilung) und Promotoren (mit Thema):
+    // Namen helfen bei der Zuordnung, Telefon und E-Mail bleiben draußen.
+    lines.push(...contactBriefingLines(customer));
     return lines;
+}
+
+/** Umsatzentwicklung aus der eigenen Kundenliste – Gesprächsanlass, kein Zuordnungsmerkmal. */
+function revenueLines(customer, today) {
+    const line = revenueBriefingLine(customer, (value) => formatRevenueShort(value, 'de'), today);
+    return line ? [line] : [];
 }
 
 function tourLines(context) {
@@ -72,6 +84,18 @@ function tourLines(context) {
  * @param {object} assistant  liefert die Quellenzeile des Ziels
  * @param {object[]} sources  eigene Nachschlagequellen des Nutzers (optional)
  */
+/** Hinweise nur, wenn die Kundenliste dazu etwas mitbringt – sonst bleibt der Prompt wie gehabt. */
+function focusHints(customer, plan) {
+    const hints = [];
+    if (contactBriefingLines(customer).some((line) => line.startsWith('- Promotoren:'))) {
+        hints.push('Die genannten Promotoren betreuen den Kunden zu ihrem Thema: Prüfe, ob es zu diesen Themen aktuelle Anlässe, Aktionen oder offene Punkte gibt, und nenne den passenden Promotor dazu.');
+    }
+    if (plan.some((line) => line.startsWith('- Umsatz nach Geschäftsjahr:'))) {
+        hints.push('Berücksichtige die Umsatzentwicklung bei Chance und Risiko; wiederhole die Zahlen nicht, sondern ordne sie ein.');
+    }
+    return hints.length ? `\n${hints.join('\n')}` : '';
+}
+
 export function buildCustomerBriefingPrompt(customer, context = {}, assistant = null, sources = []) {
     if (isDemoCustomer(customer) && context.preview !== true) {
         throw new Error('Für Demo-Kunden wird kein externer Assistenten-Prompt erzeugt.');
@@ -81,7 +105,7 @@ export function buildCustomerBriefingPrompt(customer, context = {}, assistant = 
     // weiß besser als der Assistent, wo das Aktuelle liegt.
     const ownSources = briefingSourcesPromptBlock(sources);
     const identifiers = identityLines(customer);
-    const plan = tourLines(context);
+    const plan = [...tourLines(context), ...revenueLines(customer, context.today || new Date())];
     const localContext = plan.length
         ? `\nTourFuchs-Kontext:\n${plan.join('\n')}\n`
         : '';
@@ -97,7 +121,7 @@ Zeitraum:
 - letzte 12 Monate, mit Schwerpunkt auf den letzten 90 Tagen
 - zusätzlich zukünftige Termine, zugesagte Aufgaben und Fristen
 
-Verdichte nur Informationen, die für den nächsten Kundenkontakt handlungsrelevant sind. Relevanz ist wichtiger als Vollständigkeit.
+Verdichte nur Informationen, die für den nächsten Kundenkontakt handlungsrelevant sind. Relevanz ist wichtiger als Vollständigkeit.${focusHints(customer, plan)}
 
 Liefere ausschließlich dieses Format:
 ## Jetzt wichtig
