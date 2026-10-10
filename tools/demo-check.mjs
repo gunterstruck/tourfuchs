@@ -21,6 +21,13 @@
  *   npm run demo-check
  *   npm run demo-check -- --format=tablet-hochkant
  *   npm run demo-check -- --format=desktop --story=handy-qr --story=tour
+ *   npm run demo-check -- --format=desktop --file=tmp/eigene-liste.xlsx
+ *   npm run demo-check -- --format=desktop --drag
+ *
+ * Mit `--file` importiert die Strecke vorher eine eigene Liste (wie ein Nutzer
+ * über die Dateiauswahl) und fährt die Demos auf diesen Daten – dort brechen
+ * sie am ehesten ab (andere Bezirke, viele Kunden, Lücken). Mit `--drag`
+ * verschiebt sie vor jeder Demo die Karte mit der Maus, wie es Nutzer tun.
  *
  * Einmalige Voraussetzung (bewusst nicht in package.json, damit ein normales
  * `npm install` keinen Browser-Download auslöst):
@@ -75,12 +82,16 @@ const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 function parseArgs(argv) {
     const formats = [];
     const stories = [];
+    let file = '';
+    let drag = false;
     for (const arg of argv) {
+        if (arg === '--drag') drag = true;
         const [key, value] = arg.replace(/^--/, '').split('=');
         if (key === 'format' && value) formats.push(value);
         if (key === 'story' && value) stories.push(value);
+        if (key === 'file' && value) file = value;
     }
-    return { formats, stories };
+    return { formats, stories, file, drag };
 }
 
 function freePort() {
@@ -132,7 +143,38 @@ async function openPanel(page) {
     return page.locator('#showcase-dialog .sc-tile').first().isVisible().catch(() => false);
 }
 
-async function runFormat(browser, format, baseUrl, onlyStories) {
+/** Karte einmal mit der Maus ziehen (Demo-Auswahl dafür kurz schließen). */
+async function dragMapOnce(page) {
+    await page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close())).catch(() => {});
+    const box = await page.locator('#map').boundingBox().catch(() => null);
+    if (!box) return;
+    const x = box.x + box.width * 0.6;
+    const y = box.y + box.height * 0.5;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(x + 40, y + 25, { steps: 6 });
+    await page.mouse.move(x + 80, y + 50, { steps: 6 });
+    await page.mouse.up();
+    await sleep(600);
+    await openPanel(page);
+}
+
+/** Eigene Liste wie ein Nutzer importieren und alle Folge-Dialoge schließen. */
+async function importOwnFile(page, file) {
+    await page.locator('#btn-demo-welcome-ack').click({ timeout: 2000 }).catch(() => {});
+    await page.setInputFiles('#file-input', file);
+    for (let attempt = 0; attempt < 60; attempt++) {
+        await sleep(1000);
+        // Ergebnisfenster, Befund, Tresor- und Verortungsangebot: wegklicken.
+        await page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close())).catch(() => {});
+        const own = await page.evaluate(() => document.getElementById('demo-banner')?.hidden === true
+            && /\d/.test(document.getElementById('data-status')?.textContent || '')).catch(() => false);
+        if (own && attempt >= 5) return true;
+    }
+    return false;
+}
+
+async function runFormat(browser, format, baseUrl, onlyStories, ownFile = '', dragMap = false) {
     const context = await browser.newContext({
         viewport: format.viewport,
         hasTouch: format.hasTouch,
@@ -155,6 +197,11 @@ async function runFormat(browser, format, baseUrl, onlyStories) {
     await sleep(9000);
 
     const results = [];
+    if (ownFile && !await importOwnFile(page, ownFile)) {
+        console.log(`  ${format.name}: eigene Liste nicht importiert`);
+        await context.close();
+        return [{ format: format.name, id: '-', outcome: 'FEHLER', reason: 'eigene Liste nicht importiert' }];
+    }
     if (!await openPanel(page)) {
         console.log(`  ${format.name}: Demo-Auswahl nicht erreichbar`);
         await context.close();
@@ -167,6 +214,10 @@ async function runFormat(browser, format, baseUrl, onlyStories) {
     for (const id of ids) {
         await page.evaluate(() => { window.__scClicks = []; });
         if (!await page.locator(`#showcase-dialog .sc-tile[data-story="${id}"]`).count()) await openPanel(page);
+        // Wie ein Nutzer vorher die Karte verschieben: Leaflet merkt sich das
+        // Ziehen bis zum nächsten Mausdruck und schluckt bis dahin Klicks auf
+        // Kartenelemente – die Demos müssen trotzdem durchlaufen.
+        if (dragMap) await dragMapOnce(page);
         const started = Date.now();
         await page.locator(`#showcase-dialog .sc-tile[data-story="${id}"]`).click({ timeout: 10000 }).catch(() => {});
 
@@ -228,7 +279,7 @@ try {
     process.exit(2);
 }
 
-const { formats: wantedFormats, stories: wantedStories } = parseArgs(process.argv.slice(2));
+const { formats: wantedFormats, stories: wantedStories, file: ownFile, drag: dragMap } = parseArgs(process.argv.slice(2));
 const formats = wantedFormats.length ? FORMATS.filter((f) => wantedFormats.includes(f.name)) : FORMATS;
 if (!formats.length) {
     console.error(`Unbekanntes Format. Verfügbar: ${FORMATS.map((f) => f.name).join(', ')}`);
@@ -247,7 +298,7 @@ const all = [];
 try {
     for (const format of formats) {
         console.log(`\n=== ${format.name} (${format.viewport.width}x${format.viewport.height}) ===`);
-        all.push(...await runFormat(browser, format, baseUrl, wantedStories));
+        all.push(...await runFormat(browser, format, baseUrl, wantedStories, ownFile, dragMap));
     }
 } finally {
     await browser.close();

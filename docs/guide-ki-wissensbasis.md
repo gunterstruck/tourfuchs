@@ -1385,6 +1385,38 @@ Zwei Spezialfälle bleiben bewusst ergänzend:
 Auch Beispieldaten und eine empfangene `.tfsafe`-Datei sind vollständige
 Datensätze. Sie ersetzen vorhandene Daten ebenfalls erst nach Bestätigung.
 
+### 7.6a Datenquellen & Aktualisieren (Link hinterlegen, dann nur noch aktualisieren)
+
+Seit 10.10.2026 (Release 15.2). Im Reiter **Daten** (mit geladenen Daten) steht
+aufklappbar **"🔄 Datenquellen & Aktualisieren"**. Dort hinterlegt man einmal,
+wo die aktuellen Daten liegen – z. B. die Vertriebs-Arbeitsmappe im
+SharePoint der Firma:
+
+1. **Name** (z. B. "Vertriebs-Arbeitsmappe") und **Link zur Ablage**
+   (https://…, optional) eingeben, **"+ Quelle hinzufügen"**. Höchstens 8 Quellen.
+2. **"↗ Ablage öffnen"** öffnet den Link in einem neuen Browser-Tab – zum
+   Nachsehen oder Herunterladen. **TourFuchs ruft den Link nie selbst ab**; es
+   gibt keine Anmeldung und keinen Abruf durch TourFuchs.
+3. **"🔄 Aktualisieren"** liest die neue Fassung über den gewohnten Import ein:
+   Die Arbeitsmappe (7.7a) läuft in einem Zug ohne Zuordnungsdialog, mit
+   Ergebnisfenster; andere Listen gehen wie gewohnt durch "Spalten zuordnen"
+   und den Abgleich (7.6).
+   - **Am PC mit Edge oder Chrome:** Beim ersten Mal wählt man die Datei im
+     synchronisierten OneDrive-/SharePoint-Ordner aus. Der Browser merkt sich
+     den Zugriff auf dem Gerät; danach genügt ein Klick. Nach einem
+     Browser-Neustart fragt der Browser einmal, ob der Zugriff erlaubt ist.
+   - **Handy, iPad, Firefox, Safari:** "Aktualisieren" öffnet jedes Mal die
+     Dateiauswahl.
+   - Wurde die Datei verschoben oder umbenannt, meldet TourFuchs das; beim
+     nächsten "Aktualisieren" wählt man sie neu aus.
+4. Je Quelle steht der Stand ("zuletzt 10.10.2026, 08:12 · verknüpft:
+   Datei.xlsx"), die Überschrift zeigt Anzahl und letzte Aktualisierung.
+   **"Datei lösen"** vergisst die gemerkte Datei, **"Entfernen"** die ganze Quelle.
+
+Gespeichert werden nur Name, Link, Zeitpunkt und der Dateiverweis – lokal im
+Browser, keine Kundendaten. **"Daten löschen"** vergisst Dateiverweise und
+Zeitpunkte; die Links bleiben als Einstellung stehen.
+
 ### 7.7 Getrennte Kontaktdatei
 
 Stammdaten und Kontakte können getrennt importiert werden. Eine reine

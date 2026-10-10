@@ -48,6 +48,7 @@ import { startUsageCount } from './services/usageCount.js';
 import { initExactGeocoding } from './ui/exactGeocoding.js';
 import { hideBusy, showBusy } from './ui/busyIndicator.js';
 import { initMapPills } from './ui/mapPills.js';
+import { initDataSources } from './ui/dataSources.js';
 import { initCustomerBriefing } from './ui/customerBriefing.js';
 import { initBriefingSources } from './ui/briefingSources.js';
 import { initAreaBriefing } from './ui/areaBriefing.js';
@@ -311,6 +312,7 @@ async function init() {
     initGuide();
     initExactGeocoding();
     initMapPills();
+    initDataSources();
     initSafeTransfer();
 
     // Die operative Serviceplanung ist eine Profi-Funktion. Code, Styles und

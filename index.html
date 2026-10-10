@@ -217,6 +217,17 @@
                     <h2>Kundendaten</h2>
                     <div id="data-status"></div>
                     <p class="muted small">Stammdaten, Kontakte und Serviceverträge können getrennt geladen werden, wenn sie dieselbe Kundennummer verwenden. Eine neue Kundenstammliste ersetzt den bisherigen Kundenbestand; separate Vertragsquellen bleiben erhalten und werden neu zugeordnet.</p>
+                    <!-- Datenquellen (Release 15): Link zur Ablage + „Aktualisieren" (ui/dataSources.js). -->
+                    <details id="data-sources" class="data-sources">
+                        <summary><span data-i18n="sources.title">🔄 Datenquellen &amp; Aktualisieren</span> <span id="data-sources-summary" class="muted small"></span></summary>
+                        <p class="muted small" data-i18n="sources.hint">Hinterlege, wo die aktuellen Daten liegen (z. B. die SharePoint-Datei). „↗ Ablage öffnen" öffnet den Link im Browser; „🔄 Aktualisieren" liest die neue Fassung ein – am PC merkt sich TourFuchs die Datei im synchronisierten Ordner. TourFuchs ruft keinen Link selbst ab.</p>
+                        <ul id="data-sources-list" class="data-sources-list"></ul>
+                        <form id="data-source-form" class="data-source-form" autocomplete="off">
+                            <input id="data-source-name" type="text" maxlength="80" placeholder="Name, z. B. Vertriebs-Arbeitsmappe" data-i18n-placeholder="sources.namePlaceholder" aria-label="Name der Datenquelle" data-i18n-aria-label="sources.nameLabel">
+                            <input id="data-source-url" type="url" placeholder="Link zur Ablage (https://…), optional" data-i18n-placeholder="sources.urlPlaceholder" aria-label="Link zur Ablage" data-i18n-aria-label="sources.urlLabel">
+                            <button type="submit" data-i18n="sources.add">+ Quelle hinzufügen</button>
+                        </form>
+                    </details>
                     <div id="data-actions">
                         <div class="button-column" id="data-primary-actions">
                             <button id="btn-upload-more">📤 Andere Excel- oder CSV-Liste laden</button>
