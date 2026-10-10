@@ -87,6 +87,9 @@ describe('Umsatz im Kunden-Popup', () => {
         expect(map).toContain('const CUSTOMER_POPUP_WIDTH = 480;');
         expect(css).toMatch(/\.popup-customer \.popup-actions \{\s*position: sticky;\s*bottom: 0;/);
         expect(css).toContain('.customer-detail-popup .leaflet-popup-content { max-height: max(380px, calc(100dvh - 230px)); }');
+        // Tour-Knöpfe am Desktop als große Pillen (doppelt so hoch), Handy unverändert.
+        expect(map).toContain("className: 'customer-detail-popup customer-popup-desktop'");
+        expect(css).toMatch(/\.customer-popup-desktop \.popup-actions button \{\s*min-height: 50px;/);
         // Aufklappen: Kachel bleibt im Bild, das Feld rückt in Sicht.
         expect(map).toContain('keepPopupTopInView(el);');
         expect(map).toContain('if (open) revealPopupPanel(el, group);');
