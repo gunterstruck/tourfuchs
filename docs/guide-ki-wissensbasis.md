@@ -1719,7 +1719,7 @@ Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 Je nach importierten Daten ebenfalls sichtbar:
 
 - Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Dahinter folgt ein Leerzeichen und der Kundenname, z. B. `000123`, `Musterkunde GmbH` -> `[123] Musterkunde GmbH`; eine reine Null wird `[0] Kundenname`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
-- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden
+- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Kahlbau Robert +49 (173) 6310304`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
 - **"Als Ziel"**
@@ -1736,7 +1736,8 @@ höchstens eines offen. Unter „Zuständig":
 
 - je gefüllter Rolle eine Zeile mit Name oder Abteilung; leere Rollen entfallen
 - eine Telefonnummer in der Zelle (z. B. `Vera Kunz 0171 2223344`) wird
-  erkannt und ist antippbar (📞, öffnet die Telefon-App)
+  erkannt und ist antippbar (📞, öffnet die Telefon-App); sie steht **unter** dem Namen, damit
+  lange Namen nicht Buchstabe für Buchstabe umbrechen (seit 10.10.2026)
 - in der Kopfzeile **Abzeichen**: der Wert aus **"PA Kundenanfrage"** (z. B.
   „PI-Partner Kunde") und **"Named Account"** (bei „ja/x/1" steht „Named
   Account"), dazu **Account Name** (nur wenn er vom Kundennamen abweicht) und
