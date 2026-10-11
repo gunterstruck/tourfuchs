@@ -60,8 +60,8 @@
 const promptWay = (footerSel) => [
     { t: 'click', sel: `${footerSel.replace('-footer', '-body')} .briefing-assistant summary` },
     { t: 'say', text: 'Hier wählst du deinen KI-Partner: Microsoft 365 Copilot, Google Gemini, ChatGPT oder die eigene Firmen-KI. Nutze nur den freigegebenen Assistenten.', sel: `${footerSel.replace('-footer', '-body')} .briefing-assistant`, ms: 5000 },
-    { t: 'click', sel: `${footerSel.replace('-footer', '-body')} input[value="chatgpt"]` },
-    { t: 'say', text: 'Zum Beispiel ChatGPT: Ziel, Prompt und Knopf passen sich sofort an. Deine gespeicherte Wahl bleibt in dieser Demo erhalten.', sel: footerSel, ms: 3400 },
+    { t: 'click', sel: `${footerSel.replace('-footer', '-body')} input[value="copilot"]` },
+    { t: 'say', text: 'Zum Beispiel Microsoft 365 Copilot: Ziel, Prompt und Knopf passen sich sofort an. Deine gespeicherte Wahl bleibt in dieser Demo erhalten.', sel: footerSel, ms: 3400 },
     { t: 'click', sel: `${footerSel.replace('-footer', '-body')} .briefing-assistant summary` },
     { t: 'say', text: 'Das ist jetzt der vollständige, für diesen KI-Partner erzeugte Prompt. Kunden, Kontext und Auftrag sind vor dem Kopieren lesbar.', sel: `${footerSel.replace('-footer', '-body')} .briefing-prompt-visible`, ms: 4200 },
     { t: 'run', key: 'scrollPromptThrough' },
