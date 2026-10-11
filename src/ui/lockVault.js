@@ -10,7 +10,7 @@ import * as vault from '../services/vault.js';
 import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot, setPlaces
 } from '../core/state.js';
-import { saveDataset, loadDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
+import { saveDataset, loadDataset, hasStoredDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
@@ -675,16 +675,22 @@ function openResetPinDialog(recoveryCode) {
 }
 
 // ---- Deaktivieren ----
+const hasContent = (dataset) => ['customers', 'serviceContracts', 'serviceVisits', 'places']
+    .some((key) => Array.isArray(dataset?.[key]) && dataset[key].length > 0);
+
 /**
  * Was beim Deaktivieren im Klartext gespeichert wird: der geladene Bestand.
- * Steht keiner im Arbeitsspeicher (Nachladen gescheitert), der gespeicherte –
- * niemals ein leerer Stand über vorhandene Daten.
+ * Steht keiner im Arbeitsspeicher (Nachladen gescheitert), der gespeicherte.
+ * Ist auch der nicht lesbar, bleibt der Tresor lieber an – niemals ein
+ * leerer Stand über vorhandene Daten.
  */
 async function datasetToKeep() {
     const current = datasetSnapshot();
-    if (current.customers.length) return current;
+    if (hasContent(current)) return current;
     const stored = await loadDataset();
-    return stored?.customers?.length ? stored : current;
+    if (hasContent(stored)) return stored;
+    if (await hasStoredDataset() && !stored) throw new Error('stored-unreadable');
+    return current;
 }
 
 async function disableVault() {
@@ -693,6 +699,11 @@ async function disableVault() {
     if (pin == null) return;
     try {
         await vault.verifyPin(pin);
+    } catch {
+        showToast('Falsche PIN – Tresor bleibt aktiv.', 'error');
+        return;
+    }
+    try {
         // Direkt nach dem Entsperren lädt TourFuchs den Bestand noch nach. Wer
         // so schnell deaktivierte, speicherte den noch leeren Arbeitsspeicher
         // im Klartext über die verschlüsselten Daten – danach war alles weg.
@@ -707,8 +718,9 @@ async function disableVault() {
         vault.discardKey();
         renderControls();
         showToast('Tresor deaktiviert. Daten sind wieder unverschlüsselt gespeichert.', 'info', 6000);
-    } catch {
-        showToast('Falsche PIN – Tresor bleibt aktiv.', 'error');
+    } catch (error) {
+        console.warn('Tresor deaktivieren abgebrochen:', error);
+        showToast('Tresor bleibt aktiv – die gespeicherten Daten ließen sich gerade nicht lesen. Bitte neu laden und erneut versuchen.', 'error', 8000);
     }
 }
 
