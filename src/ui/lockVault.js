@@ -10,7 +10,7 @@ import * as vault from '../services/vault.js';
 import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot, setPlaces
 } from '../core/state.js';
-import { saveDataset, loadDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
+import { saveDataset, loadDataset, hasStoredDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
@@ -257,12 +257,19 @@ function handleUnlockError(err) {
     console.warn('Entsperren fehlgeschlagen:', err);
 }
 
+// Nachladen nach dem Entsperren (Entschlüsseln dauert bei großem Bestand). Bis
+// es fertig ist, steht der Bestand noch nicht im Arbeitsspeicher.
+let reloadAfterUnlock = Promise.resolve();
+
 async function afterUnlock() {
     hideError();
     hideLockScreen();
-    // Altbestand aus Versionen vor dem erweiterten Tresorschutz verschlüsseln.
-    await reprotectStores();
-    try { await bootData(); } catch (e) { console.warn('Nachladen nach Entsperren fehlgeschlagen:', e); }
+    reloadAfterUnlock = (async () => {
+        // Altbestand aus Versionen vor dem erweiterten Tresorschutz verschlüsseln.
+        await reprotectStores();
+        try { await bootData(); } catch (e) { console.warn('Nachladen nach Entsperren fehlgeschlagen:', e); }
+    })();
+    await reloadAfterUnlock;
     renderControls();
 }
 
@@ -668,14 +675,42 @@ function openResetPinDialog(recoveryCode) {
 }
 
 // ---- Deaktivieren ----
+const hasContent = (dataset) => ['customers', 'serviceContracts', 'serviceVisits', 'places']
+    .some((key) => Array.isArray(dataset?.[key]) && dataset[key].length > 0);
+
+/**
+ * Was beim Deaktivieren im Klartext gespeichert wird: der geladene Bestand.
+ * Steht keiner im Arbeitsspeicher (Nachladen gescheitert), der gespeicherte.
+ * Ist auch der nicht lesbar, bleibt der Tresor lieber an – niemals ein
+ * leerer Stand über vorhandene Daten.
+ */
+async function datasetToKeep() {
+    const current = datasetSnapshot();
+    if (hasContent(current)) return current;
+    const stored = await loadDataset();
+    if (hasContent(stored)) return stored;
+    if (await hasStoredDataset() && !stored) throw new Error('stored-unreadable');
+    return current;
+}
+
 async function disableVault() {
     if (!confirm('Tresor deaktivieren? Deine Daten werden danach wieder unverschlüsselt in diesem Browser gespeichert.')) return;
     const pin = prompt('Zur Bestätigung bitte die aktuelle PIN eingeben:');
     if (pin == null) return;
     try {
         await vault.verifyPin(pin);
+    } catch {
+        showToast('Falsche PIN – Tresor bleibt aktiv.', 'error');
+        return;
+    }
+    try {
+        // Direkt nach dem Entsperren lädt TourFuchs den Bestand noch nach. Wer
+        // so schnell deaktivierte, speicherte den noch leeren Arbeitsspeicher
+        // im Klartext über die verschlüsselten Daten – danach war alles weg.
+        await reloadAfterUnlock;
+        const dataset = await datasetToKeep();   // solange der Schlüssel da ist
         vault.removeVaultMeta();                 // Tresor aus – DEK bleibt noch im Speicher
-        await saveDataset(datasetSnapshot());    // jetzt im Klartext neu speichern
+        await saveDataset(dataset);              // jetzt im Klartext neu speichern
         await reprotectStores();                 // Nebenspeicher ebenso
         // Nur den Schlüssel verwerfen – NICHT lock(): Das meldet „gesperrt",
         // leert Kunden, Verträge, Besuche und Gebiete im Speicher, und der
@@ -683,8 +718,9 @@ async function disableVault() {
         vault.discardKey();
         renderControls();
         showToast('Tresor deaktiviert. Daten sind wieder unverschlüsselt gespeichert.', 'info', 6000);
-    } catch {
-        showToast('Falsche PIN – Tresor bleibt aktiv.', 'error');
+    } catch (error) {
+        console.warn('Tresor deaktivieren abgebrochen:', error);
+        showToast('Tresor bleibt aktiv – die gespeicherten Daten ließen sich gerade nicht lesen. Bitte neu laden und erneut versuchen.', 'error', 8000);
     }
 }
 
