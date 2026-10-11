@@ -1,0 +1,51 @@
+{
+  "stand": "2026-07-11-erster-tresor",
+  "pin": "4711",
+  "recoveryCode": "TFRC-DZBBM-WU29S-BS28F-CXZ68",
+  "meta": {
+    "v": 1,
+    "iterations": 600000,
+    "salt": "KsP3XkmPbh//+AhC9nQVKQ==",
+    "wrapPin": {
+      "iv": "rdYMCYyxEHAY3DV2",
+      "ct": "HaZi1fm9EwEjHE630jJ4LyHlq2MF+M1YzGgRPs8k5AfSpfq7AI2Rg07wlRWTQaYQ"
+    },
+    "attempts": 0,
+    "maxAttempts": 10,
+    "autoLockMs": 300000,
+    "createdAt": "2026-10-11T08:31:22.747Z",
+    "recoverySalt": "N37WpOjCesDv0d51EM7ftg==",
+    "wrapRecovery": {
+      "iv": "QL9uQRgZKIUHbqU3",
+      "ct": "7eAEbZ/GE+x4KPenGnsZoHTvCE5qSR5WkYXBE2Jxjp/1TuuqXE4HlV1Zc9RPsOLz"
+    }
+  },
+  "payload": {
+    "__enc": 1,
+    "iv": "8yQzmjBPv9K0Lz8F",
+    "ct": "61q+oo7L+kMEKZv81c7GYxR6a0Aiz9sCKg464ByhJ+GKnav5tlr7MtjLbnN4Q+uU/8Lc4XSzr+UF2X5OIqkWW50qIwJfgCtxIZUkp7T67vxVY20cOFc7A76W+VMFfQP2esw6PKJnkgkC/+Q6pkizIgrEORLSNTQ16BKsoEV+X5QVw3U3xvx+E1+PrSIfPLbpAGyK1EBAGMMBpdP1AtZjv1Hc3Kb9pKbM6pINevuPDE7mpQb8o8eDBwjY+uQ8XOvIkTxeM5pDVZ6Pz0NJsgM1j5D/C572U3ucDAoSW7/3miKcocF11lztD9ISTQBsM9hEHqGAoZeEP1MMeOK4vjJbts4EbheAp6B/MYnD2rKmM8DpLBRZeDqCTp8UNy9qgPxlPBVZ8Oi9eG2cshUVEhjUolACuOe9fEgZ1aA="
+  },
+  "inhalt": {
+    "customers": [
+      {
+        "id": "k-nr:10001",
+        "nummer": "10001",
+        "name": "Tresor Kunde GmbH",
+        "plz": "50667",
+        "ort": "Köln",
+        "lat": 50.94,
+        "lng": 6.96,
+        "geo": "exakt",
+        "besuche": [
+          "2026-09-01"
+        ],
+        "extra": {
+          "VK": "Vera"
+        }
+      }
+    ],
+    "fileName": "Tresor-2026-07-11-erster-tresor.xlsx",
+    "importedAt": "2026-09-01T08:00:00.000Z",
+    "territories": {}
+  }
+}

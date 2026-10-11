@@ -21,6 +21,8 @@
  * Chromium: PLAYWRIGHT_CHROMIUM_PATH=/pfad/zu/chrome npm run smoke-check
  */
 import { spawn } from 'node:child_process';
+import { readFileSync, readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 
 const TIMEOUT = 30_000;
@@ -45,14 +47,17 @@ function freePort() {
 }
 
 async function startPreview(port) {
-    const child = spawn('npx', ['vite', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'] });
+    // Eigene Prozessgruppe: Beim Beenden fällt auch der Vite-Server unter npx
+    // (sonst blieb je Lauf ein Vorschau-Server zurück und bremste die nächsten).
+    const child = spawn('npx', ['vite', 'preview', '--port', String(port), '--strictPort'], { stdio: ['ignore', 'pipe', 'pipe'], detached: true });
+    child.stopAll = () => { try { process.kill(-child.pid, 'SIGTERM'); } catch { child.kill(); } };
     for (let attempt = 0; attempt < 60; attempt++) {
         await sleep(500);
         try {
             if ((await fetch(`http://localhost:${port}/`)).ok) return child;
         } catch { /* noch nicht bereit */ }
     }
-    child.kill();
+    child.stopAll();
     throw new Error('Vorschau-Server ist nicht gestartet. Vorher `npm run build` ausführen?');
 }
 
@@ -376,6 +381,60 @@ async function desktop(browser, baseUrl) {
         }
     });
 
+    // Zweite, unabhängige Prüfung zu tests/vaultHistory.test.js: Jeder
+    // eingefrorene Tresor (je ein historischer Stand) liegt im Speicher, wie ihn
+    // die damalige App hinterlassen hätte – und wird am echten Sperrbildschirm
+    // mit seiner PIN geöffnet, auch eine alte 4-stellige.
+    await step('Tresore aller Stände am Sperrbildschirm öffnen', async () => {
+        const dir = new URL('../tests/fixtures/tresor/', import.meta.url);
+        const fixtures = readdirSync(dir).filter((f) => f.endsWith('.json')).sort()
+            .map((f) => JSON.parse(readFileSync(new URL(f, dir), 'utf8')));
+        if (fixtures.length < 5) throw new Error(`nur ${fixtures.length} Tresore gefunden`);
+        const plant = (fixture) => page.evaluate((f) => new Promise((resolve, reject) => {
+            localStorage.setItem('tf_vault', JSON.stringify(f.meta));
+            const req = indexedDB.open('geofuchs-db');
+            req.onerror = () => reject(req.error);
+            req.onsuccess = () => {
+                const db = req.result;
+                const tx = db.transaction([db.objectStoreNames[0]], 'readwrite');
+                tx.objectStore(db.objectStoreNames[0]).put(f.payload, 'kundendaten');
+                tx.oncomplete = () => { db.close(); resolve(); };
+                tx.onerror = () => reject(tx.error);
+            };
+        }), fixture);
+        try {
+            for (const fixture of fixtures) {
+                await closeDialogs(page);
+                // Die App speichert 400 ms nach einer Änderung – erst danach den
+                // nächsten Tresor hinlegen, sonst überschreibt sie ihn.
+                await sleep(800);
+                await plant(fixture);
+                await page.reload({ waitUntil: 'domcontentloaded' });
+                await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === false, null, { timeout: TIMEOUT })
+                    .catch(() => { throw new Error(`${fixture.stand}: kein Sperrbildschirm`); });
+                await page.fill('#vault-pin', fixture.pin);
+                await page.click('#vault-unlock');
+                await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === true, null, { timeout: TIMEOUT })
+                    .catch(async () => { throw new Error(`${fixture.stand}: PIN nicht angenommen – ${await page.locator('#vault-lock').textContent().catch(() => '')}`.slice(0, 300)); });
+                await page.waitForFunction((name) => (document.getElementById('data-status')?.textContent || '').includes(name), fixture.inhalt.fileName, { timeout: TIMEOUT })
+                    .catch(() => { throw new Error(`${fixture.stand}: Bestand nach dem Entsperren nicht da`); });
+            }
+        } finally {
+            await page.evaluate(() => new Promise((resolve) => {
+                localStorage.removeItem('tf_vault');
+                const req = indexedDB.open('geofuchs-db');
+                req.onsuccess = () => {
+                    const db = req.result;
+                    const tx = db.transaction([db.objectStoreNames[0]], 'readwrite');
+                    tx.objectStore(db.objectStoreNames[0]).delete('kundendaten');
+                    tx.oncomplete = () => { db.close(); resolve(); };
+                    tx.onerror = () => { db.close(); resolve(); };
+                };
+                req.onerror = () => resolve();
+            }));
+        }
+    });
+
     await step('keine Skriptfehler', async () => {
         if (errors.length) throw new Error(errors.join(' | '));
     });
@@ -442,6 +501,71 @@ async function phone(browser, baseUrl) {
         await page.waitForFunction(() => document.getElementById('btn-visit-report')?.hidden === false, null, { timeout: TIMEOUT });
     });
 
+    // Zweite, unabhängige Prüfung zu tests/safeTransferHistory.test.js: Jede
+    // eingefrorene Umzugsdatei (je ein historischer Stand) wird über die echte
+    // Oberfläche eingelöst – Datei wählen, Schlüssel eingeben, Ersetzen
+    // bestätigen – und muss nach dem Neuladen noch da sein (gespeichert).
+    await step('Umzugsdateien aller Stände einlösen und nach Neuladen behalten', async () => {
+        const dir = new URL('../tests/fixtures/umzug/', import.meta.url);
+        const files = readdirSync(dir).filter((f) => f.endsWith('.tfsafe')).sort().map((f) => {
+            const stem = f.replace(/\.tfsafe$/, '');
+            return {
+                stem,
+                path: fileURLToPath(new URL(f, dir)),
+                key: readFileSync(new URL(`${stem}.key.txt`, dir), 'utf8').trim(),
+                expected: JSON.parse(readFileSync(new URL(`${stem}.erwartet.json`, dir), 'utf8'))
+            };
+        });
+        // Datei vom 09.10.2026 (Schlüssel im Test safeTransferCompat) zusätzlich.
+        files.unshift({
+            stem: 'TourFuchs-Umzug-2026-10-09',
+            path: fileURLToPath(new URL('../tests/fixtures/TourFuchs-Umzug-2026-10-09.tfsafe', import.meta.url)),
+            key: 'TFK1:3663c2a95183:vP8iAmR1yzSDkjCqS3fybiPfQPFFd8STNpySs5l4chc=',
+            expected: { customers: [{}], fileName: null }
+        });
+        if (files.length < 7) throw new Error(`nur ${files.length} Umzugsdateien gefunden`);
+        const accept = (dialog) => dialog.accept();
+        page.on('dialog', accept);
+        try {
+            for (const file of files) {
+                await closeDialogs(page);
+                await page.evaluate(() => document.getElementById('btn-safe-receive').click());
+                await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
+                await page.locator('#safe-file-input').setInputFiles(file.path);
+                await page.waitForFunction(() => document.getElementById('safe-step-key')?.hidden === false, null, { timeout: TIMEOUT })
+                    .catch(async () => { throw new Error(`${file.stem}: Datei nicht angenommen – ${await page.locator('#safe-file-status').textContent().catch(() => '')}`); });
+                // Wie ein Nutzer ohne Kamera: „Schlüssel eintippen/einfügen" aufklappen.
+                const fallback = page.locator('#safe-step-key details.safe-fallback');
+                if (!(await fallback.evaluate((d) => d.open))) await fallback.locator('summary').click();
+                await page.locator('#safe-key-input').fill(file.key);
+                await page.locator('#safe-key-submit').click();
+                const count = file.expected.customers.length;
+                await page.waitForFunction((n) => !document.getElementById('safe-receive-dialog').open
+                    && document.querySelector('#data-status .stat b')?.textContent === String(n), count, { timeout: TIMEOUT })
+                    .catch(async () => { throw new Error(`${file.stem}: nicht übernommen – ${await page.locator('#toasts').textContent().catch(() => '')}`); });
+                // „… und lokal gespeichert" – erst dann ist der Umzug wirklich angekommen.
+                await page.waitForFunction(() => /Daten empfangen \(.*\) und (lokal gespeichert|im Tresor gesichert)/.test(document.getElementById('toasts')?.textContent || ''), null, { timeout: TIMEOUT })
+                    .catch(async () => { throw new Error(`${file.stem}: nicht gespeichert – ${await page.locator('#toasts').textContent().catch(() => '')}`); });
+                // Auch ein Kunde ohne Position (Variante „ohne-position") steht danach auf der Karte.
+                await page.waitForFunction((n) => (document.getElementById('data-status')?.textContent || '').includes(`📍 ${n} verortet`), count, { timeout: TIMEOUT })
+                    .catch(async () => { throw new Error(`${file.stem}: nicht alle Kunden verortet – ${await page.locator('#data-status').textContent()}`); });
+                if (file.expected.fileName && !(await page.locator('#data-status').textContent()).includes(file.expected.fileName)) {
+                    throw new Error(`${file.stem}: Dateiname „${file.expected.fileName}" fehlt nach der Übernahme`);
+                }
+                await page.evaluate(() => document.getElementById('toasts')?.replaceChildren());
+            }
+            const last = files.at(-1);
+            await page.reload({ waitUntil: 'domcontentloaded' });
+            await page.waitForFunction((n) => document.querySelector('#data-status .stat b')?.textContent === String(n), last.expected.customers.length, { timeout: TIMEOUT })
+                .catch(() => { throw new Error('nach dem Neuladen ist der empfangene Bestand weg'); });
+            if (!(await page.locator('#data-status').textContent()).includes(last.expected.fileName)) {
+                throw new Error('nach dem Neuladen stammt der Bestand nicht aus der letzten Umzugsdatei');
+            }
+        } finally {
+            page.off('dialog', accept);
+        }
+    });
+
     await step('keine Skriptfehler', async () => {
         if (errors.length) throw new Error(errors.join(' | '));
     });
@@ -457,14 +581,19 @@ try {
 }
 const port = await freePort();
 const server = await startPreview(port);
-const browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {});
+// Eigene Prozessgruppe: Strg+C erreicht den Server nicht mehr von selbst.
+for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.once(signal, () => { server.stopAll(); process.exit(130); });
+}
+let browser;
 try {
+    browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {});
     const baseUrl = `http://localhost:${port}/`;
     await desktop(browser, baseUrl);
     await phone(browser, baseUrl);
 } finally {
-    await browser.close();
-    server.kill();
+    await browser?.close();
+    server.stopAll();
 }
 console.log(failures ? `\n${failures} Schritt(e) fehlgeschlagen.` : '\nAlle Schritte ok.');
 process.exit(failures ? 1 : 0);
