@@ -2042,25 +2042,18 @@ function keepPopupTopInView(el) {
     if (top < limit) map.panBy([0, Math.round(top - limit)]);
 }
 
-// Desktop: breit genug, dass die Knöpfe (Ansprechpartner, Opportunities,
-// Produkte) und der Besuchsblock je in eine Zeile passen.
-const CUSTOMER_POPUP_WIDTH = 480;
+// Handy und Desktop im selben Format (PO, 11.10.2026: „Das Format vom Handy
+// gefällt mir besser, gerade von der Breite her – genauso für den Desktop"):
+// höchstens 360 px breit, am Handy die Bildschirmbreite abzüglich Rand.
+const CUSTOMER_POPUP_WIDTH = 360;
 
 function customerPopupOptions() {
-    // Handy: die Kachel nutzt die Bildschirmbreite (abzüglich Rand), damit
-    // Knöpfe und „alle 4 Wochen" nicht gestaucht oder abgeschnitten werden.
-    if (isMobileMap()) {
-        const width = Math.max(240, Math.min(360, window.innerWidth - 52));
-        return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup' });
-    }
-    // Desktop: so hoch, wie die Karte Platz hat (Grenze im CSS) – zugeklappt
-    // ist alles zu sehen, Name bis Tour-Knöpfe. Erst aufgeklappte Felder lassen
-    // sie scrollen. Kein maxHeight von Leaflet: Es setzte eine feste Höhe, die
-    // beim Auf- und Zuklappen nicht mitginge.
-    const width = Math.min(CUSTOMER_POPUP_WIDTH, window.innerWidth - 80);
-    // Eigene Klasse nur am Desktop – dort sind die Tour-Knöpfe große Pillen,
-    // am Handy bleibt alles, wie es ist.
-    return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className: 'customer-detail-popup customer-popup-desktop' });
+    const width = Math.max(240, Math.min(CUSTOMER_POPUP_WIDTH, window.innerWidth - 52));
+    // Kein maxHeight von Leaflet: Es setzte eine feste Höhe, die beim Auf- und
+    // Zuklappen nicht mitginge (Grenze im CSS). Am Desktop holt die Klasse die
+    // kompakten Handy-Regeln dazu, die dort sonst nur per Media Query gelten.
+    const className = isMobileMap() ? 'customer-detail-popup' : 'customer-detail-popup customer-popup-compact';
+    return popupOptions({ maxWidth: width, minWidth: width, maxHeight: null, className });
 }
 
 function animateCustomerMarkerOpen(marker) {
