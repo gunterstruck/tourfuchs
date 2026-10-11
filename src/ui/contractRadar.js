@@ -19,7 +19,6 @@ import {
     on,
     emit
 } from '../core/state.js';
-import { readWorkbook } from '../services/excel.js';
 import { saveDataset } from '../services/storage.js';
 import {
     SERVICE_CONTRACT_FIELDS,
@@ -631,6 +630,8 @@ async function handleContractFile(file) {
         return;
     }
     try {
+        // Excel-Bibliothek erst beim Einlesen laden – nicht im Startpaket.
+        const { readWorkbook } = await import('../services/excel.js');
         const workbook = await readWorkbook(file);
         pendingWorkbook = { ...workbook, fileName: file.name };
         lastImportIssues = [];
