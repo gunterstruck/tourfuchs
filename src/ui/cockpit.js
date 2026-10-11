@@ -38,6 +38,7 @@ import {
 import { loadScenarios, saveScenarios } from '../services/storage.js';
 import { showToast } from './toast.js';
 import { desktopPlanningAvailable, mobilePlanningMediaQuery } from './planningViewport.js';
+import { excelModule } from './lazyModules.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -1158,7 +1159,7 @@ function openReport() {
 async function downloadReassignments() {
     const model = reportModel();
     // Excel-Bibliothek erst beim Klick laden – sie gehört nicht ins Startpaket.
-    const { exportReassignments } = await import('../services/excel.js');
+    const { exportReassignments } = await excelModule();
     if (!exportReassignments(reassignmentRows(model), { demo: model.meta.demo })) {
         // Gebiete lassen sich auch ohne einen einzigen Kundenwechsel zuweisen –
         // etwa leere Flächen. Dann gibt es eine Vorlage, aber keine Liste.

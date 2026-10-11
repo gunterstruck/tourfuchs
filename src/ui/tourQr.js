@@ -13,6 +13,7 @@ import { googleMapsLegs } from '../features/tour.js';
 import { downloadIcs } from '../features/tourExport.js';
 import { combinePlanStart } from '../features/dayPlanner.js';
 import { showToast } from './toast.js';
+import { loadQrReaderModule, loadQrWriterModule } from './lazyModules.js';
 
 // QR-Bibliotheken erst bei Bedarf laden – nicht im Startpaket (Release 17.1b).
 // Der Leser wird vor Kamera- bzw. Bildscan geladen; die Erkennung selbst
@@ -21,10 +22,10 @@ let jsQR = null;
 /** true, wenn der Leser bereitsteht. Scheitert das Laden (offline vor dem
  * ersten Zwischenspeichern), liest der eingebaute Erkenner des Browsers allein. */
 async function loadQrReader() {
-    try { jsQR ??= (await import('jsqr')).default; } catch { /* ohne jsQR weiter */ }
+    try { jsQR ??= (await loadQrReaderModule()).default; } catch { /* ohne jsQR weiter */ }
     return Boolean(jsQR);
 }
-const loadQrWriter = async () => (await import('qrcode')).default;
+const loadQrWriter = async () => (await loadQrWriterModule()).default;
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]

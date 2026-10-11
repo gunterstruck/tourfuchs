@@ -61,6 +61,7 @@ import { upgradeDemoServiceContracts } from './features/demoServiceContracts.js'
 import { upgradeDemoServiceVisits } from './features/demoServiceVisits.js';
 import { fitToCustomers } from './features/map.js';
 import { normalizeMinimumRegionCustomers, normalizeRevenueFilter } from './core/customerFilters.js';
+import { prefetchWhenIdle } from './ui/lazyModules.js';
 
 async function restorePersistedState() {
     const settings = await loadSettings();
@@ -351,6 +352,8 @@ async function init() {
         handleSharedTourFromUrl();
         autoRevealIfEmpty();
         emit('app:ready');
+        // Excel und QR im Leerlauf vorladen: Der erste Klick wartet dann nicht.
+        prefetchWhenIdle();
         // Erst ausblenden, wenn der Browser wieder zeichnen kann – den
         // weiteren Kartenaufbau meldet die Karte selbst („Karte wird aktualisiert").
         await nextPaint();

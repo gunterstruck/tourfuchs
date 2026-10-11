@@ -25,6 +25,7 @@ import { ZANOBO_DEFAULT_BASE, setZanoboBaseUrl, zanoboBaseUrl, zanoboMachineUrl 
 import { flyToCustomer } from '../features/map.js';
 import { todayIso } from '../features/visits.js';
 import { t } from '../core/i18n.js';
+import { excelModule } from './lazyModules.js';
 
 const el = (id) => document.getElementById(id);
 const visits = () => Array.isArray(state.serviceVisits) ? state.serviceVisits : [];
@@ -279,7 +280,7 @@ async function handleFile(file) {
         return;
     }
     try {
-        const { readWorkbook } = await import('../services/excel.js');
+        const { readWorkbook } = await excelModule();
         const workbook = await readWorkbook(file);
         pendingWorkbook = { ...workbook, fileName: file.name };
         lastImportIssues = [];
@@ -384,7 +385,7 @@ async function confirmImport() {
 
 async function exportIssues() {
     if (!lastImportIssues.length) return;
-    const { exportErrors } = await import('../services/excel.js');
+    const { exportErrors } = await excelModule();
     exportErrors(lastImportIssues, 'serviceeinsaetze');
 }
 

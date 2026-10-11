@@ -18,8 +18,9 @@ import {
 import { todayIso } from '../features/visits.js';
 import { showToast } from './toast.js';
 import { t } from '../core/i18n.js';
+import { excelModule } from './lazyModules.js';
 
-const excel = () => import('../services/excel.js');
+const excel = excelModule;
 
 let dialog = null;
 let range = 'unsent';

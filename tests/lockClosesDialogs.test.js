@@ -56,6 +56,7 @@ describe('Sicherer Import meldet nur echten Erfolg', () => {
     it('prüft das Speicherergebnis mit und ohne vorhandenen Tresor', () => {
         const ui = read('src/ui/safeTransfer.js');
         expect(ui.match(/if \(!\(await persistReceived\(\)\)\) return;/g)).toHaveLength(2);
-        expect(ui).toContain('if (await saveDataset(datasetSnapshot())) return true;');
+        expect(ui).toContain('try { saved = await saveDataset(datasetSnapshot()); } finally { hideBusy(\'safe\'); }');
+        expect(ui).toContain('if (saved) return true;');
     });
 });

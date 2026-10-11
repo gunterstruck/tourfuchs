@@ -32,6 +32,7 @@ import {
 import { flyToCustomer } from '../features/map.js';
 import { applyMode } from './sidebar.js';
 import { mobilePlanningMediaQuery } from './planningViewport.js';
+import { excelModule } from './lazyModules.js';
 
 const STALE_SOURCE_DAYS = 30;
 const DEFAULT_WINDOW = '90';
@@ -631,7 +632,7 @@ async function handleContractFile(file) {
     }
     try {
         // Excel-Bibliothek erst beim Einlesen laden – nicht im Startpaket.
-        const { readWorkbook } = await import('../services/excel.js');
+        const { readWorkbook } = await excelModule();
         const workbook = await readWorkbook(file);
         pendingWorkbook = { ...workbook, fileName: file.name };
         lastImportIssues = [];
@@ -820,7 +821,7 @@ const downloadTemplateCsv = () => downloadStaticTemplate(
 
 async function exportLastIssues() {
     if (!lastImportIssues.length) return;
-    const { exportErrors } = await import('../services/excel.js');
+    const { exportErrors } = await excelModule();
     exportErrors(exportIssueRows(lastImportIssues), 'servicevertraege');
 }
 
