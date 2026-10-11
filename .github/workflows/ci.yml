@@ -34,6 +34,8 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run build
+      # Größenbudget (Release 17.0c): kein Paket wächst unbemerkt.
+      - run: npm run bundle-check
       - run: npm test
 
   # Warum diese eine Prüfstrecke in der CI läuft und die drei anderen nicht:
@@ -97,3 +99,6 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run smoke-check
+      # Import-Referenz (Release 17.0a): feste Dateien über die echte Oberfläche
+      # einlesen – der gespeicherte Bestand muss bytegleich bleiben.
+      - run: npm run import-check
