@@ -40,7 +40,7 @@ function store() {
 }
 
 function acknowledged() {
-    return store()?.getItem(ACK_KEY) === '1';
+    try { return store()?.getItem(ACK_KEY) === '1'; } catch { return false; }
 }
 
 function markAcknowledged() {

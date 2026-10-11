@@ -42,7 +42,8 @@ function store() {
 
 /** 'yes', 'no' oder null (noch nie gefragt). */
 export function exactGeocodePreference() {
-    const value = store()?.getItem(EXACT_GEOCODE_PREF_KEY);
+    let value = null;
+    try { value = store()?.getItem(EXACT_GEOCODE_PREF_KEY); } catch { /* gesperrt: noch nie gefragt */ }
     return value === 'yes' || value === 'no' ? value : null;
 }
 

@@ -5,6 +5,8 @@
  * Die Geräteauswahl ist deterministisch, eine bewusste Wahl gewinnt und alles
  * Unbekannte fällt auf Deutsch zurück. Es findet keinerlei Netzaufruf statt.
  */
+import { localStore } from './safeStorage.js';
+
 export const DEFAULT_LOCALE = 'de';
 export const SUPPORTED_LOCALES = Object.freeze(['de', 'en', 'fr', 'es']);
 export const LOCALE_CHOICES = Object.freeze(['auto', ...SUPPORTED_LOCALES]);
@@ -37,11 +39,11 @@ export function resolveLocale(choice = 'auto', deviceLanguages = []) {
     return DEFAULT_LOCALE;
 }
 
-export function readLocaleChoice(storage = globalThis.localStorage) {
+export function readLocaleChoice(storage = localStore()) {
     try { return normalizeLocaleChoice(storage?.getItem(LOCALE_KEY)); } catch { return 'auto'; }
 }
 
-export function saveLocaleChoice(choice, storage = globalThis.localStorage) {
+export function saveLocaleChoice(choice, storage = localStore()) {
     const normalized = normalizeLocaleChoice(choice);
     try {
         if (normalized === 'auto') storage?.removeItem(LOCALE_KEY);

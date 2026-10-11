@@ -19,6 +19,7 @@ import {
     generateRecoveryCode, normalizeRecoveryCode
 } from './crypto.js';
 import { clearDataset, clearProtectedStores } from './storage.js';
+import { localStore } from '../core/safeStorage.js';
 
 const VAULT_KEY = 'tf_vault';
 const DEFAULT_MAX_ATTEMPTS = 10;
@@ -31,7 +32,7 @@ let autoLockTimer = null;
 const memStore = new Map();
 function readMeta() {
     let raw = null;
-    try { raw = globalThis.localStorage?.getItem(VAULT_KEY) ?? null; } catch { /* private mode */ }
+    try { raw = localStore()?.getItem(VAULT_KEY) ?? null; } catch { /* private mode */ }
     if (raw === null) raw = memStore.get(VAULT_KEY) ?? null;
     return raw ? JSON.parse(raw) : null;
 }

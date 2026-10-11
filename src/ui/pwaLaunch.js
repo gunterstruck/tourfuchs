@@ -35,6 +35,10 @@ function store() {
     try { return globalThis.localStorage || null; } catch { return null; }
 }
 
+function installOfferDismissed() {
+    try { return store()?.getItem(DISMISS_KEY) === '1'; } catch { return false; }
+}
+
 function isInstalled() {
     return window.matchMedia?.('(display-mode: standalone)')?.matches
         || window.navigator.standalone === true;
@@ -154,7 +158,7 @@ function maybeOfferInstall() {
             standalone: isInstalled()
         }),
         installed: isInstalled(),
-        dismissed: store()?.getItem(DISMISS_KEY) === '1',
+        dismissed: installOfferDismissed(),
         hasOwnData: state.customers.length > 0 && !isDemoDataset(state.customers),
         tourStopCount: state.tour?.stops?.length || 0,
         insideMobilePreview

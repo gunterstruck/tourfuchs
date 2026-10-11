@@ -12,6 +12,7 @@
  * Zusammenführung und das Gedächtnis „schon weitergegeben".
  */
 import { todayIso } from './visits.js';
+import { localStore } from '../core/safeStorage.js';
 
 export const VISIT_REPORT_SHEET = 'Besuchsbericht';
 export const VISIT_REPORT_DATE_HEADER = 'Besuchsdatum';
@@ -67,16 +68,16 @@ export function visitKey(customer, date) {
 }
 
 /** Bewusstes „Daten löschen" / Tresor-Wipe: auch das Gedächtnis gehört dazu. */
-export function clearSentVisits(storage = globalThis.localStorage) {
+export function clearSentVisits(storage = localStore()) {
     try { storage?.removeItem(SENT_KEY); } catch { /* Speicher optional */ }
 }
 
 /** Gibt es schon ein Gedächtnis „weitergegeben"? (Sonst Ausgangsbasis anlegen.) */
-export function sentVisitsInitialized(storage = globalThis.localStorage) {
+export function sentVisitsInitialized(storage = localStore()) {
     try { return storage?.getItem(SENT_KEY) != null; } catch { return true; }
 }
 
-export function loadSentVisits(storage = globalThis.localStorage) {
+export function loadSentVisits(storage = localStore()) {
     try {
         const list = JSON.parse(storage?.getItem(SENT_KEY) || '[]');
         // Frühe Einträge (Version vom 30.09.2026) trugen die Kundennummer im
@@ -92,7 +93,7 @@ export function loadSentVisits(storage = globalThis.localStorage) {
 }
 
 /** Weitergegebene Besuche merken; Einträge außerhalb des Fensters fallen raus. */
-export function rememberSentVisits(entries, { today = todayIso(), storage = globalThis.localStorage } = {}) {
+export function rememberSentVisits(entries, { today = todayIso(), storage = localStore() } = {}) {
     const sent = loadSentVisits(storage);
     for (const entry of entries) sent.add(visitKey(entry.customer, entry.date));
     const from = isoDaysBefore(today, SENT_WINDOW_DAYS);
