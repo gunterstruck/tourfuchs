@@ -12,6 +12,10 @@
     background: rgba(240, 76, 76, 0.18);
     border-color: rgba(240, 76, 76, 0.4);
 }
+:where(.aurora-dark) .app-busy {
+    background: var(--color-surface, var(--color-surface));
+    color: var(--color-text, rgb(165, 182, 223));
+}
 
 /* ── briefing.css ── */
 :where(.aurora-dark) .briefing-customer {
@@ -233,6 +237,10 @@
 :where(.aurora-dark) .stop-row.stop-dragging {
     background: var(--color-surface, var(--color-surface));
 }
+:where(.aurora-dark) body.tour-focus .tour-step-scan {
+    border: 1px solid color-mix(in srgb, var(--color-primary, rgba(152, 113, 244, 0.7)) 40%, rgba(127, 154, 189, 0.4));
+    background: var(--color-surface, var(--color-surface));
+}
 :where(.aurora-dark) body.tour-focus #tour-stepper {
     background: var(--color-surface, var(--color-surface));
 }
@@ -272,6 +280,9 @@
 :where(.aurora-dark) .geocode-status {
     border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
     background: var(--color-surface, var(--color-surface));
+}
+:where(.aurora-dark) .geocode-status-found {
+    color: var(--color-text-muted, var(--color-text-muted));
 }
 :where(.aurora-dark) .info-setting {
     border: 1px solid var(--color-border, rgba(127, 154, 189, 0.4));
@@ -386,6 +397,17 @@
 :where(.aurora-dark) .guide-dialog .geocode-offer-actions a.button {
     background: var(--color-primary, rgb(85, 21, 234));
 }
+:where(.aurora-dark) .print-view-overlay {
+    background: var(--color-surface);
+}
+:where(.aurora-dark) .import-wait-hint {
+    background: var(--color-primary-light, rgba(134, 85, 246, 0.2));
+    border: 1px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+}
+:where(.aurora-dark) .file-access-question {
+    background: rgba(240, 208, 76, 0.18);
+    color: rgb(241, 181, 146);
+}
 
 /* ── contracts.css ── */
 :root:where(.aurora-dark) .service-customer-scope {
@@ -486,6 +508,19 @@
 :where(.aurora-dark) .icon-button.unprotected {
     background: rgba(240, 167, 76, 0.18);
 }
+:where(.aurora-dark) .demo-launcher {
+    background: color-mix(in srgb, rgb(85, 21, 234) 12%, var(--color-surface));
+}
+:where(.aurora-dark) .demo-launcher-icon {
+    background: rgb(84, 19, 236);
+}
+:where(.aurora-dark) .demo-launcher:hover {
+    border-color: rgba(152, 113, 244, 0.7);
+    background: color-mix(in srgb, rgb(85, 21, 234) 20%, var(--color-surface));
+}
+:where(.aurora-dark) .demo-launcher:focus-visible {
+    outline: 2px solid rgba(152, 113, 244, 0.7);
+}
 :where(.aurora-dark) .sheet-grip span {
     background: rgba(132, 156, 184, 0.18);
 }
@@ -506,6 +541,16 @@
 :where(.aurora-dark) #map {
     background: rgba(76, 146, 240, 0.18);
 }
+:where(.aurora-dark) .info-button {
+    background: color-mix(in srgb, var(--color-primary, rgb(85, 21, 234)) 8%, var(--color-surface, var(--color-surface)));
+}
+:where(.aurora-dark) .info-button:hover {
+    border-color: var(--color-primary, rgba(152, 113, 244, 0.7));
+    background: color-mix(in srgb, var(--color-primary, rgb(85, 21, 234)) 18%, var(--color-surface, var(--color-surface)));
+}
+:where(.aurora-dark) .info-button:focus-visible {
+    outline: 2px solid var(--color-primary, rgba(152, 113, 244, 0.7));
+}
 
 /* ── map.css ── */
 :where(.aurora-dark) .popup-place .popup-place-kind {
@@ -519,6 +564,12 @@
 }
 :where(.aurora-dark) .popup-umsatz {
     color: var(--color-primary-dark, var(--color-primary-dark));
+}
+:where(.aurora-dark) .popup-customer .popup-actions {
+    background: var(--color-surface, var(--color-surface));
+}
+:where(.aurora-dark) .customer-popup-compact .popup-toolbar {
+    background: linear-gradient(var(--color-surface, var(--color-surface)) 70%, transparent);
 }
 :where(.aurora-dark) .popup-contract-summary {
     border: 1px solid rgba(152, 113, 244, 0.7);
@@ -552,6 +603,42 @@
     :where(.aurora-dark) .popup-toolbar {
         background: linear-gradient(var(--color-surface, var(--color-surface)) 70%, rgba(22, 20, 46, 0));
     }
+}
+:where(.aurora-dark) .popup-team-badge {
+    background: color-mix(in srgb, var(--color-primary, rgb(85, 21, 234)) 14%, transparent);
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+:where(.aurora-dark) .popup-team-account {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+:where(.aurora-dark) .popup-chip {
+    border: 1px solid var(--color-border, rgba(132, 156, 184, 0.4));
+    background: var(--color-surface, var(--color-surface));
+}
+:where(.aurora-dark) .popup-chip[aria-expanded="true"] {
+    border-color: var(--color-primary, rgba(152, 113, 244, 0.7));
+    color: var(--color-primary-dark, var(--color-primary-dark));
+}
+:where(.aurora-dark) .popup-person-detail {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+:where(.aurora-dark) .popup-mix {
+    background: var(--color-border, rgba(127, 154, 189, 0.18));
+}
+:where(.aurora-dark) .mix-0 {
+    background: rgb(85, 21, 234);
+}
+:where(.aurora-dark) .popup-mix-legend {
+    color: var(--color-text-muted, var(--color-text-muted));
+}
+:where(.aurora-dark) .popup-revenue-change.is-up {
+    color: rgb(150, 238, 183);
+}
+:where(.aurora-dark) .popup-revenue-change.is-down {
+    color: rgb(239, 149, 149);
+}
+:where(.aurora-dark) .popup-team-role {
+    color: var(--color-text-muted, var(--color-text-muted));
 }
 
 /* ── responsive.css ── */
@@ -754,6 +841,9 @@
     background: rgba(134, 85, 246, 0.2);
     color: var(--color-primary-dark);
 }
+:where(.aurora-dark) .sc-music-status {
+    background: var(--color-surface, var(--color-surface));
+}
 :where(.aurora-dark) .sc-progress {
     color: var(--color-text-muted, var(--color-text-muted));
 }
@@ -891,6 +981,9 @@
 :where(.aurora-dark) .safe-file-pick {
     border: 2px dashed var(--color-primary, rgba(152, 113, 244, 0.7));
     color: var(--color-primary-dark, var(--color-primary-dark));
+}
+:where(.aurora-dark) .safe-file-status[data-kind="error"] {
+    color: var(--color-danger, rgb(238, 150, 150));
 }
 :where(.aurora-dark) .safe-fallback summary {
     color: var(--color-text-muted);
