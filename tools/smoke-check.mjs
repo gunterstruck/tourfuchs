@@ -199,6 +199,37 @@ async function desktop(browser, baseUrl) {
         await restartWelcome();
     });
 
+    // PO, 11.10.2026: Neue bekommen meist eine Datei von Kollegen – der Weg
+    // dorthin steht in der Begrüßung und oben in „Daten".
+    await step('Datei von Kollegen: aus der Begrüßung und aus „Deine Daten holen"', async () => {
+        const card = page.locator('#demo-welcome .demo-welcome-card');
+        await card.waitFor({ state: 'visible', timeout: TIMEOUT });
+        // Maus auf der Karte: der Selbststart wartet, solange jemand liest.
+        const box = await card.boundingBox();
+        await page.mouse.move(box.x + 12, box.y + 12);
+        await page.waitForSelector('#btn-demo-welcome-demos.is-waiting', { timeout: TIMEOUT });
+        await page.mouse.move(5, box.y + box.height / 2);
+        await page.waitForFunction(() => !document.getElementById('btn-demo-welcome-demos').classList.contains('is-waiting'), null, { timeout: TIMEOUT });
+        await page.locator('#btn-demo-welcome-safe').click();
+        await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
+        if (await page.locator('#demo-welcome').isVisible()) throw new Error('Begrüßung bleibt hinter dem Empfang stehen');
+        await closeDialogs(page);
+        // Abgebrochen oder eingelöst: danach steht das Panel im Bild, nicht die leere Karte.
+        await page.waitForFunction(() => document.getElementById('sidebar')?.classList.contains('open'), null, { timeout: TIMEOUT })
+            .catch(() => { throw new Error('Panel bleibt nach dem Empfang zu'); });
+        await page.evaluate(() => document.querySelector('.tab-button[data-tab="daten"]')?.click());
+        await page.locator('#data-start').waitFor({ state: 'visible', timeout: TIMEOUT });
+        if (await page.locator('#btn-vault-setup').isVisible()) throw new Error('Verwaltung steht schon bei Beispieldaten im Bild');
+        await page.locator('#btn-get-safe').click();
+        await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
+        await closeDialogs(page);
+        if (await page.locator('.sc-running').count()) throw new Error('Vorführung startete trotz Empfang');
+        // Zurück zum Ausgangspunkt der nächsten Schritte: Begrüßung steht.
+        await page.evaluate(() => sessionStorage.removeItem('tf_demo_welcome_ack'));
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.locator('#demo-welcome').waitFor({ state: 'visible', timeout: TIMEOUT });
+    });
+
     await step('Eigene Liste importieren (Einfügen → Zuordnen → Karte)', async () => {
         await closeDialogs(page);
         // Solange die Begrüßung steht, trägt sie das Angebot – sonst der Demo-Streifen.
@@ -229,6 +260,16 @@ async function desktop(browser, baseUrl) {
             .catch(() => { throw new Error('Angebot zur genauen Verortung erscheint nach dem ersten Import nicht'); });
         await page.locator('#geocode-offer-no').click();
         await page.waitForFunction(() => !document.getElementById('geocode-offer-dialog').open, null, { timeout: TIMEOUT });
+    });
+
+    await step('Mit eigenen Daten: „Daten" nach Aufgaben, Empfang oben bei „Daten laden"', async () => {
+        await closeDialogs(page);
+        await page.evaluate(() => document.querySelector('.tab-button[data-tab="daten"]')?.click());
+        await page.locator('#btn-safe-receive').waitFor({ state: 'visible', timeout: TIMEOUT });
+        if (await page.locator('#data-start').isVisible()) throw new Error('„Deine Daten holen" steht trotz eigener Daten');
+        const order = await page.evaluate(() => ['btn-safe-receive', 'btn-safe-export', 'vault-controls', 'data-more', 'btn-clear']
+            .map((id) => document.getElementById(id)?.getBoundingClientRect().top ?? NaN));
+        if (order.some(Number.isNaN) || order.some((top, i) => i && top <= order[i - 1])) throw new Error(`Reihenfolge stimmt nicht: ${order}`);
     });
 
     await step('Kundennummer mit Namen in die Zwischenablage kopieren', async () => {
