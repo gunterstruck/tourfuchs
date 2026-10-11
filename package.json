@@ -17,6 +17,8 @@
     "face-check": "node tools/face-check.mjs",
     "attention-check": "node tools/attention-check.mjs",
     "smoke-check": "node tools/smoke-check.mjs",
+    "import-check": "node tools/import-check.mjs",
+    "bundle-check": "node tools/bundle-check.mjs",
     "docs:screenshots": "node tools/docs-screenshots.mjs",
     "docs:previews": "node tools/docs-previews.mjs",
     "docs:pdf": "node tools/build-knowledge-pdf.mjs",
