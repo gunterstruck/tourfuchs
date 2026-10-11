@@ -914,6 +914,14 @@ Daraus folgt:
 - Taucht ein Fehler auf, wird zuerst der verursachende PR zurückgenommen
   (Revert) und erst danach die Ursache gesucht.
 
+- **Nachtrag 11.10.2026 – Kundenkachel am Desktop im Handy-Format (PO):**
+  „Das Format vom Handy gefällt mir besser, gerade von der Breite her –
+  genauso für den Desktop." Die Desktop-Kachel ist jetzt wie am Handy
+  höchstens 360 Pixel breit und kompakt; die Tour-Knöpfe zeigen das Symbol
+  über der Beschriftung (die großen Desktop-Pillen vom 10.10. entfallen). Die
+  Höhe folgt am Desktop weiter dem Platz auf der Karte. Handy unverändert
+  (Bildvergleich: nur die beiden Desktop-Kacheln weichen ab).
+
 #### Phasen
 
 | # | Phase | Inhalt | Status |

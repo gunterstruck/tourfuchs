@@ -4,6 +4,9 @@ on:
   push:
     branches: [main]
   pull_request:
+    # labeled/unlabeled: Das Label „optik-geaendert" wirkt sofort (neuer Lauf
+    # ohne Bildvergleich) – ein „Re-run" sähe noch den Stand ohne Label.
+    types: [opened, synchronize, reopened, labeled, unlabeled]
 
 # Node 24 baut und testet das Projekt. Node 20 war aus dem Support gelaufen –
 # eine Laufzeit ohne Sicherheits-Updates ist kein Fundament für eine App, die
@@ -108,8 +111,8 @@ jobs:
   # geöffnet (keine eingecheckten Referenzbilder, die an Schriften und
   # Kantenglättung des Rechners hängen). Gewollte optische Änderungen
   # bekommen das Label „optik-geaendert"; dann entfällt der Vergleich bewusst.
-  # Das Setzen des Labels startet keinen neuen Lauf – danach „Re-run" oder
-  # der nächste Push. Bei Abweichung liegen die Diff-Bilder als Artefakt bei.
+  # Das Setzen des Labels startet einen neuen Lauf (siehe `on:`). Bei
+  # Abweichung liegen die Diff-Bilder als Artefakt bei.
   visual:
     if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'optik-geaendert')
     runs-on: ubuntu-latest

@@ -703,16 +703,25 @@ body.demo-data-arriving .leaflet-marker-pane > *:nth-child(3n) { animation-delay
     padding: 6px 0 0;
     background: var(--color-surface, #fff);
 }
-/* Desktop: Tour-Knöpfe als richtige Pillen, doppelt so hoch wie zuvor. */
-.customer-popup-desktop .popup-actions { gap: 8px; }
-.customer-popup-desktop .popup-actions button {
-    min-height: 50px;
-    padding: 8px 12px;
-    border-radius: var(--radius-pill);
-    font-size: 0.88rem;
-    font-weight: 600;
-    column-gap: 6px;
+/* Kundenkachel am Desktop im Handy-Format (PO, 11.10.2026): dieselben
+   kompakten Regeln wie im Handy-Block unten, dort per Media Query. Die Höhe
+   folgt am Desktop weiter dem Platz auf der Karte (Regel oben). */
+.customer-popup-compact .leaflet-popup-content { margin: 10px 12px; }
+.customer-popup-compact .popup-toolbar {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: linear-gradient(var(--color-surface, #fff) 70%, transparent);
+    margin: -2px 0 3px;
+    padding-bottom: 3px;
 }
+.customer-popup-compact .popup h3 { font-size: 0.98rem; margin: 0 0 2px; }
+.customer-popup-compact .popup p { margin: 2px 0; }
+.customer-popup-compact .popup .contact-links { margin: 5px 0 3px; }
+.customer-popup-compact .popup .visit-block { margin: 6px 0 4px; padding: 7px 8px; }
+.customer-popup-compact .popup .visit-line { margin: 0 0 5px; }
+.customer-popup-compact .popup-actions { margin-top: 6px; }
+.customer-popup-compact .popup-actions button { flex-direction: column; flex-wrap: nowrap; padding: 4px 4px; }
 /* Hinweis zur Ortung als Ganzes umbrechen (nicht „Straße, ohne" | „Hausnummer"). */
 .popup-geo-note { display: block; white-space: nowrap; }
 

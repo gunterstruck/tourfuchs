@@ -81,15 +81,16 @@ describe('Umsatz im Kunden-Popup', () => {
         expect(html).toMatch(/<\/h3>\s*<p class="popup-idline"><button type="button" class="popup-nr"[^]*class="popup-nr popup-crm" href="https:\/\/crm\.example\/1429247"/);
     });
 
-    it('Desktop: breite Kachel, Tour-Knöpfe bleiben beim Scrollen unten stehen', () => {
+    it('Desktop im Handy-Format: höchstens 360 px, kompakt, Tour-Knöpfe bleiben beim Scrollen unten', () => {
         const map = readFileSync(resolve(process.cwd(), 'src/features/map.js'), 'utf8');
         const css = readFileSync(resolve(process.cwd(), 'src/styles/map.css'), 'utf8');
-        expect(map).toContain('const CUSTOMER_POPUP_WIDTH = 480;');
+        expect(map).toContain('const CUSTOMER_POPUP_WIDTH = 360;');
         expect(css).toMatch(/\.popup-customer \.popup-actions \{\s*position: sticky;\s*bottom: 0;/);
         expect(css).toContain('.customer-detail-popup .leaflet-popup-content { max-height: max(380px, calc(100dvh - 230px)); }');
-        // Tour-Knöpfe am Desktop als große Pillen (doppelt so hoch), Handy unverändert.
-        expect(map).toContain("className: 'customer-detail-popup customer-popup-desktop'");
-        expect(css).toMatch(/\.customer-popup-desktop \.popup-actions button \{\s*min-height: 50px;/);
+        // Dieselben kompakten Regeln wie am Handy; keine großen Desktop-Pillen mehr.
+        expect(map).toContain("'customer-detail-popup customer-popup-compact'");
+        expect(css).toContain('.customer-popup-compact .popup-actions button { flex-direction: column; flex-wrap: nowrap; padding: 4px 4px; }');
+        expect(css).not.toContain('customer-popup-desktop');
         // Aufklappen: Kachel bleibt im Bild, das Feld rückt in Sicht.
         expect(map).toContain('keepPopupTopInView(el);');
         expect(map).toContain('if (open) revealPopupPanel(el, group);');
