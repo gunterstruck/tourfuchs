@@ -647,15 +647,15 @@ async function phone(browser, baseUrl) {
 
 /**
  * Gesperrte Website-Daten (Safari, Chrome mit blockierten Cookies): Schon der
- * Zugriff auf localStorage/sessionStorage wirft. Bis 17.1a brach daran der
- * ganze Start ab – keine Karte, keine Beispieldaten. Zweite Prüfung zu
- * tests/blockedStorage.test.js.
+ * Zugriff auf localStorage/sessionStorage wirft, IndexedDB ebenso. Bis 17.1a
+ * brach daran der ganze Start ab – keine Karte, keine Beispieldaten. Zweite
+ * Prüfung zu tests/blockedStorage.test.js.
  */
 async function blockedStorage(browser, baseUrl) {
     console.log('Gesperrter Browser-Speicher (1440×900)');
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
     await context.addInitScript(() => {
-        for (const name of ['localStorage', 'sessionStorage']) {
+        for (const name of ['localStorage', 'sessionStorage', 'indexedDB']) {
             Object.defineProperty(window, name, {
                 configurable: true,
                 get() { throw new DOMException('The operation is insecure.', 'SecurityError'); }
