@@ -1,0 +1,52 @@
+{
+  "stand": "2026-10-04-schreibreihenfolge",
+  "pin": "Fuchs im Wald 7",
+  "recoveryCode": "TFRC-5AZ2A-F2PTT-DUF8H-Z698H",
+  "meta": {
+    "v": 1,
+    "iterations": 600000,
+    "salt": "YzM+MkdT9AbFs0WwOhlrpA==",
+    "wrapPin": {
+      "iv": "bV8/FTpwlda9lE1q",
+      "ct": "FBaqN5WeerswZZvx+ztZDTULNQNjjJBC7lqv5FbFmdoYffeNLMRSiQw5tGE9ozUs"
+    },
+    "attempts": 0,
+    "maxAttempts": 10,
+    "autoLockMs": 300000,
+    "pinNumeric": false,
+    "createdAt": "2026-10-11T08:31:30.460Z",
+    "recoverySalt": "vlspC/D/veri1D8xLKjopw==",
+    "wrapRecovery": {
+      "iv": "KfkffX1c2ZROrfXS",
+      "ct": "kmBCVpJ7NKBrifhuwQDISHjIDtGJ1lo0cXiR3fwljpPTbtt97lTM4AZHZ4WMsGRV"
+    }
+  },
+  "payload": {
+    "__enc": 1,
+    "iv": "IUamHXsg0s2+PesL",
+    "ct": "sCwmn0TnSOXJs8n8lmJa6e5dFG+ol25pf8uimNxJ8k+NaP1Ui+STDGzuB8D/td+VB0R+iPcbAFxvwci+kIZyXgt5G0U0WvwJhzHblsKR6FZqaaRlxp95UzAxeGTfe5dyWgbm3XKSeLermIhkRBpLaiYRWteUazBL3MbnV4ymVUky9IagrQuBGywM4JotKeju++VjjGP7QDVGpipxUZ3cfvTaL3c8cIrJLtqiEeLTrGKbyLaWZ10SqPxe0nFLYTf3XFpnLoX0HwVLWixh7flmgLygNfI4dVbsRiSPHqNlrba6yDoADbJC+u9V+TS9A8hwVaBQfa9cf/vmHJgYLvkyzga591McgHZr/2HnniRNSoSqBrH078G3U4b+uzbaSkJq63CiLYxuzkhC9CnSrDRgpQDf6XyPvyQgYK01oAZwnA=="
+  },
+  "inhalt": {
+    "customers": [
+      {
+        "id": "k-nr:10001",
+        "nummer": "10001",
+        "name": "Tresor Kunde GmbH",
+        "plz": "50667",
+        "ort": "Köln",
+        "lat": 50.94,
+        "lng": 6.96,
+        "geo": "exakt",
+        "besuche": [
+          "2026-09-01"
+        ],
+        "extra": {
+          "VK": "Vera"
+        }
+      }
+    ],
+    "fileName": "Tresor-2026-10-04-schreibreihenfolge.xlsx",
+    "importedAt": "2026-09-01T08:00:00.000Z",
+    "territories": {}
+  }
+}

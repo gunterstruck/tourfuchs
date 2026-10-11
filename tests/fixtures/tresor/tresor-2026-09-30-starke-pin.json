@@ -1,0 +1,52 @@
+{
+  "stand": "2026-09-30-starke-pin",
+  "pin": "271828",
+  "recoveryCode": "TFRC-GQKV5-UCVN3-RFA4E-F2ZUE",
+  "meta": {
+    "v": 1,
+    "iterations": 600000,
+    "salt": "6GxmMZOd/RxLDzPQuLl/Rw==",
+    "wrapPin": {
+      "iv": "waHazFnjHtPAVQdJ",
+      "ct": "h9Vy68x3ZeHMqGzvTmZToyZl2XUSzv7UZ8waFFBEd6m3l1C7OPz17d/46xe6mbEx"
+    },
+    "attempts": 0,
+    "maxAttempts": 10,
+    "autoLockMs": 300000,
+    "pinNumeric": true,
+    "createdAt": "2026-10-11T08:31:28.533Z",
+    "recoverySalt": "bvV6CXk2seUOI+//nzCPrg==",
+    "wrapRecovery": {
+      "iv": "Lb7DNuvIM2ZhyitK",
+      "ct": "olJxy+VJDBlXYRbrCObDzPBmGOgGkUgfd5wXGq4giX/Gsg+tOP4BQ97PiFN8DJd1"
+    }
+  },
+  "payload": {
+    "__enc": 1,
+    "iv": "vZNZyrHOKPOBUA/Z",
+    "ct": "N0M4Lc7SXDkWjq3KiZqZ85cx/clywqv4FoEkE8iDbGiCwty9z43NAcfB+pSJMCCIoQt0TRIcCNhp6Ivf8RYPOSyU3QBrycM4bYOzCJ3ynAwLVQR/i6T328iIm04rUiUgz5khnHyvI1u2cVpajbHkx40b/kAOEc1xf7qybJxIwgkgp/zKZ6EkMcQgvpbfD6topCZgA3+zHl+Pd5ACOxs40LvBM644uidWxUoMcNVekuOrh3Ry5OfyHumxXIJuMIkFmb7WrZ8qE18c+zwHlTeLrCweTvVXCPjqmpU1iVSnjfvsxAt8aEHGDqFP9en6JyNjfmKoVLzQZHkhdSUtSndWv/hKu/WFSyzKS3bwHjcaWyBzK0owzwRSceTc2ATHpRQXWfDcxI58vLtb0OQXCAikbLyOtdLU5n0="
+  },
+  "inhalt": {
+    "customers": [
+      {
+        "id": "k-nr:10001",
+        "nummer": "10001",
+        "name": "Tresor Kunde GmbH",
+        "plz": "50667",
+        "ort": "Köln",
+        "lat": 50.94,
+        "lng": 6.96,
+        "geo": "exakt",
+        "besuche": [
+          "2026-09-01"
+        ],
+        "extra": {
+          "VK": "Vera"
+        }
+      }
+    ],
+    "fileName": "Tresor-2026-09-30-starke-pin.xlsx",
+    "importedAt": "2026-09-01T08:00:00.000Z",
+    "territories": {}
+  }
+}
