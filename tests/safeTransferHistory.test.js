@@ -15,6 +15,7 @@ import { mergeOwnPlaces } from '../src/features/places.js';
  * nichts nachgebaut (Generator: Arbeitskopie je Commit):
  *
  *   2026-07-11-v1-kunden     3b0ea34  erster Tresor-Stand: nur Kunden + Gebiete
+ *   2026-07-11-v1-ohne-position  3b0ea34  dito, ein Kunde ohne Koordinaten
  *   2026-07-17-v2-vertraege  3bc0ceb  + Serviceverträge (schemaVersion 2)
  *   2026-07-17-v3-einsaetze  285375f  + Serviceeinsätze (schemaVersion 3)
  *   2026-09-27-v3-orte       8af4a56  + eigene Orte, tolerantes Einlesen
@@ -66,9 +67,10 @@ afterEach(() => {
 });
 
 describe('Umzugsdateien aller Stände', () => {
-    it('liegen vollständig vor (5 Stände, je Datei + Schlüssel + Inhalt)', () => {
+    it('liegen vollständig vor (5 Stände + Variante ohne Position, je Datei + Schlüssel + Inhalt)', () => {
         expect(STEMS).toEqual([
             'TourFuchs-Umzug-2026-07-11-v1-kunden',
+            'TourFuchs-Umzug-2026-07-11-v1-ohne-position',
             'TourFuchs-Umzug-2026-07-17-v2-vertraege',
             'TourFuchs-Umzug-2026-07-17-v3-einsaetze',
             'TourFuchs-Umzug-2026-09-27-v3-orte',
@@ -118,8 +120,10 @@ describe('Umzugsdateien aller Stände', () => {
                 expect(snap.importedAt).toBe(expected.importedAt);
                 expect(JSON.parse(JSON.stringify(snap.serviceContracts))).toEqual(expected.serviceContracts || []);
                 expect(JSON.parse(JSON.stringify(snap.serviceVisits))).toEqual(expected.serviceVisits || []);
+                expect(JSON.parse(JSON.stringify(snap.serviceContractSources || {}))).toMatchObject(expected.serviceContractSources || {});
+                expect(JSON.parse(JSON.stringify(snap.serviceVisitSources || {}))).toMatchObject(expected.serviceVisitSources || {});
                 for (const place of expected.places || []) {
-                    expect(snap.places.map((p) => p.id)).toContain(place.id);
+                    expect(snap.places.find((p) => p.id === place.id), place.id).toMatchObject(place);
                 }
             });
 

@@ -34,6 +34,12 @@ it('erzeugt eine Umzugsdatei mit dem damaligen Code', async () => {
         if (c.lat == null && c.lng == null) { c.lat = 50.94; c.lng = 6.96; c.geo = 'plz'; }
         c.geo = c.geo || 'exakt';
     }
+    // Variante: ein Kunde ohne Position (Verortung damals gescheitert) – beim
+    // Einlösen muss TourFuchs ihn über die PLZ wieder auf die Karte setzen.
+    if (process.env.TFSAFE_NOCOORDS) {
+        Object.assign(customers[1], { lat: null, lng: null });
+        delete customers[1].geo;
+    }
     if (process.env.TFSAFE_RICH) {
         Object.assign(customers[0], {
             umsatzJahre: { 2024: 100000, 2025: 118000, 2026: 125000 },

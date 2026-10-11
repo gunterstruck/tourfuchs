@@ -399,11 +399,15 @@ async function desktop(browser, baseUrl) {
                 const tx = db.transaction([db.objectStoreNames[0]], 'readwrite');
                 tx.objectStore(db.objectStoreNames[0]).put(f.payload, 'kundendaten');
                 tx.oncomplete = () => { db.close(); resolve(); };
+                tx.onerror = () => reject(tx.error);
             };
         }), fixture);
         try {
             for (const fixture of fixtures) {
                 await closeDialogs(page);
+                // Die App speichert 400 ms nach einer Änderung – erst danach den
+                // nächsten Tresor hinlegen, sonst überschreibt sie ihn.
+                await sleep(800);
                 await plant(fixture);
                 await page.reload({ waitUntil: 'domcontentloaded' });
                 await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === false, null, { timeout: TIMEOUT })
@@ -424,6 +428,7 @@ async function desktop(browser, baseUrl) {
                     const tx = db.transaction([db.objectStoreNames[0]], 'readwrite');
                     tx.objectStore(db.objectStoreNames[0]).delete('kundendaten');
                     tx.oncomplete = () => { db.close(); resolve(); };
+                    tx.onerror = () => { db.close(); resolve(); };
                 };
                 req.onerror = () => resolve();
             }));
@@ -518,7 +523,7 @@ async function phone(browser, baseUrl) {
             key: 'TFK1:3663c2a95183:vP8iAmR1yzSDkjCqS3fybiPfQPFFd8STNpySs5l4chc=',
             expected: { customers: [{}], fileName: null }
         });
-        if (files.length < 6) throw new Error(`nur ${files.length} Umzugsdateien gefunden`);
+        if (files.length < 7) throw new Error(`nur ${files.length} Umzugsdateien gefunden`);
         const accept = (dialog) => dialog.accept();
         page.on('dialog', accept);
         try {
@@ -541,6 +546,9 @@ async function phone(browser, baseUrl) {
                 // „… und lokal gespeichert" – erst dann ist der Umzug wirklich angekommen.
                 await page.waitForFunction(() => /Daten empfangen \(.*\) und (lokal gespeichert|im Tresor gesichert)/.test(document.getElementById('toasts')?.textContent || ''), null, { timeout: TIMEOUT })
                     .catch(async () => { throw new Error(`${file.stem}: nicht gespeichert – ${await page.locator('#toasts').textContent().catch(() => '')}`); });
+                // Auch ein Kunde ohne Position (Variante „ohne-position") steht danach auf der Karte.
+                await page.waitForFunction((n) => (document.getElementById('data-status')?.textContent || '').includes(`📍 ${n} verortet`), count, { timeout: TIMEOUT })
+                    .catch(async () => { throw new Error(`${file.stem}: nicht alle Kunden verortet – ${await page.locator('#data-status').textContent()}`); });
                 if (file.expected.fileName && !(await page.locator('#data-status').textContent()).includes(file.expected.fileName)) {
                     throw new Error(`${file.stem}: Dateiname „${file.expected.fileName}" fehlt nach der Übernahme`);
                 }
@@ -573,13 +581,18 @@ try {
 }
 const port = await freePort();
 const server = await startPreview(port);
-const browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {});
+// Eigene Prozessgruppe: Strg+C erreicht den Server nicht mehr von selbst.
+for (const signal of ['SIGINT', 'SIGTERM']) {
+    process.once(signal, () => { server.stopAll(); process.exit(130); });
+}
+let browser;
 try {
+    browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {});
     const baseUrl = `http://localhost:${port}/`;
     await desktop(browser, baseUrl);
     await phone(browser, baseUrl);
 } finally {
-    await browser.close();
+    await browser?.close();
     server.stopAll();
 }
 console.log(failures ? `\n${failures} Schritt(e) fehlgeschlagen.` : '\nAlle Schritte ok.');

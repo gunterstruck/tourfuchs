@@ -20,6 +20,7 @@ Geprüft werden sie doppelt:
 | Datei | Commit | Stand |
 |---|---|---|
 | `umzug/…-2026-07-11-v1-kunden` | `3b0ea34` | erster Umzug: Kunden + Gebiete |
+| `umzug/…-2026-07-11-v1-ohne-position` | `3b0ea34` | dito, ein Kunde ohne Koordinaten (`TFSAFE_NOCOORDS=1`) |
 | `umzug/…-2026-07-17-v2-vertraege` | `3bc0ceb` | + Serviceverträge (schemaVersion 2) |
 | `umzug/…-2026-07-17-v3-einsaetze` | `285375f` | + Serviceeinsätze (schemaVersion 3) |
 | `umzug/…-2026-09-27-v3-orte` | `8af4a56` | + eigene Orte, tolerantes Einlesen |
