@@ -155,6 +155,9 @@ describe('Offene Kundenkachel bleibt, während die Verortung im Hintergrund läu
         // Zoom: Lichtpunkte nur anpassen (keep), drawMarkers baut sie dann nicht neu.
         expect(map).toContain('if (lightsActive()) renderMarkers({ keep: true });');
         expect(map).toContain('if (!dirty && lightsActive() && lightsLayer?.getLayers().length) {\n        updateLights();');
+        // Nach der Verortung meldet auch die Lichterkarte „gezeichnet" (Lasso zieht nach).
+        const lightsBranch = body.slice(0, body.indexOf('return;'));
+        expect(lightsBranch).toContain("emit('map:markers-rendered');");
     });
 
     it('lässt Seitenleiste und Modus bei reinen Positionsänderungen in Ruhe', () => {

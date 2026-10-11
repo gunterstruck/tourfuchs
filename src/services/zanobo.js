@@ -20,7 +20,8 @@ function store() {
 
 /** Konfigurierte Zanobo-Instanz; ohne eigene Konfiguration die öffentliche. */
 export function zanoboBaseUrl() {
-    const stored = String(store()?.getItem(STORAGE_KEY) ?? '').trim();
+    let stored = '';
+    try { stored = String(store()?.getItem(STORAGE_KEY) ?? '').trim(); } catch { /* gesperrt: öffentliche Instanz */ }
     return stored || ZANOBO_DEFAULT_BASE;
 }
 

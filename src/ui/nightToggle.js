@@ -13,6 +13,7 @@
  * den Mond. Gemerkt wird nur, welche Karte vorher eingestellt war (lokal).
  */
 import { t } from '../core/i18n.js';
+import { localStore } from '../core/safeStorage.js';
 
 export const NIGHT_PREV_BASEMAP_KEY = 'tf_night_prev_basemap';
 export const LIGHTS_BASEMAP = 'lights';
@@ -35,7 +36,7 @@ function chooseBasemap(select, value) {
 }
 
 export function initNightToggle({
-    doc = document, theme, storage = globalThis.localStorage, onBasemapChanged, onLocaleChanged
+    doc = document, theme, storage = localStore(), onBasemapChanged, onLocaleChanged
 } = {}) {
     const button = doc.getElementById('btn-night');
     const select = doc.getElementById('basemap-select');

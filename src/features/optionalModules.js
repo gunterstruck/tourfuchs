@@ -4,6 +4,7 @@
  * Die Module schalten ausschließlich Zugänge und Sichtbarkeit. Kundendaten,
  * Touren und Gebietszuordnungen bleiben davon unberührt.
  */
+import { localStore } from '../core/safeStorage.js';
 export const OPTIONAL_MODULES = Object.freeze({
     territoryPlanning: Object.freeze({
         storageKey: 'gf_territory_planning_enabled',
@@ -35,7 +36,7 @@ function moduleDefinition(moduleId) {
  * Eine gespeicherte 1/0-Entscheidung gewinnt immer. Ohne Entscheidung gilt
  * der Produkstandard des Moduls: Gebietsplanung an, Service weiterhin aus.
  */
-export function optionalModuleEnabled(moduleId, storage = globalThis.localStorage) {
+export function optionalModuleEnabled(moduleId, storage = localStore()) {
     const { storageKey, defaultEnabled } = moduleDefinition(moduleId);
     try {
         const stored = storage?.getItem(storageKey);
@@ -48,7 +49,7 @@ export function optionalModuleEnabled(moduleId, storage = globalThis.localStorag
 }
 
 /** Schreibt dieselbe kompakte 1/0-Konvention wie das bisherige Service-Opt-in. */
-export function persistOptionalModule(moduleId, enabled, storage = globalThis.localStorage) {
+export function persistOptionalModule(moduleId, enabled, storage = localStore()) {
     const { storageKey } = moduleDefinition(moduleId);
     try {
         storage?.setItem(storageKey, enabled ? '1' : '0');

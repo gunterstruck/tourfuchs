@@ -939,6 +939,9 @@ function refreshPositions() {
         updateLights();
         restyleRegions();
         renderTour({ markers: false });
+        // Wie bei den Stapeln (finishMarkers): Wer an der gezeichneten Menge
+        // hängt (Lasso), zieht nach.
+        emit('map:markers-rendered');
         return;
     }
     // Ohne sichtbare Kundenpunkte (Flächenansicht) wie bisher.

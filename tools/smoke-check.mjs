@@ -645,6 +645,37 @@ async function phone(browser, baseUrl) {
     await context.close();
 }
 
+/**
+ * Gesperrte Website-Daten (Safari, Chrome mit blockierten Cookies): Schon der
+ * Zugriff auf localStorage/sessionStorage wirft, IndexedDB ebenso. Bis 17.1a
+ * brach daran der ganze Start ab – keine Karte, keine Beispieldaten. Zweite
+ * Prüfung zu tests/blockedStorage.test.js.
+ */
+async function blockedStorage(browser, baseUrl) {
+    console.log('Gesperrter Browser-Speicher (1440×900)');
+    const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+    await context.addInitScript(() => {
+        for (const name of ['localStorage', 'sessionStorage', 'indexedDB']) {
+            Object.defineProperty(window, name, {
+                configurable: true,
+                get() { throw new DOMException('The operation is insecure.', 'SecurityError'); }
+            });
+        }
+    });
+    const page = await context.newPage();
+    const errors = [];
+    page.on('pageerror', (e) => errors.push(String(e).slice(0, 160)));
+    await step('App startet trotzdem mit Beispieldaten und Seitenleiste', async () => {
+        await openApp(page, baseUrl);
+        const zoom = await page.locator('#panel-zoom-label').textContent();
+        if (zoom !== '100%') throw new Error(`Seitenleiste nicht eingerichtet (Zoom „${zoom}")`);
+    });
+    await step('keine Skriptfehler', async () => {
+        if (errors.length) throw new Error(errors.join(' | '));
+    });
+    await context.close();
+}
+
 let chromium;
 try {
     ({ chromium } = await import('playwright'));
@@ -664,6 +695,7 @@ try {
     const baseUrl = `http://localhost:${port}/`;
     await desktop(browser, baseUrl);
     await phone(browser, baseUrl);
+    await blockedStorage(browser, baseUrl);
 } finally {
     await browser?.close();
     server.stopAll();

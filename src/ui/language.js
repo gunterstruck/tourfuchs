@@ -5,6 +5,7 @@ import {
     saveLocaleChoice
 } from '../core/locale.js';
 import { applyLocale } from '../core/i18n.js';
+import { localStore } from '../core/safeStorage.js';
 
 /**
  * Gerätesprache und bewusste Wahl verbinden. Alles bleibt in localStorage;
@@ -14,7 +15,7 @@ export function initLanguage({
     doc = document,
     win = window,
     nav = navigator,
-    storage = globalThis.localStorage
+    storage = localStore()
 } = {}) {
     let choice = readLocaleChoice(storage);
     let locale = resolveLocale(choice, deviceLanguages(nav));

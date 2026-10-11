@@ -10,6 +10,7 @@
  *
  * Gespeichert werden nur Dateiname, Größe und Zeitpunkt, lokal im Browser.
  */
+import { localStore } from '../core/safeStorage.js';
 
 export const IMPORT_IN_FLIGHT_KEY = 'tf_import_inflight';
 /** Ältere Notizen sind kein Hinweis mehr auf „gerade eben abgebrochen". */
@@ -24,13 +25,13 @@ export function formatFileSize(bytes, locale = 'de-DE') {
     return `${(size / (1024 * 1024)).toLocaleString(locale, { maximumFractionDigits: 1 })} MB`;
 }
 
-export function noteImportInFlight(file, { storage = globalThis.localStorage, now = Date.now() } = {}) {
+export function noteImportInFlight(file, { storage = localStore(), now = Date.now() } = {}) {
     try {
         storage?.setItem(IMPORT_IN_FLIGHT_KEY, JSON.stringify({ name: String(file?.name || ''), size: Number(file?.size) || 0, at: now }));
     } catch { /* ohne Speicher: keine Notiz */ }
 }
 
-export function clearImportInFlight({ storage = globalThis.localStorage } = {}) {
+export function clearImportInFlight({ storage = localStore() } = {}) {
     try { storage?.removeItem(IMPORT_IN_FLIGHT_KEY); } catch { /* egal */ }
 }
 
@@ -38,7 +39,7 @@ export function clearImportInFlight({ storage = globalThis.localStorage } = {}) 
  * Beim Start: Gab es einen Import, der nie zu Ende kam? Liefert ihn einmalig
  * (die Notiz wird dabei entfernt) oder null.
  */
-export function takeInterruptedImport({ storage = globalThis.localStorage, now = Date.now() } = {}) {
+export function takeInterruptedImport({ storage = localStore(), now = Date.now() } = {}) {
     let note = null;
     try {
         const raw = storage?.getItem(IMPORT_IN_FLIGHT_KEY);
@@ -56,13 +57,13 @@ export function takeInterruptedImport({ storage = globalThis.localStorage, now =
  */
 export const HEAVY_FILE_KEY = 'tf_import_heavy';
 
-export function rememberHeavyFile(note, { storage = globalThis.localStorage } = {}) {
+export function rememberHeavyFile(note, { storage = localStore() } = {}) {
     try {
         storage?.setItem(HEAVY_FILE_KEY, JSON.stringify({ name: String(note?.name || ''), size: Number(note?.size) || 0 }));
     } catch { /* ohne Speicher: kein Merken */ }
 }
 
-export function isHeavyFile(file, { storage = globalThis.localStorage } = {}) {
+export function isHeavyFile(file, { storage = localStore() } = {}) {
     try {
         const note = JSON.parse(storage?.getItem(HEAVY_FILE_KEY) || 'null');
         return !!note && note.name === String(file?.name || '') && note.size === (Number(file?.size) || 0);
