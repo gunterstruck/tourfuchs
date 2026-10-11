@@ -252,7 +252,7 @@ async function desktop(browser, baseUrl) {
             await page.waitForFunction((want) => Math.abs(document.getElementById('sidebar').getBoundingClientRect().width - want) < 1, expected, { timeout: TIMEOUT })
                 .catch(async () => {
                     const [x, y] = [edge.x + edge.width / 2, edge.y + 120];
-            const seen = await page.evaluate(([x, y]) => ({
+                    const seen = await page.evaluate(([x, y]) => ({
                         width: Math.round(document.getElementById('sidebar').getBoundingClientRect().width),
                         dialogs: [...document.querySelectorAll('dialog[open]')].map((d) => d.id),
                         hit: (() => { const el = document.elementFromPoint(x, y); return el ? `${el.tagName.toLowerCase()}#${el.id}.${[...el.classList].join('.')}` : '–'; })()
@@ -444,6 +444,12 @@ async function desktop(browser, baseUrl) {
         for (const key of ['gespeicherte-touren', 'geocode-cache', 'simulations-szenarien']) {
             const gone = (raw) => !raw || !JSON.stringify(raw).includes('Rosenweg');
             if (!gone(await waitForStored(page, key, gone))) throw new Error(`${key} nach „Alle Daten löschen" noch vorhanden`);
+        }
+        // Gegenprobe: Schreibt ein verspäteter Speichervorgang die Daten zurück?
+        await sleep(1000);
+        for (const key of ['gespeicherte-touren', 'geocode-cache', 'simulations-szenarien']) {
+            const raw = await rawStore(page, key);
+            if (raw && JSON.stringify(raw).includes('Rosenweg')) throw new Error(`${key} nach „Alle Daten löschen" wieder aufgetaucht`);
         }
     });
 

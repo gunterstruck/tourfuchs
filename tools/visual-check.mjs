@@ -20,7 +20,7 @@
  * Abweichung.
  */
 import { spawn, execFileSync } from 'node:child_process';
-import { existsSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { tmpdir } from 'node:os';
 import { crc32, deflateSync } from 'node:zlib';
@@ -37,6 +37,10 @@ const REF = arg('--ref', 'origin/main');
 const ONLY = arg('--only', '');
 const OUT = resolve(ROOT, 'tmp/visual');
 const CONCURRENCY = Number(arg('--parallel', '3'));
+if (!Number.isInteger(CONCURRENCY) || CONCURRENCY < 1) {
+    console.error('--parallel braucht eine ganze Zahl ab 1.');
+    process.exit(2);
+}
 
 // Eine graue 256er-Kachel (PNG) statt echter Kartenkacheln – hier erzeugt.
 function grayTile(size = 256, value = 221) {
@@ -79,16 +83,35 @@ async function startPreview(cwd, port) {
     throw new Error(`Vorschau-Server in ${cwd} ist nicht gestartet.`);
 }
 
-/** Vergleichsstand in einer Arbeitskopie bauen. */
+const removeWorktree = (dir) => {
+    try { execFileSync('git', ['worktree', 'remove', '--force', dir], { cwd: ROOT, stdio: 'ignore' }); } catch { rmSync(dir, { recursive: true, force: true }); }
+};
+
+/**
+ * Vergleichsstand in einer Arbeitskopie bauen. Sie bleibt als Zwischenspeicher
+ * für den nächsten Lauf liegen; ältere Arbeitskopien werden aufgeräumt.
+ * Gleiche Paketliste → die Pakete dieses Stands werden mitbenutzt. Andere
+ * Paketliste (z. B. ein PR hebt Leaflet an) → der Vergleichsstand bekommt seine
+ * eigenen Pakete, sonst sähen beide Bilder gleich aus und die Wirkung des
+ * Updates bliebe unsichtbar.
+ */
 function buildReference(ref) {
     const sha = execFileSync('git', ['rev-parse', ref], { cwd: ROOT }).toString().trim();
     const dir = join(tmpdir(), `tourfuchs-visual-${sha.slice(0, 12)}`);
+    const stale = execFileSync('git', ['worktree', 'list', '--porcelain'], { cwd: ROOT }).toString()
+        .split('\n').filter((line) => line.startsWith('worktree ')).map((line) => line.slice(9))
+        .filter((path) => /[\\/]tourfuchs-visual-[0-9a-f]{12}$/.test(path) && path !== dir);
+    stale.forEach(removeWorktree);
     if (!existsSync(join(dir, 'dist/index.html'))) {
-        if (existsSync(dir)) {
-            try { execFileSync('git', ['worktree', 'remove', '--force', dir], { cwd: ROOT }); } catch { rmSync(dir, { recursive: true, force: true }); }
-        }
+        if (existsSync(dir)) removeWorktree(dir);
         execFileSync('git', ['worktree', 'add', '--detach', dir, sha], { cwd: ROOT, stdio: 'ignore' });
-        if (!existsSync(join(dir, 'node_modules'))) symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'));
+        const lock = (base) => { try { return readFileSync(join(base, 'package-lock.json'), 'utf8'); } catch { return ''; } };
+        if (lock(dir) === lock(ROOT)) {
+            symlinkSync(join(ROOT, 'node_modules'), join(dir, 'node_modules'));
+        } else {
+            console.log(`Paketliste von ${ref} weicht ab – installiere ihre Pakete …`);
+            execFileSync('npm', ['ci', '--no-audit', '--no-fund'], { cwd: dir, stdio: 'ignore' });
+        }
         console.log(`Baue Vergleichsstand ${ref} (${sha.slice(0, 7)}) …`);
         execFileSync('npx', ['vite', 'build'], { cwd: dir, stdio: 'ignore' });
     }
@@ -101,6 +124,10 @@ const VARIANTS = [
     { name: 'handy-hell', viewport: { width: 390, height: 844 }, mobile: true, theme: 'light' },
     { name: 'handy-dunkel', viewport: { width: 390, height: 844 }, mobile: true, theme: 'dark' }
 ].filter((v) => !ONLY || v.name === ONLY);
+if (!VARIANTS.length) {
+    console.error(`--only ${ONLY}: unbekannte Variante.`);
+    process.exit(2);
+}
 
 const closeDialogs = (page) => page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close()));
 
@@ -167,6 +194,13 @@ async function openApp(browser, baseUrl, variant) {
             // gilt als gesehen – sie erschiene sonst zufällig im Bild.
             localStorage.setItem('tf_mobile_preview_teaser_seen', '1');
         } catch { /* egal */ }
+        // Entdeck-Hinweis an Kundenstapel und -karten: Er erscheint bei
+        // Beispieldaten nach jedem Zoomen für 4,6 s – je nach Takt mal im Bild,
+        // mal nicht. Gehört nicht in ein Standbild; die App setzt ihn, das
+        // Werkzeug nimmt ihn sofort wieder ab.
+        new MutationObserver((changes) => changes.forEach(({ target }) => {
+            if (target.classList?.contains('is-discovery')) target.classList.remove('is-discovery');
+        })).observe(document, { subtree: true, attributes: true, attributeFilter: ['class'] });
     }, variant.theme);
     const origin = new URL(baseUrl).origin;
     await context.route('**/*', (route) => {
@@ -181,7 +215,7 @@ async function openApp(browser, baseUrl, variant) {
     await closeDialogs(page);
     await page.addStyleTag({ content: `
         *, *::before, *::after { animation: none !important; transition: none !important; caret-color: transparent !important; }
-        #toasts { display: none !important; }
+        #toasts, .customer-marker-discovery { display: none !important; }
     ` });
     await sleep(1500);
     return { context, page };
@@ -270,8 +304,15 @@ let browser;
 let differences = 0;
 try {
     const [portBefore, portAfter] = [await freePort(), await freePort()];
-    servers.push(await startPreview(reference.dir, portBefore), await startPreview(ROOT, portAfter));
-    browser = await chromium.launch(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {});
+    servers.push(await startPreview(reference.dir, portBefore));
+    servers.push(await startPreview(ROOT, portAfter));
+    // Feste Rasterung: Unter Last kachelt Chromium sonst unterschiedlich, und
+    // Weichzeichner (backdrop-filter) liefern an Kanten abweichende Pixel.
+    browser = await chromium.launch({
+        ...(process.env.PLAYWRIGHT_CHROMIUM_PATH ? { executablePath: process.env.PLAYWRIGHT_CHROMIUM_PATH } : {}),
+        args: ['--disable-partial-raster', '--disable-gpu-rasterization', '--num-raster-threads=1', '--disable-checker-imaging',
+            '--disable-threaded-animation', '--disable-threaded-scrolling', '--force-color-profile=srgb']
+    });
     const scratch = await browser.newPage();
     mkdirSync(OUT, { recursive: true });
     console.log(`Vergleich: ${REF} (${reference.sha.slice(0, 7)}) gegen aktuellen Build`);
@@ -315,6 +356,12 @@ try {
         }
     };
     await Promise.all(Array.from({ length: CONCURRENCY }, worker));
+    // Kein Grün ohne Vergleich: Jede Ansicht muss ein Ergebnis haben.
+    const missing = results.filter((r) => !r).length + (tasks.length ? 0 : 1);
+    if (missing) {
+        differences += missing;
+        console.log(`  ✗ ${missing} Ansicht(en) nicht verglichen`);
+    }
 } finally {
     await browser?.close();
     stopAll();

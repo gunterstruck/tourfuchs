@@ -108,6 +108,8 @@ jobs:
   # geöffnet (keine eingecheckten Referenzbilder, die an Schriften und
   # Kantenglättung des Rechners hängen). Gewollte optische Änderungen
   # bekommen das Label „optik-geaendert"; dann entfällt der Vergleich bewusst.
+  # Das Setzen des Labels startet keinen neuen Lauf – danach „Re-run" oder
+  # der nächste Push. Bei Abweichung liegen die Diff-Bilder als Artefakt bei.
   visual:
     if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'optik-geaendert')
     runs-on: ubuntu-latest
@@ -129,3 +131,9 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run build
       - run: npm run visual-check -- --ref origin/${{ github.base_ref }}
+      - if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bildvergleich
+          path: tmp/visual/
+          if-no-files-found: ignore
