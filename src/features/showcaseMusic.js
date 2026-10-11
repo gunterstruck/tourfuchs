@@ -1,3 +1,4 @@
+import { sessionStore } from '../core/safeStorage.js';
 export const SHOWCASE_MUSIC_URL = '/audio/tropical-island-house-2024.mp3';
 
 /** Kurzes Ein-/Ausblenden, etwa beim Musik-Knopf. */
@@ -52,7 +53,7 @@ export function preferPlaybackSession(nav = globalThis.navigator) {
 
 /** Ton-Hinweis (Laufleiste): einmal je Sitzung, auf Handy und Tablet – alle Browser. */
 export const SOUND_HINT_KEY = 'tf_sound_hint_shown';
-export function shouldShowSoundHint({ win = globalThis.window, storage = globalThis.sessionStorage } = {}) {
+export function shouldShowSoundHint({ win = globalThis.window, storage = sessionStore() } = {}) {
     let shown = false;
     try { shown = storage?.getItem(SOUND_HINT_KEY) === '1'; } catch { /* privat */ }
     if (shown) return false;

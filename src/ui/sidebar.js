@@ -210,7 +210,10 @@ function wrapPanelContentForZoom() {
 
 function initPanelZoom() {
     wrapPanelContentForZoom();
-    const saved = parseFloat(localStorage.getItem(PANEL_ZOOM_KEY) || '');
+    // Gesperrter Browser-Speicher (z. B. Safari ohne Website-Daten) wirft beim
+    // Lesen – ohne Schutz brach hier der ganze Start ab.
+    let saved = NaN;
+    try { saved = parseFloat(localStorage.getItem(PANEL_ZOOM_KEY) || ''); } catch (e) { /* egal */ }
     setPanelZoom(Number.isFinite(saved) ? saved : 1);
     document.getElementById('panel-zoom-out')?.addEventListener('click', () => setPanelZoom(currentPanelZoom() - PANEL_ZOOM_STEP, true));
     document.getElementById('panel-zoom-in')?.addEventListener('click', () => setPanelZoom(currentPanelZoom() + PANEL_ZOOM_STEP, true));
@@ -319,7 +322,8 @@ function initDesktopSidebarResize() {
     const handle = document.getElementById('sidebar-resize');
     const sidebar = document.getElementById('sidebar');
     if (!handle || !sidebar) return;
-    const saved = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY) || '', 10);
+    let saved = NaN;
+    try { saved = parseInt(localStorage.getItem(SIDEBAR_WIDTH_KEY) || '', 10); } catch (e) { /* egal */ }
     if (Number.isFinite(saved)) setSidebarWidth(saved);
 
     let resizing = false;

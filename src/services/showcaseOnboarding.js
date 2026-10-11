@@ -25,7 +25,7 @@ function store(provided) {
 }
 
 function readFlag(key, provided) {
-    return store(provided)?.getItem(key) === '1';
+    try { return store(provided)?.getItem(key) === '1'; } catch { return false; }
 }
 
 function writeFlag(key, provided) {

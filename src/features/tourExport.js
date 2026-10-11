@@ -274,7 +274,9 @@ export function downloadIcs(start, stops, {
     const fileName = `${demo ? 'DEMO-' : ''}${tourName}`.replace(/[^\w-]+/g, '-');
     a.download = `${fileName}-${new Date(startTime).toISOString().slice(0, 10)}.ics`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Erst später freigeben: Manche Browser (Safari, Firefox) lesen die Datei
+    // nach dem Klick – sofort freigegeben, kam sie leer an.
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
 }
 
 /** Nächster Werktag, 8:00 Uhr */

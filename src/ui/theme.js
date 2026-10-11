@@ -6,6 +6,7 @@
  * Sonnenuntergang –, zeigt TourFuchs den dunklen Aurora-Stil, sonst den hellen.
  * public/theme-boot.js wendet dieselbe Regel schon vor dem ersten Bild an.
  */
+import { localStore } from '../core/safeStorage.js';
 export const THEME_KEY = 'tf_theme';
 export const THEME_CHOICES = ['auto', 'light', 'dark'];
 const DARK_CLASS = 'aurora-dark';
@@ -23,11 +24,11 @@ export function resolveDark(choice, systemPrefersDark) {
     return Boolean(systemPrefersDark);
 }
 
-export function readThemeChoice(storage = globalThis.localStorage) {
+export function readThemeChoice(storage = localStore()) {
     try { return normalizeThemeChoice(storage?.getItem(THEME_KEY)); } catch { return 'auto'; }
 }
 
-export function saveThemeChoice(choice, storage = globalThis.localStorage) {
+export function saveThemeChoice(choice, storage = localStore()) {
     const normalized = normalizeThemeChoice(choice);
     try {
         if (normalized === 'auto') storage?.removeItem(THEME_KEY);
@@ -43,7 +44,7 @@ export function applyTheme(dark, doc = document) {
 }
 
 /** Schalter im Info-Dialog verdrahten und auf Wechsel am Gerät hören. */
-export function initTheme({ doc = document, win = window, storage = globalThis.localStorage } = {}) {
+export function initTheme({ doc = document, win = window, storage = localStore() } = {}) {
     const media = win.matchMedia ? win.matchMedia('(prefers-color-scheme: dark)') : null;
     let choice = readThemeChoice(storage);
     const buttons = [...doc.querySelectorAll('[data-theme-choice]')];
