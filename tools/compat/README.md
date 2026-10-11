@@ -51,3 +51,11 @@ cd /tmp/stand-3b0ea34 && TFSAFE_OUT=/tmp/out TFSAFE_TAG=2026-07-11-v1-kunden \
 Der heutige Stand bekam zusätzlich `TFSAFE_RICH=1` (alle neuen Kundenfelder).
 Kommt künftig ein neues Format hinzu, wird **eine weitere** Datei mit dem
 neuen Stand erzeugt und ergänzt – die vorhandenen bleiben unverändert.
+
+## Import-Referenz (`tests/fixtures/import/`)
+
+Feste Importdateien (erfundene Werte), erzeugt mit
+`node tools/compat/import-dateien-erzeugen.mjs`, und das eingefrorene Ergebnis
+je Szenario (`*.erwartet.json`). Geprüft mit `npm run build && npm run import-check`
+(läuft in der CI). Ändert sich das Ergebnis gewollt, wird es mit
+`npm run import-check -- --update` neu eingefroren – nur mit Begründung im PR.

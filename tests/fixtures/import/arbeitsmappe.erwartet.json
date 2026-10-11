@@ -1,0 +1,220 @@
+{
+  "schemaVersion": 3,
+  "customers": [
+    {
+      "id": "k-nr:0042",
+      "nummer": "0042",
+      "name": "Nord GmbH & Co.",
+      "strasse": "Domkloster 4",
+      "plz": "50667",
+      "ort": "Köln",
+      "vb": "Anna Neu",
+      "channel": "Direkt",
+      "gruppe": "VG 1",
+      "bezirk": "VBEZ 12",
+      "kundentyp": "",
+      "ansprechpartner": "",
+      "telefon": "",
+      "email": "",
+      "umsatz": 990000,
+      "umsatzJahre": {
+        "2024": 1000000,
+        "2025": 1100000,
+        "2026": 990000
+      },
+      "rhythmusWochen": null,
+      "besuche": [],
+      "lat": 50.93553954222934,
+      "lng": 6.947556150148776,
+      "geo": "plz",
+      "extra": {
+        "IFA": "000123",
+        "Übergabe notwendig": "Ja",
+        "VB (Alt)": "Bernd Alt",
+        "Orders FY24": "1.000.000",
+        "Orders FY25": "1.100.000",
+        "Orders FY26": "990.000",
+        "Service Anteil % (GJ24-26)": "0,6",
+        "Software Anteil % (GJ24-26)": "0,4",
+        "SieSales Link": "javascript:alert(1)"
+      },
+      "contacts": [
+        {
+          "id": "ss-C1",
+          "name": "Clara Klein",
+          "anrede": "",
+          "abteilung": "Einkauf",
+          "funktion": "",
+          "telefon": "0221 111",
+          "mobil": "",
+          "email": "clara@nord.example.test",
+          "primary": false,
+          "quelle": "arbeitsmappe",
+          "doi": true,
+          "optOut": false,
+          "nichtAnrufen": false,
+          "sperreEmail": false,
+          "sperrePost": false,
+          "verantwortlich": ""
+        },
+        {
+          "id": "ss-C2",
+          "name": "Dirk Dunkel",
+          "anrede": "",
+          "abteilung": "",
+          "funktion": "",
+          "telefon": "0221 222",
+          "mobil": "",
+          "email": "dirk@nord.example.test",
+          "primary": false,
+          "quelle": "arbeitsmappe",
+          "doi": false,
+          "optOut": false,
+          "nichtAnrufen": true,
+          "sperreEmail": true,
+          "sperrePost": false,
+          "verantwortlich": ""
+        }
+      ],
+      "opps": [
+        {
+          "id": "OP-1",
+          "name": "Retrofit Linie 3",
+          "owner": "Anna Neu",
+          "amount": 120000,
+          "phase": "3",
+          "status": "offen",
+          "prognose": "Commit",
+          "forecast": false,
+          "close": "2027-03-31",
+          "gj": "",
+          "changed": ""
+        },
+        {
+          "id": "OP-2",
+          "name": "Altprojekt",
+          "owner": "",
+          "amount": null,
+          "phase": "5",
+          "status": "geschlossen",
+          "prognose": "gewonnen",
+          "forecast": false,
+          "close": "",
+          "gj": "",
+          "changed": ""
+        }
+      ],
+      "produkte": [
+        {
+          "pck": "0815",
+          "beschreibung": "Antriebe",
+          "jahre": {
+            "2024": 100000,
+            "2025": 50000,
+            "2026": null
+          },
+          "summe": 150000
+        }
+      ]
+    },
+    {
+      "id": "k-nr:0099",
+      "nummer": "0099",
+      "name": "Süd AG",
+      "strasse": "",
+      "plz": "80331",
+      "ort": "München",
+      "vb": "Ben Hof",
+      "channel": "Handel",
+      "gruppe": "VG 2",
+      "bezirk": "VBEZ 42",
+      "kundentyp": "",
+      "ansprechpartner": "",
+      "telefon": "",
+      "email": "",
+      "umsatz": 75000,
+      "umsatzJahre": {
+        "2026": 75000
+      },
+      "rhythmusWochen": null,
+      "besuche": [],
+      "lat": 48.134614692149235,
+      "lng": 11.566725240711069,
+      "geo": "plz",
+      "extra": {
+        "IFA": "000777",
+        "Debitor (VInfo)": "0099",
+        "Orders FY26": "75.000"
+      },
+      "contacts": [
+        {
+          "id": "ss-C4",
+          "name": "Fritz Fort",
+          "anrede": "",
+          "abteilung": "",
+          "funktion": "Werksleiter",
+          "telefon": "",
+          "mobil": "0171 444",
+          "email": "",
+          "primary": false,
+          "quelle": "arbeitsmappe",
+          "doi": false,
+          "optOut": false,
+          "nichtAnrufen": false,
+          "sperreEmail": false,
+          "sperrePost": false,
+          "verantwortlich": ""
+        }
+      ],
+      "opps": [
+        {
+          "id": "OP-3",
+          "name": "Serviceausbau",
+          "owner": "",
+          "amount": 30000,
+          "phase": "1",
+          "status": "offen",
+          "prognose": "",
+          "forecast": false,
+          "close": "",
+          "gj": "",
+          "changed": ""
+        }
+      ]
+    },
+    {
+      "id": "k-np:ohne debitor kg|20095",
+      "nummer": "",
+      "name": "Ohne Debitor KG",
+      "strasse": "",
+      "plz": "20095",
+      "ort": "Hamburg",
+      "vb": "Cleo Nord",
+      "channel": "Direkt",
+      "gruppe": "VG 3",
+      "bezirk": "VBEZ 7",
+      "kundentyp": "",
+      "ansprechpartner": "",
+      "telefon": "",
+      "email": "",
+      "umsatz": null,
+      "umsatzJahre": {},
+      "rhythmusWochen": null,
+      "besuche": [],
+      "lat": 53.54694929045548,
+      "lng": 10.002990921644923,
+      "geo": "plz",
+      "extra": {
+        "IFA": "000888"
+      }
+    }
+  ],
+  "fileName": "vertriebs-arbeitsmappe.xlsx",
+  "importedAt": "<Importzeit>",
+  "territories": {},
+  "places": [],
+  "serviceContracts": [],
+  "serviceContractSources": {},
+  "serviceVisits": [],
+  "serviceVisitSources": {}
+}

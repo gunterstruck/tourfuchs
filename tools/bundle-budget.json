@@ -1,0 +1,33 @@
+{
+  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand 11.10.2026 + 1 % Spielraum. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
+  "pakete": {
+    "index.js": {
+      "raw": 1863680,
+      "gzip": 589824
+    },
+    "index.css": {
+      "raw": 238592,
+      "gzip": 47104
+    },
+    "serviceVisitPlanner.css": {
+      "raw": 7168,
+      "gzip": 2048
+    },
+    "serviceVisitPlanner.js": {
+      "raw": 17408,
+      "gzip": 7168
+    },
+    "workbookWorker.js": {
+      "raw": 381952,
+      "gzip": 130048
+    },
+    "alle JS": {
+      "raw": 2262016,
+      "gzip": 726016
+    },
+    "alle CSS": {
+      "raw": 244736,
+      "gzip": 49152
+    }
+  }
+}
