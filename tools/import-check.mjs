@@ -95,6 +95,9 @@ async function openApp(browser, baseUrl, { service = false } = {}) {
     await context.addInitScript((withService) => {
         try {
             sessionStorage.setItem('tf_demo_welcome_ack', '1');
+            // Einmalige Handy-Vorschau-Vorführung (zeitgesteuert) gilt als gesehen –
+            // sie legte sich sonst zufällig über einen Klick.
+            localStorage.setItem('tf_mobile_preview_teaser_seen', '1');
             // Wie „Erweiterungen → ServiceFuchs" einschalten (ab Werk aus).
             if (withService) localStorage.setItem('gf_service_enabled', '1');
         } catch { /* egal */ }
@@ -109,6 +112,15 @@ async function openApp(browser, baseUrl, { service = false } = {}) {
     return { context, page, errors };
 }
 
+/** Wie ein Nutzer: Das Angebot zur adressgenauen Verortung (öffnet sich verzögert
+ * nach einem Import) schließen, bevor es den nächsten Klick abfängt. */
+const dismissGeocodeOffer = (page) => page.evaluate(() => {
+    const offer = document.getElementById('geocode-offer-dialog');
+    if (offer?.open) offer.close();
+});
+/** Klick im DOM – ein später aufgehendes Fenster kann ihn nicht abfangen. */
+const domClick = (page, selector) => page.evaluate((sel) => document.querySelector(sel)?.click(), selector);
+
 const statusCount = (page) => page.evaluate(() => document.querySelector('#data-status .stat b')?.textContent || '');
 
 /** Kundenliste über „Datei wählen" einlesen – mit Zuordnungs-, Bericht- und Ergebnisfenster. */
@@ -121,12 +133,13 @@ async function importCustomerFile(page, name, expectedCount) {
     // Je nach Datei: Zuordnung, Änderungsbericht und/oder gleich das Ergebnis.
     const deadline = Date.now() + TIMEOUT;
     while (Date.now() < deadline) {
-        if (await consent.isVisible().catch(() => false)) await consent.click();
+        await dismissGeocodeOffer(page);
+        if (await consent.isVisible().catch(() => false)) await domClick(page, '#consent-dialog[open] #consent-confirm');
         if (await page.locator('#import-dialog[open] #mapping-confirm').isVisible().catch(() => false)) {
-            await page.locator('#mapping-confirm').click();
+            await domClick(page, '#import-dialog[open] #mapping-confirm');
         }
         const diff = page.locator('#import-diff-dialog[open] [data-diff-confirm]');
-        if (await diff.isVisible().catch(() => false)) await diff.click();
+        if (await diff.isVisible().catch(() => false)) await domClick(page, '#import-diff-dialog[open] [data-diff-confirm]');
         // Fertig erst, wenn genau DIESE Datei übernommen ist (Name im Datenstatus) –
         // ein Reimport mit gleicher Kundenzahl sähe sonst sofort „fertig" aus.
         if (await done()) break;
@@ -147,7 +160,8 @@ async function importServiceFile(page, { input, confirm, name, feedback }) {
         const button = document.querySelector(sel);
         return button && !button.disabled && button.closest('dialog')?.open;
     }, confirm, { timeout: TIMEOUT }).catch(() => { throw new Error(`${name}: Zuordnung erscheint nicht`); });
-    await page.locator(confirm).click();
+    await dismissGeocodeOffer(page);
+    await domClick(page, confirm);
     await sleep(1500);
     // Abgelehnt? Dann sagt die Rückmeldung, warum – und das Szenario scheitert.
     const message = await page.locator(feedback).textContent().catch(() => '');
