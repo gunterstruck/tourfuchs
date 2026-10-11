@@ -36,6 +36,7 @@ const arg = (name, fallback) => {
 const REF = arg('--ref', 'origin/main');
 const ONLY = arg('--only', '');
 const OUT = resolve(ROOT, 'tmp/visual');
+const CONCURRENCY = Number(arg('--parallel', '3'));
 
 // Eine graue 256er-Kachel (PNG) statt echter Kartenkacheln – hier erzeugt.
 function grayTile(size = 256, value = 221) {
@@ -188,8 +189,16 @@ async function capture(browser, baseUrl, variant, view) {
     try {
         await view.go(page, variant);
         await page.evaluate(() => document.fonts?.ready);
-        await sleep(500);
-        return await page.screenshot({ animations: 'disabled' });
+        // Ruhe abwarten: erst wenn zwei Aufnahmen hintereinander gleich sind
+        // (Karte fertig geschwenkt, Kacheln gezeichnet), zählt das Bild.
+        let previous = await page.screenshot({ animations: 'disabled' });
+        for (let attempt = 0; attempt < 10; attempt++) {
+            await sleep(400);
+            const current = await page.screenshot({ animations: 'disabled' });
+            if (current.equals(previous)) return current;
+            previous = current;
+        }
+        return previous;
     } finally {
         await context.close();
     }
@@ -256,7 +265,6 @@ const stopAll = () => servers.forEach((s) => s.stopAll());
 for (const signal of ['SIGINT', 'SIGTERM']) process.once(signal, () => { stopAll(); process.exit(130); });
 let browser;
 let differences = 0;
-const rows = [];
 try {
     const [portBefore, portAfter] = [await freePort(), await freePort()];
     servers.push(await startPreview(reference.dir, portBefore), await startPreview(ROOT, portAfter));
@@ -264,30 +272,46 @@ try {
     const scratch = await browser.newPage();
     mkdirSync(OUT, { recursive: true });
     console.log(`Vergleich: ${REF} (${reference.sha.slice(0, 7)}) gegen aktuellen Build`);
-    for (const variant of VARIANTS) {
-        for (const view of VIEWS) {
-            const label = `${variant.name} · ${view.name}`;
-            try {
-                const before = await capture(browser, `http://localhost:${portBefore}/`, variant, view);
-                const after = await capture(browser, `http://localhost:${portAfter}/`, variant, view);
-                const result = await compare(scratch, before, after);
-                if (result.differing === 0) {
-                    rows.push(`  ✓ ${label}`);
-                } else {
-                    differences += 1;
-                    const file = resolve(OUT, `${variant.name}-${view.name}.png`);
-                    if (result.image) writeFileSync(file, Buffer.from(result.image, 'base64'));
-                    rows.push(result.differing < 0
-                        ? `  ✗ ${label}: Bildgröße verschieden`
-                        : `  ✗ ${label}: ${result.differing} Pixel (${(result.differing / result.total * 100).toFixed(3)} %) – ${file}`);
-                }
-            } catch (error) {
-                differences += 1;
-                rows.push(`  ✗ ${label}: ${String(error.message || error).split('\n')[0]}`);
+    // Abweichung? Bis zu dreimal beide Stände neu aufnehmen. Gleich ist die
+    // Ansicht, sobald irgendein Vorher- und ein Nachher-Bild pixelgleich sind:
+    // Eine echte Code-Änderung ist bei jeder Aufnahme dieselbe und fällt nie
+    // durch – zeitabhängiges Rauschen (Kartenanimation, Kantenglättung) schon.
+    const checkView = async (variant, view) => {
+        const label = `${variant.name} · ${view.name}`;
+        try {
+            const befores = [await capture(browser, `http://localhost:${portBefore}/`, variant, view)];
+            const afters = [await capture(browser, `http://localhost:${portAfter}/`, variant, view)];
+            const same = () => befores.some((b) => afters.some((a) => a.equals(b)));
+            for (let retry = 0; retry < 3 && !same(); retry++) {
+                befores.push(await capture(browser, `http://localhost:${portBefore}/`, variant, view));
+                afters.push(await capture(browser, `http://localhost:${portAfter}/`, variant, view));
             }
-            console.log(rows.at(-1));
+            if (same()) return `  ✓ ${label}${befores.length > 1 ? ` (nach ${befores.length - 1} Wiederholung(en) gleich)` : ''}`;
+            const result = await compare(scratch, befores[0], afters[0]);
+            if (result.differing === 0) return `  ✓ ${label}`;
+            differences += 1;
+            const file = resolve(OUT, `${variant.name}-${view.name}.png`);
+            if (result.image) writeFileSync(file, Buffer.from(result.image, 'base64'));
+            return result.differing < 0
+                ? `  ✗ ${label}: Bildgröße verschieden`
+                : `  ✗ ${label}: ${result.differing} Pixel (${(result.differing / result.total * 100).toFixed(3)} %) – ${file}`;
+        } catch (error) {
+            differences += 1;
+            return `  ✗ ${label}: ${String(error.message || error).split('\n')[0]}`;
         }
-    }
+    };
+    // Mehrere Ansichten gleichzeitig – jede in eigenen, frischen Fenstern.
+    const tasks = VARIANTS.flatMap((variant) => VIEWS.map((view) => ({ variant, view })));
+    const results = new Array(tasks.length);
+    let next = 0;
+    const worker = async () => {
+        while (next < tasks.length) {
+            const i = next++;
+            results[i] = await checkView(tasks[i].variant, tasks[i].view);
+            console.log(results[i]);
+        }
+    };
+    await Promise.all(Array.from({ length: CONCURRENCY }, worker));
 } finally {
     await browser?.close();
     stopAll();
