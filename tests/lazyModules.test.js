@@ -46,6 +46,13 @@ describe('Vorladen im Leerlauf', () => {
         expect(pending).toHaveLength(0);
     });
 
+    it('lädt in der Handy-Vorschau am Desktop nicht ein zweites Mal vor', async () => {
+        const { prefetchWhenIdle } = await import('../src/ui/lazyModules.js');
+        const pending = [];
+        prefetchWhenIdle({ idle: (fn) => pending.push(fn), search: '?mobilePreview=1' });
+        expect(pending).toHaveLength(0);
+    });
+
     it('startet nur einmal, auch wenn der Start (z. B. nach dem Entsperren) erneut läuft', async () => {
         const { prefetchWhenIdle } = await import('../src/ui/lazyModules.js');
         const pending = [];

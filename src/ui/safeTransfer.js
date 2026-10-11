@@ -92,7 +92,7 @@ async function openExportDialog() {
     let bundle;
     // Großer Bestand: Verschlüsseln dauert – sonst wirkt TourFuchs eingefroren
     // (PO, 11.10.2026).
-    showBusy('safe', 'Umzugsdatei wird verschlüsselt …');
+    showBusy('safe-export', 'Umzugsdatei wird verschlüsselt …');
     try {
         bundle = await createSafeTransfer(snap);
     } catch (e) {
@@ -100,7 +100,7 @@ async function openExportDialog() {
         showToast('Export konnte nicht erstellt werden.', 'error');
         return;
     } finally {
-        hideBusy('safe');
+        hideBusy('safe-export');
     }
     lastExport = bundle;
     downloadContainer(bundle.container);   // durch Button-Klick ausgelöst -> Download erlaubt
@@ -344,14 +344,14 @@ async function handleKeyText(text) {
     }
     stopCamera();
     let dataset;
-    showBusy('safe', 'Datei wird entschlüsselt …');
+    showBusy('safe-receive', 'Datei wird entschlüsselt …');
     try {
         dataset = await decryptSafeTransfer(pendingContainer, parsed.keyB64);
     } catch {
         showToast('Entschlüsselung fehlgeschlagen – Schlüssel falsch oder Datei beschädigt.', 'error', 6000);
         return;
     } finally {
-        hideBusy('safe');
+        hideBusy('safe-receive');
     }
     if (demo) {
         if (receiveDemo !== demo || !receiveDialog.open) return;
@@ -376,7 +376,7 @@ async function applyImported(dataset) {
         showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
         return;
     }
-    showBusy('safe', 'Daten werden übernommen …');
+    showBusy('safe-receive', 'Daten werden übernommen …');
     try {
         await geocodeByPlz(customers); // Sicherheitsnetz für evtl. fehlende Koordinaten
         replaceCustomers(customers, {
@@ -393,7 +393,7 @@ async function applyImported(dataset) {
         fitToCustomers();
         receiveDialog.close();
     } finally {
-        hideBusy('safe');
+        hideBusy('safe-receive');
     }
 
     if (isEnabled()) {
@@ -425,9 +425,9 @@ async function applyImported(dataset) {
  */
 async function persistReceived() {
     for (;;) {
-        showBusy('safe', 'Daten werden gespeichert …');
+        showBusy('safe-receive', 'Daten werden gespeichert …');
         let saved;
-        try { saved = await saveDataset(datasetSnapshot()); } finally { hideBusy('safe'); }
+        try { saved = await saveDataset(datasetSnapshot()); } finally { hideBusy('safe-receive'); }
         if (saved) return true;
         if (!confirm('Die empfangenen Daten konnten nicht gespeichert werden.\n\nErneut versuchen?')) {
             showToast('Nicht gespeichert: Die empfangenen Daten sind nur bis zum Neuladen da. Bitte den Import danach wiederholen.', 'error', 9000);

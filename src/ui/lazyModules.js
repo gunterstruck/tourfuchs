@@ -5,8 +5,9 @@
  * PO, 11.10.2026: „Beim Laden oder Export kann es dauern. Der Nutzer denkt
  * schon, alles ist eingefroren." Deshalb:
  *  - Nach dem Start lädt TourFuchs die Bibliotheken nacheinander im Leerlauf
- *    vor. Der Service Worker hält sie ohnehin bereit – das kostet keine
- *    zusätzlichen Daten, nur Rechenzeit, wenn gerade nichts zu tun ist.
+ *    vor. Der Service Worker hält sie ohnehin bereit – im Normalfall kostet
+ *    das keine zusätzlichen Daten (beim allerersten Besuch kann doppelt
+ *    geladen werden), nur Rechenzeit, wenn gerade nichts zu tun ist.
  *  - Wer schneller klickt, sieht „Excel wird vorbereitet …" (erscheint erst
  *    nach kurzer Verzögerung – was schnell geht, blinkt nicht auf).
  */
@@ -39,8 +40,10 @@ export async function excelModule() {
 
 let prefetchStarted = false;
 /** Einmal nach dem Start: Bibliotheken nacheinander im Leerlauf vorladen. */
-export function prefetchWhenIdle({ idle = globalThis.requestIdleCallback } = {}) {
-    if (prefetchStarted) return;
+export function prefetchWhenIdle({ idle = globalThis.requestIdleCallback, search = globalThis.location?.search || '' } = {}) {
+    // Die Handy-Vorschau am Desktop läuft im selben Fenster – dort lädt die
+    // echte App bereits vor; ein zweites Mal kostete nur Rechenzeit.
+    if (prefetchStarted || new URLSearchParams(search).has('mobilePreview')) return;
     prefetchStarted = true;
     const queue = [loadExcelModule, loadQrReaderModule, loadQrWriterModule];
     const later = (fn) => (typeof idle === 'function' ? idle(fn, { timeout: 10_000 }) : setTimeout(fn, 2_000));
