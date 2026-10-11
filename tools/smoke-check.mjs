@@ -90,6 +90,22 @@ function skipMobilePreviewTeaser() {
     try { localStorage.setItem('tf_mobile_preview_teaser_seen', '1'); } catch { /* egal */ }
 }
 
+/**
+ * Langsames Gerät auf Abruf: Ist `smoke_slow_decrypt` gesetzt, dauert das
+ * Entschlüsseln großer Daten (Kundenbestand) so viele Millisekunden – kleine
+ * (PIN-Prüfung) bleiben schnell. So entsteht das Zeitfenster nach dem
+ * Entsperren, in dem der Bestand noch nachgeladen wird.
+ */
+function slowDecryptOnDemand() {
+    const decrypt = crypto.subtle.decrypt.bind(crypto.subtle);
+    crypto.subtle.decrypt = (algorithm, key, data) => {
+        let ms = 0;
+        try { ms = Number(localStorage.getItem('smoke_slow_decrypt') || 0); } catch { /* egal */ }
+        const wait = ms && data.byteLength > 500 ? new Promise((resolve) => setTimeout(resolve, ms)) : Promise.resolve();
+        return wait.then(() => decrypt(algorithm, key, data));
+    };
+}
+
 async function closeDialogs(page) {
     await page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close()));
 }
@@ -136,6 +152,7 @@ async function desktop(browser, baseUrl) {
     console.log('Desktop (1440×900)');
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
     await context.addInitScript(skipMobilePreviewTeaser);
+    await context.addInitScript(slowDecryptOnDemand);
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e).slice(0, 160)));
@@ -374,7 +391,6 @@ async function desktop(browser, baseUrl) {
         await page.click('#vault-setup-form button[type=submit]');
         await page.waitForSelector('.vault-done', { timeout: TIMEOUT });
         await page.click('.vault-done');
-        const before = await customerCount(page);
         // Offener Dialog mit Kundendaten: Die Sperre muss ihn schließen und leeren
         // (modale Dialoge lägen sonst über dem Sperrbildschirm).
         await page.evaluate(() => {
@@ -390,13 +406,18 @@ async function desktop(browser, baseUrl) {
         const raw = await rawStore(page, 'kundendaten');
         if (!raw?.__enc) throw new Error('Kundendaten liegen nicht verschlüsselt im Speicher');
         if (JSON.stringify(raw).includes('Smoke Test')) throw new Error('Klartext im verschlüsselten Speicher');
+        // Langsames Gerät: Der Bestand braucht nach dem Entsperren 3 s. Der
+        // nächste Schritt deaktiviert bewusst sofort, ohne darauf zu warten.
+        await page.evaluate(() => localStorage.setItem('smoke_slow_decrypt', '3000'));
         await page.fill('#vault-pin', 'Smoke-Test-2026');
         await page.click('#vault-unlock');
         await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === true, null, { timeout: TIMEOUT });
-        await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT });
     });
 
-    await step('Tresor deaktivieren – Kunden bleiben, auch nach dem Neuladen', async () => {
+    // Direkt nach dem Entsperren, während der Bestand noch nachlädt: Bis 17.1a
+    // speicherte das Deaktivieren hier den leeren Arbeitsspeicher im Klartext
+    // über die verschlüsselten Daten (CI: „0 Kunde(n) im Klartext").
+    await step('Tresor deaktivieren – direkt nach dem Entsperren, Kunden bleiben, auch nach dem Neuladen', async () => {
         await closeDialogs(page);
         const before = await customerCount(page);
         if (!await page.evaluate(() => Boolean(localStorage.getItem('tf_vault')))) throw new Error('Tresor war vor dem Deaktivieren nicht aktiv');
@@ -420,6 +441,7 @@ async function desktop(browser, baseUrl) {
         await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT });
         if (await page.evaluate(() => document.getElementById('vault-lock')?.hidden === false)) throw new Error('Sperrbildschirm trotz deaktiviertem Tresor');
     });
+    await page.evaluate(() => localStorage.removeItem('smoke_slow_decrypt'));
 
     await step('Alle Daten löschen – auch Touren, Adress-Cache und Szenarien', async () => {
         await closeDialogs(page);

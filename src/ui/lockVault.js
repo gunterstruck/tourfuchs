@@ -257,12 +257,19 @@ function handleUnlockError(err) {
     console.warn('Entsperren fehlgeschlagen:', err);
 }
 
+// Nachladen nach dem Entsperren (Entschlüsseln dauert bei großem Bestand). Bis
+// es fertig ist, steht der Bestand noch nicht im Arbeitsspeicher.
+let reloadAfterUnlock = Promise.resolve();
+
 async function afterUnlock() {
     hideError();
     hideLockScreen();
-    // Altbestand aus Versionen vor dem erweiterten Tresorschutz verschlüsseln.
-    await reprotectStores();
-    try { await bootData(); } catch (e) { console.warn('Nachladen nach Entsperren fehlgeschlagen:', e); }
+    reloadAfterUnlock = (async () => {
+        // Altbestand aus Versionen vor dem erweiterten Tresorschutz verschlüsseln.
+        await reprotectStores();
+        try { await bootData(); } catch (e) { console.warn('Nachladen nach Entsperren fehlgeschlagen:', e); }
+    })();
+    await reloadAfterUnlock;
     renderControls();
 }
 
@@ -668,14 +675,31 @@ function openResetPinDialog(recoveryCode) {
 }
 
 // ---- Deaktivieren ----
+/**
+ * Was beim Deaktivieren im Klartext gespeichert wird: der geladene Bestand.
+ * Steht keiner im Arbeitsspeicher (Nachladen gescheitert), der gespeicherte –
+ * niemals ein leerer Stand über vorhandene Daten.
+ */
+async function datasetToKeep() {
+    const current = datasetSnapshot();
+    if (current.customers.length) return current;
+    const stored = await loadDataset();
+    return stored?.customers?.length ? stored : current;
+}
+
 async function disableVault() {
     if (!confirm('Tresor deaktivieren? Deine Daten werden danach wieder unverschlüsselt in diesem Browser gespeichert.')) return;
     const pin = prompt('Zur Bestätigung bitte die aktuelle PIN eingeben:');
     if (pin == null) return;
     try {
         await vault.verifyPin(pin);
+        // Direkt nach dem Entsperren lädt TourFuchs den Bestand noch nach. Wer
+        // so schnell deaktivierte, speicherte den noch leeren Arbeitsspeicher
+        // im Klartext über die verschlüsselten Daten – danach war alles weg.
+        await reloadAfterUnlock;
+        const dataset = await datasetToKeep();   // solange der Schlüssel da ist
         vault.removeVaultMeta();                 // Tresor aus – DEK bleibt noch im Speicher
-        await saveDataset(datasetSnapshot());    // jetzt im Klartext neu speichern
+        await saveDataset(dataset);              // jetzt im Klartext neu speichern
         await reprotectStores();                 // Nebenspeicher ebenso
         // Nur den Schlüssel verwerfen – NICHT lock(): Das meldet „gesperrt",
         // leert Kunden, Verträge, Besuche und Gebiete im Speicher, und der
