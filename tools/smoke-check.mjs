@@ -80,6 +80,16 @@ async function openApp(page, baseUrl) {
     await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === false, null, { timeout: TIMEOUT });
 }
 
+/**
+ * Die einmalige Handy-Vorschau-Vorführung am Desktop („TourFuchs passt in die
+ * Tasche") startet zeitgesteuert und legt sich dann über die Seite – mitten in
+ * einen Prüfschritt (machte z. B. das Ziehen der Sidebar wackelig). Für die
+ * Prüfstrecke gilt sie als gesehen; ihr Verhalten sichert tests/mobilePreview.
+ */
+function skipMobilePreviewTeaser() {
+    try { localStorage.setItem('tf_mobile_preview_teaser_seen', '1'); } catch { /* egal */ }
+}
+
 async function closeDialogs(page) {
     await page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close()));
 }
@@ -95,16 +105,37 @@ async function rawStore(page, key) {
             const db = req.result;
             const name = db.objectStoreNames[0];
             const get = db.transaction([name], 'readonly').objectStore(name).get(wanted);
-            get.onsuccess = () => resolve(get.result ?? null);
-            get.onerror = () => resolve(null);
+            // Verbindung schließen – offen gelassen, stünde sie späteren Datenbank-Vorgängen im Weg.
+            get.onsuccess = () => { db.close(); resolve(get.result ?? null); };
+            get.onerror = () => { db.close(); resolve(null); };
         };
         req.onerror = () => resolve(null);
     }), key);
 }
 
+/** Was liegt gespeichert? – für Fehlermeldungen, die den Zustand nennen statt nur „falsch". */
+function describeStored(raw) {
+    if (raw == null) return 'nichts gespeichert';
+    if (raw.__enc) return 'verschlüsselt';
+    const customers = Array.isArray(raw.customers) ? raw.customers : [];
+    return `${customers.length} Kunde(n) im Klartext${customers.length ? ` (${customers.slice(0, 2).map((c) => c.name).join(', ')} …)` : ''}`;
+}
+
+/** Bis zu TIMEOUT auf einen gespeicherten Zustand warten; gibt den letzten Stand zurück. */
+async function waitForStored(page, key, ok) {
+    const deadline = Date.now() + TIMEOUT;
+    let raw = await rawStore(page, key);
+    while (!ok(raw) && Date.now() < deadline) {
+        await sleep(250);
+        raw = await rawStore(page, key);
+    }
+    return raw;
+}
+
 async function desktop(browser, baseUrl) {
     console.log('Desktop (1440×900)');
     const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+    await context.addInitScript(skipMobilePreviewTeaser);
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e).slice(0, 160)));
@@ -171,6 +202,14 @@ async function desktop(browser, baseUrl) {
         if (await confirmReplace.isVisible({ timeout: 3000 }).catch(() => false)) await confirmReplace.click();
         await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === true, null, { timeout: TIMEOUT });
         await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
+        // Nach dem ersten eigenen Import fragt TourFuchs, ob es Adressen genau
+        // verorten soll – das Fenster öffnet sich verzögert. Beantworten wie ein
+        // Nutzer („Nein, PLZ reicht"); sonst läge es irgendwann über dem
+        // nächsten Schritt (machte z. B. das Ziehen der Sidebar wackelig).
+        await page.waitForSelector('#geocode-offer-dialog[open]', { timeout: TIMEOUT })
+            .catch(() => { throw new Error('Angebot zur genauen Verortung erscheint nach dem ersten Import nicht'); });
+        await page.locator('#geocode-offer-no').click();
+        await page.waitForFunction(() => !document.getElementById('geocode-offer-dialog').open, null, { timeout: TIMEOUT });
     });
 
     await step('Kundennummer mit Namen in die Zwischenablage kopieren', async () => {
@@ -197,17 +236,38 @@ async function desktop(browser, baseUrl) {
             const box = await panel.boundingBox();
             const edge = await handle.boundingBox();
             await page.mouse.move(edge.x + edge.width / 2, edge.y + 120);
+            const before = await page.evaluate(([x, y]) => {
+                const el = document.elementFromPoint(x, y);
+                return { hit: el ? `${el.tagName.toLowerCase()}#${el.id}.${[...el.classList].join('.')}` : '–', toasts: document.getElementById('toasts')?.textContent.slice(0, 80) || '' };
+            }, [edge.x + edge.width / 2, edge.y + 120]);
             await page.mouse.down();
             await page.mouse.move(edge.x + edge.width / 2 + target - box.width, edge.y + 120, { steps: 8 });
             await page.mouse.up();
-            await page.waitForFunction((expected) => Math.abs(document.getElementById('sidebar').getBoundingClientRect().width - expected) < 1, Math.max(340, Math.min(600, target)), { timeout: TIMEOUT });
+            const justAfter = await page.evaluate(() => ({
+                width: Math.round(document.getElementById('sidebar').getBoundingClientRect().width),
+                stored: localStorage.getItem('gf_sidebar_width'),
+                resizing: document.body.classList.contains('sidebar-resizing')
+            }));
+            const expected = Math.max(340, Math.min(600, target));
+            await page.waitForFunction((want) => Math.abs(document.getElementById('sidebar').getBoundingClientRect().width - want) < 1, expected, { timeout: TIMEOUT })
+                .catch(async () => {
+                    const [x, y] = [edge.x + edge.width / 2, edge.y + 120];
+            const seen = await page.evaluate(([x, y]) => ({
+                        width: Math.round(document.getElementById('sidebar').getBoundingClientRect().width),
+                        dialogs: [...document.querySelectorAll('dialog[open]')].map((d) => d.id),
+                        hit: (() => { const el = document.elementFromPoint(x, y); return el ? `${el.tagName.toLowerCase()}#${el.id}.${[...el.classList].join('.')}` : '–'; })()
+                    }), [x, y]);
+                    throw new Error(`Ziehen auf ${target}: erwartet ${expected} px, ist ${seen.width} px; offene Dialoge: ${seen.dialogs.join(', ') || 'keine'}; Griff ${JSON.stringify(edge)}; unter der Maus: ${seen.hit}; direkt nach dem Loslassen ${JSON.stringify(justAfter)}; vor dem Drücken ${JSON.stringify(before)}`);
+                });
         };
         await dragWidth(600);
         await dragWidth(750);
         if (await page.evaluate(() => localStorage.getItem('gf_sidebar_width')) !== '600') throw new Error('Breite wird nicht gespeichert');
         await page.reload({ waitUntil: 'domcontentloaded' });
-        await page.waitForFunction(() => document.getElementById('sidebar')?.getBoundingClientRect().width === 600, null, { timeout: TIMEOUT });
-        await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT });
+        await page.waitForFunction(() => document.getElementById('sidebar')?.getBoundingClientRect().width === 600, null, { timeout: TIMEOUT })
+            .catch(async () => { throw new Error(`nach Neuladen Breite ${await page.evaluate(() => document.getElementById('sidebar')?.getBoundingClientRect().width)} statt 600`); });
+        await page.waitForFunction(() => /\b3\b/.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT })
+            .catch(async () => { throw new Error(`nach Neuladen Datenstand „${await page.locator('#data-status').textContent().catch(() => '')}"`.slice(0, 200)); });
         await closeDialogs(page);
         if (!await panel.evaluate((el) => el.classList.contains('open'))) await page.locator('#sidebar-toggle').click();
         // Vor Koordinatenaktionen auch den Einblend-Übergang abwarten.
@@ -339,16 +399,22 @@ async function desktop(browser, baseUrl) {
     await step('Tresor deaktivieren – Kunden bleiben, auch nach dem Neuladen', async () => {
         await closeDialogs(page);
         const before = await customerCount(page);
+        if (!await page.evaluate(() => Boolean(localStorage.getItem('tf_vault')))) throw new Error('Tresor war vor dem Deaktivieren nicht aktiv');
         const answer = (dialog) => dialog.type() === 'prompt' ? dialog.accept('Smoke-Test-2026') : dialog.accept();
         page.on('dialog', answer);
         await page.evaluate(() => { const b = document.getElementById('btn-vault-disable'); b.hidden = false; b.click(); });
         await page.waitForFunction(() => !localStorage.getItem('tf_vault'), null, { timeout: TIMEOUT });
         page.off('dialog', answer);
-        // Speichertimer abwarten: Früher schrieb er hier den geleerten Bestand weg.
+        // Auf den Zustand warten, nicht auf eine feste Zeit: Klartext mit den Kunden
+        // gespeichert (auf langsamen Rechnern dauert schon die PIN-Prüfung).
+        const plain = (raw) => Boolean(raw) && !raw.__enc && JSON.stringify(raw).includes('Smoke Test');
+        let raw = await waitForStored(page, 'kundendaten', plain);
+        if (!plain(raw)) throw new Error(`Kundendaten nach dem Deaktivieren nicht im Klartext gespeichert – ${describeStored(raw)}`);
+        // Danach darf kein Speichervorgang mehr dazwischenfunken: Früher schrieb der
+        // Speichertimer hier den geleerten Bestand weg.
         await sleep(2500);
-        const raw = await rawStore(page, 'kundendaten');
-        if (raw?.__enc) throw new Error('Kundendaten nach dem Deaktivieren noch verschlüsselt');
-        if (!JSON.stringify(raw || {}).includes('Smoke Test')) throw new Error('Kundendaten nach dem Deaktivieren verloren');
+        raw = await rawStore(page, 'kundendaten');
+        if (!plain(raw)) throw new Error(`Kundendaten nach dem Deaktivieren überschrieben – ${describeStored(raw)}`);
         await page.reload({ waitUntil: 'domcontentloaded' });
         await page.waitForSelector('#map', { timeout: TIMEOUT });
         await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT });
@@ -372,12 +438,12 @@ async function desktop(browser, baseUrl) {
         const answer = (dialog) => dialog.accept();
         page.on('dialog', answer);
         await page.evaluate(() => document.getElementById('btn-clear').click());
-        await page.waitForFunction(() => /\b0\b|keine/i.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT }).catch(() => {});
-        await sleep(1000);
+        await page.waitForFunction(() => /\b0\b|keine/i.test(document.getElementById('data-status')?.textContent || ''), null, { timeout: TIMEOUT })
+            .catch(async () => { throw new Error(`Bestand nach „Alle Daten löschen" nicht leer – ${await page.locator('#data-status').textContent().catch(() => '')}`.slice(0, 300)); });
         page.off('dialog', answer);
         for (const key of ['gespeicherte-touren', 'geocode-cache', 'simulations-szenarien']) {
-            const raw = await rawStore(page, key);
-            if (raw && JSON.stringify(raw).includes('Rosenweg')) throw new Error(`${key} nach „Alle Daten löschen" noch vorhanden`);
+            const gone = (raw) => !raw || !JSON.stringify(raw).includes('Rosenweg');
+            if (!gone(await waitForStored(page, key, gone))) throw new Error(`${key} nach „Alle Daten löschen" noch vorhanden`);
         }
     });
 
@@ -444,6 +510,7 @@ async function desktop(browser, baseUrl) {
 async function phone(browser, baseUrl) {
     console.log('Smartphone (390×844)');
     const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+    await context.addInitScript(skipMobilePreviewTeaser);
     const page = await context.newPage();
     const errors = [];
     page.on('pageerror', (e) => errors.push(String(e).slice(0, 160)));

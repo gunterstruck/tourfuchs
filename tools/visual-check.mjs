@@ -163,6 +163,9 @@ async function openApp(browser, baseUrl, variant) {
         try {
             sessionStorage.setItem('tf_demo_welcome_ack', '1');
             localStorage.setItem('tf_theme', theme);
+            // Einmalige, zeitgesteuerte Handy-Vorschau-Vorführung (bzw. ihr Hinweis)
+            // gilt als gesehen – sie erschiene sonst zufällig im Bild.
+            localStorage.setItem('tf_mobile_preview_teaser_seen', '1');
         } catch { /* egal */ }
     }, variant.theme);
     const origin = new URL(baseUrl).origin;
@@ -272,7 +275,7 @@ try {
     const scratch = await browser.newPage();
     mkdirSync(OUT, { recursive: true });
     console.log(`Vergleich: ${REF} (${reference.sha.slice(0, 7)}) gegen aktuellen Build`);
-    // Abweichung? Bis zu dreimal beide Stände neu aufnehmen. Gleich ist die
+    // Abweichung? Bis zu fünfmal beide Stände neu aufnehmen. Gleich ist die
     // Ansicht, sobald irgendein Vorher- und ein Nachher-Bild pixelgleich sind:
     // Eine echte Code-Änderung ist bei jeder Aufnahme dieselbe und fällt nie
     // durch – zeitabhängiges Rauschen (Kartenanimation, Kantenglättung) schon.
@@ -282,7 +285,7 @@ try {
             const befores = [await capture(browser, `http://localhost:${portBefore}/`, variant, view)];
             const afters = [await capture(browser, `http://localhost:${portAfter}/`, variant, view)];
             const same = () => befores.some((b) => afters.some((a) => a.equals(b)));
-            for (let retry = 0; retry < 3 && !same(); retry++) {
+            for (let retry = 0; retry < 5 && !same(); retry++) {
                 befores.push(await capture(browser, `http://localhost:${portBefore}/`, variant, view));
                 afters.push(await capture(browser, `http://localhost:${portAfter}/`, variant, view));
             }
