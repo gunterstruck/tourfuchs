@@ -7,8 +7,6 @@
  * Es findet keinerlei Netzwerkübertragung der Daten statt.
  */
 
-import QRCode from 'qrcode';
-import jsQR from 'jsqr';
 import {
     state, replaceCustomers, setServiceContracts, setServiceVisits, setPlaces, emit, on, datasetSnapshot
 } from '../core/state.js';
@@ -25,6 +23,18 @@ import { showToast } from './toast.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
 import { t } from '../core/i18n.js';
 import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
+
+// QR-Bibliotheken erst bei Bedarf laden – nicht im Startpaket (Release 17.1b).
+// Der Leser wird vor Kamera- bzw. Bildscan geladen; die Erkennung selbst
+// läuft danach wie bisher synchron.
+let jsQR = null;
+/** true, wenn der Leser bereitsteht (Laden kann offline vor dem ersten Zwischenspeichern scheitern). */
+async function loadQrReader() {
+    try { jsQR ??= (await import('jsqr')).default; } catch { /* Meldung beim Aufrufer */ }
+    return Boolean(jsQR);
+}
+const QR_READER_MISSING = 'QR-Leser konnte nicht geladen werden – Schlüssel bitte unten eintippen.';
+const loadQrWriter = async () => (await import('qrcode')).default;
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -91,6 +101,7 @@ async function openExportDialog() {
     const canvas = document.getElementById('safe-export-canvas');
     try {
         // Kurzer Text, daher hohe Fehlerkorrektur (H) für robustes Scannen.
+        const QRCode = await loadQrWriter();
         await QRCode.toCanvas(canvas, bundle.keyQr, { errorCorrectionLevel: 'H', width: 300, margin: 2 });
     } catch {
         showToast('Schlüssel-QR konnte nicht erzeugt werden.', 'error');
@@ -244,6 +255,7 @@ async function startCamera() {
     const statusEl = document.getElementById('safe-scan-status');
     const video = document.getElementById('safe-scan-video');
     if (!video) return;
+    if (!(await loadQrReader())) { statusEl.textContent = QR_READER_MISSING; return; }
     try {
         videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
         video.srcObject = videoStream;
@@ -290,6 +302,7 @@ async function onScanPhoto(e) {
     if (!file) return;
     const bitmap = await createImageBitmap(file).catch(() => null);
     if (!bitmap) { showToast('Bild konnte nicht gelesen werden.', 'error'); return; }
+    if (!(await loadQrReader())) { showToast(QR_READER_MISSING, 'error', 6000); return; }
     const canvas = document.createElement('canvas');
     canvas.width = bitmap.width;
     canvas.height = bitmap.height;
