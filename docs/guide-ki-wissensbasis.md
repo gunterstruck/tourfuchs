@@ -1807,15 +1807,16 @@ einer eigenen Zeile darunter Kundennummer und **"↗ SieSales"**, dann Adresse,
 Umsatz, Gebiet (Channel › Gruppe › Bezirk) und – in einer zweiten Zeile – der
 Vertriebsbeauftragte. Es folgen die Knöpfe (Kundenansprechpartner,
 Opportunities, Produkte …), der Besuchsblock („Zuletzt", **"Heute besucht"**,
-Rhythmus) und ganz unten die Tour-Knöpfe – am Desktop als große Pillen
-(**"Als Start"**, **"Als Ziel"**, **"Zur Tour"**, **"Briefing"**). Am Desktop ist die Kachel breiter
-und so hoch, wie die Karte Platz hat: Zugeklappt ist alles ohne Scrollen zu
-sehen. Erst ein aufgeklapptes Feld lässt die Kachel scrollen; die Tour-Knöpfe
-bleiben dabei unten stehen, und die Karte schwenkt nach, damit Name und
-„Schließen" im Bild bleiben. Am Handy nutzt die Kachel die Bildschirmbreite,
-bleibt kompakt (der Kundenpunkt bleibt darunter sichtbar), die Tour-Knöpfe
-stehen ebenfalls fest unten, und ein aufgeklapptes Feld rückt von selbst ins
-Bild.
+Rhythmus) und ganz unten die Tour-Knöpfe (**"Als Start"**, **"Als Ziel"**,
+**"Zur Tour"**, **"Briefing"**, jeweils Symbol über der Beschriftung).
+
+**Seit 11.10.2026 hat die Kachel am Desktop dasselbe Format wie am Handy:**
+höchstens 360 Pixel breit und kompakt. Am Handy nutzt sie die
+Bildschirmbreite abzüglich Rand. Am Desktop ist sie so hoch, wie die Karte
+Platz hat; am Handy bleibt sie niedriger, damit der Kundenpunkt darunter
+sichtbar bleibt. Ein aufgeklapptes Feld lässt die Kachel scrollen; die
+Tour-Knöpfe bleiben dabei unten stehen, die Karte schwenkt nach, damit Name
+und „Schließen" im Bild bleiben, und das Feld rückt von selbst ins Bild.
 
 Bei echten importierten Kunden öffnen **"Anrufen"** und **"E-Mail"** weiterhin
 die jeweilige Geräte-App. Bei Demo-Kunden zeigen dieselben Schaltflächen nur
