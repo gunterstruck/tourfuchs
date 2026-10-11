@@ -20,6 +20,8 @@ import {
     keyMatchesContainer, decryptSafeTransfer, SAFE_FILE_EXT
 } from '../features/safeTransfer.js';
 import { showToast } from './toast.js';
+import { hideBusy, showBusy } from './busyIndicator.js';
+import { loadQrReaderModule, loadQrWriterModule } from './lazyModules.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
 import { t } from '../core/i18n.js';
 import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
@@ -30,11 +32,11 @@ import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
 let jsQR = null;
 /** true, wenn der Leser bereitsteht (Laden kann offline vor dem ersten Zwischenspeichern scheitern). */
 async function loadQrReader() {
-    try { jsQR ??= (await import('jsqr')).default; } catch { /* Meldung beim Aufrufer */ }
+    try { jsQR ??= (await loadQrReaderModule()).default; } catch { /* Meldung beim Aufrufer */ }
     return Boolean(jsQR);
 }
 const QR_READER_MISSING = 'QR-Leser konnte nicht geladen werden – Schlüssel bitte unten eintippen.';
-const loadQrWriter = async () => (await import('qrcode')).default;
+const loadQrWriter = async () => (await loadQrWriterModule()).default;
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -88,12 +90,17 @@ async function openExportDialog() {
         return;
     }
     let bundle;
+    // Großer Bestand: Verschlüsseln dauert – sonst wirkt TourFuchs eingefroren
+    // (PO, 11.10.2026).
+    showBusy('safe-export', 'Umzugsdatei wird verschlüsselt …');
     try {
         bundle = await createSafeTransfer(snap);
     } catch (e) {
         console.warn(e);
         showToast('Export konnte nicht erstellt werden.', 'error');
         return;
+    } finally {
+        hideBusy('safe-export');
     }
     lastExport = bundle;
     downloadContainer(bundle.container);   // durch Button-Klick ausgelöst -> Download erlaubt
@@ -337,11 +344,14 @@ async function handleKeyText(text) {
     }
     stopCamera();
     let dataset;
+    showBusy('safe-receive', 'Datei wird entschlüsselt …');
     try {
         dataset = await decryptSafeTransfer(pendingContainer, parsed.keyB64);
     } catch {
         showToast('Entschlüsselung fehlgeschlagen – Schlüssel falsch oder Datei beschädigt.', 'error', 6000);
         return;
+    } finally {
+        hideBusy('safe-receive');
     }
     if (demo) {
         if (receiveDemo !== demo || !receiveDialog.open) return;
@@ -366,20 +376,25 @@ async function applyImported(dataset) {
         showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
         return;
     }
-    await geocodeByPlz(customers); // Sicherheitsnetz für evtl. fehlende Koordinaten
-    replaceCustomers(customers, {
-        fileName: dataset?.fileName,
-        importedAt: dataset?.importedAt,
-        territories: dataset?.territories || {}
-    });
-    setServiceContracts(serviceContracts, dataset?.serviceContractSources || {});
-    setServiceVisits(serviceVisits, dataset?.serviceVisitSources || {});
-    // Eigene Orte werden ergänzt, nicht ersetzt: Die Station des Zielgeräts still
-    // zu überschreiben wäre Verdrängung ohne Rückweg. Der Bericht über die
-    // Ersetzung spricht von Kunden – also fassen wir hier nur an, was er meint.
-    setPlaces(mergeOwnPlaces(state.places, dataset?.places));
-    fitToCustomers();
-    receiveDialog.close();
+    showBusy('safe-receive', 'Daten werden übernommen …');
+    try {
+        await geocodeByPlz(customers); // Sicherheitsnetz für evtl. fehlende Koordinaten
+        replaceCustomers(customers, {
+            fileName: dataset?.fileName,
+            importedAt: dataset?.importedAt,
+            territories: dataset?.territories || {}
+        });
+        setServiceContracts(serviceContracts, dataset?.serviceContractSources || {});
+        setServiceVisits(serviceVisits, dataset?.serviceVisitSources || {});
+        // Eigene Orte werden ergänzt, nicht ersetzt: Die Station des Zielgeräts still
+        // zu überschreiben wäre Verdrängung ohne Rückweg. Der Bericht über die
+        // Ersetzung spricht von Kunden – also fassen wir hier nur an, was er meint.
+        setPlaces(mergeOwnPlaces(state.places, dataset?.places));
+        fitToCustomers();
+        receiveDialog.close();
+    } finally {
+        hideBusy('safe-receive');
+    }
 
     if (isEnabled()) {
         // Auf diesem Gerät ist bereits ein Tresor aktiv -> direkt verschlüsselt sichern.
@@ -410,7 +425,10 @@ async function applyImported(dataset) {
  */
 async function persistReceived() {
     for (;;) {
-        if (await saveDataset(datasetSnapshot())) return true;
+        showBusy('safe-receive', 'Daten werden gespeichert …');
+        let saved;
+        try { saved = await saveDataset(datasetSnapshot()); } finally { hideBusy('safe-receive'); }
+        if (saved) return true;
         if (!confirm('Die empfangenen Daten konnten nicht gespeichert werden.\n\nErneut versuchen?')) {
             showToast('Nicht gespeichert: Die empfangenen Daten sind nur bis zum Neuladen da. Bitte den Import danach wiederholen.', 'error', 9000);
             return false;

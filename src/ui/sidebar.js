@@ -24,6 +24,7 @@ import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 import { t, currentLocale } from '../core/i18n.js';
 import { handover } from '../features/salesWorkbook.js';
+import { excelModule } from './lazyModules.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -1604,7 +1605,7 @@ export function initSidebar() {
     document.getElementById('btn-clear').addEventListener('click', clearAllData);
     // Übergabeliste (Release 16.5): folgt den aktiven Filtern – ohne Filter alle Übergaben.
     document.getElementById('btn-export-handover')?.addEventListener('click', async () => {
-        const { exportHandovers } = await import('../services/excel.js');
+        const { exportHandovers } = await excelModule();
         const count = exportHandovers(visibleCustomers());
         showToast(count ? t('export.handoverDone', { count: count.toLocaleString(currentLocale()) }) : t('export.handoverNone'), count ? 'success' : 'info', 5000);
     });
@@ -2365,7 +2366,7 @@ function initTeamFilters() {
 // er, was gemeint ist – so ersetzt er die frühere Pille „Gebiet exportieren",
 // ohne dass ein zweiter Weg zum selben Ziel auf der Karte steht.
 async function runExport(customers, { filtered = false } = {}) {
-    const { exportCustomers } = await import('../services/excel.js');
+    const { exportCustomers } = await excelModule();
     const label = filtered ? fileSlug(territoryLabel(customers).replace(/ im aktuellen Kartenausschnitt$/, '')) : '';
     exportCustomers(customers, { fileLabel: label });
     showToast(`⬇ ${customers.length.toLocaleString('de-DE')} Kunden als Excel exportiert – mit allen Spalten.`, 'success', 5000);

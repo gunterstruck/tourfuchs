@@ -922,6 +922,16 @@ Daraus folgt:
   Höhe folgt am Desktop weiter dem Platz auf der Karte. Handy unverändert
   (Bildvergleich: nur die beiden Desktop-Kacheln weichen ab).
 
+- **Nachtrag 11.10.2026 – „bitte warten" bei Excel und Umzugsdatei (PO):**
+  „Beim Laden oder Export kann es dauern. Der Nutzer denkt schon, alles ist
+  eingefroren – vor allem auch für die tfsafe-Datei." Folge von 17.1b (Excel
+  und QR laden bei Bedarf). Jetzt: Nach dem Start lädt TourFuchs Excel und
+  QR im Leerlauf vor (der Service Worker hält sie ohnehin bereit – im
+  Normalfall keine zusätzlichen Daten); wer schneller klickt, sieht „Excel wird vorbereitet …".
+  Die Umzugsdatei zeigt jeden langsamen Schritt: „Umzugsdatei wird
+  verschlüsselt …", „Datei wird entschlüsselt …", „Daten werden
+  übernommen …", „Daten werden gespeichert …".
+
 #### Phasen
 
 | # | Phase | Inhalt | Status |
