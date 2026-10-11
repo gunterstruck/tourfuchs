@@ -1295,9 +1295,3 @@ export function exportHandovers(customers, { fileLabel = '' } = {}) {
     XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
     return rows.length;
 }
-
-/**
- * Demo-Datensatz: 3 Vertriebsbeauftragte, je 2 geografisch zusammenhängende
- * Vertriebsbezirke (benachbarte Städte/Kreise), quer durch Deutschland.
- * Spalten: [name, straße, plz, ort, vb, gruppe, umsatz, bezirk]
- */
