@@ -26,7 +26,7 @@
       "gzip": 10240
     },
     "index.css": {
-      "raw": 238592,
+      "raw": 242688,
       "gzip": 47104
     },
     "serviceVisitPlanner.css": {
@@ -46,7 +46,7 @@
       "gzip": 726016
     },
     "alle CSS": {
-      "raw": 244736,
+      "raw": 248832,
       "gzip": 49152
     }
   }
