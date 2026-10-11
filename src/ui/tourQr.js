@@ -18,8 +18,11 @@ import { showToast } from './toast.js';
 // Der Leser wird vor Kamera- bzw. Bildscan geladen; die Erkennung selbst
 // läuft danach wie bisher synchron.
 let jsQR = null;
+/** true, wenn der Leser bereitsteht. Scheitert das Laden (offline vor dem
+ * ersten Zwischenspeichern), liest der eingebaute Erkenner des Browsers allein. */
 async function loadQrReader() {
-    jsQR ??= (await import('jsqr')).default;
+    try { jsQR ??= (await import('jsqr')).default; } catch { /* ohne jsQR weiter */ }
+    return Boolean(jsQR);
 }
 const loadQrWriter = async () => (await import('qrcode')).default;
 
@@ -101,12 +104,18 @@ export async function openShareDialog(encoded, { stopCount, skipped = 0, fromPho
     renderShareCopy();
     const canvas = document.getElementById('qr-share-canvas');
     const url = await encodeTourUrlPacked(encoded, window.location.origin + window.location.pathname);
+    let QRCode;
+    try {
+        QRCode = await loadQrWriter();
+    } catch {
+        showToast(t('qr.share.unavailable'), 'error', 6000);
+        return;
+    }
     try {
         // ECC „L": maximale Kapazität für die längere URL; Bildschirm→Kamera ist
         // ein sauberer Kanal, hohe Fehlerkorrektur ist hier nicht nötig.
         // Intern hoch aufgelöst (CSS skaliert auf die Anzeigegröße): Screenshots
         // und Kamera bekommen scharfe Kanten statt verwaschener Module.
-        const QRCode = await loadQrWriter();
         await QRCode.toCanvas(canvas, url, { errorCorrectionLevel: 'L', width: 1024, margin: 3 });
     } catch {
         showToast(t('qr.share.tooLarge'), 'error', 6000);
@@ -207,6 +216,7 @@ function jsqrRegion(source, srcW, srcH, crop, maxSide, canvas) {
     const scale = Math.min(1, maxSide / Math.max(sw, sh));
     canvas.width = Math.max(1, Math.round(sw * scale));
     canvas.height = Math.max(1, Math.round(sh * scale));
+    if (!jsQR) return null;
     const ctx = canvas.getContext('2d', { willReadFrequently: true });
     ctx.drawImage(source, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
     const img = ctx.getImageData(0, 0, canvas.width, canvas.height);

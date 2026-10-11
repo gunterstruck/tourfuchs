@@ -711,8 +711,10 @@ async function qrRoundTrip(browser, baseUrl) {
     const dir = mkdtempSync(join(tmpdir(), 'tourfuchs-qr-'));
     const fixture = fileURLToPath(new URL('../tests/fixtures/umzug/TourFuchs-Umzug-2026-10-11-v3-heute', import.meta.url));
     const errors = [];
+    const contexts = [];
     const openPage = async (options) => {
         const context = await browser.newContext({ ...options, acceptDownloads: true, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+        contexts.push(context);
         await context.addInitScript(skipMobilePreviewTeaser);
         const page = await context.newPage();
         page.on('dialog', (dialog) => dialog.accept());
@@ -760,6 +762,7 @@ async function qrRoundTrip(browser, baseUrl) {
             if (errors.length) throw new Error(errors.join(' | '));
         });
     } finally {
+        await Promise.all(contexts.map((context) => context.close().catch(() => {})));
         rmSync(dir, { recursive: true, force: true });
     }
 }
