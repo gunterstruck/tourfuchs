@@ -1,9 +1,21 @@
 {
-  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand 11.10.2026 + 1 % Spielraum. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
+  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel-Bibliothek aus dem Hauptpaket). Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
   "pakete": {
     "index.js": {
-      "raw": 1863680,
-      "gzip": 589824
+      "raw": 1325056,
+      "gzip": 413696
+    },
+    "demoCustomers.js": {
+      "raw": 3072,
+      "gzip": 2048
+    },
+    "excel.js": {
+      "raw": 27648,
+      "gzip": 11264
+    },
+    "xlsx.js": {
+      "raw": 505856,
+      "gzip": 164864
     },
     "index.css": {
       "raw": 238592,
@@ -22,7 +34,7 @@
       "gzip": 130048
     },
     "alle JS": {
-      "raw": 2262016,
+      "raw": 2259968,
       "gzip": 726016
     },
     "alle CSS": {

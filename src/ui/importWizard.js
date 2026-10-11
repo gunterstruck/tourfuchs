@@ -1422,7 +1422,9 @@ export function loadDemo({ source = 'manual', confirmReplacement = true, announc
 async function performDemoLoad({ confirmReplacement, announce }) {
     // Beispieldaten sind nicht schützenswert: ein evtl. aktiver Tresor wird
     // deaktiviert, damit die Demo unverschlüsselt und ohne PIN-Sperre läuft.
-    const { demoCustomers } = await excel();
+    // Eigenes Modul, nicht excel.js: Die Beispieldaten laden beim Start und
+    // sollen die Excel-Bibliothek nicht mitziehen.
+    const { demoCustomers } = await import('../services/demoCustomers.js');
     const customers = await demoCustomers();
     const disablesVault = vaultEnabled();
     if (confirmReplacement && !confirmDatasetReplacement({

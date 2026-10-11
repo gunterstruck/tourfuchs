@@ -18,7 +18,6 @@ import { hasDemoCustomers } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, emit, on, attrColor, setCustomers, setTerritory, getTerritory, getCustomer, DIMENSIONS, UNASSIGNED } from '../core/state.js';
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
-import { exportReassignments } from '../services/excel.js';
 import { fairness, regionMembership } from '../features/territory.js';
 import { optionalModuleActive } from '../features/optionalModules.js';
 import {
@@ -1156,8 +1155,10 @@ function openReport() {
     }
 }
 
-function downloadReassignments() {
+async function downloadReassignments() {
     const model = reportModel();
+    // Excel-Bibliothek erst beim Klick laden – sie gehört nicht ins Startpaket.
+    const { exportReassignments } = await import('../services/excel.js');
     if (!exportReassignments(reassignmentRows(model), { demo: model.meta.demo })) {
         // Gebiete lassen sich auch ohne einen einzigen Kundenwechsel zuweisen –
         // etwa leere Flächen. Dann gibt es eine Vorlage, aber keine Liste.
