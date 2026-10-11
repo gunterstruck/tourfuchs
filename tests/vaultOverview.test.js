@@ -4,12 +4,12 @@ import { resolve } from 'node:path';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 
-describe('Datentresor & sicherer Umzug: eingeklappt mit Status (Konzept „aufzoomen")', () => {
+describe('Datentresor: eingeklappt mit Status (Konzept „aufzoomen")', () => {
     const html = read('index.html');
     const vault = read('src/ui/lockVault.js');
     const sidebar = read('src/ui/sidebar.js');
 
-    it('bündelt Tresor + Umzug in einem einklappbaren <details> mit Statuszeile', () => {
+    it('bündelt den Tresor in einem einklappbaren <details> mit Statuszeile', () => {
         expect(html).toContain('<details id="vault-details"');
         expect(html).toContain('id="vault-details-body"');
         expect(html).toContain('id="vault-summary-status"');
@@ -18,8 +18,11 @@ describe('Datentresor & sicherer Umzug: eingeklappt mit Status (Konzept „aufzo
         expect(vault).toContain('Tresor aus');
     });
 
-    it('hängt den Umzug-Block auf dem Desktop IN den einklappbaren Block (nicht daneben)', () => {
-        // Sonst würde nur der Tresor-Teil einklappen, der Umzug bliebe stehen.
-        expect(sidebar).toContain("(document.getElementById('vault-details-body') || vault).append(nodes.safeTitle, nodes.safeNote, nodes.safeActions)");
+    it('der Empfang von Kollegen steht nicht mehr im eingeklappten Tresor (PO, 11.10.2026)', () => {
+        // Neue Nutzer bekommen meist eine Datei von Kollegen – der Empfang
+        // gehört zu „Daten laden"; die Anordnung prüft tests/dataPanelLayout.test.js.
+        expect(html).toContain('🔐 Datentresor <span id="vault-summary-status"');
+        expect(html).not.toContain('Datentresor &amp; sicherer Umzug');
+        expect(sidebar).toContain('d.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive');
     });
 });

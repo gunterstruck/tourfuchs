@@ -152,6 +152,16 @@ export function initImportWizard() {
         cancelWelcomeDemo();
         ownDataDialog?.showModal();
     });
+    // Erster Schritt am Desktop („Deine Daten holen"): dieselben Wege.
+    document.getElementById('btn-get-excel')?.addEventListener('click', () => {
+        cancelWelcomeDemo();
+        ownDataDialog?.showModal();
+    });
+    // Die Datei von Kollegen öffnet der sichere Umzug selbst; hier nur die
+    // Willkommens-Automatik anhalten, damit keine Demo dazwischenfährt.
+    for (const id of ['btn-get-safe', 'btn-demo-welcome-safe']) {
+        document.getElementById(id)?.addEventListener('click', () => cancelWelcomeDemo());
+    }
     document.getElementById('btn-showcase-ob')?.addEventListener('click', () => cancelWelcomeDemo());
     // „Später" im Demo-Panel heißt nicht „nie": Schließt sich die Demo-Auswahl
     // ohne gestartete Vorführung und ohne Daten, wird die Willkommens-Automatik
@@ -207,6 +217,7 @@ export function initImportWizard() {
     const downloadTemplate = async () => (await excel()).downloadTemplate();
     document.getElementById('btn-template').addEventListener('click', downloadTemplate);
     document.getElementById('btn-template-2')?.addEventListener('click', downloadTemplate);
+    document.getElementById('btn-get-template')?.addEventListener('click', downloadTemplate);
 
     resultDialog = document.getElementById('import-result-dialog');
     resultDialog.querySelector('.dialog-close').addEventListener('click', () => resultDialog.close());
@@ -1208,6 +1219,9 @@ async function persistDataset() {
 function syncImportNotesButton() {
     const btn = document.getElementById('btn-import-notes');
     if (!btn) return;
+    // Am Desktop steht der Knopf unter „Daten → Mehr": Kommen neue Hinweise,
+    // klappt der Block auf, damit „Liste unter Daten" auch zu sehen ist.
+    if (btn.hidden && lastErrors.length) btn.closest('details:not([open])')?.setAttribute('open', '');
     btn.hidden = lastErrors.length === 0;
     const nurHinweise = lastErrors.every((e) => e.Typ === 'Hinweis');
     btn.textContent = nurHinweise

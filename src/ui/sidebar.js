@@ -482,41 +482,70 @@ function initSidebarContentDragScroll() {
     }, true);
 }
 
-// ---- Datenpanel: Desktop-Reihenfolge bleibt, mobil nach Aufgaben gruppieren ----
-// Desktop nutzt die im HTML gesetzte, gewohnte Reihenfolge. Nur auf dem Handy
-// werden dieselben (identischen) Knöpfe in Gruppen umgehängt – gleiche IDs,
-// gleiche Wiring, kein doppeltes Markup. So ändert sich die Desktop-Ansicht nie.
+// ---- Datenpanel: nach Aufgaben gruppieren (Desktop und Handy je eigen) ----
+// Dieselben (identischen) Knöpfe werden je nach Ansicht in Gruppen umgehängt –
+// gleiche IDs, gleiche Wiring, kein doppeltes Markup.
+//
+// Desktop (PO, 11.10.2026): Wer neu ist, bekommt eine Kollegen-Datei und sucht
+// in „Daten" – der Empfang lag ganz unten im Tresor. Jetzt: Daten laden (mit
+// „Daten von Kollegen empfangen") · Weitergeben · Schützen (Tresor) · Mehr ·
+// Löschen. Das Handy behält seine Gruppen.
 let dataPanelLayout = null;      // 'desktop' | 'mobile'
 let dataPanelGroups = null;
+let desktopDataGroups = null;
+
+function makeDataGroup(labelText) {
+    const wrap = document.createElement('div');
+    wrap.className = 'data-group';
+    const label = document.createElement('p');
+    label.className = 'data-section-label';
+    label.textContent = labelText;
+    const col = document.createElement('div');
+    col.className = 'button-column';
+    wrap.append(label, col);
+    return { wrap, col };
+}
 
 function ensureDataPanelGroups() {
     if (dataPanelGroups) return dataPanelGroups;
-    const makeGroup = (labelText) => {
-        const wrap = document.createElement('div');
-        wrap.className = 'data-group';
-        const label = document.createElement('p');
-        label.className = 'data-section-label';
-        label.textContent = labelText;
-        const col = document.createElement('div');
-        col.className = 'button-column';
-        wrap.append(label, col);
-        return { wrap, col };
-    };
     const danger = document.createElement('div');
     danger.className = 'button-column data-danger-zone';
     dataPanelGroups = {
-        load: makeGroup('Daten laden'),
-        save: makeGroup('Sichern & übertragen'),
-        tools: makeGroup('Werkzeuge'),
+        load: makeDataGroup('Daten laden'),
+        save: makeDataGroup('Sichern & übertragen'),
+        tools: makeDataGroup('Werkzeuge'),
         danger
     };
     return dataPanelGroups;
 }
 
+function ensureDesktopDataGroups() {
+    if (desktopDataGroups) return desktopDataGroups;
+    const protect = document.createElement('p');
+    protect.className = 'data-section-label data-protect-label';
+    protect.textContent = 'Schützen';
+    const more = document.createElement('details');
+    more.id = 'data-more';
+    more.className = 'data-more';
+    const summary = document.createElement('summary');
+    summary.textContent = '⋯ Mehr: Vorlagen, Verortung, Hinweise';
+    const moreCol = document.createElement('div');
+    moreCol.className = 'button-column';
+    more.append(summary, moreCol);
+    const danger = document.createElement('div');
+    danger.className = 'button-column data-danger-zone';
+    desktopDataGroups = {
+        load: makeDataGroup('Daten laden'),
+        share: makeDataGroup('Weitergeben'),
+        protect, more, moreCol, danger
+    };
+    return desktopDataGroups;
+}
+
 /**
  * Datenpanel für die aktuelle Ansicht arrangieren.
- * Desktop: exakt die HTML-Reihenfolge. Mobil: laden · sichern · Werkzeuge,
- * dann der Tresor, dann das Löschen ganz unten.
+ * Desktop: laden · weitergeben · schützen · mehr · löschen.
+ * Mobil: laden · sichern · Werkzeuge, dann der Tresor, dann das Löschen.
  */
 export function applyDataPanelLayout() {
     const dataActions = document.getElementById('data-actions');
@@ -539,9 +568,22 @@ export function applyDataPanelLayout() {
     if (Object.values(nodes).some((n) => !n)) return;
     // Zugang zur Hinweis-/Fehlerliste des letzten Imports. Bewusst außerhalb der
     // Pflichtprüfung oben: fehlt der Knopf, soll die Gruppierung trotzdem laufen.
+    // Ebenso die übrigen, nur am Desktop umgehängten Teile.
     const importNotes = el('btn-import-notes');
+    const extras = {
+        explainer: el('data-explainer'), sources: el('data-sources'), templates: el('import-templates'),
+        handover: el('btn-export-handover'), visitReport: el('btn-visit-report-data')
+    };
+    const present = (...list) => list.filter(Boolean);
 
     if (target === 'mobile') {
+        if (desktopDataGroups) {
+            const d = desktopDataGroups;
+            for (const part of [d.load.wrap, d.share.wrap, d.protect, d.more, d.danger]) part.remove();
+            // Zurück an ihre HTML-Plätze, damit das Handy unverändert bleibt.
+            dataActions.before(...present(extras.explainer, extras.sources, extras.templates));
+            primary.append(...present(extras.handover, extras.visitReport));
+        }
         const g = ensureDataPanelGroups();
         g.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive);
         g.save.col.append(nodes.exportBtn, nodes.safeExport);
@@ -560,18 +602,41 @@ export function applyDataPanelLayout() {
             dataPanelGroups.tools.wrap.remove();
             dataPanelGroups.danger.remove();
         }
-        primary.hidden = false;
-        primary.append(nodes.upload, nodes.compliance, nodes.template,
-            ...(importNotes ? [importNotes] : []),
-            nodes.geocode, nodes.progress, nodes.exportBtn, nodes.clear);
-        nodes.safeNote.classList.remove('data-group-note');
-        nodes.safeTitle.hidden = false;
-        // In den einklappbaren Tresor-/Umzug-Block einhängen (Konzept „aufzoomen"),
-        // damit der ganze Sicherheits-Bereich gemeinsam ein-/ausklappt.
-        (document.getElementById('vault-details-body') || vault).append(nodes.safeTitle, nodes.safeNote, nodes.safeActions);
-        nodes.safeActions.append(nodes.safeExport, nodes.safeReceive);
+        const d = ensureDesktopDataGroups();
+        d.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive, ...present(extras.sources));
+        d.share.col.append(nodes.safeExport, ...present(extras.visitReport), nodes.exportBtn, ...present(extras.handover));
+        nodes.safeNote.classList.add('data-group-note');
+        d.share.wrap.append(nodes.safeNote);
+        d.moreCol.append(...present(extras.templates), nodes.template, nodes.geocode, nodes.progress,
+            ...present(importNotes, extras.explainer));
+        dataActions.append(d.load.wrap, d.share.wrap);
+        nodes.safeTitle.hidden = true;
+        primary.hidden = true;
+        vault.before(d.protect);
+        d.danger.append(nodes.clear);
+        vault.after(d.more, d.danger);
     }
     dataPanelLayout = target;
+}
+
+/**
+ * Erster Schritt am Desktop: Solange keine eigenen Daten da sind (leer oder
+ * Beispieldaten), zeigt „Daten" nur die zwei Wege zu den eigenen Daten. Die
+ * Verwaltung erscheint erst mit eigenen Daten – am Handy bleibt alles, wie es ist.
+ */
+function syncDataStart(empty, demoActive) {
+    const start = document.getElementById('data-start');
+    const startMode = !isMobileUi() && (empty || demoActive);
+    document.body.classList.toggle('data-start-mode', startMode);
+    if (!start) return;
+    start.hidden = !startMode;
+    // Leer: unter die Begrüßung, damit „Willkommen" oben bleibt; mit
+    // Beispieldaten ganz nach oben.
+    const hero = document.querySelector('#onboarding .ob-hero');
+    const anchor = empty ? hero : document.getElementById('data-loaded');
+    if (!anchor) return;
+    if (empty && anchor.nextElementSibling !== start) anchor.after(start);
+    if (!empty && anchor.previousElementSibling !== start) anchor.before(start);
 }
 
 function applySidebar() {
@@ -1407,6 +1472,7 @@ export function initSidebar() {
         if (isMobileUi() && state.ui.mode === 'service') applyMode('aussendienst', false);
         syncSidebarPositionForViewport();
         applyDataPanelLayout();
+        renderDataStatus();
         applySidebar();
         syncLevelControl();
         emit('level:control-changed');
@@ -1622,7 +1688,7 @@ export function initSidebar() {
     initTeamFilters();
 
     // Nach dem Demo-Laden im gewählten Modus bleiben. Die automatische Demo
-    // darf den neuen Gebietsplanungs-Start nicht zurück auf Tour setzen.
+    // darf einen gemerkten GeoFuchs-Start nicht zurück auf Tour setzen.
     on('demo:loaded', () => {
         clearTimeout(autoRevealTimer);
         applyMode(state.ui.mode, true);
@@ -1633,6 +1699,12 @@ export function initSidebar() {
     on('data:imported', (payload) => {
         if (isMobileUi() && !payload?.type) showMapView(false);
         else if (!payload?.type && desktopWelcomePending) revealDesktopSidebar();
+    });
+    // „Datei von Kollegen" aus der Begrüßung: Der Empfang meldet keinen
+    // Kundenimport. Ob eingelöst oder abgebrochen – danach gehört das Panel
+    // ins Bild, sonst steht man vor der leeren Karte.
+    document.getElementById('safe-receive-dialog')?.addEventListener('close', () => {
+        if (desktopWelcomePending) revealDesktopSidebar();
     });
 
     on('customers:changed', (info) => {
@@ -1939,6 +2011,7 @@ function renderDataStatus() {
     // stehen, damit der Beispieldaten-/Upload-Streifen vollständig sichtbar ist
     // (statt nur als Ansatz am unteren Rand). Steuert per CSS die Peek-Höhe.
     document.body.classList.toggle('demo-data-active', demoActive);
+    syncDataStart(empty, demoActive);
     if (empty) {
         if (onboarding) onboarding.style.display = '';
         if (loaded) loaded.style.display = 'none';
@@ -2021,6 +2094,9 @@ function syncGeocodeButton({ running, done, total }) {
     const progress = document.getElementById('geocode-progress');
     if (btn && running) btn.textContent = '⏸ Abbrechen';
     if (progress) {
+        // Am Desktop steht die Verortung unter „Mehr": Beginnt ein Lauf, klappt
+        // der Block einmal auf, damit der Fortschritt nicht unsichtbar läuft.
+        if (running && progress.style.display === 'none') progress.closest('details:not([open])')?.setAttribute('open', '');
         progress.style.display = running ? 'block' : 'none';
         progress.textContent = running ? `Geocodiere… ${done}/${total}` : '';
     }

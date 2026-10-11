@@ -932,6 +932,25 @@ Daraus folgt:
   verschlüsselt …", „Datei wird entschlüsselt …", „Daten werden
   übernommen …", „Daten werden gespeichert …".
 
+- **Nachtrag 11.10.2026 – Erstnutzer am Desktop: „Daten" nach Aufgaben (PO):**
+  „Er erhält eine verschlüsselte tfsafe-Datei mit Schlüssel, startet TourFuchs
+  und schaut in Daten – ganz unten findet er den Import. Der sichere Import
+  ist für viele der normale Fall." Entschieden („1 ja, 2 ja, 3 ja"):
+  (1) Ohne eigene Daten zeigt „Daten" am Desktop nur „Deine Daten holen" mit
+  „🔐 Datei von Kollegen öffnen" vorne und „📊 Eigene Excel-/CSV-Liste
+  laden"; mit eigenen Daten Gruppen laden · weitergeben · schützen · mehr ·
+  löschen. (2) Die Willkommenskarte bekommt „🔐 Ich habe eine Datei von
+  Kollegen"; der Selbststart der Vorführung hält an, solange die Maus auf der
+  Karte liegt. (3) Erster Start am Desktop im Außendienst statt in GeoFuchs
+  (eine gemerkte Wahl gewinnt). Handy: Daten-Tab unverändert bis auf den
+  Tresor-Titel („🔐 Datentresor" statt „… & sicherer Umzug" – der Umzug
+  stand am Handy schon immer außerhalb); die Willkommenskarte zeigt den
+  Kollegen-Knopf auch dort (passt ohne Scrollen, 360×640 geprüft).
+  Zweitprüfung fand: Panel blieb nach dem Empfang aus der Begrüßung zu
+  (behoben, Smoke-Schritt), Kartenfarben beim Außendienst-Start ohne Demo
+  (Vorgabe jetzt Kundenpunkte), Import-Hinweise und Verortung klappen
+  „Mehr" auf. Leitfaden 7.0.
+
 #### Phasen
 
 | # | Phase | Inhalt | Status |

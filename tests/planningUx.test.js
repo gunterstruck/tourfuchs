@@ -15,8 +15,8 @@ const html = readFileSync('index.html', 'utf8');
 const sidebar = readFileSync('src/ui/sidebar.js', 'utf8');
 
 describe('Planungsstart und sichtbare Bedienhilfen', () => {
-    it('startet auf dem Desktop mit Gebietsplanung und aktiviertem Profi-Zugang', () => {
-        expect(state.ui).toMatchObject({ mode: 'gebietsplanung', activeTab: 'gebiete', depth: 'profi' });
+    it('startet auf dem Desktop im Außendienst (PO, 11.10.2026) mit aktiviertem Profi-Zugang', () => {
+        expect(state.ui).toMatchObject({ mode: 'aussendienst', activeTab: 'tour', depth: 'profi' });
     });
     it('platziert globale Listenaktionen vor den Checkbox-Zeilen', () => {
         const section = sidebar.slice(sidebar.indexOf('function renderSection(section)'), sidebar.indexOf('function renderAddFilterControl'));
