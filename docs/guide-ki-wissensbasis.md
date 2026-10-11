@@ -675,7 +675,8 @@ Solange nur Beispieldaten laufen, liegt bei **jedem Start** zusätzlich **mittig
 über der Karte** eine ruhige, nicht-blockierende Begrüßung („Willkommen bei
 TourFuchs") mit zwei gleichwertigen Wegen: **▶ TourFuchs in Aktion sehen**
 (startet die Live-Demos direkt als Schleife, mit Musik) und **📂 Eigene Daten
-laden**, dazu die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
+laden**, dazu **„🔐 Ich habe eine Datei von Kollegen"** (öffnet den Empfang der
+`.tfsafe`-Datei direkt, seit 11.10.2026) und die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
 Besuch). Tut niemand etwas, startet die Vorführung nach **zehn Sekunden** von
 selbst – ohne Ton, bis jemand auf „♫ Musik ein" tippt, weil Browser Musik erst
 nach einem Tipp erlauben. Sichtbar ist der Countdown daran, dass sich der grüne
@@ -689,7 +690,9 @@ brechen ihn nicht ab.** Vorher genügte jedes Aufsetzen eines Fingers irgendwo �
 auf manchen Handys startete die Vorführung dadurch praktisch nie von selbst.
 Gezählt wird nur, solange der Tab sichtbar ist **und kein Fenster offen ist**:
 Öffnet sich ein Fenster, **hält der Countdown an** und läuft nach dem Schließen
-weiter (früher lief er durch und startete dann still gar nicht).
+weiter (früher lief er durch und startete dann still gar nicht). Ebenso hält er
+an, **solange die Maus auf der Begrüßungskarte liegt** (seit 11.10.2026): Wer die
+Knöpfe liest, soll nicht von der Vorführung überrascht werden.
 Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
 Tipp auf die Hinweiskarte selbst lässt sie zurücktreten** (gilt als Quittung).
 Damit beantwortet jeder Tipp etwas: Neben der Karte zoomt die Landkarte, auf der
@@ -984,9 +987,55 @@ für Marketing verwendet werden.
 
 ## 7. Daten laden, importieren und aktualisieren
 
+### 7.0 Der Daten-Tab am Desktop (seit 11.10.2026)
+
+Anlass (PO, 11.10.2026): Wer neu ist, bekommt im Team meist eine
+verschlüsselte `.tfsafe`-Datei mit Schlüssel von Kollegen, öffnet TourFuchs am
+Desktop und sucht unter **„Daten"**. Der Empfang lag bis dahin ganz unten im
+eingeklappten Tresor, und der Tab war mit Verwaltung überladen.
+
+**Ohne eigene Daten (leer oder Beispieldaten)** zeigt der Tab am Desktop nur
+die Karte **„Deine Daten holen"** mit zwei großen Wegen:
+
+1. **„🔐 Datei von Kollegen öffnen"** (`.tfsafe`-Datei + Schlüssel als QR oder
+   Text) – öffnet den Empfang direkt. Steht vorne, weil es im Team der häufigste
+   Fall ist.
+2. **„📊 Eigene Excel-/CSV-Liste laden"** (oder direkt aus Excel einfügen) –
+   öffnet **„Eigene Daten laden"**; erst dort fragt TourFuchs nach der
+   Berechtigung.
+
+Darunter der Link **„📄 Noch keine Liste? Excel-Vorlage herunterladen"**. Die
+Verwaltung (Tresor, Export, Datenquellen, Löschen …) erscheint erst mit eigenen
+Daten. Im leeren Zustand steht die Karte unter der Begrüßung „Willkommen bei
+TourFuchs!".
+
+**Mit eigenen Daten** ist der Tab nach Aufgaben geordnet:
+
+1. Übersicht (Kunden, Bezirke, Gruppen, sichtbar, verortet).
+2. **„Daten laden"**: andere Excel-/CSV-Liste, **„Daten empfangen (Datei +
+   Schlüssel)"** und **„🔄 Datenquellen & Aktualisieren"**.
+3. **„Weitergeben"**: **„Verschlüsselt exportieren (Datei + QR)"**,
+   Besuchsbericht, Excel-Export und – falls vorhanden – die Übergabeliste.
+4. **„Schützen"**: der eingeklappte **„🔐 Datentresor"**.
+5. **„⋯ Mehr: Vorlagen, Verortung, Hinweise"** (eingeklappt): gemerkte
+   Importvorlagen, Excel-Vorlage, **„🎯 Adressen exakt verorten"**, Hinweise
+   zum letzten Import und die Erklärung zu getrennten Quellen. Läuft die
+   Verortung oder kommen neue Import-Hinweise, klappt „Mehr" von selbst auf.
+6. **„🗑 Daten löschen"** abgesetzt ganz unten.
+
+Am Handy bleibt der Tab wie bisher (laden · sichern & übertragen · Werkzeuge ·
+Tresor · löschen).
+
+**Erster Start am Desktop im Außendienst:** Ohne gemerkte Wahl beginnt TourFuchs
+auch am Desktop im **„Außendienst"** (Reiter Tour) statt in GeoFuchs. Wer einmal
+GeoFuchs oder ServiceFuchs geöffnet hat, landet beim nächsten Start wieder dort.
+
 ### 7.1 Eigene Daten laden
 
-**Klickpfad:** `"Daten" -> "Eigene Daten laden"`.
+**Klickpfad:** `"Daten" -> "Eigene Daten laden"` (am Desktop ohne eigene Daten:
+`"Daten" -> "Deine Daten holen" -> "📊 Eigene Excel-/CSV-Liste laden"`, siehe 7.0;
+auch die Willkommenskarte und der Beispieldaten-Streifen bieten „Eigene Daten
+laden" an).
 
 Danach wählt der Nutzer zwischen:
 
@@ -3063,10 +3112,12 @@ dorthin geben, wo sie gebraucht wird.
 Klickpfade:
 
 - Topbar -> offenes Schloss/Tresor-Symbol (der stets erreichbare Einstieg)
-- oder im **"Daten"**-Tab den eingeklappten Block
-  **"🔐 Datentresor & sicherer Umzug"** aufklappen -> **"Tresor aktivieren
+- oder im **"Daten"**-Tab unter **„Schützen"** den eingeklappten Block
+  **"🔐 Datentresor"** aufklappen -> **"Tresor aktivieren
   (PIN)"**. Der Block zeigt eingeklappt den Status (Tresor aus/aktiv/gesperrt)
-  und macht so der eigentlichen Datenarbeit Platz.
+  und macht so der eigentlichen Datenarbeit Platz. (Bis 11.10.2026 hieß er
+  „🔐 Datentresor & sicherer Umzug" und enthielt am Desktop auch Senden und
+  Empfangen; die stehen jetzt bei „Weitergeben" bzw. „Daten laden", siehe 7.0.)
 
 Nach dem Import eigener Kundendaten **unterbricht TourFuchs nicht mehr**. Die
 Daten sind gespeichert; ein einmaliger Kurzhinweis sagt, dass sie
@@ -3137,8 +3188,8 @@ Biometrische Daten verlassen das Gerät nicht. Die PIN bleibt der Rückfallweg.
 
 ### 14.6 Sicherer Umzug senden
 
-**Klickpfad:** `"Daten" -> "Sicherer Umzug" ->
-"Verschlüsselt exportieren (Datei + QR)"`.
+**Klickpfad:** `"Daten" -> "Weitergeben" ->
+"Verschlüsselt exportieren (Datei + QR)"` (am Handy: „Sichern & übertragen").
 
 TourFuchs erzeugt:
 
@@ -3151,12 +3202,16 @@ transportiert werden.
 
 ### 14.7 Sicherer Umzug empfangen
 
-**Klickpfad:** `"Eigene Daten laden" -> "Verschlüsselte TourFuchs-Datei" ->
+**Klickpfad für Neue am Desktop:** Willkommenskarte ->
+**„🔐 Ich habe eine Datei von Kollegen"** oder `"Daten" -> "Deine Daten holen" ->
+"🔐 Datei von Kollegen öffnen"` (siehe 7.0). Beide öffnen den Empfang direkt.
+
+Auf allen Geräten: `"Eigene Daten laden" -> "Verschlüsselte TourFuchs-Datei" ->
 "Verschlüsselte Datei öffnen"`.
 
 Alternativ bei geladenen Daten:
 
-`"Daten" -> "Daten empfangen (Datei + Schlüssel)"`.
+`"Daten" -> "Daten laden" -> "Daten empfangen (Datei + Schlüssel)"`.
 
 1. `.tfsafe`-Datei wählen.
 2. Schlüssel-QR scannen oder Schlüsseltext eingeben.
@@ -4585,9 +4640,10 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
     sofort; die übrigen optionalen Felder liegen unter „Weitere Felder"
     eingeklappt (mit „N automatisch erkannt"). Beim Import werden weiterhin alle
     Felder gelesen.
-  - **Datentresor & sicherer Umzug:** als eingeklappter Block mit Statuszeile
+  - **Datentresor:** als eingeklappter Block mit Statuszeile
     („Tresor aus/aktiv/gesperrt"); das Topbar-Schloss bleibt der schnelle
-    Einstieg.
+    Einstieg. (Bis 11.10.2026 „Datentresor & sicherer Umzug"; Senden und
+    Empfangen stehen am Desktop jetzt bei „Weitergeben" bzw. „Daten laden".)
 - **Vorübergehende Angebote treten beim Scrollen zurück (ohne Timer):** Beim
   Scrollen in den Inhalt (= man wendet sich dem Prozess zu) klappen angepinnte
   Angebote wie der Kartenstil-Wähler und der Beispieldaten-Streifen sanft ein und

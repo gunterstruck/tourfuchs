@@ -39,7 +39,7 @@ describe('Zentraler Willkommens-Hinweis bei Beispieldaten', () => {
         // den Kundenstapeln. Am Schreibtisch waren 8 von 11 Stapeln nicht
         // antippbar, am Handy alle. Wer zuerst auf einen Stapel tippt, erlebte
         // „nichts passiert".
-        const from = welcome.indexOf("root.querySelector('.demo-welcome-card')");
+        const from = welcome.indexOf("card?.addEventListener('click'");
         expect(from).toBeGreaterThan(-1);
         const handler = welcome.slice(from, from + 320);
         // Die eigenen Knöpfe behalten ihre Bedeutung.
@@ -100,7 +100,10 @@ describe('Begrüßung ohne eigene Daten: Vorführung zuerst, Selbststart', () =>
         expect(welcome).toContain('watchDeliberateUse();');
         expect(welcome).toContain('if (!waiting) left -= now - last;');
         // Ein offenes Fenster hält den Countdown an, statt ihn still aufzugeben.
-        expect(welcome).toContain("const waiting = document.hidden || Boolean(document.querySelector('dialog[open]'));");
+        expect(welcome).toContain("const waiting = document.hidden || pointerOnCard || Boolean(document.querySelector('dialog[open]'));");
+        // Liegt die Maus auf der Karte, liest jemand gerade (PO, 11.10.2026).
+        expect(welcome).toContain("card?.addEventListener('pointerenter', (ev) => { if (ev.pointerType === 'mouse') pointerOnCard = true; });");
+        expect(welcome).toContain("card?.addEventListener('pointerleave', () => { pointerOnCard = false; });");
         expect(welcome).toContain('if (left > 0 || waiting) return;');
     });
 

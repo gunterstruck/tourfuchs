@@ -72,6 +72,8 @@ function render() {
     if (!root) return;
     const vorher = !root.hidden;
     root.hidden = !shouldShow();
+    // Verschwindet die Karte unter der Maus, kommt kein „pointerleave".
+    if (root.hidden) pointerOnCard = false;
     // Nur bei echtem Wechsel melden: Wer darauf hört, klappt Angebote auf und zu.
     // Solange die Beispieldaten noch unterwegs sind: Panel und Blatt halten
     // sich zurück (CSS über diese Klasse), damit nichts doppelt begrüßt.
@@ -100,6 +102,7 @@ function explore() {
 // ---- Selbststart der Vorführung ----
 let autostart = null;          // { timer, left }
 let autostartCancelled = false; // gilt für den ganzen Besuch
+let pointerOnCard = false;      // Maus liegt auf der Karte: liest gerade
 
 function startAutostart() {
     if (autostart || autostartCancelled) return;
@@ -120,7 +123,9 @@ function startAutostart() {
             // geöffnet hat) hält die Zeit an – danach geht es weiter. Früher
             // lief der Countdown durch und gab dann still auf: Der Knopf war
             // voll, aber nichts startete.
-            const waiting = document.hidden || Boolean(document.querySelector('dialog[open]'));
+            // Liegt die Maus auf der Karte, liest jemand gerade die Knöpfe –
+            // dann soll nichts unter der Hand losfahren (PO, 11.10.2026).
+            const waiting = document.hidden || pointerOnCard || Boolean(document.querySelector('dialog[open]'));
             if (!waiting) left -= now - last;
             last = now;
             button.classList.toggle('is-waiting', waiting);
@@ -203,6 +208,9 @@ export function initDemoWelcome() {
     // „Eigene Daten laden" quittiert ebenfalls; das Öffnen des geführten Dialogs
     // übernimmt der Import-Assistent (zweiter Listener auf demselben Knopf).
     document.getElementById('btn-demo-welcome-own')?.addEventListener('click', dismiss);
+    // „Ich habe eine Datei von Kollegen": quittiert ebenso; den Empfang
+    // öffnet der sichere Umzug (safeTransfer.js).
+    document.getElementById('btn-demo-welcome-safe')?.addEventListener('click', dismiss);
     // „Live-Demos ansehen" quittiert; das Öffnen des Schaufensters übernimmt das
     // Showcase-Modul (dort ist der Knopf mitregistriert).
     document.getElementById('btn-demo-welcome-demos')?.addEventListener('click', dismiss);
@@ -224,7 +232,12 @@ export function initDemoWelcome() {
     // synthetischer Zweitklick, den es nur in diesem einen Zustand gibt, wäre
     // der nächste unsichtbare Griff. Der erste Tipp räumt das Angebot weg – das
     // ist eine sichtbare Antwort –, der zweite zoomt.
-    root.querySelector('.demo-welcome-card')?.addEventListener('click', (ev) => {
+    const card = root.querySelector('.demo-welcome-card');
+    // Nur die Maus: Ein Finger „schwebt" nicht, und nach einem Tipp bliebe
+    // der Zustand sonst hängen.
+    card?.addEventListener('pointerenter', (ev) => { if (ev.pointerType === 'mouse') pointerOnCard = true; });
+    card?.addEventListener('pointerleave', () => { pointerOnCard = false; });
+    card?.addEventListener('click', (ev) => {
         // Die eigenen Knöpfe behalten ihre Bedeutung; sie quittieren schon selbst.
         if (ev.target.closest('button, a[href], input, select, textarea, label')) return;
         dismiss();

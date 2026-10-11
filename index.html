@@ -184,6 +184,24 @@
             <section id="tab-daten" class="tab-panel active">
                 <input id="file-input" type="file" accept=".xlsx,.xlsm,.xls,.csv,.ods,text/csv" hidden>
 
+                <!-- Erster Schritt am Desktop (PO, 11.10.2026): Solange keine eigenen
+                     Daten da sind (Beispieldaten oder leer), stehen hier nur die zwei
+                     Wege zu den eigenen Daten – die Umzugsdatei von Kollegen vorne, weil
+                     sie im Team der häufigste Fall ist. Die Verwaltung (Tresor, Export,
+                     Datenquellen, Löschen …) erscheint erst mit eigenen Daten. -->
+                <div id="data-start" class="data-start" hidden>
+                    <h2 data-i18n="dataStart.title">Deine Daten holen</h2>
+                    <button id="btn-get-safe" type="button" class="primary data-start-way">
+                        <span class="data-start-way-title" data-i18n="dataStart.safe">🔐 Datei von Kollegen öffnen</span>
+                        <small data-i18n="dataStart.safeHint">.tfsafe-Datei + Schlüssel (QR oder Text)</small>
+                    </button>
+                    <button id="btn-get-excel" type="button" class="data-start-way">
+                        <span class="data-start-way-title" data-i18n="dataStart.excel">📊 Eigene Excel-/CSV-Liste laden</span>
+                        <small data-i18n="dataStart.excelHint">oder direkt aus Excel einfügen</small>
+                    </button>
+                    <button id="btn-get-template" type="button" class="linklike data-start-template" data-i18n="ownData.template">📄 Noch keine Liste? Excel-Vorlage herunterladen</button>
+                </div>
+
                 <!-- Geführter Einstieg (nur solange keine Daten geladen sind) -->
                 <div id="onboarding">
                     <div class="ob-hero">
@@ -209,14 +227,14 @@
                 </div>
 
                 <!-- Datenübersicht + Verwaltung (nur mit geladenen Daten).
-                     Desktop behält diese gewohnte Reihenfolge. Auf dem Handy
-                     gruppiert JS (applyDataPanelLayout) dieselben Knöpfe nach
-                     Aufgaben-Fluss (laden · sichern · Werkzeuge · Tresor ·
-                     löschen) – ohne die Desktop-Ansicht zu verändern. -->
+                     JS (applyDataPanelLayout) hängt dieselben Knöpfe nach
+                     Aufgaben um – Desktop: laden · weitergeben · schützen ·
+                     mehr · löschen; Handy: laden · sichern · Werkzeuge ·
+                     Tresor · löschen. Gleiche IDs, kein doppeltes Markup. -->
                 <div id="data-loaded" style="display:none">
                     <h2>Kundendaten</h2>
                     <div id="data-status"></div>
-                    <p class="muted small">Stammdaten, Kontakte und Serviceverträge können getrennt geladen werden, wenn sie dieselbe Kundennummer verwenden. Eine neue Kundenstammliste ersetzt den bisherigen Kundenbestand; separate Vertragsquellen bleiben erhalten und werden neu zugeordnet.</p>
+                    <p id="data-explainer" class="muted small">Stammdaten, Kontakte und Serviceverträge können getrennt geladen werden, wenn sie dieselbe Kundennummer verwenden. Eine neue Kundenstammliste ersetzt den bisherigen Kundenbestand; separate Vertragsquellen bleiben erhalten und werden neu zugeordnet.</p>
                     <!-- Datenquellen (Release 15): Link zur Ablage + „Aktualisieren" (ui/dataSources.js). -->
                     <details id="data-sources" class="data-sources">
                         <summary><span data-i18n="sources.title">🔄 Datenquellen &amp; Aktualisieren</span> <span id="data-sources-summary" class="muted small"></span></summary>
@@ -257,7 +275,7 @@
 
                     <div id="vault-controls" class="vault-controls">
                         <details id="vault-details" class="vault-details">
-                        <summary class="vault-details-summary">🔐 Datentresor &amp; sicherer Umzug <span id="vault-summary-status" class="muted small"></span></summary>
+                        <summary class="vault-details-summary">🔐 Datentresor <span id="vault-summary-status" class="muted small"></span></summary>
                         <div id="vault-details-body" class="vault-details-body">
                         <h3>🔐 Datentresor</h3>
                         <p id="vault-status" class="muted small"></p>
@@ -764,10 +782,11 @@
         </dialog>
 
         <!-- Zentrale, nicht-blockierende Begrüßung über der Karte.
-             Erscheint bei jedem Start, solange nur Beispieldaten laufen. Zwei
-             gleichwertige Wege: TourFuchs in Aktion sehen (startet nach zehn
-             Sekunden ohne Bedienung von selbst) oder eigene Daten laden. Die
-             Karte dahinter bleibt bedienbar. -->
+             Erscheint bei jedem Start, solange nur Beispieldaten laufen. Wege:
+             TourFuchs in Aktion sehen (startet nach zehn Sekunden ohne
+             Bedienung von selbst; wartet, solange die Maus auf der Karte liegt),
+             Datei von Kollegen öffnen (seit 11.10.2026) oder eigene Daten laden.
+             Die Karte dahinter bleibt bedienbar. -->
         <div id="demo-welcome" class="demo-welcome" role="dialog" aria-labelledby="demo-welcome-title" aria-describedby="demo-welcome-lead" hidden>
             <div class="demo-welcome-card">
                 <button type="button" id="btn-demo-welcome-close" class="demo-welcome-x" aria-label="Hinweis schließen" data-i18n-aria-label="welcome.close">✕</button>
@@ -780,6 +799,8 @@
                         <small data-i18n="welcome.showHint">Live in der echten App · mit Musik ♫</small>
                     </button>
                     <p id="demo-welcome-countdown" class="demo-welcome-countdown" hidden><span data-i18n="welcome.countdownPrefix">Startet von selbst in</span> <b>10</b> s</p>
+                    <!-- Im Team der häufigste Fall: Datei + Schlüssel von Kollegen (PO, 11.10.2026). -->
+                    <button type="button" id="btn-demo-welcome-safe" class="demo-welcome-secondary demo-welcome-safe" data-i18n="welcome.safe">🔐 Ich habe eine Datei von Kollegen</button>
                     <button type="button" id="btn-demo-welcome-own" class="demo-welcome-secondary demo-welcome-own" data-i18n="onboarding.loadOwn">📂 Eigene Daten laden</button>
                     <!-- Der schnellste Weg gehört sichtbar ins Willkommen, nicht in ein
                          Untermenü. Am Handy ist Excel selten offen – dort ausgeblendet. -->

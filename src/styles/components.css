@@ -640,6 +640,48 @@
 .data-group-note { margin: 6px 0 0; }
 /* Löschen bewusst abgesetzt am Fuß des Daten-Tabs. */
 .data-danger-zone { margin-top: 16px; }
+/* Desktop: Datenquellen stehen mit in „Daten laden", „Mehr" klappt den Rest ein. */
+.data-group .button-column > .data-sources { margin: 0; }
+.data-protect-label { margin-top: 18px; }
+.data-protect-label + .vault-controls { margin-top: 8px; }
+.data-more {
+    margin-top: 14px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-l);
+    background: var(--color-surface);
+}
+.data-more > summary { padding: 9px 10px; cursor: pointer; font-weight: 700; color: var(--color-text-muted, #64748b); }
+.data-more[open] > summary { color: var(--color-primary-dark); }
+.data-more > .button-column { margin: 0; padding: 0 9px 9px; }
+.data-more .data-sources { margin: 0; }
+
+/* Erster Schritt am Desktop (PO, 11.10.2026): solange keine eigenen Daten da
+   sind, nur die zwei Wege zu den eigenen Daten – die Verwaltung tritt zurück. */
+.data-start {
+    margin: 4px 0 14px;
+    padding: 14px;
+    border: 1px solid rgba(13, 148, 136, 0.32);
+    border-radius: var(--radius-l);
+    background: var(--color-surface-2);
+}
+.data-start h2 { margin: 0 0 10px; }
+.data-start-way {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    width: 100%;
+    margin-top: 8px;
+    padding: 12px 14px;
+    text-align: left;
+}
+.data-start-way-title { font-size: 1rem; font-weight: 800; }
+.data-start-way small { font-weight: 500; opacity: 0.85; }
+.data-start-way:not(.primary) { border-color: rgba(13, 148, 136, 0.42); color: var(--color-primary-dark); }
+.data-start-template { display: block; margin: 10px auto 0; }
+body.data-start-mode #data-loaded { display: none !important; }
+body.data-start-mode #onboarding #btn-own-data,
+body.data-start-mode #onboarding #btn-own-data + .ob-action-sub { display: none; }
 .button-row { display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap; }
 .button-row input[type="text"] { flex: 1; min-width: 0; }
 

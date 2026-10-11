@@ -62,7 +62,9 @@ export const state = {
     levelMode: 'auto',
     fixedLevel: 'kreise',
     // 'auto' = nach Zoom | 'rep' = Außendienst/Kundenpunkte | 'bezirk' | 'gruppe' | 'status'
-    colorMode: 'auto',
+    //   Start im Außendienst (auch am Desktop seit 11.10.2026) → Kundenpunkte.
+    //   GeoFuchs hebt das beim Wechsel/Wiederherstellen selbst auf 'auto'.
+    colorMode: 'rep',
     basemap: 'standard',
 
     // Fachliche Kundenfilter. Fehlender Umsatz ist etwas anderes als 0 Euro
@@ -103,8 +105,11 @@ export const state = {
         // Fokus-Modus: 'aussendienst' (Alltag: Karte, Tour, Kunden) |
         //              'gebietsplanung' (Experten: Gebiete schneiden, Cockpit, Simulation) |
         //              'service' (Experten: Vertragsradar und Service-Vorplanung)
-        mode: isPhoneUi() ? 'aussendienst' : 'gebietsplanung',
-        activeTab: isPhoneUi() ? 'tour' : 'gebiete',
+        //   Erster Start überall im Außendienst (PO, 11.10.2026): Wer neu ist,
+        //   kommt meist mit einer Datei von Kollegen und will Kunden und Tour
+        //   sehen, nicht Gebiete schneiden. Ein gemerkter Modus gewinnt (main.js).
+        mode: 'aussendienst',
+        activeTab: 'tour',
         // Ansichtstiefe: 'basis' (vollständiger täglicher Außendienst) |
         //               'profi' (zusätzliche Spezial-/Administrationswerkzeuge)
         depth: isPhoneUi() ? 'basis' : 'profi',

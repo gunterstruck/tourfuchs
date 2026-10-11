@@ -64,6 +64,10 @@ export function initSafeTransfer() {
     document.getElementById('btn-safe-export')?.addEventListener('click', openExportDialog);
     document.getElementById('btn-safe-receive')?.addEventListener('click', openReceiveDialog);
     document.getElementById('btn-safe-receive-ob')?.addEventListener('click', openReceiveDialog);
+    // Erster Schritt am Desktop und Willkommenskarte: die Datei von Kollegen
+    // ist im Team der häufigste Weg zu den eigenen Daten (PO, 11.10.2026).
+    document.getElementById('btn-get-safe')?.addEventListener('click', openReceiveDialog);
+    document.getElementById('btn-demo-welcome-safe')?.addEventListener('click', openReceiveDialog);
 
     document.getElementById('safe-export-download')?.addEventListener('click', () => {
         if (lastExport) downloadContainer(lastExport.container);
