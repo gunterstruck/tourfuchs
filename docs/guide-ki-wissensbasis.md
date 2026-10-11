@@ -912,13 +912,13 @@ Beispieldaten.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
-**Aktueller Ablauf (09.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
+**Aktueller Ablauf (11.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
 mit Beispieldaten den tatsächlich erzeugten vollständigen Prompt. Die
 Vorführung klappt **„Anderen Assistenten wählen“** auf, zeigt Microsoft 365
 Copilot, Google Gemini, ChatGPT und **„Eigener Assistent“** und wählt beispielhaft
-ChatGPT. Der Prompt und der Knopf folgen dieser Wahl. Danach wird der angepasste
-Prompt lesbar von oben bis unten gezeigt und über den normalen Knopf lokal in
-die Zwischenablage kopiert. Die Demo öffnet keinen externen Assistenten und
+Microsoft 365 Copilot. Der Prompt und der Knopf folgen dieser Wahl. Danach wird
+der angepasste Prompt lesbar von oben bis unten gezeigt und über den normalen
+Knopf lokal in die Zwischenablage kopiert. Die Demo öffnet keinen externen Assistenten und
 ändert die gespeicherte KI-Wahl nicht. Die Rückmeldung lautet **„Demo: Prompt
 kopiert. Kein Assistent geöffnet.“**; ein Kopierfehler wird als Fehler gemeldet.
 Die Vorschau trägt **„Demo · lokal kopierbar“**. Die Darstellung gilt am Desktop
