@@ -1,9 +1,9 @@
 {
-  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel-Bibliothek aus dem Hauptpaket). Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
+  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
   "pakete": {
     "index.js": {
-      "raw": 1325056,
-      "gzip": 413696
+      "raw": 1169408,
+      "gzip": 357376
     },
     "demoCustomers.js": {
       "raw": 3072,
@@ -16,6 +16,14 @@
     "xlsx.js": {
       "raw": 505856,
       "gzip": 164864
+    },
+    "jsQR.js": {
+      "raw": 132096,
+      "gzip": 48128
+    },
+    "browser.js": {
+      "raw": 24576,
+      "gzip": 10240
     },
     "index.css": {
       "raw": 238592,

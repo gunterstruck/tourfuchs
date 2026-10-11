@@ -21,7 +21,9 @@
  * Chromium: PLAYWRIGHT_CHROMIUM_PATH=/pfad/zu/chrome npm run smoke-check
  */
 import { spawn } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createServer } from 'node:net';
 
@@ -698,6 +700,70 @@ async function blockedStorage(browser, baseUrl) {
     await context.close();
 }
 
+/**
+ * QR-Rundweg (Release 17.1b – QR-Bibliotheken laden erst bei Bedarf): Der
+ * Desktop erzeugt Umzugsdatei und Schlüssel-QR, das Handy liest genau dieses
+ * Bild per „Foto des QR-Codes" und löst die Datei damit ein. So sind Erzeugen
+ * und Lesen gemeinsam im echten Browser geprüft.
+ */
+async function qrRoundTrip(browser, baseUrl) {
+    console.log('QR-Rundweg (Desktop → Handy)');
+    const dir = mkdtempSync(join(tmpdir(), 'tourfuchs-qr-'));
+    const fixture = fileURLToPath(new URL('../tests/fixtures/umzug/TourFuchs-Umzug-2026-10-11-v3-heute', import.meta.url));
+    const errors = [];
+    const openPage = async (options) => {
+        const context = await browser.newContext({ ...options, acceptDownloads: true, locale: 'de-DE', timezoneId: 'Europe/Berlin' });
+        await context.addInitScript(skipMobilePreviewTeaser);
+        const page = await context.newPage();
+        page.on('dialog', (dialog) => dialog.accept());
+        page.on('pageerror', (e) => errors.push(String(e).slice(0, 160)));
+        await openApp(page, baseUrl);
+        return page;
+    };
+    const receive = async (page, file, { key, photo }) => {
+        await closeDialogs(page);
+        await page.evaluate(() => document.getElementById('btn-safe-receive').click());
+        await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
+        await page.locator('#safe-file-input').setInputFiles(file);
+        await page.waitForFunction(() => document.getElementById('safe-step-key')?.hidden === false, null, { timeout: TIMEOUT });
+        if (photo) {
+            await page.locator('#safe-scan-photo').setInputFiles(photo);
+        } else {
+            const fallback = page.locator('#safe-step-key details.safe-fallback');
+            if (!(await fallback.evaluate((d) => d.open))) await fallback.locator('summary').click();
+            await page.locator('#safe-key-input').fill(key);
+            await page.locator('#safe-key-submit').click();
+        }
+        await page.waitForFunction(() => !document.getElementById('safe-receive-dialog').open
+            && document.querySelector('#data-status .stat b')?.textContent === '3', null, { timeout: TIMEOUT });
+    };
+    try {
+        let desk;
+        await step('Desktop: Umzugsdatei und Schlüssel-QR erzeugen', async () => {
+            desk = await openPage({ viewport: { width: 1440, height: 900 } });
+            await receive(desk, `${fixture}.tfsafe`, { key: readFileSync(`${fixture}.key.txt`, 'utf8').trim() });
+            await closeDialogs(desk);
+            const [download] = await Promise.all([
+                desk.waitForEvent('download', { timeout: TIMEOUT }),
+                desk.evaluate(() => document.getElementById('btn-safe-export').click())
+            ]);
+            await download.saveAs(join(dir, 'rundweg.tfsafe'));
+            await desk.waitForFunction(() => document.getElementById('safe-export-keytext')?.value.startsWith('TFK1:'), null, { timeout: TIMEOUT });
+            writeFileSync(join(dir, 'schluessel.png'), await desk.locator('#safe-export-canvas').screenshot());
+        });
+        await step('Handy: Schlüssel per Foto des QR-Codes lesen und Daten einlösen', async () => {
+            const phone = await openPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+            await receive(phone, join(dir, 'rundweg.tfsafe'), { photo: join(dir, 'schluessel.png') })
+                .catch(async () => { throw new Error(`nicht eingelöst – ${await phone.locator('#toasts').textContent().catch(() => '')}`.slice(0, 300)); });
+        });
+        await step('keine Skriptfehler', async () => {
+            if (errors.length) throw new Error(errors.join(' | '));
+        });
+    } finally {
+        rmSync(dir, { recursive: true, force: true });
+    }
+}
+
 let chromium;
 try {
     ({ chromium } = await import('playwright'));
@@ -718,6 +784,7 @@ try {
     await desktop(browser, baseUrl);
     await phone(browser, baseUrl);
     await blockedStorage(browser, baseUrl);
+    await qrRoundTrip(browser, baseUrl);
 } finally {
     await browser?.close();
     server.stopAll();

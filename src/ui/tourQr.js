@@ -6,8 +6,6 @@
  * Es findet keinerlei Netzwerkübertragung statt.
  */
 
-import QRCode from 'qrcode';
-import jsQR from 'jsqr';
 import { state, emit, getCustomer, on, setCustomers } from '../core/state.js';
 import { currentLocale, t } from '../core/i18n.js';
 import { decodeTourText, matchStopsToCustomers, encodeTourUrlPacked } from '../features/tourShare.js';
@@ -15,6 +13,15 @@ import { googleMapsLegs } from '../features/tour.js';
 import { downloadIcs } from '../features/tourExport.js';
 import { combinePlanStart } from '../features/dayPlanner.js';
 import { showToast } from './toast.js';
+
+// QR-Bibliotheken erst bei Bedarf laden – nicht im Startpaket (Release 17.1b).
+// Der Leser wird vor Kamera- bzw. Bildscan geladen; die Erkennung selbst
+// läuft danach wie bisher synchron.
+let jsQR = null;
+async function loadQrReader() {
+    jsQR ??= (await import('jsqr')).default;
+}
+const loadQrWriter = async () => (await import('qrcode')).default;
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -99,6 +106,7 @@ export async function openShareDialog(encoded, { stopCount, skipped = 0, fromPho
         // ein sauberer Kanal, hohe Fehlerkorrektur ist hier nicht nötig.
         // Intern hoch aufgelöst (CSS skaliert auf die Anzeigegröße): Screenshots
         // und Kamera bekommen scharfe Kanten statt verwaschener Module.
+        const QRCode = await loadQrWriter();
         await QRCode.toCanvas(canvas, url, { errorCorrectionLevel: 'L', width: 1024, margin: 3 });
     } catch {
         showToast(t('qr.share.tooLarge'), 'error', 6000);
@@ -146,6 +154,7 @@ async function startCamera() {
         video.srcObject = videoStream;
         await video.play();
         statusEl.textContent = t('qr.scan.aim');
+        await loadQrReader();
         scanLoop(video);
     } catch {
         statusEl.textContent = t('qr.scan.unavailable');
@@ -236,6 +245,7 @@ function scanLoop(video) {
 export async function readQrFromImage(bitmap) {
     const texts = await detectNative(bitmap);
     if (texts.length) return texts;
+    await loadQrReader();
     const canvas = document.createElement('canvas');
     for (const [crop, maxSide] of IMAGE_ATTEMPTS) {
         const text = jsqrRegion(bitmap, bitmap.width, bitmap.height, crop, maxSide, canvas);
