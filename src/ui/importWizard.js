@@ -61,6 +61,7 @@ import {
     templateNameFromFile, touchImportTemplate
 } from '../features/importTemplates.js';
 import { diffCustomerDatasets } from '../features/datasetDiff.js';
+import { excelModule } from './lazyModules.js';
 
 let dialog = null;
 let resultDialog = null;
@@ -82,7 +83,7 @@ const insideMobilePreview = new URLSearchParams(location.search).has('mobilePrev
 const mobileQuery = phoneFaceQuery();
 
 // SheetJS (xlsx) ist groß – erst laden, wenn wirklich importiert/exportiert wird
-const excel = () => import('../services/excel.js');
+const excel = excelModule;
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
