@@ -11,6 +11,9 @@
   sein könnte (z. B. „Der Konzern will TourFuchs selbst betreiben" →
   Umzug ins Konzern-GitHub, siehe `docs/nutzungsnachweis.md`).
 - Abschnitt **3 „Arbeitsweise (Definition of Done)"** – gilt für jeden PR.
+- **Release 17 „Leiser Umbau"** – Code-Modernisierung in der Evaluierungsphase:
+  Umbau-PRs ändern kein Verhalten und brauchen die doppelte Prüfung
+  (DoD Nr. 8). Fehler aus Nutzer-Feedback haben Vorrang.
 - `docs/wettbewerb.md` – Wettbewerber, ihre wahrscheinlichen Züge und unsere
   Antworten. Neu ansehen, wenn dort genannte Auslöser eintreten.
 

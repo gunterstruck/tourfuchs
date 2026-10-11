@@ -848,6 +848,101 @@ offen, lange Felder scrollen in sich.
 Keine neue externe Verbindung; der CRM-Link öffnet nur auf Klick einen Tab
 (in `datenschutz.html` offengelegt).
 
+### Release 17 – „Leiser Umbau": Code modern und effizient, ohne dass sich etwas ändert *(festgelegt 11.10.2026)*
+
+**Ausgangslage:** Der Funktionsumfang ist für eine Evaluierungsphase von zwei
+bis drei Monaten rund (PO 11.10.2026: „erstmal so bleiben, ohne neue
+Funktion"). Eine Durchsicht des Codes (11.10.2026, nur gelesen) fand keine
+Fehlkonstruktion. Der Code ist aber Feature für Feature gewachsen; dabei ist
+viel Doppeltes und etwas Totes entstanden. Grob gezählt:
+
+- rund 2.000–2.500 Zeilen App-Code und CSS (4–5 %) sind entbehrlich,
+- rund 1.500–2.500 Testzeilen ebenso,
+- das Hauptpaket der App (1,8 MB) wird beim Start unnötig groß geladen.
+
+**Ziel:** Der Code wird modern und effizient: gemeinsame Bausteine statt
+Kopien, Laden erst bei Bedarf, Farben als Design-Variablen, Tests prüfen das
+Verhalten statt Quelltext. Für die Nutzer ändert sich **nichts**.
+
+**Oberste Regel (PO 11.10.2026): Der heutige Stand muss weiter funktionieren.**
+Daraus folgt:
+
+- **Fehler aus dem Nutzer-Feedback haben immer Vorrang** vor dem Umbau.
+- Kein Umbau-PR ändert sichtbares Verhalten. Ausnahme sind die unten
+  benannten Fehlerkorrekturen, jede einzeln begründet.
+- Entfernt wird Code nur, wenn belegt ist, dass niemand ihn nutzt.
+- Im Zweifel bleibt der Code, wie er ist.
+
+#### Doppelte Prüfung – gilt für jeden Umbau-PR
+
+**Prüfung 1 – maschinell, vorher gegen nachher:**
+- Alle bestehenden Prüfungen laufen grün: `build`, `test`, `attention-check`,
+  `smoke-check` sowie `demo-check` mit allen Live-Demos.
+- **Zuerst das Verhalten festhalten:** Bevor ein Modul umgebaut wird,
+  bekommt es Verhaltenstests. Diese müssen **auf dem alten Code grün** sein,
+  sonst halten sie das heutige Verhalten nicht fest. Danach folgt der Umbau,
+  und die Tests müssen **unverändert** grün bleiben.
+- **Import-Referenz (Golden Master, 17.0a):** Feste Beispieldateien
+  durchlaufen den Import. Das Ergebnis muss vor und nach dem Umbau
+  **bytegleich** sein.
+- **Bildvergleich (17.0b):** Feste Ansichten in hell und dunkel, jeweils am
+  Desktop und am Handy, werden mit Referenzbildern verglichen. Jede
+  Abweichung blockiert den Merge. Gewollte Abweichungen (nur bei
+  Fehlerkorrekturen) bekommen neue Referenzbilder mit Begründung im PR.
+
+**Prüfung 2 – unabhängig:**
+- Eine eigenständige Zweitprüfung des Diffs (separater Review-Lauf mit dem
+  Auftrag: „Finde jede Verhaltensänderung"). Jeder Befund ist vor dem Merge
+  geklärt.
+- Bei Umbauten mit möglicher sichtbarer Wirkung (CSS, Karte, Dialoge,
+  Import) kommt eine **PO-Stichprobe in der Vercel-Vorschau** dazu. Der PR
+  enthält dafür eine Prüfliste mit 3–5 Klickschritten. Gemergt wird erst
+  nach dem OK des PO.
+
+**Zuschnitt und Ablauf:**
+- PRs sind klein: ein Thema, höchstens etwa 400 geänderte Zeilen App-Code,
+  einzeln rückgängig zu machen. Der Titel beginnt mit „Umbau:".
+- **Nach jeder Phase folgt ein Beobachtungsfenster:** mindestens drei Tage
+  normale Nutzung der Produktivversion, bevor die nächste Phase beginnt.
+- Taucht ein Fehler auf, wird zuerst der verursachende PR zurückgenommen
+  (Revert) und erst danach die Ursache gesucht.
+
+#### Phasen
+
+| # | Phase | Inhalt | Status |
+|---|---|---|---|
+| 17.0 | **Sicherheitsnetz** (kein App-Code) | a) Import-Referenz (Golden Master) für Kundenliste, Vertriebs-Arbeitsmappe (synthetisch), Serviceverträge und Servicebesuche · b) `npm run visual-check` mit Referenzbildern · c) Bundle-Bericht mit Größenbudget im CI · d) **ein zentraler Netzwerk-Wächtertest:** prüft jeden `fetch`/`XMLHttpRequest`/`sendBeacon`/`WebSocket`/`window.open` in `src/` gegen die in `datenschutz.html` offengelegten Ziele. Er übersetzt den Grundsatz aus AGENTS.md direkt in einen Test; die verstreuten Einzelprüfungen bleiben, bis er steht. | offen |
+| 17.1 | **Fehler und Ladezeit** | a) Fehler aus der Durchsicht: `sidebar.js` liest den Browser-Speicher ungeschützt (bricht bei gesperrtem Speicher ab); der Kalender-Export gibt die Datei sofort nach dem Klick frei (leere Datei in manchen Browsern); die Lichterkarte meldet nach der Verortung nicht „Karte fertig" (Lasso zählt nicht neu); 6 Elemente ohne Dunkel-Design · b) Laden bei Bedarf: Die Excel-Bibliothek ist trotz Nachladens im Hauptpaket, weil `cockpit.js` und `contractRadar.js` sie fest importieren; dazu kommen QR-Bibliotheken, Live-Demo-Code und die Sprachen EN/FR/ES (Deutsch bleibt fest eingebaut). **Ziel:** Hauptpaket von 1,8 MB auf etwa 1,1 MB, danach als Budget festschreiben. | offen |
+| 17.2 | **Doppeltes zusammenlegen, Totes entfernen** | Gemeinsame Bausteine `core/html.js` (`escapeHtml`, heute 30 Kopien), `core/dates.js`, `core/geo.js` (Entfernung, heute 5 Kopien), `core/prefs.js` (Browser-Speicher, 11 Kopien), Datei-Download; Dialoge zentral schließen; nachweislich ungenutzte Funktionen, Ereignisse, CSS-Klassen, Übersetzungsschlüssel, Demo-Helfer und IDs entfernen; Generator des Dunkel-Designs korrigieren (rund 250 wirkungslose Zeilen) und mit einem Test absichern, der Abweichungen zwischen erzeugter und eingecheckter Datei findet. Etwa −900 Zeilen. | offen |
+| 17.3 | **Tests auf Verhalten umstellen** | Heute lesen rund 35 % der Testprüfungen den Quelltext als Text. Sie brechen bei jeder Umbenennung, auch wenn das Verhalten gleich bleibt. **Pfadfinder-Regel:** Wer ein Modul umbaut, stellt dessen Quelltext-Tests im selben PR auf Verhaltenstests um. Dazu kommt ein gezielter Durchgang durch die 28 Testdateien, die zu über 80 % aus Quelltext-Prüfungen bestehen. **Ziel:** unter 10 % Quelltext-Prüfungen; übrig bleiben nur Wächter wie Datenschutz und Doku-Abgleich. | offen |
+| 17.4 | **Großposten** | a) **Gemeinsamer Import-Baustein:** Spalten, Typen und Prüfungen werden je Liste nur noch beschrieben. Serviceverträge und Servicebesuche teilen sich Parser, State-Funktionen, Zuordnungsdialog und Dialog-Markup (etwa −500 Zeilen). Fehlercodes und Meldungen bleiben bytegleich, abgesichert durch die Import-Referenz. · b) **CSS mit Farbvariablen:** 8–10 neue Design-Variablen, eine gemeinsame Badge-Klasse und ein gemeinsamer Umschalter. Das Dunkel-Design schrumpft von 918 auf etwa 200 Zeilen, abgesichert durch den Bildvergleich. · c) **Kleine UI-Helfer:** Knöpfe eines Bereichs auf einmal verdrahten (nie ein globaler Handler – siehe die Lasso-Erfahrung), Text und Sichtbarkeit setzen, „eins aus N", ein PIN-Formular statt drei, ein QR-Scanner statt zwei. | offen |
+| 17.5 | **Karte** | `map.js` (3.075 Zeilen) wird in Module aufgeteilt: Kern, Kachel-Rahmen, Kundenkachel (dann ohne Leaflet testbar), Kundenpunkte und Lichter, Flächen, Beschriftungen, Tour. Die beiden Aktualisierungswege (Stapel und Lichter) werden zu einem zusammengelegt. | offen |
+
+#### Festgelegt (PO-Entscheidungen 11.10.2026)
+
+- **Kein Framework, kein TypeScript, keine neue Laufzeit-Abhängigkeit.** Der
+  Umbau nutzt kleine eigene Helfer. „Modern" heißt hier: zeitgemäßes
+  Vanilla-JS mit ES-Modulen und dynamischem `import()`, CSS-Variablen und
+  Verhaltenstests – nicht neue Werkzeuge.
+- **Stapel erst ab 6 Kunden bleibt.** Es ist eine bewusste Produktentscheidung
+  und Teil des Kartenbilds. Der Eingriff in markercluster stützt sich auf
+  interne Funktionen der Bibliothek. Er wird in 17.5 in ein eigenes Modul
+  gekapselt; die Version von markercluster wird **exakt** festgeschrieben, und
+  ein Test schlägt an, wenn sie sich ändert. **Supercluster: nicht jetzt.**
+  Auslöser für eine Neubewertung: Ein Update von markercluster wird nötig,
+  oder einzelne Punkte neben Stapeln tauchen wieder auf.
+- **Zahlen lesen:** Heute gibt es zwei Regeln. „1,234" ergibt beim normalen
+  Import 1,234, in der Vertriebs-Arbeitsmappe 1234. Beim Zusammenführen
+  (17.4a) bleibt das Verhalten **je Herkunft unverändert** (Modus-Schalter).
+  Vereinheitlicht wird erst, wenn eine echte Datei zeigt, welche Schreibweise
+  vorkommt.
+- **Reihenfolge:** 17.0 → 17.1 → 17.2 → 17.3 → 17.4 → 17.5. 17.3 läuft nach
+  der Pfadfinder-Regel ab 17.2 mit. Jede Phase endet mit dem
+  Beobachtungsfenster.
+- **Abbruchkriterium:** Kostet eine Phase mehr Stabilität, als sie bringt,
+  etwa durch zwei Reverts in einer Phase, wird der Umbau angehalten und neu
+  bewertet. Ein funktionierender Stand ist mehr wert als schönerer Code.
+
 ### Einstieg mit eigenen Daten: Kundenliste von der Firmen-KI ✅ (03.10.2026)
 
 Die größte Hürde vor echter Nutzung ist nicht eine fehlende Funktion, sondern
@@ -898,8 +993,8 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
   eigene CRM besser als jeder generische Leitfaden.
 - Eigener OSRM-/Nominatim-Endpoint bzw. konfigurierbarer Routing-Server (F2) – erst
   relevant, wenn > ~5 regelmäßige Nutzer; bis dahin: Fallback + Opt-in reichen.
-- Refactoring `map.js`/`sidebar.js`/`tourPanel.js` in Untermodule (F7) – opportunistisch
-  im Zuge von Release 2/3, kein eigenes Projekt.
+- Refactoring `map.js`/`sidebar.js`/`tourPanel.js` in Untermodule (F7) – seit
+  11.10.2026 Teil von **Release 17 „Leiser Umbau"** (17.4c/17.5), mit doppelter Prüfung.
 - **Zeitraffer „Geschäftsjahr bei Nacht"** *(Idee, 03.10.2026 – geparkt)*: Die
   Lichterkarte als Film über ein Geschäftsjahr. Jeder **Auftragseingang** blitzt
   an seinem Ort hell auf und verglimmt dann langsam; die Farbe zeigt die
@@ -947,6 +1042,11 @@ Ab Release 1 gilt für jeden PR:
    einer externen Bewertung folgerichtig als fehlend gelesen. Ein Statusfeld,
    das dem Code hinterherhinkt, ist schlimmer als keines – es lenkt
    Priorisierung.
+8. **Umbau-PRs** (Titel „Umbau: …", Release 17) ändern kein sichtbares
+   Verhalten und durchlaufen die **doppelte Prüfung**: maschinell vorher gegen
+   nachher (Verhaltenstests grün auf altem und neuem Code, Import-Referenz,
+   Bildvergleich) und unabhängig (Zweitprüfung des Diffs, bei sichtbarer
+   Wirkung PO-Stichprobe in der Vorschau). Details siehe Release 17.
 
 ---
 
