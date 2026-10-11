@@ -1,0 +1,319 @@
+{
+  "schemaVersion": 3,
+  "customers": [
+    {
+      "id": "k-nr:10001",
+      "nummer": "10001",
+      "name": "Altbestand Nord GmbH",
+      "strasse": "Domkloster 4",
+      "plz": "50667",
+      "ort": "Köln",
+      "vb": "Vera Beispiel",
+      "channel": "Direkt",
+      "gruppe": "West",
+      "bezirk": "Rhein",
+      "kundentyp": "",
+      "ansprechpartner": "Anna Alt",
+      "telefon": "0221 123456",
+      "email": "anna@example.test",
+      "umsatz": 125000,
+      "rhythmusWochen": 4,
+      "besuche": [
+        "2026-09-01"
+      ],
+      "lat": 50.9413,
+      "lng": 6.9583,
+      "geo": "exakt",
+      "extra": {
+        "VK": "Vera 0171 1",
+        "SieSales Link": "https://crm.example.test/a/1",
+        "Übergabe notwendig": "ja",
+        "VB (Alt)": "Bernd Muster"
+      },
+      "_sheetRow": 2,
+      "_raw": {
+        "Kundennummer": "10001",
+        "Kundenname": "Altbestand Nord GmbH",
+        "Straße & Hausnummer": "Domkloster 4",
+        "PLZ": "50667",
+        "Ort": "Köln",
+        "Vertriebsbeauftragter": "Vera Beispiel",
+        "Vertriebschannel": "Direkt",
+        "Vertriebsgruppe": "West",
+        "Vertriebsbezirk": "Rhein",
+        "Hauptansprechpartner": "Anna Alt",
+        "Telefon": "0221 123456",
+        "E-Mail": "anna@example.test",
+        "Umsatz (optional)": "125.000",
+        "Besuchsrhythmus (Wochen)": "4",
+        "Letzter Besuch (Datum)": "01.09.2026",
+        "Breitengrad (optional)": "50.9413",
+        "Längengrad (optional)": "6.9583",
+        "VK": "Vera 0171 1"
+      },
+      "contacts": [
+        {
+          "id": "p1",
+          "name": "Paul Prom",
+          "art": "promotor",
+          "thema": "Akku",
+          "primary": false
+        },
+        {
+          "id": "ss-1",
+          "name": "Dirk Dunkel",
+          "quelle": "arbeitsmappe",
+          "abteilung": "Einkauf",
+          "nichtAnrufen": true,
+          "sperreEmail": true,
+          "doi": false,
+          "primary": false
+        },
+        {
+          "id": "ss-2",
+          "name": "Erika Einkauf",
+          "quelle": "arbeitsmappe",
+          "telefon": "+49 221 555",
+          "email": "erika@example.test",
+          "doi": true,
+          "primary": true
+        }
+      ],
+      "primaryContactId": "ct-10001-1ateckg",
+      "umsatzJahre": {
+        "2024": 100000,
+        "2025": 118000,
+        "2026": 125000
+      },
+      "opps": [
+        {
+          "id": "OP-1",
+          "name": "Retrofit Linie 2",
+          "phase": "3",
+          "status": "offen",
+          "amount": 120000,
+          "close": "2027-03-31",
+          "owner": "Vera Beispiel"
+        }
+      ],
+      "produkte": [
+        {
+          "pck": "0815",
+          "beschreibung": "Antriebe",
+          "jahre": {
+            "2024": 100,
+            "2025": 50
+          },
+          "summe": 150
+        }
+      ]
+    },
+    {
+      "id": "k-nr:10002",
+      "nummer": "10002",
+      "name": "Müller & Söhne KG",
+      "strasse": "Königsallee 1",
+      "plz": "40212",
+      "ort": "Düsseldorf",
+      "vb": "Vera Beispiel",
+      "channel": "Direkt",
+      "gruppe": "West",
+      "bezirk": "Rhein",
+      "kundentyp": "",
+      "ansprechpartner": "",
+      "telefon": "",
+      "email": "",
+      "umsatz": 48500.5,
+      "rhythmusWochen": null,
+      "besuche": [],
+      "lat": 51.2254,
+      "lng": 6.7763,
+      "geo": "exakt",
+      "extra": {
+        "VK": "Vera 0171 1"
+      },
+      "_sheetRow": 3,
+      "_raw": {
+        "Kundennummer": "10002",
+        "Kundenname": "Müller & Söhne KG",
+        "Straße & Hausnummer": "Königsallee 1",
+        "PLZ": "40212",
+        "Ort": "Düsseldorf",
+        "Vertriebsbeauftragter": "Vera Beispiel",
+        "Vertriebschannel": "Direkt",
+        "Vertriebsgruppe": "West",
+        "Vertriebsbezirk": "Rhein",
+        "Hauptansprechpartner": "",
+        "Telefon": "",
+        "E-Mail": "",
+        "Umsatz (optional)": "48.500,50",
+        "Besuchsrhythmus (Wochen)": "",
+        "Letzter Besuch (Datum)": "",
+        "Breitengrad (optional)": "51.2254",
+        "Längengrad (optional)": "6.7763",
+        "VK": "Vera 0171 1"
+      }
+    },
+    {
+      "id": "k-nr:0815",
+      "nummer": "0815",
+      "name": "Ölmühle „Süd\" e.K.",
+      "strasse": "Marienplatz 8",
+      "plz": "80331",
+      "ort": "München",
+      "vb": "Bernd Muster",
+      "channel": "Handel",
+      "gruppe": "Süd",
+      "bezirk": "Isar",
+      "kundentyp": "",
+      "ansprechpartner": "Ömer Öz",
+      "telefon": "+49 89 987654",
+      "email": "",
+      "umsatz": 0,
+      "rhythmusWochen": 12,
+      "besuche": [
+        "2026-07-15"
+      ],
+      "lat": 48.1374,
+      "lng": 11.5755,
+      "geo": "exakt",
+      "extra": {
+        "VK": "Vera 0171 1"
+      },
+      "_sheetRow": 4,
+      "_raw": {
+        "Kundennummer": "0815",
+        "Kundenname": "Ölmühle „Süd\" e.K.",
+        "Straße & Hausnummer": "Marienplatz 8",
+        "PLZ": "80331",
+        "Ort": "München",
+        "Vertriebsbeauftragter": "Bernd Muster",
+        "Vertriebschannel": "Handel",
+        "Vertriebsgruppe": "Süd",
+        "Vertriebsbezirk": "Isar",
+        "Hauptansprechpartner": "Ömer Öz",
+        "Telefon": "+49 89 987654",
+        "E-Mail": "",
+        "Umsatz (optional)": "0",
+        "Besuchsrhythmus (Wochen)": "12",
+        "Letzter Besuch (Datum)": "15.07.2026",
+        "Breitengrad (optional)": "48.1374",
+        "Längengrad (optional)": "11.5755",
+        "VK": "Vera 0171 1"
+      },
+      "contacts": [
+        {
+          "id": "ct-0815-15bzoul",
+          "nummer": "0815",
+          "name": "Ömer Öz",
+          "telefon": "+49 89 987654",
+          "email": "",
+          "primary": true,
+          "_sheetRow": 4
+        }
+      ],
+      "primaryContactId": "ct-0815-15bzoul"
+    }
+  ],
+  "fileName": "Kundenliste-2026-10-11-v3-heute.xlsx",
+  "importedAt": "2026-09-01T08:00:00.000Z",
+  "territories": {
+    "bezirk:Rhein": {
+      "vb": "Vera Beispiel",
+      "name": "Rhein"
+    }
+  },
+  "places": [
+    {
+      "id": "place-1",
+      "name": "Büro Köln",
+      "lat": 50.94,
+      "lng": 6.95,
+      "kind": "office"
+    }
+  ],
+  "serviceContracts": [
+    {
+      "id": "sc:SAP:V-1001",
+      "sourceSystem": "SAP",
+      "sourceKey": "SAP",
+      "contractId": "V-1001",
+      "contractKey": "V-1001",
+      "customerNumber": "10001",
+      "sourceCustomerId": "S-10001",
+      "title": "Wartung Halle 3",
+      "type": "Wartungsvertrag",
+      "status": "AKTIV",
+      "startDate": "2026-01-01",
+      "endDate": "2026-12-31",
+      "unlimited": false,
+      "cancellationDeadline": "2026-09-30",
+      "actionBy": "2026-09-01",
+      "autoRenewal": true,
+      "renewalMonths": 12,
+      "noticeDays": 90,
+      "annualValue": 12000,
+      "currency": "EUR",
+      "owner": "Max Muster",
+      "managerId": "",
+      "manager": "Carla Beispiel",
+      "managerEmail": "carla@example.test",
+      "dataAsOf": "2026-07-01",
+      "scope": "Inspektion",
+      "sla": "Gold",
+      "slaResponseHours": null,
+      "slaResolutionHours": null,
+      "slaTimeBasis": "",
+      "maintenanceIntervalMonths": 6,
+      "criticality": "hoch",
+      "siteId": "",
+      "assetIds": [],
+      "sourceUrl": "",
+      "note": ""
+    }
+  ],
+  "serviceContractSources": {
+    "SAP": {
+      "fileName": "Vertraege-2026-10-11-v3-heute.xlsx",
+      "importedAt": "2026-09-01T08:00:00.000Z",
+      "dataAsOf": "2026-07-01"
+    }
+  },
+  "serviceVisits": [
+    {
+      "id": "sv:SAP:WO-1:10",
+      "sourceSystem": "SAP",
+      "sourceKey": "SAP",
+      "workOrderId": "WO-1",
+      "operationId": "10",
+      "customerNumber": "10001",
+      "contractSourceSystem": "SAP",
+      "contractId": "V-1001",
+      "reason": "Inspektion",
+      "dueDate": "2026-10-15",
+      "slaDueAt": "2026-10-20",
+      "timeWindowStart": "08:00",
+      "timeWindowEnd": "12:00",
+      "durationMin": 90,
+      "priority": "HOCH",
+      "requiredSkills": [
+        "Elektro"
+      ],
+      "assignedTo": "Team Nord",
+      "status": "OFFEN",
+      "dataAsOf": "2026-10-01",
+      "siteId": "W1",
+      "assetId": "A-7",
+      "sourceUrl": "https://sap.example.test/wo/1",
+      "note": "Zugang über Tor 2",
+      "importedFrom": "Einsaetze-2026-10-11-v3-heute.xlsx"
+    }
+  ],
+  "serviceVisitSources": {
+    "SAP": {
+      "fileName": "Einsaetze-2026-10-11-v3-heute.xlsx",
+      "importedAt": "2026-10-01T08:00:00.000Z",
+      "dataAsOf": "2026-10-01"
+    }
+  }
+}
