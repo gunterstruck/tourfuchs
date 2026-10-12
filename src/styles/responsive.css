@@ -508,7 +508,9 @@
            „hängen" jetzt oben, das Blatt ist reine Inhaltsfläche auf Abruf.
            Das Blatt selbst wird über --safe-bottom komplett angehoben (siehe
            `.sidebar { bottom }`), daher bleibt der Peek der reine Inhaltswert. */
-        --mobile-sheet-peek: 46px;
+        /* 32 px höher: Der Zug beginnt oberhalb der Home-/App-Wechsel-Geste,
+           auch wenn der Browser keinen safe-area-inset-bottom meldet. */
+        --mobile-sheet-peek: 78px;
         --mobile-sheet-half: min(68dvh, 620px);
     }
 
@@ -519,12 +521,12 @@
        erscheint. Alle Peek-abhängigen Overlays steigen automatisch mit. */
     body.demo-data-active {
         /* Hinweis einzeilig (ohne „das sind Demo-Kunden") + zwei Knöpfe. */
-        --mobile-sheet-peek: 108px;
+        --mobile-sheet-peek: 120px;
     }
     /* Willkommens-Karte offen: Der Streifen zeigt nur den Hinweis (seine Knöpfe
        stehen in der Karte) – das Blatt rückt tiefer und gibt ihr Platz. */
     body.demo-data-active.demo-welcome-open {
-        --mobile-sheet-peek: 68px;
+        --mobile-sheet-peek: 80px;
     }
 
     /* Hier stand der Kopf-Streifen mit der Basis/Profi-Pille. Sie ist seit dem
@@ -601,8 +603,8 @@
 
     /* Auf dem Handy etwas breitere Grifffläche für den Finger. */
     .sheet-grip {
-        min-height: 32px;
-        padding: 10px 0 6px;
+        min-height: 44px;
+        padding: 10px 0;
     }
     /* Grüner, gut sichtbarer Griff: lädt zum kontinuierlichen Aufziehen ein. */
     .sheet-grip span {

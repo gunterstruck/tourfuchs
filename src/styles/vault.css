@@ -170,6 +170,7 @@
     background: #0f172a;
 }
 .safe-file-pick {
+    position: relative;
     display: inline-block;
     padding: 12px 16px;
     border: 2px dashed var(--color-primary, #0d9488);
@@ -179,7 +180,53 @@
     cursor: pointer;
     color: var(--color-primary-dark, #0f766e);
 }
-.safe-file-pick input { display: block; margin-top: 8px; width: 100%; }
+.safe-file-pick input {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    cursor: pointer;
+}
+.safe-file-pick:focus-within { outline: 2px solid var(--color-primary); outline-offset: 3px; }
+.safe-receive-intro { margin: 0; line-height: 1.45; }
+.safe-import-step {
+    margin: 0;
+    padding: 14px;
+    min-width: 0;
+    border: 1px solid var(--color-border);
+    border-radius: 14px;
+    background: var(--color-surface-2);
+}
+.safe-import-step h3, .safe-import-step legend {
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    color: var(--color-text);
+    text-transform: none;
+    letter-spacing: normal;
+}
+.safe-import-step legend { padding: 0 6px; }
+.safe-step-number {
+    display: inline-grid;
+    place-items: center;
+    width: 26px;
+    height: 26px;
+    margin-right: 5px;
+    border-radius: 50%;
+    color: var(--color-primary-dark);
+    background: var(--color-surface);
+    border: 1px solid var(--color-primary);
+}
+.safe-import-step .safe-file-pick { display: block; width: 100%; box-sizing: border-box; }
+.safe-import-step:disabled .safe-file-pick { opacity: 0.6; cursor: default; }
+.safe-file-meta { overflow-wrap: anywhere; color: var(--color-primary-dark); margin-bottom: 0; }
+.safe-import-step details { margin-top: 12px; }
+.safe-import-step summary { min-height: 36px; cursor: pointer; color: var(--color-text); }
+.safe-qr-options { font-size: 0.85rem; }
+.safe-qr-options button { margin-bottom: 8px; }
+#safe-key-submit { width: 100%; margin-top: 12px; }
+#safe-key-file-status[data-kind="success"] { color: var(--color-primary-dark); }
 /* Rückmeldung zur gewählten Datei – im Dialog, nicht dahinter. */
 .safe-file-status { margin: 10px 0 0; line-height: 1.4; }
 .safe-file-status[data-kind="error"] {

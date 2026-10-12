@@ -118,9 +118,9 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
     });
 
     it.each([
-        ['00004711', 'Musterkunde GmbH', '[4711] Musterkunde GmbH'],
-        ['0000', 'Null GmbH', '[0] Null GmbH'],
-        [' 000AB12 ', '  A & B\nGmbH  ', '[AB12] A & B GmbH'],
+        ['00004711', 'Musterkunde GmbH', 'Musterkunde GmbH [4711]'],
+        ['0000', 'Null GmbH', 'Null GmbH [0]'],
+        [' 000AB12 ', '  A & B\nGmbH  ', 'A & B GmbH [AB12]'],
         ['4711', '', '[4711]'],
         ['', 'Musterkunde', '']
     ])('kopiert Nummer und Namen als eine Zeile (%j, %j)', (number, name, expected) => {
@@ -133,8 +133,8 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         const html = customerPopupHtml(customer(45000, { nummer: '00004711' }));
 
         expect(html).toContain('data-action="copy-customer-number"');
-        expect(html).toContain('title="Kundennummer und Name als [4711] Musterkunde GmbH in die Zwischenablage kopieren"');
-        expect(html).toContain('aria-label="Kundennummer und Name als [4711] Musterkunde GmbH in die Zwischenablage kopieren"');
+        expect(html).toContain('title="Kundennummer und Name als Musterkunde GmbH [4711] in die Zwischenablage kopieren"');
+        expect(html).toContain('aria-label="Kundennummer und Name als Musterkunde GmbH [4711] in die Zwischenablage kopieren"');
         expect(html).toContain('<span aria-hidden="true">⧉</span>');
         expect(html).toContain('Nr. 00004711');
     });
@@ -144,10 +144,10 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         vi.stubGlobal('navigator', { clipboard: { writeText } });
 
         await expect(copyCustomerNumber('00004711', 'Musterkunde GmbH')).resolves.toEqual({
-            value: '[4711] Musterkunde GmbH',
+            value: 'Musterkunde GmbH [4711]',
             copied: true
         });
-        expect(writeText).toHaveBeenCalledWith('[4711] Musterkunde GmbH');
+        expect(writeText).toHaveBeenCalledWith('Musterkunde GmbH [4711]');
     });
 });
 
