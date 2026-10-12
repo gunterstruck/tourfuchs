@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { automaticLevelActive, automaticLevelForZoom } from '../src/features/mapLevel.js';
+import { automaticLevelActive, automaticLevelForZoom, effectiveMapLevel } from '../src/features/mapLevel.js';
+
+describe('Mobile Gebietsflächen behalten dreistellige PLZ', () => {
+    const view = { levelMode: 'auto', fixedLevel: 'kreise', currentLevel: 'plz3', mobileTour: true };
+    it.each([5, 6, 7, 9, 19])('bleibt beim Zoom %s auf PLZ 3', (zoom) => {
+        expect(effectiveMapLevel({ ...view, zoom })).toBe('plz3');
+    });
+    it('behält die Desktop-Ebenenwahl und ausgeschaltete Flächen bei', () => {
+        expect(effectiveMapLevel({ ...view, zoom: 5, mobileTour: false })).toBe('plz1');
+        expect(effectiveMapLevel({ ...view, zoom: 5, levelMode: 'fixed' })).toBe('plz3');
+        expect(effectiveMapLevel({ ...view, zoom: 5, levelMode: 'fixed', mobileTour: false })).toBe('kreise');
+        expect(effectiveMapLevel({ ...view, zoom: 5, levelMode: 'fixed', fixedLevel: 'none' })).toBe('none');
+    });
+});
 
 describe('Automatische Gebietsebene', () => {
     it('folgt den stabilen Zoomstufen und lädt PLZ 5 nie automatisch', () => {

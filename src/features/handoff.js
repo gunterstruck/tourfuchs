@@ -33,7 +33,7 @@ export async function copyText(text) {
 
 /**
  * Kundennummer für die Übergabe an andere Anwendungen: führende Nullen weg,
- * anschließend in eckige Klammern, dahinter der Kundenname als eine Zeile.
+ * anschließend in eckige Klammern, davor der Kundenname als eine Zeile.
  * Eine reine Null bleibt als `[0]` erhalten.
  */
 export function customerNumberClipboardText(number, name = '') {
@@ -41,7 +41,7 @@ export function customerNumberClipboardText(number, name = '') {
     if (!raw) return '';
     const withoutLeadingZeros = raw.replace(/^0+/, '').trim() || '0';
     const customerName = String(name ?? '').replace(/\s+/g, ' ').trim();
-    return `[${withoutLeadingZeros}]${customerName ? ` ${customerName}` : ''}`;
+    return `${customerName ? `${customerName} ` : ''}[${withoutLeadingZeros}]`;
 }
 
 /** Kundennummer und Namen im Übergabeformat kopieren; Ergebnis samt Wert liefern. */

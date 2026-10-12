@@ -18,6 +18,7 @@ import { spawn } from 'node:child_process';
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { createServer } from 'node:net';
 import { fileURLToPath } from 'node:url';
+import { normalizeImportSnapshot as normalize } from './importReference.mjs';
 
 const TIMEOUT = 30_000;
 const UPDATE = process.argv.includes('--update');
@@ -63,17 +64,6 @@ function storedDataset(page) {
         };
         req.onerror = () => resolve(null);
     }));
-}
-
-/** Nur Zeitpunkte des Laufs ersetzen; alles andere bleibt, wie es ist. */
-function normalize(value, today) {
-    if (Array.isArray(value)) return value.map((v) => normalize(v, today));
-    if (value && typeof value === 'object') {
-        return Object.fromEntries(Object.entries(value).map(([key, v]) => [key, normalize(v, today)]));
-    }
-    if (typeof value === 'string' && value.startsWith(today) && /^\d{4}-\d{2}-\d{2}T/.test(value)) return '<Importzeit>';
-    if (value === today) return '<heute>';
-    return value;
 }
 
 /** Erste Unterschiede als lesbare Pfade. */

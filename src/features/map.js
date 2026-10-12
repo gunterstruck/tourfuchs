@@ -8,7 +8,7 @@ import L from 'leaflet';
 import 'leaflet.markercluster';
 
 import { CONFIG } from '../core/config.js';
-import { isPhoneUi } from '../core/viewport.js';
+import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 import { customerResponsibilities, splitContactText } from './responsibilities.js';
 import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
 import { crmLink, crossSellFor, customerOpps, customerProducts, handover, productMix, safeLink } from './salesWorkbook.js';
@@ -30,7 +30,7 @@ import { suggestNearby, suggestAlongRoute } from './tour.js';
 import { popupSafeRect, popupPanOffset, popupContentHeightLimit } from './popupViewport.js';
 import { visitStatus, isOpportunity, lastVisit, agoText, formatDate, formatDateDe, markVisitedToday, STATUS_COLORS } from './visits.js';
 import { planningNow } from './dayPlanner.js';
-import { automaticLevelActive, automaticLevelForZoom } from './mapLevel.js';
+import { automaticLevelActive, effectiveMapLevel } from './mapLevel.js';
 import { isPlanningRelevantServiceContract, normalizeCustomerNumber } from './serviceContracts.js';
 import { serviceVisitsForCustomer, isOpenServiceVisit, serviceVisitWindow } from './serviceVisits.js';
 import { modeTourCustomers, modeVisibleCustomers } from './customerScope.js';
@@ -746,7 +746,8 @@ export function initMap(containerId) {
         map.closePopup();
         map.fitBounds([[south, west], [north, east]], { padding: [48, 48], maxZoom: 10 });
     });
-    on('mode:changed', refreshAll);
+    on('mode:changed', () => { syncEffectiveLevel(); refreshAll(); });
+    onFaceChange(() => { syncEffectiveLevel(); applyView({ zoomOnly: true }); });
     on('tab:changed', refreshAll);
     on('service-customer-scope:changed', refreshAll);
     on('service-contracts:changed', refreshAll);
@@ -1115,9 +1116,11 @@ function usesAutomaticLevel() {
 /** Wirksame Ebene aus Basis/Profi-Modus, Viewport und Zoom ableiten. */
 function syncEffectiveLevel() {
     if (!map || simulationPreview) return false;
-    const target = usesAutomaticLevel()
-        ? automaticLevelForZoom(map.getZoom(), state.level)
-        : state.fixedLevel;
+    const target = effectiveMapLevel({
+        zoom: map.getZoom(), currentLevel: state.level,
+        levelMode: state.levelMode, fixedLevel: state.fixedLevel,
+        mobileTour: isMobileMap() && state.ui.mode === 'aussendienst'
+    });
     if (target === state.level && (target === 'none' || currentLevelData || loadingLevel === target)) {
         emit('level:resolved', { level: state.level, automatic: usesAutomaticLevel() });
         return false;
@@ -1426,7 +1429,13 @@ function lightsRegionStyle(style) {
 }
 
 function styleFor(feature) {
-    return lightsRegionStyle(baseStyleFor(feature));
+    let style = baseStyleFor(feature);
+    // Feine PLZ-3-Flächen bleiben auch in der Übersicht erhalten. Ihre vielen
+    // Grenzen dürfen dabei nicht die Gebietsfarben und Kunden überdecken.
+    if (currentView.mobileOverlay && map?.getZoom() < CONFIG.map.lodCustomerZoom) {
+        style = { ...style, weight: Math.min(style.weight ?? 1, 0.5), opacity: Math.min(style.opacity ?? 1, 0.28) };
+    }
+    return lightsRegionStyle(style);
 }
 
 function baseStyleFor(feature) {

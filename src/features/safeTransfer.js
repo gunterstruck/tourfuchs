@@ -6,8 +6,8 @@
  *   • Die Container-Datei (.tfsafe) ist mit einem zufälligen 256-Bit-Schlüssel
  *     AES-256-GCM-verschlüsselt und darf beliebig transportiert werden
  *     (Mail, Cloud, USB) – ohne Schlüssel ist sie wertlos.
- *   • Der Schlüssel wandert ausschließlich per Bildschirm → Kamera (QR),
- *     niemals übers Netz und bewusst nicht als anklickbarer Link.
+ *   • Der Schlüssel wird getrennt weitergegeben: als QR oder Textdatei.
+ *     TourFuchs selbst überträgt weder Datei noch Schlüssel übers Netz.
  * Ein Angreifer braucht BEIDES; ein Kanal allein gibt nichts preis.
  *
  * Dieses Modul ist reine, DOM-freie Logik (in Node testbar). Es nutzt
@@ -159,6 +159,16 @@ export function parseKeyQr(text) {
     const keyB64 = rest.slice(idx + 1);
     if (!id || !keyB64) return null;
     return { id, keyB64 };
+}
+
+/** Kleine Schlüsseldateien: UTF-8/UTF-16, auch mit einer erklärenden Kopfzeile.
+ * Mehrere Schlüssel sind mehrdeutig und werden nicht still ausgewählt. */
+export function readSafeKeyFile(input) {
+    const bytes = input instanceof Uint8Array ? input : new Uint8Array(input || new ArrayBuffer(0));
+    if (!bytes.length || bytes.length > 16 * 1024) return null;
+    const matches = decodeText(bytes).match(/TFK1:[A-Za-z0-9_-]+:[A-Za-z0-9+/]{43}=/g) || [];
+    const keys = [...new Set(matches)];
+    return keys.length === 1 ? keys[0] : null;
 }
 
 /** Gehört der Schlüssel zu genau diesem Container? (ID-Abgleich) */
