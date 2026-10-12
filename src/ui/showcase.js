@@ -1413,18 +1413,16 @@ const HELPERS = {
         files.items.add(new File([JSON.stringify(receiveDemoBundle.container)], 'TourFuchs-Demo-Kollegen.tfsafe', { type: 'application/json' }));
         input.files = files.files;
         input.dispatchEvent(new Event('change', { bubbles: true }));
-        if (!await resolveEl('#safe-step-key:not([hidden])', 4000)) throw new Error('Verschlüsselte Demo-Datei konnte nicht gelesen werden.');
+        if (!await resolveEl('#safe-step-key:not([disabled])', 4000)) throw new Error('Verschlüsselte Demo-Datei konnte nicht gelesen werden.');
         await sleep(800);
     },
     async typeReceiveKeyDemo() {
-        // Den Eintipp-Fallback öffnen und den passenden Schlüssel zur zuvor
-        // gewählten, tatsächlich verschlüsselten Demo-Datei einfügen.
-        const details = document.querySelector('#safe-step-key details.safe-fallback');
-        if (details && !details.open) {
-            await clickEl('#safe-step-key details.safe-fallback summary');
-            await sleep(500);
-        }
-        await fillNoFocus('#safe-key-input', receiveDemoBundle.keyQr);
+        const input = document.getElementById('safe-key-file-input');
+        const files = new DataTransfer();
+        files.items.add(new File([receiveDemoBundle.keyQr], 'TourFuchs-Demo-Schluessel.txt', { type: 'text/plain' }));
+        input.files = files.files;
+        input.dispatchEvent(new Event('change', { bubbles: true }));
+        if (!await resolveEl('#safe-key-file-status[data-kind="success"]:not([hidden])', 4000)) throw new Error('Demo-Schlüsseldatei konnte nicht gelesen werden.');
         await sleep(700);
     },
     async decryptReceiveDemo() {

@@ -2,7 +2,7 @@
  * Sicherer Umzug – UI (Etappe 2 „Tresor").
  * Desktop: Kundendaten verschlüsselt als Datei exportieren und den Schlüssel
  *          als QR-Code am Bildschirm zeigen (getrennte Kanäle).
- * Handy:   Datei wählen, Schlüssel per Kamera scannen (oder eintippen),
+ * Handy:   Datei wählen, Schlüsseldatei laden (oder QR scannen/Text einfügen),
  *          entschlüsseln und lokal speichern. Der Datentresor bleibt optional.
  * Es findet keinerlei Netzwerkübertragung der Daten statt.
  */
@@ -16,7 +16,7 @@ import { isEnabled } from '../services/vault.js';
 import { geocodeByPlz } from '../services/geocode.js';
 import { fitToCustomers } from '../features/map.js';
 import {
-    createSafeTransfer, readSafeFile, parseKeyQr,
+    createSafeTransfer, readSafeFile, readSafeKeyFile, parseKeyQr,
     keyMatchesContainer, decryptSafeTransfer, SAFE_FILE_EXT
 } from '../features/safeTransfer.js';
 import { showToast } from './toast.js';
@@ -35,7 +35,7 @@ async function loadQrReader() {
     try { jsQR ??= (await loadQrReaderModule()).default; } catch { /* Meldung beim Aufrufer */ }
     return Boolean(jsQR);
 }
-const QR_READER_MISSING = 'QR-Leser konnte nicht geladen werden – Schlüssel bitte unten eintippen.';
+const QR_READER_MISSING = 'QR-Leser konnte nicht geladen werden – Schlüsseldatei laden oder Schlüsseltext einfügen.';
 const loadQrWriter = async () => (await loadQrWriterModule()).default;
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
@@ -49,17 +49,20 @@ let scanLoopId = 0;
 let lastExport = null;     // { container, keyQr, count } zum erneuten Download
 let pendingContainer = null; // im Empfang gewählte, noch nicht entschlüsselte Datei
 let receiveDemo = null; // isolierte Vorführung, niemals im eigenen Datenbestand speichern
+let receiveSequence = 0; // verworfene Datei-Lesevorgänge dürfen keinen späteren Dialog befüllen
+let keyFileSequence = 0;
+let decrypting = false;
 
 export function initSafeTransfer() {
     exportDialog = document.getElementById('safe-export-dialog');
     receiveDialog = document.getElementById('safe-receive-dialog');
     if (!exportDialog || !receiveDialog) return;
     // Gesperrt: Export-Schlüssel und gewählte Datei nicht im Speicher halten.
-    on('vault:locked', () => { lastExport = null; pendingContainer = null; stopCamera(); });
+    on('vault:locked', () => { receiveSequence++; lastExport = null; pendingContainer = null; stopCamera(); });
 
     exportDialog.querySelector('.dialog-close').addEventListener('click', () => exportDialog.close());
     receiveDialog.querySelector('.dialog-close').addEventListener('click', () => receiveDialog.close());
-    receiveDialog.addEventListener('close', () => { stopCamera(); receiveDemo = null; pendingContainer = null; });
+    receiveDialog.addEventListener('close', () => { receiveSequence++; stopCamera(); receiveDemo = null; pendingContainer = null; clearKey(); });
 
     document.getElementById('btn-safe-export')?.addEventListener('click', openExportDialog);
     document.getElementById('btn-safe-receive')?.addEventListener('click', openReceiveDialog);
@@ -72,6 +75,10 @@ export function initSafeTransfer() {
     document.getElementById('safe-export-download')?.addEventListener('click', () => {
         if (lastExport) downloadContainer(lastExport.container);
     });
+    document.getElementById('safe-export-key-download')?.addEventListener('click', () => {
+        if (lastExport) downloadBlob(new Blob([`${lastExport.keyQr}\n`], { type: 'text/plain;charset=utf-8' }),
+            `TourFuchs-Schluessel-${lastExport.container.id}.txt`);
+    });
     const safeFileInput = document.getElementById('safe-file-input');
     safeFileInput?.addEventListener('change', onFileChosen);
     // Auswahl ohne Datei geschlossen (Chrome/Edge melden das als „cancel"):
@@ -80,6 +87,12 @@ export function initSafeTransfer() {
         'Keine Datei gewählt. Falls die Umzugsdatei in der Auswahl fehlte oder ausgegraut war: Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Datei dort speichern (z. B. über Outlook oder OneDrive der Firma) und erneut wählen.'
     ));
     document.getElementById('safe-scan-photo')?.addEventListener('change', onScanPhoto);
+    document.getElementById('safe-key-file-input')?.addEventListener('change', onKeyFileChosen);
+    document.getElementById('safe-key-input')?.addEventListener('input', () => { keyFileSequence++; setKeyStatus(''); });
+    document.getElementById('safe-camera-start')?.addEventListener('click', startCamera);
+    document.getElementById('safe-qr-options')?.addEventListener('toggle', (event) => {
+        if (!event.target.open) stopCamera();
+    });
     document.getElementById('safe-key-submit')?.addEventListener('click', onKeyEntered);
 }
 
@@ -110,13 +123,14 @@ async function openExportDialog() {
     downloadContainer(bundle.container);   // durch Button-Klick ausgelöst -> Download erlaubt
 
     const canvas = document.getElementById('safe-export-canvas');
+    canvas.hidden = false;
     try {
         // Kurzer Text, daher hohe Fehlerkorrektur (H) für robustes Scannen.
         const QRCode = await loadQrWriter();
         await QRCode.toCanvas(canvas, bundle.keyQr, { errorCorrectionLevel: 'H', width: 300, margin: 2 });
     } catch {
-        showToast('Schlüssel-QR konnte nicht erzeugt werden.', 'error');
-        return;
+        canvas.hidden = true;
+        showToast('Schlüssel-QR konnte nicht erzeugt werden. Die Schlüsseldatei kann heruntergeladen werden.', 'info');
     }
     document.getElementById('safe-export-info').textContent = t('safeExport.info', { count: transferCountText(bundle) });
     const keyText = document.getElementById('safe-export-keytext');
@@ -126,10 +140,14 @@ async function openExportDialog() {
 
 function downloadContainer(container) {
     const blob = new Blob([JSON.stringify(container)], { type: 'application/json' });
+    downloadBlob(blob, `TourFuchs-Umzug-${new Date().toISOString().slice(0, 10)}${SAFE_FILE_EXT}`);
+}
+
+function downloadBlob(blob, name) {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = `TourFuchs-Umzug-${new Date().toISOString().slice(0, 10)}${SAFE_FILE_EXT}`;
+    a.download = name;
     a.click();
     // Nicht sofort freigeben: Manche Browser lesen den Blob erst nach dem
     // Klick – sofort freigegeben, landet dort eine leere oder keine Datei.
@@ -151,22 +169,27 @@ function transferCountText(meta) {
 
 // ---- Empfang (Handy) ----
 function openReceiveDialog() {
+    receiveSequence++;
     receiveDemo = null;
     pendingContainer = null;
     showStep('file');
     document.getElementById('safe-file-meta').hidden = true;
     setFileStatus('');
-    const keyInput = document.getElementById('safe-key-input');
-    if (keyInput) keyInput.value = '';
+    clearKey();
+    receiveDialog.querySelectorAll('details').forEach((el) => { el.open = false; });
     receiveDialog.showModal();
 }
 
 function showStep(step) {
-    document.getElementById('safe-step-file').hidden = step !== 'file';
-    document.getElementById('safe-step-key').hidden = step !== 'key';
+    document.getElementById('safe-step-file').hidden = step === 'demo-result';
+    const keyStep = document.getElementById('safe-step-key');
+    keyStep.hidden = step === 'demo-result';
+    keyStep.disabled = step !== 'key';
+    document.getElementById('safe-key-hint').textContent = step === 'key'
+        ? 'Lade die getrennt erhaltene Schlüsseldatei (.txt). QR-Scan oder Einfügen gehen ebenfalls.'
+        : 'Zuerst die Datendatei in Schritt 1 auswählen.';
     document.getElementById('safe-step-demo-result').hidden = step !== 'demo-result';
-    if (step === 'key' && !receiveDemo) startCamera();
-    else stopCamera();
+    stopCamera();
 }
 
 /** Echte Datei- und Schlüsselprüfung in einer isolierten Demo ohne Kamera oder Speicherung. */
@@ -231,9 +254,15 @@ async function onFileChosen(e) {
         setFileStatus('Es ist keine Datei angekommen. War die Datei in der Auswahl ausgegraut oder nicht zu sehen? Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Umzugsdatei dort speichern (z. B. über Outlook oder OneDrive der Firma) und erneut wählen.', 'error');
         return;
     }
+    const sequence = ++receiveSequence;
+    pendingContainer = null;
+    clearKey();
+    document.getElementById('safe-file-meta').hidden = true;
+    showStep('file');
     setFileStatus(`Datei wird gelesen: „${file.name}" …`);
     let bytes;
     try { bytes = await file.arrayBuffer(); } catch (error) {
+        if (sequence !== receiveSequence || !receiveDialog.open) return;
         const text = safeFileReadErrorText(error, file);
         setFileStatus(text, 'error');
         // Gesperrte Datei: große Prüffrage über dem Dialog, Knopf öffnet die Auswahl neu.
@@ -242,7 +271,7 @@ async function onFileChosen(e) {
         }
         return;
     }
-    if (demo && (receiveDemo !== demo || !receiveDialog.open)) return;
+    if (sequence !== receiveSequence || !receiveDialog.open) return;
     const { container, problem } = readSafeFile(bytes);
     if (!container) {
         const text = safeFileProblemText(problem, file);
@@ -256,25 +285,36 @@ async function onFileChosen(e) {
     const created = container.createdAt
         ? new Date(container.createdAt).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' })
         : 'unbekannt';
-    meta.innerHTML = `🔒 Verschlüsselte Datei · <b>${transferCountText(container)}</b> · erstellt am ${escapeHtml(created)}`;
+    meta.innerHTML = `✓ ${escapeHtml(file.name)} · <b>${transferCountText(container)}</b> · erstellt am ${escapeHtml(created)}`;
     meta.hidden = false;
     showStep('key');
     if (demo) document.getElementById('safe-scan-status').textContent = 'Demo: Schlüssel einfügen – die Kamera bleibt aus.';
 }
 
 async function startCamera() {
+    if (!pendingContainer || receiveDemo || !receiveDialog.open) return;
+    stopCamera();
+    const sequence = receiveSequence;
+    const cameraSequence = scanLoopId;
     const statusEl = document.getElementById('safe-scan-status');
     const video = document.getElementById('safe-scan-video');
     if (!video) return;
     if (!(await loadQrReader())) { statusEl.textContent = QR_READER_MISSING; return; }
     try {
-        videoStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+        if (sequence !== receiveSequence || cameraSequence !== scanLoopId || !receiveDialog.open) {
+            stream.getTracks().forEach((track) => track.stop());
+            return;
+        }
+        videoStream = stream;
         video.srcObject = videoStream;
+        video.hidden = false;
         await video.play();
         statusEl.textContent = 'Kamera auf den Schlüssel-QR am Desktop richten …';
         scanLoop(video);
     } catch {
-        statusEl.textContent = 'Kamera nicht verfügbar – Schlüssel unten per Foto oder Eingabe übergeben.';
+        stopCamera();
+        statusEl.textContent = 'Kamera nicht verfügbar – Schlüsseldatei laden, Text einfügen oder QR-Foto wählen.';
     }
 }
 
@@ -285,7 +325,7 @@ function stopCamera() {
         videoStream = null;
     }
     const video = document.getElementById('safe-scan-video');
-    if (video) video.srcObject = null;
+    if (video) { video.srcObject = null; video.hidden = true; }
 }
 
 function scanLoop(video) {
@@ -327,14 +367,63 @@ async function onScanPhoto(e) {
 
 function onKeyEntered() {
     const val = document.getElementById('safe-key-input')?.value;
-    if (!val?.trim()) return;
+    if (!val?.trim()) { setKeyStatus('Bitte die Schlüsseldatei laden oder den Schlüsseltext einfügen.', 'error'); return; }
     handleKeyText(val.trim());
 }
 
+function setKeyStatus(text, kind = 'info') {
+    const el = document.getElementById('safe-key-file-status');
+    if (!el) return;
+    el.textContent = text;
+    el.hidden = !text;
+    el.dataset.kind = kind;
+}
+
+function clearKey() {
+    keyFileSequence++;
+    const input = document.getElementById('safe-key-input');
+    if (input) input.value = '';
+    setKeyStatus('');
+}
+
+async function onKeyFileChosen(event) {
+    const file = event.target.files?.[0];
+    event.target.value = '';
+    if (!file || !pendingContainer) return;
+    const container = pendingContainer;
+    const sequence = receiveSequence;
+    clearKey();
+    const keySequence = keyFileSequence;
+    if (file.size > 16 * 1024) {
+        setKeyStatus('Diese Datei ist zu groß für einen Schlüssel. Bitte die kleine Schlüsseldatei (.txt) wählen, nicht die Datendatei (.tfsafe).', 'error');
+        return;
+    }
+    setKeyStatus('Schlüsseldatei wird gelesen …');
+    try {
+        const bytes = await file.arrayBuffer();
+        if (sequence !== receiveSequence || keySequence !== keyFileSequence || container !== pendingContainer || !receiveDialog.open) return;
+        const keyText = readSafeKeyFile(bytes);
+        if (!keyText) { setKeyStatus('Kein eindeutiger TourFuchs-Schlüssel gefunden. Bitte eine Textdatei mit genau einem TFK1:…-Schlüssel wählen.', 'error'); return; }
+        if (!keyMatchesContainer(container, parseKeyQr(keyText))) {
+            setKeyStatus('Dieser Schlüssel gehört nicht zu dieser Datendatei. Bitte die passende Schlüsseldatei wählen.', 'error');
+            return;
+        }
+        document.getElementById('safe-key-input').value = keyText;
+        setKeyStatus(`✓ ${file.name} – passender Schlüssel geladen. Jetzt „Entschlüsseln und importieren“.`, 'success');
+    } catch (error) {
+        if (sequence !== receiveSequence || keySequence !== keyFileSequence || !receiveDialog.open) return;
+        setKeyStatus('Die Schlüsseldatei konnte nicht gelesen werden. Bitte erneut aus dem lokalen Download-Ordner wählen.', 'error');
+        if (isFileAccessError(error)) showFileAccessHelp(file, error, { retry: () => document.getElementById('safe-key-file-input')?.click() });
+    }
+}
+
 async function handleKeyText(text) {
+    if (decrypting) return;
+    const sequence = receiveSequence;
     const demo = receiveDemo;
     const parsed = parseKeyQr(text);
     if (!parsed) {
+        setKeyStatus('Das ist kein TourFuchs-Schlüssel (TFK1:…).', 'error');
         showToast('Das ist kein TourFuchs-Schlüssel (TFK1:…).', 'error');
         return;
     }
@@ -343,20 +432,25 @@ async function handleKeyText(text) {
         return;
     }
     if (!keyMatchesContainer(pendingContainer, parsed)) {
+        setKeyStatus('Dieser Schlüssel gehört nicht zu dieser Datei.', 'error');
         showToast('Dieser Schlüssel gehört nicht zu dieser Datei.', 'error', 6000);
         return;
     }
     stopCamera();
+    decrypting = true;
     let dataset;
     showBusy('safe-receive', 'Datei wird entschlüsselt …');
     try {
         dataset = await decryptSafeTransfer(pendingContainer, parsed.keyB64);
     } catch {
+        setKeyStatus('Entschlüsselung fehlgeschlagen – Schlüssel falsch oder Datei beschädigt.', 'error');
         showToast('Entschlüsselung fehlgeschlagen – Schlüssel falsch oder Datei beschädigt.', 'error', 6000);
         return;
     } finally {
+        decrypting = false;
         hideBusy('safe-receive');
     }
+    if (sequence !== receiveSequence || !receiveDialog.open) return;
     if (demo) {
         if (receiveDemo !== demo || !receiveDialog.open) return;
         const customers = Array.isArray(dataset?.customers) ? dataset.customers : [];

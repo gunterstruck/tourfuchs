@@ -282,7 +282,7 @@ async function desktop(browser, baseUrl) {
         await hit.click();
         await page.locator('.leaflet-popup [data-action="copy-customer-number"]').click();
         const copied = await page.evaluate(() => navigator.clipboard.readText());
-        if (copied !== '[SMOKE-1] Smoke Test Nord') throw new Error(`Falscher Kopierwert: ${copied}`);
+        if (copied !== 'Smoke Test Nord [SMOKE-1]') throw new Error(`Falscher Kopierwert: ${copied}`);
         // Die Kopieraktion schließt das Popup bereits selbst.
         await page.evaluate(() => document.querySelector('.leaflet-popup-close-button')?.click());
         await page.locator('#global-search').fill('');
@@ -670,7 +670,7 @@ async function phone(browser, baseUrl) {
                 await page.evaluate(() => document.getElementById('btn-safe-receive').click());
                 await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
                 await page.locator('#safe-file-input').setInputFiles(file.path);
-                await page.waitForFunction(() => document.getElementById('safe-step-key')?.hidden === false, null, { timeout: TIMEOUT })
+                await page.waitForFunction(() => document.getElementById('safe-step-key')?.disabled === false, null, { timeout: TIMEOUT })
                     .catch(async () => { throw new Error(`${file.stem}: Datei nicht angenommen – ${await page.locator('#safe-file-status').textContent().catch(() => '')}`); });
                 // Wie ein Nutzer ohne Kamera: „Schlüssel eintippen/einfügen" aufklappen.
                 const fallback = page.locator('#safe-step-key details.safe-fallback');
@@ -763,13 +763,18 @@ async function qrRoundTrip(browser, baseUrl) {
         await openApp(page, baseUrl);
         return page;
     };
-    const receive = async (page, file, { key, photo }) => {
+    const receive = async (page, file, { key, keyFile, photo }) => {
         await closeDialogs(page);
         await page.evaluate(() => document.getElementById('btn-safe-receive').click());
         await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
         await page.locator('#safe-file-input').setInputFiles(file);
-        await page.waitForFunction(() => document.getElementById('safe-step-key')?.hidden === false, null, { timeout: TIMEOUT });
-        if (photo) {
+        await page.waitForFunction(() => document.getElementById('safe-step-key')?.disabled === false, null, { timeout: TIMEOUT });
+        if (keyFile) {
+            await page.locator('#safe-key-file-input').setInputFiles(keyFile);
+            await page.waitForSelector('#safe-key-file-status[data-kind="success"]:not([hidden])');
+            await page.locator('#safe-key-submit').click();
+        } else if (photo) {
+            await page.locator('#safe-qr-options summary').click();
             await page.locator('#safe-scan-photo').setInputFiles(photo);
         } else {
             const fallback = page.locator('#safe-step-key details.safe-fallback');
@@ -793,6 +798,18 @@ async function qrRoundTrip(browser, baseUrl) {
             await download.saveAs(join(dir, 'rundweg.tfsafe'));
             await desk.waitForFunction(() => document.getElementById('safe-export-keytext')?.value.startsWith('TFK1:'), null, { timeout: TIMEOUT });
             writeFileSync(join(dir, 'schluessel.png'), await desk.locator('#safe-export-canvas').screenshot());
+            const [keyDownload] = await Promise.all([
+                desk.waitForEvent('download', { timeout: TIMEOUT }),
+                desk.locator('#safe-export-key-download').click()
+            ]);
+            await keyDownload.saveAs(join(dir, 'schluessel.txt'));
+            if (readFileSync(join(dir, 'schluessel.txt'), 'utf8').trim() !== await desk.locator('#safe-export-keytext').inputValue()) {
+                throw new Error('Heruntergeladene Schlüsseldatei passt nicht zum Export.');
+            }
+        });
+        await step('Handy: heruntergeladene Schlüssel-TXT laden und Daten einlösen', async () => {
+            const phone = await openPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+            await receive(phone, join(dir, 'rundweg.tfsafe'), { keyFile: join(dir, 'schluessel.txt') });
         });
         await step('Handy: Schlüssel per Foto des QR-Codes lesen und Daten einlösen', async () => {
             const phone = await openPage({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });

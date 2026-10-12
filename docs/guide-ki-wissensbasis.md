@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.22 · Stand: 09.10.2026 · App-Version: 3.7.0**
+**Version 3.23 · Stand: 12.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `edf80302f45715ab2be2d03c8fac64202732e33a` plus Kundennummern in der globalen Trefferliste, Desktop-Demo-Zugang und vollständige Empfangs-/Briefing-Demos dieses Dokumentationsstands (09.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `162ce2643743a0e4bb8efd22753f82f280c31457` (PR #424), ergänzt um den höheren mobilen Griff, stabile mobile PLZ-3-Flächen, das Kopierformat `Kundenname [Kundennummer]` und den Empfang mit Schlüsseldatei dieses Dokumentationsstands (12.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -867,7 +867,7 @@ Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
 | **"Was wäre wenn? Gebiete umbauen – ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
 | **"Dein Service-Tag, verständlich geplant"** | Ja, nach Aktivierung des Service-Moduls | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
-| **"Verschlüsselte Kundendaten übernehmen"** | Ja | Ja | echte `.tfsafe`-Beispieldatei wählen, passenden Schlüssel einfügen und lokal entschlüsseln; keine erneute Feldzuordnung |
+| **"Verschlüsselte Kundendaten übernehmen"** | Ja | Ja | echte `.tfsafe`-Beispieldatei wählen, passende Schlüsseldatei (.txt) laden und lokal entschlüsseln; keine erneute Feldzuordnung |
 
 Im Code existieren damit zwölf Geschichten. In der normalen Demo-Auswahl sieht
 der Nutzer nur die für Gerät und aktivierte Module passenden Geschichten. Die
@@ -1047,7 +1047,7 @@ Danach wählt der Nutzer zwischen:
    **"Verschlüsselte Datei öffnen"**.
 
 Die zweite Option ist nur für eine `.tfsafe`-Datei aus dem sicheren
-Geräteumzug. Danach wird der getrennte Schlüssel-QR benötigt.
+Geräteumzug. Danach wird der getrennte Schlüssel als Textdatei (.txt), QR oder eingefügter Text benötigt.
 
 #### 7.1.1 Kein Export zur Hand: Liste von der Firmen-KI
 
@@ -1893,7 +1893,7 @@ Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 
 Je nach importierten Daten ebenfalls sichtbar:
 
-- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Dahinter folgt ein Leerzeichen und der Kundenname, z. B. `000123`, `Musterkunde GmbH` -> `[123] Musterkunde GmbH`; eine reine Null wird `[0] Kundenname`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
+- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Davor steht der Kundenname mit einem Leerzeichen, z. B. `000123`, `Musterkunde GmbH` -> `Musterkunde GmbH [123]`; eine reine Null wird `Kundenname [0]`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
 - Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie darunter in eigener Zeile der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Kahlbau Robert +49 (173) 6310304`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
@@ -2780,6 +2780,7 @@ Bedienelemente für einen Zustand, zum Preis einer Zeile am oberen Rand.
 Das Bedienpanel ist unten an den Bildschirm angedockt.
 
 - der obere Griff wird senkrecht gezogen, um die Höhe kontinuierlich zu ändern;
+- der Griff sitzt bei eigenen Daten 32 Pixel höher (Peek 78 statt 46 Pixel) und hat eine mindestens 44 Pixel hohe Touchfläche. So beginnt das Ziehen weiter oberhalb der Systemgeste. Bei Beispieldaten beträgt der Peek 120 Pixel, mit offener Willkommenskarte 80 Pixel; die sichere untere Zone kommt weiterhin hinzu;
   bis zum Boden gezogen klappt das Blatt ganz auf die Guckhöhe ein.
 - aus geschlossenem Zustand folgt das Blatt direkt dem Finger, ohne von unten
   falsch zu schrumpfen.
@@ -3194,7 +3195,7 @@ Biometrische Daten verlassen das Gerät nicht. Die PIN bleibt der Rückfallweg.
 TourFuchs erzeugt:
 
 1. eine AES-256-GCM-verschlüsselte `.tfsafe`-Datei.
-2. einen getrennten Zufallsschlüssel als QR-Code und Text.
+2. einen getrennten Zufallsschlüssel als QR-Code und Text. Über **„🔑 Schlüsseldatei herunterladen (.txt)“** lässt sich der passende Schlüssel als kleine Textdatei speichern.
 
 TourFuchs lädt die Datei nicht auf einen eigenen Server. Der Nutzer entscheidet,
 wie die Datei auf das Zielgerät gelangt. Datei und Schlüssel müssen getrennt
@@ -3213,9 +3214,11 @@ Alternativ bei geladenen Daten:
 
 `"Daten" -> "Daten laden" -> "Daten empfangen (Datei + Schlüssel)"`.
 
-1. `.tfsafe`-Datei wählen.
-2. Schlüssel-QR scannen oder Schlüsseltext eingeben.
-3. Daten entschlüsseln und lokal speichern.
+Der Dialog zeigt beide benötigten Schritte von Anfang an:
+
+1. **„Datendatei auswählen“**: die verschlüsselte `.tfsafe`-Datei wählen. Dateiname und Inhalt werden bestätigt; die Datei kann erneut ausgewählt werden.
+2. **„Schlüssel laden“**: über **„🔑 Schlüsseldatei auswählen (.txt)“** die getrennt erhaltene Textdatei laden. Der zweite Schritt wird nach einer gültigen Datendatei bedienbar. Falsche, leere, zu große oder mehrdeutige Schlüsseldateien werden sichtbar abgelehnt. UTF-8 und UTF-16 sowie eine zusätzliche Erklärungszeile werden unterstützt (maximal 16 KB).
+3. **„Entschlüsseln und importieren“** übernimmt die Daten nach der bisherigen Rückfrage bei vorhandenem Bestand. **„Alternativ: Schlüsseltext einfügen“** und **„Alternativ: Schlüssel-QR scannen“** bleiben verfügbar. Die Kamera startet erst nach **„📷 Kamera starten“**.
 4. Den lokalen Datentresor bei Bedarf anschließend freiwillig aktivieren. Ist
    bereits ein Tresor aktiv, werden die empfangenen Daten darin gespeichert;
    eine neue PIN ist nicht nötig.
@@ -4847,7 +4850,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 - Desktop-Panel bleibt bei sichtbarer Startauswahl geschlossen; die Begrüßung ist über der ganzen Karte zentriert.
 - Umschauen sowie Ende oder Abbruch einer Demo machen das Desktop-Panel automatisch verfügbar; eigener Kundenimport öffnet es nach erfolgreicher Übernahme.
-- Kundennummer-Kopie enthält zusätzlich den Namen im Format `[Kundennummer] Kundenname`; führende Nullen entfallen weiterhin nur beim Kopieren.
+- Kundennummer-Kopie enthält den Namen im Format `Kundenname [Kundennummer]`; führende Nullen entfallen weiterhin nur beim Kopieren.
 - PDF, Systemprompt und Custom-GPT-Uploadpaket mit Guide 3.21 synchronisiert, einschließlich der mobilen Änderungen aus 3.20.
 
 ### Änderungen in Version 3.20 (08.10.2026)
@@ -4911,3 +4914,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Zanobo | Link-out je Anlagen-ID (`#/m/<id>`, Fragment bleibt lokal); Vergleich statt Diagnose; Standard zanobo.vercel.app |
 | Update | App-Dateien neu, lokale Daten bleiben erhalten |
 | Vor Löschen | Export empfehlen |
+
+### Bedienverbesserungen vom 12.10.2026
+
+Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dreistelligen PLZ-Gebieten (`plz3`). Die Desktop-Automatik und die dort gespeicherte Ebenenwahl bleiben erhalten; ausdrücklich ausgeschaltete Gebietsebenen bleiben aus. Die Kundennummer-Kopie lautet jetzt `Kundenname [Kundennummer]`. Der angehobene Griff erleichtert das Ziehen bei Gestennavigation. Beim sicheren Umzug sind Datendatei und Schlüsseldatei zwei sichtbare Schritte; die Live-Demo führt genau diesen Weg vor.

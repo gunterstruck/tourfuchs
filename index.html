@@ -941,7 +941,7 @@
                 </section>
                 <section class="own-data-option" aria-labelledby="own-data-safe-title">
                     <h3 id="own-data-safe-title" data-i18n="ownData.safeTitle">🔐 Verschlüsselte TourFuchs-Datei</h3>
-                    <p class="muted small" data-i18n="ownData.safeDescription">Für eine .tfsafe-Datei von einem anderen Gerät. Danach scannst du den getrennten Schlüssel-QR.</p>
+                    <p class="muted small" data-i18n="ownData.safeDescription">Für eine .tfsafe-Datei von einem anderen Gerät. Danach lädst du die getrennte Schlüsseldatei (.txt) oder scannst den Schlüssel-QR.</p>
                     <button id="btn-safe-receive-ob" class="primary" data-i18n="ownData.safeOpen">Verschlüsselte Datei öffnen</button>
                     <!-- Derselbe vorbereitete Datenbestand lässt sich am Desktop
                          und Handy ohne erneute Feldzuordnung übernehmen. -->
@@ -1588,12 +1588,13 @@
             <div class="safe-body">
                 <canvas id="safe-export-canvas"></canvas>
                 <p id="safe-export-info" class="muted small"></p>
+                <button id="safe-export-key-download" class="primary" data-i18n="safeExport.keyDownload">🔑 Schlüsseldatei herunterladen (.txt)</button>
                 <ol class="safe-steps">
                     <li data-i18n="safeExport.step1">Die heruntergeladene .tfsafe-Datei aufs Handy bringen (Mail, Cloud, USB).</li>
                     <li data-i18n="safeExport.step2">In TourFuchs auf dem Handy „Daten empfangen" öffnen, die Datei wählen.</li>
-                    <li data-i18n="safeExport.step3">Diesen Schlüssel-QR mit der App scannen – fertig.</li>
+                    <li data-i18n="safeExport.step3">Schlüsseldatei (.txt) laden oder diesen Schlüssel-QR scannen.</li>
                 </ol>
-                <p class="muted small" data-i18n="safeExport.warning">Wichtig: Schlüssel und Datei getrennt halten. Wer nur die Datei hat, kann nichts entschlüsseln. Der Schlüssel wird nicht übers Netz übertragen.</p>
+                <p class="muted small" data-i18n="safeExport.warning">Wichtig: Schlüssel und Datendatei getrennt und geschützt weitergeben. Wer beides hat, kann die Daten öffnen. TourFuchs überträgt den Schlüssel nicht automatisch.</p>
                 <details class="safe-fallback">
                     <summary data-i18n="safeExport.fallback">Schlüssel als Text (falls Scannen nicht klappt)</summary>
                     <textarea id="safe-export-keytext" rows="2" readonly aria-label="Schlüssel als Text" data-i18n-aria-label="safeExport.keyLabel"></textarea>
@@ -1611,33 +1612,44 @@
                 <button class="dialog-close" aria-label="Schließen">Schließen</button>
             </header>
             <div class="safe-body">
-                <div id="safe-step-file">
-                    <p class="muted small">Schritt 1 von 2: Wähle die verschlüsselte Umzugsdatei (<b>.tfsafe</b>), die du vom Desktop bekommen hast.</p>
-                    <label class="safe-file-pick">📄 Umzugsdatei wählen
+                <p class="safe-receive-intro">Du brauchst zwei Dinge: die verschlüsselte Datendatei und den dazugehörigen Schlüssel.</p>
+                <section id="safe-step-file" class="safe-import-step" aria-labelledby="safe-file-heading">
+                    <h3 id="safe-file-heading"><span class="safe-step-number">1</span> Datendatei auswählen</h3>
+                    <p class="muted small">Die verschlüsselte <b>.tfsafe-Datei</b> von deinem anderen Gerät oder einem Kollegen.</p>
+                    <label class="safe-file-pick">📄 Datendatei auswählen (.tfsafe)
                         <!-- Bewusst ohne Dateityp-Filter: Android kennt „.tfsafe" nicht und
                              graut die Datei sonst je nach Dateiauswahl aus. Den Inhalt prüft
                              TourFuchs selbst (readSafeFile). -->
                         <input type="file" id="safe-file-input">
                     </label>
                     <p id="safe-file-status" class="safe-file-status small" role="alert" hidden></p>
-                </div>
+                    <p id="safe-file-meta" class="safe-file-meta small" role="status" hidden></p>
+                </section>
                 <div id="safe-step-demo-result" hidden>
                     <h3>Vorschau: Datei entschlüsselt</h3>
                     <p id="safe-demo-result" role="status"></p>
                     <p class="muted small">Die Feldzuordnung ist bereits enthalten. Beim echten Import werden die Kunden direkt übernommen. Diese Vorführung verwendet nur Beispieldaten und verändert deinen Bestand nicht.</p>
                 </div>
-                <div id="safe-step-key" hidden>
-                    <p id="safe-file-meta" class="muted small" hidden></p>
-                    <p class="muted small">Schritt 2 von 2: Scanne den <b>Schlüssel-QR</b> oder füge den getrennt erhaltenen Schlüssel unten ein.</p>
-                    <video id="safe-scan-video" playsinline muted></video>
-                    <p id="safe-scan-status" class="muted small">Kamera auf den Schlüssel-QR am Desktop richten …</p>
-                    <label class="qr-scan-fallback">Kamera klappt nicht? <input type="file" id="safe-scan-photo" accept="image/*" capture="environment"> Foto des QR-Codes wählen</label>
+                <fieldset id="safe-step-key" class="safe-import-step" disabled>
+                    <legend><span class="safe-step-number">2</span> Schlüssel laden</legend>
+                    <p id="safe-key-hint" class="muted small">Zuerst die Datendatei in Schritt 1 auswählen.</p>
+                    <label class="safe-file-pick">🔑 Schlüsseldatei auswählen (.txt)
+                        <input type="file" id="safe-key-file-input" aria-label="Schlüsseldatei auswählen (.txt)">
+                    </label>
+                    <p id="safe-key-file-status" class="safe-file-status small" role="alert" hidden></p>
                     <details class="safe-fallback">
-                        <summary>Schlüssel eintippen/einfügen</summary>
+                        <summary>Alternativ: Schlüsseltext einfügen</summary>
                         <textarea id="safe-key-input" rows="2" placeholder="TFK1:…" aria-label="Schlüssel eingeben"></textarea>
-                        <button id="safe-key-submit" class="primary">Entschlüsseln</button>
                     </details>
-                </div>
+                    <details id="safe-qr-options" class="safe-qr-options">
+                        <summary>Alternativ: Schlüssel-QR scannen</summary>
+                        <button type="button" id="safe-camera-start">📷 Kamera starten</button>
+                        <video id="safe-scan-video" playsinline muted hidden></video>
+                        <p id="safe-scan-status" class="muted small" role="status"></p>
+                        <label class="qr-scan-fallback">Oder Foto des QR-Codes wählen <input type="file" id="safe-scan-photo" accept="image/*" capture="environment"></label>
+                    </details>
+                    <button id="safe-key-submit" class="primary">Entschlüsseln und importieren</button>
+                </fieldset>
             </div>
         </dialog>
     </div>

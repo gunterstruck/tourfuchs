@@ -1,5 +1,13 @@
 import { CONFIG } from '../core/config.js';
 
+/** Am Handy bleiben Gebietsflächen auch in der Übersicht fein aufgelöst.
+ * Die gespeicherte Desktop-Auswahl bleibt beim Gerätewechsel erhalten. */
+export function effectiveMapLevel({ zoom, currentLevel, levelMode, fixedLevel, mobileTour = false }) {
+    if (levelMode === 'fixed' && fixedLevel === 'none') return 'none';
+    if (mobileTour) return 'plz3';
+    return levelMode === 'fixed' ? fixedLevel : automaticLevelForZoom(zoom, currentLevel);
+}
+
 /** Automatik ist eine bewusste Wahl; jede konkrete Ebene bleibt fixiert. */
 export function automaticLevelActive(_depth, levelMode, _mobile = false) {
     return levelMode !== 'fixed';

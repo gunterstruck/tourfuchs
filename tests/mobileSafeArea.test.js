@@ -22,7 +22,7 @@ describe('Untere System-Navigationsleiste (Android/iOS) verdeckt das Blatt nicht
         // Das Blatt sitzt auf --safe-bottom auf; der eingeklappte Peek liegt damit
         // vollständig oberhalb der Navigationsleiste. Der Peek bleibt der reine
         // Inhaltswert, sonst würde die Anhebung doppelt gezählt.
-        expect(css).toContain('--mobile-sheet-peek: 46px');
+        expect(css).toContain('--mobile-sheet-peek: 78px');
         const mobileBlock = css.slice(css.indexOf('.sidebar {'));
         expect(mobileBlock).toContain('bottom: var(--safe-bottom)');
     });
@@ -43,7 +43,7 @@ describe('Untere System-Navigationsleiste (Android/iOS) verdeckt das Blatt nicht
         expect(css).toContain('body.demo-data-active {');
         const demoBlock = css.slice(css.indexOf('body.demo-data-active {'));
         // Zwei Zeilen: Hinweis mit Demo-Übersicht, darunter „In Aktion sehen" · „Eigene Daten laden".
-        expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*108px/);
+        expect(demoBlock).toMatch(/--mobile-sheet-peek:\s*120px/);
     });
 });
 
@@ -109,7 +109,7 @@ describe('Suche am Handy: Treffer über die ganze Breite', () => {
 describe('Willkommen auf kleinen Handys: alle drei Wege sichtbar', () => {
     const css = read('src/styles/responsive.css');
     it('rückt das Blatt tiefer, solange die Willkommens-Karte offen ist', () => {
-        expect(css).toMatch(/body\.demo-data-active\.demo-welcome-open \{\s*--mobile-sheet-peek: 68px;/);
+        expect(css).toMatch(/body\.demo-data-active\.demo-welcome-open \{\s*--mobile-sheet-peek: 80px;/);
         expect(read('src/ui/demoWelcome.js')).toContain("document.body.classList.toggle('demo-welcome-open', !root.hidden);");
     });
     it('macht die Karte auf niedrigen Schirmen kompakter und lässt den Fußtext weg', () => {
@@ -123,7 +123,7 @@ describe('Beispieldaten-Streifen und Ton-Hinweis am Handy', () => {
     it('zeigt am Handy nur „🧪 Beispieldaten" – einzeilig, ohne Zusatz', () => {
         expect(read('index.html')).toMatch(/class="demo-banner-suffix"[^>]*data-i18n="demo\.bannerSuffix"/);
         expect(css).toContain('.demo-banner-suffix { display: none; }');
-        expect(css).toMatch(/body\.demo-data-active \{[\s\S]*?--mobile-sheet-peek: 108px;/);
+        expect(css).toMatch(/body\.demo-data-active \{[\s\S]*?--mobile-sheet-peek: 120px;/);
     });
     it('der Ton-Hinweis steht als Blase unter der Laufleiste, die Leiste bricht nicht um', () => {
         const sc = read('src/styles/showcase.css');
