@@ -19,6 +19,7 @@ import { resolve } from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { CONFIG } from '../src/core/config.js';
 import { FIRST_STEPS } from '../src/features/firstSteps.js';
+import { ASSISTANTS } from '../src/services/assistant.js';
 
 // Über das Projektverzeichnis, nicht über import.meta.url: Die Tests laufen in
 // der jsdom-Umgebung, in der import.meta.url keine file:-URL ist.
@@ -34,6 +35,10 @@ function normalize(text) {
 const doc = normalize(knowledgeBase);
 
 describe('Wissensbasis bildet den Code ab', () => {
+    it('nennt die aktuellen Firmenassistenten und die Auswahlüberschrift', () => {
+        expect(doc).toContain('Firmen-KI-Assistent:');
+        for (const { label } of ASSISTANTS) expect(doc).toContain(label);
+    });
     it.each(FIRST_STEPS.map((step) => [step.id, step.label]))(
         'nennt die Beschriftung von Schritt "%s" wörtlich',
         (_id, label) => {

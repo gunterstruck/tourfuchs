@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 09.10.2026 · App-Version 3.7.0
+Stand: 13.10.2026 · App-Version 3.7.0
 
 ## 1. Ziel der Schulung
 
@@ -151,13 +151,13 @@ Der Gebietsplanung-Modus ist für Analyse, Flächen, Cockpit und Simulation geda
 
 ### Eine Ansicht mit vollem Umfang
 
-Basis/Profi ist seit 26.09.2026 entfernt. Desktop und Smartphone bieten den vollständigen Außendienstumfang ohne Umschalten. Microsoft 365 Copilot ist voreingestellt; „Ziel: … · Anderen Assistenten wählen“ steht für Kunden- und Mehrkunden-Briefings zur Verfügung. GeoFuchs und ServiceFuchs bleiben gesonderte optionale Module am Desktop.
+Basis/Profi ist seit 26.09.2026 entfernt. Desktop und Smartphone bieten den vollständigen Außendienstumfang ohne Umschalten. Microsoft 365 Copilot ist voreingestellt; „Firmen-KI-Assistent: … · Anderen Assistenten wählen“ steht für Kunden- und Mehrkunden-Briefings zur Verfügung. GeoFuchs und ServiceFuchs bleiben gesonderte optionale Module am Desktop.
 
 ![Kundenbriefing mit sichtbarer Zielzeile](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
 
-*BILD-LASSO-07 - Die Zielzeile zeigt „Ziel: … · Anderen Assistenten wählen"; der Nutzer sendet den Prompt trotzdem immer selbst ab.*
+*BILD-LASSO-07 - Die Zielzeile zeigt „Firmen-KI-Assistent: … · Anderen Assistenten wählen"; der Nutzer sendet den Prompt trotzdem immer selbst ab.*
 
-![Aufgeklappte Wahl zwischen Microsoft 365 Copilot, Google Gemini, ChatGPT und eigenem Assistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
+![Aufgeklappte Wahl zwischen Microsoft 365 Copilot und Eigenem Firmenassistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
 *BILD-LASSO-08 - Die Zielwahl ändert Öffnungsadresse und Quellenzeile im Prompt, nicht TourFuchs zu einem KI-Dienst.*
 
@@ -994,17 +994,25 @@ Nach der Dateiauswahl zeigt TourFuchs „Datei wird vorbereitet“ mit Dateiname
 
 Den rechten Rand des Panels mit der Maus ziehen: 340 bis 600 Pixel, maximal 150 % der Standardbreite von 400 Pixeln. Die Breite wird lokal gespeichert und nach dem Neuladen wiederhergestellt. Das funktioniert auch bei frei verschobenem Panel.
 
-### Ruhiger Start und Kunden-Kopie (09.10.2026)
+### Ruhiger Start und Kunden-Kopie (13.10.2026)
 
 Bei Beispieldaten bleibt das Desktop-Panel zunächst geschlossen. „Verstanden – erst umsehen“ öffnet es; während und nach der Live-Demo steht es automatisch zur Verfügung. „Eigene Daten laden“ öffnet zuerst den Importdialog und nach erfolgreicher Übernahme das Panel. Bereits gespeicherte eigene Daten starten mit sichtbarem Desktop-Panel.
 
-In der Kundenkarte kopiert ein Klick auf die Kundennummer die Zeile `[Kundennummer] Kundenname`, z. B. `[123] Musterkunde GmbH`. Führende Nullen werden nur beim Kopieren entfernt; die Originalnummer bleibt erhalten.
+In der Kundenkarte kopiert ein Klick auf die Kundennummer die Zeile `Kundenname [Kundennummer]`, z. B. `Musterkunde GmbH [123]`. Führende Nullen werden nur beim Kopieren entfernt; die Originalnummer bleibt erhalten.
 
 Auf dem Smartphone bietet „Planungsbereich“ durchsuchbare Mehrfachfilter über die am Desktop aktivierten Kategorien und eine dezente Kartenfärbung. Tourstopps außerhalb des Filters bleiben erhalten. „↺ Tour leeren“ beendet die Tour und kehrt zur normalen Karte mit den weiterhin gesetzten Filtern zurück.
 
 
-## Ergänzungen vom 09.10.2026 (Guide 3.22)
+## Ergänzungen vom 13.10.2026 (Guide 3.24)
 
 - Desktop: „Live-Demos“ mit grünem Filmsymbol steht dauerhaft oben rechts und öffnet die Übersicht der verfügbaren Geschichten; am Handy bleibt der Info-Zugang.
 - „Verschlüsselte Kundendaten übernehmen“ ist am Desktop und Handy verfügbar: Ein Kollege importiert Excel und ordnet Felder einmal zu, exportiert unter „Sicherer Umzug“ und gibt die .tfsafe-Datei sowie den Schlüssel getrennt weiter. Die Empfänger müssen keine Felder mehr zuordnen. Die Demo entschlüsselt echte Beispieldaten in einer isolierten Vorschau; der eigene Bestand bleibt erhalten. Der lokale PIN-Tresor bleibt freiwillig.
 - Die Briefing-Demos zeigen die Auswahl des KI-Partners, den vollständigen angepassten Prompt und die lokale Kopieraktion. Die gespeicherte KI-Wahl bleibt erhalten; in der Vorführung wird kein Assistent geöffnet.
+
+
+## Firmen-KI und aktueller Import (Guide 3.24, 13.10.2026)
+
+- Im Kunden- und Mehrkunden-Briefing heißt die Auswahl **„Firmen-KI-Assistent“**. **Microsoft 365 Copilot** ist voreingestellt. Alternativ bietet **„Eigener Firmenassistent“** das Feld **„Adresse des Firmenassistenten“** für einen freigegebenen HTTPS-Link der eigenen Organisation. Die Wahl wird lokal gespeichert und gilt für beide Briefings. Alte entfernte Anbieter-Auswahlen fallen auf Copilot zurück; eigene Links bleiben erhalten.
+- Nutze dein Firmenkonto und beachte die Freigaben deiner Organisation. TourFuchs prüft diese nicht. Es baut den Prompt lokal, zeigt ihn vor dem Kopieren und öffnet auf Klick den gewählten Assistenten. Du fügst den Text selbst ein und sendest ihn dort ab. Die Live-Demos zeigen beide Optionen, den vollständigen Copilot-Prompt und die lokale Kopie, ohne einen Assistenten zu öffnen.
+- Verschlüsselter Empfang: **1 Datendatei auswählen**, dann **2 Schlüssel laden** über **„Schlüsseldatei auswählen (.txt)“**, danach **„Entschlüsseln und importieren“**. QR und Schlüsseltext bleiben Alternativen. Beim Export steht **„Schlüsseldatei herunterladen (.txt)“** bereit; Datei und Schlüssel getrennt weitergeben. Bisherige `.tfsafe`-Dateien funktionieren mit ihrem ursprünglichen Schlüssel weiter.
+- Mobil liegt der Griff bei eigenen Daten 32 px höher und bietet mindestens 44 px Touchfläche. Farbige Flächen bleiben beim Herauszoomen auf dreistelligen PLZ-Gebieten.

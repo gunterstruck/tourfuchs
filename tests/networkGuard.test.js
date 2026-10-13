@@ -30,7 +30,7 @@ function jsFiles(dir) {
         return statSync(resolve(ROOT, path)).isDirectory() ? jsFiles(path) : path.endsWith('.js') ? [path] : [];
     });
 }
-const SOURCES = jsFiles('src').map((path) => ({ path: relative(ROOT, resolve(ROOT, path)), text: read(path) }));
+const SOURCES = jsFiles('src').map((path) => ({ path: relative(ROOT, resolve(ROOT, path)).replaceAll('\\', '/'), text: read(path) }));
 // Kommentarblöcke und -zeilen zählen nicht – nur Code und Zeichenketten.
 // Bewusst nur Kommentare am Zeilenanfang: Ein „/*" in einer Zeichenkette
 // (etwa accept="image/*") dürfte sonst echten Code bis zum nächsten „*/" verschlucken.
@@ -64,9 +64,8 @@ const EXTERNAL_TARGETS = {
     'router.project-osrm.org': 'OSRM',             // Straßenrouten, Opt-in (6)
     'www.google.com': 'Google Maps',               // Navigation, nur auf Klick (7)
     'zanobo.vercel.app': 'Zanobo',                 // Link zur Schwester-App, nur auf Klick (7)
-    'chatgpt.com': 'ChatGPT',                      // Briefing-Assistent, nur auf Klick (8)
-    'm365.cloud.microsoft': 'Copilot',             // dito
-    'gemini.google.com': 'Gemini'                  // dito
+    'chatgpt.com': 'ChatGPT',                      // optionaler externer Bedien-Guide, nur auf Klick
+    'm365.cloud.microsoft': 'Copilot'              // Firmen-Briefing-Assistent, nur auf Klick (8)
 };
 // Keine Ziele: Platzhalter in Eingabefeldern und Beispieltexten, XML-Namensräume.
 const NOT_TARGETS = new Set(['example.com', 'example.test', 'firma.sharepoint.com', 'assistent.meine-firma.de', 'www.w3.org']);

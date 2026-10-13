@@ -9,6 +9,15 @@ const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 beforeEach(() => { localStorage.clear(); });
 
 describe('Zielwahl im Kunden- und Mehrkunden-Briefing', () => {
+    it('zeigt genau die beiden Firmenoptionen mit Copilot als Vorauswahl', () => {
+        const root = document.createElement('div');
+        root.innerHTML = assistantChooserHtml(assistantForDepth('profi'), 'customer-briefing');
+        expect([...root.querySelectorAll('input[type="radio"]')].map(i => i.value)).toEqual(['copilot', 'custom']);
+        expect(root.querySelector('input:checked').value).toBe('copilot');
+        expect(root.textContent).toContain('Firmen-KI-Assistent: Microsoft 365 Copilot');
+        expect(root.textContent).toContain('Eigener Firmenassistent');
+    });
+
     it('beide Dialoge benutzen dasselbe Bauteil, mit eigenem Präfix', () => {
         const kunde = read('src/ui/customerBriefing.js');
         const gebiet = read('src/ui/areaBriefing.js');
@@ -23,13 +32,14 @@ describe('Zielwahl im Kunden- und Mehrkunden-Briefing', () => {
         root.innerHTML = assistantChooserHtml(assistantForDepth('profi'), 'area-briefing');
         let chosen = null;
         wireAssistantChooser(root, 'area-briefing', (assistant) => { chosen = assistant; });
-        const other = [...root.querySelectorAll('input[name="area-briefing-assistant"]')].find((i) => !i.checked && i.value !== 'custom');
+        const other = root.querySelector('input[value="custom"]');
+        root.querySelector('input[type="url"]').value = 'https://assistent.example.test/chat';
         other.checked = true;
         other.dispatchEvent(new Event('change'));
         expect(chosen.id).toBe(other.value);
         expect(loadAssistantChoice().id).toBe(other.value);
         expect(assistantForDepth('profi').id).toBe(other.value);
-        expect(root.querySelector('.briefing-assistant summary b').textContent).toBe(`Ziel: ${chosen.label}`);
+        expect(root.querySelector('.briefing-assistant summary b').textContent).toBe(`Firmen-KI-Assistent: ${chosen.label}`);
     });
 
     it('zwei Dialoge im Dokument koppeln ihre Radiogruppen nicht', () => {

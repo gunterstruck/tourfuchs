@@ -66,11 +66,11 @@ describe('Kundenbriefing', () => {
 
     it('nennt die Quellen des gewählten Assistenten', () => {
         const copilot = buildCustomerBriefingPrompt(customer, {}, ASSISTANTS.find((a) => a.id === 'copilot'));
-        const gemini = buildCustomerBriefingPrompt(customer, {}, ASSISTANTS.find((a) => a.id === 'gemini'));
+        const custom = buildCustomerBriefingPrompt(customer, {}, ASSISTANTS.find((a) => a.id === 'custom'));
 
         expect(copilot).toContain('Microsoft-365-Inhalte');
-        expect(gemini).toContain('Google-Workspace-Inhalte');
-        expect(gemini).not.toContain('Microsoft-365-Inhalte');
+        expect(custom).toContain('tatsächlich zur Verfügung stehen');
+        expect(custom).not.toContain('Microsoft-365-Inhalte');
         // ohne Angabe bleibt es beim Standard (Microsoft 365)
         expect(buildCustomerBriefingPrompt(customer, {})).toContain('Microsoft-365-Inhalte');
     });
@@ -99,15 +99,27 @@ describe('Kundenbriefing', () => {
 });
 
 describe('Zielassistent', () => {
+    it('bietet nur Copilot und einen eigenen Firmenassistenten an', () => {
+        expect(ASSISTANTS.map(({ id }) => id)).toEqual(['copilot', 'custom']);
+        expect(loadAssistantChoice().id).toBe('copilot');
+    });
+
+    it.each(['gemini', 'chatgpt'])('liest die frühere Auswahl %s als Copilot', (id) => {
+        localStorage.setItem('tourfuchs:briefing-assistant:v1', JSON.stringify({ id }));
+        expect(loadAssistantChoice().id).toBe('copilot');
+        expect(assistantForDepth('profi').url).toBe('https://m365.cloud.microsoft/chat');
+        expect(resolveAssistant({ id }).id).toBe('copilot');
+    });
+
     it('steht in Basis fest auf Copilot und ist nur im Profi wählbar', () => {
-        saveAssistantChoice({ id: 'gemini' });
+        saveAssistantChoice({ id: 'custom', customUrl: 'https://assistent.example.com/chat' });
         expect(assistantForDepth('basis').id).toBe('copilot');
-        expect(assistantForDepth('profi').id).toBe('gemini');
+        expect(assistantForDepth('profi').id).toBe('custom');
     });
 
     it('merkt die Wahl lokal und fällt bei Unbekanntem auf Copilot zurück', () => {
-        saveAssistantChoice({ id: 'chatgpt' });
-        expect(loadAssistantChoice().id).toBe('chatgpt');
+        saveAssistantChoice({ id: 'custom', customUrl: 'https://assistent.example.com/chat' });
+        expect(loadAssistantChoice()).toEqual({ id: 'custom', customUrl: 'https://assistent.example.com/chat' });
         localStorage.setItem('tourfuchs:briefing-assistant:v1', '{"id":"gibtsnicht"}');
         expect(loadAssistantChoice().id).toBe('copilot');
     });

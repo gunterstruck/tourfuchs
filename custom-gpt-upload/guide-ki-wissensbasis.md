@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.22 · Stand: 09.10.2026 · App-Version: 3.7.0**
+**Version 3.24 · Stand: 13.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `edf80302f45715ab2be2d03c8fac64202732e33a` plus Kundennummern in der globalen Trefferliste, Desktop-Demo-Zugang und vollständige Empfangs-/Briefing-Demos dieses Dokumentationsstands (09.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `afcba75bd35fa5ad36020d222a0ebc773745b5ca` (PR #425), ergänzt um die Firmen-KI-Auswahl und die aktualisierten Live-Demos dieses Dokumentationsstands (13.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -72,7 +72,7 @@ Arbeitsteilung ist eine bewusste Rollenverteilung, keine Technikgrenze:
 nicht automatisch ab. Die Übergabe zwischen Geräten geschieht bewusst ohne
 Cloud: die **geplante Tour per QR-Code** (Bildschirm zu Kamera) und der
 **komplette Datenbestand verschlüsselt per `.tfsafe`-Datei** mit getrennt
-reisendem Schlüssel-QR. Spricht ein Nutzer von "Synchronisation", stellt der
+reisendem Schlüssel (Textdatei, QR oder Text). Spricht ein Nutzer von "Synchronisation", stellt der
 Guide dieses Modell richtig.
 
 ---
@@ -400,7 +400,7 @@ Heute gilt überall, was früher „Profi" freischaltete:
 | Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Heute besucht", "Als Start", "Als Ziel", "Zur Tour", "Briefing" |
 | Tour | Bezirk, Start, Ziel, Datum/Zeit/Dauer, Umkreis oder "Entlang der Tour", Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan, Kartenansicht Kunden/Status/Chancen, Rundreise, Druck, ICS, Text, gespeicherte Touren |
 | Gebiets-Popup | Kennzahlen, Verteilung und namentliche Kundenliste |
-| Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Gemini, ChatGPT, eigene https-Adresse) |
+| Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Eigener Firmenassistent mit https-Adresse) |
 | Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl ("📋 Briefing über alle"); Häkchen in der Lasso-Auswahlkarte |
 | Erweiterungen | "GeoFuchs (Gebietsplanung & -management)" und "ServiceFuchs (Vertragsradar & Einsätze)" unter "🧩 Erweiterungen" einzeln aktivierbar (am Desktop) |
 
@@ -675,7 +675,8 @@ Solange nur Beispieldaten laufen, liegt bei **jedem Start** zusätzlich **mittig
 über der Karte** eine ruhige, nicht-blockierende Begrüßung („Willkommen bei
 TourFuchs") mit zwei gleichwertigen Wegen: **▶ TourFuchs in Aktion sehen**
 (startet die Live-Demos direkt als Schleife, mit Musik) und **📂 Eigene Daten
-laden**, dazu die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
+laden**, dazu **„🔐 Ich habe eine Datei von Kollegen"** (öffnet den Empfang der
+`.tfsafe`-Datei direkt, seit 11.10.2026) und die Quittung **"Verstanden – erst umsehen"** (gilt für diesen
 Besuch). Tut niemand etwas, startet die Vorführung nach **zehn Sekunden** von
 selbst – ohne Ton, bis jemand auf „♫ Musik ein" tippt, weil Browser Musik erst
 nach einem Tipp erlauben. Sichtbar ist der Countdown daran, dass sich der grüne
@@ -689,7 +690,9 @@ brechen ihn nicht ab.** Vorher genügte jedes Aufsetzen eines Fingers irgendwo �
 auf manchen Handys startete die Vorführung dadurch praktisch nie von selbst.
 Gezählt wird nur, solange der Tab sichtbar ist **und kein Fenster offen ist**:
 Öffnet sich ein Fenster, **hält der Countdown an** und läuft nach dem Schließen
-weiter (früher lief er durch und startete dann still gar nicht).
+weiter (früher lief er durch und startete dann still gar nicht). Ebenso hält er
+an, **solange die Maus auf der Begrüßungskarte liegt** (seit 11.10.2026): Wer die
+Knöpfe liest, soll nicht von der Vorführung überrascht werden.
 Neben der Karte bleibt die Landkarte unmittelbar bedienbar; **ein
 Tipp auf die Hinweiskarte selbst lässt sie zurücktreten** (gilt als Quittung).
 Damit beantwortet jeder Tipp etwas: Neben der Karte zoomt die Landkarte, auf der
@@ -744,8 +747,11 @@ erreichbar.
 
 ### 5.5 "Erste Schritte"-Checkliste
 
-Nach dem ersten Datenbestand (Demo oder eigene Liste) erscheint oben in der
-Sidebar die Karte **"Erste Schritte"** mit vier Punkten:
+Nach dem ersten Datenbestand (Demo oder eigene Liste) erscheint **auf dem
+Smartphone** oben im Blatt die Karte **"Erste Schritte"** mit vier Punkten.
+**Am Desktop gibt es sie seit 09.10.2026 nicht mehr:** Dort führen die
+**"Live-Demos"** oben rechts; die Checkliste daneben war ein doppeltes Angebot.
+Die Punkte:
 
 1. **Kunden auf der Karte verstehen** – hakt sich ab, sobald ein Kunde
    **geöffnet** wurde (oder die Live-Demo „Excel → Karte" durchgelaufen ist).
@@ -753,7 +759,7 @@ Sidebar die Karte **"Erste Schritte"** mit vier Punkten:
 2. **Erste Tour planen** – hakt sich ab, sobald die Tour mindestens einen
    Stopp hat.
 3. **Tour aufs Handy holen** (QR-Übergabe) – auf dem Smartphone stattdessen
-   **Daten aufs Handy holen** (Empfang per Datei + Schlüssel-QR).
+   **Daten aufs Handy holen** (Empfang per Datei + getrenntem Schlüssel).
 4. **Daten im Tresor sichern**
 
 Jeder Punkt startet zugleich die passende Live-Demo; eine durchgelaufene Demo
@@ -786,8 +792,9 @@ Die Karte kennt **drei Zustände**:
   Hinweiskarte steht noch im Bild** (siehe 5.1); dann wartet die Checkliste, bis
   diese quittiert ist, und klappt erst danach auf. **"Später"** klappt manuell ein.
 - **Abgewählt:** nur über den ausdrücklichen Link **"Nicht mehr zeigen"**.
-  Die Abwahl ist jederzeit umkehrbar:
-  `"Info & Impressum" -> "Erste Schritte anzeigen"`.
+  Zurück kommt die Checkliste mit einem bewussten **"Daten löschen"** (siehe
+  unten). Den früheren Desktop-Knopf `"Info & Impressum" -> "Erste Schritte
+  anzeigen"` gibt es mit der Desktop-Checkliste nicht mehr.
 
 Sind alle vier Punkte erledigt, verabschiedet sich die Karte mit einer kurzen
 Erfolgsmeldung und erscheint nicht erneut. Ein bewusstes **"Daten löschen"**
@@ -860,7 +867,7 @@ Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
 | **"Was wäre wenn? Gebiete umbauen – ohne Risiko"** | Ja, nach Aktivierung des Gebietsmoduls | Nein | Simulation ohne dauerhafte Änderung |
 | **"Dein Service-Tag, verständlich geplant"** | Ja, nach Aktivierung des Service-Moduls | Nein | Service-Fokus öffnen, erklärbaren Tagesvorschlag erleben, Ausblick auf den akustischen Maschinen-Check (Zanobo) |
 | **"Deine Daten im Tresor"** | Ja | Ja | PIN setzen und sichtbaren Wiederherstellungscode erklären |
-| **"Verschlüsselte Kundendaten übernehmen"** | Ja | Ja | echte `.tfsafe`-Beispieldatei wählen, passenden Schlüssel einfügen und lokal entschlüsseln; keine erneute Feldzuordnung |
+| **"Verschlüsselte Kundendaten übernehmen"** | Ja | Ja | echte `.tfsafe`-Beispieldatei wählen, passende Schlüsseldatei (.txt) laden und lokal entschlüsseln; keine erneute Feldzuordnung |
 
 Im Code existieren damit zwölf Geschichten. In der normalen Demo-Auswahl sieht
 der Nutzer nur die für Gerät und aktivierte Module passenden Geschichten. Die
@@ -905,13 +912,13 @@ Beispieldaten.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
-**Aktueller Ablauf (09.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
+**Aktueller Ablauf (13.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
 mit Beispieldaten den tatsächlich erzeugten vollständigen Prompt. Die
 Vorführung klappt **„Anderen Assistenten wählen“** auf, zeigt Microsoft 365
-Copilot, Google Gemini, ChatGPT und **„Eigener Assistent“** und wählt beispielhaft
-ChatGPT. Der Prompt und der Knopf folgen dieser Wahl. Danach wird der angepasste
-Prompt lesbar von oben bis unten gezeigt und über den normalen Knopf lokal in
-die Zwischenablage kopiert. Die Demo öffnet keinen externen Assistenten und
+Copilot und **„Eigener Firmenassistent“** und wählt beispielhaft
+Microsoft 365 Copilot. Der Prompt und der Knopf folgen dieser Wahl. Danach wird
+der angepasste Prompt lesbar von oben bis unten gezeigt und über den normalen
+Knopf lokal in die Zwischenablage kopiert. Die Demo öffnet keinen externen Assistenten und
 ändert die gespeicherte KI-Wahl nicht. Die Rückmeldung lautet **„Demo: Prompt
 kopiert. Kein Assistent geöffnet.“**; ein Kopierfehler wird als Fehler gemeldet.
 Die Vorschau trägt **„Demo · lokal kopierbar“**. Die Darstellung gilt am Desktop
@@ -980,9 +987,55 @@ für Marketing verwendet werden.
 
 ## 7. Daten laden, importieren und aktualisieren
 
+### 7.0 Der Daten-Tab am Desktop (seit 11.10.2026)
+
+Anlass (PO, 11.10.2026): Wer neu ist, bekommt im Team meist eine
+verschlüsselte `.tfsafe`-Datei mit Schlüssel von Kollegen, öffnet TourFuchs am
+Desktop und sucht unter **„Daten"**. Der Empfang lag bis dahin ganz unten im
+eingeklappten Tresor, und der Tab war mit Verwaltung überladen.
+
+**Ohne eigene Daten (leer oder Beispieldaten)** zeigt der Tab am Desktop nur
+die Karte **„Deine Daten holen"** mit zwei großen Wegen:
+
+1. **„🔐 Datei von Kollegen öffnen"** (`.tfsafe`-Datei + Schlüssel als QR oder
+   Text) – öffnet den Empfang direkt. Steht vorne, weil es im Team der häufigste
+   Fall ist.
+2. **„📊 Eigene Excel-/CSV-Liste laden"** (oder direkt aus Excel einfügen) –
+   öffnet **„Eigene Daten laden"**; erst dort fragt TourFuchs nach der
+   Berechtigung.
+
+Darunter der Link **„📄 Noch keine Liste? Excel-Vorlage herunterladen"**. Die
+Verwaltung (Tresor, Export, Datenquellen, Löschen …) erscheint erst mit eigenen
+Daten. Im leeren Zustand steht die Karte unter der Begrüßung „Willkommen bei
+TourFuchs!".
+
+**Mit eigenen Daten** ist der Tab nach Aufgaben geordnet:
+
+1. Übersicht (Kunden, Bezirke, Gruppen, sichtbar, verortet).
+2. **„Daten laden"**: andere Excel-/CSV-Liste, **„Daten empfangen (Datei +
+   Schlüssel)"** und **„🔄 Datenquellen & Aktualisieren"**.
+3. **„Weitergeben"**: **„Verschlüsselt exportieren (Datei + QR)"**,
+   Besuchsbericht, Excel-Export und – falls vorhanden – die Übergabeliste.
+4. **„Schützen"**: der eingeklappte **„🔐 Datentresor"**.
+5. **„⋯ Mehr: Vorlagen, Verortung, Hinweise"** (eingeklappt): gemerkte
+   Importvorlagen, Excel-Vorlage, **„🎯 Adressen exakt verorten"**, Hinweise
+   zum letzten Import und die Erklärung zu getrennten Quellen. Läuft die
+   Verortung oder kommen neue Import-Hinweise, klappt „Mehr" von selbst auf.
+6. **„🗑 Daten löschen"** abgesetzt ganz unten.
+
+Am Handy bleibt der Tab wie bisher (laden · sichern & übertragen · Werkzeuge ·
+Tresor · löschen).
+
+**Erster Start am Desktop im Außendienst:** Ohne gemerkte Wahl beginnt TourFuchs
+auch am Desktop im **„Außendienst"** (Reiter Tour) statt in GeoFuchs. Wer einmal
+GeoFuchs oder ServiceFuchs geöffnet hat, landet beim nächsten Start wieder dort.
+
 ### 7.1 Eigene Daten laden
 
-**Klickpfad:** `"Daten" -> "Eigene Daten laden"`.
+**Klickpfad:** `"Daten" -> "Eigene Daten laden"` (am Desktop ohne eigene Daten:
+`"Daten" -> "Deine Daten holen" -> "📊 Eigene Excel-/CSV-Liste laden"`, siehe 7.0;
+auch die Willkommenskarte und der Beispieldaten-Streifen bieten „Eigene Daten
+laden" an).
 
 Danach wählt der Nutzer zwischen:
 
@@ -994,7 +1047,7 @@ Danach wählt der Nutzer zwischen:
    **"Verschlüsselte Datei öffnen"**.
 
 Die zweite Option ist nur für eine `.tfsafe`-Datei aus dem sicheren
-Geräteumzug. Danach wird der getrennte Schlüssel-QR benötigt.
+Geräteumzug. Danach wird der getrennte Schlüssel als Textdatei (.txt), QR oder eingefügter Text benötigt.
 
 #### 7.1.1 Kein Export zur Hand: Liste von der Firmen-KI
 
@@ -1095,6 +1148,8 @@ Semikolon, Komma, Tab, UTF-8 und Windows-1252.
 | Hauptansprechpartner | optional | sichtbarer leitender Kontakt |
 | Telefon, E-Mail | optional | direkte Kontaktaktionen |
 | Umsatz | optional | Priorisierung und Gebietskennzahlen |
+| Umsatz je Geschäftsjahr (z. B. `Umsatz 2024`, `Umsatz 2025`) | optional | Knopf **"📊 Jahre"** in der Kundenkachel (siehe 8.5a) |
+| Kontaktart, Abteilung, Thema | nur Kontaktlisten | Promotoren und Kundenansprechpartner (siehe 7.7) |
 | Besuchsrhythmus, Letzter Besuch | optional | Status ok/bald fällig/überfällig |
 | Gebiet (LK/PLZ) | nur Flächenzeilen | Gebiet ohne Kunden zuordnen |
 
@@ -1160,8 +1215,9 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 3. Beim Einlesen einer Datei erscheint **"Datei wird vorbereitet"** statt der
    Importauswahl. Dateiname und Verarbeitungsschritt sind sichtbar:
    **"Datei wird gelesen …"**, **"Tabelle wird aufbereitet …"**,
-   **"Spalten werden erkannt …"**. Umfangreiche Listen können länger dauern;
-   die Verarbeitung läuft lokal im Hintergrund. **"Abbrechen"** oder Escape
+   **"Spalten werden erkannt …"**. Große Listen brauchen am Handy bis zu
+   2 Minuten (Hinweis im Dialog; eine mitlaufende Uhr **"Läuft seit 0:45"**
+   zeigt, dass TourFuchs arbeitet); die Verarbeitung läuft lokal im Hintergrund. **"Abbrechen"** oder Escape
    beendet das Einlesen und führt zum vorherigen Schritt zurück. Der vorhandene
    Kundenbestand bleibt dabei erhalten. Dasselbe gilt beim Wechsel von
    Tabellenblatt oder Überschriftenzeile. Bei Lesefehlern erscheint ein Hinweis;
@@ -1303,7 +1359,7 @@ dafür nötige Ereignis nicht. Dort zeigt dasselbe Angebot deshalb den einzigen
 Weg, den es gibt: **Teilen → "Zum Home-Bildschirm"**. Das trifft besonders den
 Fall, in dem die Tour gerade per QR-Scan im Handy-Browser gelandet ist.
 
-### 7.6 Erneuter Import und vollständige Ersetzung
+### 7.6 Erneuter Import: Abgleich mit dem Bestand
 
 ![Daten-Reiter mit Export und dem Einstieg für eine andere vollständige Liste](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
 
@@ -1317,8 +1373,29 @@ die nie echt war. Sobald ein einziger echter Kunde, eine eigene
 Gebietszuordnung oder eine eigene Vertragsquelle dabei ist, greift der Schutz
 wieder vollständig.
 
-Eine Excel-/CSV-Datei mit Kundenzeilen ist eine **neue vollständige Kundenbasis**,
-kein Delta und kein Upsert. TourFuchs liest und prüft die Datei zuerst. Sind
+**Seit 09.10.2026: Abgleich statt Blindersatz.** Eine Excel-/CSV-Datei mit
+Kundenzeilen ist die Wahrheit **für die Spalten, die sie enthält** – und nur
+dafür. Je Kunde (Kundennummer, sonst Name + PLZ) gilt:
+
+- Spalte steht in der Datei → Wert aus der Datei, **auch eine leere Zelle**
+  (z. B. ein ausgetragener VK).
+- Spalte steht nicht in der Datei → der bisherige Wert **bleibt** (z. B.
+  Straße, Ansprechpartner, Umsatz, Zuständigkeiten aus einer anderen Liste).
+- Die **Position** (auch adressgenau) bleibt, solange die Anschrift gleich ist.
+- Erfasste **Besuche** und in TourFuchs gesetzte Pins bleiben.
+
+Damit lassen sich zwei Komplettlisten mit verschiedenen Spalten abwechselnd
+einlesen, z. B. die Kundenstammliste (mit Straße) und eine Zuständigkeitsliste
+(Kd-Nr., VK, OM, TAM, Account Manager …, ohne Straße). **"Kd-Nr."** wird dabei
+automatisch als Kundennummer erkannt.
+
+**Fehlende Kunden:** Fehlen Kunden des Bestands in der Datei, fragt der
+Änderungsbericht **"Behalten"** (die Datei ergänzt nur) oder **"Entfernen"** (die
+Datei ist die neue Fassung der ganzen Liste). Vorgeschlagen ist "Behalten", wenn
+die Datei Angaben des Bestands nicht enthält – sie steht dann unter **"Bleibt
+erhalten"** –, sonst "Entfernen". Die Zahlen im Bericht folgen der Wahl.
+
+TourFuchs liest und prüft die Datei zuerst. Sind
 bereits Kunden vorhanden, erscheint vor jeder Änderung der **Änderungsbericht**
 **"Was ändert sich?"**:
 
@@ -1339,7 +1416,8 @@ Standardabfrage.
 
 Nach Bestätigung werden gemeinsam ersetzt:
 
-- bisherige Kunden und ihre lokal ergänzten Besuchs-/Kontaktdaten
+- bisherige Kunden – nach den Regeln des Abgleichs oben (was die Datei nicht
+  enthält, bleibt)
 - aktuelle Tour, Start, Ziel und Stopps
 - bisherige Gebietszuordnungen; Flächenzeilen der neuen Datei werden anschließend
   neu aufgebaut
@@ -1356,6 +1434,68 @@ Zwei Spezialfälle bleiben bewusst ergänzend:
 Auch Beispieldaten und eine empfangene `.tfsafe`-Datei sind vollständige
 Datensätze. Sie ersetzen vorhandene Daten ebenfalls erst nach Bestätigung.
 
+### 7.6a Datenquellen & Aktualisieren (Link hinterlegen, dann nur noch aktualisieren)
+
+Seit 10.10.2026 (Release 15.2). Im Reiter **Daten** (mit geladenen Daten) steht
+aufklappbar **"🔄 Datenquellen & Aktualisieren"**. Dort hinterlegt man einmal,
+wo die aktuellen Daten liegen – z. B. die Vertriebs-Arbeitsmappe im
+SharePoint der Firma:
+
+1. **Name** (z. B. "Vertriebs-Arbeitsmappe") und **Link zur Ablage**
+   (https://…, optional) eingeben, **"+ Quelle hinzufügen"**. Höchstens 8 Quellen.
+2. **"↗ Ablage öffnen"** öffnet den Link in einem neuen Browser-Tab – zum
+   Nachsehen oder Herunterladen. **TourFuchs ruft den Link nie selbst ab**; es
+   gibt keine Anmeldung und keinen Abruf durch TourFuchs.
+3. **"🔄 Aktualisieren"** liest die neue Fassung über den gewohnten Import ein:
+   Die Arbeitsmappe (7.7a) läuft in einem Zug ohne Zuordnungsdialog, mit
+   Ergebnisfenster; andere Listen gehen beim ersten Mal durch "Spalten
+   zuordnen", danach übernimmt die gemerkte Importvorlage (7.6b) die
+   Zuordnung ohne Dialog.
+   - **Am PC mit Edge oder Chrome:** Beim ersten Mal wählt man die Datei im
+     synchronisierten OneDrive-/SharePoint-Ordner aus. Der Browser merkt sich
+     den Zugriff auf dem Gerät; danach genügt ein Klick. Nach einem
+     Browser-Neustart fragt der Browser einmal, ob der Zugriff erlaubt ist.
+   - **Handy, iPad, Firefox, Safari:** "Aktualisieren" öffnet jedes Mal die
+     Dateiauswahl.
+   - Wurde die Datei verschoben oder umbenannt, meldet TourFuchs das; beim
+     nächsten "Aktualisieren" wählt man sie neu aus.
+4. Je Quelle steht der Stand ("zuletzt 10.10.2026, 08:12 · verknüpft:
+   Datei.xlsx"), die Überschrift zeigt Anzahl und letzte Aktualisierung.
+   **"Datei lösen"** vergisst die gemerkte Datei, **"Entfernen"** die ganze Quelle.
+
+Gespeichert werden nur Name, Link, Zeitpunkt und der Dateiverweis – lokal im
+Browser, keine Kundendaten. **"Daten löschen"** vergisst Dateiverweise und
+Zeitpunkte; die Links bleiben als Einstellung stehen.
+
+### 7.6b Importvorlagen: Spalten einmal zuordnen, dann nur noch Ergebnis
+
+Seit 10.10.2026 (Release 15.1). Nach jedem Import mit **"Spalten zuordnen"**
+merkt sich TourFuchs die Spaltenüberschriften der Liste und die bestätigte
+Zuordnung als **Vorlage** (Name aus dem Dateinamen, z. B. "Kundenstamm"). Die
+Meldung danach sagt "Zuordnung als Vorlage „…" gemerkt".
+
+- **Dieselbe Liste wieder** (gleiche Überschriften, Reihenfolge und
+  Groß/Klein egal; auch über "🔄 Aktualisieren" einer Datenquelle, 7.6a):
+  **kein Dialog "Spalten zuordnen"**. Es erscheint nur das Fenster
+  **"Liste aktualisiert"** mit Kunden · geändert · neu · entfallen · Hinweise;
+  Hinweise und Fehler sind aufklappbar. **"✏️ Zuordnung prüfen"** öffnet die
+  Zuordnung dieser Liste, eine Korrektur wird für die Vorlage gemerkt.
+- **Fehlen Kunden** gegenüber dem Bestand, kommt wie gewohnt der
+  Änderungsbericht mit "Behalten/Entfernen" (7.6) – nur dann.
+- **Liste verändert** (Spalten neu oder entfallen): "Spalten zuordnen" öffnet
+  sich einmal, **vorbelegt** aus der Vorlage, mit Hinweis "neu: … – fehlt: …".
+  Neue Spalten werden automatisch erkannt; was man bewusst abgewählt hatte,
+  bleibt abgewählt.
+- Lag die Tabelle beim letzten Mal auf einem anderen Blatt oder unter einer
+  anderen Überschriftenzeile, liest TourFuchs die Datei einmal so und
+  vergleicht erneut.
+- Mehrere Vorlagen nebeneinander (Kundenstamm, Zuständigkeiten, Promotoren,
+  Umsätze …), höchstens 8. Unter **"Daten"** → **"🧩 Gemerkte Importvorlagen"**
+  stehen sie mit Spaltenzahl und letzter Nutzung; **"Vergessen"** löscht eine
+  Vorlage – beim nächsten Import dieser Liste erscheint wieder die Zuordnung.
+- Gespeichert sind nur Spaltennamen und Zuordnung, lokal im Browser – keine
+  Kundendaten. Die Vertriebs-Arbeitsmappe (7.7a) braucht keine Vorlage.
+
 ### 7.7 Getrennte Kontaktdatei
 
 Stammdaten und Kontakte können getrennt importiert werden. Eine reine
@@ -1367,6 +1507,67 @@ Kontaktdatei braucht:
 Kontakte werden ausschließlich über die Kundennummer mit vorhandenen Kunden
 verknüpft. Ein Feld **"Primärkontakt?"** kann den Hauptansprechpartner markieren.
 Ohne Treffer erscheint die Zeile in der Fehlerliste.
+
+**Seit 10.10.2026: Promotoren und Kundenansprechpartner.** Eine Kontaktliste
+(eine Zeile je Person) kennt zwei Arten von Kontakten:
+
+| Art | Typische Spalten | Erscheint in der Kachel unter |
+|---|---|---|
+| Kundenansprechpartner | Kd-Nr., Name bzw. Ansprechpartner, **Abteilung**, Telefon, E-Mail | **"🤝 Kundenansprechpartner"** |
+| Promotor | Kd-Nr., Name bzw. **Promotor**, Telefon, E-Mail, **Thema** | **"📣 Promotoren"** |
+
+- Die Art steht ausdrücklich in einer Spalte **"Kontaktart"** (Wert
+  `Promotor` oder `Kunde`) – oder TourFuchs erkennt sie an der Liste: Eine
+  Spalte **"Thema"** oder eine Namensspalte **"Promotor"** gibt es nur bei
+  Promotoren. Alles andere sind Kundenansprechpartner.
+- In einer Kontaktliste (ohne PLZ) ist **"Name"** die Person, nicht der
+  Kunde; zugeordnet wird über die Kundennummer.
+- Ein Promotor wird **nie** Hauptansprechpartner des Kunden.
+- Kontakte werden ergänzt; dieselbe Person (Name, Telefon, E-Mail, Art) wird
+  nicht doppelt angelegt. Ein späterer Reimport des Kundenstamms lässt
+  Promotoren und Kontakte aus einer Kontaktliste stehen.
+- Der Excel-Export schreibt sie in **"Weitere Ansprechpartner"** bzw.
+  **"Promotoren"** (`Name · Abteilung/Thema · Telefon · E-Mail`), die
+  Abteilung des Hauptansprechpartners in **"Abteilung"** – beides nur, wenn es
+  solche Angaben gibt. Die Datei lässt sich so wieder einlesen.
+
+### 7.7a Vertriebs-Arbeitsmappe (fünf Blätter in einem Zug)
+
+Seit 10.10.2026 (Release 16). Enthält eine Excel-Datei die Blätter
+**"VBEZ Übersicht"** und mindestens eines von **"Dateiübersicht"**, **"AE je
+PCK"**, **"SieSales Kontakte"**, **"SieSales Opps"**, erkennt TourFuchs sie an den
+**exakten Blattnamen** und liest alle Blätter in einem Zug – **ohne Dialog
+"Spalten zuordnen"**. Überschrift ist jeweils Zeile 1. Danach folgen wie bei
+jedem Import Abgleich und Änderungsbericht, am Ende das Fenster
+**"Vertriebs-Arbeitsmappe eingelesen"** mit Kunden, Kontakten, Opportunities,
+Produktzeilen, Fehlern und Hinweisen.
+
+- **Schlüssel ist der Debitor** ("Debitor (Kundenmaster)", sonst "Debitor
+  (VInfo)"). Kommt ein Debitor mehrfach vor, **gilt die spätere Zeile**.
+- Es gelten **"VBEZ (Neu)"** als Vertriebsbezirk und **"VB (Neu)"** als
+  Vertriebsbeauftragter (Accountmanager). "VB (Alt)", "VBEZ (Alt)" bleiben als
+  Zusatzspalte für die Übergabe.
+- **"Orders FY24/25/26"** werden die Umsatzjahre (8.5a); "Orders FY26" ist "der"
+  Umsatz. "Ø Orders FY24-26" und Spalten mit Spannen (GJ24-26) zählen nicht als Jahr.
+- Kontakte, Opportunities und Produktzeilen tragen nur die **IFA** ("IFA Nr",
+  "IfA", "IFA") und hängen an **allen Kunden mit dieser IFA**. Zeilen mit einer
+  IFA, die in "VBEZ Übersicht" fehlt, werden gezählt und als Hinweis gemeldet.
+- **"Dateiübersicht"** dient als Kontrolle: Weicht die gelesene Zeilenzahl eines
+  Blattes von der Angabe ab, steht das als Hinweis im Ergebnis.
+- Kontakte mit **Löschvormerkung** oder Status inaktiv werden nicht übernommen.
+- Ein erneuter Import der Mappe **ersetzt** Kontakte, Opportunities und
+  Produkte aus der Mappe; Promotoren und Kontakte aus einer eigenen Kontaktliste
+  (7.7) bleiben.
+- Kennungen (IFA, Debitor …) bleiben Text mit führenden Nullen.
+- **Große Mappen:** Aus Kontakte-, Opps- und Produktblatt liest TourFuchs nur
+  die Spalten, die es auswertet. Reicht der Speicher des Geräts trotzdem nicht
+  ("Die Datei ist zu groß für den Speicher dieses Geräts"), liest TourFuchs
+  von selbst noch einmal **nur das Kundenblatt** – wie vor der Arbeitsmappe –
+  und meldet im Ergebnis "Kontakte, Opportunities und Produkte nicht gelesen".
+  Bisherige Kontakte, Opportunities und Produkte bleiben dann erhalten. Hat der
+  Browser die Seite beim Lesen verworfen, liest der nächste Versuch mit
+  derselben Datei gleich nur das Kundenblatt. Vollständig: am PC importieren
+  und per "Sicherer Umzug" übertragen.
 
 ### 7.8 Flächenzeilen
 
@@ -1388,6 +1589,14 @@ Beispiel `1.234,56`, `1,234.56`, `45000` oder `45.5`. Währungszeichen werden
 ignoriert. Überschriften mit `TEUR`, `Tsd EUR` oder `Mio EUR` werden auf volle
 Euro umgerechnet. Der Import zeigt bei erkannten Besonderheiten einen Hinweis mit
 Gesamtsumme zur Plausibilitätsprüfung.
+
+**Mehrere Geschäftsjahre (seit 10.10.2026):** Spalten wie `Umsatz 2023`,
+`Umsatz 2024`, `Umsatz GJ 25`, `Umsatz 2024/25` (zählt zum hinteren Jahr) oder
+`GJ 2025`, `GJ26` oder `FY27` werden als Umsatz eines Geschäftsjahres erkannt. **Der jüngste
+Jahrgang ist "der" Umsatz** für Karte, Cockpit und Filter; alle Jahre zeigt die
+Kundenkachel unter **"📊 Jahre"** (8.5a). Spalten mit Plan, Ziel, Budget,
+Forecast, Prognose oder Potenzial sind keine Ist-Umsätze und werden nicht als
+Jahr erkannt. Ein Reimport mit neueren Jahren behält ältere Jahre.
 
 ### 7.10 Fehler und Hinweise
 
@@ -1469,8 +1678,20 @@ mitgesendet.
   **„Anhalten"**. Die erste Zahl ist der Fortschritt, die zweite die
   Gesamtzahl (seit 27.09.2026 mit „von" und Tausenderpunkt, weil „427/3441" als
   abgeschnittene Zahl gelesen wurde). Im Info-Dialog steht der Stand dauerhaft.
+- **Seit 10.10.2026 zählt die Pille nur noch, was wirklich neu angefragt
+  wird**, und nennt daneben den erreichten Stand, z. B. **„📍 Verorte Adressen
+  90 von 8.041 · 4.012 schon adressgenau"** (am Handy in zweiter Zeile). Nach
+  einem Neustart übernimmt TourFuchs bereits gefundene Positionen sofort aus dem
+  Speicher – ohne Anfrage und ohne sie mitzuzählen. Früher lief der Zähler nach
+  jedem Start wieder bei 0 los und ging alle bekannten Adressen noch einmal
+  durch; das sah aus, als finge die Verortung von vorn an.
+- Adressen, die OpenStreetMap **nicht findet**, werden für genau diese Anschrift
+  nicht erneut als offen gezählt; ändert sich die Anschrift (neuer Import), wird
+  sie wieder versucht. Der Info-Dialog nennt am Ende, wie viele nicht gefunden
+  wurden. Während des Laufs zeigt er außerdem die ungefähre Restdauer.
 - Zwischenstände werden **höchstens einmal pro Minute** gespeichert und auf der
-  Karte gezeigt – so bleibt die App auch mit vielen tausend Kunden flüssig.
+  Karte gezeigt – so bleibt die App auch mit vielen tausend Kunden flüssig. Der
+  Adress-Speicher selbst wird alle zehn Anfragen gesichert.
 - Eine **Lasso-Auswahl bleibt dabei stehen**; ihre Leuchtpunkte wandern an die
   neuen Positionen (bis 27.09.2026 schloss jede Zwischenstation die Liste).
 - **Während einer Live-Demo ruht die Verortung** und läuft danach weiter.
@@ -1479,6 +1700,18 @@ mitgesendet.
 - **Große Bestände und Tresor:** Nach dem Entsperren zeichnet die Karte die
   Kunden nur noch einmal (bis 27.09.2026 mehrfach – mit einigen tausend Kunden
   wirkte das Handy danach sekundenlang eingefroren).
+
+**„Bitte warten" bei großen Beständen (seit 10.10.2026):** Beim Start steht
+sofort **„TourFuchs startet – Daten werden geladen …"**, mit vielen Kunden
+**„12.500 Kunden werden geladen – bitte warten …"**. Baut die Karte nach einem
+Filter oder Moduswechsel viele Kundenpunkte neu auf, steht **„Karte wird
+aktualisiert – 7.500 von 12.500 Kunden …"**; die Punkte kommen dabei in
+Portionen, die Oberfläche bleibt bedienbar. Der Hinweis erscheint erst nach
+etwa 0,4 Sekunden – was schneller geht, blinkt nicht auf. Ein neuer Filterklick
+während des Aufbaus beendet den alten Aufbau sauber. Zugleich wurden Start und
+Filter spürbar schneller: Filterebenen ohne Abwahl werden bei der Prüfung
+übersprungen (gemessen mit 12.500 Kunden: Start blockiert 0,9 statt 2,3 s,
+Filterklick in der Gebietsplanung praktisch ohne Wartezeit).
 
 ### 8.2 Globale Suche in der Kopfleiste
 
@@ -1584,6 +1817,11 @@ wird intuitiv mit zwei Fingern gezoomt.
   „Spinnennetzes"; ein kleiner Stapel (≤ 5) fächert mit **einem Tipp** auf.
 - **Kundennamen erscheinen erst im Nahbereich** (weiter draußen bleibt es ruhig);
   kleine Cluster lösen sich beim Reinzoomen etwas später auf.
+- Beim **Herauszoomen** gehen Einzelmarker und kleine Gruppen in den größeren
+  Stapel ein: Auf jeder Zoomstufe stehen dieselben Punkte und Stapel wie beim
+  Hineinzoomen (seit 10.10.2026; vorher blieben am Handy nach dem Herauszoomen
+  manchmal einzelne Punkte neben ihrem Stapel stehen). Beim Wechsel der
+  Gebietsebene bleibt die bisherige Fläche sichtbar, bis die neue fertig ist.
 - Kunden in der Tour werden hervorgehoben.
 - bei PLZ-Verortung ist die Position nur näherungsweise.
 - in der Ansicht **"Status"** folgen Farben dem Besuchsstatus.
@@ -1598,7 +1836,12 @@ Das Popup zeigt je nach vorhandenen Daten:
 
 - Kundenname
 - Straße sowie **PLZ + Ort**
-- Hinweis `ca. (PLZ-Mitte)` bei näherungsweiser Position
+- Hinweis `ca. (PLZ-Mitte)` bei näherungsweiser Position. Läuft im Hintergrund
+  die adressgenaue Verortung, bleibt eine **offene Kachel stehen**, bis man sie
+  selbst schließt; der Punkt rückt erst danach an die genaue Adresse
+  (seit 10.10.2026 – vorher schloss jeder Zwischenstand der Verortung die
+  Kachel, und die Karte „zuckte" etwa jede Minute). Das gilt auch in der
+  **Lichterkarte**; dort bleibt die Kachel zudem beim Zoomen offen.
 - Umsatz – sofern vorhanden als eigene hervorgehobene Zeile; auch ein expliziter
   Wert von `0 €` gilt als vorhanden
 - Hauptansprechpartner
@@ -1608,19 +1851,174 @@ Das Popup zeigt je nach vorhandenen Daten:
 - **"Zur Tour"** beziehungsweise **"In Tour"**
 - **"Briefing"**
 
+**Aufbau (seit 10.10.2026):** oben **"Schließen"**, darunter der Name, in
+einer eigenen Zeile darunter Kundennummer und **"↗ SieSales"**, dann Adresse,
+Umsatz, Gebiet (Channel › Gruppe › Bezirk) und – in einer zweiten Zeile – der
+Vertriebsbeauftragte. Es folgen die Knöpfe (Kundenansprechpartner,
+Opportunities, Produkte …), der Besuchsblock („Zuletzt", **"Heute besucht"**,
+Rhythmus) und ganz unten die Tour-Knöpfe (**"Als Start"**, **"Als Ziel"**,
+**"Zur Tour"**, **"Briefing"**, jeweils Symbol über der Beschriftung).
+
+**Seit 11.10.2026 hat die Kachel am Desktop dasselbe Format wie am Handy:**
+höchstens 360 Pixel breit und kompakt. Am Handy nutzt sie die
+Bildschirmbreite abzüglich Rand. Am Desktop ist sie so hoch, wie die Karte
+Platz hat; am Handy bleibt sie niedriger, damit der Kundenpunkt darunter
+sichtbar bleibt. Ein aufgeklapptes Feld lässt die Kachel scrollen; die
+Tour-Knöpfe bleiben dabei unten stehen, die Karte schwenkt nach, damit Name
+und „Schließen" im Bild bleiben, und das Feld rückt von selbst ins Bild.
+
 Bei echten importierten Kunden öffnen **"Anrufen"** und **"E-Mail"** weiterhin
 die jeweilige Geräte-App. Bei Demo-Kunden zeigen dieselben Schaltflächen nur
 einen Hinweis; es wird keine externe Kontaktaktion gestartet.
+
+### 8.5a Umsatz nach Geschäftsjahr
+
+Seit 10.10.2026. Bringt die importierte Liste Umsätze mehrerer
+Geschäftsjahre mit (7.9), trägt die Umsatzzeile den Knopf **"📊 Jahre"**. Er
+klappt **"Umsatz nach Geschäftsjahr"** auf – vier Jahre, jüngstes oben, z. B.
+**GJ26**, **GJ25**, **GJ24**, **GJ23**:
+
+- je Jahr der Umsatz und die Veränderung zum Vorjahr in Prozent (▲ grün /
+  ▼ rot), wenn beide Jahre Werte haben
+- oben steht das jüngere von aktuellem Kalenderjahr und jüngstem Jahr in der
+  Liste; fehlen dafür noch Zahlen, steht dort `noch keine Zahlen`
+
+**Bewusst allgemein:** Ein Geschäftsjahr heißt nach dem Jahr, in dem es
+überwiegend liegt – GJ26 ist bei einem Geschäftsjahr Oktober bis September
+Okt. 2025 bis Sep. 2026, bei einem Kalender-Geschäftsjahr Jan. bis Dez. 2026.
+TourFuchs übernimmt das Jahr aus der Spaltenüberschrift und braucht den
+Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 
 ### 8.6 Weitere Kundendetails und kopierbare Nummer
 
 Je nach importierten Daten ebenfalls sichtbar:
 
-- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Dahinter folgt ein Leerzeichen und der Kundenname, z. B. `000123`, `Musterkunde GmbH` -> `[123] Musterkunde GmbH`; eine reine Null wird `[0] Kundenname`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
-- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie der importierte VB-Name (`vb`), wenn vorhanden
+- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Davor steht der Kundenname mit einem Leerzeichen, z. B. `000123`, `Musterkunde GmbH` -> `Musterkunde GmbH [123]`; eine reine Null wird `Kundenname [0]`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
+- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie darunter in eigener Zeile der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Mustermann Robin +49 (170) 4445566`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
 - **"Als Ziel"**
+
+### 8.6a Abschnitt „Zuständig" (internes Kundenteam)
+
+Seit 09.10.2026. Enthält die importierte Liste Rollenspalten – erkannt werden
+**VK**, **OM**, **TSP TC**, **RTC**, **TAM**, **Account Manager**,
+**EB-Berater** und **Innendienst** –, zeigt das Popup den Knopf
+**"👥 Zuständig (n)"**. Seit 10.10.2026 stehen daneben, wenn vorhanden,
+**"📣 Promotoren (n)"** und **"🤝 Kundenansprechpartner (n)"** (siehe 8.6b).
+Ein Klick klappt das Feld darunter auf, ein zweiter wieder zu; es ist immer
+höchstens eines offen. Unter „Zuständig":
+
+- je gefüllter Rolle eine Zeile mit Name oder Abteilung; leere Rollen entfallen
+- eine Telefonnummer in der Zelle (z. B. `Vera Kunz 0171 2223344`) wird
+  erkannt und ist antippbar (📞, öffnet die Telefon-App); sie steht **unter** dem Namen, damit
+  lange Namen nicht Buchstabe für Buchstabe umbrechen (seit 10.10.2026)
+- in der Kopfzeile **Abzeichen**: der Wert aus **"PA Kundenanfrage"** (z. B.
+  „PI-Partner Kunde") und **"Named Account"** (bei „ja/x/1" steht „Named
+  Account"), dazu **Account Name** (nur wenn er vom Kundennamen abweicht) und
+  **Account Cluster**
+- **IFA-Nr.** und **USt-IdNr** erscheinen nicht im Popup; sie bleiben im Export
+
+Das **Kunden-Briefing** nennt Account, Kennzeichen und das interne Kundenteam
+mit Namen als Suchhilfe für den Assistenten – **ohne Telefonnummern**.
+
+Die Rollen kommen typischerweise aus einer zweiten Komplettliste
+(Zuständigkeitsliste), die per Abgleich (siehe 7.6) zum Kundenstamm kommt.
+Spalten mit 2 bis 80 verschiedenen Textwerten (z. B. **Account Cluster**,
+**Reg. VReg**) lassen sich am Desktop zusätzlich als Filterebene nutzen
+(**"+ Ebene hinzufügen"**).
+
+**Filtern nach Zuständigkeit (seit 10.10.2026):** Jede Rolle ist eine eigene
+Filterebene **"Zuständig · VK"**, **"Zuständig · OM"** usw. Gefiltert wird
+nach dem **Namen ohne Telefonnummer** – `Vera Kunz 0171 …` und `Vera Kunz`
+sind derselbe Eintrag. Anders als rohe Zusatzspalten gibt es keine Obergrenze
+von 80 Werten; die Liste hat ein Suchfeld. Zweck: „Welche Kunden betreut Vera
+als VK?" – wen ich anrufe, kein Leistungsvergleich von Mitarbeitenden.
+
+### 8.6b Promotoren und Kundenansprechpartner
+
+Seit 10.10.2026. Aus einer Kontaktliste (7.7):
+
+- **"📣 Promotoren (n)"**: je Promotor Name, **Thema** (was er promotet),
+  📞 Telefon und ✉️ E-Mail – beides antippbar.
+- **"🤝 Kundenansprechpartner (n)"**: je Person Name, **Abteilung**, 📞 Telefon
+  und ✉️ E-Mail; der Hauptansprechpartner steht oben und ist als
+  `Hauptansprechpartner` markiert. Gibt es nur den Hauptansprechpartner ohne
+  Abteilung, entfällt der Knopf – er steht ohnehin in der Kachel.
+
+**Filter:** **"Promotor"** (Namen) und **"Promotor-Thema"** sind eigene
+Filterebenen (**"+ Ebene hinzufügen"**). Ein Kunde mit zwei Promotoren
+erscheint bei beiden; er bleibt sichtbar, solange einer seiner Promotoren
+ausgewählt ist.
+
+**Briefing:** Das Kunden-Briefing nennt **"Ansprechpartner beim Kunden"** mit
+Abteilung und **"Promotoren"** mit Thema – **ohne Telefon und E-Mail** – und
+bittet den Assistenten, zu den Themen der Promotoren aktuelle Anlässe zu
+prüfen. Mit Jahreswerten (8.5a) enthält es außerdem **"Umsatz nach
+Geschäftsjahr"** samt Veränderung zum Vorjahr und die Bitte, die Entwicklung bei
+Chance und Risiko einzuordnen.
+
+### 8.6c Opportunities, Produkte, Sperrvermerke, Übergabe (Vertriebs-Arbeitsmappe)
+
+Seit 10.10.2026 (Release 16). **Konzept der Kachel:** Beim Öffnen steht nur das
+Wichtigste – Name, Nummer, Anschrift, Umsatz, Zuordnung und höchstens eine Zeile
+Abzeichen. Alles Weitere steckt hinter Knöpfen in **einer** Knopfzeile; ein
+Klick klappt genau ein Feld auf, das bei langen Listen in sich scrollt. Knöpfe
+erscheinen nur, wenn es dazu Daten gibt.
+
+- **"💼 Opportunities (n)"** – n = offene. Kopfzeile "2 offen · 150 T€
+  erwartet", je Opportunity Name, Phase, Abschlussmonat, erwarteter
+  Auftragseingang, Verantwortlicher; Abgeschlossene nur als "+ 3 abgeschlossen".
+  **Offen** ist eine Opportunity, solange weder Status noch Prognosekategorie
+  "geschlossen", "gewonnen" oder "verloren" sagen.
+- **"📦 Produkte (n)"** – Produktmix als Balken (SCB, SSI, Service, Solution,
+  Software in %) und die Produktklassen (PCK) mit dem größten Auftragseingang
+  GJ24–26, je Jahr aufgeschlüsselt.
+- **"🤝 Kundenansprechpartner"** zeigt aus der Mappe zusätzlich Funktion,
+  Mobilnummer und Vermerke: **"✓ DOI"** (Double Opt-In), **"⛔ nicht anrufen"**
+  (dann **kein** Anruf-Link), **"⛔ keine Werbe-Mail"** bzw. **"⛔ Opt-out"**
+  (dann **kein** E-Mail-Link). Erreichbare Kontakte stehen oben. Ein Kontakt aus
+  der Mappe wird nie von selbst Hauptansprechpartner.
+- **"🔁 Übergabe von …"** als Abzeichen, wenn "Übergabe notwendig" gesetzt ist
+  und der VB gewechselt hat (Tooltip: von wem an wen).
+- **Übergaben auf der Karte (seit 10.10.2026, 16.5):** Kundenmarker mit
+  Übergabe tragen in der Markerzeile **"🔁 Übergabe von …"**. Den
+  **gestrichelten violetten Rahmen** bekommen sie nur, solange der Filter
+  "Übergabe" oder "Übergabe von (VB alt)" eingeschränkt ist – sonst wäre die
+  Karte bei einer Neuordnung flächig violett (Violett, weil Orange/Rot den
+  fälligen Besuchen gehören; ein Kunde in der Tour behält den Tour-Rahmen). Filter **"Übergabe"**
+  (mit/ohne) und **"Übergabe von (VB alt)"**: "Welche Kunden übernehme ich?" =
+  Übergabe "mit" plus eigener Bezirk; "Wen gebe ich ab?" = "Übergabe von".
+- **"🔁 Übergabeliste (Excel)"** im Reiter **"Daten"** (nur sichtbar, wenn es
+  Übergaben gibt): folgt den aktiven Filtern. Blatt **"Übergaben"** je Kunde (VB
+  alt/neu, VBEZ alt/neu, Debitor, IFA, Accountname, Anschrift, Umsatz jüngstes
+  GJ, offene Opportunities mit erwartetem AE, Kontakte, SieSales Link), sortiert
+  nach VB alt → VB neu → Umsatz; Blatt **"Übersicht je VB"** je Paar VB alt → neu
+  mit Kunden, Umsatz und offenen Opportunities.
+- **"↗ SieSales"** neben der Kundennummer (eigene Zeile unter dem Namen) öffnet den CRM-Link der Zeile in einem
+  neuen Tab (nur http/https).
+
+**Filter** (**"+ Ebene hinzufügen"**): **"Opportunity"** (mit/ohne offene),
+**"Opportunity-Phase"**, **"Produkt (PCK)"**, **"Cross-Selling-Chance"**.
+
+**Cross-Selling (seit 10.10.2026, 16.6):** Im Feld **"📦 Produkte"** steht oben
+**"💡 Cross-Selling-Chancen"** – Produktklassen, die **mindestens 40 %** der
+vergleichbaren Kunden kaufen, dieser aber nicht, je mit Begründung (z. B.
+"6 von 7 vergleichbaren Kunden in VBEZ 12 kaufen das – dieser nicht"); der Knopf
+trägt dann **"💡n"**. Vergleichbar = **gleicher Vertriebsbezirk**, nur Kunden,
+die überhaupt Produkte kaufen; sind es dort weniger als **5**, gilt die
+**Vertriebsgruppe**, sonst gibt es keinen Hinweis. Höchstens **3** Hinweise je
+Kunde. Keine KI, nur Zählen. Filter **"Cross-Selling-Chance"**: Produkt wählen,
+die Karte zeigt die Kunden, bei denen es eine Chance ist. Das Briefing nennt
+die Themen ("Mögliche Cross-Selling-Themen …") ohne Beträge und ohne Namen der
+Vergleichskunden und bittet den Assistenten, nur belegte Anknüpfungspunkte zu
+nennen.
+
+**Briefing:** nennt **offene Opportunities mit Name, Phase und Abschlussmonat**
+und die **wichtigsten Produktklassen** – **ohne** Beträge, Wettbewerber und
+Beschreibungstexte – und bittet den Assistenten, zu den Opportunities den
+letzten Stand und offene Antworten zu prüfen. Kontakte mit Sperrvermerk nennt
+es nicht.
 
 ### 8.7 Direkte Kundenaktionen
 
@@ -1661,10 +2059,10 @@ selbst ab.
 
 ### 9.2 Voraussetzungen
 
-- ein Assistent, den der Nutzer ohnehin nutzen darf (Microsoft 365 Copilot,
-  Google Gemini, ChatGPT oder ein Assistent der eigenen Organisation).
-- keine Einrichtung in TourFuchs, keine Client-ID, keine Anmeldung, keine
-  IT-Freigabe für TourFuchs.
+- ein freigegebener Firmen-KI-Assistent: Microsoft 365 Copilot mit Firmenkonto
+  oder ein selbst hinterlegter Assistent der eigenen Organisation.
+- keine KI-Anmeldung, Client-ID oder API-Einrichtung in TourFuchs. Die
+  betrieblichen Freigaben für Anwendungen und Daten bleiben maßgeblich.
 - die Qualität des Briefings hängt davon ab, auf welche internen Quellen der
   Assistent im Konto des Nutzers zugreifen darf.
 
@@ -1713,8 +2111,7 @@ richtet sich nach dem gewählten Assistenten:
 | Assistent | Quellenformulierung im Prompt |
 |---|---|
 | Microsoft 365 Copilot | E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte, Dateien |
-| Google Gemini | E-Mails, Kalendertermine, Chats, Dateien in Drive |
-| ChatGPT / eigener Assistent | neutral: verbundene Postfächer, Kalender und Dateiablagen |
+| Eigener Firmenassistent | nur tatsächlich verfügbare und berechtigte interne Quellen; fehlende Quellen ausdrücklich benennen |
 
 Zeitraum: letzte 12 Monate mit Schwerpunkt auf den letzten 90 Tagen sowie
 zukünftige Termine, Zusagen, Aufgaben und Fristen.
@@ -1741,21 +2138,27 @@ Nicht im Prompt enthalten:
 ### 9.5 Zielassistent wählen
 
 Microsoft 365 Copilot ist voreingestellt. Auf Desktop und Smartphone lässt sich der Zielassistent ohne Basis-/Profi-Umschalter ändern. Im Briefing-Dialog steht eingeklappt
-**"Ziel: <Assistent> · Anderen Assistenten wählen"**.
+zum Beispiel **"Firmen-KI-Assistent: Microsoft 365 Copilot · Anderen Assistenten wählen"**.
 
 **Klickpfad:** `"Briefing" -> "Anderen Assistenten wählen" -> Auswahl`.
 
-Auswahlmöglichkeiten: Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT,
-eigener Assistent mit selbst eingetragener **https**-Adresse. Die Wahl wird lokal
+Auswahlmöglichkeiten: **Microsoft 365 Copilot** (Standard, „Mit deinem Firmenkonto verwenden“)
+und **„Eigener Firmenassistent“** mit selbst eingetragener **https**-Adresse
+unter „Adresse des Firmenassistenten“. Hinterlege nur einen freigegebenen
+Assistenten deiner Organisation. Es gibt keine weiteren Anbieter-Voreinstellungen.
+Frühere gespeicherte Anbieter-Auswahlen fallen auf Copilot zurück; bestehende
+eigene Firmenlinks bleiben erhalten. TourFuchs prüft weder das dort angemeldete
+Konto noch die betriebliche Freigabe. Die Wahl wird lokal
 gemerkt und ändert zwei Dinge: die geöffnete Adresse und die Quellenzeile im
-Prompt. Eine `http`-Adresse wird abgelehnt; eine unvollständige eigene Adresse
-fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
+Prompt. Eine `http`-Adresse wird abgelehnt; bei einer unvollständigen eigenen Adresse
+zeigt die Eingabe einen Fehler und der Knopf behält das zuletzt gültige Ziel.
+Eine bereits gespeicherte ungültige eigene Adresse wird als Copilot aufgelöst.
 
-![Kundenbriefing mit der Zeile Ziel und Anderen Assistenten wählen](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
+![Kundenbriefing mit Firmen-KI-Assistent und Anderen Assistenten wählen](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
 
 *BILD-LASSO-07 - Das Ziel wird im Kundenbriefing gewählt; das Mehrkunden-Briefing verwendet dieselbe lokal gemerkte Wahl.*
 
-![Aufgeklappte Assistentenauswahl mit Copilot, Gemini, ChatGPT und eigenem Assistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
+![Aufgeklappte Assistentenauswahl mit Microsoft 365 Copilot und Eigenem Firmenassistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
 *BILD-LASSO-08 - Die Auswahl ändert Zieladresse und Quellenzeile, nicht die Verantwortung für das eigene Absenden.*
 
@@ -2382,6 +2785,7 @@ Bedienelemente für einen Zustand, zum Preis einer Zeile am oberen Rand.
 Das Bedienpanel ist unten an den Bildschirm angedockt.
 
 - der obere Griff wird senkrecht gezogen, um die Höhe kontinuierlich zu ändern;
+- der Griff sitzt bei eigenen Daten 32 Pixel höher (Peek 78 statt 46 Pixel) und hat eine mindestens 44 Pixel hohe Touchfläche. So beginnt das Ziehen weiter oberhalb der Systemgeste. Bei Beispieldaten beträgt der Peek 120 Pixel, mit offener Willkommenskarte 80 Pixel; die sichere untere Zone kommt weiterhin hinzu;
   bis zum Boden gezogen klappt das Blatt ganz auf die Guckhöhe ein.
 - aus geschlossenem Zustand folgt das Blatt direkt dem Finger, ohne von unten
   falsch zu schrumpfen.
@@ -2455,7 +2859,11 @@ Drehhinweis erscheinen.
 Am Desktop öffnet das Topbar-Symbol **"Mobile Außendienst & Tour"** eine
 gerahmte Smartphone-Ansicht. Sie ist kein reiner Tourenplaner: Kundenkarte,
 Kundensuche, Kunden-Popup, Briefing, Tour und Navigation bleiben erreichbar.
-Für den schnellen Nutzennachweis startet die Vorschau im geöffneten Tour-Bereich.
+Sie startet wie das echte Handy: Mit Kundendaten auf der **Karte** – Blatt
+eingeklappt, **ganz Deutschland im Bild**; Tour, Filter (**„Planungsbereich"**)
+und Briefing öffnen sich über das Blatt. Ohne Kundendaten startet sie im
+Bereich „Daten". Bis 09.10.2026 öffnete die Vorschau auch mit Kundendaten
+„Daten" – einen Bereich, den das Handy mit Daten nicht hat, und ohne Filter.
 
 Sobald erstmals Kundendaten vorhanden sind und kein Dialog oder anderer
 Onboarding-Schritt die Aufmerksamkeit beansprucht, inszeniert TourFuchs diesen
@@ -2710,10 +3118,12 @@ dorthin geben, wo sie gebraucht wird.
 Klickpfade:
 
 - Topbar -> offenes Schloss/Tresor-Symbol (der stets erreichbare Einstieg)
-- oder im **"Daten"**-Tab den eingeklappten Block
-  **"🔐 Datentresor & sicherer Umzug"** aufklappen -> **"Tresor aktivieren
+- oder im **"Daten"**-Tab unter **„Schützen"** den eingeklappten Block
+  **"🔐 Datentresor"** aufklappen -> **"Tresor aktivieren
   (PIN)"**. Der Block zeigt eingeklappt den Status (Tresor aus/aktiv/gesperrt)
-  und macht so der eigentlichen Datenarbeit Platz.
+  und macht so der eigentlichen Datenarbeit Platz. (Bis 11.10.2026 hieß er
+  „🔐 Datentresor & sicherer Umzug" und enthielt am Desktop auch Senden und
+  Empfangen; die stehen jetzt bei „Weitergeben" bzw. „Daten laden", siehe 7.0.)
 
 Nach dem Import eigener Kundendaten **unterbricht TourFuchs nicht mehr**. Die
 Daten sind gespeichert; ein einmaliger Kurzhinweis sagt, dass sie
@@ -2784,13 +3194,13 @@ Biometrische Daten verlassen das Gerät nicht. Die PIN bleibt der Rückfallweg.
 
 ### 14.6 Sicherer Umzug senden
 
-**Klickpfad:** `"Daten" -> "Sicherer Umzug" ->
-"Verschlüsselt exportieren (Datei + QR)"`.
+**Klickpfad:** `"Daten" -> "Weitergeben" ->
+"Verschlüsselt exportieren (Datei + QR)"` (am Handy: „Sichern & übertragen").
 
 TourFuchs erzeugt:
 
 1. eine AES-256-GCM-verschlüsselte `.tfsafe`-Datei.
-2. einen getrennten Zufallsschlüssel als QR-Code und Text.
+2. einen getrennten Zufallsschlüssel als QR-Code und Text. Über **„🔑 Schlüsseldatei herunterladen (.txt)“** lässt sich der passende Schlüssel als kleine Textdatei speichern.
 
 TourFuchs lädt die Datei nicht auf einen eigenen Server. Der Nutzer entscheidet,
 wie die Datei auf das Zielgerät gelangt. Datei und Schlüssel müssen getrennt
@@ -2798,16 +3208,22 @@ transportiert werden.
 
 ### 14.7 Sicherer Umzug empfangen
 
-**Klickpfad:** `"Eigene Daten laden" -> "Verschlüsselte TourFuchs-Datei" ->
+**Klickpfad für Neue am Desktop:** Willkommenskarte ->
+**„🔐 Ich habe eine Datei von Kollegen"** oder `"Daten" -> "Deine Daten holen" ->
+"🔐 Datei von Kollegen öffnen"` (siehe 7.0). Beide öffnen den Empfang direkt.
+
+Auf allen Geräten: `"Eigene Daten laden" -> "Verschlüsselte TourFuchs-Datei" ->
 "Verschlüsselte Datei öffnen"`.
 
 Alternativ bei geladenen Daten:
 
-`"Daten" -> "Daten empfangen (Datei + Schlüssel)"`.
+`"Daten" -> "Daten laden" -> "Daten empfangen (Datei + Schlüssel)"`.
 
-1. `.tfsafe`-Datei wählen.
-2. Schlüssel-QR scannen oder Schlüsseltext eingeben.
-3. Daten entschlüsseln und lokal speichern.
+Der Dialog zeigt beide benötigten Schritte von Anfang an:
+
+1. **„Datendatei auswählen“**: die verschlüsselte `.tfsafe`-Datei wählen. Dateiname und Inhalt werden bestätigt; die Datei kann erneut ausgewählt werden.
+2. **„Schlüssel laden“**: über **„🔑 Schlüsseldatei auswählen (.txt)“** die getrennt erhaltene Textdatei laden. Der zweite Schritt wird nach einer gültigen Datendatei bedienbar. Falsche, leere, zu große oder mehrdeutige Schlüsseldateien werden sichtbar abgelehnt. UTF-8 und UTF-16 sowie eine zusätzliche Erklärungszeile werden unterstützt (maximal 16 KB).
+3. **„Entschlüsseln und importieren“** übernimmt die Daten nach der bisherigen Rückfrage bei vorhandenem Bestand. **„Alternativ: Schlüsseltext einfügen“** und **„Alternativ: Schlüssel-QR scannen“** bleiben verfügbar. Die Kamera startet erst nach **„📷 Kamera starten“**.
 4. Den lokalen Datentresor bei Bedarf anschließend freiwillig aktivieren. Ist
    bereits ein Tresor aktiv, werden die empfangenen Daten darin gespeichert;
    eine neue PIN ist nicht nötig.
@@ -2832,6 +3248,19 @@ Base64-verpackt) werden **trotzdem gelesen**. Dieselbe Datei darf **beliebig
 oft** erneut gewählt werden; TourFuchs merkt sich keine „verbrauchten" Dateien –
 vor dem Übernehmen fragt es nur, ob die Daten auf dem Gerät ersetzt werden
 sollen.
+
+**Seit 09.10.2026:** Jede Rückmeldung steht **direkt im Dialog** „Daten
+empfangen" (rote Zeile unter „Umzugsdatei wählen") und zusätzlich als
+Einblendung, die über dem Dialog liegt. Vorher lag die Einblendung hinter dem
+Dialog – im Firmenbereich wirkte es, als „passiere nichts". Die Dateiauswahl
+filtert nicht mehr nach Dateityp: Android kennt `.tfsafe` nicht und graute die
+Datei je nach Auswahl aus; TourFuchs prüft den Inhalt selbst. Weitere Befunde:
+
+| Befund | Bedeutung / Rat |
+|---|---|
+| **Fenster „Datei ist gesperrt"** mit der Frage **„Liegt die Datei wirklich auf diesem Handy – im Ordner „Downloads"?"** | Seit 09.10.2026 (zweite Runde): Bei einem Zugriffsfehler öffnet sich dieses Fenster über allem, mit dem Knopf **„Datei aus Downloads wählen"**, der die Auswahl sofort neu öffnet. Unten klein: Dateiname, Größe, Fehlertyp. |
+| **konnte nicht gelesen werden [NotReadableError]** | Der Browser darf die Datei nicht lesen – im Firmenbereich (OneDrive, Teams, Outlook, Arbeitsprofil) sperrt oft eine Richtlinie den Zugriff, oder die Datei liegt nur in der Cloud. Datei zuerst vollständig aufs Gerät herunterladen und aus „Downloads" wählen. |
+| **Es ist keine Datei angekommen / Keine Datei gewählt** | Die Auswahl wurde ohne Datei geschlossen. Fehlte die Datei oder war sie ausgegraut: Im Firmenbereich zeigt die Auswahl oft nur Dateien des Arbeitsprofils – die Datei dort speichern (z. B. über Outlook oder OneDrive der Firma). |
 
 ---
 
@@ -2993,7 +3422,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Kunde suchen | `Topbar -> "Kunde, Ort, PLZ suchen..." -> Kundentreffer` |
 | Mobile Ansicht prüfen | `Topbar -> Smartphone-Symbol "Mobile Außendienst & Tour"` |
 | Kundenbriefing | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
-| Zielassistent wählen | ` Kundenmarker -> "Briefing" -> "Ziel: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
+| Zielassistent wählen | ` Kundenmarker -> "Briefing" -> "Firmen-KI-Assistent: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
 | Mehrkunden-Briefing Tour | `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"` |
 | Mehrkunden-Briefing Umgebung | `Blatt aufziehen (Schreibtisch: Tab "Tour") -> "In der Nähe" aufklappen -> Kartenmitte/Standort -> "Wen zuerst? Briefing für diese Umgebung"` |
 | Demo-Briefing | `Demo-Kundenmarker -> "Briefing" -> lokale Ergebnisvorschau -> "Verstanden"` |
@@ -3190,6 +3619,34 @@ Möglichkeiten:
 
 App fokussieren oder neu öffnen, Update-Hinweis abwarten, Seite neu laden. Bei
 altem Namen alte PWA entfernen und neu installieren.
+
+### 18.20 Große Excel-Datei am Handy oder im Firmenbereich lässt sich nicht importieren
+
+**Fehlerbild A – bleibt bei „Tabelle wird aufbereitet …" stehen, dann startet
+die App neu** (Edge meldet „Um Speicherplatz zu sparen, hat Microsoft Edge
+einige Inhalte entfernt"): Dem Browser ist der Speicher ausgegangen.
+
+- Seit 09.10.2026 liest TourFuchs nur noch das benötigte Tabellenblatt und
+  speichersparend (gemessen: rund 40 % weniger Speicher, dreimal so schnell).
+- Der Wartedialog nennt Dateiname und Größe und sagt: große Listen brauchen
+  am Handy bis zu 2 Minuten. Am Handy erscheint bei großen Dateien zusätzlich
+  hervorgehoben „Große Datei: Das dauert am Handy oft 1–2 Minuten …", und eine
+  Uhr („Läuft seit 1:12") zeigt, dass nichts hängt.
+- Wird die Seite trotzdem verworfen, meldet TourFuchs beim nächsten Start:
+  **„Der Import von „…" (… MB) wurde nicht abgeschlossen …"**.
+- Abhilfe: am Desktop importieren und per „Sicherer Umzug" aufs Handy bringen –
+  oder in Excel nur das benötigte Blatt als eigene Datei speichern.
+
+**Fehlerbild B – „Datei konnte nicht gelesen werden: The requested file could
+not be read, typically due to permission problems …"**: Der Browser durfte die
+Datei auswählen, aber nicht lesen. Typisch im Firmenbereich (Intune-Arbeitsprofil,
+OneDrive, Teams, Outlook), wenn die Datei nur in der Cloud liegt oder eine
+Richtlinie den Zugriff sperrt. Seit 09.10.2026 öffnet sich das Fenster
+**„Datei ist gesperrt"** mit einer einzigen, groß abgesetzten Prüffrage:
+**„Liegt die Datei wirklich auf diesem Handy – im Ordner „Downloads"?"** –
+darunter kurz das Wie und der Knopf **„Datei aus Downloads wählen"**. Gilt für
+den Excel-Import und für „Daten empfangen". Abhilfe: Datei zuerst vollständig
+aufs Gerät herunterladen und aus „Downloads" wählen.
 
 ---
 
@@ -4191,9 +4648,10 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
     sofort; die übrigen optionalen Felder liegen unter „Weitere Felder"
     eingeklappt (mit „N automatisch erkannt"). Beim Import werden weiterhin alle
     Felder gelesen.
-  - **Datentresor & sicherer Umzug:** als eingeklappter Block mit Statuszeile
+  - **Datentresor:** als eingeklappter Block mit Statuszeile
     („Tresor aus/aktiv/gesperrt"); das Topbar-Schloss bleibt der schnelle
-    Einstieg.
+    Einstieg. (Bis 11.10.2026 „Datentresor & sicherer Umzug"; Senden und
+    Empfangen stehen am Desktop jetzt bei „Weitergeben" bzw. „Daten laden".)
 - **Vorübergehende Angebote treten beim Scrollen zurück (ohne Timer):** Beim
   Scrollen in den Inhalt (= man wendet sich dem Prozess zu) klappen angepinnte
   Angebote wie der Kartenstil-Wähler und der Beispieldaten-Streifen sanft ein und
@@ -4397,7 +4855,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 - Desktop-Panel bleibt bei sichtbarer Startauswahl geschlossen; die Begrüßung ist über der ganzen Karte zentriert.
 - Umschauen sowie Ende oder Abbruch einer Demo machen das Desktop-Panel automatisch verfügbar; eigener Kundenimport öffnet es nach erfolgreicher Übernahme.
-- Kundennummer-Kopie enthält zusätzlich den Namen im Format `[Kundennummer] Kundenname`; führende Nullen entfallen weiterhin nur beim Kopieren.
+- Kundennummer-Kopie enthält den Namen im Format `Kundenname [Kundennummer]`; führende Nullen entfallen weiterhin nur beim Kopieren.
 - PDF, Systemprompt und Custom-GPT-Uploadpaket mit Guide 3.21 synchronisiert, einschließlich der mobilen Änderungen aus 3.20.
 
 ### Änderungen in Version 3.20 (08.10.2026)
@@ -4453,7 +4911,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Simulation | dauerhaft erst nach "Zuweisung übernehmen" |
 | Undo | "Ein Schritt zurück", bis zu 30 Schritte |
 | Tresor | AES-256, PIN, Recovery, optional Face/Touch ID |
-| Sicherer Umzug | `.tfsafe` + getrennter Schlüssel-QR |
+| Sicherer Umzug | `.tfsafe` + getrennter Schlüssel als TXT, QR oder Text |
 | Live-Demos | Desktop direkt oben rechts „Live-Demos“; außerdem Willkommens-Panel oder Info; Empfangs- und Briefing-Demos auf beiden Geräten |
 | Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten – auch beim Scrollen – zur Zeile ein; Abwahl über Info umkehrbar |
 | Ruhige Oberfläche | zwei Muster: Langes startet zugeklappt und nennt in der Kopfzeile, was drin ist; beim Scrollen in den Inhalt treten Kartenstil, Beispieldaten-Streifen und Checkliste zurück. Nur wenn dabei etwas zu gewinnen ist – sonst bleibt alles stehen |
@@ -4461,3 +4919,13 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Zanobo | Link-out je Anlagen-ID (`#/m/<id>`, Fragment bleibt lokal); Vergleich statt Diagnose; Standard zanobo.vercel.app |
 | Update | App-Dateien neu, lokale Daten bleiben erhalten |
 | Vor Löschen | Export empfehlen |
+
+### Bedienverbesserungen vom 12.10.2026
+
+Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dreistelligen PLZ-Gebieten (`plz3`). Die Desktop-Automatik und die dort gespeicherte Ebenenwahl bleiben erhalten; ausdrücklich ausgeschaltete Gebietsebenen bleiben aus. Die Kundennummer-Kopie lautet jetzt `Kundenname [Kundennummer]`. Der angehobene Griff erleichtert das Ziehen bei Gestennavigation. Beim sicheren Umzug sind Datendatei und Schlüsseldatei zwei sichtbare Schritte; die Live-Demo führt genau diesen Weg vor.
+
+### Änderungen in Guide 3.24 (13.10.2026)
+
+- **Firmen-KI-Assistent:** Microsoft 365 Copilot ist voreingestellt; alternativ „Eigener Firmenassistent“ mit freigegebenem HTTPS-Link der eigenen Organisation. Keine konzernspezifische Voreinstellung. Frühere entfernte Anbieter-Auswahlen fallen auf Copilot zurück; eigene Links bleiben erhalten.
+- **Live-Demos:** Beide Briefing-Wege zeigen die zwei Optionen, den vollständigen Copilot-Prompt und die lokale Kopie. Sie öffnen keinen Assistenten und bewahren die gespeicherte Wahl.
+- **Guide-Paket:** Systemprompt, Kurz- und Bildanleitung, Schulung sowie PDF bilden diese Auswahl und die Bedienverbesserungen vom 12.10.2026 ab. Alle 17 Schulungsbilder wurden mit synthetischen Daten neu aufgenommen.
