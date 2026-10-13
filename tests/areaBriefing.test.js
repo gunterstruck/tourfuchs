@@ -128,8 +128,8 @@ describe('Gebiets-Briefing: Prompt', () => {
 
     it('übernimmt die Quellenzeile des gewählten Assistenten', () => {
         expect(prompt).toContain(assistantById('copilot').promptSources);
-        const gemini = buildAreaBriefingPrompt(customers, { areaLabel: 'Umkreis' }, assistantById('gemini'));
-        expect(gemini).toContain(assistantById('gemini').promptSources);
+        const custom = buildAreaBriefingPrompt(customers, { areaLabel: 'Umkreis' }, assistantById('custom'));
+        expect(custom).toContain(assistantById('custom').promptSources);
     });
 
     it('sagt, dass die Liste gekürzt wurde – sonst hält man sie für vollständig', () => {
