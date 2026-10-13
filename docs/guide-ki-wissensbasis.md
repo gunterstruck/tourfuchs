@@ -3206,6 +3206,13 @@ TourFuchs lädt die Datei nicht auf einen eigenen Server. Der Nutzer entscheidet
 wie die Datei auf das Zielgerät gelangt. Datei und Schlüssel müssen getrennt
 transportiert werden.
 
+**Kundennamen mit `&amp;`:** Manche Excel-Quellen liefern das kaufmännische
+Und bereits HTML-kodiert. TourFuchs zeigt und speichert es nach dem Import
+als `&`. Ältere `.tfsafe`-Dateien können noch die kodierte Schreibweise
+enthalten; beim Entschlüsseln und Übernehmen wird sie korrigiert. Die alte
+Datei und ihr Schlüssel bleiben verwendbar. Ein danach neu erzeugter Export
+enthält den korrigierten Namen.
+
 ### 14.7 Sicherer Umzug empfangen
 
 **Klickpfad für Neue am Desktop:** Willkommenskarte ->
