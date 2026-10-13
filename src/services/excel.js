@@ -6,6 +6,7 @@
  */
 
 import * as XLSX from 'xlsx';
+import { normalizeCustomerName } from '../features/customerName.js';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
 import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
 import {
@@ -855,7 +856,7 @@ export function parseRows(rows, mapping) {
     rows.forEach((row, index) => {
         const sheetRow = index + 2; // Kopfzeile = Zeile 1
         const get = (key) => (mapping[key] ? String(row[mapping[key]] ?? '').trim() : '');
-        const name = get('name');
+        const name = normalizeCustomerName(get('name'));
         const gebiet = get('gebiet');
         const nummer = get('nummer');
         const contactRow = !name && !gebiet;
