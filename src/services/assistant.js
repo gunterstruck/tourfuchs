@@ -25,38 +25,24 @@ export const DEFAULT_ASSISTANT_ID = 'copilot';
 
 /**
  * `promptSources` steuert, aus welchen Quellen der Assistent im Prompt schöpfen
- * soll – bei Copilot das berechtigte Microsoft-365-Wissen, bei Gemini das
- * Google-Workspace-Pendant, sonst neutral formuliert.
+ * soll – bei Copilot das berechtigte Microsoft-365-Wissen, sonst nur die
+ * tatsächlich verfügbaren internen Quellen, ohne eine Anbindung zu versprechen.
  */
 export const ASSISTANTS = Object.freeze([
     {
         id: 'copilot',
         label: 'Microsoft 365 Copilot',
-        hint: 'Firmenwissen aus deinem Microsoft-365-Konto',
+        hint: 'Mit deinem Firmenkonto verwenden',
         url: 'https://m365.cloud.microsoft/chat',
         preferEdge: true,
         promptSources: 'Durchsuche ausschließlich Microsoft-365-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte und Dateien.'
     },
     {
-        id: 'gemini',
-        label: 'Google Gemini',
-        hint: 'Firmenwissen aus Google Workspace',
-        url: 'https://gemini.google.com/app',
-        promptSources: 'Durchsuche ausschließlich Google-Workspace-Inhalte, auf die ich mit meinem Arbeitskonto zugreifen darf: relevante E-Mails, Kalendertermine, Chats und Dateien in Drive.'
-    },
-    {
-        id: 'chatgpt',
-        label: 'ChatGPT',
-        hint: 'Allgemeiner Assistent bzw. verbundene Quellen',
-        url: 'https://chatgpt.com/',
-        promptSources: 'Nutze ausschließlich die internen Quellen, auf die du in meinem Auftrag zugreifen darfst (z. B. verbundene Postfächer, Kalender und Dateiablagen).'
-    },
-    {
         id: 'custom',
-        label: 'Eigener Assistent',
-        hint: 'Adresse des Assistenten deiner Organisation',
+        label: 'Eigener Firmenassistent',
+        hint: 'Link zu einem freigegebenen Assistenten deiner Organisation',
         url: '',
-        promptSources: 'Nutze ausschließlich die internen Quellen, auf die du in meinem Auftrag zugreifen darfst (z. B. verbundene Postfächer, Kalender und Dateiablagen).'
+        promptSources: 'Nutze ausschließlich die internen Quellen, die dir tatsächlich zur Verfügung stehen und auf die du in meinem Auftrag zugreifen darfst. Wenn dir passende Quellen fehlen, benenne diese Lücke; erfinde keine Informationen.'
     }
 ]);
 

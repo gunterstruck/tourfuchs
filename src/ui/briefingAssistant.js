@@ -1,9 +1,9 @@
 /**
  * Zielwahl für Briefings – ein Bauteil für Kunden- und Mehrkunden-Briefing.
  *
- * Beide Dialoge zeigen denselben Block („Ziel: … · Anderen Assistenten
+ * Beide Dialoge zeigen denselben Block („Firmen-KI-Assistent: … · Anderen Assistenten
  * wählen") und lesen/schreiben dieselbe gespeicherte Wahl. Wer im Lasso auf
- * ChatGPT umstellt, bekommt ChatGPT auch im nächsten Kundenbriefing – zwei
+ * einen eigenen Firmenassistenten umstellt, bekommt ihn auch im nächsten Kundenbriefing – zwei
  * getrennte Einstellungen würden nur zu „warum öffnet sich hier etwas anderes?"
  * führen. Eingeklappt („Überblick → aufzoomen"): Der Normalfall bleibt ein
  * Knopf; wer ein anderes Werkzeug nutzt, klappt einmalig auf.
@@ -30,17 +30,17 @@ export function assistantChooserHtml(currentAssistant, prefix, scopeNote = 'Gilt
 
     return `<details class="briefing-assistant"${choice.id === 'custom' ? ' open' : ''}>
         <summary>
-            <b>Ziel: ${escapeHtml(currentAssistant.label)}</b>
+            <b>Firmen-KI-Assistent: ${escapeHtml(currentAssistant.label)}</b>
             <span>Anderen Assistenten wählen</span>
         </summary>
         <div class="briefing-assistant-content">
             ${options}
-            <label class="briefing-field briefing-assistant-url"${choice.id === 'custom' ? '' : ' hidden'}>Adresse des Assistenten
+            <label class="briefing-field briefing-assistant-url"${choice.id === 'custom' ? '' : ' hidden'}>Adresse des Firmenassistenten
                 <input id="${prefix}-assistant-url" type="url" inputmode="url" autocomplete="off" spellcheck="false"
                     placeholder="https://assistent.meine-firma.de" value="${escapeHtml(choice.customUrl)}">
             </label>
             <p class="briefing-assistant-error" role="alert" hidden></p>
-            <p class="muted small">${escapeHtml(scopeNote)} Die Wahl bestimmt nur, welches Fenster sich öffnet: TourFuchs sendet nichts – der Prompt geht erst raus, wenn du ihn dort absendest.</p>
+            <p class="muted small">${escapeHtml(scopeNote)} TourFuchs erstellt den Prompt lokal und kopiert ihn auf deinen Wunsch. Du fügst ihn selbst im gewählten Firmenassistenten ein. Nutze dein Firmenkonto und beachte die Freigaben deiner Organisation.</p>
         </div>
     </details>`;
 }
@@ -69,7 +69,7 @@ export function wireAssistantChooser(root, prefix, onChange, { persist = true } 
             return;
         }
         const summary = root.querySelector('.briefing-assistant summary b');
-        if (summary) summary.textContent = `Ziel: ${assistant.label}`;
+        if (summary) summary.textContent = `Firmen-KI-Assistent: ${assistant.label}`;
         onChange(assistant);
     };
     for (const input of root.querySelectorAll(`input[name="${prefix}-assistant"]`)) {

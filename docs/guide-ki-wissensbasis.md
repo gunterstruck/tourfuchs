@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.23 · Stand: 12.10.2026 · App-Version: 3.7.0**
+**Version 3.24 · Stand: 13.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `162ce2643743a0e4bb8efd22753f82f280c31457` (PR #424), ergänzt um den höheren mobilen Griff, stabile mobile PLZ-3-Flächen, das Kopierformat `Kundenname [Kundennummer]` und den Empfang mit Schlüsseldatei dieses Dokumentationsstands (12.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `afcba75bd35fa5ad36020d222a0ebc773745b5ca` (PR #425), ergänzt um die Firmen-KI-Auswahl und die aktualisierten Live-Demos dieses Dokumentationsstands (13.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -72,7 +72,7 @@ Arbeitsteilung ist eine bewusste Rollenverteilung, keine Technikgrenze:
 nicht automatisch ab. Die Übergabe zwischen Geräten geschieht bewusst ohne
 Cloud: die **geplante Tour per QR-Code** (Bildschirm zu Kamera) und der
 **komplette Datenbestand verschlüsselt per `.tfsafe`-Datei** mit getrennt
-reisendem Schlüssel-QR. Spricht ein Nutzer von "Synchronisation", stellt der
+reisendem Schlüssel (Textdatei, QR oder Text). Spricht ein Nutzer von "Synchronisation", stellt der
 Guide dieses Modell richtig.
 
 ---
@@ -400,7 +400,7 @@ Heute gilt überall, was früher „Profi" freischaltete:
 | Kunden-Popup | Name, Adresse, Ort, Umsatz, Kontakt, Kundennummer, Hierarchie, Besuchsstatus/Rhythmus, "Heute besucht", "Als Start", "Als Ziel", "Zur Tour", "Briefing" |
 | Tour | Bezirk, Start, Ziel, Datum/Zeit/Dauer, Umkreis oder "Entlang der Tour", Vorschläge, Optimierung, Kartenroute, Google Maps, QR/Scan, Kartenansicht Kunden/Status/Chancen, Rundreise, Druck, ICS, Text, gespeicherte Touren |
 | Gebiets-Popup | Kennzahlen, Verteilung und namentliche Kundenliste |
-| Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Gemini, ChatGPT, eigene https-Adresse) |
+| Kundenbriefing | Prompt kopieren und Assistent öffnen; Zielassistent wählbar (Standard Microsoft 365 Copilot; Eigener Firmenassistent mit https-Adresse) |
 | Mehrkunden-Briefing | "Wen zuerst?" unter Tourvorschlägen, "In der Nähe" und Lasso-Auswahl ("📋 Briefing über alle"); Häkchen in der Lasso-Auswahlkarte |
 | Erweiterungen | "GeoFuchs (Gebietsplanung & -management)" und "ServiceFuchs (Vertragsradar & Einsätze)" unter "🧩 Erweiterungen" einzeln aktivierbar (am Desktop) |
 
@@ -759,7 +759,7 @@ Die Punkte:
 2. **Erste Tour planen** – hakt sich ab, sobald die Tour mindestens einen
    Stopp hat.
 3. **Tour aufs Handy holen** (QR-Übergabe) – auf dem Smartphone stattdessen
-   **Daten aufs Handy holen** (Empfang per Datei + Schlüssel-QR).
+   **Daten aufs Handy holen** (Empfang per Datei + getrenntem Schlüssel).
 4. **Daten im Tresor sichern**
 
 Jeder Punkt startet zugleich die passende Live-Demo; eine durchgelaufene Demo
@@ -912,10 +912,10 @@ Beispieldaten.
 
 ### 6.4 Besondere Regeln der Briefing-Demos
 
-**Aktueller Ablauf (11.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
+**Aktueller Ablauf (13.10.2026):** Kunden- und Mehrkunden-Briefing zeigen auch
 mit Beispieldaten den tatsächlich erzeugten vollständigen Prompt. Die
 Vorführung klappt **„Anderen Assistenten wählen“** auf, zeigt Microsoft 365
-Copilot, Google Gemini, ChatGPT und **„Eigener Assistent“** und wählt beispielhaft
+Copilot und **„Eigener Firmenassistent“** und wählt beispielhaft
 Microsoft 365 Copilot. Der Prompt und der Knopf folgen dieser Wahl. Danach wird
 der angepasste Prompt lesbar von oben bis unten gezeigt und über den normalen
 Knopf lokal in die Zwischenablage kopiert. Die Demo öffnet keinen externen Assistenten und
@@ -2059,10 +2059,10 @@ selbst ab.
 
 ### 9.2 Voraussetzungen
 
-- ein Assistent, den der Nutzer ohnehin nutzen darf (Microsoft 365 Copilot,
-  Google Gemini, ChatGPT oder ein Assistent der eigenen Organisation).
-- keine Einrichtung in TourFuchs, keine Client-ID, keine Anmeldung, keine
-  IT-Freigabe für TourFuchs.
+- ein freigegebener Firmen-KI-Assistent: Microsoft 365 Copilot mit Firmenkonto
+  oder ein selbst hinterlegter Assistent der eigenen Organisation.
+- keine KI-Anmeldung, Client-ID oder API-Einrichtung in TourFuchs. Die
+  betrieblichen Freigaben für Anwendungen und Daten bleiben maßgeblich.
 - die Qualität des Briefings hängt davon ab, auf welche internen Quellen der
   Assistent im Konto des Nutzers zugreifen darf.
 
@@ -2111,8 +2111,7 @@ richtet sich nach dem gewählten Assistenten:
 | Assistent | Quellenformulierung im Prompt |
 |---|---|
 | Microsoft 365 Copilot | E-Mails, Outlook-Termine, Teams-Chats, Besprechungen, Transkripte, Dateien |
-| Google Gemini | E-Mails, Kalendertermine, Chats, Dateien in Drive |
-| ChatGPT / eigener Assistent | neutral: verbundene Postfächer, Kalender und Dateiablagen |
+| Eigener Firmenassistent | nur tatsächlich verfügbare und berechtigte interne Quellen; fehlende Quellen ausdrücklich benennen |
 
 Zeitraum: letzte 12 Monate mit Schwerpunkt auf den letzten 90 Tagen sowie
 zukünftige Termine, Zusagen, Aufgaben und Fristen.
@@ -2139,21 +2138,27 @@ Nicht im Prompt enthalten:
 ### 9.5 Zielassistent wählen
 
 Microsoft 365 Copilot ist voreingestellt. Auf Desktop und Smartphone lässt sich der Zielassistent ohne Basis-/Profi-Umschalter ändern. Im Briefing-Dialog steht eingeklappt
-**"Ziel: <Assistent> · Anderen Assistenten wählen"**.
+zum Beispiel **"Firmen-KI-Assistent: Microsoft 365 Copilot · Anderen Assistenten wählen"**.
 
 **Klickpfad:** `"Briefing" -> "Anderen Assistenten wählen" -> Auswahl`.
 
-Auswahlmöglichkeiten: Microsoft 365 Copilot (Standard), Google Gemini, ChatGPT,
-eigener Assistent mit selbst eingetragener **https**-Adresse. Die Wahl wird lokal
+Auswahlmöglichkeiten: **Microsoft 365 Copilot** (Standard, „Mit deinem Firmenkonto verwenden“)
+und **„Eigener Firmenassistent“** mit selbst eingetragener **https**-Adresse
+unter „Adresse des Firmenassistenten“. Hinterlege nur einen freigegebenen
+Assistenten deiner Organisation. Es gibt keine weiteren Anbieter-Voreinstellungen.
+Frühere gespeicherte Anbieter-Auswahlen fallen auf Copilot zurück; bestehende
+eigene Firmenlinks bleiben erhalten. TourFuchs prüft weder das dort angemeldete
+Konto noch die betriebliche Freigabe. Die Wahl wird lokal
 gemerkt und ändert zwei Dinge: die geöffnete Adresse und die Quellenzeile im
-Prompt. Eine `http`-Adresse wird abgelehnt; eine unvollständige eigene Adresse
-fällt sichtbar auf Copilot zurück, damit der Knopf nie ins Leere führt.
+Prompt. Eine `http`-Adresse wird abgelehnt; bei einer unvollständigen eigenen Adresse
+zeigt die Eingabe einen Fehler und der Knopf behält das zuletzt gültige Ziel.
+Eine bereits gespeicherte ungültige eigene Adresse wird als Copilot aufgelöst.
 
-![Kundenbriefing mit der Zeile Ziel und Anderen Assistenten wählen](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
+![Kundenbriefing mit Firmen-KI-Assistent und Anderen Assistenten wählen](../public/docs/screenshots/BILD-LASSO-07-profi-zielassistent.png)
 
 *BILD-LASSO-07 - Das Ziel wird im Kundenbriefing gewählt; das Mehrkunden-Briefing verwendet dieselbe lokal gemerkte Wahl.*
 
-![Aufgeklappte Assistentenauswahl mit Copilot, Gemini, ChatGPT und eigenem Assistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
+![Aufgeklappte Assistentenauswahl mit Microsoft 365 Copilot und Eigenem Firmenassistenten](../public/docs/screenshots/BILD-LASSO-08-assistentenauswahl.png)
 
 *BILD-LASSO-08 - Die Auswahl ändert Zieladresse und Quellenzeile, nicht die Verantwortung für das eigene Absenden.*
 
@@ -3417,7 +3422,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Kunde suchen | `Topbar -> "Kunde, Ort, PLZ suchen..." -> Kundentreffer` |
 | Mobile Ansicht prüfen | `Topbar -> Smartphone-Symbol "Mobile Außendienst & Tour"` |
 | Kundenbriefing | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
-| Zielassistent wählen | ` Kundenmarker -> "Briefing" -> "Ziel: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
+| Zielassistent wählen | ` Kundenmarker -> "Briefing" -> "Firmen-KI-Assistent: ... Anderen Assistenten wählen" -> Assistent wählen -> "Prompt kopieren & ... öffnen"` |
 | Mehrkunden-Briefing Tour | `Tab "Tour" -> "2. Vorschläge" -> Umkreis einstellen -> "Wen zuerst? Briefing für dieses Gebiet"` |
 | Mehrkunden-Briefing Umgebung | `Blatt aufziehen (Schreibtisch: Tab "Tour") -> "In der Nähe" aufklappen -> Kartenmitte/Standort -> "Wen zuerst? Briefing für diese Umgebung"` |
 | Demo-Briefing | `Demo-Kundenmarker -> "Briefing" -> lokale Ergebnisvorschau -> "Verstanden"` |
@@ -4906,7 +4911,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 | Simulation | dauerhaft erst nach "Zuweisung übernehmen" |
 | Undo | "Ein Schritt zurück", bis zu 30 Schritte |
 | Tresor | AES-256, PIN, Recovery, optional Face/Touch ID |
-| Sicherer Umzug | `.tfsafe` + getrennter Schlüssel-QR |
+| Sicherer Umzug | `.tfsafe` + getrennter Schlüssel als TXT, QR oder Text |
 | Live-Demos | Desktop direkt oben rechts „Live-Demos“; außerdem Willkommens-Panel oder Info; Empfangs- und Briefing-Demos auf beiden Geräten |
 | Erste Schritte | 4-Punkte-Checkliste; klappt beim Arbeiten – auch beim Scrollen – zur Zeile ein; Abwahl über Info umkehrbar |
 | Ruhige Oberfläche | zwei Muster: Langes startet zugeklappt und nennt in der Kopfzeile, was drin ist; beim Scrollen in den Inhalt treten Kartenstil, Beispieldaten-Streifen und Checkliste zurück. Nur wenn dabei etwas zu gewinnen ist – sonst bleibt alles stehen |
@@ -4918,3 +4923,9 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 ### Bedienverbesserungen vom 12.10.2026
 
 Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dreistelligen PLZ-Gebieten (`plz3`). Die Desktop-Automatik und die dort gespeicherte Ebenenwahl bleiben erhalten; ausdrücklich ausgeschaltete Gebietsebenen bleiben aus. Die Kundennummer-Kopie lautet jetzt `Kundenname [Kundennummer]`. Der angehobene Griff erleichtert das Ziehen bei Gestennavigation. Beim sicheren Umzug sind Datendatei und Schlüsseldatei zwei sichtbare Schritte; die Live-Demo führt genau diesen Weg vor.
+
+### Änderungen in Guide 3.24 (13.10.2026)
+
+- **Firmen-KI-Assistent:** Microsoft 365 Copilot ist voreingestellt; alternativ „Eigener Firmenassistent“ mit freigegebenem HTTPS-Link der eigenen Organisation. Keine konzernspezifische Voreinstellung. Frühere entfernte Anbieter-Auswahlen fallen auf Copilot zurück; eigene Links bleiben erhalten.
+- **Live-Demos:** Beide Briefing-Wege zeigen die zwei Optionen, den vollständigen Copilot-Prompt und die lokale Kopie. Sie öffnen keinen Assistenten und bewahren die gespeicherte Wahl.
+- **Guide-Paket:** Systemprompt, Kurz- und Bildanleitung, Schulung sowie PDF bilden diese Auswahl und die Bedienverbesserungen vom 12.10.2026 ab. Alle 17 Schulungsbilder wurden mit synthetischen Daten neu aufgenommen.

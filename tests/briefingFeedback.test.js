@@ -26,6 +26,18 @@ describe.each([
     ['Kundenbriefing', () => openCustomerBriefing(customer), '[data-briefing-open]', '#customer-briefing-body'],
     ['Gebietsbriefing', () => openAreaBriefing([customer], 'West'), '[data-area-open]', '#area-briefing-body'],
 ])('%s: Clipboard-Rückmeldung', (_name, open, button, host) => {
+    it('öffnet den gespeicherten Firmenlink ohne Promptdaten in der Adresse', async () => {
+        state.ui.depth = 'profi';
+        const url = 'https://assistent.example.test/chat';
+        localStorage.setItem('tourfuchs:briefing-assistant:v1', JSON.stringify({ id: 'custom', customUrl: url }));
+        open();
+        const prompt = document.querySelector(`${host} .briefing-prompt-visible pre`).textContent;
+        document.querySelector(button).click();
+        await vi.waitFor(() => expect(copyText).toHaveBeenCalledWith(prompt));
+        expect(window.open).toHaveBeenCalledOnce();
+        expect(window.open).toHaveBeenCalledWith(url, '_blank', 'noopener');
+    });
+
     it('bestätigt erst nach erfolgreichem Kopieren ausdrücklich die Zwischenablage', async () => {
         let resolve;
         vi.mocked(copyText).mockReturnValue(new Promise(r => { resolve = r; }));
@@ -53,10 +65,11 @@ describe.each([
         state.ui.depth = 'profi';
         const stored = localStorage.getItem('tourfuchs:briefing-assistant:v1');
         open();
-        const choice = document.querySelector(`${host} input[value="chatgpt"]`);
+        const choice = document.querySelector(`${host} input[value="custom"]`);
+        document.querySelector(`${host} input[type="url"]`).value = 'https://assistent.example.test/chat';
         choice.checked = true;
         choice.dispatchEvent(new Event('change', { bubbles: true }));
-        expect(document.querySelector(button).textContent).toContain('ChatGPT');
+        expect(document.querySelector(button).textContent).toContain('Eigener Firmenassistent');
         expect(localStorage.getItem('tourfuchs:briefing-assistant:v1')).toBe(stored);
         const prompt = document.querySelector(`${host} .briefing-prompt-visible pre`).textContent;
         document.querySelector(button).click();

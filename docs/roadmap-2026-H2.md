@@ -1158,3 +1158,8 @@ Anlass: Mit über 12.000 Kunden wirkte TourFuchs beim Start und nach Filterklick
 ### Mobile Bedienung und Schlüsseldatei (12.10.2026, umgesetzt)
 
 Nutzerfeedback: Mobiler Drawer-Griff bei eigenen Daten 32 Pixel höher und mit mindestens 44 Pixel Touchhöhe; farbige Gebietsflächen im mobilen Außendienst bleiben beim Herauszoomen auf PLZ 3. Kundennummer-Kopie nun `Kundenname [Kundennummer]`. Der sichere Empfang zeigt Datendatei und Schlüssel als zwei gleichwertige Schritte, unterstützt den Import einer Schlüssel-TXT und startet die Kamera nur auf Wunsch. Beim Export kann die passende Schlüssel-TXT heruntergeladen werden; die Empfangs-Live-Demo zeigt beide Dateien. Datei und Schlüssel bleiben getrennt zu übergeben.
+
+
+### Firmen-KI-Auswahl vereinfacht (13.10.2026)
+
+Umgesetzt: Kunden- und Mehrkunden-Briefings zeigen „Firmen-KI-Assistent“ mit Microsoft 365 Copilot als Standard und „Eigener Firmenassistent“ für einen freigegebenen HTTPS-Link. Frühere ChatGPT-/Gemini-Auswahlen fallen auf Copilot zurück; eigene Links bleiben erhalten. Keine konzernspezifische Voreinstellung. Live-Demos, Guide 3.24, Bildanleitung, PDF und Uploadpaket aktualisiert. Management-Folie bleibt unverändert.
