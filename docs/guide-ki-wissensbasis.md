@@ -3237,8 +3237,8 @@ Und bereits HTML-kodiert. TourFuchs zeigt und speichert es nach dem Import
 als `&`. Ältere `.tfsafe`-Dateien können noch die kodierte Schreibweise
 enthalten; beim Entschlüsseln und Übernehmen wird sie korrigiert. Die alte
 Datei und ihr Schlüssel bleiben verwendbar. Ein danach neu erzeugter Export
-enthält den korrigierten Namen. Gespeicherte Touren mit solchen Kunden bleiben
-vollständig – auch nach einem Reimport.
+enthält den korrigierten Namen. Gespeicherte Touren und Simulations-Szenarien
+mit solchen Kunden bleiben vollständig – auch nach einem Reimport.
 
 ### 14.7 Sicherer Umzug empfangen
 

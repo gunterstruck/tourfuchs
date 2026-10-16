@@ -1,9 +1,11 @@
 import { describe, expect, it } from 'vitest';
+import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 import {
     MAX_SCENARIOS,
     compareScenarios,
     removeScenario,
     scenarioFit,
+    scenarioForCustomers,
     scenarioFromSnapshot,
     scenarioSummary,
     snapshotFromScenario,
@@ -139,5 +141,47 @@ describe('Zusammenfassung', () => {
     it('bleibt im Singular korrekt', () => {
         const s = scenarioFromSnapshot('X', snapshot({ overrides: [['k1', 'Nord']] }));
         expect(scenarioSummary(s, () => '')).toBe('1 Kunde · 1 Gebiet');
+    });
+});
+
+describe('Szenario mit Kunden, deren Name früher „&amp;" enthielt', () => {
+    // Vor #427 entstand die ID ohne Kundennummer aus dem kodierten Namen.
+    const oldId = 'k-np:schmitt &amp; co. kg|90402';
+    const stored = {
+        name: 'Variante Nord', assignAttr: 'bezirk',
+        overrides: [[oldId, 'Nord'], ['k-nr:1', 'Nord']],
+        pendingTerr: [['kreise:09564', { value: 'Nord', name: 'Nürnberg', customerIds: [oldId, 'k-nr:1'] }]],
+        opsLog: []
+    };
+    const [reimported] = parseRows(
+        [{ Kundenname: 'Schmitt &amp; Co. KG', PLZ: '90402' }],
+        autoDetectMapping(['Kundenname', 'PLZ'])
+    ).customers;
+
+    it('findet den Kunden nach dem Reimport unter seiner neuen ID wieder', () => {
+        const known = new Set([reimported.id, 'k-nr:1']);
+        expect(reimported.id).not.toBe(oldId);
+        expect(scenarioFit(stored, known).missing).toBe(1);
+
+        const current = scenarioForCustomers(stored, known);
+        expect(scenarioFit(current, known)).toMatchObject({ total: 2, missing: 0, complete: true });
+        expect(current.overrides).toEqual([[reimported.id, 'Nord'], ['k-nr:1', 'Nord']]);
+        expect(current.pendingTerr[0][1].customerIds).toEqual([reimported.id, 'k-nr:1']);
+        // Das gespeicherte Szenario selbst bleibt unverändert.
+        expect(stored.overrides[0][0]).toBe(oldId);
+    });
+
+    it('vergleicht gegen die aktuelle Simulation ohne Scheinunterschiede', () => {
+        const known = new Set([reimported.id, 'k-nr:1']);
+        const live = { assignAttr: 'bezirk', overrides: [[reimported.id, 'Nord'], ['k-nr:1', 'Nord']] };
+        expect(compareScenarios(live, scenarioForCustomers(stored, known)))
+            .toMatchObject({ onlyA: 0, onlyB: 0, same: 2 });
+    });
+
+    it('lässt passende IDs und wirklich fehlende Kunden, wie sie sind', () => {
+        const unchanged = scenarioForCustomers(stored, new Set([oldId, 'k-nr:1']));
+        expect(unchanged.overrides).toEqual(stored.overrides);
+        const gone = scenarioForCustomers(stored, new Set(['k-nr:1']));
+        expect(scenarioFit(gone, new Set(['k-nr:1'])).missing).toBe(1);
     });
 });

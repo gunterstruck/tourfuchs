@@ -1,8 +1,8 @@
 {
-  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
+  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). index.js roh am 16.10.2026 um 1 KB erhöht: Die Fehlerbehebungen seit 11.10. (u. a. #425–#429) hatten den Spielraum aufgebraucht; die Szenario-Korrektur für „&amp;“-Kunden (+0,5 KB) passte nicht mehr. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
   "pakete": {
     "index.js": {
-      "raw": 1169408,
+      "raw": 1170432,
       "gzip": 357376
     },
     "demoCustomers.js": {

@@ -1192,3 +1192,13 @@ gespeichert wurden, trugen noch „&amp;“ im Schlüssel – nach dem Update fi
 Kunde beim Laden aus der Tour („1 nicht mehr vorhandene Kunden ausgelassen“).
 Der Schlüsselvergleich bereinigt den Namen jetzt auf beiden Seiten; die Tour
 bleibt vollständig, auch nach Reimport. Regressionstest in `tests/savedTourKeys.test.js`.
+
+Dasselbe für **Simulations-Szenarien** (16.10.2026): Sie speichern bewusst nur
+Kunden-IDs. Nach einem Reimport bekommt ein solcher Kunde ohne Kundennummer
+eine neue ID (aus dem bereinigten Namen); das Szenario meldete ihn als „gibt es
+nicht mehr“ und ließ ihn beim Laden weg. Laden und Vergleichen ordnen alte IDs
+jetzt über die bereinigte Schreibweise zu (`scenarioForCustomers`); das
+gespeicherte Szenario bleibt unverändert. Tests in
+`tests/simulationScenarios.test.js`. Größenbudget `index.js` (roh) dafür um
+1 KB erhöht: Der Spielraum vom 11.10. war durch die Fehlerbehebungen seither
+aufgebraucht (Release 17.0c: Erhöhung nur mit Begründung).
