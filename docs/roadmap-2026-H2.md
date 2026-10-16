@@ -1214,3 +1214,10 @@ gespeichert. Gleiche Stelle wie die „&amp;“-Bereinigung aus #427
 (`src/features/customerName.js`); bei Kunden ohne Kundennummer ordnen
 Touren und Szenarien über den bereinigten Namen zu. Echte spitze Klammern
 („Schmitt <KG>“) bleiben. Tests in `tests/customerName.test.js`.
+
+Nachtrag (16.10.2026, zweiter Screenshot): Beim Account standen noch
+`<hr style="…">`-Trennlinien – das CRM schreibt mehrere Werte in ein Feld
+(„Evonik Industries AG (RC-DE)“ und „Evonik Global“, „Regional“ und
+„Corporate“). `<hr>` und `<li>` werden jetzt zu „ / “, Tabellenzellen zu
+Leerzeichen. Größenbudget `index.js` (roh) dafür nochmals um 1 KB erhöht
+(Release 17.0c, Begründung im Budget-Hinweis).
