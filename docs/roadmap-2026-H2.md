@@ -1015,7 +1015,7 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
 | **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT. Erst dann denkbar: Daten direkt aus SharePoint per Microsoft-Anmeldung (Graph) statt über OneDrive-Synchronisation (Release 15). |
 | **Praxistest Firmen-KI-Kundenliste** | Der Verantwortliche hat den Prompt mit einem echten Firmen-Copilot getestet. | offen seit 03.10.2026 – Baustopp bis dahin | Abschnitt „Einstieg mit eigenen Daten" oben; Befund entscheidet über den nächsten Schritt |
 | **Tourvorschläge für Opportunities** (Release 16.8) | Der PO holt das Thema zurück – z. B. wenn Außendienstler mit der Arbeitsmappe fragen, welche Opportunity-Kunden sie auf der nächsten Tour mitnehmen sollen. | ⏸ zurückgestellt seit 10.10.2026 („zurückstellen, aber merken") | Idee: Kunden mit offener Opportunity in später Phase oder baldigem Abschluss in „In der Nähe" und Tourvorschlägen nach vorn; Begründung sichtbar („Opp. Phase 4, Abschluss 11/2026"). Daten liegen schon vor (16.3); bisher nur Filter „Opportunity"/„Opportunity-Phase". |
-| **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | 24-Stunden-Zwischenstand am 09.10.2026: 29 Besucher, 61 Aufrufe; erster Wochenwert noch offen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren. Der vom Verantwortlichen geteilte Screenshot belegt Interesse, noch keine regelmäßige Nutzung. |
+| **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | 24-Stunden-Zwischenstand am 09.10.2026: 29 Besucher, 61 Aufrufe. **Stand 16.10.2026 (Dashboard, Production, letzte 30 Tage): 163 Besucher, 542 Aufrufe** seit dem Einschalten. Aus dem Tagesverlauf abgelesen (ca.): **rund 80 Besucher pro Woche** in beiden ersten Wochen (03.–09.10. und 10.–16.10.), werktags meist 15–20, am Wochenende um 8; Spitze 22 am 08.10. Ausgangswert damit notiert; enthält eigene Aufrufe und Demo-Neugierige. Nächster Blick: Verlauf über die folgenden Wochen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren. Der vom Verantwortlichen geteilte Screenshot belegt Interesse, noch keine regelmäßige Nutzung. |
 | **LinkedIn-Serie 2 „Für die Vertriebsleitung“** (GeoFuchs) | Serie 1 (Lichterkarte · Tour planen · Firmen-KI-Liste) ist gelaufen, und die Besucherzahlen bzw. Kommentare zeigen Interesse. | **Filme, Titelbilder und Post-Texte produziert (03.10.2026)** – Veröffentlichen wartet auf den Auslöser | Woche 4 „Deine Bezirke. Im Griff.“ (Lichter → Bezirksflächen → Bezirkskarte → Cockpit), Woche 5 „Gebiete umverteilen. In Minuten.“ (Was-wäre-wenn: Augsburg → Stuttgart, Alt/Neu auf der Karte), Woche 6 „Die Entscheidung. Auf einem Blatt.“ (Entscheidungsvorlage ohne Kundennamen). Skripte: `record-bezirke.mjs`, `record-umverteilen.mjs`, `record-vorlage.mjs`. Botschaft gegen teure Fachsoftware: „kostenlos im Browser, auf denselben Daten wie der Außendienst“. Film-Werkzeuge: `film/lichterkarte/` (neuer `film`-Typ in `stage.html` + Aufnahmeskript). Hintergrund: [Wettbewerb](wettbewerb.md). |
 
 ### Backlog & Vision (bewusst NICHT jetzt)
@@ -1183,3 +1183,12 @@ bleibt unverändert:
 - **Absicherung:** Regressionstests für Speichererfolg, Schreibfehler,
   gesperrten Tresor, Wiederholen, Überschreiben/Löschen und nicht verschlechternde
   Optimierung; konkrete UI-Prüfschritte im PR. Kein weiterer Funktionsausbau.
+
+### Nachprüfung: Touren mit „&amp;“-Kunden (16.10.2026)
+
+Fehler aus #427 behoben: Bei Kunden ohne Kundennummer gehört der Name zum
+Schlüssel gespeicherter Touren. Touren, die vor der Namensbereinigung
+gespeichert wurden, trugen noch „&amp;“ im Schlüssel – nach dem Update fiel der
+Kunde beim Laden aus der Tour („1 nicht mehr vorhandene Kunden ausgelassen“).
+Der Schlüsselvergleich bereinigt den Namen jetzt auf beiden Seiten; die Tour
+bleibt vollständig, auch nach Reimport. Regressionstest in `tests/savedTourKeys.test.js`.
