@@ -19,6 +19,8 @@
  * Ablage liegt in services/storage.js, die Bedienung im Cockpit.
  */
 
+import { normalizeCustomerName } from './customerName.js';
+
 /** Mehr braucht niemand nebeneinander im Kopf – und die Liste bleibt lesbar. */
 export const MAX_SCENARIOS = 12;
 
@@ -132,6 +134,36 @@ export function scenarioFit(scenario, knownCustomerIds) {
         missing,
         applicable: overrides.length - missing,
         complete: missing === 0
+    };
+}
+
+/**
+ * Gespeicherte Kunden-IDs auf den geladenen Bestand abbilden.
+ *
+ * Ohne Kundennummer entsteht die ID aus Name + PLZ. Vor der Namensbereinigung
+ * (#427) stand darin noch „&amp;" – nach dem Reimport heißt derselbe Kunde
+ * „k-np:… & …". Szenarien speichern bewusst nur IDs, keine Namen; deshalb
+ * wird hier über die bereinigte Schreibweise der ID zugeordnet. Passende und
+ * wirklich fehlende IDs bleiben unverändert. Das Szenario selbst bleibt
+ * unangetastet; zurück kommt eine Kopie.
+ *
+ * @param {object} scenario
+ * @param {Iterable<string>} knownCustomerIds
+ */
+export function scenarioForCustomers(scenario, knownCustomerIds) {
+    const known = new Set(knownCustomerIds instanceof Map ? knownCustomerIds.keys() : knownCustomerIds || []);
+    const byNormalized = new Map();
+    for (const id of known) {
+        const normalized = normalizeCustomerName(id);
+        if (!byNormalized.has(normalized)) byNormalized.set(normalized, id);
+    }
+    const current = (id) => (known.has(id) ? id : byNormalized.get(normalizeCustomerName(id)) ?? id);
+    return {
+        ...scenario,
+        overrides: (Array.isArray(scenario?.overrides) ? scenario.overrides : [])
+            .map(([id, value]) => [current(id), value]),
+        pendingTerr: (Array.isArray(scenario?.pendingTerr) ? scenario.pendingTerr : [])
+            .map(([id, info]) => [id, { ...info, customerIds: (info?.customerIds || []).map(current) }])
     };
 }
 

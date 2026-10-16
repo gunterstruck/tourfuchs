@@ -29,6 +29,7 @@ import {
     compareScenarios,
     removeScenario,
     scenarioFit,
+    scenarioForCustomers,
     scenarioFromSnapshot,
     scenarioSummary,
     snapshotFromScenario,
@@ -619,9 +620,15 @@ async function storeScenario() {
     showToast(`Szenario „${scenario.name}" ${replaced ? 'ersetzt' : 'gesichert'}.${hint}`, 'success');
 }
 
+/** Gespeichertes Szenario mit den IDs des geladenen Bestands. */
+function scenarioForCurrentCustomers(scenario) {
+    return scenarioForCustomers(scenario, state.customers.map((customer) => customer.id));
+}
+
 function loadScenario(id) {
-    const scenario = scenarios.find((item) => item.id === id);
-    if (!scenario) return;
+    const stored = scenarios.find((item) => item.id === id);
+    if (!stored) return;
+    const scenario = scenarioForCurrentCustomers(stored);
     // `getCustomer` ist der Index; für die Passungsprüfung reicht eine Menge
     // der bekannten IDs, ohne den Index nach außen zu geben.
     const fit = scenarioFit(scenario, new Set(state.customers.map((customer) => customer.id)));
@@ -668,7 +675,7 @@ function renderCompare() {
     const other = scenarios.find((item) => item.id === compareWith);
     if (!other) { box.hidden = true; box.innerHTML = ''; return; }
 
-    const diff = compareScenarios(liveAsScenario(), other);
+    const diff = compareScenarios(liveAsScenario(), scenarioForCurrentCustomers(other));
     box.hidden = false;
     if (diff.differentAttr) {
         // Bezirk und Gruppe sind unabhängig – gleiche Namen sind dort kein „gleich",
