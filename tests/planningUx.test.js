@@ -56,7 +56,13 @@ describe('Planungsstart und sichtbare Bedienhilfen', () => {
         expect(faq.textContent).toContain('Nominatim');
         expect(faq.textContent).toContain('OSRM');
         expect(faq.textContent).toContain('Cloud-Zwischenablage');
-        expect(faq.textContent).toContain('nicht pauschal die gesamte Browser-Datenbank');
-        expect(faq.textContent).toContain('AES-256-GCM');
+        const scope = faq.querySelector('[data-i18n="info.privacy.encryptionAnswer1"]').textContent;
+        expect(scope).toContain('Adress-Cache, separat gespeicherte Touren und Simulations-Szenarien');
+        expect(scope).toContain('AES-256-GCM');
+        const limits = faq.querySelector('[data-i18n="info.privacy.encryptionAnswer2"]').textContent;
+        expect(limits).toContain('App-Einstellungen bleiben unverschlüsselt');
+        expect(limits).toContain('keine bereits exportierten Dateien');
+        expect(limits).toContain('kopierten Prompts');
+        expect(limits).toContain('entschlüsselten Inhalte');
     });
 });
