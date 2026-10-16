@@ -3245,8 +3245,10 @@ Zellen, z. B. `<span style="white-space: nowrap;">Ute, Sander </span>` in
 der Spalte „Account Manager“ oder „Account Name“. TourFuchs entfernt solche
 HTML-Tags beim Import und beim Laden älterer Bestände und `.tfsafe`-Dateien
 aus allen Texten des Kunden (Name, Zusatzspalten, Kontakte, Opportunities).
-Die Kachel zeigt dann nur „Ute, Sander“. Echte spitze Klammern wie
-„Schmitt <KG>“ bleiben erhalten.
+Die Kachel zeigt dann nur „Ute, Sander“. Trennlinien und Listen (`<hr>`,
+`<li>`), mit denen das CRM mehrere Werte in ein Feld schreibt, werden zu
+„ / “ – z. B. „Musterchemie AG (RC-DE) / Musterchemie Global“. Echte spitze
+Klammern wie „Schmitt <KG>“ bleiben erhalten.
 
 ### 14.7 Sicherer Umzug empfangen
 

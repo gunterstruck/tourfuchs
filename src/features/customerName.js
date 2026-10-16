@@ -5,19 +5,25 @@
  * Kaufmanns-Und („Schmitt &amp; Co.") oder ganze Auszeichnung aus CRM-Berichten
  * (`<span style="white-space: nowrap;">Ute, Sander </span>`). Entfernt werden
  * nur bekannte HTML-Tags – „Schmitt <KG>" oder „a < b" bleiben, wie sie sind.
+ * Trennlinien und Listenpunkte (`<hr>`, `<li>`) trennen im CRM mehrere Werte
+ * eines Felds; daraus wird „ / ".
  */
-const TAG = /<\/?(?:a|b|br|div|em|font|i|nobr|p|small|span|strong|sub|sup|u|wbr)(?:\s[^<>]*)?\/?>/gi;
+const TAG = /<\/?(?:a|b|br|div|em|font|hr|i|li|nobr|ol|p|small|span|strong|sub|sup|t[dhr]|u|ul|wbr)(?:\s[^<>]*)?\/?>/gi;
 const HAS_TAG = new RegExp(TAG.source, 'i');
 const ENTITIES = { nbsp: ' ', '#160': ' ', lt: '<', gt: '>', quot: '"', '#39': "'", apos: "'" };
+const SEPARATOR = '\u0000';
 
 export function cleanImportedText(value) {
     let text = String(value ?? '');
     if (HAS_TAG.test(text)) {
         text = text
-            .replace(TAG, (tag) => (/^<\/?(?:br|div|p)\b/i.test(tag) ? ' ' : ''))
+            .replace(TAG, (tag) => (/^<(?:hr|li)\b/i.test(tag) ? SEPARATOR
+                : /^<\/?(?:br|div|p|t[dhr])\b/i.test(tag) ? ' ' : ''))
             .replace(/&(nbsp|#160|lt|gt|quot|#39|apos);/gi, (_, name) => ENTITIES[name.toLowerCase()])
-            .replace(/\s+/g, ' ')
-            .trim();
+            .split(SEPARATOR)
+            .map((part) => part.replace(/\s+/g, ' ').trim())
+            .filter(Boolean)
+            .join(' / ');
     }
     let previous;
     do {
