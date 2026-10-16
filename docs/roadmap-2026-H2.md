@@ -1199,4 +1199,6 @@ eine neue ID (aus dem bereinigten Namen); das Szenario meldete ihn als „gibt e
 nicht mehr“ und ließ ihn beim Laden weg. Laden und Vergleichen ordnen alte IDs
 jetzt über die bereinigte Schreibweise zu (`scenarioForCustomers`); das
 gespeicherte Szenario bleibt unverändert. Tests in
-`tests/simulationScenarios.test.js`.
+`tests/simulationScenarios.test.js`. Größenbudget `index.js` (roh) dafür um
+1 KB erhöht: Der Spielraum vom 11.10. war durch die Fehlerbehebungen seither
+aufgebraucht (Release 17.0c: Erhöhung nur mit Begründung).
