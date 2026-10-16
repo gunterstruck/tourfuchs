@@ -10,12 +10,14 @@
  * mit Hinweis statt falschem Kunden.
  */
 
+import { normalizeCustomerName } from './customerName.js';
+
 /** Fachlicher Schlüssel – dieselbe Regel wie die Dublettenprüfung beim Import. */
 export function customerKey(customer) {
     if (!customer) return null;
     const nummer = String(customer.nummer ?? '').trim();
     if (nummer) return `nr:${nummer}`;
-    const name = String(customer.name ?? '').trim().toLowerCase();
+    const name = normalizeCustomerName(customer.name).trim().toLowerCase();
     const plz = String(customer.plz ?? '').trim();
     return name || plz ? `np:${name}|${plz}` : null;
 }
@@ -63,7 +65,9 @@ export function resolveTour(tour, customers) {
     }
     let lost = 0;
     let remapped = 0;
-    const resolve = (id, key) => {
+    const resolve = (id, storedKey) => {
+        // Touren von vor der Namensbereinigung tragen noch „&amp;" im Schlüssel.
+        const key = storedKey?.startsWith('np:') ? normalizeCustomerName(storedKey) : storedKey;
         const current = byId.get(id);
         if (!key) return current ? id : null;          // Alttour ohne Schlüssel: wie bisher
         if (current && customerKey(current) === key) return id;

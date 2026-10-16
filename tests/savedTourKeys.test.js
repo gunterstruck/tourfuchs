@@ -71,6 +71,21 @@ describe('Gespeicherte Touren nach Reimport', () => {
         expect(resolved).toMatchObject({ stopIds: ['a'], lost: 1, remapped: 0 });
     });
 
+    it('behält Kunden, deren Name früher als „&amp;" gespeichert war (ohne Kundennummer)', () => {
+        // Tour vor #427 gespeichert: Schlüssel mit HTML-kodiertem Und.
+        const id = 'k-np:schmitt &amp; co kg|90402';
+        const oldKey = 'np:schmitt &amp; co. kg|90402';
+        const tour = { id: 't', stopIds: [id], stopKeys: [oldKey], destination: { lat: 1, lng: 2, customerId: id, customerKey: oldKey } };
+        // Nach dem Laden ist der Name bereinigt, die ID bleibt …
+        const sameId = resolveTour(tour, [{ id, name: 'Schmitt & Co. KG', plz: '90402' }]);
+        expect(sameId).toMatchObject({ stopIds: [id], lost: 0, remapped: 0 });
+        expect(sameId.destination).toMatchObject({ customerId: id });
+        // … nach dem Reimport kommt die ID aus dem bereinigten Namen.
+        const [reimported] = parse([{ Kundenname: 'Schmitt &amp; Co. KG', PLZ: '90402' }]);
+        const afterImport = resolveTour(tour, [reimported]);
+        expect(afterImport).toMatchObject({ stopIds: [reimported.id], lost: 0, remapped: 1 });
+    });
+
     it('stempelt vorhandene Schlüssel nicht um', () => {
         const tour = { stopIds: ['a'], stopKeys: ['nr:1'] };
         const { tour: next, changed } = stampTourKeys(tour, () => ({ nummer: '2' }));

@@ -1183,3 +1183,12 @@ bleibt unverändert:
 - **Absicherung:** Regressionstests für Speichererfolg, Schreibfehler,
   gesperrten Tresor, Wiederholen, Überschreiben/Löschen und nicht verschlechternde
   Optimierung; konkrete UI-Prüfschritte im PR. Kein weiterer Funktionsausbau.
+
+### Nachprüfung: Touren mit „&amp;“-Kunden (16.10.2026)
+
+Fehler aus #427 behoben: Bei Kunden ohne Kundennummer gehört der Name zum
+Schlüssel gespeicherter Touren. Touren, die vor der Namensbereinigung
+gespeichert wurden, trugen noch „&amp;“ im Schlüssel – nach dem Update fiel der
+Kunde beim Laden aus der Tour („1 nicht mehr vorhandene Kunden ausgelassen“).
+Der Schlüsselvergleich bereinigt den Namen jetzt auf beiden Seiten; die Tour
+bleibt vollständig, auch nach Reimport. Regressionstest in `tests/savedTourKeys.test.js`.
