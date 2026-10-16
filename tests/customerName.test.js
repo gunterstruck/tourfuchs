@@ -48,6 +48,27 @@ describe('HTML-Auszeichnung aus CRM-Exporten', () => {
         expect(cleanImportedText('Kein &lt;Tag&gt; hier')).toBe('Kein &lt;Tag&gt; hier');
     });
 
+    it('macht aus Trennlinien und Listen im CRM-Feld einen lesbaren Trenner', () => {
+        const hr = '<hr style="height: 1px; background-color: #848484; margin:0">';
+        expect(cleanImportedText(`Evonik Industries AG (RC-DE)${hr}Evonik Global`))
+            .toBe('Evonik Industries AG (RC-DE) / Evonik Global');
+        expect(cleanImportedText(`Regional${hr}Corporate`)).toBe('Regional / Corporate');
+        expect(cleanImportedText(`${hr}Nur einer${hr}`)).toBe('Nur einer');
+        expect(cleanImportedText('<ul><li>Nord</li><li>Süd</li></ul>')).toBe('Nord / Süd');
+        expect(cleanImportedText('<tr><td>A</td><td>B</td></tr>')).toBe('A B');
+    });
+
+    it('zeigt den Account aus mehreren Werten mit Trenner statt HTML', () => {
+        const hr = '<hr style="height: 1px; background-color: #848484; margin:0">';
+        setCustomers([{ id: 'k2', name: 'SABO GMBH', extra: {
+            'Account Name': `Evonik Industries AG (RC-DE)${hr}Evonik Global`,
+            'Account Cluster': `Regional${hr}Corporate`
+        } }]);
+        expect(customerResponsibilities(state.customers[0]).account)
+            .toBe('Evonik Industries AG (RC-DE) / Evonik Global · Regional / Corporate');
+        setCustomers([]);
+    });
+
     it('bereinigt alle Texte eines Kunden – IDs bleiben unverändert', () => {
         const customer = {
             id: `k-np:${span('x')}|1`, name: span('Muster GmbH'), plz: '47051',
