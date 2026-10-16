@@ -48,6 +48,7 @@ const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
 
 let overdueFirst = false;
 let savedTours = [];
+let tourWritePending = false;
 let scopeExpanded = false; // Bezirk-Auswahl aufgeklappt?
 let tourExpert = false;    // Experten-Modus (mehr Optionen)
 let hiddenExpertSections = new Set();
@@ -1694,7 +1695,7 @@ function renderStops() {
     document.getElementById('btn-tour-qr').disabled = !hasRoute;
     const phoneQr = document.getElementById('btn-tour-qr-phone');
     if (phoneQr) phoneQr.disabled = !hasRoute;
-    document.getElementById('btn-tour-save').disabled = !hasRoute;
+    document.getElementById('btn-tour-save').disabled = !hasRoute || tourWritePending;
     const clearButton = document.getElementById('btn-tour-clear');
     const canClear = Boolean(state.tour.start || state.tour.destination || stops.length > 0);
     clearButton.disabled = !canClear;
@@ -1992,16 +1993,20 @@ function optimizeTour() {
     // Fester Streckenendpunkt: Zielkunde, sonst bei Rundreise der Start, sonst offen
     const endPoint = destPoint() || (state.tour.roundTrip ? state.tour.start : null);
     const before = routeDistance(state.tour.start, effStops(), state.tour.roundTrip).airKm;
-    invalidateAcceptedServicePlan(true);
     const optimized = optimizeOrder(state.tour.start, stops, endPoint);
-    state.tour.stops = optimized.map((c) => c.id);
     const dest = destPoint();
     const after = routeDistance(state.tour.start, dest ? [...optimized, dest] : optimized, state.tour.roundTrip).airKm;
+    if (!(after < before - 1e-9)) {
+        showToast(t('tour.toast.alreadyOptimal'), 'info');
+        return;
+    }
+    invalidateAcceptedServicePlan(true);
+    state.tour.stops = optimized.map((c) => c.id);
     emit('tour:changed');
     const savedKm = (before - after) * CONFIG.tour.roadFactor;
     showToast(savedKm > 0.5
         ? t('tour.toast.optimized', { km: Math.round(savedKm) })
-        : t('tour.toast.alreadyOptimal'), 'success');
+        : t('tour.toast.optimizedSmall'), 'success');
 }
 
 function openInGoogleMaps() {
@@ -2047,6 +2052,30 @@ function showRouteOnMap(toggleLineMode = false) {
 
 // ---- Gespeicherte Touren ----
 
+async function persistSavedTours(nextTours, errorKey) {
+    // Verhindert, dass zwei Klicks mit demselben alten Stand einander ersetzen.
+    if (tourWritePending) return false;
+    tourWritePending = true;
+    const previousTours = savedTours;
+    renderStops();
+    try {
+        if (!await saveTours(nextTours)) {
+            showToast(t(errorKey), 'error', 8000);
+            return false;
+        }
+        // Sperren, Löschen des Bestands oder erneutes Laden während des
+        // Schreibens darf durch die verspätete Antwort nicht rückgängig werden.
+        if (savedTours === previousTours) {
+            savedTours = nextTours;
+            renderSavedTours();
+        }
+        return true;
+    } finally {
+        tourWritePending = false;
+        renderStops();
+    }
+}
+
 async function saveCurrentTour() {
     if (!state.tour.start || (state.tour.stops.length === 0 && !state.tour.destination)) return;
     const name = currentTourName();
@@ -2065,11 +2094,9 @@ async function saveCurrentTour() {
         servicePlanBasis: state.tour.servicePlan ? servicePlanBasis(state.tour.start, state.tour.stops, getCustomer) : null
     }, getCustomer);
     // gleicher Name -> ersetzen
-    savedTours = savedTours.filter((t) => t.name !== name);
-    savedTours.unshift(tour);
-    await saveTours(savedTours);
+    const nextTours = [tour, ...savedTours.filter((t) => t.name !== name)];
+    if (!await persistSavedTours(nextTours, 'tour.toast.saveFailed')) return;
     document.getElementById('tour-name').value = '';
-    renderSavedTours();
     showToast(t('tour.toast.saved', { name }), 'success');
 }
 
@@ -2111,9 +2138,7 @@ function loadSavedTour(id) {
 }
 
 async function deleteSavedTour(id) {
-    savedTours = savedTours.filter((t) => t.id !== id);
-    await saveTours(savedTours);
-    renderSavedTours();
+    await persistSavedTours(savedTours.filter((t) => t.id !== id), 'tour.toast.deleteFailed');
 }
 
 function renderSavedTours() {

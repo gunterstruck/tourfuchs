@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
@@ -45,6 +45,34 @@ const GEO = { 'Rosenweg 7, 45127 Essen': [51.45, 7.01] };
 beforeEach(async () => {
     await vault.wipe();
     RAW.clear();
+});
+afterEach(() => vi.restoreAllMocks());
+
+describe('Tour-Speicherung bestätigt nur dauerhafte Schreibvorgänge', () => {
+    it('bestätigt eine erfolgreiche Speicherung und lädt dieselbe Tour wieder', async () => {
+        expect(await storage.saveTours(TOUR)).toBe(true);
+        expect(await storage.loadTours()).toEqual(TOUR);
+    });
+
+    it('meldet einen gesperrten Tresor als nicht gespeichert', async () => {
+        await vault.setup('123456', OPTS);
+        await storage.saveTours(TOUR);
+        vault.lock();
+        expect(await storage.saveTours([])).toBe(false);
+        await vault.unlock('123456');
+        expect(await storage.loadTours()).toEqual(TOUR);
+    });
+
+    it('meldet verweigerten Browser-Speicher und bewahrt den bisherigen Bestand', async () => {
+        await storage.saveTours(TOUR);
+        vi.spyOn(console, 'warn').mockImplementation(() => {});
+        const denied = vi.spyOn(indexedDB, 'open').mockImplementation(() => {
+            throw new DOMException('Speicher gesperrt', 'SecurityError');
+        });
+        expect(await storage.saveTours([])).toBe(false);
+        denied.mockRestore();
+        expect(await storage.loadTours()).toEqual(TOUR);
+    });
 });
 
 describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
