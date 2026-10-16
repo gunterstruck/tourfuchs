@@ -108,8 +108,46 @@ der App. Wege im Konzern:
    Matomo): TourFuchs schickt dieselbe schmale Meldung wie heute an Vercel
    (nur Seitenaufruf, Adresse ohne Suchteil/Fragment), aber an den Firmen-Zähler.
    Die Zahlen bleiben im Konzern.
-3. Vercel Web Analytics nur, wenn der Konzern selbst ein Vercel-Team betreibt
+3. **Plausible Analytics, selbst betrieben** (vorgemerkt 16.10.2026, siehe
+   unten) – wenn es kein freigegebenes Zählwerkzeug gibt und Protokolle nicht
+   reichen.
+4. Vercel Web Analytics nur, wenn der Konzern selbst ein Vercel-Team betreibt
    (siehe oben, „Betrieb im Unternehmen").
+
+### Vorgemerkt: Plausible Analytics *(Stand 16.10.2026)*
+
+[Plausible Analytics](https://github.com/plausible/analytics) ist eine
+quelloffene Besucherzählung, die der Konzern als „Community Edition" auf
+eigenen Servern betreiben kann
+([Betriebsvorlage](https://github.com/plausible/community-edition)). Sie
+passt zu unserer schmalen Zählung, weil sie dasselbe Prinzip verfolgt wie
+heute Vercel:
+
+- **ohne Cookies**, ohne Speicher im Browser, ohne dauerhafte Kennung,
+- **Besucher pro Tag** über einen Hash mit täglich wechselndem Salt – keine
+  Wiedererkennung über den Tag hinaus,
+- **keine rohen IP-Adressen** gespeichert; gespeichert werden Adresse und
+  Pfad, der Suchteil wird weitgehend verworfen (nach Angaben von Plausible,
+  [Data Policy](https://plausible.io/data-policy)),
+- die Zahlen liegen auf Servern des Konzerns, nicht bei einem Dienstleister.
+
+**Was es bei uns hieße:** TourFuchs schickt weiter nur den Seitenaufruf,
+gekürzt auf Ursprung und Pfad (wie `trimEvent` heute) – nur eben an den
+Plausible-Server des Konzerns statt an Vercel. Keine eigenen Ereignisse.
+Technisch: Zielort und Skript in `CONFIG.usageCount` konfigurierbar machen,
+`src/services/usageCount.js` um den Plausible-Weg ergänzen, Datenschutzerklärung
+und README anpassen (neue Verbindung, DoD Nr. 3).
+
+**Aufwand für die IT:** ein Server mit Docker Compose und ClickHouse
+(mindestens 2 GB RAM), Updates und Sicherung. Für ein einzelnes Werkzeug ist
+das mehr als die Protokoll-Lösung (Option 1) – lohnt sich vor allem, wenn der
+Konzern Plausible ohnehin für weitere interne Seiten nutzen will.
+
+**Vor dem Einsatz prüfen:** Lizenz und Betrieb mit der IT, Abstimmung mit
+Betriebsrat und Datenschutz; ob gekürzte Adresse und Fragment auch mit
+Plausible zuverlässig auf dem Gerät bleiben (Test wie bei Vercel).
+
+**Bis zum Auslöser wird nichts gebaut.** Vercel bleibt.
 
 ### Technische To-dos beim Umzug
 
@@ -122,8 +160,8 @@ der App. Wege im Konzern:
   ohne langen Cache. GitHub Pages erlaubt keine eigenen Header (kurzer Standard-
   Cache – prüfen, ob Updates zuverlässig ankommen).
 - [ ] **Zählung umstellen:** `CONFIG.usageCount.hosts` auf die Konzern-Adresse
-  setzen oder leeren; bei Option 2 den Zielort der Meldung konfigurierbar
-  machen (`src/services/usageCount.js`).
+  setzen oder leeren; bei Option 2 oder 3 (Plausible) den Zielort der Meldung
+  konfigurierbar machen (`src/services/usageCount.js`).
 - [ ] **Datenschutzerklärung anpassen:** Verantwortlicher wird der Konzern;
   Abschnitt 4a (Hosting/Zählung) auf den neuen Betrieb umschreiben.
 - [ ] **CI/Deploy:** GitHub-Actions-Workflow „build → Pages" statt
@@ -137,7 +175,8 @@ der App. Wege im Konzern:
 2. Können Proxy- oder Webserver-Protokolle die Aufrufe einer internen Adresse
    anonym zählen (Besucher pro Woche)?
 3. Gibt es ein freigegebenes Zählwerkzeug (Application Insights, Matomo …),
-   und ist es mit dem Betriebsrat abgestimmt?
+   und ist es mit dem Betriebsrat abgestimmt? Falls nicht: Käme ein selbst
+   betriebenes Plausible Analytics in Frage (Docker-Server, siehe oben)?
 4. Wer ist Verantwortlicher im Sinne der DSGVO, wer pflegt die Anwendung?
 5. Sind die externen Dienste erlaubt, die TourFuchs nutzt (Kartenkacheln von
    OpenStreetMap/Esri, optional Nominatim und OSRM)?
