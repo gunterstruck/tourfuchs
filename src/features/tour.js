@@ -143,7 +143,11 @@ export function optimizeOrder(start, stops, endPoint = null) {
             }
         }
     }
-    return points.slice(1);
+    const optimized = points.slice(1);
+    // Eine Heuristik kann die schon gewählte Reihenfolge verfehlen. Nur eine
+    // echte Verbesserung übernehmen – einschließlich festem Ziel/Rückweg.
+    const length = (order) => routeDistance(start, endPoint ? [...order, endPoint] : order).airKm;
+    return length(optimized) < length(stops) - 1e-9 ? optimized : [...stops];
 }
 
 /** Gesamtdistanz einer Route (Luftlinie + Straßenfaktor als Schätzung) */

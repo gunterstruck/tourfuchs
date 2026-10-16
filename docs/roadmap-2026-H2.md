@@ -1163,3 +1163,23 @@ Nutzerfeedback: Mobiler Drawer-Griff bei eigenen Daten 32 Pixel höher und mit m
 ### Firmen-KI-Auswahl vereinfacht (13.10.2026)
 
 Umgesetzt: Kunden- und Mehrkunden-Briefings zeigen „Firmen-KI-Assistent“ mit Microsoft 365 Copilot als Standard und „Eigener Firmenassistent“ für einen freigegebenen HTTPS-Link. Frühere ChatGPT-/Gemini-Auswahlen fallen auf Copilot zurück; eigene Links bleiben erhalten. Keine konzernspezifische Voreinstellung. Live-Demos, Guide 3.24, Bildanleitung, PDF und Uploadpaket aktualisiert. Management-Folie bleibt unverändert.
+
+### PO-Review: Tour-Zuverlässigkeit und Tresor-Erklärung (15.10.2026)
+
+Umgesetzt auf ausdrücklichen PO-Auftrag; die laufende Erprobung mit Kollegen
+bleibt unverändert:
+
+- **Tour speichern:** Erfolg erst nach bestätigtem Schreibvorgang. Bei
+  Speicherfehler oder gesperrtem Tresor bleiben Planung, Name und bisherige
+  gespeicherte Touren erhalten; Fehlermeldung mit Wiederholen-/Export-Hinweis.
+  Dasselbe gilt für das Löschen einer gespeicherten Tour.
+- **Optimieren:** Eine neue Reihenfolge wird nur übernommen, wenn sie nach
+  derselben Luftlinienbewertung einschließlich Ziel/Rückweg kürzer ist.
+  Keine irreführende „bereits optimal“-Meldung mehr. Der Review-Gegenfall
+  (113,0 statt verschlechterter 118,8 km) bleibt unverändert.
+- **Tresor:** Datenschutz-FAQ in DE/EN/FR/ES, Datenschutzseite, README und
+  Wissensbasis nennen den tatsächlichen Schutzumfang einschließlich Adress-Cache,
+  gespeicherter Touren und Simulations-Szenarien sowie die Grenzen.
+- **Absicherung:** Regressionstests für Speichererfolg, Schreibfehler,
+  gesperrten Tresor, Wiederholen, Überschreiben/Löschen und nicht verschlechternde
+  Optimierung; konkrete UI-Prüfschritte im PR. Kein weiterer Funktionsausbau.
