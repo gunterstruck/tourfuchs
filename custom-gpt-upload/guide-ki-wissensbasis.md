@@ -3240,6 +3240,14 @@ Datei und ihr Schlüssel bleiben verwendbar. Ein danach neu erzeugter Export
 enthält den korrigierten Namen. Gespeicherte Touren und Simulations-Szenarien
 mit solchen Kunden bleiben vollständig – auch nach einem Reimport.
 
+**HTML aus CRM-Berichten:** Manche CRM-Exporte schreiben Auszeichnung in die
+Zellen, z. B. `<span style="white-space: nowrap;">Ulrike, Sammer </span>` in
+der Spalte „Account Manager“ oder „Account Name“. TourFuchs entfernt solche
+HTML-Tags beim Import und beim Laden älterer Bestände und `.tfsafe`-Dateien
+aus allen Texten des Kunden (Name, Zusatzspalten, Kontakte, Opportunities).
+Die Kachel zeigt dann nur „Ulrike, Sammer“. Echte spitze Klammern wie
+„Schmitt <KG>“ bleiben erhalten.
+
 ### 14.7 Sicherer Umzug empfangen
 
 **Klickpfad für Neue am Desktop:** Willkommenskarte ->

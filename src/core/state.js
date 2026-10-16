@@ -13,7 +13,7 @@
 
 import { CONFIG } from './config.js';
 import { normalizeDemoCustomers } from './demoSafety.js';
-import { normalizeCustomerName } from '../features/customerName.js';
+import { cleanCustomerTexts } from '../features/customerName.js';
 import { isPhoneUi } from './viewport.js';
 import { customerMatchesRevenueFilter } from './customerFilters.js';
 import { isRoleHeader, teamDimensionDefs } from '../features/responsibilities.js';
@@ -441,11 +441,10 @@ export function clearServiceVisits({ dirty = true } = {}) {
  * Bestehende Farb-/Sichtbarkeits-Einstellungen bleiben erhalten.
  */
 export function setCustomers(customers, meta = {}) {
-    // Auch alte lokale Bestände und .tfsafe-Dateien können HTML-kodierte Namen
-    // enthalten. IDs bleiben unverändert, damit Touren und Verweise weiter gelten.
-    for (const customer of customers || []) {
-        if (typeof customer?.name === 'string') customer.name = normalizeCustomerName(customer.name);
-    }
+    // Auch alte lokale Bestände und .tfsafe-Dateien können HTML aus dem
+    // Quellsystem enthalten („&amp;", <span …>). IDs bleiben unverändert, damit
+    // Touren und Verweise weiter gelten.
+    for (const customer of customers || []) cleanCustomerTexts(customer);
     state.customers = normalizeDemoCustomers(customers);
     reindexCustomers();
     state.fileName = meta.fileName ?? state.fileName;
