@@ -240,9 +240,10 @@ export async function loadTours() {
 
 export async function saveTours(tours) {
     try {
-        await saveProtected('tours', tours);
+        return await saveProtected('tours', tours);
     } catch (error) {
         console.warn('Touren konnten nicht gespeichert werden:', error);
+        return false;
     }
 }
 

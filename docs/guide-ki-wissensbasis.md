@@ -2521,9 +2521,16 @@ nicht automatisch eine Tour.
 
 ### 10.5 Optimierung
 
-**"⚡ Optimieren"** (Tooltip: Reihenfolge optimieren) sortiert die gewählten Zwischenstopps mit
+**"⚡ Optimieren"** (Tooltip: Reihenfolge nach Luftlinie optimieren) sortiert die gewählten Zwischenstopps mit
 Nearest-Neighbor und 2-Opt. Start und optionales Ziel bleiben fest. Die Berechnung
-ist eine Streckenheuristik und keine Echtzeit-Verkehrsoptimierung.
+ist eine Streckenheuristik auf Luftlinien-Basis und keine Echtzeit-Verkehrsoptimierung.
+Eine neue Reihenfolge wird nur übernommen, wenn die gesamte Luftlinienstrecke
+einschließlich Ziel bzw. Rückweg kürzer ist. Andernfalls bleiben die Stopps
+unverändert; die Meldung lautet **„Keine kürzere Reihenfolge nach Luftlinie
+gefunden. Die Tour bleibt unverändert.“** Das ist keine Garantie einer global
+optimalen Route. Bei Verbesserung heißt es **„Reihenfolge nach Luftlinie
+verbessert – geschätzt ca. {km} km weniger.“**; bei kleinen Verbesserungen
+ohne gerundete Kilometerzahl **„Reihenfolge nach Luftlinie verbessert.“**
 
 ### 10.6 Ziel und Rundreise
 
@@ -2572,6 +2579,20 @@ Unter **"Teilen & Exportieren"**:
 
 Datum, Startzeit und Besuchsdauer steuern Druck, Kalender und QR-Übergabe.
 Fahrzeiten sind Schätzwerte.
+
+#### 10.9.1 Touren speichern und löschen
+
+Unter **„Gespeicherte Touren“** einen Namen eintragen und **„Tour speichern“**
+wählen. **„Tour „{name}“ gespeichert.“** erscheint erst, wenn der Browser die
+Speicherung bestätigt hat. Bei verweigertem Speicherzugriff oder gesperrtem
+Tresor bleiben Planung, Name und bereits gespeicherte Touren erhalten:
+**„Tour konnte nicht gespeichert werden. Die Planung bleibt geöffnet. Bitte
+erneut speichern oder über „Teilen & Exportieren“ sichern.“**
+Der Nutzer kann denselben Speichervorgang wiederholen oder die bestehenden
+Ausgaben nutzen. Während des Schreibens ist der Speicherknopf deaktiviert.
+Auch eine Löschung wird erst nach erfolgreicher Speicherung in der Liste
+sichtbar; sonst: **„Tour konnte nicht gelöscht werden. Sie bleibt gespeichert.
+Bitte erneut versuchen.“**
 
 ### 10.10 Besuchsstatus
 
@@ -3156,6 +3177,11 @@ sicher aufbewahrt werden.
 
 - Kundendaten werden lokal mit AES-256 verschlüsselt – ebenso der
   Adress-Cache der Verortung, gespeicherte Touren und Simulations-Szenarien.
+  Das gilt auch für separat gespeicherte Touren; die Datenschutz-FAQ im
+  Info-Dialog beschreibt diesen Schutzumfang in allen vier Sprachen.
+  Allgemeine App-Einstellungen bleiben unverschlüsselt. Bereits exportierte
+  Dateien, kopierte Prompts, die ursprüngliche Excel-Datei und während der
+  Nutzung entschlüsselte Inhalte werden durch den Tresor nicht geschützt.
   Das Gedächtnis „Besuche weitergeben" speichert Kundennummern nur als
   Prüfsumme.
 - ein zufälliger Datenschlüssel wird mit einem aus der PIN abgeleiteten
