@@ -1202,3 +1202,15 @@ gespeicherte Szenario bleibt unverändert. Tests in
 `tests/simulationScenarios.test.js`. Größenbudget `index.js` (roh) dafür um
 1 KB erhöht: Der Spielraum vom 11.10. war durch die Fehlerbehebungen seither
 aufgebraucht (Release 17.0c: Erhöhung nur mit Begründung).
+
+### Nutzer-Feedback: HTML-Reste in der Kundenkachel (16.10.2026)
+
+In der Kachel stand unter „Zuständig · Account Manager“ und beim Account
+wörtlich `<span style="white-space: nowrap;">Ute, Sander </span>`: Der
+CRM-Bericht liefert Zellen mit HTML-Auszeichnung. Behoben: Import und Laden
+entfernen bekannte HTML-Tags (span, b, br, div …) aus allen Texten des Kunden –
+IDs bleiben unverändert, gespeicherte Bestände werden einmal bereinigt neu
+gespeichert. Gleiche Stelle wie die „&amp;“-Bereinigung aus #427
+(`src/features/customerName.js`); bei Kunden ohne Kundennummer ordnen
+Touren und Szenarien über den bereinigten Namen zu. Echte spitze Klammern
+(„Schmitt <KG>“) bleiben. Tests in `tests/customerName.test.js`.

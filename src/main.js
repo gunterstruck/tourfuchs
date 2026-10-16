@@ -9,7 +9,7 @@ import 'leaflet.markercluster/dist/MarkerCluster.css';
 import { CONFIG } from './core/config.js';
 import { currentLocale, t } from './core/i18n.js';
 import { applyDemoStreets, demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
-import { customerNamesNeedNormalization } from './features/customerName.js';
+import { customerTextsNeedCleaning } from './features/customerName.js';
 import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
 import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './services/storage.js';
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
@@ -117,7 +117,7 @@ async function restorePersistedState() {
         let migratedDemoContracts = false;
         let migratedDemoVisits = false;
         const migratedDemoCustomers = demoCustomersNeedNormalization(dataset.customers);
-        const migratedCustomerNames = customerNamesNeedNormalization(dataset.customers);
+        const migratedCustomerNames = customerTextsNeedCleaning(dataset.customers);
         if (migratedDemoCustomers) normalizeDemoCustomers(dataset.customers);
         if (dataset.fileName === 'Demo-Daten') {
             try {

@@ -39,6 +39,7 @@ import { confirmDatasetReplacement, hasExistingDataset, onlyDemoDataPresent } fr
 import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.js';
 import { confirmImportWithDiff } from './importDiff.js';
 import { carryOverVisits } from '../features/datasetDiff.js';
+import { cleanCustomerTexts } from '../features/customerName.js';
 import { columnsNotInFile, mergeWithPrevious, missingCustomers } from '../features/importMerge.js';
 import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
@@ -975,6 +976,9 @@ async function runImport(mapping, { sales = null, template = null, remember = fa
             })
         })) note(grund);
     }
+    // HTML aus CRM-Berichten (<span …>, &amp;) vor Abgleich und Änderungsbericht
+    // entfernen – sonst wirkte jeder Reimport wie eine Änderung am Bestand.
+    for (const row of [...customers, ...contactRows, ...areaRows]) cleanCustomerTexts(row);
 
     lastFileBase = (parsed.fileName || 'TourFuchs').replace(/\.[^.]+$/, '');
 
