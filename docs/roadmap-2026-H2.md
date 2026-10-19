@@ -1246,3 +1246,16 @@ PLZ-3 → Promotor macht die Liste selbst (z. B. per SVERWEIS). Reimport mit den
 Spalten ersetzt die Spalten-Promotoren, Kontaktlisten-Promotoren bleiben.
 Telefon/E-Mail vorerst nicht. Größenbudget `index.js` roh und gzip um je 1 KB
 erhöht. Offen bleibt: Promotor-Flächen einfärben (Stufe 2) – nicht geplant.
+
+### Nutzer-Feedback: Kundensuche „loew" (19.10.2026)
+
+Meldung: Mit „loew" war „GEBR. LOEW GMBH & CO. KG" nicht zu finden. Mit
+genau dieser Eingabe ließ es sich nicht nachstellen; gefunden und behoben
+wurden drei Lücken, die zum Befund passen: (1) Die Kundensuche kannte nur die
+abgestreifte Umlaut-Schreibweise – „Löw" fand „LOEW" nicht (die Ortssuche
+konnte das längst). (2) Unsichtbare Zeichen aus CRM-Exporten (weiches
+Trennzeichen, Nullbreite) zerteilten Namen. (3) Ohne Rangfolge entschied bei
+knappem Platz (4 Kunden neben Ortsvorschlägen) die Bestandsreihenfolge. Jetzt:
+beide Umlaut-Schreibweisen, Satzzeichen egal, Rangfolge Kundennummer →
+Namensanfang → Wortanfang → im Wort → Ort/PLZ. Gleich schnell wie vorher
+(≈ 15–30 ms bei 15.000 Kunden), Größenbudget eingehalten.

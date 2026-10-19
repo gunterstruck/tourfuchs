@@ -163,3 +163,40 @@ describe('Kopfsuche findet auch Orte, nicht nur Kunden', () => {
         expect(search).toContain('if (run !== sequence) return;');
     });
 });
+
+describe('Kundensuche: Umlaute, unsichtbare Zeichen, Rangfolge (Feedback „loew")', () => {
+    const loew = { id: 'g', name: 'GEBR. LOEW GMBH & CO. KG', ort: 'Arnsberg', plz: '59757', nummer: '7000001' };
+
+    it('findet „LOEW" auch mit „Löw" und umgekehrt', () => {
+        const loew2 = { id: 'g2', name: 'Löw Metallbau', ort: 'Köln', plz: '50667', nummer: '' };
+        for (const query of ['loew', 'Loew', 'Löw', 'löw']) {
+            expect(searchCustomers([loew], query).map((c) => c.id)).toEqual(['g']);
+        }
+        for (const query of ['Löw', 'loew', 'low']) {
+            expect(searchCustomers([loew2], query).map((c) => c.id)).toEqual(['g2']);
+        }
+    });
+
+    it('übersieht unsichtbare Zeichen aus CRM-Exporten (weiches Trennzeichen, Nullbreite)', () => {
+        const versteckt = [
+            { id: 'shy', name: 'GEBR. LO­EW GMBH', ort: '', plz: '' },
+            { id: 'zw', name: 'GEBR. LO​EW GMBH', ort: '', plz: '' },
+            { id: 'nb', name: 'GEBR. LOEW GMBH', ort: '', plz: '' }
+        ];
+        expect(searchCustomers(versteckt, 'loew').map((c) => c.id)).toEqual(['shy', 'zw', 'nb']);
+        expect(searchCustomers(versteckt, 'gebr. loew').map((c) => c.id)).toEqual(['shy', 'zw', 'nb']);
+    });
+
+    it('stellt Treffer am Wortanfang vor Treffer mitten im Wort – auch wenn der Platz knapp ist', () => {
+        const mitten = Array.from({ length: 6 }, (_, i) => ({ id: `m${i}`, name: `Moloewix ${i}`, ort: '', plz: '' }));
+        expect(searchCustomers([...mitten, loew], 'loew', GROUP_LIMIT)[0].id).toBe('g');
+        // Kundennummer exakt: ganz oben.
+        expect(searchCustomers([...mitten, loew], '7000001')[0].id).toBe('g');
+    });
+
+    it('bleibt bei Eingaben ohne Buchstaben und bei Satzzeichen tolerant', () => {
+        expect(searchCustomers([loew], 'gebr l').map((c) => c.id)).toEqual(['g']);
+        expect(searchCustomers([loew], 'GmbH & Co').map((c) => c.id)).toEqual(['g']);
+        expect(searchCustomers([loew], '&&')).toEqual([]);
+    });
+});

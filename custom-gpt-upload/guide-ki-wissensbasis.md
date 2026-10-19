@@ -1756,7 +1756,13 @@ einschließlich führender Nullen. Ohne Nummer steht nur der Name. Lange Angaben
 werden umgebrochen. Das gilt auf Desktop und Handy.
 
 Umlaute und Schreibvarianten werden tolerant normalisiert, zum Beispiel `Koln`
-für `Köln`.
+für `Köln`. Seit 19.10.2026 gilt bei Kunden wie bei Orten auch die
+aufgelöste Schreibweise: `Löw` findet `GEBR. LOEW GMBH`, `loew` findet
+`Löw Metallbau`. Satzzeichen und unsichtbare Zeichen aus CRM-Exporten (z. B.
+weiches Trennzeichen) stören nicht. Kundentreffer sind sortiert: exakte
+Kundennummer, dann Namensanfang, Wortanfang, Treffer mitten im Wort, zuletzt
+Ort und PLZ – so bleibt der passende Kunde auch bei knappem Platz neben
+Ortsvorschlägen sichtbar.
 
 **Nach der Auswahl** fliegt die Karte zum Treffer. Ein Kunde öffnet sein
 Kunden-Popup, ein **eigener Ort** sein reguläres Ortspopup samt "Als Start",
