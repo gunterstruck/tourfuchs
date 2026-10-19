@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cleanCustomerTexts, cleanImportedText, customerTextsNeedCleaning, normalizeCustomerName } from '../src/features/customerName.js';
+import { cleanCustomerTexts, cleanImportedText, customerTextsNeedCleaning, normalizeCustomerName, readableCustomerName } from '../src/features/customerName.js';
 import { customerResponsibilities } from '../src/features/responsibilities.js';
 import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { datasetSnapshot, setCustomers, state } from '../src/core/state.js';
@@ -106,5 +106,48 @@ describe('HTML-Auszeichnung aus CRM-Exporten', () => {
         const { customers } = parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
         expect(customers[0].name).toBe('Muster GmbH');
         expect(customers[0].id).toBe('k-np:muster gmbh|47051');
+    });
+});
+
+describe('Lesbare Kundennamen statt durchgehender Großbuchstaben (CRM)', () => {
+    it('schreibt Namen in Großbuchstaben wie üblich – Rechtsformen und Kürzel richtig', () => {
+        const cases = [
+            ['GEBR. GRAEF GMBH & CO. KG', 'Gebr. Graef GmbH & Co. KG'],
+            ['GRÄFLICHES HOFBRAUHAUS FREISING GMBH', 'Gräfliches Hofbrauhaus Freising GmbH'],
+            ['EFG CORDES & GRAEFE BRAND KG', 'EFG Cordes & Graefe Brand KG'],
+            ['CORDES & GRAEFE BREMEN KG FACHGROSSHANDEL', 'Cordes & Graefe Bremen KG Fachgrosshandel'],
+            ['SCIO AUTOMATION DUISBURG GMBH', 'Scio Automation Duisburg GmbH'],
+            ['MÜLLER-LÜDENSCHEIDT MASCHINENBAU GMBH & CO. KGAA', 'Müller-Lüdenscheidt Maschinenbau GmbH & Co. KGaA'],
+            ['3M DEUTSCHLAND GMBH', '3M Deutschland GmbH'],
+            ['ABB AG', 'ABB AG'],
+            ['SCHMIDT U. SÖHNE OHG', 'Schmidt u. Söhne OHG'],
+            ['HAUS DER TECHNIK E.V.', 'Haus der Technik e.V.'],
+            ['VON ARDENNE GMBH', 'Von Ardenne GmbH'],
+            ['MEIER BAU GMBH (WERK 2)', 'Meier Bau GmbH (Werk 2)']
+        ];
+        for (const [raw, readable] of cases) expect(readableCustomerName(raw)).toBe(readable);
+    });
+
+    it('lässt gemischt geschriebene Namen, wie sie sind', () => {
+        for (const name of ['Gebr. Grieshaber GmbH', 'SCIO Automation GmbH', 'Kölner Handel', 'TourFuchs Demo · 12', '']) {
+            expect(readableCustomerName(name)).toBe(name);
+        }
+    });
+
+    it('gilt für Import und Bestand – IDs und Kundennummer bleiben', () => {
+        const rows = [{ Kundennummer: '8681021', Kundenname: 'GEBR. GRAEF GMBH & CO. KG', PLZ: '59757' }];
+        const { customers } = parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
+        const [customer] = customers;
+        expect(customer.id).toBe('k-nr:8681021');
+        expect(customerTextsNeedCleaning([customer])).toBe(true);
+        cleanCustomerTexts(customer);
+        expect(customer.name).toBe('Gebr. Graef GmbH & Co. KG');
+        expect(customerTextsNeedCleaning([customer])).toBe(false);
+
+        const ohneNummer = { id: 'k-np:gebr. graef gmbh & co. kg|59757', name: 'GEBR. GRAEF GMBH & CO. KG', plz: '59757' };
+        setCustomers([ohneNummer]);
+        expect(state.customers[0].name).toBe('Gebr. Graef GmbH & Co. KG');
+        expect(state.customers[0].id).toBe('k-np:gebr. graef gmbh & co. kg|59757');
+        setCustomers([]);
     });
 });

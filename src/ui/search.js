@@ -64,15 +64,20 @@ function searchTexts(customer) {
     return entry;
 }
 
-/** 0 Kundennummer · 1 Namensanfang · 2 Wortanfang · 3 im Wort · 4 Ort/PLZ · Infinity kein Treffer */
+/**
+ * 0 Kundennummer · 1 ganzes Wort am Namensanfang · 2 ganzes Wort · 3 Namensanfang
+ * · 4 Wortanfang · 5 im Wort · 6 Ort/PLZ · Infinity kein Treffer
+ */
 function rankOf(customer, q, variants) {
     if (normalizeSearchText(customer.nummer) === q) return 0;
     const { names, orte } = searchTexts(customer);
-    let rank = String(customer.plz ?? '').startsWith(q) || orte.some((ort) => variants.some((v) => ort.includes(v))) ? 4 : Infinity;
+    let rank = String(customer.plz ?? '').startsWith(q) || orte.some((ort) => variants.some((v) => ort.includes(v))) ? 6 : Infinity;
     for (const v of variants) {
         for (const name of names) {
-            const at = name.indexOf(v);
-            if (at >= 0) rank = Math.min(rank, at === 0 ? 1 : name.includes(` ${v}`) ? 2 : 3);
+            if (!name.includes(v)) continue;
+            const padded = ` ${name} `;
+            const at = padded.indexOf(` ${v}`);
+            rank = Math.min(rank, padded.startsWith(` ${v} `) ? 1 : padded.includes(` ${v} `) ? 2 : at === 0 ? 3 : at > 0 ? 4 : 5);
         }
     }
     return rank;
@@ -80,8 +85,8 @@ function rankOf(customer, q, variants) {
 
 /**
  * Kunden zu einer Eingabe – wie die Ortssuche mit beiden Umlaut-Schreibweisen
- * („Gräf" findet „GRAEF" und umgekehrt) und ohne Satzzeichen. Treffer am
- * Namensanfang und an Wortanfängen stehen vorn: Bei knappem Platz neben
+ * („Gräf" findet „GRAEF" und umgekehrt) und ohne Satzzeichen. Ganze Wörter
+ * stehen vor Wortanfängen („graef" zeigt „Gebr. Graef" vor „Gräfliches …"): Bei knappem Platz neben
  * Ortsvorschlägen entschied sonst die Reihenfolge im Bestand, wer sichtbar war.
  */
 export function searchCustomers(customers, query, limit = SINGLE_GROUP_LIMIT) {
