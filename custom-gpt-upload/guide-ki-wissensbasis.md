@@ -801,6 +801,24 @@ Erfolgsmeldung und erscheint nicht erneut. Ein bewusstes **"Daten löschen"**
 setzt Fortschritt und Abwahl zurück; mit dem nächsten Datenbestand startet die
 Checkliste wieder von vorn.
 
+### 5.6 „Wie geht das?" an Ort und Stelle
+
+Seit 19.10.2026 steht die passende Live-Demo auch dort, wo der Schritt
+ansteht – auf Desktop und Handy:
+
+- **Leere Tour** (`"Tour" -> "3. Meine Tour"`, Hinweis „Noch keine Stopps“):
+  **„▶ Wie geht das? Live-Demo ansehen“** startet „Deine Tour, Schritt für
+  Schritt“.
+- **Tresor einrichten** (🔓 oben, Fenster „Datentresor aktivieren“): derselbe
+  Link unter „Tresor aktivieren“ startet „Deine Daten im Tresor“. Der Cursor
+  steht weiter im PIN-Feld.
+
+Der Link verschwindet, sobald der Schritt einmal getan ist – die Tour hatte
+einen Stopp bzw. die Demo ist durchgelaufen (dieselben Haken wie in 5.5). Wer
+täglich plant, sieht ihn also nicht mehr. Während einer laufenden Demo ist er
+ausgeblendet. Weitere Stellen mit diesem Link: „Eigene Daten laden“ (Import,
+Datei von Kollegen).
+
 ---
 
 ## 6. Live-Demos
