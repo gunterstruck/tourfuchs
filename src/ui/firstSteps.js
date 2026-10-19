@@ -35,6 +35,7 @@ import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, phoneFaceQuery } from '../core/viewport.js';
 
 const COLLAPSE_FEEDBACK_MS = 4000;
+const DEMO_UNAVAILABLE = 'Diese Live-Demo ist in dieser Ansicht nicht verfügbar.';
 
 let container = null;
 let celebrated = false;
@@ -139,9 +140,7 @@ function render() {
         </div>`;
     container.querySelectorAll('.first-steps-action').forEach((button) => {
         button.addEventListener('click', () => {
-            if (!startShowcaseStory(button.dataset.showcase)) {
-                showToast('Diese Live-Demo ist in dieser Ansicht nicht verfügbar.', 'info', 4000);
-            }
+            if (!startShowcaseStory(button.dataset.showcase)) showToast(DEMO_UNAVAILABLE, 'info', 4000);
         });
     });
     container.querySelector('.first-steps-later').addEventListener('click', () => {
@@ -182,6 +181,14 @@ export function initFirstSteps() {
         if (state.customers.length === 0) {
             showToast('Die Erste-Schritte-Checkliste erscheint, sobald Daten geladen sind.', 'info', 5000);
         }
+    });
+
+    // „Wie geht das?"-Links (ui/helpDemo.js): Fenster zu, passende Demo starten.
+    document.addEventListener('click', (event) => {
+        const link = event.target.closest?.('[data-help-demo]');
+        if (!link) return;
+        link.closest('dialog')?.close();
+        if (!startShowcaseStory(link.dataset.helpDemo)) showToast(DEMO_UNAVAILABLE, 'info', 4000);
     });
 
     on('customers:changed', render);
