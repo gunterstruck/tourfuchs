@@ -1232,3 +1232,17 @@ für einen ruhigen Überblick oder einen Screenshot. Umgesetzt als Häkchen
 zeigen die Kacheln weiterhin. Abgesichert durch einen Schritt in
 `tools/smoke-check.mjs` (aus → keine Kacheln, Flächen bleiben, nach Neuladen
 gemerkt, wieder an).
+
+### PO-Wunsch: Promotoren mit TPE-Thema aus der Zuständigkeitsliste (19.10.2026)
+
+Promotoren (Promotion-Kollegen, organisiert nach 3-stelligen PLZ) sollen ihre
+Kunden auf der Karte sehen; je Kunde gibt es mehrere Promotoren mit je einem
+TPE-Thema (Technologie-Portfolio-Element). Entscheidung: keine eigene Option à
+la GeoFuchs und kein zweiter Knopf – die vorhandenen Promotoren („📣
+Promotoren", Filter „Promotor" / „Promotor-Thema", Briefing) bekommen eine
+zweite Quelle: nummerierte Spaltenpaare **„Promotor N" / „Promotor N
+TPE-Thema"** in Kunden- oder Zuständigkeitsliste, beliebig viele. Die Zuordnung
+PLZ-3 → Promotor macht die Liste selbst (z. B. per SVERWEIS). Reimport mit den
+Spalten ersetzt die Spalten-Promotoren, Kontaktlisten-Promotoren bleiben.
+Telefon/E-Mail vorerst nicht. Größenbudget `index.js` roh und gzip um je 1 KB
+erhöht. Offen bleibt: Promotor-Flächen einfärben (Stufe 2) – nicht geplant.

@@ -21,6 +21,7 @@
  * Liste ergänzt). Reine Logik, ohne DOM.
  */
 import { customerKey } from './datasetDiff.js';
+import { isColumnPromotor, promotorColumns } from './promotorColumns.js';
 import { revenueYearHeaders } from './revenueYears.js';
 
 /** Einfache Felder: Zuordnungsschlüssel = Eigenschaft am Kunden. */
@@ -112,6 +113,8 @@ export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, 
     const fileHasContacts = contactsFromFile || CONTACT_MAPPING_KEYS.some((key) => mapping[key]);
     const ownedByFile = new Set(fileProps);
     const fileHasCoordinates = Boolean(mapping.lat && mapping.lng);
+    // Führt die Datei Promotor-Spalten, gelten ihre Promotoren – auch leer.
+    const fileHasPromotorColumns = promotorColumns(headers).length > 0;
     let matched = 0;
     let keptCoordinates = 0;
 
@@ -123,15 +126,23 @@ export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, 
         for (const { key } of SIMPLE_FIELDS) {
             if (!mapping[key] && match[key] !== undefined) customer[key] = match[key];
         }
+        const ownPromotors = fileHasPromotorColumns ? (customer.contacts || []).filter(isColumnPromotor) : [];
         if (!fileHasContacts) {
             for (const prop of CONTACT_PROPS) {
                 if (match[prop] === undefined) delete customer[prop];
                 else customer[prop] = prop === 'contacts' ? structuredClone(match[prop]) : match[prop];
             }
+            if (fileHasPromotorColumns) {
+                const contacts = [...(customer.contacts || []).filter((contact) => !isColumnPromotor(contact)), ...ownPromotors];
+                if (contacts.length) customer.contacts = contacts;
+                else delete customer.contacts;
+            }
         } else {
             // Die Datei führt bei ihren Kontakten – Promotoren und Kontakte aus
             // einer eigenen Kontaktliste kennt sie aber gar nicht: Sie bleiben.
-            const kept = (match.contacts || []).filter((contact) => contact?.kontaktliste || contact?.art === 'promotor');
+            // Promotoren aus Spalten gelten nur, solange die Datei keine eigenen führt.
+            const kept = (match.contacts || []).filter((contact) => (contact?.kontaktliste || contact?.art === 'promotor')
+                && !(fileHasPromotorColumns && isColumnPromotor(contact)));
             const known = new Set((customer.contacts || []).map(contactIdentity));
             const add = kept.filter((contact) => !known.has(contactIdentity(contact)))
                 .map((contact) => ({ ...structuredClone(contact), primary: false }));
