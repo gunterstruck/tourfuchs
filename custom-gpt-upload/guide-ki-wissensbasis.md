@@ -1757,12 +1757,14 @@ werden umgebrochen. Das gilt auf Desktop und Handy.
 
 Umlaute und Schreibvarianten werden tolerant normalisiert, zum Beispiel `Koln`
 für `Köln`. Seit 19.10.2026 gilt bei Kunden wie bei Orten auch die
-aufgelöste Schreibweise: `Löw` findet `GEBR. LOEW GMBH`, `loew` findet
+aufgelöste Schreibweise: `Löw` findet `Gebr. Loew GmbH`, `loew` findet
 `Löw Metallbau`. Satzzeichen und unsichtbare Zeichen aus CRM-Exporten (z. B.
 weiches Trennzeichen) stören nicht. Kundentreffer sind sortiert: exakte
-Kundennummer, dann Namensanfang, Wortanfang, Treffer mitten im Wort, zuletzt
-Ort und PLZ – so bleibt der passende Kunde auch bei knappem Platz neben
-Ortsvorschlägen sichtbar.
+Kundennummer, dann das ganze Wort am Namensanfang, das ganze Wort irgendwo im
+Namen, Namensanfang, Wortanfang, Treffer mitten im Wort, zuletzt Ort und PLZ.
+So steht bei `loew` „Gebr. Loew GmbH & Co. KG“ vor „Löwenhof Musterstadt“
+und „Meyer & Loewen“ – der passende Kunde bleibt auch bei knappem Platz
+neben Ortsvorschlägen sichtbar.
 
 **Nach der Auswahl** fliegt die Karte zum Treffer. Ein Kunde öffnet sein
 Kunden-Popup, ein **eigener Ort** sein reguläres Ortspopup samt "Als Start",
@@ -3285,6 +3287,16 @@ Die Kachel zeigt dann nur „Ute, Sander“. Trennlinien und Listen (`<hr>`,
 `<li>`), mit denen das CRM mehrere Werte in ein Feld schreibt, werden zu
 „ / “ – z. B. „Musterchemie AG (RC-DE) / Musterchemie Global“. Echte spitze
 Klammern wie „Schmitt <KG>“ bleiben erhalten.
+
+**Kundennamen in Großbuchstaben:** Manche CRM-Berichte liefern Namen
+durchgehend groß („GEBR. LOEW GMBH & CO. KG“). TourFuchs schreibt sie beim
+Import und beim Laden lesbar: „Gebr. Loew GmbH & Co. KG“ – in Kachel, Suche,
+Tour und in der Kundennummer-Kopie für die Zwischenablage. Rechtsformen
+(GmbH, KGaA, e.V.) und kleine Wörter (und, von, der) haben ihre übliche
+Schreibweise, Kürzel bis drei Buchstaben („XYZ AG“, „EFG“) und Wörter mit
+Ziffern („3M“) bleiben groß. Namen mit Groß- und Kleinschreibung bleiben, wie
+sie sind. Touren, Szenarien und die Zuordnung beim Reimport ändern sich
+dadurch nicht.
 
 ### 14.7 Sicherer Umzug empfangen
 

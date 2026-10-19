@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { cleanCustomerTexts, cleanImportedText, customerTextsNeedCleaning, normalizeCustomerName } from '../src/features/customerName.js';
+import { cleanCustomerTexts, cleanImportedText, customerTextsNeedCleaning, normalizeCustomerName, readableCustomerName } from '../src/features/customerName.js';
 import { customerResponsibilities } from '../src/features/responsibilities.js';
 import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { datasetSnapshot, setCustomers, state } from '../src/core/state.js';
@@ -106,5 +106,48 @@ describe('HTML-Auszeichnung aus CRM-Exporten', () => {
         const { customers } = parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
         expect(customers[0].name).toBe('Muster GmbH');
         expect(customers[0].id).toBe('k-np:muster gmbh|47051');
+    });
+});
+
+describe('Lesbare Kundennamen statt durchgehender Großbuchstaben (CRM)', () => {
+    it('schreibt Namen in Großbuchstaben wie üblich – Rechtsformen und Kürzel richtig', () => {
+        const cases = [
+            ['GEBR. LOEW GMBH & CO. KG', 'Gebr. Loew GmbH & Co. KG'],
+            ['LÖWENHOF MUSTERSTADT GMBH', 'Löwenhof Musterstadt GmbH'],
+            ['EFG MEYER & LOEWEN BRAND KG', 'EFG Meyer & Loewen Brand KG'],
+            ['MEYER & LOEWEN BREMEN KG FACHGROSSHANDEL', 'Meyer & Loewen Bremen KG Fachgrosshandel'],
+            ['ZETA AUTOMATION DUISBURG GMBH', 'Zeta Automation Duisburg GmbH'],
+            ['MÜLLER-LÜDENSCHEIDT MASCHINENBAU GMBH & CO. KGAA', 'Müller-Lüdenscheidt Maschinenbau GmbH & Co. KGaA'],
+            ['4X DEUTSCHLAND GMBH', '4X Deutschland GmbH'],
+            ['XYZ AG', 'XYZ AG'],
+            ['SCHMIDT U. SÖHNE OHG', 'Schmidt u. Söhne OHG'],
+            ['HAUS DER TECHNIK E.V.', 'Haus der Technik e.V.'],
+            ['VON HAGEN GMBH', 'Von Hagen GmbH'],
+            ['MEIER BAU GMBH (WERK 2)', 'Meier Bau GmbH (Werk 2)']
+        ];
+        for (const [raw, readable] of cases) expect(readableCustomerName(raw)).toBe(readable);
+    });
+
+    it('lässt gemischt geschriebene Namen, wie sie sind', () => {
+        for (const name of ['Gebr. Mustermann GmbH', 'ZETA Automation GmbH', 'Kölner Handel', 'TourFuchs Demo · 12', '']) {
+            expect(readableCustomerName(name)).toBe(name);
+        }
+    });
+
+    it('gilt für Import und Bestand – IDs und Kundennummer bleiben', () => {
+        const rows = [{ Kundennummer: '7000001', Kundenname: 'GEBR. LOEW GMBH & CO. KG', PLZ: '59757' }];
+        const { customers } = parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
+        const [customer] = customers;
+        expect(customer.id).toBe('k-nr:7000001');
+        expect(customerTextsNeedCleaning([customer])).toBe(true);
+        cleanCustomerTexts(customer);
+        expect(customer.name).toBe('Gebr. Loew GmbH & Co. KG');
+        expect(customerTextsNeedCleaning([customer])).toBe(false);
+
+        const ohneNummer = { id: 'k-np:gebr. loew gmbh & co. kg|59757', name: 'GEBR. LOEW GMBH & CO. KG', plz: '59757' };
+        setCustomers([ohneNummer]);
+        expect(state.customers[0].name).toBe('Gebr. Loew GmbH & Co. KG');
+        expect(state.customers[0].id).toBe('k-np:gebr. loew gmbh & co. kg|59757');
+        setCustomers([]);
     });
 });

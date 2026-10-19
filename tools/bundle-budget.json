@@ -1,9 +1,9 @@
 {
-  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). index.js am 19.10.2026 roh und gzip um je 1 KB erhöht (Promotoren aus nummerierten Spalten „Promotor N / Promotor N TPE-Thema“, PO-Wunsch). index.js roh am 16.10.2026 zweimal um je 1 KB erhöht (Fehlerbehebungen aus Nutzer-Feedback: HTML-Reste aus CRM-Berichten, #432 und Folge-PR für <hr>/<li>). Erstmals: Die Fehlerbehebungen seit 11.10. (u. a. #425–#429) hatten den Spielraum aufgebraucht; die Szenario-Korrektur für „&amp;“-Kunden (+0,5 KB) passte nicht mehr. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
+  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). index.js am 19.10.2026 roh und gzip um je 2 KB erhöht (Kundensuche: ganzes Wort vor Wortanfang; lesbare Kundennamen statt durchgehender CRM-Großbuchstaben, Nutzer-Feedback „loew“). index.js am 19.10.2026 roh und gzip um je 1 KB erhöht (Promotoren aus nummerierten Spalten „Promotor N / Promotor N TPE-Thema“, PO-Wunsch). index.js roh am 16.10.2026 zweimal um je 1 KB erhöht (Fehlerbehebungen aus Nutzer-Feedback: HTML-Reste aus CRM-Berichten, #432 und Folge-PR für <hr>/<li>). Erstmals: Die Fehlerbehebungen seit 11.10. (u. a. #425–#429) hatten den Spielraum aufgebraucht; die Szenario-Korrektur für „&amp;“-Kunden (+0,5 KB) passte nicht mehr. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
   "pakete": {
     "index.js": {
-      "raw": 1172480,
-      "gzip": 358400
+      "raw": 1174528,
+      "gzip": 360448
     },
     "demoCustomers.js": {
       "raw": 3072,

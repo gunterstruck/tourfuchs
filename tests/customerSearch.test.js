@@ -194,6 +194,20 @@ describe('Kundensuche: Umlaute, unsichtbare Zeichen, Rangfolge (Feedback „loew
         expect(searchCustomers([...mitten, loew], '7000001')[0].id).toBe('g');
     });
 
+    it('stellt das ganze Wort vor den Wortanfang („loew" → GEBR. LOEW vor LÖWENHOF, LOEWEN)', () => {
+        // Nachgestellt aus dem Screenshot: 24 Treffer, 4 Plätze neben den Ortsvorschlägen.
+        const andere = [
+            { id: 'h', name: 'LÖWENHOF MUSTERSTADT GMBH', ort: 'Freising', plz: '85356' },
+            { id: 'c1', name: 'EFG MEYER & LOEWEN BRAND KG', ort: 'Osnabrueck', plz: '49078' },
+            { id: 'c2', name: 'MEYER & LOEWEN OSNABRUECK KG', ort: 'Osnabrueck', plz: '49078' },
+            { id: 'c3', name: 'MEYER & LOEWEN BREMEN KG FACHGROSSHANDEL', ort: 'Stuhr', plz: '28816' },
+            ...Array.from({ length: 19 }, (_, i) => ({ id: `w${i}`, name: `LOEWEN WERK ${i}`, ort: '', plz: '' }))
+        ];
+        const hits = searchCustomers([...andere, loew], 'loew', GROUP_LIMIT);
+        expect(hits[0].id).toBe('g');
+        expect(searchCustomers([...andere, loew], 'gebr loew')[0].id).toBe('g');
+    });
+
     it('bleibt bei Eingaben ohne Buchstaben und bei Satzzeichen tolerant', () => {
         expect(searchCustomers([loew], 'gebr l').map((c) => c.id)).toEqual(['g']);
         expect(searchCustomers([loew], 'GmbH & Co').map((c) => c.id)).toEqual(['g']);

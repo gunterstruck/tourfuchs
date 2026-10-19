@@ -63,10 +63,53 @@ function cleanTexts(value, apply) {
 
 /** Alle Texte eines Kunden an Ort und Stelle bereinigen (Name, Zusatzspalten, Kontakte …). */
 export function cleanCustomerTexts(customer) {
-    return customer && typeof customer === 'object' ? cleanTexts(customer, true) : false;
+    if (!customer || typeof customer !== 'object') return false;
+    const changed = cleanTexts(customer, true);
+    if (typeof customer.name !== 'string') return changed;
+    const readable = readableCustomerName(customer.name);
+    if (readable === customer.name) return changed;
+    customer.name = readable;
+    return true;
 }
 
 /** Braucht ein gespeicherter Bestand die Bereinigung? Dann wird er danach neu gespeichert. */
 export function customerTextsNeedCleaning(customers) {
-    return (customers || []).some((customer) => customer && typeof customer === 'object' && cleanTexts(customer, false));
+    return (customers || []).some((customer) => customer && typeof customer === 'object'
+        && (cleanTexts(customer, false) || readableCustomerName(customer.name) !== (customer.name ?? '')));
+}
+
+/*
+ * Namen ganz in Großbuchstaben (so liefern manche CRM-Berichte) lesbar
+ * schreiben: „GEBR. LOEW GMBH & CO. KG" → „Gebr. Loew GmbH & Co. KG".
+ * Rechtsformen und kleine Wörter nach Liste, Kürzel bis drei Buchstaben
+ * („EFG", „ABB", „AG") bleiben groß, Wörter mit Ziffern („3M") unverändert.
+ * Gemischt geschriebene Namen bleiben, wie sie sind. ID und Tour-Schlüssel
+ * hängen am kleingeschriebenen Namen und ändern sich dadurch nicht.
+ */
+const WORDS = {
+    GMBH: 'GmbH', MBH: 'mbH', GBR: 'GbR', KGAA: 'KGaA', 'E.K.': 'e.K.', 'E.V.': 'e.V.', 'CO.': 'Co.', CO: 'Co',
+    'U.': 'u.', UND: 'und', VON: 'von', VOM: 'vom', DER: 'der', DIE: 'die', DAS: 'das', DEN: 'den', DES: 'des',
+    FÜR: 'für', IM: 'im', AM: 'am', AN: 'an', IN: 'in', ZU: 'zu', ZUR: 'zur', ZUM: 'zum', BEI: 'bei', MIT: 'mit'
+};
+const WORDS3 = new Set(['BAU', 'HOF', 'NEU', 'ALT', 'OST', 'SÜD', 'GUT', 'BIO']);
+
+function readableWord(part, first) {
+    const known = WORDS[part];
+    if (known) return first ? known[0].toUpperCase() + known.slice(1) : known;
+    if (/\d|\.[^.]/.test(part)) return part;
+    if (part.replace(/[^A-ZÄÖÜ]/g, '').length <= 3 && !part.endsWith('.') && !WORDS3.has(part)) return part;
+    return part[0] + part.slice(1).toLocaleLowerCase('de-DE');
+}
+
+export function readableCustomerName(value) {
+    const name = String(value ?? '');
+    if (!/[A-ZÄÖÜ]/.test(name) || /[a-zäöüß]/.test(name)) return name;
+    let first = true;
+    return name.replace(/\S+/g, (token) => {
+        const [, pre, core, post] = token.match(/^([^A-ZÄÖÜ0-9]*)(.*?)([^A-ZÄÖÜ0-9.]*)$/);
+        if (!core) return token;
+        const readable = core.split(/([-/])/).map((part) => (/[A-ZÄÖÜ0-9]/.test(part) ? readableWord(part, first) : part)).join('');
+        first = false;
+        return pre + readable + post;
+    });
 }
