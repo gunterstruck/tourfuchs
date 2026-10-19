@@ -194,6 +194,20 @@ describe('Kundensuche: Umlaute, unsichtbare Zeichen, Rangfolge (Feedback „grae
         expect(searchCustomers([...mitten, graef], '8681021')[0].id).toBe('g');
     });
 
+    it('stellt das ganze Wort vor den Wortanfang („graef" → GEBR. GRAEF vor GRÄFLICHES, GRAEFE)', () => {
+        // Nachgestellt aus dem Screenshot: 24 Treffer, 4 Plätze neben den Ortsvorschlägen.
+        const andere = [
+            { id: 'h', name: 'GRÄFLICHES HOFBRAUHAUS FREISING GMBH', ort: 'Freising', plz: '85356' },
+            { id: 'c1', name: 'EFG CORDES & GRAEFE BRAND KG', ort: 'Osnabrueck', plz: '49078' },
+            { id: 'c2', name: 'CORDES & GRAEFE OSNABRUECK KG', ort: 'Osnabrueck', plz: '49078' },
+            { id: 'c3', name: 'CORDES & GRAEFE BREMEN KG FACHGROSSHANDEL', ort: 'Stuhr', plz: '28816' },
+            ...Array.from({ length: 19 }, (_, i) => ({ id: `w${i}`, name: `GRAEFE WERK ${i}`, ort: '', plz: '' }))
+        ];
+        const hits = searchCustomers([...andere, graef], 'graef', GROUP_LIMIT);
+        expect(hits[0].id).toBe('g');
+        expect(searchCustomers([...andere, graef], 'gebr graef')[0].id).toBe('g');
+    });
+
     it('bleibt bei Eingaben ohne Buchstaben und bei Satzzeichen tolerant', () => {
         expect(searchCustomers([graef], 'gebr g').map((c) => c.id)).toEqual(['g']);
         expect(searchCustomers([graef], 'GmbH & Co').map((c) => c.id)).toEqual(['g']);

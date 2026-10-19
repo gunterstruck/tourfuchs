@@ -1259,3 +1259,17 @@ knappem Platz (4 Kunden neben Ortsvorschlägen) die Bestandsreihenfolge. Jetzt:
 beide Umlaut-Schreibweisen, Satzzeichen egal, Rangfolge Kundennummer →
 Namensanfang → Wortanfang → im Wort → Ort/PLZ. Gleich schnell wie vorher
 (≈ 15–30 ms bei 15.000 Kunden), Größenbudget eingehalten.
+
+Nachtrag (19.10.2026, zweite Meldung): „graef" fand die Firma weiterhin nicht –
+„KUNDEN (4 VON 24)", vorn „GRÄFLICHES HOFBRAUHAUS" und „CORDES & GRAEFE".
+Ursache: Namensanfang („Gräfliches") stand vor Wortanfang, und es gibt nur 4
+Plätze. Jetzt zählt das **ganze Wort** zuerst: ganzes Wort am Namensanfang →
+ganzes Wort → Namensanfang → Wortanfang → im Wort → Ort/PLZ.
+
+Zugleich PO-Wunsch: Kundennamen aus dem CRM stehen durchgehend in
+Großbuchstaben – auch in der Kundennummer-Kopie. Jetzt beim Import und Laden
+lesbar geschrieben („Gebr. Graef GmbH & Co. KG"): Rechtsformen und kleine
+Wörter nach Liste, Kürzel bis drei Buchstaben und Wörter mit Ziffern bleiben,
+gemischt geschriebene Namen unverändert. IDs und Tour-Schlüssel hängen am
+kleingeschriebenen Namen und ändern sich nicht. Größenbudget `index.js` roh
+und gzip um je 2 KB erhöht (Release 17.0c, Begründung im Budget-Hinweis).
