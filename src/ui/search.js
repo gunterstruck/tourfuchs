@@ -29,7 +29,7 @@ import { t } from '../core/i18n.js';
 import { flyToCustomer, flyToPlace } from '../features/map.js';
 import { applyServiceCustomerScope } from '../features/customerScope.js';
 import {
-    loadPlaceIndex, parseCoordinateQuery, searchGeoPlaces, searchOwnPlaces, MIN_PLACE_QUERY
+    loadPlaceIndex, parseCoordinateQuery, placeQueryVariants, searchGeoPlaces, searchOwnPlaces, MIN_PLACE_QUERY
 } from '../features/places.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
@@ -50,15 +50,51 @@ export function normalizeSearchText(value) {
         .replace(/ß/g, 'ss');
 }
 
+// Weiches Trennzeichen, Nullbreite & Co. aus CRM-Exporten: unsichtbar, aber
+// sie zerteilten „GRAEF" für die Suche in „GRA" und „EF".
+const INVISIBLE = /[\u00AD\u200B-\u200D\u2060\uFEFF]/g;
+const variantsOf = (text) => placeQueryVariants(String(text ?? '').replace(INVISIBLE, '')).filter(Boolean);
+
+// Je Kunde einmal aufbereitet; neu, sobald sich Name oder Ort ändern.
+const prepared = new WeakMap();
+function searchTexts(customer) {
+    const key = `${customer.name}\n${customer.ort}`;
+    let entry = prepared.get(customer);
+    if (entry?.key !== key) prepared.set(customer, entry = { key, names: variantsOf(customer.name), orte: variantsOf(customer.ort) });
+    return entry;
+}
+
+/** 0 Kundennummer · 1 Namensanfang · 2 Wortanfang · 3 im Wort · 4 Ort/PLZ · Infinity kein Treffer */
+function rankOf(customer, q, variants) {
+    if (normalizeSearchText(customer.nummer) === q) return 0;
+    const { names, orte } = searchTexts(customer);
+    let rank = String(customer.plz ?? '').startsWith(q) || orte.some((ort) => variants.some((v) => ort.includes(v))) ? 4 : Infinity;
+    for (const v of variants) {
+        for (const name of names) {
+            const at = name.indexOf(v);
+            if (at >= 0) rank = Math.min(rank, at === 0 ? 1 : name.includes(` ${v}`) ? 2 : 3);
+        }
+    }
+    return rank;
+}
+
+/**
+ * Kunden zu einer Eingabe – wie die Ortssuche mit beiden Umlaut-Schreibweisen
+ * („Gräf" findet „GRAEF" und umgekehrt) und ohne Satzzeichen. Treffer am
+ * Namensanfang und an Wortanfängen stehen vorn: Bei knappem Platz neben
+ * Ortsvorschlägen entschied sonst die Reihenfolge im Bestand, wer sichtbar war.
+ */
 export function searchCustomers(customers, query, limit = SINGLE_GROUP_LIMIT) {
     const q = normalizeSearchText(query);
     if (q.length < 2) return [];
-    return customers.filter((customer) => (
-        normalizeSearchText(customer?.name).includes(q)
-        || normalizeSearchText(customer?.ort).includes(q)
-        || String(customer?.plz ?? '').startsWith(q)
-        || normalizeSearchText(customer?.nummer) === q
-    )).slice(0, limit);
+    const variants = variantsOf(query);
+    const hits = [];
+    for (const customer of customers) {
+        const rank = customer ? rankOf(customer, q, variants) : Infinity;
+        if (rank !== Infinity) hits.push({ customer, rank });
+    }
+    // Stabil sortiert: Gleichrangige bleiben in Bestandsreihenfolge.
+    return hits.sort((a, b) => a.rank - b.rank).slice(0, limit).map((hit) => hit.customer);
 }
 
 /**
