@@ -161,6 +161,36 @@ async function desktop(browser, baseUrl) {
 
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
 
+    await step('GeoFuchs: Bezirkskacheln abschalten – nur bunte Flächen, gemerkt', async () => {
+        const kacheln = () => page.locator('.territory-stack-card').count();
+        const click = (selector) => page.evaluate((sel) => document.querySelector(sel)?.click(), selector);
+        const colorMode = (value) => page.evaluate((v) => {
+            const select = document.getElementById('colormode-select');
+            const previous = select.value;
+            select.value = v;
+            select.dispatchEvent(new Event('change', { bubbles: true }));
+            return previous;
+        }, value);
+        await closeDialogs(page);
+        await click('.mode-btn[data-mode="gebietsplanung"]');
+        await click('.tab-button[data-tab="gebiete"]');
+        const previousMode = await colorMode('bezirk');
+        await page.waitForFunction(() => document.querySelectorAll('.territory-stack-card').length > 0, null, { timeout: TIMEOUT });
+        const flaechen = await page.locator('.leaflet-overlay-pane path').count();
+        await click('#territory-labels-toggle');
+        await page.waitForFunction(() => document.querySelectorAll('.territory-stack-card').length === 0, null, { timeout: TIMEOUT });
+        if (await page.locator('.leaflet-overlay-pane path').count() !== flaechen) throw new Error('Flächen verschwinden mit den Kacheln');
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === false, null, { timeout: TIMEOUT });
+        if (await page.isChecked('#territory-labels-toggle')) throw new Error('Wahl nicht gemerkt');
+        await page.waitForTimeout(800);
+        if (await kacheln() !== 0) throw new Error('Kacheln nach dem Neuladen wieder da');
+        await click('#territory-labels-toggle');
+        await page.waitForFunction(() => document.querySelectorAll('.territory-stack-card').length > 0, null, { timeout: TIMEOUT });
+        await colorMode(previousMode);
+        await click('.mode-btn[data-mode="aussendienst"]');
+    });
+
     await step('Live-Demos rechts in der Desktop-Kopfzeile öffnen', async () => {
         const launcher = page.locator('.topbar #btn-demos-pill');
         if (!await launcher.isVisible()) throw new Error('Demo-Zugang fehlt im Desktop-Kopf');
