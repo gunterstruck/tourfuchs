@@ -7,6 +7,7 @@
 
 import * as XLSX from 'xlsx';
 import { normalizeCustomerName } from '../features/customerName.js';
+import { isPromotorColumn, promotorColumns, PROMOTOR_COLUMN_SOURCE } from '../features/promotorColumns.js';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
 import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
 import {
@@ -464,7 +465,10 @@ const isMemoryError = (error) => error?.name === 'RangeError'
  * Automatische Zuordnung: Header -> internes Feld.
  * Liefert { fieldKey: headerName | null }
  */
-export function autoDetectMapping(headers) {
+export function autoDetectMapping(allHeaders) {
+    // „Promotor 1 TPE-Thema" & Co. sind eigene Spaltenpaare (promotorColumns) –
+    // über „…thema"/„…name" würden sie sonst als Kontaktliste erkannt.
+    const headers = allHeaders.filter((header) => !isPromotorColumn(header));
     const mapping = {};
     const used = new Set();
     const matchers = [
@@ -823,6 +827,8 @@ export function parseRows(rows, mapping) {
     const yearHeaders = revenueYearHeaders(allHeaders);
     const keptInExtra = new Set([...yearHeaders.map((entry) => entry.header), mapping.kontaktArt, mapping.thema].filter(Boolean));
     const mappedHeaders = new Set(Object.values(mapping).filter((header) => header && !keptInExtra.has(header)));
+    const promotorPairs = promotorColumns(allHeaders);
+    for (const { name, thema } of promotorPairs) for (const header of [name, thema]) if (header) mappedHeaders.add(header);
     const yearColumns = yearHeaders.map(({ header, year }) => {
         const scale = detectRevenueScale(header);
         const { values } = parseAmountColumn(rows.map((row) => row[header]));
@@ -979,7 +985,15 @@ export function parseRows(rows, mapping) {
                 : []),
             ...(mapping.promotoren
                 ? parseOtherContacts(row[mapping.promotoren], nummer, sheetRow, (part) => unknownParts.push(part), 'promotor')
-                : [])
+                : []),
+            ...promotorPairs.map(({ name: nameHeader, thema: topicHeader }) => {
+                const person = String(row[nameHeader] ?? '').trim();
+                if (!person) return null;
+                const topic = topicHeader ? String(row[topicHeader] ?? '').trim() : '';
+                const promotor = contactFromValues({ nummer, name: person, art: 'promotor', thema: topic, sheetRow });
+                // Dieselbe Person darf mehrere TPE-Themen haben – je Paar eine eigene ID.
+                return { ...promotor, id: `ct-${nummer || sheetRow}-p${shortHash(`${person.toLowerCase()}|${topic.toLowerCase()}`)}`, quelle: PROMOTOR_COLUMN_SOURCE };
+            }).filter(Boolean)
         ];
         if (unknownParts.length) {
             err(sheetRow, `Weitere Ansprechpartner: nicht zuordenbare Angabe übersprungen: ${unknownParts.slice(0, 3).join(', ')}`, row, 'Hinweis');

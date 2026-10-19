@@ -1531,6 +1531,25 @@ Ohne Treffer erscheint die Zeile in der Fehlerliste.
   Abteilung des Hauptansprechpartners in **"Abteilung"** – beides nur, wenn es
   solche Angaben gibt. Die Datei lässt sich so wieder einlesen.
 
+**Seit 19.10.2026: Promotoren als nummerierte Spalten.** Eine Kunden- oder
+Zuständigkeitsliste (eine Zeile je Kunde) darf Promotoren auch paarweise in
+Spalten führen – beliebig viele:
+
+| Kd-Nr. | Kundenname | … | Promotor 1 | Promotor 1 TPE-Thema | Promotor 2 | Promotor 2 TPE-Thema |
+|---|---|---|---|---|---|---|
+| 1596596 | Muster GmbH | … | Eva Ost | TPE Antriebe | Jan Nord | TPE Automatisierung |
+
+- **TPE-Thema** = Technologie-Portfolio-Element, das der Promotor vertritt. Es
+  erscheint in der Kachel wie das Thema eines Promotors.
+- Gleichwertige Schreibweisen: `Promotor_1_Name`, `Promotor 1 Name`,
+  `Promotor_1_TPE-Thema`, `Promotor 1 Thema`, `Promotor 1 Bereich`.
+- Leere Paare werden übersprungen; dieselbe Person darf mehrere TPE-Themen haben.
+- Telefon und E-Mail sind für diese Spalten (noch) nicht vorgesehen.
+- **Reimport:** Führt die neue Datei Promotor-Spalten, ersetzen sie die
+  Promotoren aus Spalten des Bestands – auch leer gelassen. Promotoren aus
+  einer eigenen Kontaktliste bleiben. Eine Datei ganz ohne Promotor-Spalten
+  (z. B. der Kundenstamm) lässt sie stehen.
+
 ### 7.7a Vertriebs-Arbeitsmappe (fünf Blätter in einem Zug)
 
 Seit 10.10.2026 (Release 16). Enthält eine Excel-Datei die Blätter
@@ -1945,6 +1964,10 @@ Seit 10.10.2026. Aus einer Kontaktliste (7.7):
   und ✉️ E-Mail; der Hauptansprechpartner steht oben und ist als
   `Hauptansprechpartner` markiert. Gibt es nur den Hauptansprechpartner ohne
   Abteilung, entfällt der Knopf – er steht ohnehin in der Kachel.
+
+**Herkunft:** eine Kontaktliste (7.7) oder – seit 19.10.2026 – die Spalten
+**"Promotor 1" / "Promotor 1 TPE-Thema"** … einer Kunden- oder
+Zuständigkeitsliste; das TPE-Thema steht dann als Thema unter dem Namen.
 
 **Filter:** **"Promotor"** (Namen) und **"Promotor-Thema"** sind eigene
 Filterebenen (**"+ Ebene hinzufügen"**). Ein Kunde mit zwei Promotoren
