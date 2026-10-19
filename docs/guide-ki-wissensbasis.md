@@ -2941,6 +2941,13 @@ Anzeigearten:
 Bei automatischer Anzeige gilt: weit herausgezoomt Vertriebsgruppen, mittlerer
 Zoom Vertriebsbezirke, nah Kundenmarker.
 
+**"Bezirkskacheln auf der Karte zeigen"** (seit 19.10.2026, unter „Anzeige"):
+Standardmäßig angehakt. Abgehakt zeigt die Karte nur die bunten Flächen –
+ohne die Kacheln mit Bezirksname, Kundenzahl und Umsatz. Gilt für alle
+Flächen-Ansichten; Legende, Gebietspopup per Klick auf die Fläche und Filter
+bleiben. Die Wahl wird gemerkt. Live-Demos zeigen die Kacheln immer und
+stellen die Wahl danach wieder her. Am Handy gibt es ohnehin keine Kacheln.
+
 ### 13.2 Filter und Umsatzlabels
 
 Die Fläche bezeichnet die gewählte geografische Gebietsebene, zum Beispiel

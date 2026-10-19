@@ -1221,3 +1221,14 @@ Nachtrag (16.10.2026, zweiter Screenshot): Beim Account standen noch
 „Corporate“). `<hr>` und `<li>` werden jetzt zu „ / “, Tabellenzellen zu
 Leerzeichen. Größenbudget `index.js` (roh) dafür nochmals um 1 KB erhöht
 (Release 17.0c, Begründung im Budget-Hinweis).
+
+### Nutzer-Feedback: Nur bunte Bezirksflächen, ohne Kacheln (19.10.2026)
+
+Wunsch aus der Gebietsarbeit: die Karte nur mit den farbigen
+Vertriebsbezirken, ohne die Bezirkskacheln (Name, Kundenzahl, Umsatz) – etwa
+für einen ruhigen Überblick oder einen Screenshot. Umgesetzt als Häkchen
+**„Bezirkskacheln auf der Karte zeigen"** im Tab Gebiete unter „Anzeige“
+(Standard: an, gemerkt). Kein neuer Modus, keine neue Verbindung; Live-Demos
+zeigen die Kacheln weiterhin. Abgesichert durch einen Schritt in
+`tools/smoke-check.mjs` (aus → keine Kacheln, Flächen bleiben, nach Neuladen
+gemerkt, wieder an).

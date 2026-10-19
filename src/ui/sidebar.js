@@ -1615,6 +1615,17 @@ export function initSidebar() {
     on('region-threshold:changed', syncRegionMinimumControl);
     syncRegionMinimumControl();
 
+    // Nur die bunten Flächen: Bezirkskacheln ausblenden (gemerkt).
+    const territoryLabels = document.getElementById('territory-labels-toggle');
+    territoryLabels?.addEventListener('change', () => {
+        state.ui.territoryLabels = territoryLabels.checked;
+        emit('territory-labels:changed');
+        persistSettings();
+    });
+    on('territory-labels:changed', () => {
+        if (territoryLabels) territoryLabels.checked = state.ui.territoryLabels !== false;
+    });
+
     on('map:loading', (loading) => {
         document.getElementById('level-loading').style.display = loading ? 'inline-block' : 'none';
     });
@@ -1908,12 +1919,16 @@ export function captureShowcaseFilters() {
         reps: structuredClone(state.reps),
         levelMode: state.levelMode, fixedLevel: state.fixedLevel, colorMode: state.colorMode,
         minimum: state.ui.minRegionCustomers, opportunity: state.ui.opportunityOnly,
+        territoryLabels: state.ui.territoryLabels,
         mobileAreaColorMode: state.ui.mobileAreaColorMode,
         activeTab: state.ui.activeTab,
         filterUI: structuredClone({ expanded: filterUI.expanded, search: filterUI.search }),
         levelBeforeHide: levelBeforeHide && { ...levelBeforeHide }
     };
     showcaseSettingsPaused = true;
+    // Die Live-Demos führen über die Bezirkskacheln.
+    state.ui.territoryLabels = true;
+    emit('territory-labels:changed');
     return () => {
         state.filters = saved.filters;
         // A first-run demo may have loaded example data after the snapshot.
@@ -1930,6 +1945,7 @@ export function captureShowcaseFilters() {
         state.fixedLevel = saved.fixedLevel;
         state.colorMode = saved.colorMode;
         state.ui.minRegionCustomers = saved.minimum;
+        state.ui.territoryLabels = saved.territoryLabels;
         state.ui.opportunityOnly = saved.opportunity;
         state.ui.mobileAreaColorMode = saved.mobileAreaColorMode;
         Object.assign(filterUI, saved.filterUI);
@@ -1940,6 +1956,7 @@ export function captureShowcaseFilters() {
         renderTeamFilters();
         emit('filters:changed');
         emit('region-threshold:changed');
+        emit('territory-labels:changed');
         emit('level:control-changed');
         emit('colormode:changed');
         emit('mobile-area-color:changed');
@@ -1974,7 +1991,8 @@ function persistSettings() {
         dimColors,
         radiusKm: state.tour.radiusKm,
         revenueFilter: normalizeRevenueFilter(state.filters.revenue),
-        minRegionCustomers: normalizeMinimumRegionCustomers(state.ui.minRegionCustomers)
+        minRegionCustomers: normalizeMinimumRegionCustomers(state.ui.minRegionCustomers),
+        territoryLabels: state.ui.territoryLabels !== false
     });
 }
 

@@ -75,11 +75,13 @@ async function restorePersistedState() {
     emit('level:control-changed');
     state.filters.revenue = normalizeRevenueFilter(settings?.revenueFilter);
     state.ui.minRegionCustomers = normalizeMinimumRegionCustomers(settings?.minRegionCustomers);
+    state.ui.territoryLabels = settings?.territoryLabels !== false;
     state.ui.mobileAreaColorMode = ['auto', 'channel', 'gruppe', 'bezirk', 'none'].includes(settings?.mobileAreaColorMode)
         ? settings.mobileAreaColorMode
         : 'auto';
     emit('filters:changed');
     emit('region-threshold:changed');
+    emit('territory-labels:changed');
     if (settings?.radiusKm) state.tour.radiusKm = settings.radiusKm;
     state.ui.serviceCustomerScope = ['now', 'week', 'contracts', 'all'].includes(settings?.serviceCustomerScope)
         ? settings.serviceCustomerScope
