@@ -753,6 +753,7 @@ export function initMap(containerId) {
     on('service-contracts:changed', refreshAll);
     on('service-visits:changed', refreshAll);
     on('colormode:changed', applyView);
+    on('territory-labels:changed', renderLabels);
     on('mobile-area-color:changed', applyView);
     on('basemap:changed', applyBasemap);
     on('showcase:running', (running) => {
@@ -1540,6 +1541,8 @@ function renderLabels() {
     labelLayer.clearLayers();
     // Lichterkarte: keine Gebiets-Kacheln – die Punkte erzählen die Verteilung.
     if (simulationPreview || !currentView.labels || !currentLevelData || lightsActive()) return;
+    // Abgeschaltet (Tab Gebiete): nur die bunten Flächen.
+    if (state.ui.territoryLabels === false) return;
 
     const attr = currentView.paint;
     const valueOf = (c) => attr === 'vb' ? (c.vb || UNASSIGNED) : (String(c[attr] ?? '').trim() || UNASSIGNED);

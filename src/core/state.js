@@ -121,6 +121,8 @@ export const state = {
         // 0 = jede zugewiesene Fläche darf Farbe tragen. Ab 1 werden nur
         // Gebiete mit mindestens so vielen aktuell sichtbaren Kunden gefärbt.
         minRegionCustomers: 0,
+        // Bezirkskacheln (Name + Umsatz) auf den Flächen; aus = nur die bunten Flächen.
+        territoryLabels: true,
         // Mobile Kartenflächen bleiben eine eigenständige Orientierungsebene:
         // Kundenlichter und Tourmarker bleiben immer sichtbar. Desktop verwendet
         // weiterhin ausschließlich `colorMode`.
