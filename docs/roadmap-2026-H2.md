@@ -1273,3 +1273,19 @@ Wörter nach Liste, Kürzel bis drei Buchstaben und Wörter mit Ziffern bleiben,
 gemischt geschriebene Namen unverändert. IDs und Tour-Schlüssel hängen am
 kleingeschriebenen Namen und ändern sich nicht. Größenbudget `index.js` roh
 und gzip um je 2 KB erhöht (Release 17.0c, Begründung im Budget-Hinweis).
+
+### PO-Entscheidung: Live-Demo dort, wo der Schritt ansteht (19.10.2026)
+
+Anstoß: In Familienkreis zeigen leere Bereiche einen Link zum passenden
+Kurzfilm. Geprüft für TourFuchs: Die Technik gibt es schon (Erste Schritte am
+Handy, „Eigene Daten laden“); am Desktop fehlte seit dem Wegfall der Checkliste
+(09.10.) jeder Weg vom Schritt zur Demo außer „Live-Demos“ oben rechts.
+Entscheidung: **ja, sparsam** – nur zwei Stellen, an denen ein Neuling sicher
+vorbeikommt und eine Demo genau diesen Schritt zeigt: leere Tour („Deine Tour,
+Schritt für Schritt“) und Tresor einrichten („Deine Daten im Tresor“). Der Link
+verschwindet, sobald der Schritt getan ist (Haken der Ersten Schritte), damit
+er im Alltag keinen Platz kostet; während einer Demo ist er aus. Bewusst
+nicht: QR-Übergabe (der Dialog *ist* der Schritt), Gebiets- und Service-Demos
+(seltene Module, Nische zuerst). Wortlaut wie beim Import: „▶ Wie geht das?
+Live-Demo ansehen“ – keine neuen Übersetzungen.
+

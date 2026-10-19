@@ -20,6 +20,7 @@ import { combinePlanStart, todayInputValue } from '../features/dayPlanner.js';
 import { encodeTourPayload, MAX_QR_STOPS } from '../features/tourShare.js';
 import { initTourQr, openShareDialog } from './tourQr.js';
 import { noteTourSharedToPhone } from './firstSteps.js';
+import { helpDemoLink } from './helpDemo.js';
 import { zanoboMachineUrl } from '../services/zanobo.js';
 import { copyText, tourText } from '../features/handoff.js';
 import { visitStatus, STATUS_COLORS, markVisitedToday, lastVisit, agoText, todayIso } from '../features/visits.js';
@@ -1511,6 +1512,7 @@ function renderStops() {
                 <li>${escapeHtml(t('tour.stops.emptyAdd'))}</li>
                 <li>${escapeHtml(t('tour.stops.emptyRoute'))}</li>
             </ol>
+            ${helpDemoLink('tour')}
         </div>`;
     } else {
         const today = todayIso();   // lokaler Tag, nicht UTC

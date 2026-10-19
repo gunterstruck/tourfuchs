@@ -15,6 +15,7 @@ import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
 import { t } from '../core/i18n.js';
+import { helpDemoLink } from './helpDemo.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -530,6 +531,7 @@ export function openSetupDialog(opts = {}) {
                 ${forced ? '' : '<button type="button" class="vault-cancel">Abbrechen</button>'}
                 <button type="submit" class="primary">Tresor aktivieren</button>
             </div>
+            ${forced ? '' : helpDemoLink('sicher')}
         </form>`;
     dialog.querySelector('.vault-cancel')?.addEventListener('click', () => dialog.close());
     wirePinStrength('setup-pin');
