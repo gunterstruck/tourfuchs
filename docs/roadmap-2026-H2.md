@@ -1246,6 +1246,9 @@ PLZ-3 → Promotor macht die Liste selbst (z. B. per SVERWEIS). Reimport mit den
 Spalten ersetzt die Spalten-Promotoren, Kontaktlisten-Promotoren bleiben.
 Telefon/E-Mail vorerst nicht. Größenbudget `index.js` roh und gzip um je 1 KB
 erhöht. Offen bleibt: Promotor-Flächen einfärben (Stufe 2) – nicht geplant.
+Liefervorlage für die Promotion-Kollegen (PLZ-3 → Promotor + TPE-Thema, per
+Formel auf die Kundenliste): `docs/vorlagen/TourFuchs_Promotoren_Vorlage.xlsx`
+(gemerkt 20.10.2026, nicht in der App ausgeliefert).
 
 ### Nutzer-Feedback: Kundensuche „graef" (19.10.2026)
 
