@@ -1,6 +1,6 @@
 # Konzept: Besuche zwischen Handy und Desktop – und eine Besuchsübersicht
 
-**Stand:** 20.10.2026 · **Rolle:** Product Owner · **Status:** Konzept, noch nichts gebaut
+**Stand:** 20.10.2026 · **Rolle:** Product Owner · **Status:** Konzept. Umgesetzt ist nur der sichtbare Rückweg am Handy (Teil von Stufe 2, #439); Stufen 1, 3 und 4 sind zurückgestellt (PO 20.10.2026), Auslöser siehe Roadmap „Offene Themen mit Auslöser“.
 
 ---
 
