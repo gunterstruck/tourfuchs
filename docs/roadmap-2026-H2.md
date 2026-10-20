@@ -1246,6 +1246,9 @@ PLZ-3 → Promotor macht die Liste selbst (z. B. per SVERWEIS). Reimport mit den
 Spalten ersetzt die Spalten-Promotoren, Kontaktlisten-Promotoren bleiben.
 Telefon/E-Mail vorerst nicht. Größenbudget `index.js` roh und gzip um je 1 KB
 erhöht. Offen bleibt: Promotor-Flächen einfärben (Stufe 2) – nicht geplant.
+Liefervorlage für die Promotion-Kollegen (PLZ-3 → Promotor + TPE-Thema, per
+Formel auf die Kundenliste): `docs/vorlagen/TourFuchs_Promotoren_Vorlage.xlsx`
+(gemerkt 20.10.2026, nicht in der App ausgeliefert).
 
 ### Nutzer-Feedback: Kundensuche „graef" (19.10.2026)
 
@@ -1289,3 +1292,24 @@ nicht: QR-Übergabe (der Dialog *ist* der Schritt), Gebiets- und Service-Demos
 (seltene Module, Nische zuerst). Wortlaut wie beim Import: „▶ Wie geht das?
 Live-Demo ansehen“ – keine neuen Übersetzungen.
 
+
+### Konzept: Besuche zwischen Handy und Desktop, Besuchsübersicht (20.10.2026)
+
+Feedback: Handy und Desktop laufen auseinander – Besuche stehen auf dem Handy,
+nicht auf dem Desktop; gewünscht ist eine druck- und exportierbare Übersicht
+der Besuche mit Infos. Befund: Der Rückweg Handy → Desktop existiert
+(„📤 Besuche weitergeben" → am Desktop öffnen, trägt nur Besuche nach), ist aber
+schwer zu finden; beim `.tfsafe`-Empfang gehen noch nicht weitergegebene
+Besuche des Zielgeräts verloren (Fehler). Konzept mit vier Stufen (Fehler
+beheben, Rückweg sichtbar, „Meine Besuche" drucken/Excel, Notiz zum Besuch),
+Leitplanken und offenen PO-Entscheidungen:
+[`docs/konzept-besuche-abgleich.md`](konzept-besuche-abgleich.md).
+
+Sofort behoben (20.10.2026, PO: „📤 Besuche weitergeben finde ich nicht"): Am
+Handy gibt es mit Daten nur das Tour-Blatt; der Knopf lag in „3. Meine Tour"
+(bei leerer Tour zugeklappt) und dort im zugeklappten „Teilen & Exportieren".
+Jetzt steht er direkt unter „📷 Tour per QR übernehmen", sobald es neue Besuche
+gibt. Mitbehoben: Besuche aus einer empfangenen `.tfsafe`-Datei zählten als
+„noch weiterzugeben" (z. B. „Letzter Besuch" aus dem CRM). Abgesichert in
+`tests/tourActions.test.js` und im smoke-check (neuer Schritt, schlägt auf dem
+alten Stand an).

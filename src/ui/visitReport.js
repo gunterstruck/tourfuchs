@@ -171,6 +171,7 @@ export function initVisitReport() {
 
     on('data:imported', (payload) => { if (!payload?.type) markImportedVisitsSent(); });
     on('demo:loaded', markImportedVisitsSent);
+    on('visits:received', markImportedVisitsSent);
     on('dataset:cleared', () => { clearSentVisits(); syncButton(); });
     on('app:ready', syncButton);
     on('visits:changed', syncButton);

@@ -515,6 +515,10 @@
                      Gerät holen. Steht nach der Bezirkswahl, aber VOR dem Planer, damit er auch ohne
                      planbare Kunden (leerer Filter) und mit gesetztem Start da ist. -->
                 <button id="btn-tour-scan" class="only-mobile btn-scan-entry" data-i18n="tour.scan">📷 Tour per QR übernehmen</button>
+                <!-- Gegenstück zum Scan: Besuche zurück an Desktop/CRM. Erscheint erst
+                     mit neuen Besuchen – sichtbar im Tour-Blatt, nicht versteckt in
+                     „3. Meine Tour" (zugeklappt, solange die Tour leer ist). -->
+                <button id="btn-visit-report" class="btn-visit-report btn-scan-entry" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
 
                 <div id="tour-planner" hidden>
                 <!-- Fokus-Modus (mobil): horizontale Schrittleiste. Ersetzt die
@@ -628,7 +632,6 @@
                             <button id="btn-tour-ics" data-expert-section="tour-ics" data-i18n="tour.action.calendar" disabled>📅 Kalender-Export (.ics)</button>
                             <button id="btn-tour-copy" class="expert-only expert-swipe-section" data-expert-section="tour-copy" data-i18n="tour.action.copy" disabled>📋 Als Text kopieren (Outlook/Copilot)</button>
                             <button id="btn-day-review" class="btn-day-review" data-i18n="tour.action.dayReview" hidden>🌙 Feierabend-Rückblick</button>
-                            <button id="btn-visit-report" class="btn-visit-report" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
                         </div>
                     </details>
                 </div>
