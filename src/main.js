@@ -35,6 +35,7 @@ import { initPwaUpdates } from './ui/pwaUpdate.js';
 import { initPwaLaunch } from './ui/pwaLaunch.js';
 import { initDayReview } from './ui/dayReview.js';
 import { initVisitReport } from './ui/visitReport.js';
+import { initVisitSync } from './ui/visitSync.js';
 import { initImportInsight } from './ui/importInsight.js';
 import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
@@ -310,6 +311,7 @@ async function init() {
     initPwaLaunch();
     initDayReview();
     initVisitReport();
+    initVisitSync();
     initImportInsight();
     initContextHelp();
     initFirstSteps();

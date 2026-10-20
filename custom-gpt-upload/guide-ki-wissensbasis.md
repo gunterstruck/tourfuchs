@@ -2682,15 +2682,18 @@ nie von selbst: Wann Feierabend ist, entscheidet der Nutzer.
 #### 10.10.2 Besuche weitergeben (Besuchsbericht)
 
 TourFuchs synchronisiert nichts über einen Server. Besuche, die am Handy mit
-„✓ Heute" eingetragen wurden, verlassen das Gerät deshalb bewusst als **kleine
-Excel-Datei**. **Klickpfad Handy:** im Tour-Blatt direkt unter **"📷 Tour
-per QR übernehmen"** steht **"📤 Besuche weitergeben (n)"** – sobald es
-Besuche gibt, die noch nicht weitergegeben wurden; außerdem im
-Feierabend-Rückblick. Am Desktop zusätzlich `Daten -> "Weitergeben" -> "📤
-Besuchsbericht (Excel)"`. (Bis 20.10.2026 lag der Knopf in „3. Meine Tour"
-im zugeklappten „Teilen & Exportieren" – am Handy praktisch nicht zu finden.)
-Besuche, die mit einer `.tfsafe`-Datei vom Desktop kommen, zählen nicht mit:
-Die kennt der Desktop schon.
+„✓ Heute" eingetragen wurden, verlassen das Gerät deshalb bewusst als Datei:
+für TourFuchs am anderen Gerät als **Abgleich-Datei** (siehe 10.10.3), fürs
+CRM oder eine KI als **kleine Excel-Datei** (dieser Abschnitt). **Klickpfad
+Handy:** im Tour-Blatt unter **"📷 Tour per QR übernehmen"** -> **"🔄
+Abgleichen"** -> **"Stattdessen als Excel fürs CRM oder eine KI
+weitergeben"**; außerdem im Feierabend-Rückblick **"📤 Besuche weitergeben"**.
+Am Desktop: `Daten -> "Weitergeben" -> "📤 Besuchsbericht (Excel)"`. (Bis
+20.10.2026 lag der Knopf in „3. Meine Tour" im zugeklappten „Teilen &
+Exportieren" – am Handy praktisch nicht zu finden; kurz danach stand er als
+„📤 Besuche weitergeben (n)" im Tour-Blatt, seit dem Abgleich als „🔄
+Abgleichen".) Besuche, die mit einer `.tfsafe`-Datei vom Desktop kommen,
+zählen nicht als neu: Die kennt der Desktop schon.
 
 - **Zeitraum:** „Seit dem letzten Bericht" (Standard), „Heute" oder „Diese
   Woche" (ab Montag), jeweils mit Anzahl. „Seit dem letzten Bericht" merkt
@@ -2714,6 +2717,40 @@ Die kennt der Desktop schon.
   nicht angelegt.
 - **Datenschutz:** Die Datei enthält Kundennamen. Nur über die Wege der eigenen
   Organisation teilen. Das CRM bleibt die führende Quelle.
+
+#### 10.10.3 Abgleichen: Handy und Desktop kennen dieselben Besuche
+
+Seit 20.10.2026. Ein Knopf, auf beiden Geräten gleich: **Handy** im Tour-Blatt
+direkt unter **"📷 Tour per QR übernehmen"** -> **"🔄 Abgleichen"**; **Desktop**
+`Daten -> "Weitergeben" -> "🔄 Abgleichen mit dem Handy"`. Gibt es Besuche, die
+das andere Gerät noch nicht kennt, zeigt der Knopf **„· n neu"**.
+
+Das Fenster **„🔄 Abgleichen"** hat zwei Teile:
+
+1. **Senden:** **"📤 Abgleich-Datei teilen (n)"** – die Besuche seit dem
+   letzten Abgleich als Datei `TourFuchs-Abgleich-JJJJ-MM-TT.txt` über das
+   Teilen-Menü (Mail, Teams, OneDrive …); wo das nicht geht, wird sie
+   heruntergeladen. Abbrechen im Teilen-Menü: nichts gilt als gesendet.
+2. **Empfangen:** **"📥 Abgleich-Datei öffnen"** – die Datei vom anderen
+   Gerät wählen. TourFuchs **ergänzt nur**: neue Besuche kommen hinzu, schon
+   bekannte zählen nicht doppelt, nichts wird überschrieben. Meldung z. B.:
+   „🔄 Abgleich: 4 Besuche übernommen · 1 war schon eingetragen". Die Datei
+   lässt sich am Desktop auch per Drag & Drop oder über „Eigene Daten laden"
+   öffnen.
+
+- **Was drin steht:** keine Kundennamen, keine Kundennummern, keine Adressen –
+  je Besuch nur eine Prüfsumme des Kunden und das Datum. Zuordnen kann die
+  Datei nur ein TourFuchs mit derselben Kundenliste. Besuche zu Kunden, die
+  auf dem anderen Gerät fehlen, werden gemeldet, nicht angelegt.
+- **„Seit dem letzten Abgleich"** teilt sich das Gedächtnis mit dem
+  Besuchsbericht (60 Tage): Was einmal weitergegeben wurde – als Abgleich oder
+  als Excel –, zählt nicht noch einmal. Empfangene Besuche wandern nicht
+  zurück.
+- **Was nicht dazugehört:** Die Kundenliste selbst kommt weiter mit
+  **"Verschlüsselt exportieren"** (`.tfsafe`) aufs Handy. Seit 20.10.2026
+  gehen dabei keine Besuche mehr verloren (siehe 14.7).
+- **Kein Server, kein Login:** Der Abgleich ist eine bewusste Handlung über
+  die Wege der eigenen Firma; nichts läuft im Hintergrund.
 
 ### 10.11 Service-Fokus: Einsätze, Verträge und Tagesvorschlag
 
@@ -3364,6 +3401,13 @@ oft** erneut gewählt werden; TourFuchs merkt sich keine „verbrauchten" Dateie
 vor dem Übernehmen fragt es nur, ob die Daten auf dem Gerät ersetzt werden
 sollen.
 
+**Besuche bleiben (seit 20.10.2026):** Die empfangene Datei ersetzt Kunden,
+Gebiete und Tour – die **Besuche dieses Geräts aber nicht**. Bei Kunden, die
+auch in der Datei stehen, werden sie mit den Besuchen aus der Datei
+zusammengeführt (wie beim Reimport der Kundenliste). Vorher gingen am Handy
+erfasste, noch nicht weitergegebene Besuche dabei verloren. Besuche aus der
+Datei zählen danach nicht als „neu" fürs Abgleichen (siehe 10.10.3).
+
 **Seit 09.10.2026:** Jede Rückmeldung steht **direkt im Dialog** „Daten
 empfangen" (rote Zeile unter „Umzugsdatei wählen") und zusätzlich als
 Einblendung, die über dem Dialog liegt. Vorher lag die Einblendung hinter dem
@@ -3544,6 +3588,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Kunden anrufen | `Kundenmarker -> "Anrufen"` |
 | Besuch abhaken | `Kundenmarker -> "Heute besucht"` oder `Tourstopp -> "✓ Heute"` (Handy: Tipp auf den Tour-Punkt) |
 | Feierabend-Rückblick | `Tab "Tour" -> "Meine Tour" -> "🌙 Feierabend-Rückblick"` |
+| Besuche abgleichen | Handy: `Tour-Blatt -> "🔄 Abgleichen"` · Desktop: `Daten -> "Weitergeben" -> "🔄 Abgleichen mit dem Handy"` -> Senden oder Empfangen |
 | Tour starten | `Außendienst -> Tour -> Startpunkt` (optional vorher den Bezirk einschränken) |
 | GPS-Start | `Außendienst -> Tour -> "Mein Standort"` |
 | Kunde zur Tour | `Vorschlag oder Kunden-Popup -> "Zur Tour"` |

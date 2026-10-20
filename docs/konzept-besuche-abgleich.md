@@ -1,6 +1,6 @@
 # Konzept: Besuche zwischen Handy und Desktop – und eine Besuchsübersicht
 
-**Stand:** 20.10.2026 · **Rolle:** Product Owner · **Status:** Konzept. Umgesetzt ist nur der sichtbare Rückweg am Handy (Teil von Stufe 2, #439); Stufen 1, 3 und 4 sind zurückgestellt (PO 20.10.2026), Auslöser siehe Roadmap „Offene Themen mit Auslöser“.
+**Stand:** 20.10.2026 · **Rolle:** Product Owner · **Status:** Teilweise umgesetzt. Am 20.10.2026 gebaut: sichtbarer Rückweg am Handy (#439), **Stufe 1** (Besuche beim `.tfsafe`-Empfang zusammenführen) und der **Abgleich-Knopf** („🔄 Abgleichen“, Weg B der Entscheidungsvorlage, Abschnitt 7). Stufen 3 und 4 bleiben zurückgestellt (PO 20.10.2026), Auslöser siehe Roadmap „Offene Themen mit Auslöser“.
 
 ---
 
@@ -182,3 +182,30 @@ Datum. Mit Stufe 4 kommen die Infos dazu.
    bringt den Wochenbericht. Stufe 4 nach Rückmeldung der 10 Außendienstler,
    ob sie Notizen überhaupt in TourFuchs statt im CRM führen wollen.
 3. Notiz: freier Text (Vorschlag) oder feste Auswahl?
+
+## 7. Nachtrag 20.10.2026: Abgleich-Knopf (Weg B)
+
+Nach dem Konzept hat der PO fünf Wege zur Synchronisierung verglichen
+(Datei-Kreislauf, ein Knopf, OneDrive-Ordner, QR direkt, Server) und **A**
+(= Stufe 1) und **B** freigegeben. Gebaut:
+
+- **„🔄 Abgleichen"** auf Handy (Tour-Blatt unter „📷 Tour per QR übernehmen";
+  ersetzt dort „📤 Besuche weitergeben") und Desktop (Daten → „Weitergeben").
+  Ein Fenster: **Senden** (Abgleich-Datei teilen) und **Empfangen** (Datei vom
+  anderen Gerät öffnen, nur ergänzen). Der Besuchsbericht (Excel fürs CRM/KI)
+  bleibt als Link im selben Fenster und im Feierabend-Rückblick.
+- **Datei `TourFuchs-Abgleich-JJJJ-MM-TT.txt`:** je Besuch nur Prüfsumme des
+  Kunden (53 Bit, aus Kundennummer bzw. Name + PLZ) und Datum – keine Namen,
+  keine Nummern. **Abweichung von der Entscheidungsvorlage:** Dort stand
+  „verschlüsselt, einmal pro Gerätepaar koppeln". Gebaut ist die
+  Prüfsummen-Variante, weil sie **kein Koppeln** braucht und trotzdem nichts
+  Lesbares enthält. Ehrlich gesagt ist das Pseudonymisierung, keine
+  Verschlüsselung: Wer die Kundenliste hat, kann zuordnen – genau das soll das
+  andere Gerät können. Endung `.txt`, weil das Teilen-Menü der Handys nur
+  bekannte Typen annimmt; erkannt wird die Datei am Inhalt.
+- **Gedächtnis:** „seit dem letzten Abgleich" = dasselbe Gedächtnis wie der
+  Besuchsbericht; Empfangenes gilt als abgeglichen und wandert nicht zurück.
+- Abgesichert: `tests/visitSync.test.js`, smoke-check („Abgleichen: Datei
+  senden und wieder öffnen", „Empfang vom Desktop: eigene Besuche bleiben …" –
+  schlägt ohne Stufe 1 an).
+
