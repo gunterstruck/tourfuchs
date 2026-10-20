@@ -100,11 +100,17 @@ describe('Besuchsbericht – Oberfläche', () => {
     const html = read('index.html');
     const ui = read('src/ui/visitReport.js');
 
-    it('ist am Handy in „Meine Tour" und im Feierabend erreichbar, am Desktop im Daten-Bereich', () => {
+    it('ist am Handy im Tour-Blatt und im Feierabend erreichbar, am Desktop im Daten-Bereich', () => {
         expect(html).toContain('id="btn-visit-report"');
         expect(html).toContain('id="day-review-share"');
         expect(html).toContain('id="btn-visit-report-data"');
         expect(html).toContain('id="visit-report-dialog"');
+    });
+
+    it('zählt Besuche aus einer empfangenen .tfsafe-Datei nicht als „noch weiterzugeben"', () => {
+        const receive = read('src/ui/safeTransfer.js');
+        expect(receive.indexOf("emit('visits:received')")).toBeGreaterThan(receive.indexOf('replaceCustomers(customers'));
+        expect(ui).toContain("on('visits:received', markImportedVisitsSent);");
     });
 
     it('teilt über das Teilen-Menü, sonst Download – und merkt nur Weitergegebenes', () => {

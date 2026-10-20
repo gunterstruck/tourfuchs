@@ -586,9 +586,7 @@ export function applyDataPanelLayout() {
         }
         const g = ensureDataPanelGroups();
         g.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive);
-        // Der Besuchsbericht entsteht am Handy – hier muss er stehen, nicht im
-        // ausgeblendeten Ursprungsplatz.
-        g.save.col.append(nodes.exportBtn, nodes.safeExport, ...present(extras.visitReport));
+        g.save.col.append(nodes.exportBtn, nodes.safeExport);
         g.tools.col.append(nodes.template, nodes.geocode, nodes.progress);
         if (importNotes) g.tools.col.append(importNotes);
         nodes.safeNote.classList.add('data-group-note');

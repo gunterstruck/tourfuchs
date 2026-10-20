@@ -1306,8 +1306,10 @@ Leitplanken und offenen PO-Entscheidungen:
 [`docs/konzept-besuche-abgleich.md`](konzept-besuche-abgleich.md).
 
 Sofort behoben (20.10.2026, PO: „📤 Besuche weitergeben finde ich nicht"): Am
-Handy stand „📤 Besuchsbericht (Excel)" im Daten-Tab in einem ausgeblendeten
-Block, und „📤 Besuche weitergeben" lag in „Meine Tour" im zugeklappten
-„Teilen & Exportieren". Jetzt: Daten → „Sichern & übertragen" und in „Meine
-Tour" sichtbar unter der Gruppe, sobald es neue Besuche gibt. Abgesichert in
-`tests/dataPanelLayout.test.js` und `tests/tourActions.test.js`.
+Handy gibt es mit Daten nur das Tour-Blatt; der Knopf lag in „3. Meine Tour"
+(bei leerer Tour zugeklappt) und dort im zugeklappten „Teilen & Exportieren".
+Jetzt steht er direkt unter „📷 Tour per QR übernehmen", sobald es neue Besuche
+gibt. Mitbehoben: Besuche aus einer empfangenen `.tfsafe`-Datei zählten als
+„noch weiterzugeben" (z. B. „Letzter Besuch" aus dem CRM). Abgesichert in
+`tests/tourActions.test.js` und im smoke-check (neuer Schritt, schlägt auf dem
+alten Stand an).

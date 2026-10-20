@@ -482,6 +482,9 @@ async function applyImported(dataset) {
             importedAt: dataset?.importedAt,
             territories: dataset?.territories || {}
         });
+        // Besuche aus der Datei hat das andere Gerät schon – „📤 Besuche
+        // weitergeben" zählt nur, was hier unterwegs erfasst wird.
+        emit('visits:received');
         setServiceContracts(serviceContracts, dataset?.serviceContractSources || {});
         setServiceVisits(serviceVisits, dataset?.serviceVisitSources || {});
         // Eigene Orte werden ergänzt, nicht ersetzt: Die Station des Zielgeräts still

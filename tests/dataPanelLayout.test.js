@@ -37,8 +37,6 @@ describe('Daten-Tab nach Aufgaben', () => {
         expect(groupOf('btn-upload-more')).toBe('Daten laden');
         expect(groupOf('btn-safe-receive')).toBe('Daten laden');
         expect(groupOf('btn-safe-export')).toBe('Sichern & übertragen');
-        // Der Besuchsbericht entsteht am Handy und darf nicht im ausgeblendeten Block stecken.
-        expect(groupOf('btn-visit-report-data')).toBe('Sichern & übertragen');
         expect(groupOf('btn-geocode')).toBe('Werkzeuge');
         expect($('data-primary-actions').hidden).toBe(true);
         mobileOrder = ids($('tab-daten'));

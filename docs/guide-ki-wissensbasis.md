@@ -2683,13 +2683,14 @@ nie von selbst: Wann Feierabend ist, entscheidet der Nutzer.
 
 TourFuchs synchronisiert nichts über einen Server. Besuche, die am Handy mit
 „✓ Heute" eingetragen wurden, verlassen das Gerät deshalb bewusst als **kleine
-Excel-Datei**. **Klickpfad Handy:** `Tab "Tour" -> "3. Meine Tour" -> "📤
-Besuche weitergeben (n)"` (unter „Teilen & Exportieren", erscheint ab dem
-ersten neuen Besuch), im Feierabend-Rückblick **"📤 Besuche weitergeben"** oder
-jederzeit `Daten -> "Sichern & übertragen" -> "📤 Besuchsbericht (Excel)"`.
-Am Desktop: `Daten -> "Weitergeben" -> "📤 Besuchsbericht (Excel)"`. Bis
-20.10.2026 war der Knopf am Handy nur im zugeklappten „Teilen & Exportieren"
-zu finden und fehlte im Daten-Tab ganz.
+Excel-Datei**. **Klickpfad Handy:** im Tour-Blatt direkt unter **"📷 Tour
+per QR übernehmen"** steht **"📤 Besuche weitergeben (n)"** – sobald es
+Besuche gibt, die noch nicht weitergegeben wurden; außerdem im
+Feierabend-Rückblick. Am Desktop zusätzlich `Daten -> "Weitergeben" -> "📤
+Besuchsbericht (Excel)"`. (Bis 20.10.2026 lag der Knopf in „3. Meine Tour"
+im zugeklappten „Teilen & Exportieren" – am Handy praktisch nicht zu finden.)
+Besuche, die mit einer `.tfsafe`-Datei vom Desktop kommen, zählen nicht mit:
+Die kennt der Desktop schon.
 
 - **Zeitraum:** „Seit dem letzten Bericht" (Standard), „Heute" oder „Diese
   Woche" (ab Montag), jeweils mit Anzahl. „Seit dem letzten Bericht" merkt

@@ -734,6 +734,46 @@ async function phone(browser, baseUrl) {
         }
     });
 
+    // Besuche, die mit einer Datei vom Desktop kommen (z. B. „Letzter Besuch" aus
+    // dem CRM), hat das andere Gerät schon. „📤 Besuche weitergeben" darf sie am
+    // Handy nicht als unterwegs erfasst anbieten.
+    await step('Empfangene Besuche zählen nicht als „noch weiterzugeben"', async () => {
+        const { createSafeTransfer } = await import('../src/features/safeTransfer.js');
+        const d = new Date(Date.now() - 86_400_000);
+        const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const { container, keyQr } = await createSafeTransfer({
+            customers: [{ id: 'k-nr:9001', nummer: '9001', name: 'Desktop Kunde GmbH', plz: '45127', ort: 'Essen',
+                lat: 51.4556, lng: 7.0116, besuche: [yesterday], extra: {}, contacts: [] }],
+            fileName: 'desktop-mit-besuch.xlsx'
+        });
+        const dir = mkdtempSync(join(tmpdir(), 'tourfuchs-besuch-'));
+        const file = join(dir, 'TourFuchs-Desktop.tfsafe');
+        writeFileSync(file, JSON.stringify(container));
+        const accept = (dialog) => dialog.accept();
+        page.on('dialog', accept);
+        try {
+            await closeDialogs(page);
+            await page.evaluate(() => document.getElementById('btn-safe-receive').click());
+            await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
+            await page.locator('#safe-file-input').setInputFiles(file);
+            await page.waitForFunction(() => document.getElementById('safe-step-key')?.disabled === false, null, { timeout: TIMEOUT });
+            const fallback = page.locator('#safe-step-key details.safe-fallback');
+            if (!(await fallback.evaluate((el) => el.open))) await fallback.locator('summary').click();
+            await page.locator('#safe-key-input').fill(keyQr);
+            await page.locator('#safe-key-submit').click();
+            await page.waitForFunction(() => !document.getElementById('safe-receive-dialog').open
+                && document.querySelector('#data-status .stat b')?.textContent === '1', null, { timeout: TIMEOUT });
+            const button = await page.evaluate(() => {
+                const el = document.getElementById('btn-visit-report');
+                return { hidden: el.hidden, text: el.textContent };
+            });
+            if (!button.hidden) throw new Error(`nach dem Empfang angeboten: ${button.text}`);
+        } finally {
+            page.off('dialog', accept);
+            rmSync(dir, { recursive: true, force: true });
+        }
+    });
+
     await step('keine Skriptfehler', async () => {
         if (errors.length) throw new Error(errors.join(' | '));
     });
