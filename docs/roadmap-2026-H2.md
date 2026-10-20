@@ -1292,3 +1292,16 @@ nicht: QR-Übergabe (der Dialog *ist* der Schritt), Gebiets- und Service-Demos
 (seltene Module, Nische zuerst). Wortlaut wie beim Import: „▶ Wie geht das?
 Live-Demo ansehen“ – keine neuen Übersetzungen.
 
+
+### Konzept: Besuche zwischen Handy und Desktop, Besuchsübersicht (20.10.2026)
+
+Feedback: Handy und Desktop laufen auseinander – Besuche stehen auf dem Handy,
+nicht auf dem Desktop; gewünscht ist eine druck- und exportierbare Übersicht
+der Besuche mit Infos. Befund: Der Rückweg Handy → Desktop existiert
+(„📤 Besuche weitergeben" → am Desktop öffnen, trägt nur Besuche nach), ist aber
+schwer zu finden; beim `.tfsafe`-Empfang gehen noch nicht weitergegebene
+Besuche des Zielgeräts verloren (Fehler). Konzept mit vier Stufen (Fehler
+beheben, Rückweg sichtbar, „Meine Besuche" drucken/Excel, Notiz zum Besuch),
+Leitplanken und offenen PO-Entscheidungen:
+[`docs/konzept-besuche-abgleich.md`](konzept-besuche-abgleich.md). Noch nichts
+gebaut.
