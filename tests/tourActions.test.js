@@ -61,9 +61,15 @@ describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeli
             'btn-tour-print',
             'btn-tour-ics',
             'btn-tour-copy',
-            'btn-day-review',
-            'btn-visit-report'
+            'btn-day-review'
         ]) expect(group).toContain(`id="${id}"`);
+        // „Besuche weitergeben" steht im Tour-Blatt direkt unter „Tour per QR
+        // übernehmen" – nicht in „3. Meine Tour", das am Handy bei leerer Tour zu ist.
+        expect(group).not.toContain('id="btn-visit-report"');
+        const scanAt = html.indexOf('id="btn-tour-scan"');
+        const reportAt = html.indexOf('id="btn-visit-report"');
+        expect(reportAt).toBeGreaterThan(scanAt);
+        expect(reportAt).toBeLessThan(html.indexOf('id="tour-planner"'));
         expect(group).not.toContain('id="btn-route-focus"');
         expect(html).toMatch(/id="btn-tour-qr"[^>]*class="[^"]*only-desktop[^"]*qr-handoff/);
         const gmapsIdx = html.indexOf('id="btn-gmaps"');
