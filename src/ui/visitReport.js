@@ -1,7 +1,8 @@
 /**
  * Besuchsbericht – Oberfläche.
  *
- * Handy: „📤 Besuche weitergeben" in „Meine Tour" (und im Feierabend-Dialog).
+ * Handy: im Abgleichen-Fenster („Als Excel fürs CRM oder eine KI") und im
+ * Feierabend-Dialog.
  * Zeitraum wählen, dann öffnet das Handy sein Teilen-Menü (Mail, Teams,
  * OneDrive …) mit einer kleinen Excel-Datei. Wo Teilen nicht geht (meist am
  * Desktop), wird die Datei heruntergeladen.
@@ -72,46 +73,56 @@ export function openVisitReport() {
     dialog.showModal();
 }
 
+/**
+ * Über das Teilen-Menü des Geräts weitergeben, sonst herunterladen.
+ * @returns {Promise<boolean|null>} true geteilt, false heruntergeladen, null abgebrochen
+ */
+export async function shareOrDownload(file, fileName, title) {
+    try {
+        if (navigator.canShare?.({ files: [file] })) {
+            await navigator.share({ files: [file], title });
+            return true;
+        }
+    } catch (error) {
+        if (error?.name === 'AbortError') return null;
+    }
+    const url = URL.createObjectURL(file);
+    const link = Object.assign(document.createElement('a'), { href: url, download: fileName });
+    document.body.append(link);
+    link.click();
+    link.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    return false;
+}
+
 async function share() {
     const entries = entriesFor(range);
     if (entries.length === 0) return;
     const demo = hasDemoCustomers(state.customers);
     const { visitReportFile } = await excel();
     const { file, fileName } = visitReportFile(visitReportRows(entries, { demo }), { demo });
-    let delivered = false;
-    try {
-        if (navigator.canShare?.({ files: [file] })) {
-            await navigator.share({ files: [file], title: 'TourFuchs – Besuchsbericht' });
-            delivered = true;
-        }
-    } catch (error) {
-        // Abbruch im Teilen-Menü: nichts als weitergegeben merken.
-        if (error?.name === 'AbortError') return;
-    }
-    if (!delivered) {
-        const url = URL.createObjectURL(file);
-        const link = Object.assign(document.createElement('a'), { href: url, download: fileName });
-        document.body.append(link);
-        link.click();
-        link.remove();
-        setTimeout(() => URL.revokeObjectURL(url), 10_000);
-    }
+    const delivered = await shareOrDownload(file, fileName, 'TourFuchs – Besuchsbericht');
+    // Abbruch im Teilen-Menü: nichts als weitergegeben merken.
+    if (delivered === null) return;
     rememberSentVisits(entries);
     dialog.close();
-    syncButton();
+    refreshUnsentVisits();
     showToast(`${entries.length} ${entries.length === 1 ? 'Besuch' : 'Besuche'} als Excel ${delivered ? 'geteilt' : 'gespeichert'}. Fürs CRM, eine KI oder den Desktop („Eigene Daten laden").`, 'success', 6500);
 }
 
-/** Knopf in „Meine Tour": sichtbar, sobald es nicht weitergegebene Besuche gibt. */
-function syncButton() {
-    const button = document.getElementById('btn-visit-report');
-    if (!button) return;
-    // Die Daten können nach „app:ready" kommen (Beispieldaten am Handy):
-    // Ausgangsbasis anlegen, sobald zum ersten Mal Kunden da sind.
+/**
+ * Noch nicht weitergegebene Besuche – „seit dem letzten Bericht oder Abgleich".
+ * Die Daten können nach „app:ready" kommen (Beispieldaten am Handy):
+ * Ausgangsbasis anlegen, sobald zum ersten Mal Kunden da sind.
+ */
+export function unsentVisitEntries() {
     ensureBaseline();
-    const open = state.customers.length ? entriesFor('unsent').length : 0;
-    button.hidden = open === 0;
-    button.textContent = `📤 Besuche weitergeben (${open})`;
+    return state.customers.length ? entriesFor('unsent') : [];
+}
+
+/** Anzahl melden; „🔄 Abgleichen (n neu)" zeigt sie an (ui/visitSync.js). */
+export function refreshUnsentVisits() {
+    emit('visits:unsent', unsentVisitEntries().length);
 }
 
 /**
@@ -140,7 +151,7 @@ export function applyVisitReport(rows) {
 /** Besuche aus einem Import stammen aus der Quelle – sie gelten als weitergegeben. */
 function markImportedVisitsSent() {
     rememberSentVisits(visitReportEntries(state.customers, { range: 'unsent' }));
-    syncButton();
+    refreshUnsentVisits();
 }
 
 /**
@@ -162,7 +173,6 @@ export function initVisitReport() {
     dialog.querySelector('.dialog-close')?.addEventListener('click', () => dialog.close());
     dialog.querySelector('#visit-report-cancel')?.addEventListener('click', () => dialog.close());
     dialog.querySelector('#visit-report-share')?.addEventListener('click', share);
-    document.getElementById('btn-visit-report')?.addEventListener('click', openVisitReport);
     document.getElementById('btn-visit-report-data')?.addEventListener('click', openVisitReport);
     document.getElementById('day-review-share')?.addEventListener('click', () => {
         document.getElementById('day-review-dialog')?.close();
@@ -171,10 +181,15 @@ export function initVisitReport() {
 
     on('data:imported', (payload) => { if (!payload?.type) markImportedVisitsSent(); });
     on('demo:loaded', markImportedVisitsSent);
-    on('visits:received', markImportedVisitsSent);
-    on('dataset:cleared', () => { clearSentVisits(); syncButton(); });
-    on('app:ready', syncButton);
-    on('visits:changed', syncButton);
-    on('customers:changed', syncButton);
-    on('locale:changed', () => { if (dialog?.open) render(); syncButton(); });
+    // Empfangene Datei vom anderen Gerät: deren Besuche kennt es schon. Eigene,
+    // beim Empfang erhaltene Besuche bleiben offen (safeTransfer.js).
+    on('visits:received', (payload) => {
+        if (payload?.entries?.length) rememberSentVisits(payload.entries);
+        refreshUnsentVisits();
+    });
+    on('dataset:cleared', () => { clearSentVisits(); refreshUnsentVisits(); });
+    on('app:ready', refreshUnsentVisits);
+    on('visits:changed', refreshUnsentVisits);
+    on('customers:changed', refreshUnsentVisits);
+    on('locale:changed', () => { if (dialog?.open) render(); refreshUnsentVisits(); });
 }

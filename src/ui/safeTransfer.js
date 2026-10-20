@@ -23,6 +23,9 @@ import { showToast } from './toast.js';
 import { hideBusy, showBusy } from './busyIndicator.js';
 import { loadQrReaderModule, loadQrWriterModule } from './lazyModules.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
+import { carryOverVisits } from '../features/datasetDiff.js';
+import { visitReportEntries } from '../features/visitReport.js';
+import { isDemoDataset } from '../core/demoSafety.js';
 import { t } from '../core/i18n.js';
 import { isFileAccessError, showFileAccessHelp } from './fileAccessHelp.js';
 
@@ -469,7 +472,8 @@ async function applyImported(dataset) {
         incomingCount: customers.length,
         sourceLabel: 'Die empfangene TourFuchs-Datei',
         replacesContracts: true,
-        replacesVisits: true
+        replacesVisits: true,
+        keepsCustomerVisits: true
     })) {
         showToast('Import abgebrochen. Die bisherigen Daten bleiben vollständig erhalten.', 'info', 5000);
         return;
@@ -477,14 +481,17 @@ async function applyImported(dataset) {
     showBusy('safe-receive', 'Daten werden übernommen …');
     try {
         await geocodeByPlz(customers); // Sicherheitsnetz für evtl. fehlende Koordinaten
+        // Besuche aus der Datei kennt das andere Gerät schon; sie gelten danach
+        // als abgeglichen. Besuche dieses Geräts gehen nicht verloren: Sie werden
+        // mit denen aus der Datei vereinigt (wie beim Reimport) und bleiben offen.
+        const fromFile = visitReportEntries(customers, { range: 'unsent' });
+        if (!isDemoDataset(state.customers)) carryOverVisits(state.customers, customers);
         replaceCustomers(customers, {
             fileName: dataset?.fileName,
             importedAt: dataset?.importedAt,
             territories: dataset?.territories || {}
         });
-        // Besuche aus der Datei hat das andere Gerät schon – „📤 Besuche
-        // weitergeben" zählt nur, was hier unterwegs erfasst wird.
-        emit('visits:received');
+        emit('visits:received', { entries: fromFile });
         setServiceContracts(serviceContracts, dataset?.serviceContractSources || {});
         setServiceVisits(serviceVisits, dataset?.serviceVisitSources || {});
         // Eigene Orte werden ergänzt, nicht ersetzt: Die Station des Zielgeräts still

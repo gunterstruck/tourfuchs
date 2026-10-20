@@ -572,7 +572,7 @@ export function applyDataPanelLayout() {
     const importNotes = el('btn-import-notes');
     const extras = {
         explainer: el('data-explainer'), sources: el('data-sources'), templates: el('import-templates'),
-        handover: el('btn-export-handover'), visitReport: el('btn-visit-report-data')
+        handover: el('btn-export-handover'), visitReport: el('btn-visit-report-data'), sync: el('btn-sync-data')
     };
     const present = (...list) => list.filter(Boolean);
 
@@ -582,7 +582,7 @@ export function applyDataPanelLayout() {
             for (const part of [d.load.wrap, d.share.wrap, d.protect, d.more, d.danger]) part.remove();
             // Zurück an ihre HTML-Plätze, damit das Handy unverändert bleibt.
             dataActions.before(...present(extras.explainer, extras.sources, extras.templates));
-            primary.append(...present(extras.handover, extras.visitReport));
+            primary.append(...present(extras.handover, extras.visitReport, extras.sync));
         }
         const g = ensureDataPanelGroups();
         g.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive);
@@ -604,7 +604,7 @@ export function applyDataPanelLayout() {
         }
         const d = ensureDesktopDataGroups();
         d.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive, ...present(extras.sources));
-        d.share.col.append(nodes.safeExport, ...present(extras.visitReport), nodes.exportBtn, ...present(extras.handover));
+        d.share.col.append(nodes.safeExport, ...present(extras.sync, extras.visitReport), nodes.exportBtn, ...present(extras.handover));
         nodes.safeNote.classList.add('data-group-note');
         d.share.wrap.append(nodes.safeNote);
         d.moreCol.append(...present(extras.templates), nodes.template, nodes.geocode, nodes.progress,

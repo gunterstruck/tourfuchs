@@ -664,9 +664,44 @@ async function phone(browser, baseUrl) {
         await page.waitForFunction(() => document.getElementById('btn-gmaps')?.disabled === false, null, { timeout: TIMEOUT });
     });
 
-    await step('Besuch eintragen → „Besuche weitergeben" erscheint', async () => {
+    const syncLabel = () => page.evaluate(() => document.getElementById('btn-sync')?.textContent || '');
+    await step('Besuch eintragen → „🔄 Abgleichen · 1 neu" im Tour-Blatt', async () => {
         await pick('Druckerei', 'mark-visited');
-        await page.waitForFunction(() => document.getElementById('btn-visit-report')?.hidden === false, null, { timeout: TIMEOUT });
+        // Sichtbar steht er im Tour-Blatt; hier zählt, dass er den Besuch kennt.
+        await page.waitForFunction(() => {
+            const button = document.getElementById('btn-sync');
+            return button && !button.hidden && / · 1 neu$/.test(button.textContent);
+        }, null, { timeout: TIMEOUT });
+    });
+
+    // Weg B: Abgleich-Datei senden (ohne Teilen-Menü im Testbrowser: Download)
+    // und dieselbe Datei wieder öffnen – nichts doppelt, kein Klartext darin.
+    await step('Abgleichen: Datei senden und wieder öffnen', async () => {
+        const dir = mkdtempSync(join(tmpdir(), 'tourfuchs-abgleich-'));
+        try {
+            await closeDialogs(page);
+            await page.evaluate(() => document.getElementById('btn-sync').click());
+            await page.waitForSelector('#sync-dialog[open]', { timeout: TIMEOUT });
+            const [download] = await Promise.all([
+                page.waitForEvent('download', { timeout: TIMEOUT }),
+                page.locator('#sync-send').click()
+            ]);
+            const name = download.suggestedFilename();
+            if (!/^TourFuchs-Abgleich-\d{4}-\d{2}-\d{2}\.txt$/.test(name)) throw new Error(`Dateiname: ${name}`);
+            const file = join(dir, name);
+            await download.saveAs(file);
+            const text = readFileSync(file, 'utf8');
+            if (!text.includes('"__tfsync":1') || /Druckerei/i.test(text)) throw new Error(`Inhalt: ${text.slice(0, 120)}`);
+            await page.waitForFunction(() => !/neu$/.test(document.getElementById('btn-sync')?.textContent || ''), null, { timeout: TIMEOUT });
+            await page.evaluate(() => document.getElementById('btn-sync').click());
+            await page.waitForSelector('#sync-dialog[open]', { timeout: TIMEOUT });
+            await page.locator('#sync-file-input').setInputFiles(file);
+            await page.waitForFunction(() => /Abgleich: 0 Besuche übernommen · 1 war schon eingetragen/.test(document.getElementById('toasts')?.textContent || ''), null, { timeout: TIMEOUT })
+                .catch(async () => { throw new Error(`Meldung: ${await page.locator('#toasts').textContent()}`); });
+            if (await page.evaluate(() => document.getElementById('sync-dialog').open)) throw new Error('Fenster bleibt offen');
+        } finally {
+            rmSync(dir, { recursive: true, force: true });
+        }
     });
 
     // Zweite, unabhängige Prüfung zu tests/safeTransferHistory.test.js: Jede
@@ -737,21 +772,24 @@ async function phone(browser, baseUrl) {
     // Besuche, die mit einer Datei vom Desktop kommen (z. B. „Letzter Besuch" aus
     // dem CRM), hat das andere Gerät schon. „📤 Besuche weitergeben" darf sie am
     // Handy nicht als unterwegs erfasst anbieten.
-    await step('Empfangene Besuche zählen nicht als „noch weiterzugeben"', async () => {
+    // Weg A: Eine Datei vom Desktop ersetzt den Bestand – aber nicht die Besuche
+    // dieses Geräts. Und was in der Datei steht (z. B. „Letzter Besuch" aus dem
+    // CRM), zählt nicht als „neu" fürs Abgleichen.
+    await step('Empfang vom Desktop: eigene Besuche bleiben, fremde zählen nicht als neu', async () => {
         const { createSafeTransfer } = await import('../src/features/safeTransfer.js');
         const d = new Date(Date.now() - 86_400_000);
         const yesterday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-        const { container, keyQr } = await createSafeTransfer({
-            customers: [{ id: 'k-nr:9001', nummer: '9001', name: 'Desktop Kunde GmbH', plz: '45127', ort: 'Essen',
-                lat: 51.4556, lng: 7.0116, besuche: [yesterday], extra: {}, contacts: [] }],
-            fileName: 'desktop-mit-besuch.xlsx'
-        });
+        const baecker = { id: 'k-nr:000101', nummer: '000101', name: 'Bäckerei Krümel GmbH', plz: '45127', ort: 'Essen',
+            lat: 51.4556, lng: 7.0116, besuche: [], extra: {}, contacts: [] };
+        const desktop = { id: 'k-nr:9001', nummer: '9001', name: 'Desktop Kunde GmbH', plz: '44135', ort: 'Dortmund',
+            lat: 51.5136, lng: 7.4653, besuche: [yesterday], extra: {}, contacts: [] };
         const dir = mkdtempSync(join(tmpdir(), 'tourfuchs-besuch-'));
-        const file = join(dir, 'TourFuchs-Desktop.tfsafe');
-        writeFileSync(file, JSON.stringify(container));
         const accept = (dialog) => dialog.accept();
         page.on('dialog', accept);
-        try {
+        const receive = async (customers, stem) => {
+            const { container, keyQr } = await createSafeTransfer({ customers, fileName: `${stem}.xlsx` });
+            const file = join(dir, `${stem}.tfsafe`);
+            writeFileSync(file, JSON.stringify(container));
             await closeDialogs(page);
             await page.evaluate(() => document.getElementById('btn-safe-receive').click());
             await page.waitForSelector('#safe-receive-dialog[open]', { timeout: TIMEOUT });
@@ -761,13 +799,20 @@ async function phone(browser, baseUrl) {
             if (!(await fallback.evaluate((el) => el.open))) await fallback.locator('summary').click();
             await page.locator('#safe-key-input').fill(keyQr);
             await page.locator('#safe-key-submit').click();
-            await page.waitForFunction(() => !document.getElementById('safe-receive-dialog').open
-                && document.querySelector('#data-status .stat b')?.textContent === '1', null, { timeout: TIMEOUT });
-            const button = await page.evaluate(() => {
-                const el = document.getElementById('btn-visit-report');
-                return { hidden: el.hidden, text: el.textContent };
-            });
-            if (!button.hidden) throw new Error(`nach dem Empfang angeboten: ${button.text}`);
+            await page.waitForFunction((n) => !document.getElementById('safe-receive-dialog').open
+                && document.querySelector('#data-status .stat b')?.textContent === String(n), customers.length, { timeout: TIMEOUT });
+        };
+        try {
+            await receive([baecker], 'desktop-1');
+            await pick('Bäckerei', 'mark-visited');
+            await page.waitForFunction(() => / · 1 neu$/.test(document.getElementById('btn-sync')?.textContent || ''), null, { timeout: TIMEOUT });
+            await receive([{ ...baecker }, desktop], 'desktop-2');
+            await page.waitForTimeout(300);
+            const label = await syncLabel();
+            // 1 = der eigene Bäckerei-Besuch von heute (blieb erhalten); der
+            // Desktop-Besuch von gestern zählt nicht. Ohne Weg A stünde hier nichts
+            // (verloren), ohne die Kennzeichnung „· 2 neu".
+            if (!/ · 1 neu$/.test(label)) throw new Error(`nach dem Empfang: „${label}"`);
         } finally {
             page.off('dialog', accept);
             rmSync(dir, { recursive: true, force: true });

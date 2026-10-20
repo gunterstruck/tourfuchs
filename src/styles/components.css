@@ -224,10 +224,12 @@
 
 /* Feierabend-Rückblick */
 .btn-day-review[hidden] { display: none; }
-.btn-visit-report[hidden] { display: none; }
 .visit-report-dialog { max-width: min(460px, 94vw); }
 .visit-report-body { padding: 4px 18px 8px; font-size: 0.9rem; line-height: 1.45; }
 .visit-report-body p { margin: 6px 0 10px; }
+.sync-dialog .visit-report-body h3 { margin: 16px 0 2px; font-size: 1rem; }
+.sync-dialog .visit-report-body > button:not(.linklike) { width: 100%; }
+.sync-dialog #sync-excel { display: block; margin: 12px 0 4px; }
 .visit-report-ranges { display: grid; gap: 6px; margin: 8px 0 12px; }
 .visit-report-range {
     display: flex;

@@ -269,6 +269,7 @@
                             <!-- Nur sichtbar, wenn die Daten Übergaben (VB alt → neu) enthalten. -->
                             <button id="btn-export-handover" type="button" hidden data-i18n="export.handover">🔁 Übergabeliste (Excel)</button>
                             <button id="btn-visit-report-data" type="button" title="Nur die besuchten Kunden, eine Zeile je Besuch" data-i18n="export.visitReport">📤 Besuchsbericht (Excel)</button>
+                            <button id="btn-sync-data" type="button" data-label="Abgleichen mit dem Handy" hidden title="Besuche mit dem Handy abgleichen – senden und empfangen, ohne Cloud">🔄 Abgleichen mit dem Handy</button>
                             <button id="btn-clear" class="danger">🗑 Daten löschen</button>
                         </div>
                     </div>
@@ -515,10 +516,10 @@
                      Gerät holen. Steht nach der Bezirkswahl, aber VOR dem Planer, damit er auch ohne
                      planbare Kunden (leerer Filter) und mit gesetztem Start da ist. -->
                 <button id="btn-tour-scan" class="only-mobile btn-scan-entry" data-i18n="tour.scan">📷 Tour per QR übernehmen</button>
-                <!-- Gegenstück zum Scan: Besuche zurück an Desktop/CRM. Erscheint erst
-                     mit neuen Besuchen – sichtbar im Tour-Blatt, nicht versteckt in
-                     „3. Meine Tour" (zugeklappt, solange die Tour leer ist). -->
-                <button id="btn-visit-report" class="btn-visit-report btn-scan-entry" type="button" hidden title="Besuche als kleine Excel-Datei weitergeben – fürs CRM, eine KI oder den Desktop">📤 Besuche weitergeben</button>
+                <!-- Gegenstück zum Scan: Besuche zwischen Handy und Desktop abgleichen
+                     (senden und empfangen). Zeigt „· n neu", sobald es Besuche gibt,
+                     die das andere Gerät noch nicht kennt. -->
+                <button id="btn-sync" class="only-mobile btn-scan-entry" type="button" data-label="Abgleichen" hidden title="Besuche mit dem Desktop abgleichen – senden und empfangen, ohne Cloud">🔄 Abgleichen</button>
 
                 <div id="tour-planner" hidden>
                 <!-- Fokus-Modus (mobil): horizontale Schrittleiste. Ersetzt die
@@ -987,6 +988,26 @@
                 <button type="button" id="day-review-share">📤 Besuche weitergeben</button>
                 <button type="button" id="day-review-close" class="primary">Fertig</button>
             </footer>
+        </dialog>
+
+        <!-- Abgleich Handy ↔ Desktop: eine Datei in beide Richtungen, nur ergänzen -->
+        <dialog id="sync-dialog" class="visit-report-dialog sync-dialog" aria-label="Abgleichen">
+            <header>
+                <h2>🔄 Abgleichen</h2>
+                <button class="dialog-close" aria-label="Schließen" data-i18n="dialog.close" data-i18n-aria-label="dialog.close">Schließen</button>
+            </header>
+            <div class="visit-report-body">
+                <p>Handy und Desktop kennen danach dieselben Besuche. Es kommt nur hinzu, nichts wird überschrieben – und nichts läuft über das Internet.</p>
+                <h3>Senden</h3>
+                <p id="sync-send-info"></p>
+                <button type="button" id="sync-send" class="primary">📤 Abgleich-Datei teilen</button>
+                <h3>Empfangen</h3>
+                <p>Datei „TourFuchs-Abgleich-….txt" vom anderen Gerät öffnen, z. B. aus der Mail oder aus OneDrive.</p>
+                <button type="button" id="sync-open">📥 Abgleich-Datei öffnen</button>
+                <input type="file" id="sync-file-input" hidden>
+                <p class="muted small">Die Datei enthält keine Kundennamen und keine Kundennummern, nur Prüfsummen und Daten. Zuordnen kann sie nur ein TourFuchs mit derselben Kundenliste. Die Kundenliste selbst kommt weiter mit „Verschlüsselt exportieren" aufs Handy.</p>
+                <button type="button" id="sync-excel" class="linklike">Stattdessen als Excel fürs CRM oder eine KI weitergeben</button>
+            </div>
         </dialog>
 
         <!-- Besuchsbericht: Besuche vom Handy als kleine Excel-Datei weitergeben -->
