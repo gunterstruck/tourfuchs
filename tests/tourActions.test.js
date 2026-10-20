@@ -61,9 +61,13 @@ describe('Tour-Aktionen: Scan als Einstieg, Navigation prominent, Desktop-Timeli
             'btn-tour-print',
             'btn-tour-ics',
             'btn-tour-copy',
-            'btn-day-review',
-            'btn-visit-report'
+            'btn-day-review'
         ]) expect(group).toContain(`id="${id}"`);
+        // „Besuche weitergeben" steht sichtbar unter der Gruppe, nicht zugeklappt darin.
+        expect(group).not.toContain('id="btn-visit-report"');
+        const mineEnd = html.indexOf('/.tour-acc mytour');
+        expect(html.indexOf('id="btn-visit-report"')).toBeGreaterThan(groupEnd);
+        expect(html.indexOf('id="btn-visit-report"')).toBeLessThan(mineEnd);
         expect(group).not.toContain('id="btn-route-focus"');
         expect(html).toMatch(/id="btn-tour-qr"[^>]*class="[^"]*only-desktop[^"]*qr-handoff/);
         const gmapsIdx = html.indexOf('id="btn-gmaps"');

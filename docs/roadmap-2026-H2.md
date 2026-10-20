@@ -1303,5 +1303,11 @@ schwer zu finden; beim `.tfsafe`-Empfang gehen noch nicht weitergegebene
 Besuche des Zielgeräts verloren (Fehler). Konzept mit vier Stufen (Fehler
 beheben, Rückweg sichtbar, „Meine Besuche" drucken/Excel, Notiz zum Besuch),
 Leitplanken und offenen PO-Entscheidungen:
-[`docs/konzept-besuche-abgleich.md`](konzept-besuche-abgleich.md). Noch nichts
-gebaut.
+[`docs/konzept-besuche-abgleich.md`](konzept-besuche-abgleich.md).
+
+Sofort behoben (20.10.2026, PO: „📤 Besuche weitergeben finde ich nicht"): Am
+Handy stand „📤 Besuchsbericht (Excel)" im Daten-Tab in einem ausgeblendeten
+Block, und „📤 Besuche weitergeben" lag in „Meine Tour" im zugeklappten
+„Teilen & Exportieren". Jetzt: Daten → „Sichern & übertragen" und in „Meine
+Tour" sichtbar unter der Gruppe, sobald es neue Besuche gibt. Abgesichert in
+`tests/dataPanelLayout.test.js` und `tests/tourActions.test.js`.

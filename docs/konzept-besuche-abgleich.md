@@ -24,8 +24,14 @@ stattgefunden haben, gegebenenfalls mit Infos dazu.
 
 **Zwei Lücken:**
 
-1. **Der Rückweg ist da, aber schwer zu finden.** Wer ihn nicht kennt, hat
-   genau das gemeldete Bild: Das Handy weiß mehr als der Desktop.
+1. **Der Rückweg ist da, aber war am Handy nicht zu finden** (PO-Prüfung
+   20.10.2026: „finde ich nicht"). Zwei Ursachen: Im Daten-Tab steckte
+   „📤 Besuchsbericht (Excel)" am Handy in einem ausgeblendeten Block, und in
+   „Meine Tour" lag „📤 Besuche weitergeben" im zugeklappten „Teilen &
+   Exportieren". **Behoben 20.10.2026** (Teil von Stufe 2): Daten-Tab →
+   „Sichern & übertragen"; in „Meine Tour" unter der Gruppe, sobald es neue
+   Besuche gibt. Wer den Weg nicht findet, hat genau das gemeldete Bild: Das
+   Handy weiß mehr als der Desktop.
 2. **Datenverlust beim Senden aufs Handy.** Empfängt das Handy eine neue
    `.tfsafe`-Datei vom Desktop, ersetzt sie den ganzen Bestand
    (`replaceCustomers`). Besuche, die auf dem Handy erfasst, aber noch nicht
@@ -83,6 +89,8 @@ Tatsachen und kommen nur hinzu; eine Vereinigung kann nichts Falsches
 
 ### B. Den Rückweg sichtbar machen *(Klarheit, kaum neuer Code)*
 
+- **Erledigt 20.10.2026:** Knopf am Handy sichtbar (Daten-Tab und „Meine
+  Tour", siehe Befund 1).
 - **Handy:** Den Knopf „📤 Besuche weitergeben (n)" gibt es. Neu ist ein
   Hinweis, wenn **n ≥ 1** ist und Daten vom Desktop empfangen werden sollen:
   „Du hast 3 Besuche, die der Desktop noch nicht kennt – erst weitergeben?"
