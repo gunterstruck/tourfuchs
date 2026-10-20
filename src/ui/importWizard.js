@@ -43,6 +43,7 @@ import { cleanCustomerTexts } from '../features/customerName.js';
 import { columnsNotInFile, mergeWithPrevious, missingCustomers } from '../features/importMerge.js';
 import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
+import { applySyncFile, looksLikeSyncFile } from './visitSync.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { showImportInsight } from './importInsight.js';
 import { buildCustomerListPrompt } from '../features/customerListPrompt.js';
@@ -468,6 +469,11 @@ export function openOwnDataDialog() {
  */
 export function importExternalFile(file) {
     if (!file) return;
+    // Abgleich vom anderen Gerät: nur Besuche, keine neue Liste – ohne Zuordnung.
+    if (looksLikeSyncFile(file)) {
+        applySyncFile(file).then((done) => { if (!done) showToast(t('import.selectFile'), 'error'); });
+        return;
+    }
     cancelWelcomeDemo();
     withDataConsent(() => handleFile(file));
 }
@@ -489,6 +495,10 @@ async function handleFile(file, { useTemplates = true } = {}) {
     // Neue Datei: Eine Vorlage der vorigen Liste darf hier nichts vorbelegen.
     templateContext = null;
     const isExcel = /\.(xlsx|xlsm|xls|csv|ods)$/i.test(file.name);
+    if (!isExcel && looksLikeSyncFile(file)) {
+        ownDataDialog?.close();
+        if (await applySyncFile(file)) return;
+    }
     if (!isExcel) {
         showToast(t('import.selectFile'), 'error');
         return;

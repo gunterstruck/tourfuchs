@@ -34,7 +34,8 @@ export function datasetReplacementMessage({
     sourceLabel = 'Die neue Kundenliste',
     disablesVault = false,
     replacesContracts = false,
-    replacesVisits = false
+    replacesVisits = false,
+    keepsCustomerVisits = false
 } = {}) {
     const existing = [];
     if (state.customers.length) {
@@ -75,7 +76,11 @@ export function datasetReplacementMessage({
         ? '\n\nDie separat importierten Serviceeinsätze bleiben erhalten und werden anschließend über die Kundennummer neu zugeordnet.'
         : '';
 
-    return `${replacement}\n\nDie bisherige Tour sowie nicht in der neuen Datei enthaltene Besuchs- und Gebietsdaten werden entfernt. Alte Daten lassen sich danach nur aus einem vorherigen Export wiederherstellen.${contracts}${visits}${vault}\n\nFortfahren?`;
+    // Empfang vom anderen Gerät: Besuche dieses Geräts werden vereinigt, nicht ersetzt.
+    const lost = keepsCustomerVisits
+        ? 'Die bisherige Tour sowie nicht in der neuen Datei enthaltene Gebietsdaten werden entfernt. Deine Besuche bleiben erhalten – bei Kunden, die auch in der Datei stehen, werden sie mit denen aus der Datei zusammengeführt.'
+        : 'Die bisherige Tour sowie nicht in der neuen Datei enthaltene Besuchs- und Gebietsdaten werden entfernt.';
+    return `${replacement}\n\n${lost} Alte Daten lassen sich danach nur aus einem vorherigen Export wiederherstellen.${contracts}${visits}${vault}\n\nFortfahren?`;
 }
 
 export function confirmDatasetReplacement(options = {}) {
