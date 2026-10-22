@@ -127,7 +127,7 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         expect(customerNumberClipboardText(number, name)).toBe(expected);
     });
 
-    it('macht die Nummer anklickbar und erklärt den konkreten Kopierwert', () => {
+    it('labels each clipboard action according to its content and orders number first', () => {
         state.ui.depth = 'profi';
 
         const html = customerPopupHtml(customer(45000, { nummer: '00004711' }));
@@ -137,6 +137,7 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         expect(html).toContain('aria-label="Kundennummer und Name als Musterkunde GmbH [4711] in die Zwischenablage kopieren"');
         expect(html).toContain('<span aria-hidden="true">⧉</span>');
         expect(html).toContain('Nr. 00004711');
+        expect(html).toMatch(/data-action="copy-customer-number-only"[^]*?Nr\. 00004711[^]*?data-action="copy-customer-number"[^]*?Name \+ Nr\./);
     });
 
     it('legt exakt den erklärten Wert in die Zwischenablage', async () => {
@@ -156,7 +157,7 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         const row = html.match(/<p class="popup-idline">(.*?)<\/p>/)?.[1];
         expect(row).toContain('data-action="copy-customer-number"');
         expect(row).toContain('data-action="copy-customer-number-only"');
-        expect(row).toContain('Nur Nummer');
+        expect(row).toContain('Name + Nr.');
         expect(customerPopupHtml(customer(45000, { nummer: '' }))).not.toContain('data-action="copy-customer-number-only"');
     });
 
@@ -167,6 +168,17 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
         expect(writeText).toHaveBeenCalledWith('00004711');
         await expect(copyCustomerNumberOnly('')).resolves.toEqual({ value: '', copied: false });
         expect(writeText).toHaveBeenCalledTimes(1);
+    });
+});
+
+describe('DUVE neben SieSales', () => {
+    it('appears without setup only when a CRM link and customer number are present', () => {
+        vi.stubGlobal('localStorage', { getItem: () => null });
+        const html = customerPopupHtml(customer(100, { extra: { 'SieSales Link': 'https://crm.example/customer' } }));
+        expect(html).toContain('popup-company');
+        expect(html).toContain('searchTerm=4711');
+        expect(customerPopupHtml(customer(100))).not.toContain('popup-company');
+        expect(customerPopupHtml(customer(100, { nummer: '', extra: { 'SieSales Link': 'https://crm.example/customer' } }))).not.toContain('popup-company');
     });
 });
 

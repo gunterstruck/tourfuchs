@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { accountManager, isPostalQuery, postalResponsibility, teamsChatUrl } from '../src/features/postalResponsibility.js';
-import { responsibilityResultsHtml } from '../src/ui/postalResponsibility.js';
+import { customerFocusText, responsibilityResultsHtml } from '../src/ui/postalResponsibility.js';
 import { autoDetectMapping } from '../src/services/excel.js';
+import { salesMainMapping } from '../src/features/salesWorkbook.js';
 
 const customers = [
     { id: 'a', plz: '01067', bezirk: 'Dresden', vb: 'Eva 0171 1234567', umsatz: 100, umsatzJahre: { 2026: 100 } },
@@ -10,6 +11,42 @@ const customers = [
     { id: 'd', plz: '01100', bezirk: 'Andere', umsatz: 9000 }
 ];
 describe('PLZ-Zuständigkeit', () => {
+    it('uses customer types retained in historical workbooks and maps them in new imports', () => {
+        expect(salesMainMapping(['Kundenart']).kundentyp).toBe('Kundenart');
+        expect(salesMainMapping(['Kundentyp', 'Kundenart']).kundentyp).toBe('Kundentyp');
+        const stock = [
+            { id: '1', plz: '45127', bezirk: 'X', extra: { Kundenart: 'Partner' } },
+            { id: '2', plz: '45128', bezirk: 'X', kundentyp: 'Endkunde', extra: { Kundenart: 'Partner' } }
+        ];
+        expect(postalResponsibility(stock, '451').groups[0].profile.top).toEqual([{ name: 'Endkunde', count: 1 }, { name: 'Partner', count: 1 }]);
+    });
+    it('separates sales groups and uses the entire district stock for customer focus', () => {
+        const stock = [
+            { id: '1', plz: '45127', bezirk: 'HxMx', gruppe: 'Maschinenbau', kundentyp: 'Partner', vb: 'Eva' },
+            { id: '2', plz: '01067', bezirk: 'HxMx', gruppe: 'Maschinenbau', kundentyp: 'Endkunde', vb: 'Jan' },
+            { id: '3', plz: '', bezirk: 'HxMx', gruppe: 'Maschinenbau', kundentyp: 'Endkunde' },
+            { id: '4', plz: '45127', bezirk: 'HxMx', gruppe: 'Handel', kundentyp: 'Fachhändler' },
+            { id: '5', plz: '45128', bezirk: 'HxMx', gruppe: 'Maschinenbau' }
+        ];
+        const result = postalResponsibility([...stock, stock[0]], '451');
+        expect(result.count).toBe(3);
+        const group = result.groups.find((g) => g.salesGroup === 'Maschinenbau' && g.manager.name === 'Eva');
+        expect(group.profile).toEqual({ count: 4, missing: 1, top: [{ name: 'Endkunde', count: 2 }] });
+        expect(customerFocusText(group.profile)).toBe('Endkunde (2/4 Kunden · 50 %) · 1 ohne Kundentyp');
+        const html = responsibilityResultsHtml(result);
+        expect(html).toContain('Vertriebsgruppe: <b>Maschinenbau</b>');
+        expect(html).toContain('Häufigste Kundenart im VBZ');
+        expect(html).toContain('Fachhändler (1/1 Kunden · 100 %)');
+    });
+    it('shows ties and missing data honestly, without decoding company-specific district codes', () => {
+        const stock = ['Partner', 'Endkunde', ' partner ', 'Endkunde', ''].map((kundentyp, i) => ({ id: String(i), plz: '45127', bezirk: 'HxPx', kundentyp }));
+        const group = postalResponsibility(stock, '45127').groups[0];
+        expect(group.profile.top).toEqual([{ name: 'Endkunde', count: 2 }, { name: 'Partner', count: 2 }]);
+        expect(customerFocusText(group.profile)).toContain('Gleichstand · 1 ohne Kundentyp');
+        expect(responsibilityResultsHtml(postalResponsibility(stock, '451'))).not.toContain('ISL');
+        expect(customerFocusText(postalResponsibility([{ id: 'x', plz: '45127', bezirk: 'X' }], '451').groups[0].profile)).toContain('Nicht hinterlegt');
+        expect(customerFocusText(postalResponsibility([{ id: 'x', plz: '45127', kundentyp: 'Partner' }], '451').groups[0].profile)).toContain('Vertriebsbezirk fehlt');
+    });
     it('does not import employee phone or email as customer contact fields', () => {
         const mapping = autoDetectMapping(['Kundenname', 'PLZ', 'Account Manager Telefon', 'Account Manager Email', 'VB Telefon', 'VB Email']);
         expect(mapping.telefon).toBeNull();

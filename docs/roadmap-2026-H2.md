@@ -1345,3 +1345,15 @@ Kollegenwunsch: **⧉ Nur Nummer** steht neben dem bisherigen Kundennummer-Knopf
 in derselben Zeile. Kopiert exakt die angezeigte Nummer ohne Name/Klammern,
 einschließlich führender Nullen. Bisheriges Format `Kundenname [Nummer]`
 unverändert. DE/EN/FR/ES, Erfolgs-/Fehler-Rückmeldung, Unit- und Browserprüfung.
+
+
+### Praxisfeedback: DUVE, Kopierknöpfe und VBZ-Profil (22.10.2026, umgesetzt)
+
+DUVE erscheint automatisch nur bei eigenen Kunden mit gültigem SieSales-Link
+und Kundennummer; lokale Zieländerung und dauerhaftes Ausblenden bleiben möglich.
+Kopierknöpfe eindeutig: „Nr. …“ kopiert nur die Nummer, „Name + Nr.“ das bisherige
+Format. Die PLZ-Auskunft zeigt Vertriebsgruppe und häufigste Kundenart anhand
+aller geladenen Kunden desselben VBZ und derselben Vertriebsgruppe. Anteile,
+Gleichstände und fehlende Angaben sichtbar; keine Firmenkürzel-Tabelle.
+Guide 3.26, Schulungen und externe Übergaben aktualisiert. Unit-, Browser- und
+mobile Sichtprüfung gehören zur Freigabe.

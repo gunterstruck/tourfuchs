@@ -11,6 +11,13 @@ function revenue(stats) {
     return stats.count === stats.missingRevenue ? 'Kein Umsatz hinterlegt' : `${amount(stats.revenue)} erfasster Umsatz${stats.missingRevenue ? ` · ${stats.missingRevenue} ohne Umsatzangabe` : ''}`;
 }
 
+export function customerFocusText(profile) {
+    if (!profile) return 'Nicht ableitbar: Vertriebsbezirk fehlt';
+    if (!profile.top.length) return `Nicht hinterlegt (${profile.count} Kunden ohne Kundentyp)`;
+    const top = profile.top.map((type) => `${type.name} (${type.count}/${profile.count} Kunden · ${Math.round(type.count / profile.count * 100)} %)`).join(' / ');
+    return `${top}${profile.top.length > 1 ? ' · Gleichstand' : ''}${profile.missing ? ` · ${profile.missing} ohne Kundentyp` : ''}`;
+}
+
 export function responsibilityResultsHtml(result) {
     if (!result.valid) return '<p>Bitte 3 bis 5 PLZ-Ziffern eingeben, zum Beispiel 451, 4512 oder 45127.</p>';
     const assignments = result.assignments.length
@@ -25,6 +32,8 @@ export function responsibilityResultsHtml(result) {
             const manager = group.manager;
             const teams = !group.demo && teamsChatUrl(manager.upn);
             return `<article class="postal-card"><h4>VBZ: ${esc(group.district || 'Nicht hinterlegt')}</h4>
+                <p>Vertriebsgruppe: <b>${esc(group.salesGroup || 'Nicht hinterlegt')}</b></p>
+                <p>Häufigste Kundenart im VBZ: <b>${esc(customerFocusText(group.profile))}</b><br><span class="muted">Gesamter geladener Bestand dieses VBZ und dieser Vertriebsgruppe; nach Kundenanzahl.</span></p>
                 <p><b>Account Manager: ${esc(manager.name || 'Nicht hinterlegt')}</b></p>
                 <p>${group.count} Kunden · ${Math.round(group.count / result.count * 100)} % der Kunden dieses PLZ-Bereichs<br>${esc(revenue(group))}</p>
                 <div class="postal-actions">${manager.tel && !group.demo ? `<a href="tel:${esc(manager.tel)}">📞 ${esc(manager.phone)}</a>` : `<span class="muted">${group.demo ? 'Beispieldaten: keine Kontaktaufnahme' : 'Telefon nicht hinterlegt'}</span>`}
@@ -42,7 +51,7 @@ function render() {
     dialog.querySelector('#postal-source').textContent = `Gesamter geladener Kundenbestand · Kartenfilter werden nicht angewendet. Letzter Import: ${date && !Number.isNaN(date.getTime()) ? date.toLocaleDateString('de-DE') : 'nicht bekannt'}.`;
     dialog.querySelectorAll('[data-postal-copy]').forEach((button) => button.addEventListener('click', async () => {
         const group = result.groups[Number(button.dataset.postalCopy)];
-        const text = `PLZ ${postalLabel(result.prefix)} · VBZ: ${group.district || 'nicht hinterlegt'} · Account Manager: ${group.manager.name || 'nicht hinterlegt'}${group.manager.phone ? ` · Telefon: ${group.manager.phone}` : ''}${group.manager.upn ? ` · Teams: ${group.manager.upn}` : ''}\nAus Bestandskunden abgeleitet; Neukundenzuordnung bitte abstimmen.`;
+        const text = `PLZ ${postalLabel(result.prefix)} · VBZ: ${group.district || 'nicht hinterlegt'} · Vertriebsgruppe: ${group.salesGroup || 'nicht hinterlegt'} · Häufigste Kundenart im VBZ (gesamter geladener Bestand): ${customerFocusText(group.profile)} · Account Manager: ${group.manager.name || 'nicht hinterlegt'}${group.manager.phone ? ` · Telefon: ${group.manager.phone}` : ''}${group.manager.upn ? ` · Teams: ${group.manager.upn}` : ''}\nAus Bestandskunden abgeleitet; Neukundenzuordnung bitte abstimmen.`;
         try { await navigator.clipboard.writeText(text); dialog.querySelector('#postal-status').textContent = 'Zuordnung kopiert.'; }
         catch { dialog.querySelector('#postal-status').textContent = 'Kopieren nicht möglich. Bitte die Angaben im Fenster markieren und kopieren.'; }
     }));
@@ -67,7 +76,7 @@ export function initPostalResponsibility() {
         <p id="postal-source" class="muted"></p><p id="postal-status" role="status" aria-live="polite"></p>
         <div id="postal-results"></div>
         <details class="postal-settings"><summary>Firmenlink in der Kundenkachel einrichten</summary>
-        <p>Optionaler Link neben SieSales. Erst beim Anklicken wird die Kundennummer an das Ziel übergeben. Anmeldung und Berechtigungen gelten dort weiter.</p>
+        <p>DUVE erscheint automatisch neben einem vorhandenen SieSales-Link, wenn der Kunde eine Kundennummer hat. Hier kannst du den Firmenlink ändern oder ausblenden. Erst beim Anklicken wird die Kundennummer an das Ziel übergeben. Anmeldung und Berechtigungen gelten dort weiter.</p>
         <button type="button" id="company-duve">DUVE-Vorlage einsetzen</button>
         <form id="company-link-form"><label>Bezeichnung<input id="company-label" maxlength="40" placeholder="z. B. DUVE"></label>
         <label>HTTPS-Adresse mit {kundennummer}<input id="company-template" type="text" placeholder="https://…?searchTerm={kundennummer}"></label>
@@ -93,7 +102,7 @@ export function initPostalResponsibility() {
         catch { status.textContent = 'Speichern nicht möglich. Bitte Browser-Speicher prüfen.'; }
     });
     dialog.querySelector('#company-remove').addEventListener('click', () => {
-        try { localStorage.removeItem(COMPANY_LINK_KEY); label.value = ''; template.value = ''; emit('customers:changed'); status.textContent = 'Firmenlink entfernt.'; }
+        try { localStorage.setItem(COMPANY_LINK_KEY, JSON.stringify({ disabled: true })); label.value = ''; template.value = ''; emit('customers:changed'); status.textContent = 'Firmenlink ausgeblendet. Mit der DUVE-Vorlage und „Firmenlink speichern“ wieder aktivieren.'; }
         catch { status.textContent = 'Entfernen nicht möglich. Bitte Browser-Speicher prüfen.'; }
     });
     on('customers:changed', render);

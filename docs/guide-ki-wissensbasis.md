@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.25 · Stand: 22.10.2026 · App-Version: 3.7.0**
+**Version 3.26 · Stand: 22.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `afcba75bd35fa5ad36020d222a0ebc773745b5ca` (PR #425), ergänzt um die Firmen-KI-Auswahl und die aktualisierten Live-Demos dieses Dokumentationsstands (13.10.2026). Die App-Versionsnummer bleibt 3.7.0; für diesen Dokumentationsstand ist daher zusätzlich der Commit maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `2c51cfa444fbb1bfdf69dec6be11c534c68e477b` (PR #441), ergänzt um DUVE-Automatik, eindeutige Kopierknöpfe und VBZ-Kundenschwerpunkte dieses Dokumentationsstands (22.10.2026). App-Version 3.7.0; zusätzlich ist der Quellstand maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -1938,7 +1938,7 @@ Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 
 Je nach importierten Daten ebenfalls sichtbar:
 
-- Kundennummer als hervorgehobener Kopierknopf: ein Klick kopiert sie lokal in die Zwischenablage. Beim Kopieren werden führende Nullen entfernt und die Nummer in eckige Klammern gesetzt. Davor steht der Kundenname mit einem Leerzeichen, z. B. `000123`, `Musterkunde GmbH` -> `Musterkunde GmbH [123]`; eine reine Null wird `Kundenname [0]`. Der Name wird als eine Zeile kopiert. Ohne Namen wird nur `[123]` kopiert. Die angezeigte Originalnummer wird nicht geändert.
+- **„Nr. …“** kopiert ausschließlich die angezeigte Originalnummer einschließlich führender Nullen. Daneben kopiert **„Name + Nr.“** eine Zeile im Format `Kundenname [Nummer]`, z. B. `Musterkunde GmbH [123]`; nur dort werden führende Nullen in der Klammer gekürzt. Ohne Namen lautet diese kombinierte Ausgabe `[123]`. Die gespeicherte Nummer bleibt unverändert.
 - Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie darunter in eigener Zeile der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Mustermann Robin +49 (170) 4445566`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
@@ -5015,7 +5015,7 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 
 - Desktop-Panel bleibt bei sichtbarer Startauswahl geschlossen; die Begrüßung ist über der ganzen Karte zentriert.
 - Umschauen sowie Ende oder Abbruch einer Demo machen das Desktop-Panel automatisch verfügbar; eigener Kundenimport öffnet es nach erfolgreicher Übernahme.
-- Kundennummer-Kopie enthält den Namen im Format `Kundenname [Kundennummer]`; führende Nullen entfallen weiterhin nur beim Kopieren.
+- **„Name + Nr.“** kopiert `Kundenname [Kundennummer]` mit Nullenkürzung; **„Nr. …“** kopiert ausschließlich die Originalnummer mit führenden Nullen.
 - PDF, Systemprompt und Custom-GPT-Uploadpaket mit Guide 3.21 synchronisiert, einschließlich der mobilen Änderungen aus 3.20.
 
 ### Änderungen in Version 3.20 (08.10.2026)
@@ -5154,42 +5154,57 @@ externen Kontaktaktionen. **„Zuordnung kopieren“** kopiert PLZ-Bereich, VBZ,
 Account Manager und vorhandene Kontaktdaten mit dem Hinweis zur Abstimmung
 in die Zwischenablage. Der Tresor schließt und leert die Auskunft beim Sperren.
 
-### 26.3 DUVE oder einen anderen Firmenlink einrichten
+### 26.3 DUVE automatisch neben SieSales
 
-Im Fenster **„Zuständigkeit finden“** unten
-**„Firmenlink in der Kundenkachel einrichten“** aufklappen.
-**„DUVE-Vorlage einsetzen“** trägt Bezeichnung und folgende Adresse ein:
+Bei eigenen Kunden mit gültigem **„↗ SieSales“**-Link und Kundennummer erscheint
+**„↗ DUVE“** automatisch daneben. Kein Einrichtungsschritt erforderlich.
+Ohne SieSales-Link, ohne Nummer oder bei Beispieldaten erscheint kein Firmenlink.
+Die Kundennummer wird URL-kodiert eingesetzt; führende Nullen bleiben erhalten:
 
 `https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm={kundennummer}`
 
-Mit **„Firmenlink speichern“** bewusst aktivieren. Anschließend steht bei
-Kunden mit Kundennummer **„↗ DUVE“** neben SieSales. Die Kundennummer wird
-URL-kodiert eingesetzt; führende Nullen bleiben erhalten. Ohne Nummer oder
-bei Beispieldaten gibt es keinen Link. Die Vorlage lässt sich durch eine
-andere Bezeichnung und HTTPS-Adresse mit `{kundennummer}` ersetzen.
-Adressen mit eingebetteten Zugangsdaten oder ohne Platzhalter sind unzulässig.
-**„Firmenlink entfernen“** deaktiviert den Zugang wieder.
+Erst beim Anklicken öffnet der Browser die Adresse und übergibt die Nummer.
+TourFuchs fragt keine Vorgänge ab; Firmenanmeldung und Berechtigungen gelten
+weiterhin. Der interne DUVE-Zugriff ist im berechtigten Firmenbrowser zu prüfen.
 
-Die Konfiguration wird nur lokal in diesem Browser gespeichert, nicht in
-`.tfsafe` oder über den Besuchsabgleich übertragen. Standardmäßig ist kein
-Firmenlink aktiv. Erst beim Klick öffnet der Browser die Zieladresse und
-übergibt die Kundennummer im URL-Suchparameter; TourFuchs fragt keine
-Vorgänge ab. DUVE-Anmeldung und Firmenberechtigungen bleiben erforderlich.
-Die interne DUVE-Suche muss im berechtigten Firmenbrowser geprüft werden;
-TourFuchs kann weder Berechtigung noch Suchergebnis garantieren.
+Im Fenster **„Zuständigkeit finden“** unten **„Firmenlink in der Kundenkachel
+einrichten“** aufklappen, um Bezeichnung und HTTPS-Vorlage zu ändern.
+**„Firmenlink speichern“** übernimmt die Vorlage; **„Firmenlink entfernen“**
+blendet den Link dauerhaft in diesem Browser aus. **„DUVE-Vorlage einsetzen“**
+und anschließendes Speichern aktivieren DUVE wieder. Gespeicherte eigene Ziele
+bleiben erhalten. Auch sie erscheinen nur bei vorhandenem SieSales-Link und Nummer.
+Adressen mit Zugangsdaten oder ohne `{kundennummer}` sind unzulässig.
+Die Einstellung bleibt lokal im Browser, außerhalb von `.tfsafe` und Besuchsabgleich.
 
-### 26.4 Nur die Kundennummer kopieren
+### 26.4 Eindeutige Kopierknöpfe in der Kundenkachel
 
-Seit 22.10.2026 steht in derselben Zeile der Kundenkachel direkt neben dem
-bisherigen Kundennummer-Knopf zusätzlich **„⧉ Nur Nummer“**. Dieser Knopf
-kopiert ausschließlich die angezeigte Kundennummer, ohne Kundenname und ohne
-Klammern. Führende Nullen bleiben erhalten: `00004711` wird zu `00004711`.
-Tooltip und zugängliche Beschriftung: **„Nur Kundennummer ohne Name und Klammern
-kopieren“**. Ohne Kundennummer erscheinen beide Kopierknöpfe nicht.
+Die Reihenfolge lautet **„⧉ Nr. …“**, **„⧉ Name + Nr.“**, **„↗ SieSales“**,
+gegebenenfalls **„↗ DUVE“**. Die Nummernschaltfläche kopiert nur die angezeigte
+Originalnummer einschließlich führender Nullen, ohne Name oder Klammern.
+**„Name + Nr.“** kopiert `Kundenname [Nummer]`; in dieser kombinierten Ausgabe
+bleibt die bisherige Nullenkürzung erhalten. Beide Aktionen lassen die Kachel
+offen und melden Erfolg oder Fehler. Ohne Nummer fehlen beide Kopierknöpfe.
 
-Der bisherige Knopf **„Nr. …“** behält sein Verhalten: Kundenname gefolgt von
-der Kundennummer in eckigen Klammern; dort werden führende Nullen entfernt,
-zum Beispiel `Musterkunde GmbH [4711]`. Beide Aktionen bestätigen Erfolg erst
-nach dem Kopieren. Bei Fehler: **„Die Kundennummer konnte nicht kopiert werden.“**
-(nur Nummer) bzw. **„Kundennummer und Name konnten nicht kopiert werden.“**
-(bisheriges Format). Das gilt auf Desktop und Handy.
+### 26.5 Vertriebsgruppe und Kundenschwerpunkt des VBZ
+
+Jede Ergebniskarte zeigt **„Vertriebsgruppe“** und **„Häufigste Kundenart im VBZ“**.
+Grundlage sind die importierten Felder `gruppe` (Vertriebsgruppe) und
+`kundentyp` (Kundentyp/Kundenart).
+Ältere Arbeitsmappen und `.tfsafe`-Dateien können den Kundentyp noch in
+Zusatzspalten wie „Kundenart“, „Kundentyp“ oder „Customer Type“ enthalten;
+diese werden ebenfalls ausgewertet, wenn das Hauptfeld leer ist. Kein erneuter
+Import erforderlich. Bezirke mit gleicher Bezeichnung in
+unterschiedlichen Vertriebsgruppen bleiben getrennt. Keine fest eingebaute
+Interpretation firmenspezifischer Kürzel wie HxMx/HxPx/HxEx.
+
+Für den Schwerpunkt werden alle geladenen Kunden desselben VBZ und derselben
+Vertriebsgruppe gezählt, auch außerhalb der gesuchten PLZ und bei anderen
+Account Managern. Kunden ohne PLZ zählen für das Bezirksprofil mit. Wiederholte
+Datensätze werden einmal gezählt. Kartenfilter ändern die Grundlage nicht.
+Die häufigste Kundenart erscheint mit Anzahl und Anteil an allen Kunden dieser
+Kombination. Bei mehreren gleich häufigen Arten stehen alle mit **„Gleichstand“**
+dort. Fehlende Typen werden gesondert genannt und gehören zum Nenner; fehlt
+der VBZ oder jeder Kundentyp, wird kein Schwerpunkt erfunden. Häufigste bedeutet
+nicht zwangsläufig absolute Mehrheit. Das ist ein Hinweis aus dem geladenen
+Bestand, keine verbindliche Zuständigkeitsregel. **„Zuordnung kopieren“** enthält
+Vertriebsgruppe und Schwerpunkt einschließlich der genannten Datengrundlage.

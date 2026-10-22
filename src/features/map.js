@@ -2422,10 +2422,10 @@ export function customerPopupHtml(customer) {
     // Hierarchie/Kd.-Nr. sind Profi-Detail; Umsatz bleibt in beiden Ansichten.
     const clipboardNumber = customerNumberClipboardText(customer.nummer, customer.name);
     const nr = profi && clipboardNumber
-        ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number', { number: customer.nummer }))}</span></button>`
+        ? `<button type="button" class="popup-nr" data-action="copy-customer-number-only" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.onlyCopyTitle'))}" aria-label="${escapeHtml(t('customer.number.onlyCopyTitle'))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number', { number: customer.nummer }))}</span></button>`
         : '';
-    const nrOnly = nr ? `<button type="button" class="popup-nr" data-action="copy-customer-number-only" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.onlyCopyTitle'))}" aria-label="${escapeHtml(t('customer.number.onlyCopyTitle'))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number.only'))}</span></button>` : '';
-    // Eigenes CRM (SieSales) – öffnet nur den Link im Browser, TourFuchs überträgt nichts.
+    const nrWithName = nr ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number.withName'))}</span></button>` : '';
+    // SieSales/DUVE: erst der bewusste Klick öffnet das Ziel mit der Kundennummer.
     const crm = crmLink(customer);
     const crmHtml = crm
         ? `<a class="popup-nr popup-crm" href="${escapeHtml(crm)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(t('customer.crm.open'))}">↗ ${escapeHtml(t('customer.crm.label'))}</a>`
@@ -2439,7 +2439,7 @@ export function customerPopupHtml(customer) {
         ? t('customer.geo.postalApprox')
         : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
     // Kopf: Name allein, darunter eine eigene Zeile für Kundennummer und CRM.
-    const idLine = nr || crmHtml || companyHtml ? `<p class="popup-idline">${nr}${nrOnly}${crmHtml}${companyHtml}</p>` : '';
+    const idLine = nr || crmHtml || companyHtml ? `<p class="popup-idline">${nr}${nrWithName}${crmHtml}${companyHtml}</p>` : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}</h3>
         ${idLine}

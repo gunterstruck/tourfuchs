@@ -220,13 +220,14 @@ TourFuchs ruft kein Firmenverzeichnis ab und versendet keine Nachricht. „Zuord
 übernimmt die angezeigten Zuständigkeits- und Kontaktdaten in Ihre Zwischenablage.
 </p>
 <p>
-Sie können einen zusätzlichen Firmenlink mit dem Platzhalter <code>{kundennummer}</code>
-einrichten, beispielsweise die DUVE-Vorlage. Standardmäßig ist kein solcher Link aktiv.
-Die Vorlage wird lokal in diesem Browser gespeichert. Erst beim Klick in der Kundenkarte
+Bei eigenen Kunden mit gültigem SieSales-Link und Kundennummer erscheint automatisch
+ein zusätzlicher DUVE-Link. Ohne SieSales-Link oder Kundennummer sowie bei Beispieldaten
+erscheint er nicht. Sie können das Ziel mit dem Platzhalter <code>{kundennummer}</code>
+ändern oder den Link ausblenden. Diese Einstellung wird lokal in diesem Browser gespeichert. Erst beim Klick in der Kundenkarte
 öffnet der Browser die konfigurierte HTTPS-Adresse und übergibt die Kundennummer als Teil
 der URL an das Zielsystem (bei DUVE: <code>duve.siemens.com</code>). Es gelten dessen
 Anmeldung und Berechtigungen; TourFuchs lädt keine Vorgänge und stellt keine API-Verbindung her.
-Mit „Firmenlink entfernen“ können Sie die lokale Konfiguration löschen.
+Mit „Firmenlink entfernen“ können Sie den Link in diesem Browser dauerhaft ausblenden.
 </p>
 <p>
 Enthält Ihre eigene Kundenliste einen Link in Ihr CRM (z.&nbsp;B. „SieSales Link"), zeigt die Kundenkarte
