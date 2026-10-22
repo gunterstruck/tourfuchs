@@ -31,10 +31,10 @@ const TIMEOUT = 30_000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const FIXTURE = [
-    'Kundennummer\tKundenname\tStraße\tPLZ\tOrt\tVertriebsbezirk',
-    'SMOKE-1\tSmoke Test Nord\tDomkloster 4\t50667\tKöln\tBezirk Köln',
-    'SMOKE-2\tSmoke Test Süd\tSeverinstraße 15\t50678\tKöln\tBezirk Köln',
-    'SMOKE-3\tSmoke Test West\tAachener Straße 1\t50674\tKöln\tBezirk Köln'
+    'Kundennummer\tKundenname\tStraße\tPLZ\tOrt\tVertriebsbezirk\tUmsatz\tAccount Manager\tAccount Manager Telefon\tAccount Manager UPN',
+    'SMOKE-1\tSmoke Test Nord\tDomkloster 4\t50667\tKöln\tBezirk Köln\t100\tEva Test\t030 23125 123\teva@example.org',
+    'SMOKE-2\tSmoke Test Süd\tSeverinstraße 15\t50678\tKöln\tBezirk Köln\t200\tEva Test\t030 23125 123\teva@example.org',
+    'SMOKE-3\tSmoke Test West\tAachener Straße 1\t50674\tKöln\tBezirk Köln\t\tJan Test\t\t'
 ].join('\n');
 
 function freePort() {
@@ -161,6 +161,34 @@ async function desktop(browser, baseUrl) {
 
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
 
+    await step('PLZ-Zuständigkeit: ab drei Ziffern, Eingrenzung und Firmenlink', async () => {
+        if (await page.locator('.sc-cancel').isVisible().catch(() => false)) await page.locator('.sc-cancel').click();
+        if (await page.locator('#btn-demo-welcome-ack').isVisible().catch(() => false)) await page.locator('#btn-demo-welcome-ack').click();
+        await closeDialogs(page);
+        await page.locator('#btn-postal-responsibility').click();
+        await page.locator('#postal-query').fill('50');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('Bitte 3 bis 5'));
+        await page.locator('#postal-query').fill('506');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('PLZ 506xx'));
+        await page.locator('#postal-query').fill('5066');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('PLZ 5066x'));
+        await page.locator('#postal-query').fill('50667');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('PLZ 50667'));
+        const overflow = await page.locator('#postal-dialog').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+        if (overflow) throw new Error('PLZ-Auskunft läuft seitlich über');
+        if (!await page.locator('.postal-settings').evaluate(el => el.open)) await page.locator('.postal-settings summary').click();
+        await page.locator('#company-duve').click();
+        await page.locator('#company-link-form button[type="submit"]').click();
+        if (!(await page.locator('#company-status').textContent()).includes('gespeichert')) throw new Error('Firmenlink nicht gespeichert');
+        await page.locator('#company-remove').click();
+        await page.keyboard.press('Escape');
+        await page.locator('#global-search').fill('506');
+        await page.locator('[data-postal]').click();
+        await page.waitForSelector('#postal-dialog[open]');
+        await page.keyboard.press('Escape');
+        await page.locator('#global-search').fill('');
+    });
+
     await step('GeoFuchs: Bezirkskacheln abschalten – nur bunte Flächen, gemerkt', async () => {
         const kacheln = () => page.locator('.territory-stack-card').count();
         const click = (selector) => page.evaluate((sel) => document.querySelector(sel)?.click(), selector);
@@ -180,6 +208,13 @@ async function desktop(browser, baseUrl) {
         await click('#territory-labels-toggle');
         await page.waitForFunction(() => document.querySelectorAll('.territory-stack-card').length === 0, null, { timeout: TIMEOUT });
         if (await page.locator('.leaflet-overlay-pane path').count() !== flaechen) throw new Error('Flächen verschwinden mit den Kacheln');
+        // Reload erst nach abgeschlossenem IndexedDB-Schreiben; das Zeichnen
+        // verschwindet schon vor der asynchronen Persistenz.
+        for (let attempt = 0; attempt < 60; attempt++) {
+            if ((await rawStore(page, 'einstellungen'))?.territoryLabels === false) break;
+            if (attempt === 59) throw new Error('Kachelwahl nicht gespeichert');
+            await page.waitForTimeout(100);
+        }
         await page.reload({ waitUntil: 'domcontentloaded' });
         await page.waitForFunction(() => document.getElementById('demo-banner')?.hidden === false, null, { timeout: TIMEOUT });
         if (await page.isChecked('#territory-labels-toggle')) throw new Error('Wahl nicht gemerkt');
@@ -302,6 +337,44 @@ async function desktop(browser, baseUrl) {
         if (order.some(Number.isNaN) || order.some((top, i) => i && top <= order[i - 1])) throw new Error(`Reihenfolge stimmt nicht: ${order}`);
     });
 
+    await step('Eigene PLZ-Daten: Kontakte, Summen, DUVE-Link und mobile Darstellung', async () => {
+        await closeDialogs(page);
+        await page.locator('#btn-postal-responsibility').click();
+        await page.locator('#postal-query').fill('506');
+        await page.waitForFunction(() => document.querySelector('#postal-results .postal-total')?.textContent.includes('3 Kunden'));
+        if (await page.locator('.postal-card').count() !== 2) throw new Error('Account Manager nicht getrennt');
+        const results = await page.locator('#postal-results').textContent();
+        if (!results.includes('300') || !results.includes('1 ohne Umsatzangabe')) throw new Error('Umsatzsumme oder fehlende Werte falsch');
+        if (await page.locator('.postal-card a[href^="tel:"]').getAttribute('href') !== 'tel:03023125123') throw new Error('Mitarbeitertelefon fehlt');
+        if (!(await page.locator('.postal-card a[href*="teams.microsoft.com"]').getAttribute('href')).includes('eva%40example.org')) throw new Error('Teams-UPN fehlt');
+        await page.screenshot({ path: 'tmp/postal-desktop.png' });
+        await page.setViewportSize({ width: 390, height: 844 });
+        await page.screenshot({ path: 'tmp/postal-mobile.png' });
+        if (await page.locator('#postal-dialog').evaluate(el => el.scrollWidth > el.clientWidth + 2)) throw new Error('Mobiler Dialog läuft über');
+        await page.setViewportSize({ width: 1440, height: 900 });
+        if (!await page.locator('.postal-settings').evaluate(el => el.open)) await page.locator('.postal-settings summary').click();
+        await page.locator('#company-duve').click();
+        await page.locator('#company-link-form button[type="submit"]').click();
+        await page.keyboard.press('Escape');
+        await page.locator('#global-search').fill('Smoke Test Nord');
+        await page.locator('#search-results .result-row[data-id]').first().click();
+        await page.waitForSelector('.popup-company');
+        if (await page.locator('.popup-company').getAttribute('href') !== 'https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm=SMOKE-1') throw new Error('DUVE-Suchadresse falsch');
+        if (await page.locator('.popup-company').getAttribute('target') !== '_blank') throw new Error('DUVE öffnet nicht separat');
+        await page.locator('.leaflet-popup [data-popup-close]').click();
+        await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
+        await page.locator('#btn-postal-responsibility').click();
+        await page.locator('#company-remove').click();
+        await page.keyboard.press('Escape');
+        await page.locator('#global-search').fill('Smoke Test Nord');
+        await page.locator('#search-results .result-row[data-id]').first().click();
+        await page.waitForSelector('.leaflet-popup [data-action="copy-customer-number"]');
+        if (await page.locator('.popup-company').count()) throw new Error('Entfernter Firmenlink erscheint weiter');
+        await page.locator('.leaflet-popup [data-popup-close]').click();
+        await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
+        await page.locator('#global-search').fill('');
+    });
+
     await step('Kundennummer mit Namen in die Zwischenablage kopieren', async () => {
         await closeDialogs(page);
         await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: baseUrl });
@@ -313,8 +386,14 @@ async function desktop(browser, baseUrl) {
         await page.locator('.leaflet-popup [data-action="copy-customer-number"]').click();
         const copied = await page.evaluate(() => navigator.clipboard.readText());
         if (copied !== 'Smoke Test Nord [SMOKE-1]') throw new Error(`Falscher Kopierwert: ${copied}`);
-        // Die Kopieraktion schließt das Popup bereits selbst.
-        await page.evaluate(() => document.querySelector('.leaflet-popup-close-button')?.click());
+        // Beide Kopieraktionen lassen die Kachel offen.
+        await page.waitForSelector('.leaflet-popup [data-action="copy-customer-number-only"]');
+        await page.screenshot({ path: 'tmp/customer-number-buttons.png' });
+        await page.locator('.leaflet-popup [data-action="copy-customer-number-only"]').click();
+        const onlyNumber = await page.evaluate(() => navigator.clipboard.readText());
+        if (onlyNumber !== 'SMOKE-1') throw new Error(`Nummer ohne Namen/Klammern falsch: ${onlyNumber}`);
+        await page.locator('.leaflet-popup [data-popup-close]').click();
+        await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
         await page.locator('#global-search').fill('');
     });
 
@@ -618,6 +697,32 @@ async function phone(browser, baseUrl) {
 
     await step('App startet mit Beispieldaten', () => openApp(page, baseUrl));
 
+    await step('PLZ-Zuständigkeit: ab drei Ziffern, Eingrenzung und Firmenlink', async () => {
+        await closeDialogs(page);
+        await page.locator('#btn-postal-responsibility').click();
+        await page.locator('#postal-query').fill('50');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('Bitte 3 bis 5'));
+        await page.locator('#postal-query').fill('506');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('PLZ 506xx'));
+        await page.locator('#postal-query').fill('5066');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('PLZ 5066x'));
+        await page.locator('#postal-query').fill('50667');
+        await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('PLZ 50667'));
+        const overflow = await page.locator('#postal-dialog').evaluate(el => el.scrollWidth > el.clientWidth + 2);
+        if (overflow) throw new Error('PLZ-Auskunft läuft seitlich über');
+        if (!await page.locator('.postal-settings').evaluate(el => el.open)) await page.locator('.postal-settings summary').click();
+        await page.locator('#company-duve').click();
+        await page.locator('#company-link-form button[type="submit"]').click();
+        if (!(await page.locator('#company-status').textContent()).includes('gespeichert')) throw new Error('Firmenlink nicht gespeichert');
+        await page.locator('#company-remove').click();
+        await page.keyboard.press('Escape');
+        await page.locator('#global-search').fill('506');
+        await page.locator('[data-postal]').click();
+        await page.waitForSelector('#postal-dialog[open]');
+        await page.keyboard.press('Escape');
+        await page.locator('#global-search').fill('');
+    });
+
     await step('Handy bleibt bei gespeicherter 600-Pixel-Desktopbreite im Fenster', async () => {
         if (await page.locator('#btn-demos-pill').isVisible()) throw new Error('Desktop-Demo-Knopf steht im Handy-Kopf');
         await page.evaluate(() => { document.documentElement.style.setProperty('--sidebar-width', '600px'); });
@@ -679,6 +784,9 @@ async function phone(browser, baseUrl) {
     await step('Abgleichen: Datei senden und wieder öffnen', async () => {
         const dir = mkdtempSync(join(tmpdir(), 'tourfuchs-abgleich-'));
         try {
+            // Headless Chromium on Windows can expose native sharing. This
+            // scenario explicitly exercises the documented download fallback.
+            await page.evaluate(() => Object.defineProperty(navigator, 'canShare', { configurable: true, value: () => false }));
             await closeDialogs(page);
             await page.evaluate(() => document.getElementById('btn-sync').click());
             await page.waitForSelector('#sync-dialog[open]', { timeout: TIMEOUT });

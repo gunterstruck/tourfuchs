@@ -50,6 +50,12 @@ export async function copyCustomerNumber(number, name = '') {
     return { value, copied: value ? await copyText(value) : false };
 }
 
+/** Nur die angezeigte Nummer, unverändert einschließlich führender Nullen. */
+export async function copyCustomerNumberOnly(number) {
+    const value = String(number ?? '').trim();
+    return { value, copied: value ? await copyText(value) : false };
+}
+
 function addressOf(p) {
     return [p.strasse, `${p.plz ?? ''} ${p.ort ?? ''}`.trim()].filter(Boolean).join(', ');
 }

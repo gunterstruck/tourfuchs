@@ -326,7 +326,7 @@ function onWiped() {
 const SENSITIVE_CONTENT = [
     '#customer-briefing-body', '#area-briefing-body', '#territory-summary-body', '#day-review-body',
     '#contract-radar-body', '#import-diff-body', '#import-result-body', '#import-insight-body',
-    '#qr-scan-stoplist', '#safe-export-info'
+    '#qr-scan-stoplist', '#safe-export-info', '#postal-results', '#postal-status'
 ];
 export function closeSensitiveDialogs() {
     for (const open of document.querySelectorAll('dialog[open]')) {

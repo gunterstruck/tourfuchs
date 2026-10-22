@@ -1,10 +1,10 @@
 # TourFuchs Vertrieb - Bildanleitung und Bildkatalog
 
-**Katalogstand:** 13.10.2026
+**Katalogstand:** 22.10.2026
 
-**App-Version der Aufnahmen:** 3.7.0 · main 9093296
+**App-Version der Aufnahmen:** 3.7.0 · bisherige Aufnahmen main 9093296; PLZ-Auskunft auf Basis main 54be2f2 mit dieser Erweiterung (22.10.2026)
 
-**Datenschutz:** Alle Bilder stammen aus der tatsächlich laufenden TourFuchs-App. Sichtbar sind ausschließlich die integrierten Demo-Daten oder die eindeutig synthetischen Schulungsdaten aus `tools/fixtures/docs-screenshot-customers.tsv`. Es wurden keine echten Personen-, Kunden-, Adress-, Vertrags- oder Zugangsdaten verwendet.
+**Datenschutz:** Alle Bilder stammen aus der tatsächlich laufenden TourFuchs-App. Sichtbar sind ausschließlich die integrierten Demo-Daten oder die eindeutig synthetischen Schulungsdaten aus `tools/fixtures/docs-screenshot-customers.tsv` bzw. für die PLZ-Auskunft aus der synthetischen Importliste in `tools/smoke-check.mjs`. Es wurden keine echten Personen-, Kunden-, Adress-, Vertrags- oder Zugangsdaten verwendet.
 
 **Hinweis:** Historische Begriffe in stabilen Bilddateinamen (basis/profi) sind nur IDs; die aktuellen Aufnahmen zeigen den vollen Umfang ohne Umschalter. Öffentliche Bild-URLs enthalten erst nach Übernahme und Veröffentlichung dieses Stands die neuen Bilder. Das Uploadpaket und die PDF enthalten bereits die aktuellen lokalen Aufnahmen.
 
@@ -322,3 +322,44 @@ Die abgebildeten Beispielansichten bleiben Orientierung. Beim Desktop-Erststart 
 - Nutze dein Firmenkonto und beachte die Freigaben deiner Organisation. TourFuchs prüft diese nicht. Es baut den Prompt lokal, zeigt ihn vor dem Kopieren und öffnet auf Klick den gewählten Assistenten. Du fügst den Text selbst ein und sendest ihn dort ab. Die Live-Demos zeigen beide Optionen, den vollständigen Copilot-Prompt und die lokale Kopie, ohne einen Assistenten zu öffnen.
 - Verschlüsselter Empfang: **1 Datendatei auswählen**, dann **2 Schlüssel laden** über **„Schlüsseldatei auswählen (.txt)“**, danach **„Entschlüsseln und importieren“**. QR und Schlüsseltext bleiben Alternativen. Beim Export steht **„Schlüsseldatei herunterladen (.txt)“** bereit; Datei und Schlüssel getrennt weitergeben. Bisherige `.tfsafe`-Dateien funktionieren mit ihrem ursprünglichen Schlüssel weiter.
 - Mobil liegt der Griff bei eigenen Daten 32 px höher und bietet mindestens 44 px Touchfläche. Farbige Flächen bleiben beim Herauszoomen auf dreistelligen PLZ-Gebieten.
+
+## Zuständigkeit für Neukunden finden (22.10.2026)
+
+Oben neben der Suche **📍 Zuständigkeit** wählen. Ab drei PLZ-Ziffern erscheint
+die Übersicht; vier oder fünf Ziffern grenzen sie weiter ein. Sie zeigt VBZ,
+Account Manager, Kundenzahl und Umsatz des gesamten geladenen Bestands im
+PLZ-Bereich. Kartenfilter spielen dabei keine Rolle. Bestandsverteilung ist
+keine verbindliche Neukundenzuordnung: bei mehreren Bezirken Rücksprache halten.
+Telefon und Teams sind anklickbar, wenn Mitarbeiterkontaktdaten hinterlegt
+sind. **Zuordnung kopieren** übernimmt die Angaben in die Zwischenablage.
+
+Im selben Fenster lässt sich unten unter **Firmenlink in der Kundenkachel
+einrichten** die **DUVE-Vorlage einsetzen** und mit **Firmenlink speichern**
+aktivieren. Danach öffnet **↗ DUVE** in der Kundenkachel die Suche nach der
+Kundennummer im Firmenbrowser. Firmenkonto/Berechtigung erforderlich. Die
+Einstellung gilt nur für diesen Browser. Details und Importspalten: Kapitel
+26 der KI-Wissensbasis.
+
+### PLZ-Auskunft am Desktop und am Handy
+
+![Zuständigkeit nach PLZ mit zwei Account Managern, Umsatz und Kontaktknöpfen](../public/docs/screenshots/BILD-PLZ-01-zustaendigkeit-desktop.png)
+
+Die synthetische Liste zeigt zwei Account Manager im selben VBZ: 300 Euro
+bekannten Umsatz und einen Kunden ohne Umsatzangabe. Telefon und Teams
+gehören zur Mitarbeiterin, nicht zum Kunden.
+
+![Die gleiche Auskunft auf einem schmalen Smartphone](../public/docs/screenshots/BILD-PLZ-02-zustaendigkeit-mobil.png)
+
+Am Handy öffnet der Pin neben der Suche dieselbe Auskunft. Das Fenster ist
+vertikal scrollbar; Kontakte und Firmenlink-Einstellungen stehen darunter.
+
+Originale und leichte Vorschauen der neuen PLZ-Auskunft:
+
+- Desktop: https://tourfuchs.vercel.app/docs/screenshots/BILD-PLZ-01-zustaendigkeit-desktop.png
+- Desktop-Vorschau: https://tourfuchs.vercel.app/docs/screenshots/BILD-PLZ-01-zustaendigkeit-desktop-preview.webp
+- Handy: https://tourfuchs.vercel.app/docs/screenshots/BILD-PLZ-02-zustaendigkeit-mobil.png
+- Handy-Vorschau: https://tourfuchs.vercel.app/docs/screenshots/BILD-PLZ-02-zustaendigkeit-mobil-preview.webp
+
+In der Kundenkachel ergänzt **⧉ Nur Nummer** den bisherigen Kopierknopf:
+Nur die angezeigte Kundennummer kommt in die Zwischenablage, einschließlich
+führender Nullen; der bisherige Knopf kopiert weiter `Kundenname [Nummer]`.

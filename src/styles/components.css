@@ -3478,3 +3478,25 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 .import-result-details { margin-top: 8px; }
 .import-result-details > summary { cursor: pointer; font-weight: 600; }
 .import-result-details .import-result-notes { max-height: 220px; overflow: auto; }
+.postal-launcher { display: inline-flex; align-items: center; gap: 5px; flex-shrink: 0; min-height: 40px; padding: 6px 10px; border: 1px solid var(--color-border); border-radius: 12px; background: var(--color-surface); color: var(--color-text); }
+.postal-dialog { width: min(760px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 1px solid var(--color-border); border-radius: 20px; color: var(--color-text); background: var(--color-surface); overflow: auto; }
+.postal-dialog::backdrop { background: #102f365c; backdrop-filter: blur(3px); }
+.postal-dialog > header { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--color-border); }
+.postal-dialog h2 { font-size: 1.25rem; margin: 0; }
+.postal-body { padding: 20px; }
+.postal-body label { display: block; font-weight: 600; margin: 12px 0 6px; }
+.postal-body input { display: block; width: 100%; box-sizing: border-box; margin-top: 6px; min-height: 44px; }
+.postal-body p { line-height: 1.5; }
+.postal-body h3 { margin: 18px 0 10px; }
+.postal-body h4 { margin: 0; }
+.postal-card, .postal-assignment { border: 1px solid var(--color-border); border-radius: 14px; padding: 16px; margin: 12px 0; overflow-wrap: anywhere; }
+.postal-card { border-left: 4px solid var(--color-primary); }
+.postal-total { font-size: 1.1rem; }
+.postal-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.postal-actions a, .postal-actions button { min-height: 44px; display: inline-flex; align-items: center; padding: 8px 12px; border: 1px solid var(--color-border); border-radius: 10px; }
+.postal-settings { border-top: 1px solid var(--color-border); margin-top: 24px; padding-top: 16px; }
+.postal-settings summary { cursor: pointer; padding: 10px 0; }
+@media (max-width: 768px),
+       (max-width: 1200px) and (orientation: portrait),
+       (max-width: 900px) and (max-height: 520px) { .postal-launcher span { display: none; } }
+@media (max-width: 600px) { .postal-launcher { padding: 4px; min-width: 36px; } .postal-body { padding: 14px; } .postal-dialog > header { padding: 12px 14px; } }
