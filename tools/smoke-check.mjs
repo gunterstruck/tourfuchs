@@ -365,7 +365,7 @@ async function desktop(browser, baseUrl) {
         await page.locator('#global-search').fill('Smoke Test Nord');
         await page.locator('#search-results .result-row[data-id]').first().click();
         await page.waitForSelector('.popup-company');
-        if (await page.locator('.popup-company').getAttribute('href') !== 'https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm=SMOKE-1') throw new Error('DUVE-Suchadresse falsch');
+        if (await page.locator('.popup-company').getAttribute('href') !== 'https://duve.siemens.com/duve-ui/search?clusterType=case&searchTerm=SMOKE-1') throw new Error('DUVE-Suchadresse falsch');
         if (await page.locator('.popup-company').getAttribute('target') !== '_blank') throw new Error('DUVE öffnet nicht separat');
         await page.locator('.popup-company').click({ trial: true });
         await page.screenshot({ path: 'tmp/duve-customer-desktop.png', animations: 'disabled' });

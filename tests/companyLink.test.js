@@ -5,13 +5,25 @@ describe('Optional company bookmark', () => {
     const config = { label: 'DUVE', template: DUVE_TEMPLATE };
     const customer = (nummer) => ({ nummer, extra: { 'SieSales Link': 'https://crm.example/customer' } });
     it('builds the documented DUVE search with encoded number and preserves zeros', () => {
-        expect(companyLink(customer('008676083'), config).url).toBe('https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm=008676083');
+        expect(companyLink(customer('2498159'), config).url).toBe('https://duve.siemens.com/duve-ui/search?clusterType=case&searchTerm=2498159');
+        expect(companyLink(customer('008676083'), config).url).toBe('https://duve.siemens.com/duve-ui/search?clusterType=case&searchTerm=008676083');
         expect(companyLink(customer('A&B #1'), config).url).toContain('searchTerm=A%26B%20%231');
         expect(companyLink({ nummer: '' }, config)).toBeNull();
         expect(companyLink({ nummer: '1' }, null)).toBeNull();
     });
     it('rejects unsafe templates, credentials and a missing placeholder', () => {
         for (const template of ['javascript:alert({kundennummer})', 'http://example.org/{kundennummer}', 'https:example.org/{kundennummer}', 'https://user:pass@example.org/{kundennummer}', 'https://example.org/', 'https://{kundennummer}.example.org/']) expect(validCompanyLink({ label: 'Link', template })).toBe(false);
+    });
+    it('upgrades the old stored DUVE preset while preserving custom templates', () => {
+        const legacy = { label: 'DUVE intern', template: DUVE_TEMPLATE.replace('clusterType=case', 'clusterType=all') };
+        vi.stubGlobal('localStorage', { getItem: () => JSON.stringify(legacy) });
+        expect(readCompanyLink()).toEqual({ label: 'DUVE intern', template: DUVE_TEMPLATE });
+        expect(companyLink(customer('2498159')).url).toBe('https://duve.siemens.com/duve-ui/search?clusterType=case&searchTerm=2498159');
+        expect(companyLink(customer('2498159'), legacy).url).toContain('clusterType=case&searchTerm=2498159');
+        const custom = { label: 'Anderes Portal', template: 'https://example.org/search?clusterType=all&searchTerm={kundennummer}' };
+        vi.stubGlobal('localStorage', { getItem: () => JSON.stringify(custom) });
+        expect(readCompanyLink()).toEqual(custom);
+        expect(companyLink(customer('2498159')).url).toContain('clusterType=all');
     });
     it('tolerates corrupt or blocked browser storage', () => {
         vi.stubGlobal('localStorage', { getItem: () => '{broken' });

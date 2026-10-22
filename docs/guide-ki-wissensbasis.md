@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.26 · Stand: 22.10.2026 · App-Version: 3.7.0**
+**Version 3.27 · Stand: 22.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -5161,7 +5161,13 @@ Bei eigenen Kunden mit gültigem **„↗ SieSales“**-Link und Kundennummer er
 Ohne SieSales-Link, ohne Nummer oder bei Beispieldaten erscheint kein Firmenlink.
 Die Kundennummer wird URL-kodiert eingesetzt; führende Nullen bleiben erhalten:
 
-`https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm={kundennummer}`
+`https://duve.siemens.com/duve-ui/search?clusterType=case&searchTerm={kundennummer}`
+
+DUVE öffnet damit die Vorgangssuche (`clusterType=case`), zum Beispiel
+`https://duve.siemens.com/duve-ui/search?clusterType=case&searchTerm=2498159`.
+Auch eine früher gespeicherte unveränderte DUVE-Vorlage mit `clusterType=all`
+wird beim Verwenden automatisch korrigiert; eigene andere Vorlagen und eine
+bewusste Deaktivierung bleiben erhalten.
 
 Erst beim Anklicken öffnet der Browser die Adresse und übergibt die Nummer.
 TourFuchs fragt keine Vorgänge ab; Firmenanmeldung und Berechtigungen gelten
