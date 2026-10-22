@@ -9,6 +9,7 @@ import * as XLSX from 'xlsx';
 import { normalizeCustomerName } from '../features/customerName.js';
 import { isPromotorColumn, promotorColumns, PROMOTOR_COLUMN_SOURCE } from '../features/promotorColumns.js';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
+import { isManagerContactHeader } from '../features/responsibilities.js';
 import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
 import {
     DEMO_DATA_LABEL,
@@ -468,7 +469,7 @@ const isMemoryError = (error) => error?.name === 'RangeError'
 export function autoDetectMapping(allHeaders) {
     // „Promotor 1 TPE-Thema" & Co. sind eigene Spaltenpaare (promotorColumns) –
     // über „…thema"/„…name" würden sie sonst als Kontaktliste erkannt.
-    const headers = allHeaders.filter((header) => !isPromotorColumn(header));
+    const headers = allHeaders.filter((header) => !isPromotorColumn(header) && !isManagerContactHeader(header));
     const mapping = {};
     const used = new Set();
     const matchers = [

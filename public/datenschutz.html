@@ -213,6 +213,22 @@ Ab diesem Zeitpunkt gelten die Datenschutzbestimmungen von Google. Diese Weiterl
 Ihre ausdrückliche Aktion.
 </p>
 <p>
+Die Auskunft „Zuständigkeit finden“ wertet den geladenen Kundenbestand lokal nach PLZ aus.
+Telefonlinks öffnen die eingerichtete Telefonanwendung. Der optionale „Teams-Chat“ übergibt
+erst auf Ihren Klick die importierte Mitarbeiter-Anmeldekennung (UPN) an Microsoft Teams;
+TourFuchs ruft kein Firmenverzeichnis ab und versendet keine Nachricht. „Zuordnung kopieren“
+übernimmt die angezeigten Zuständigkeits- und Kontaktdaten in Ihre Zwischenablage.
+</p>
+<p>
+Sie können einen zusätzlichen Firmenlink mit dem Platzhalter <code>{kundennummer}</code>
+einrichten, beispielsweise die DUVE-Vorlage. Standardmäßig ist kein solcher Link aktiv.
+Die Vorlage wird lokal in diesem Browser gespeichert. Erst beim Klick in der Kundenkarte
+öffnet der Browser die konfigurierte HTTPS-Adresse und übergibt die Kundennummer als Teil
+der URL an das Zielsystem (bei DUVE: <code>duve.siemens.com</code>). Es gelten dessen
+Anmeldung und Berechtigungen; TourFuchs lädt keine Vorgänge und stellt keine API-Verbindung her.
+Mit „Firmenlink entfernen“ können Sie die lokale Konfiguration löschen.
+</p>
+<p>
 Enthält Ihre eigene Kundenliste einen Link in Ihr CRM (z.&nbsp;B. „SieSales Link"), zeigt die Kundenkarte
 dazu &bdquo;↗ SieSales&ldquo;. Ein Klick öffnet genau diesen Link in einem neuen Tab – wie ein Lesezeichen.
 TourFuchs selbst stellt dabei keine Verbindung her und überträgt keine Daten; geöffnet werden nur

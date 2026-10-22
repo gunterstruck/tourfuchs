@@ -15,6 +15,11 @@
 const norm = (header) => String(header ?? '').toLowerCase().replace(/[._\-/]/g, ' ').replace(/\s+/g, ' ').trim();
 const text = (value) => String(value ?? '').trim();
 
+/** Employee contact columns must never become the customer's phone or email. */
+export function isManagerContactHeader(header) {
+    return /^(account manager|am|vb|vertriebsbeauftragter) (telefon|tel|phone|email|e mail|upn)$/.test(norm(header));
+}
+
 /** Rollenspalten in Anzeige-Reihenfolge; erkannt an der normalisierten Überschrift. */
 export const ROLE_COLUMNS = [
     { label: 'VK', headers: ['vk', 'verkauf', 'verkäufer', 'verkaeufer'] },

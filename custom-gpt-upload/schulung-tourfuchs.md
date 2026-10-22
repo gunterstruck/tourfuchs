@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Schulungsunterlagen
 
-Stand: 13.10.2026 · App-Version 3.7.0
+Stand: 22.10.2026 · App-Version 3.7.0
 
 ## 1. Ziel der Schulung
 
@@ -1016,3 +1016,26 @@ Auf dem Smartphone bietet „Planungsbereich“ durchsuchbare Mehrfachfilter üb
 - Nutze dein Firmenkonto und beachte die Freigaben deiner Organisation. TourFuchs prüft diese nicht. Es baut den Prompt lokal, zeigt ihn vor dem Kopieren und öffnet auf Klick den gewählten Assistenten. Du fügst den Text selbst ein und sendest ihn dort ab. Die Live-Demos zeigen beide Optionen, den vollständigen Copilot-Prompt und die lokale Kopie, ohne einen Assistenten zu öffnen.
 - Verschlüsselter Empfang: **1 Datendatei auswählen**, dann **2 Schlüssel laden** über **„Schlüsseldatei auswählen (.txt)“**, danach **„Entschlüsseln und importieren“**. QR und Schlüsseltext bleiben Alternativen. Beim Export steht **„Schlüsseldatei herunterladen (.txt)“** bereit; Datei und Schlüssel getrennt weitergeben. Bisherige `.tfsafe`-Dateien funktionieren mit ihrem ursprünglichen Schlüssel weiter.
 - Mobil liegt der Griff bei eigenen Daten 32 px höher und bietet mindestens 44 px Touchfläche. Farbige Flächen bleiben beim Herauszoomen auf dreistelligen PLZ-Gebieten.
+
+## Zuständigkeit für Neukunden finden (22.10.2026)
+
+Oben neben der Suche **📍 Zuständigkeit** wählen. Ab drei PLZ-Ziffern erscheint
+die Übersicht; vier oder fünf Ziffern grenzen sie weiter ein. Sie zeigt VBZ,
+Account Manager, Kundenzahl und Umsatz des gesamten geladenen Bestands im
+PLZ-Bereich. Kartenfilter spielen dabei keine Rolle. Bestandsverteilung ist
+keine verbindliche Neukundenzuordnung: bei mehreren Bezirken Rücksprache halten.
+Telefon und Teams sind anklickbar, wenn Mitarbeiterkontaktdaten hinterlegt
+sind. **Zuordnung kopieren** übernimmt die Angaben in die Zwischenablage.
+
+Im selben Fenster lässt sich unten unter **Firmenlink in der Kundenkachel
+einrichten** die **DUVE-Vorlage einsetzen** und mit **Firmenlink speichern**
+aktivieren. Danach öffnet **↗ DUVE** in der Kundenkachel die Suche nach der
+Kundennummer im Firmenbrowser. Firmenkonto/Berechtigung erforderlich. Die
+Einstellung gilt nur für diesen Browser. Details und Importspalten: Kapitel
+26 der KI-Wissensbasis.
+
+### Kundennummer in die Zwischenablage
+
+In der Kundenkachel stehen zwei Knöpfe nebeneinander: **Nr. …** kopiert
+`Kundenname [Kundennummer]`; **⧉ Nur Nummer** kopiert ausschließlich die Nummer,
+ohne Name oder Klammern und mit den angezeigten führenden Nullen.

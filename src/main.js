@@ -26,6 +26,7 @@ import { decodeTourText, hasSharedTour } from './features/tourShare.js';
 import { initCockpit } from './ui/cockpit.js';
 import { initRegionEditor } from './ui/regionEditor.js';
 import { initSearch } from './ui/search.js';
+import { initPostalResponsibility } from './ui/postalResponsibility.js';
 import { initNearby } from './ui/nearby.js';
 import { initToasts } from './ui/toast.js';
 import { initMobilePreview } from './ui/mobilePreview.js';
@@ -303,6 +304,7 @@ async function init() {
     initMobilePlanningScope();
     initCockpit();
     initRegionEditor();
+    initPostalResponsibility();
     initSearch();
     initNearby();
     initMobilePreview();
