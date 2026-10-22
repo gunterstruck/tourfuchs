@@ -1326,3 +1326,22 @@ den Knopf „📤 Besuche weitergeben" im Tour-Blatt; der Besuchsbericht bleibt 
 Fenster und im Feierabend-Rückblick. Größenbudget `index.js` roh +5 KB, gzip
 +1 KB, `index.css` gzip +1 KB.
 
+
+### PLZ-Zuständigkeit und Firmenlink (22.10.2026, umgesetzt)
+
+Nutzerauftrag für Vertriebsassistenz und Neukundenanlage: eigene Auskunft ab
+3 PLZ-Ziffern, Verfeinerung mit 4/5 Ziffern, führende Nullen, ungefilterter
+Bestand. VBZ/Account Manager mit Kundenzahl, Umsatz, vorhandener Telefonnummer
+und Teams-UPN; Zuordnung kopierbar. Alphabetische Ausgabe, keine Rangliste.
+Explizite PLZ-Regeln separat, keine automatische Neukundenentscheidung.
+Optionaler lokal konfigurierter HTTPS-Firmenlink mit DUVE-Vorlage neben SieSales,
+nur auf Klick. Keine neue Laufzeitabhängigkeit. Guide 3.25 und Schulungen
+nachgezogen. Externe Übergaben in README/Datenschutz erklärt; interner
+DUVE-Zugriff bleibt ein Praxischeck im berechtigten Firmenbrowser.
+
+### Kundennummer separat kopieren (22.10.2026, umgesetzt)
+
+Kollegenwunsch: **⧉ Nur Nummer** steht neben dem bisherigen Kundennummer-Knopf
+in derselben Zeile. Kopiert exakt die angezeigte Nummer ohne Name/Klammern,
+einschließlich führender Nullen. Bisheriges Format `Kundenname [Nummer]`
+unverändert. DE/EN/FR/ES, Erfolgs-/Fehler-Rückmeldung, Unit- und Browserprüfung.

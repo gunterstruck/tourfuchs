@@ -3,7 +3,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { state } from '../src/core/state.js';
 import { customerPopupHtml } from '../src/features/map.js';
-import { copyCustomerNumber, customerNumberClipboardText } from '../src/features/handoff.js';
+import { copyCustomerNumber, copyCustomerNumberOnly, customerNumberClipboardText } from '../src/features/handoff.js';
 
 const originalDepth = state.ui.depth;
 
@@ -148,6 +148,25 @@ describe('Kundennummer aus der Kundenkarte kopieren', () => {
             copied: true
         });
         expect(writeText).toHaveBeenCalledWith('Musterkunde GmbH [4711]');
+    });
+
+    it('offers a separate number-only button in the same row, absent without a number', () => {
+        state.ui.depth = 'profi';
+        const html = customerPopupHtml(customer(45000, { nummer: '00004711' }));
+        const row = html.match(/<p class="popup-idline">(.*?)<\/p>/)?.[1];
+        expect(row).toContain('data-action="copy-customer-number"');
+        expect(row).toContain('data-action="copy-customer-number-only"');
+        expect(row).toContain('Nur Nummer');
+        expect(customerPopupHtml(customer(45000, { nummer: '' }))).not.toContain('data-action="copy-customer-number-only"');
+    });
+
+    it('copies only the original number with leading zeros, without name or brackets', async () => {
+        const writeText = vi.fn().mockResolvedValue(undefined);
+        vi.stubGlobal('navigator', { clipboard: { writeText } });
+        await expect(copyCustomerNumberOnly('00004711')).resolves.toEqual({ value: '00004711', copied: true });
+        expect(writeText).toHaveBeenCalledWith('00004711');
+        await expect(copyCustomerNumberOnly('')).resolves.toEqual({ value: '', copied: false });
+        expect(writeText).toHaveBeenCalledTimes(1);
     });
 });
 

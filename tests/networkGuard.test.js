@@ -65,7 +65,9 @@ const EXTERNAL_TARGETS = {
     'www.google.com': 'Google Maps',               // Navigation, nur auf Klick (7)
     'zanobo.vercel.app': 'Zanobo',                 // Link zur Schwester-App, nur auf Klick (7)
     'chatgpt.com': 'ChatGPT',                      // optionaler externer Bedien-Guide, nur auf Klick
-    'm365.cloud.microsoft': 'Copilot'              // Firmen-Briefing-Assistent, nur auf Klick (8)
+    'm365.cloud.microsoft': 'Copilot',             // Firmen-Briefing-Assistent, nur auf Klick (8)
+    'duve.siemens.com': 'DUVE',                    // optional konfigurierte Kundensuche, nur auf Klick
+    'teams.microsoft.com': 'Teams'                // Mitarbeiter-Chat, nur auf Klick
 };
 // Keine Ziele: Platzhalter in Eingabefeldern und Beispieltexten, XML-Namensräume.
 const NOT_TARGETS = new Set(['example.com', 'example.test', 'firma.sharepoint.com', 'assistent.meine-firma.de', 'www.w3.org']);

@@ -12,6 +12,7 @@ import { isPhoneUi, onFaceChange } from '../core/viewport.js';
 import { customerResponsibilities, splitContactText } from './responsibilities.js';
 import { customerContactGroups, showsCustomerContacts } from './customerContacts.js';
 import { crmLink, crossSellFor, customerOpps, customerProducts, handover, productMix, safeLink } from './salesWorkbook.js';
+import { companyLink } from './companyLink.js';
 import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
@@ -54,7 +55,7 @@ import { openCustomerBriefing } from '../ui/customerBriefing.js';
 import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 import { isLightsBasemap, lightDotStyle, revenueReference } from './lightsMap.js';
 import { currentLocale, t } from '../core/i18n.js';
-import { copyCustomerNumber, customerNumberClipboardText } from './handoff.js';
+import { copyCustomerNumber, copyCustomerNumberOnly, customerNumberClipboardText } from './handoff.js';
 
 let map = null;
 let regionLayer = null;
@@ -866,13 +867,14 @@ function handlePopupAction(action, customerId) {
         });
         return true;
     }
-    if (action === 'copy-customer-number') {
-        copyCustomerNumber(customer.nummer, customer.name).then(({ value, copied }) => {
+    if (action === 'copy-customer-number' || action === 'copy-customer-number-only') {
+        const only = action === 'copy-customer-number-only';
+        (only ? copyCustomerNumberOnly(customer.nummer) : copyCustomerNumber(customer.nummer, customer.name)).then(({ value, copied }) => {
             emit('toast', {
                 type: copied ? 'success' : 'error',
                 text: copied
                     ? t('customer.number.copied', { value })
-                    : t('customer.number.copyFailed'),
+                    : t(only ? 'customer.number.onlyCopyFailed' : 'customer.number.copyFailed'),
                 ms: copied ? 5500 : 4000,
                 prominent: copied
             });
@@ -2422,11 +2424,14 @@ export function customerPopupHtml(customer) {
     const nr = profi && clipboardNumber
         ? `<button type="button" class="popup-nr" data-action="copy-customer-number" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}" aria-label="${escapeHtml(t('customer.number.copyTitle', { value: clipboardNumber }))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number', { number: customer.nummer }))}</span></button>`
         : '';
+    const nrOnly = nr ? `<button type="button" class="popup-nr" data-action="copy-customer-number-only" data-id="${escapeHtml(customer.id)}" title="${escapeHtml(t('customer.number.onlyCopyTitle'))}" aria-label="${escapeHtml(t('customer.number.onlyCopyTitle'))}"><span aria-hidden="true">⧉</span><span>${escapeHtml(t('customer.number.only'))}</span></button>` : '';
     // Eigenes CRM (SieSales) – öffnet nur den Link im Browser, TourFuchs überträgt nichts.
     const crm = crmLink(customer);
     const crmHtml = crm
         ? `<a class="popup-nr popup-crm" href="${escapeHtml(crm)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(t('customer.crm.open'))}">↗ ${escapeHtml(t('customer.crm.label'))}</a>`
         : '';
+    const company = !isDemoCustomer(customer) && companyLink(customer);
+    const companyHtml = company ? `<a class="popup-nr popup-company" href="${escapeHtml(company.url)}" target="_blank" rel="noopener noreferrer" title="${escapeHtml(company.label)} für diesen Kunden öffnen">↗ ${escapeHtml(company.label)}</a>` : '';
     const demoBadge = isDemoCustomer(customer)
         ? `<span class="popup-demo-badge">${escapeHtml(t('customer.demoBadge'))}</span>`
         : '';
@@ -2434,7 +2439,7 @@ export function customerPopupHtml(customer) {
         ? t('customer.geo.postalApprox')
         : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
     // Kopf: Name allein, darunter eine eigene Zeile für Kundennummer und CRM.
-    const idLine = nr || crmHtml ? `<p class="popup-idline">${nr}${crmHtml}</p>` : '';
+    const idLine = nr || crmHtml || companyHtml ? `<p class="popup-idline">${nr}${nrOnly}${crmHtml}${companyHtml}</p>` : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}</h3>
         ${idLine}

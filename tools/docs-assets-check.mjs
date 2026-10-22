@@ -23,6 +23,8 @@ const expectedScreenshots = [
   ['BILD-KUNDE-01-marker-mit-briefing.png', 1440, 900],
   ['BILD-TOUR-01-tourplanung.png', 1440, 900],
   ['BILD-DATEN-01-export-vor-ersatz.png', 1440, 900],
+  ['BILD-PLZ-01-zustaendigkeit-desktop.png', 1440, 900],
+  ['BILD-PLZ-02-zustaendigkeit-mobil.png', 390, 844],
 ];
 
 const requiredFiles = [

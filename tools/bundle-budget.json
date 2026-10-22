@@ -1,9 +1,9 @@
 {
-  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). index.js am 20.10.2026 roh um 5 KB, gzip um 1 KB erhöht, index.css gzip um 1 KB (PO-Entscheidung „A und B umsetzen“: Besuche beim .tfsafe-Empfang zusammenführen, „🔄 Abgleichen“ mit Abgleich-Datei in beide Richtungen). index.js am 19.10.2026 roh und gzip um je 2 KB erhöht (Kundensuche: ganzes Wort vor Wortanfang; lesbare Kundennamen statt durchgehender CRM-Großbuchstaben, Nutzer-Feedback „loew“). index.js am 19.10.2026 roh und gzip um je 1 KB erhöht (Promotoren aus nummerierten Spalten „Promotor N / Promotor N TPE-Thema“, PO-Wunsch). index.js roh am 16.10.2026 zweimal um je 1 KB erhöht (Fehlerbehebungen aus Nutzer-Feedback: HTML-Reste aus CRM-Berichten, #432 und Folge-PR für <hr>/<li>). Erstmals: Die Fehlerbehebungen seit 11.10. (u. a. #425–#429) hatten den Spielraum aufgebraucht; die Szenario-Korrektur für „&amp;“-Kunden (+0,5 KB) passte nicht mehr. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c).",
+  "hinweis": "Budget je Paket in Bytes (roh/gzip), Stand + 1 % Spielraum (zuletzt 11.10.2026, 17.1b: Excel- und QR-Bibliotheken aus dem Hauptpaket; „browser.js“ ist der QR-Erzeuger (qrcode)). index.js am 20.10.2026 roh um 5 KB, gzip um 1 KB erhöht, index.css gzip um 1 KB (PO-Entscheidung „A und B umsetzen“: Besuche beim .tfsafe-Empfang zusammenführen, „🔄 Abgleichen“ mit Abgleich-Datei in beide Richtungen). index.js am 19.10.2026 roh und gzip um je 2 KB erhöht (Kundensuche: ganzes Wort vor Wortanfang; lesbare Kundennamen statt durchgehender CRM-Großbuchstaben, Nutzer-Feedback „loew“). index.js am 19.10.2026 roh und gzip um je 1 KB erhöht (Promotoren aus nummerierten Spalten „Promotor N / Promotor N TPE-Thema“, PO-Wunsch). index.js roh am 16.10.2026 zweimal um je 1 KB erhöht (Fehlerbehebungen aus Nutzer-Feedback: HTML-Reste aus CRM-Berichten, #432 und Folge-PR für <hr>/<li>). Erstmals: Die Fehlerbehebungen seit 11.10. (u. a. #425–#429) hatten den Spielraum aufgebraucht; die Szenario-Korrektur für „&amp;“-Kunden (+0,5 KB) passte nicht mehr. Nur bewusst ändern: senken nach einem Umbau, erhöhen nur mit Begründung im PR (Release 17.0c). 22.10.2026: Nutzerauftrag PLZ-Zuständigkeit (3–5 Stellen), AM-Kontakt und optionaler DUVE-Firmenlink: index.js +16 KB roh/+6 KB gzip; index.css +3 KB roh/+1 KB gzip; Gesamtbudgets entsprechend. Keine neue Laufzeitabhängigkeit.",
   "pakete": {
     "index.js": {
-      "raw": 1179648,
-      "gzip": 361472
+      "raw": 1196032,
+      "gzip": 367616
     },
     "demoCustomers.js": {
       "raw": 3072,
@@ -26,8 +26,8 @@
       "gzip": 10240
     },
     "index.css": {
-      "raw": 242688,
-      "gzip": 48128
+      "raw": 245760,
+      "gzip": 49152
     },
     "serviceVisitPlanner.css": {
       "raw": 7168,
@@ -42,12 +42,12 @@
       "gzip": 130048
     },
     "alle JS": {
-      "raw": 2259968,
-      "gzip": 726016
+      "raw": 2276352,
+      "gzip": 732160
     },
     "alle CSS": {
-      "raw": 248832,
-      "gzip": 49152
+      "raw": 251904,
+      "gzip": 50176
     }
   }
 }

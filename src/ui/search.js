@@ -28,6 +28,8 @@ import { state, getCustomer, on } from '../core/state.js';
 import { t } from '../core/i18n.js';
 import { flyToCustomer, flyToPlace } from '../features/map.js';
 import { applyServiceCustomerScope } from '../features/customerScope.js';
+import { isPostalQuery, postalLabel } from '../features/postalResponsibility.js';
+import { openPostalResponsibility } from './postalResponsibility.js';
 import {
     loadPlaceIndex, parseCoordinateQuery, placeQueryVariants, searchGeoPlaces, searchOwnPlaces, MIN_PLACE_QUERY
 } from '../features/places.js';
@@ -179,7 +181,8 @@ export function initSearch() {
         if (run !== sequence) return;
 
         const hits = globalSearchHits({ customers: pool, places: state.places, index, query: raw });
-        const gefunden = hits.own.length + hits.orte.length + hits.customers.length;
+        const postal = isPostalQuery(raw);
+        const gefunden = hits.own.length + hits.orte.length + hits.customers.length + Number(postal);
         if (gefunden === 0) {
             results.innerHTML = `<div class="result-empty">${escapeHtml(t('customer.search.none'))}</div>`;
             results.style.display = 'block';
@@ -188,6 +191,7 @@ export function initSearch() {
 
         const verdeckt = hits.totalCustomers - hits.customers.length;
         results.innerHTML = [
+            postal ? `<button type="button" class="result-row" data-postal><b>📍 Zuständigkeit für PLZ ${escapeHtml(postalLabel(raw))}</b><span class="muted">VBZ, Account Manager, Kunden und Umsatz</span></button>` : '',
             groupHtml(t('customer.search.savedPlaces'), hits.own.map(placeRow)),
             groupHtml(
                 verdeckt > 0
@@ -202,6 +206,8 @@ export function initSearch() {
             groupHtml(t('customer.search.places'), hits.orte.map(placeRow))
         ].join('');
         results.style.display = 'block';
+
+        results.querySelector('[data-postal]')?.addEventListener('click', () => { close(); openPostalResponsibility(raw); });
 
         results.querySelectorAll('[data-id]').forEach((btn) => {
             btn.addEventListener('click', () => {

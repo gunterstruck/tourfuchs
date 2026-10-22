@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.24 · Stand: 13.10.2026 · App-Version: 3.7.0**
+**Version 3.25 · Stand: 22.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -5089,3 +5089,107 @@ Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dre
 - **Firmen-KI-Assistent:** Microsoft 365 Copilot ist voreingestellt; alternativ „Eigener Firmenassistent“ mit freigegebenem HTTPS-Link der eigenen Organisation. Keine konzernspezifische Voreinstellung. Frühere entfernte Anbieter-Auswahlen fallen auf Copilot zurück; eigene Links bleiben erhalten.
 - **Live-Demos:** Beide Briefing-Wege zeigen die zwei Optionen, den vollständigen Copilot-Prompt und die lokale Kopie. Sie öffnen keinen Assistenten und bewahren die gespeicherte Wahl.
 - **Guide-Paket:** Systemprompt, Kurz- und Bildanleitung, Schulung sowie PDF bilden diese Auswahl und die Bedienverbesserungen vom 12.10.2026 ab. Alle 17 Schulungsbilder wurden mit synthetischen Daten neu aufgenommen.
+
+## 26. Zuständigkeit nach PLZ und Firmenlinks (22.10.2026)
+
+### 26.1 Zuständigkeit finden
+
+Neben der Suche steht **„📍 Zuständigkeit“**, auf schmalen Bildschirmen als
+Pin mit Beschriftung für Hilfstechnologien **„Zuständigkeit finden“**.
+Das Fenster enthält **„PLZ oder PLZ-Anfang“**. Ab **3 Ziffern** erscheint nach
+kurzer Eingabepause die Übersicht: `451` bedeutet `451xx`, `4512` bedeutet
+`4512x`, `45127` genau diese PLZ. Führende Nullen bleiben erhalten (`010`).
+Weniger als 3 oder mehr als 5 Ziffern sowie Buchstaben sind keine gültige
+Suche. Die vorhandene globale Suche bietet bei 3–5 Ziffern zusätzlich
+**„Zuständigkeit für PLZ …“** an – auch ohne Kundentreffer.
+
+Die Übersicht verwendet den **gesamten geladenen Kundenbestand** unabhängig
+von Kartenfiltern, Service-Fokus, Kartenzoom und simulierten Umverteilungen.
+Sie zeigt den letzten Importzeitpunkt (keine Garantie für Aktualität der
+Quelldatei), die Kundenzahl und den erfassten Umsatz im gesuchten Bereich.
+Fehlender Umsatz wird als fehlend gezählt, nicht als Null ausgegeben. Angezeigt
+werden die Umsatzjahre im Bestand bzw. **„Umsatzzeitraum nicht hinterlegt“**;
+Summen verwenden das importierte Feld `umsatz` (bei Jahresimport der jüngste
+Jahrgang je Kunde). Unterschiedliche Jahrgänge bleiben sichtbar.
+
+**„In diesem Bereich vertreten“** listet VBZ und Account Manager alphabetisch,
+je Kombination mit Kundenzahl, Anteil an allen Kunden dieses PLZ-Bereichs und
+Umsatz. Das ist keine Leistungsrangliste. Unterschiedliche hinterlegte
+Telefonnummern/Teams-Kennungen bleiben getrennt, damit widersprüchliche
+Kontaktdaten nicht still einer Person zugeschrieben werden.
+
+**„Hinterlegte PLZ-Gebietszuordnungen“** zeigt zusätzlich importierte explizite
+PLZ-Zuordnungen mit ihrem jeweiligen Bereich – auch ohne Kunden. Übergeordnete
+und speziellere Regeln werden nebeneinander angezeigt, nicht zu einer
+vermeintlich verbindlichen Zuständigkeit zusammengezogen. Landkreisregeln
+werden in dieser PLZ-Auskunft nicht ausgewertet. **Bestandskunden sind keine
+verbindliche Neukundenzuordnung:** Sonderzuständigkeiten und Überschneidungen
+vor der Kundenanlage abstimmen. Keine Treffer bedeuten nur: keine Angaben im
+hier geladenen Bestand, nicht „niemand zuständig“.
+
+### 26.2 Account Manager kontaktieren
+
+Ein ausdrücklich hinterlegter **„Account Manager“** (auch `Accountmanager`,
+`Key Account Manager`, `KAM`) hat Vorrang vor dem VB-Feld. Sonst dient der
+importierte **Vertriebsbeauftragte** als Account Manager. Telefonnummern im
+Personenfeld werden erkannt. Ergänzende Zusatzspalten:
+
+- `Account Manager Telefon` (auch `Account Manager Tel`, `Account Manager Phone`, `AM Telefon`)
+- `Account Manager UPN` oder `Account Manager Email` / `Account Manager E-Mail` / `AM Email`
+- Beim Rückfall auf VB: `VB Telefon`, `Vertriebsbeauftragter Telefon`, `VB UPN`, `VB Email`, `VB E-Mail`, `Vertriebsbeauftragter Email`
+
+Eine E-Mail-Kennung direkt im Personenfeld wird ebenfalls erkannt. Für Teams
+muss sie der tatsächlichen Microsoft-365-Anmeldekennung (UPN) entsprechen;
+eine abweichende Mailadresse kann dort nicht auflösbar sein. Fehlende
+Kontaktdaten werden als **„Telefon nicht hinterlegt“** bzw.
+**„Teams-Kennung nicht hinterlegt“** ausgewiesen. Allgemeine Kundenfelder
+`Telefon` / `E-Mail` werden niemals als Mitarbeiterkontakt verwendet.
+
+**„📞“** öffnet die Telefonanwendung. **„💬 Teams-Chat“** öffnet über einen
+Microsoft-Teams-Link einen Chat; der Personen-UPN wird erst beim Klick an
+Teams übergeben. Kein automatischer Nachrichtenversand, kein Verzeichnisabruf,
+keine Anmeldung in TourFuchs. Firmenkonto, Teams-Berechtigungen und die
+Gerätekonfiguration bestimmen das Öffnen. Bei Beispieldaten gibt es keine
+externen Kontaktaktionen. **„Zuordnung kopieren“** kopiert PLZ-Bereich, VBZ,
+Account Manager und vorhandene Kontaktdaten mit dem Hinweis zur Abstimmung
+in die Zwischenablage. Der Tresor schließt und leert die Auskunft beim Sperren.
+
+### 26.3 DUVE oder einen anderen Firmenlink einrichten
+
+Im Fenster **„Zuständigkeit finden“** unten
+**„Firmenlink in der Kundenkachel einrichten“** aufklappen.
+**„DUVE-Vorlage einsetzen“** trägt Bezeichnung und folgende Adresse ein:
+
+`https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm={kundennummer}`
+
+Mit **„Firmenlink speichern“** bewusst aktivieren. Anschließend steht bei
+Kunden mit Kundennummer **„↗ DUVE“** neben SieSales. Die Kundennummer wird
+URL-kodiert eingesetzt; führende Nullen bleiben erhalten. Ohne Nummer oder
+bei Beispieldaten gibt es keinen Link. Die Vorlage lässt sich durch eine
+andere Bezeichnung und HTTPS-Adresse mit `{kundennummer}` ersetzen.
+Adressen mit eingebetteten Zugangsdaten oder ohne Platzhalter sind unzulässig.
+**„Firmenlink entfernen“** deaktiviert den Zugang wieder.
+
+Die Konfiguration wird nur lokal in diesem Browser gespeichert, nicht in
+`.tfsafe` oder über den Besuchsabgleich übertragen. Standardmäßig ist kein
+Firmenlink aktiv. Erst beim Klick öffnet der Browser die Zieladresse und
+übergibt die Kundennummer im URL-Suchparameter; TourFuchs fragt keine
+Vorgänge ab. DUVE-Anmeldung und Firmenberechtigungen bleiben erforderlich.
+Die interne DUVE-Suche muss im berechtigten Firmenbrowser geprüft werden;
+TourFuchs kann weder Berechtigung noch Suchergebnis garantieren.
+
+### 26.4 Nur die Kundennummer kopieren
+
+Seit 22.10.2026 steht in derselben Zeile der Kundenkachel direkt neben dem
+bisherigen Kundennummer-Knopf zusätzlich **„⧉ Nur Nummer“**. Dieser Knopf
+kopiert ausschließlich die angezeigte Kundennummer, ohne Kundenname und ohne
+Klammern. Führende Nullen bleiben erhalten: `00004711` wird zu `00004711`.
+Tooltip und zugängliche Beschriftung: **„Nur Kundennummer ohne Name und Klammern
+kopieren“**. Ohne Kundennummer erscheinen beide Kopierknöpfe nicht.
+
+Der bisherige Knopf **„Nr. …“** behält sein Verhalten: Kundenname gefolgt von
+der Kundennummer in eckigen Klammern; dort werden führende Nullen entfernt,
+zum Beispiel `Musterkunde GmbH [4711]`. Beide Aktionen bestätigen Erfolg erst
+nach dem Kopieren. Bei Fehler: **„Die Kundennummer konnte nicht kopiert werden.“**
+(nur Nummer) bzw. **„Kundennummer und Name konnten nicht kopiert werden.“**
+(bisheriges Format). Das gilt auf Desktop und Handy.

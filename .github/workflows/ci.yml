@@ -76,7 +76,7 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-1.62.1
-      - run: npx playwright install --with-deps chromium
+      - run: bash tools/ci-playwright.sh
       - run: npm run build
       - run: npm run attention-check
 
@@ -99,7 +99,7 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-1.62.1
-      - run: npx playwright install --with-deps chromium
+      - run: bash tools/ci-playwright.sh
       - run: npm run build
       - run: npm run smoke-check
       # Import-Referenz (Release 17.0a): feste Dateien über die echte Oberfläche
@@ -131,7 +131,7 @@ jobs:
         with:
           path: ~/.cache/ms-playwright
           key: playwright-chromium-1.62.1
-      - run: npx playwright install --with-deps chromium
+      - run: bash tools/ci-playwright.sh
       - run: npm run build
       - run: npm run visual-check -- --ref origin/${{ github.base_ref }}
       - if: failure()
