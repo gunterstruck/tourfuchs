@@ -1357,3 +1357,12 @@ aller geladenen Kunden desselben VBZ und derselben Vertriebsgruppe. Anteile,
 Gleichstände und fehlende Angaben sichtbar; keine Firmenkürzel-Tabelle.
 Guide 3.26, Schulungen und externe Übergaben aktualisiert. Unit-, Browser- und
 mobile Sichtprüfung gehören zur Freigabe.
+
+### DUVE gezielt als Vorgangssuche öffnen (22.10.2026, umgesetzt)
+
+Korrektur aus Nutzerfeedback: Die Adresse verwendet `clusterType=case`, exakt
+wie im bestätigten Beispiel, mit der jeweiligen Kundennummer in `searchTerm`.
+Die bisher mitgelieferte unveränderte DUVE-Vorlage wird auch aus lokal
+gespeicherten Einstellungen automatisch korrigiert. Eigene andere Vorlagen
+und die Deaktivierung bleiben erhalten. Guide 3.27, PDF und Uploadkopien
+nachgezogen; exakter Beispiel-Link und bestehende Vorlagen abgesichert.
