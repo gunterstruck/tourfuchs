@@ -152,6 +152,7 @@ export function salesMainMapping(headers = []) {
         channel: pick('Channel'),
         gruppe: pick('Vertriebsgruppe'),
         bezirk: pick('VBEZ (Neu)'),
+        kundentyp: pick('Kundentyp', 'Kundenart', 'Kundentyp Bezeichnung', 'Customer Type', 'Account Type'),
         umsatz: orders[0]?.header || null
     };
 }

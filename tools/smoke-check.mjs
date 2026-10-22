@@ -31,10 +31,10 @@ const TIMEOUT = 30_000;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 const FIXTURE = [
-    'Kundennummer\tKundenname\tStraße\tPLZ\tOrt\tVertriebsbezirk\tUmsatz\tAccount Manager\tAccount Manager Telefon\tAccount Manager UPN',
-    'SMOKE-1\tSmoke Test Nord\tDomkloster 4\t50667\tKöln\tBezirk Köln\t100\tEva Test\t030 23125 123\teva@example.org',
-    'SMOKE-2\tSmoke Test Süd\tSeverinstraße 15\t50678\tKöln\tBezirk Köln\t200\tEva Test\t030 23125 123\teva@example.org',
-    'SMOKE-3\tSmoke Test West\tAachener Straße 1\t50674\tKöln\tBezirk Köln\t\tJan Test\t\t'
+    'Kundennummer\tKundenname\tStraße\tPLZ\tOrt\tVertriebsbezirk\tUmsatz\tAccount Manager\tAccount Manager Telefon\tAccount Manager UPN\tVertriebsgruppe\tKundentyp\tSieSales Link',
+    'SMOKE-1\tSmoke Test Nord\tDomkloster 4\t50667\tKöln\tBezirk Köln\t100\tEva Test\t030 23125 123\teva@example.org\tIndustrie\tEndkunde\thttps://crm.example/SMOKE-1',
+    'SMOKE-2\tSmoke Test Süd\tSeverinstraße 15\t50678\tKöln\tBezirk Köln\t200\tEva Test\t030 23125 123\teva@example.org\tIndustrie\tEndkunde\t',
+    'SMOKE-3\tSmoke Test West\tAachener Straße 1\t50674\tKöln\tBezirk Köln\t\tJan Test\t\t\tIndustrie\tPartner\t'
 ].join('\n');
 
 function freePort() {
@@ -352,18 +352,38 @@ async function desktop(browser, baseUrl) {
         await page.screenshot({ path: 'tmp/postal-mobile.png' });
         if (await page.locator('#postal-dialog').evaluate(el => el.scrollWidth > el.clientWidth + 2)) throw new Error('Mobiler Dialog läuft über');
         await page.setViewportSize({ width: 1440, height: 900 });
-        if (!await page.locator('.postal-settings').evaluate(el => el.open)) await page.locator('.postal-settings summary').click();
-        await page.locator('#company-duve').click();
-        await page.locator('#company-link-form button[type="submit"]').click();
-        await page.keyboard.press('Escape');
+        if (!results.includes('Vertriebsgruppe: Industrie') || !results.includes('Endkunde (2/3 Kunden · 67 %)')) throw new Error('Vertriebsgruppe oder Kundenschwerpunkt fehlt');
+        // Previous settings smoke deliberately disabled the link. Reset to the fresh-browser default.
+        await page.evaluate(() => localStorage.removeItem('tourfuchs.company-link.v1'));
+        await page.locator('#postal-dialog .dialog-close').click();
+        await page.locator('#global-search').fill('Smoke Test Süd');
+        await page.locator('#search-results .result-row[data-id]').first().click();
+        await page.waitForSelector('.leaflet-popup [data-popup-close]');
+        if (await page.locator('.popup-company').count()) throw new Error('DUVE ohne SieSales-Link sichtbar');
+        await page.locator('.leaflet-popup [data-popup-close]').click();
+        await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
         await page.locator('#global-search').fill('Smoke Test Nord');
         await page.locator('#search-results .result-row[data-id]').first().click();
         await page.waitForSelector('.popup-company');
         if (await page.locator('.popup-company').getAttribute('href') !== 'https://duve.siemens.com/duve-ui/search?clusterType=all&searchTerm=SMOKE-1') throw new Error('DUVE-Suchadresse falsch');
         if (await page.locator('.popup-company').getAttribute('target') !== '_blank') throw new Error('DUVE öffnet nicht separat');
+        await page.locator('.popup-company').click({ trial: true });
+        await page.screenshot({ path: 'tmp/duve-customer-desktop.png', animations: 'disabled' });
         await page.locator('.leaflet-popup [data-popup-close]').click();
         await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
+        await page.setViewportSize({ width: 390, height: 844 });
+        if (await page.locator('#sidebar').evaluate(el => el.classList.contains('open'))) await page.locator('#sidebar-toggle').click();
+        await page.locator('#global-search').fill('Smoke Test Nord');
+        await page.locator('#search-results .result-row[data-id]').first().click();
+        await page.locator('.popup-company').click({ trial: true });
+        await page.screenshot({ path: 'tmp/duve-customer-mobile.png', animations: 'disabled' });
+        if (await page.locator('.popup-customer').evaluate(el => el.scrollWidth > el.clientWidth + 2)) throw new Error('Kopier-/Firmenknöpfe laufen mobil über');
+        await page.locator('.leaflet-popup [data-popup-close]').click();
+        await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
+        await page.setViewportSize({ width: 1440, height: 900 });
+        if (!await page.locator('#sidebar').evaluate(el => el.classList.contains('open'))) await page.locator('#sidebar-toggle').click();
         await page.locator('#btn-postal-responsibility').click();
+        if (!await page.locator('.postal-settings').evaluate(el => el.open)) await page.locator('.postal-settings summary').click();
         await page.locator('#company-remove').click();
         await page.keyboard.press('Escape');
         await page.locator('#global-search').fill('Smoke Test Nord');
@@ -392,6 +412,9 @@ async function desktop(browser, baseUrl) {
         await page.locator('.leaflet-popup [data-action="copy-customer-number-only"]').click();
         const onlyNumber = await page.evaluate(() => navigator.clipboard.readText());
         if (onlyNumber !== 'SMOKE-1') throw new Error(`Nummer ohne Namen/Klammern falsch: ${onlyNumber}`);
+        const numberLabel = await page.locator('[data-action="copy-customer-number-only"]').textContent();
+        const nameLabel = await page.locator('[data-action="copy-customer-number"]').textContent();
+        if (!numberLabel.includes('Nr. SMOKE-1') || !nameLabel.includes('Name + Nr.')) throw new Error('Kopierknöpfe falsch beschriftet');
         await page.locator('.leaflet-popup [data-popup-close]').click();
         await page.waitForFunction(() => !document.querySelector('.leaflet-popup'));
         await page.locator('#global-search').fill('');

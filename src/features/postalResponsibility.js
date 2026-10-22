@@ -40,6 +40,31 @@ function add(stats, customer) {
     else stats.revenue += Number(customer.umsatz);
 }
 
+const districtKey = (customer) => JSON.stringify([text(customer.bezirk), text(customer.gruppe)]);
+/** Describe the district from the entire loaded stock, independent of PLZ and manager. */
+function districtProfiles(customers) {
+    const profiles = new Map();
+    for (const customer of customers) {
+        if (!text(customer.bezirk)) continue;
+        const key = districtKey(customer);
+        if (!profiles.has(key)) profiles.set(key, { count: 0, missing: 0, types: new Map() });
+        const profile = profiles.get(key);
+        profile.count++;
+        // Older sales-workbook / .tfsafe imports may retain the type in extra.
+        const name = text(customer.kundentyp) || cell(customer.extra, ['kundentyp', 'kunden typ', 'kundenart', 'kundentyp bezeichnung', 'customer type', 'account type']);
+        if (!name) { profile.missing++; continue; }
+        const typeKey = name.toLocaleLowerCase('de-DE').replace(/\s+/g, ' ');
+        if (!profile.types.has(typeKey)) profile.types.set(typeKey, { name, count: 0 });
+        profile.types.get(typeKey).count++;
+    }
+    for (const [key, profile] of profiles) {
+        const highest = Math.max(0, ...[...profile.types.values()].map((t) => t.count));
+        profiles.set(key, { count: profile.count, missing: profile.missing,
+            top: [...profile.types.values()].filter((t) => t.count === highest).sort((a, b) => a.name.localeCompare(b.name, 'de')) });
+    }
+    return profiles;
+}
+
 export function postalResponsibility(customers = [], query = '', territories = {}) {
     const prefix = text(query);
     const result = { valid: isPostalQuery(prefix), prefix, ...emptyStats(), groups: [], assignments: [], years: [], unknownYear: false };
@@ -47,25 +72,31 @@ export function postalResponsibility(customers = [], query = '', territories = {
     const groups = new Map();
     const seen = new Set();
     const years = new Set();
+    const unique = [];
     for (const customer of customers) {
-        if (!/^\d{5}$/.test(text(customer.plz)) || !text(customer.plz).startsWith(prefix)) continue;
         // State normally deduplicates on import. Never count a repeated record twice.
         const identity = text(customer.id) || (text(customer.nummer) ? `nr:${text(customer.nummer)}` : customer);
         if (seen.has(identity)) continue;
         seen.add(identity);
+        unique.push(customer);
+    }
+    const profiles = districtProfiles(unique);
+    for (const customer of unique) {
+        if (!/^\d{5}$/.test(text(customer.plz)) || !text(customer.plz).startsWith(prefix)) continue;
         add(result, customer);
         const dataYears = Object.keys(customer.umsatzJahre || {}).filter((year) => /^\d{4}$/.test(year));
         if (dataYears.length) years.add(Math.max(...dataYears.map(Number)));
         else result.unknownYear = true;
         const district = text(customer.bezirk);
+        const salesGroup = text(customer.gruppe);
         const manager = accountManager(customer);
         // Do not silently coalesce conflicting contact records with the same display name.
-        const key = JSON.stringify([district, norm(manager.name), manager.upn.toLowerCase(), manager.tel]);
-        if (!groups.has(key)) groups.set(key, { district, manager, demo: false, ...emptyStats() });
+        const key = JSON.stringify([district, salesGroup, norm(manager.name), manager.upn.toLowerCase(), manager.tel]);
+        if (!groups.has(key)) groups.set(key, { district, salesGroup, manager, profile: profiles.get(districtKey(customer)) || null, demo: false, ...emptyStats() });
         groups.get(key).demo ||= isDemoCustomer(customer);
         add(groups.get(key), customer);
     }
-    result.groups = [...groups.values()].sort((a, b) => a.district.localeCompare(b.district, 'de') || a.manager.name.localeCompare(b.manager.name, 'de'));
+    result.groups = [...groups.values()].sort((a, b) => a.district.localeCompare(b.district, 'de') || a.salesGroup.localeCompare(b.salesGroup, 'de') || a.manager.name.localeCompare(b.manager.name, 'de'));
     result.years = [...years].sort();
     // Display overlapping explicit PLZ assignments with their exact scope, not as a
     // fabricated single winner. County assignments cannot be resolved from a prefix.

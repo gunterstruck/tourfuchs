@@ -34,7 +34,7 @@ Der Vertriebsbezirk ist empfohlen. Ohne ihn läuft der Kunde unter „Ohne Zuord
 ## 3. Karte nutzen
 
 - Suche oben für Kunde, Ort, PLZ oder Kundennummer. Kundentreffer zeigen `[Kundennummer] Kundenname`, darunter PLZ, Ort und gegebenenfalls VB. Führende Nullen bleiben in der Anzeige erhalten; ohne Nummer steht nur der Name.
-- Marker anklicken, um Kundendetails und einen vorhandenen VB-Namen zu sehen. Die hervorgehobene Kundennummer lässt sich lokal kopieren; führende Nullen werden beim Kopieren entfernt und die Nummer in eckige Klammern gesetzt (000123 -> [123]).
+- Marker anklicken, um Kundendetails und einen vorhandenen VB-Namen zu sehen. **Nr. …** kopiert die Originalnummer (000123); **Name + Nr.** kopiert `Kundenname [123]` mit Nullenkürzung in der Klammer.
 - Kartenstil wechseln: Hell, Standard oder Satellit.
 - Bezirkszuordnung und Bezirksfarben als Orientierung nutzen.
 - Im Tab **Filter** bei Bedarf **"Umsatz von-bis"** aktivieren. Ohne gültigen
@@ -266,7 +266,7 @@ Den rechten Rand des Panels mit der Maus ziehen: 340 bis 600 Pixel, maximal 150 
 
 Bei Beispieldaten bleibt das Desktop-Panel zunächst geschlossen. „Verstanden – erst umsehen“ öffnet es; während und nach der Live-Demo steht es automatisch zur Verfügung. „Eigene Daten laden“ öffnet zuerst den Importdialog und nach erfolgreicher Übernahme das Panel. Bereits gespeicherte eigene Daten starten mit sichtbarem Desktop-Panel.
 
-In der Kundenkarte kopiert ein Klick auf die Kundennummer die Zeile `Kundenname [Kundennummer]`, z. B. `Musterkunde GmbH [123]`. Führende Nullen werden nur beim Kopieren entfernt; die Originalnummer bleibt erhalten.
+In der Kundenkarte kopiert **Nr. …** nur die Originalnummer einschließlich führender Nullen. **Name + Nr.** kopiert `Kundenname [Kundennummer]`, z. B. `Musterkunde GmbH [123]`, mit der bisherigen Nullenkürzung in den Klammern.
 
 Auf dem Smartphone bietet „Planungsbereich“ durchsuchbare Mehrfachfilter über die am Desktop aktivierten Kategorien und eine dezente Kartenfärbung. Tourstopps außerhalb des Filters bleiben erhalten. „↺ Tour leeren“ beendet die Tour und kehrt zur normalen Karte mit den weiterhin gesetzten Filtern zurück.
 
@@ -295,15 +295,23 @@ keine verbindliche Neukundenzuordnung: bei mehreren Bezirken Rücksprache halten
 Telefon und Teams sind anklickbar, wenn Mitarbeiterkontaktdaten hinterlegt
 sind. **Zuordnung kopieren** übernimmt die Angaben in die Zwischenablage.
 
-Im selben Fenster lässt sich unten unter **Firmenlink in der Kundenkachel
-einrichten** die **DUVE-Vorlage einsetzen** und mit **Firmenlink speichern**
-aktivieren. Danach öffnet **↗ DUVE** in der Kundenkachel die Suche nach der
-Kundennummer im Firmenbrowser. Firmenkonto/Berechtigung erforderlich. Die
-Einstellung gilt nur für diesen Browser. Details und Importspalten: Kapitel
-26 der KI-Wissensbasis.
+**↗ DUVE** erscheint automatisch direkt neben **↗ SieSales**, ausschließlich
+bei eigenen Kunden mit gültigem SieSales-Link und Kundennummer. Kein vorheriges
+Einrichten nötig. Erst der Klick öffnet die Suche mit der Kundennummer;
+Firmenkonto/Berechtigung erforderlich. Unter **Firmenlink in der Kundenkachel
+einrichten** lässt sich der Link ändern oder mit **Firmenlink entfernen**
+ausblenden. Diese Einstellung gilt nur für diesen Browser.
+
+Die Auskunft zeigt zusätzlich die **Vertriebsgruppe** und die **Häufigste
+Kundenart im VBZ**, aus dem importierten **Kundentyp** abgeleitet. Grundlage ist
+der gesamte geladene Bestand desselben VBZ und derselben Vertriebsgruppe,
+auch außerhalb der gesuchten PLZ und unabhängig vom Account Manager. Anzahl
+und Anteil sind sichtbar; Gleichstände und fehlende Typen werden benannt.
+Firmenkürzel werden nicht fest interpretiert. Details: KI-Guide, Kapitel 26.
 
 ### Kundennummer in die Zwischenablage
 
-In der Kundenkachel stehen zwei Knöpfe nebeneinander: **Nr. …** kopiert
-`Kundenname [Kundennummer]`; **⧉ Nur Nummer** kopiert ausschließlich die Nummer,
-ohne Name oder Klammern und mit den angezeigten führenden Nullen.
+In der Kundenkachel stehen zwei eindeutige Knöpfe nebeneinander:
+**⧉ Nr. …** kopiert ausschließlich die angezeigte Nummer, einschließlich
+führender Nullen, ohne Klammern. **⧉ Name + Nr.** kopiert
+`Kundenname [Kundennummer]` mit der bisherigen Nullenkürzung in den Klammern.

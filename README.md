@@ -357,10 +357,14 @@ auch auf abgeleitete Datenbestände fort. Einzelheiten: [NOTICE](./NOTICE).
 **📍 Zuständigkeit** liefert ab drei PLZ-Ziffern eine lokale Übersicht nach VBZ
 und Account Manager mit Kundenzahl, Umsatz und vorhandenen Mitarbeiterkontakten.
 Die Verteilung der Bestandskunden ersetzt keine verbindliche Neukundenzuordnung.
-Optional lässt sich ein Firmenlink mit `{kundennummer}` einrichten (Vorlage:
-DUVE). Erst ein bewusster Klick übergibt die Kundennummer an die konfigurierte
+Vertriebsgruppe und häufigste Kundenart beschreiben den Bezirk anhand des
+gesamten geladenen Bestands; Gleichstände und fehlende Typen bleiben sichtbar.
+Bei eigenen Kunden mit gültigem SieSales-Link und Kundennummer erscheint DUVE
+automatisch daneben. Der Firmenlink lässt sich lokal ändern oder ausblenden.
+Erst ein bewusster Klick übergibt die Kundennummer an die konfigurierte
 HTTPS-Zieladresse. Telefonlinks öffnen die Telefonanwendung; Teams-Chat-Links
 übergeben die importierte Mitarbeiterkennung an Microsoft Teams. Keine API,
-kein Hintergrundabruf und kein automatischer Nachrichtenversand. Standardmäßig
-ist kein Firmenlink aktiv. Konfiguration lokal je Browser; Details im KI-Guide,
+kein Hintergrundabruf und kein automatischer Nachrichtenversand. Ohne
+SieSales-Link oder Kundennummer erscheint kein Firmenlink. Konfiguration lokal
+je Browser; Details im KI-Guide,
 Kapitel 26, und auf der Datenschutzseite.
