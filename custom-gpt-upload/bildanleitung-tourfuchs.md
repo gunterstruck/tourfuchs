@@ -2,7 +2,7 @@
 
 **Katalogstand:** 22.10.2026
 
-**App-Version der Aufnahmen:** 3.7.0 · bisherige Aufnahmen main 9093296; PLZ-Auskunft auf Basis main 54be2f2 mit dieser Erweiterung (22.10.2026)
+**App-Version der Aufnahmen:** 3.7.0 · bisherige Aufnahmen main 9093296; PLZ-Auskunft auf Basis main 2c51cfa mit dieser Erweiterung (22.10.2026)
 
 **Datenschutz:** Alle Bilder stammen aus der tatsächlich laufenden TourFuchs-App. Sichtbar sind ausschließlich die integrierten Demo-Daten oder die eindeutig synthetischen Schulungsdaten aus `tools/fixtures/docs-screenshot-customers.tsv` bzw. für die PLZ-Auskunft aus der synthetischen Importliste in `tools/smoke-check.mjs`. Es wurden keine echten Personen-, Kunden-, Adress-, Vertrags- oder Zugangsdaten verwendet.
 
@@ -306,7 +306,7 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 
 Die globale Kundensuche zeigt jetzt `[Kundennummer] Kundenname` direkt im Treffer. Die Nummer bleibt mit führenden Nullen erhalten und ist damit auch in einem Screenshot lesbar. Ohne Nummer steht nur der Name; lange Angaben werden umgebrochen.
 
-Die abgebildeten Beispielansichten bleiben Orientierung. Beim Desktop-Erststart steht heute die Startauswahl allein über der Karte; das Panel erscheint beim Umschauen und während/nach der Demo. Die Kundennummer in der Kundenkarte kopiert `Kundenname [Kundennummer]`. Der mobile Planungsbereich bietet durchsuchbare Mehrfachfilter und Kartenfärbung; bereits gewählte Tourstopps bleiben bei Filterwechseln erhalten.
+Die abgebildeten Beispielansichten bleiben Orientierung. Beim Desktop-Erststart steht heute die Startauswahl allein über der Karte; das Panel erscheint beim Umschauen und während/nach der Demo. In der Kundenkarte kopiert **Nr. …** nur die Originalnummer, **Name + Nr.** dagegen `Kundenname [Kundennummer]` mit der bisherigen Nullenkürzung. Der mobile Planungsbereich bietet durchsuchbare Mehrfachfilter und Kartenfärbung; bereits gewählte Tourstopps bleiben bei Filterwechseln erhalten.
 
 
 ## Ergänzungen vom 13.10.2026 (Guide 3.24)
@@ -333,12 +333,19 @@ keine verbindliche Neukundenzuordnung: bei mehreren Bezirken Rücksprache halten
 Telefon und Teams sind anklickbar, wenn Mitarbeiterkontaktdaten hinterlegt
 sind. **Zuordnung kopieren** übernimmt die Angaben in die Zwischenablage.
 
-Im selben Fenster lässt sich unten unter **Firmenlink in der Kundenkachel
-einrichten** die **DUVE-Vorlage einsetzen** und mit **Firmenlink speichern**
-aktivieren. Danach öffnet **↗ DUVE** in der Kundenkachel die Suche nach der
-Kundennummer im Firmenbrowser. Firmenkonto/Berechtigung erforderlich. Die
-Einstellung gilt nur für diesen Browser. Details und Importspalten: Kapitel
-26 der KI-Wissensbasis.
+**↗ DUVE** erscheint automatisch direkt neben **↗ SieSales**, ausschließlich
+bei eigenen Kunden mit gültigem SieSales-Link und Kundennummer. Kein vorheriges
+Einrichten nötig. Erst der Klick öffnet die Suche mit der Kundennummer;
+Firmenkonto/Berechtigung erforderlich. Unter **Firmenlink in der Kundenkachel
+einrichten** lässt sich der Link ändern oder mit **Firmenlink entfernen**
+ausblenden. Diese Einstellung gilt nur für diesen Browser.
+
+Die Auskunft zeigt zusätzlich die **Vertriebsgruppe** und die **Häufigste
+Kundenart im VBZ**, aus dem importierten **Kundentyp** abgeleitet. Grundlage ist
+der gesamte geladene Bestand desselben VBZ und derselben Vertriebsgruppe,
+auch außerhalb der gesuchten PLZ und unabhängig vom Account Manager. Anzahl
+und Anteil sind sichtbar; Gleichstände und fehlende Typen werden benannt.
+Firmenkürzel werden nicht fest interpretiert. Details: KI-Guide, Kapitel 26.
 
 ### PLZ-Auskunft am Desktop und am Handy
 
@@ -360,6 +367,7 @@ Originale und leichte Vorschauen der neuen PLZ-Auskunft:
 - Handy: https://tourfuchs.vercel.app/docs/screenshots/BILD-PLZ-02-zustaendigkeit-mobil.png
 - Handy-Vorschau: https://tourfuchs.vercel.app/docs/screenshots/BILD-PLZ-02-zustaendigkeit-mobil-preview.webp
 
-In der Kundenkachel ergänzt **⧉ Nur Nummer** den bisherigen Kopierknopf:
-Nur die angezeigte Kundennummer kommt in die Zwischenablage, einschließlich
-führender Nullen; der bisherige Knopf kopiert weiter `Kundenname [Nummer]`.
+In der Kundenkachel kopiert **⧉ Nr. …** ausschließlich die angezeigte Nummer
+einschließlich führender Nullen. **⧉ Name + Nr.** kopiert `Kundenname [Nummer]`
+mit der bisherigen Nullenkürzung. Daneben steht bei eigenen Kunden mit
+SieSales-Link und Nummer automatisch **↗ DUVE**.
