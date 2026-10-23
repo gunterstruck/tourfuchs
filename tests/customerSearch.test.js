@@ -164,53 +164,53 @@ describe('Kopfsuche findet auch Orte, nicht nur Kunden', () => {
     });
 });
 
-describe('Kundensuche: Umlaute, unsichtbare Zeichen, Rangfolge (Feedback „graef")', () => {
-    const graef = { id: 'g', name: 'GEBR. GRAEF GMBH & CO. KG', ort: 'Arnsberg', plz: '59757', nummer: '8681021' };
+describe('Kundensuche: Umlaute, unsichtbare Zeichen, Rangfolge (Feedback „loew")', () => {
+    const loew = { id: 'g', name: 'GEBR. LOEW GMBH & CO. KG', ort: 'Arnsberg', plz: '59757', nummer: '7000001' };
 
-    it('findet „GRAEF" auch mit „Gräf" und umgekehrt', () => {
-        const graef2 = { id: 'g2', name: 'Gräf Metallbau', ort: 'Köln', plz: '50667', nummer: '' };
-        for (const query of ['graef', 'Graef', 'Gräf', 'gräf']) {
-            expect(searchCustomers([graef], query).map((c) => c.id)).toEqual(['g']);
+    it('findet „LOEW" auch mit „Löw" und umgekehrt', () => {
+        const loew2 = { id: 'g2', name: 'Löw Metallbau', ort: 'Köln', plz: '50667', nummer: '' };
+        for (const query of ['loew', 'Loew', 'Löw', 'löw']) {
+            expect(searchCustomers([loew], query).map((c) => c.id)).toEqual(['g']);
         }
-        for (const query of ['Gräf', 'graef', 'graf']) {
-            expect(searchCustomers([graef2], query).map((c) => c.id)).toEqual(['g2']);
+        for (const query of ['Löw', 'loew', 'low']) {
+            expect(searchCustomers([loew2], query).map((c) => c.id)).toEqual(['g2']);
         }
     });
 
     it('übersieht unsichtbare Zeichen aus CRM-Exporten (weiches Trennzeichen, Nullbreite)', () => {
         const versteckt = [
-            { id: 'shy', name: 'GEBR. GRA­EF GMBH', ort: '', plz: '' },
-            { id: 'zw', name: 'GEBR. GR​AEF GMBH', ort: '', plz: '' },
-            { id: 'nb', name: 'GEBR. GRAEF GMBH', ort: '', plz: '' }
+            { id: 'shy', name: 'GEBR. LO­EW GMBH', ort: '', plz: '' },
+            { id: 'zw', name: 'GEBR. LO​EW GMBH', ort: '', plz: '' },
+            { id: 'nb', name: 'GEBR. LOEW GMBH', ort: '', plz: '' }
         ];
-        expect(searchCustomers(versteckt, 'graef').map((c) => c.id)).toEqual(['shy', 'zw', 'nb']);
-        expect(searchCustomers(versteckt, 'gebr. graef').map((c) => c.id)).toEqual(['shy', 'zw', 'nb']);
+        expect(searchCustomers(versteckt, 'loew').map((c) => c.id)).toEqual(['shy', 'zw', 'nb']);
+        expect(searchCustomers(versteckt, 'gebr. loew').map((c) => c.id)).toEqual(['shy', 'zw', 'nb']);
     });
 
     it('stellt Treffer am Wortanfang vor Treffer mitten im Wort – auch wenn der Platz knapp ist', () => {
-        const mitten = Array.from({ length: 6 }, (_, i) => ({ id: `m${i}`, name: `Mograefix ${i}`, ort: '', plz: '' }));
-        expect(searchCustomers([...mitten, graef], 'graef', GROUP_LIMIT)[0].id).toBe('g');
+        const mitten = Array.from({ length: 6 }, (_, i) => ({ id: `m${i}`, name: `Moloewix ${i}`, ort: '', plz: '' }));
+        expect(searchCustomers([...mitten, loew], 'loew', GROUP_LIMIT)[0].id).toBe('g');
         // Kundennummer exakt: ganz oben.
-        expect(searchCustomers([...mitten, graef], '8681021')[0].id).toBe('g');
+        expect(searchCustomers([...mitten, loew], '7000001')[0].id).toBe('g');
     });
 
-    it('stellt das ganze Wort vor den Wortanfang („graef" → GEBR. GRAEF vor GRÄFLICHES, GRAEFE)', () => {
+    it('stellt das ganze Wort vor den Wortanfang („loew" → GEBR. LOEW vor LÖWENHOF, LOEWEN)', () => {
         // Nachgestellt aus dem Screenshot: 24 Treffer, 4 Plätze neben den Ortsvorschlägen.
         const andere = [
-            { id: 'h', name: 'GRÄFLICHES HOFBRAUHAUS FREISING GMBH', ort: 'Freising', plz: '85356' },
-            { id: 'c1', name: 'EFG CORDES & GRAEFE BRAND KG', ort: 'Osnabrueck', plz: '49078' },
-            { id: 'c2', name: 'CORDES & GRAEFE OSNABRUECK KG', ort: 'Osnabrueck', plz: '49078' },
-            { id: 'c3', name: 'CORDES & GRAEFE BREMEN KG FACHGROSSHANDEL', ort: 'Stuhr', plz: '28816' },
-            ...Array.from({ length: 19 }, (_, i) => ({ id: `w${i}`, name: `GRAEFE WERK ${i}`, ort: '', plz: '' }))
+            { id: 'h', name: 'LÖWENHOF MUSTERSTADT GMBH', ort: 'Freising', plz: '85356' },
+            { id: 'c1', name: 'EFG MEYER & LOEWEN BRAND KG', ort: 'Osnabrueck', plz: '49078' },
+            { id: 'c2', name: 'MEYER & LOEWEN OSNABRUECK KG', ort: 'Osnabrueck', plz: '49078' },
+            { id: 'c3', name: 'MEYER & LOEWEN BREMEN KG FACHGROSSHANDEL', ort: 'Stuhr', plz: '28816' },
+            ...Array.from({ length: 19 }, (_, i) => ({ id: `w${i}`, name: `LOEWEN WERK ${i}`, ort: '', plz: '' }))
         ];
-        const hits = searchCustomers([...andere, graef], 'graef', GROUP_LIMIT);
+        const hits = searchCustomers([...andere, loew], 'loew', GROUP_LIMIT);
         expect(hits[0].id).toBe('g');
-        expect(searchCustomers([...andere, graef], 'gebr graef')[0].id).toBe('g');
+        expect(searchCustomers([...andere, loew], 'gebr loew')[0].id).toBe('g');
     });
 
     it('bleibt bei Eingaben ohne Buchstaben und bei Satzzeichen tolerant', () => {
-        expect(searchCustomers([graef], 'gebr g').map((c) => c.id)).toEqual(['g']);
-        expect(searchCustomers([graef], 'GmbH & Co').map((c) => c.id)).toEqual(['g']);
-        expect(searchCustomers([graef], '&&')).toEqual([]);
+        expect(searchCustomers([loew], 'gebr l').map((c) => c.id)).toEqual(['g']);
+        expect(searchCustomers([loew], 'GmbH & Co').map((c) => c.id)).toEqual(['g']);
+        expect(searchCustomers([loew], '&&')).toEqual([]);
     });
 });

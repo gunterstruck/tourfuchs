@@ -11,19 +11,19 @@ const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 const TODAY = '2026-10-20';
 
 const list = () => [
-    { id: 'k-nr:4711', nummer: '4711', name: 'Gebr. Graef GmbH & Co. KG', plz: '59757', besuche: ['2026-09-01'] },
+    { id: 'k-nr:4711', nummer: '4711', name: 'Gebr. Loew GmbH & Co. KG', plz: '59757', besuche: ['2026-09-01'] },
     { id: 'k-nr:815', nummer: '815', name: 'Bäckerei Krümel GmbH', plz: '45127', besuche: [] },
     { id: 'k-np:ohne nummer gmbh|50667', nummer: '', name: 'Ohne Nummer GmbH', plz: '50667', besuche: [] }
 ];
 
 describe('Abgleich-Datei (Weg B): eine Datei, beide Richtungen, nur ergänzen', () => {
     it('enthält weder Kundennamen noch Kundennummern – nur Prüfsummen und Daten', () => {
-        const [graef, , ohne] = list();
-        const payload = buildSyncPayload([{ customer: graef, date: '2026-10-19' }, { customer: ohne, date: TODAY }]);
+        const [loew, , ohne] = list();
+        const payload = buildSyncPayload([{ customer: loew, date: '2026-10-19' }, { customer: ohne, date: TODAY }]);
         const text = JSON.stringify(payload);
-        for (const secret of ['Graef', '4711', '59757', 'Ohne Nummer', '50667']) expect(text).not.toContain(secret);
+        for (const secret of ['Loew', '4711', '59757', 'Ohne Nummer', '50667']) expect(text).not.toContain(secret);
         expect(payload[SYNC_MAGIC]).toBe(1);
-        expect(payload.visits).toEqual([{ k: customerToken(graef), d: '2026-10-19' }, { k: customerToken(ohne), d: TODAY }]);
+        expect(payload.visits).toEqual([{ k: customerToken(loew), d: '2026-10-19' }, { k: customerToken(ohne), d: TODAY }]);
         expect(syncFileName(TODAY)).toBe('TourFuchs-Abgleich-2026-10-20.txt');
     });
 

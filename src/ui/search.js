@@ -53,7 +53,7 @@ export function normalizeSearchText(value) {
 }
 
 // Weiches Trennzeichen, Nullbreite & Co. aus CRM-Exporten: unsichtbar, aber
-// sie zerteilten „GRAEF" für die Suche in „GRA" und „EF".
+// sie zerteilten „LOEW" für die Suche in „LO" und „EW".
 const INVISIBLE = /[\u00AD\u200B-\u200D\u2060\uFEFF]/g;
 const variantsOf = (text) => placeQueryVariants(String(text ?? '').replace(INVISIBLE, '')).filter(Boolean);
 
@@ -87,8 +87,8 @@ function rankOf(customer, q, variants) {
 
 /**
  * Kunden zu einer Eingabe – wie die Ortssuche mit beiden Umlaut-Schreibweisen
- * („Gräf" findet „GRAEF" und umgekehrt) und ohne Satzzeichen. Ganze Wörter
- * stehen vor Wortanfängen („graef" zeigt „Gebr. Graef" vor „Gräfliches …"): Bei knappem Platz neben
+ * („Löw" findet „LOEW" und umgekehrt) und ohne Satzzeichen. Ganze Wörter
+ * stehen vor Wortanfängen („loew" zeigt „Gebr. Loew" vor „Löwenhof …"): Bei knappem Platz neben
  * Ortsvorschlägen entschied sonst die Reihenfolge im Bestand, wer sichtbar war.
  */
 export function searchCustomers(customers, query, limit = SINGLE_GROUP_LIMIT) {

@@ -185,10 +185,10 @@ describe('DUVE neben SieSales', () => {
 describe('Zuständig und VB mit Telefonnummer', () => {
     it('zeigt den VB-Namen lesbar und die Nummer antippbar', () => {
         state.ui.depth = 'profi';
-        const html = customerPopupHtml(customer(14000, { vb: 'Kahlbau Robert +49 (173) 6310304' }));
-        expect(html).toContain('VB: Kahlbau Robert');
-        expect(html).toContain('href="tel:+491736310304"');
-        expect(html).not.toContain('VB: Kahlbau Robert +49');
+        const html = customerPopupHtml(customer(14000, { vb: 'Mustermann Robin +49 (170) 4445566' }));
+        expect(html).toContain('VB: Mustermann Robin');
+        expect(html).toContain('href="tel:+491704445566"');
+        expect(html).not.toContain('VB: Mustermann Robin +49');
     });
 
     it('legt die Telefonnummer unter den Namen, damit der Name nicht buchstabenweise umbricht', () => {

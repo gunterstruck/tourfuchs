@@ -28,9 +28,9 @@ function excelFile(sheets, name = 'liste.xlsx') {
 
 const KOPF = ['Debitor', 'IFA Nr', 'Kundenname', 'plz', 'ort', 'VBEZ', 'AE'];
 const DATEN = [
-    ['8661', '0249537442', 'OXEA SERVICES GMBH', '46147', 'OBERHAUSEN', 'H10H', 'Struck Guenter'],
-    ['1611588', '0016115883', 'SCHWALBE STEUERUNGSTECHNIK GMBH', '45307', 'ESSEN', 'H10H', 'Struck Guenter'],
-    ['A1721374', '0246758835', 'BILFINGER ENGINEERING GMBH', '46047', 'OBERHAUSEN', 'H10H', 'Struck Guenter']
+    ['9001', '0090000001', 'OMEGA SERVICES GMBH', '46147', 'OBERHAUSEN', 'X99X', 'Probe Paul'],
+    ['9002', '0090000002', 'SPATZ STEUERUNGSTECHNIK GMBH', '45307', 'ESSEN', 'X99X', 'Probe Paul'],
+    ['A9003', '0090000003', 'MUSTER ENGINEERING GMBH', '46047', 'OBERHAUSEN', 'X99X', 'Probe Paul']
 ];
 
 describe('Excel-Import findet die echte Überschriftenzeile', () => {
@@ -38,8 +38,8 @@ describe('Excel-Import findet die echte Überschriftenzeile', () => {
         const file = excelFile([{
             name: 'VBEZ Übersicht',
             grid: [
-                ['Auswertung Vertriebsbezirk H10H', '', '', '', '', '', 'Stand: 20.07.2026'],
-                ['Endkunde', '', '', '', '', '', 'Struck Guenter'],
+                ['Auswertung Vertriebsbezirk X99X', '', '', '', '', '', 'Stand: 20.07.2026'],
+                ['Endkunde', '', '', '', '', '', 'Probe Paul'],
                 KOPF,
                 ...DATEN
             ]
@@ -49,13 +49,13 @@ describe('Excel-Import findet die echte Überschriftenzeile', () => {
         expect(headerRow).toBe(3);
         expect(headers).toEqual(KOPF);
         expect(rows).toHaveLength(3);
-        expect(rows[0].Kundenname).toBe('OXEA SERVICES GMBH');
+        expect(rows[0].Kundenname).toBe('OMEGA SERVICES GMBH');
         expect(rows[0].plz).toBe('46147');
     });
 
     it('nimmt eine Datenzeile nicht als Kopf – auch wenn sie ganz oben steht', async () => {
         // Der Kern des gemeldeten Fehlers: Werte, die sich in der Spalte darunter
-        // wiederholen („Struck Guenter"), sind Daten, keine Spaltennamen.
+        // wiederholen („Probe Paul"), sind Daten, keine Spaltennamen.
         const file = excelFile([{
             name: 'Kunden',
             grid: [DATEN[0], KOPF, ...DATEN.slice(1)]
@@ -144,7 +144,7 @@ describe('Excel-Import traut der Bereichsangabe der Datei nicht blind', () => {
         expect(headerRow).toBe(1);
         expect(headers).toEqual(KOPF);
         expect(rows).toHaveLength(3);
-        expect(rows[0].Kundenname).toBe('OXEA SERVICES GMBH');
+        expect(rows[0].Kundenname).toBe('OMEGA SERVICES GMBH');
         expect(rows[0].plz).toBe('46147');
     });
 
@@ -187,7 +187,7 @@ describe('Excel-Import wählt das richtige Tabellenblatt', () => {
     it('meldet die sichtbaren Blätter zur Auswahl und liest das gewählte', async () => {
         const file = excelFile([
             { name: 'VBEZ Übersicht', grid: [KOPF, ...DATEN] },
-            { name: 'AE je PCK', grid: [['AE', 'PCK'], ['Struck Guenter', 'PCK 1']] },
+            { name: 'AE je PCK', grid: [['AE', 'PCK'], ['Probe Paul', 'PCK 1']] },
             { name: 'SieSales Kontakte', grid: [['Debitor', 'Ansprechpartner', 'E-Mail'], ['8661', 'A. Meier', 'a@m.de']] }
         ]);
         const auto = await readWorkbook(file);

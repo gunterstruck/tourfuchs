@@ -26,7 +26,7 @@ describe('Promotoren als nummerierte Spalten (Promotor N / Promotor N TPE-Thema)
 
     it('macht aus einer Kundenzeile Promotoren mit TPE-Thema – ohne Kontaktlisten-Erkennung auszulösen', () => {
         const { mapping, customers } = parse([{
-            Kundennummer: '1596596', Kundenname: 'SCIO Automation', PLZ: '47051', VK: 'Boehlen Lara',
+            Kundennummer: '7000002', Kundenname: 'ZETA Automation', PLZ: '47051', VK: 'Beispiel Lara',
             'Promotor 1': 'Eva Ost', 'Promotor 1 TPE-Thema': 'TPE Antriebe',
             'Promotor 2': 'Jan Nord', 'Promotor 2 TPE-Thema': 'TPE Automatisierung',
             'Promotor 3': '', 'Promotor 3 TPE-Thema': ''
@@ -35,7 +35,7 @@ describe('Promotoren als nummerierte Spalten (Promotor N / Promotor N TPE-Thema)
         expect(mapping.thema).toBeNull();
         expect(mapping.name).toBe('Kundenname');
         const [customer] = customers;
-        expect(customer.name).toBe('SCIO Automation');
+        expect(customer.name).toBe('ZETA Automation');
         expect(Object.keys(customer.extra)).toEqual(['VK']);
         const { promotors } = customerContactGroups(customer);
         expect(promotors.map((p) => [p.name, p.thema])).toEqual([['Eva Ost', 'TPE Antriebe'], ['Jan Nord', 'TPE Automatisierung']]);

@@ -1555,7 +1555,7 @@ Spalten führen – beliebig viele:
 
 | Kd-Nr. | Kundenname | … | Promotor 1 | Promotor 1 TPE-Thema | Promotor 2 | Promotor 2 TPE-Thema |
 |---|---|---|---|---|---|---|
-| 1596596 | Muster GmbH | … | Eva Ost | TPE Antriebe | Jan Nord | TPE Automatisierung |
+| 7000002 | Muster GmbH | … | Eva Ost | TPE Antriebe | Jan Nord | TPE Automatisierung |
 
 - **TPE-Thema** = Technologie-Portfolio-Element, das der Promotor vertritt. Es
   erscheint in der Kachel wie das Thema eines Promotors.
@@ -1775,13 +1775,13 @@ werden umgebrochen. Das gilt auf Desktop und Handy.
 
 Umlaute und Schreibvarianten werden tolerant normalisiert, zum Beispiel `Koln`
 für `Köln`. Seit 19.10.2026 gilt bei Kunden wie bei Orten auch die
-aufgelöste Schreibweise: `Gräf` findet `Gebr. Graef GmbH`, `graef` findet
-`Gräf Metallbau`. Satzzeichen und unsichtbare Zeichen aus CRM-Exporten (z. B.
+aufgelöste Schreibweise: `Löw` findet `Gebr. Loew GmbH`, `loew` findet
+`Löw Metallbau`. Satzzeichen und unsichtbare Zeichen aus CRM-Exporten (z. B.
 weiches Trennzeichen) stören nicht. Kundentreffer sind sortiert: exakte
 Kundennummer, dann das ganze Wort am Namensanfang, das ganze Wort irgendwo im
 Namen, Namensanfang, Wortanfang, Treffer mitten im Wort, zuletzt Ort und PLZ.
-So steht bei `graef` „Gebr. Graef GmbH & Co. KG“ vor „Gräfliches Hofbrauhaus“
-und „Cordes & Graefe“ – der passende Kunde bleibt auch bei knappem Platz
+So steht bei `loew` „Gebr. Loew GmbH & Co. KG“ vor „Löwenhof Musterstadt“
+und „Meyer & Loewen“ – der passende Kunde bleibt auch bei knappem Platz
 neben Ortsvorschlägen sichtbar.
 
 **Nach der Auswahl** fliegt die Karte zum Treffer. Ein Kunde öffnet sein
@@ -1939,7 +1939,7 @@ Startmonat nicht. Ohne Jahreswerte gibt es keinen Knopf.
 Je nach importierten Daten ebenfalls sichtbar:
 
 - **„Nr. …“** kopiert ausschließlich die angezeigte Originalnummer einschließlich führender Nullen. Daneben kopiert **„Name + Nr.“** eine Zeile im Format `Kundenname [Nummer]`, z. B. `Musterkunde GmbH [123]`; nur dort werden führende Nullen in der Klammer gekürzt. Ohne Namen lautet diese kombinierte Ausgabe `[123]`. Die gespeicherte Nummer bleibt unverändert.
-- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie darunter in eigener Zeile der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Kahlbau Robert +49 (173) 6310304`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
+- Vertriebschannel -> Vertriebsgruppe -> Vertriebsbezirk sowie darunter in eigener Zeile der importierte VB-Name (`vb`), wenn vorhanden; steht im VB-Feld eine Telefonnummer (z. B. `Mustermann Robin +49 (170) 4445566`), zeigt die Zeile den Namen und daneben die Nummer antippbar (📞, seit 10.10.2026)
 - letzter Besuch, Alter des Besuchs und Status
 - Besuchsrhythmus
 - **"Als Ziel"**
@@ -3339,21 +3339,21 @@ enthält den korrigierten Namen. Gespeicherte Touren und Simulations-Szenarien
 mit solchen Kunden bleiben vollständig – auch nach einem Reimport.
 
 **HTML aus CRM-Berichten:** Manche CRM-Exporte schreiben Auszeichnung in die
-Zellen, z. B. `<span style="white-space: nowrap;">Ulrike, Sammer </span>` in
+Zellen, z. B. `<span style="white-space: nowrap;">Ute, Sander </span>` in
 der Spalte „Account Manager“ oder „Account Name“. TourFuchs entfernt solche
 HTML-Tags beim Import und beim Laden älterer Bestände und `.tfsafe`-Dateien
 aus allen Texten des Kunden (Name, Zusatzspalten, Kontakte, Opportunities).
-Die Kachel zeigt dann nur „Ulrike, Sammer“. Trennlinien und Listen (`<hr>`,
+Die Kachel zeigt dann nur „Ute, Sander“. Trennlinien und Listen (`<hr>`,
 `<li>`), mit denen das CRM mehrere Werte in ein Feld schreibt, werden zu
-„ / “ – z. B. „Evonik Industries AG (RC-DE) / Evonik Global“. Echte spitze
+„ / “ – z. B. „Musterchemie AG (RC-DE) / Musterchemie Global“. Echte spitze
 Klammern wie „Schmitt <KG>“ bleiben erhalten.
 
 **Kundennamen in Großbuchstaben:** Manche CRM-Berichte liefern Namen
-durchgehend groß („GEBR. GRAEF GMBH & CO. KG“). TourFuchs schreibt sie beim
-Import und beim Laden lesbar: „Gebr. Graef GmbH & Co. KG“ – in Kachel, Suche,
+durchgehend groß („GEBR. LOEW GMBH & CO. KG“). TourFuchs schreibt sie beim
+Import und beim Laden lesbar: „Gebr. Loew GmbH & Co. KG“ – in Kachel, Suche,
 Tour und in der Kundennummer-Kopie für die Zwischenablage. Rechtsformen
 (GmbH, KGaA, e.V.) und kleine Wörter (und, von, der) haben ihre übliche
-Schreibweise, Kürzel bis drei Buchstaben („ABB AG“, „EFG“) und Wörter mit
+Schreibweise, Kürzel bis drei Buchstaben („XYZ AG“, „EFG“) und Wörter mit
 Ziffern („3M“) bleiben groß. Namen mit Groß- und Kleinschreibung bleiben, wie
 sie sind. Touren, Szenarien und die Zuordnung beim Reimport ändern sich
 dadurch nicht.

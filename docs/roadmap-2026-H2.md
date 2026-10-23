@@ -1207,7 +1207,7 @@ aufgebraucht (Release 17.0c: Erhöhung nur mit Begründung).
 ### Nutzer-Feedback: HTML-Reste in der Kundenkachel (16.10.2026)
 
 In der Kachel stand unter „Zuständig · Account Manager“ und beim Account
-wörtlich `<span style="white-space: nowrap;">Ulrike, Sammer </span>`: Der
+wörtlich `<span style="white-space: nowrap;">Ute, Sander </span>`: Der
 CRM-Bericht liefert Zellen mit HTML-Auszeichnung. Behoben: Import und Laden
 entfernen bekannte HTML-Tags (span, b, br, div …) aus allen Texten des Kunden –
 IDs bleiben unverändert, gespeicherte Bestände werden einmal bereinigt neu
@@ -1218,7 +1218,7 @@ Touren und Szenarien über den bereinigten Namen zu. Echte spitze Klammern
 
 Nachtrag (16.10.2026, zweiter Screenshot): Beim Account standen noch
 `<hr style="…">`-Trennlinien – das CRM schreibt mehrere Werte in ein Feld
-(„Evonik Industries AG (RC-DE)“ und „Evonik Global“, „Regional“ und
+(„Musterchemie AG (RC-DE)“ und „Musterchemie Global“, „Regional“ und
 „Corporate“). `<hr>` und `<li>` werden jetzt zu „ / “, Tabellenzellen zu
 Leerzeichen. Größenbudget `index.js` (roh) dafür nochmals um 1 KB erhöht
 (Release 17.0c, Begründung im Budget-Hinweis).
@@ -1251,12 +1251,12 @@ Liefervorlage für die Promotion-Kollegen (PLZ-3 → Promotor + TPE-Thema, per
 Formel auf die Kundenliste): `docs/vorlagen/TourFuchs_Promotoren_Vorlage.xlsx`
 (gemerkt 20.10.2026, nicht in der App ausgeliefert).
 
-### Nutzer-Feedback: Kundensuche „graef" (19.10.2026)
+### Nutzer-Feedback: Kundensuche „loew" (19.10.2026)
 
-Meldung: Mit „graef" war „GEBR. GRAEF GMBH & CO. KG" nicht zu finden. Mit
+Meldung: Mit „loew" war „GEBR. LOEW GMBH & CO. KG" nicht zu finden. Mit
 genau dieser Eingabe ließ es sich nicht nachstellen; gefunden und behoben
 wurden drei Lücken, die zum Befund passen: (1) Die Kundensuche kannte nur die
-abgestreifte Umlaut-Schreibweise – „Gräf" fand „GRAEF" nicht (die Ortssuche
+abgestreifte Umlaut-Schreibweise – „Löw" fand „LOEW" nicht (die Ortssuche
 konnte das längst). (2) Unsichtbare Zeichen aus CRM-Exporten (weiches
 Trennzeichen, Nullbreite) zerteilten Namen. (3) Ohne Rangfolge entschied bei
 knappem Platz (4 Kunden neben Ortsvorschlägen) die Bestandsreihenfolge. Jetzt:
@@ -1264,15 +1264,15 @@ beide Umlaut-Schreibweisen, Satzzeichen egal, Rangfolge Kundennummer →
 Namensanfang → Wortanfang → im Wort → Ort/PLZ. Gleich schnell wie vorher
 (≈ 15–30 ms bei 15.000 Kunden), Größenbudget eingehalten.
 
-Nachtrag (19.10.2026, zweite Meldung): „graef" fand die Firma weiterhin nicht –
-„KUNDEN (4 VON 24)", vorn „GRÄFLICHES HOFBRAUHAUS" und „CORDES & GRAEFE".
-Ursache: Namensanfang („Gräfliches") stand vor Wortanfang, und es gibt nur 4
+Nachtrag (19.10.2026, zweite Meldung): „loew" fand die Firma weiterhin nicht –
+„KUNDEN (4 VON 24)", vorn „LÖWENHOF MUSTERSTADT" und „MEYER & LOEWEN".
+Ursache: Namensanfang („Löwenhof") stand vor Wortanfang, und es gibt nur 4
 Plätze. Jetzt zählt das **ganze Wort** zuerst: ganzes Wort am Namensanfang →
 ganzes Wort → Namensanfang → Wortanfang → im Wort → Ort/PLZ.
 
 Zugleich PO-Wunsch: Kundennamen aus dem CRM stehen durchgehend in
 Großbuchstaben – auch in der Kundennummer-Kopie. Jetzt beim Import und Laden
-lesbar geschrieben („Gebr. Graef GmbH & Co. KG"): Rechtsformen und kleine
+lesbar geschrieben („Gebr. Loew GmbH & Co. KG"): Rechtsformen und kleine
 Wörter nach Liste, Kürzel bis drei Buchstaben und Wörter mit Ziffern bleiben,
 gemischt geschriebene Namen unverändert. IDs und Tour-Schlüssel hängen am
 kleingeschriebenen Namen und ändern sich nicht. Größenbudget `index.js` roh
@@ -1381,3 +1381,19 @@ Abschalten. GitHub Pages als Zwischenlösung verworfen (Tester-Daten an die
 Web-Adresse gebunden, Zählung entfiele, zweiter Umzug). Datenschutzerklärung 4a
 nennt den DPA. Details: [Nutzungsnachweis](nutzungsnachweis.md).
 
+
+### Öffentliches Repo ohne echte Daten (23.10.2026)
+
+Anlass: Bei der Frage der Rechtsabteilung nach GitHub fiel auf, dass beim
+Beheben von Nutzer-Feedback echte Bruchstücke aus CRM-Exporten im Repo
+gelandet waren – in Tests, Code-Kommentaren, Wissensbasis, Roadmap und
+Commit-Texten (Firmennamen, Kundennummern, ein Vertriebsbezirk, zwei Namen mit
+Handynummer). **PO-Entscheidung:** Das Repo bleibt öffentlich – Transparenz
+ist Absicht, jeder soll den Code prüfen können. Dafür gilt: keine echten Daten,
+nirgends. Umgesetzt: alles durch erfundene Daten ersetzt, die dasselbe prüfen
+(z. B. die Umlaut-Suche „loew" ↔ „Löw" statt des echten Falls), Wissensbasis-PDF
+neu erzeugt, Regel in `AGENTS.md`, neuer Test `tests/noRealData.test.js`
+(lässt nur erfundene Handynummern zu). Danach die Git-Historie mit denselben
+Ersetzungen umgeschrieben und die Commit-Adressen auf die anonyme
+GitHub-Adresse gestellt; Restbestände auf alten PR-Seiten entfernt nur der
+GitHub-Support (Antrag durch den PO).

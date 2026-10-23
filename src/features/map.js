@@ -2392,7 +2392,7 @@ export function customerPopupHtml(customer) {
         .filter(Boolean).map(escapeHtml).join(' · ');
     const hierarchy = [customer.channel, customer.gruppe, customer.bezirk]
         .filter(Boolean).map(escapeHtml).join(' › ');
-    // „Kahlbau Robert +49 (173) 6310304": Name lesbar, Nummer antippbar statt Fließtext.
+    // „Mustermann Robin +49 (170) 4445566": Name lesbar, Nummer antippbar statt Fließtext.
     const representative = splitContactText(customer.vb);
     const representativeHtml = representative.name || representative.phone
         ? `${escapeHtml(t('customer.representative', { name: representative.name || representative.phone }))}${representative.tel && representative.name

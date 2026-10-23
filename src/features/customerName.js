@@ -3,7 +3,7 @@
  *
  * Manche Quellsysteme liefern trotzdem HTML mit: ein bereits kodiertes
  * Kaufmanns-Und („Schmitt &amp; Co.") oder ganze Auszeichnung aus CRM-Berichten
- * (`<span style="white-space: nowrap;">Ulrike, Sammer </span>`). Entfernt werden
+ * (`<span style="white-space: nowrap;">Ute, Sander </span>`). Entfernt werden
  * nur bekannte HTML-Tags – „Schmitt <KG>" oder „a < b" bleiben, wie sie sind.
  * Trennlinien und Listenpunkte (`<hr>`, `<li>`) trennen im CRM mehrere Werte
  * eines Felds; daraus wird „ / ".
@@ -80,7 +80,7 @@ export function customerTextsNeedCleaning(customers) {
 
 /*
  * Namen ganz in Großbuchstaben (so liefern manche CRM-Berichte) lesbar
- * schreiben: „GEBR. GRAEF GMBH & CO. KG" → „Gebr. Graef GmbH & Co. KG".
+ * schreiben: „GEBR. LOEW GMBH & CO. KG" → „Gebr. Loew GmbH & Co. KG".
  * Rechtsformen und kleine Wörter nach Liste, Kürzel bis drei Buchstaben
  * („EFG", „ABB", „AG") bleiben groß, Wörter mit Ziffern („3M") unverändert.
  * Gemischt geschriebene Namen bleiben, wie sie sind. ID und Tour-Schlüssel
