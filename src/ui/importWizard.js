@@ -40,7 +40,7 @@ import { looksLikeTable, parseClipboardTable } from '../services/clipboardTable.
 import { confirmImportWithDiff } from './importDiff.js';
 import { carryOverVisits } from '../features/datasetDiff.js';
 import { cleanCustomerTexts } from '../features/customerName.js';
-import { columnsNotInFile, mergeWithPrevious, missingCustomers } from '../features/importMerge.js';
+import { adoptNumbers, columnsNotInFile, mergeWithPrevious, missingCustomers } from '../features/importMerge.js';
 import { isVisitReportHeaders } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
 import { applySyncFile, looksLikeSyncFile } from './visitSync.js';
@@ -1015,11 +1015,14 @@ async function runImport(mapping, { sales = null, template = null, remember = fa
     // Änderungsbericht mit „2250 entfallen" wäre dort eine Schreckmeldung
     // ohne Gegenstand, direkt vor dem ersten eigenen Erfolgserlebnis.
     const replacingDemoOnly = onlyDemoDataPresent();
+    // Bestandskunden ohne Nummer, die die Datei mit Nummer führt, gelten als
+    // derselbe Kunde – sonst entstünde ein Doppel ohne Kundennummer.
+    const previous = adoptNumbers(state.customers, customers);
     // Eigene, lokal erfasste Besuche bleiben beim Reimport erhalten – vor dem
     // Änderungsbericht, damit er nur noch echten Verlust (entfallene Kunden) zeigt.
     // Beispielbesuche wandern nie in echte Daten.
     const carriedVisits = customers.length > 0 && !replacingDemoOnly && !isDemoDataset(state.customers)
-        ? carryOverVisits(state.customers, customers)
+        ? carryOverVisits(previous, customers)
         : 0;
     // Abgleich statt Blindersatz: Was die Datei nicht enthält (Straße,
     // Verortung, Zuständigkeiten aus einer anderen Liste …), bleibt erhalten.
@@ -1033,11 +1036,11 @@ async function runImport(mapping, { sales = null, template = null, remember = fa
             contactsFromFile: Boolean(sales) && !parsed.sideSkipped,
             fileProps: sales && !parsed.sideSkipped ? ['opps', 'produkte'] : []
         };
-        const carriedColumns = columnsNotInFile(state.customers, source);
-        mergeWithPrevious(state.customers, customers, source);
+        const carriedColumns = columnsNotInFile(previous, source);
+        mergeWithPrevious(previous, customers, source);
         // Kennt die Datei Angaben des Bestands nicht, ist sie eine zweite,
         // ergänzende Liste: Fehlende Kunden dann vorgeschlagen behalten.
-        abgleich = { missing: missingCustomers(state.customers, customers), carriedColumns, defaultKeep: carriedColumns.length > 0 };
+        abgleich = { missing: missingCustomers(previous, customers), carriedColumns, defaultKeep: carriedColumns.length > 0 };
     }
     let keptMissing = [];
     // Importvorlage (15.1): Fehlt kein Kunde, ist nichts zu entscheiden – kein
@@ -1046,14 +1049,14 @@ async function runImport(mapping, { sales = null, template = null, remember = fa
     let templateDiff = null;
     const quietTemplate = Boolean(template) && customers.length > 0 && !replacingDemoOnly
         && Boolean(abgleich) && abgleich.missing.length === 0;
-    if (quietTemplate) templateDiff = diffCustomerDatasets(state.customers, customers);
+    if (quietTemplate) templateDiff = diffCustomerDatasets(previous, customers);
     if (customers.length > 0 && !replacingDemoOnly && !quietTemplate) {
         // Mit bestehendem Kundenbestand beantwortet der Änderungsbericht die
         // Frage „Was ändert sich?" und übernimmt zugleich die Bestätigung.
         // Ohne Vorbestand gibt es nichts zu vergleichen: kurze Standardabfrage.
         const confirmed = state.customers.length > 0
             ? await confirmImportWithDiff({
-                previous: state.customers,
+                previous,
                 incoming: customers,
                 sourceLabel: t('import.selectedList'),
                 abgleich

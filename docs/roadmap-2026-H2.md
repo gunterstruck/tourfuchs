@@ -1413,3 +1413,18 @@ ausdrücklich „Auftragseingang, nicht Umsatz". Gerechnet wird wie vorher. Test
 („Orders FY26") heißt jetzt „Auftragseingang (jüngstes GJ)". Schon gespeicherte
 Bestände werden beim Laden aus den Original-Jahresspalten in `extra` nachgetragen
 – kein Reimport nötig.
+
+### Nutzer-Feedback: Kunden ohne Kundennummer (23.10.2026)
+
+Meldung des PO: Bei vielen Kunden fehlt die Kundennummer, obwohl die Liste
+(Vertriebs-Arbeitsmappe) den Debitor führt. Einlesen und Zuordnung waren in
+Ordnung. Ursache war der Abgleich mit dem Bestand: Gleicher Kunde war nur, wer
+dieselbe Nummer trägt. Lag der Kunde von früher **ohne** Nummer im Bestand
+(ältere Liste, Zeile ohne Debitor), galt er als „entfallen". Seine Besuche
+gingen nicht mit, und „Behalten" im Änderungsbericht ließ ihn als Doppel ohne
+Kundennummer auf der Karte stehen. Jetzt bekommt er für den Abgleich die
+Nummer aus der Datei, wenn Name + PLZ dort genau einen Kunden treffen
+(`adoptNumbers` in `importMerge.js`). Bei mehreren Treffern rät TourFuchs
+nicht. Schon entstandene Doppel verschwinden beim nächsten Import der Mappe,
+ihre Besuche gehen auf den Kunden mit Nummer über. Tests:
+`tests/importMerge.test.js`.

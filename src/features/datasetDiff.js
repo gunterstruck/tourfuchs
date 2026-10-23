@@ -50,21 +50,25 @@ export function customerKey(customer) {
  * @returns {number} Zahl der übernommenen Besuchsdaten
  */
 export function carryOverVisits(previous = [], incoming = []) {
+    // Alle Bestandskunden je Schlüssel: Ein Doppel von früher (ohne Nummer,
+    // siehe adoptNumbers) gibt seine Besuche mit ab.
     const before = new Map();
     for (const customer of previous) {
         const key = customerKey(customer);
-        if (!before.has(key)) before.set(key, customer);
+        if (!before.has(key)) before.set(key, []);
+        before.get(key).push(customer);
     }
     let carried = 0;
     const used = new Set();
     for (const customer of incoming) {
         const key = customerKey(customer);
-        const match = before.get(key);
-        if (!match || used.has(key)) continue;
+        const matches = before.get(key);
+        if (!matches || used.has(key)) continue;
         used.add(key);
         const own = Array.isArray(customer.besuche) ? customer.besuche : [];
         const known = new Set(own);
-        const extra = (Array.isArray(match.besuche) ? match.besuche : []).filter((date) => date && !known.has(date));
+        const extra = [...new Set(matches.flatMap((match) => (Array.isArray(match.besuche) ? match.besuche : [])))]
+            .filter((date) => date && !known.has(date));
         if (extra.length === 0) continue;
         customer.besuche = [...new Set([...own, ...extra])].sort();
         carried += extra.length;

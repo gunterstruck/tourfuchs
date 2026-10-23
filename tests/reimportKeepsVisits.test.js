@@ -34,7 +34,10 @@ describe('Reimport behält lokal erfasste Besuche', () => {
 
     it('der Import nutzt es – vor dem Änderungsbericht, nie mit Beispieldaten', () => {
         const ui = readFileSync(resolve(process.cwd(), 'src/ui/importWizard.js'), 'utf8');
-        const call = ui.indexOf('carryOverVisits(state.customers, customers)');
+        const call = ui.indexOf('carryOverVisits(previous, customers)');
+        // Bestand ohne Nummer, Datei mit Nummer: derselbe Kunde (adoptNumbers).
+        expect(ui.indexOf('const previous = adoptNumbers(state.customers, customers);')).toBeGreaterThan(-1);
+        expect(ui.indexOf('const previous = adoptNumbers(state.customers, customers);')).toBeLessThan(call);
         expect(call).toBeGreaterThan(-1);
         expect(call).toBeLessThan(ui.indexOf('await confirmImportWithDiff({'));
         expect(ui).toContain('!replacingDemoOnly && !isDemoDataset(state.customers)');

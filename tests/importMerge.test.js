@@ -1,7 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { autoDetectMapping, parseRows } from '../src/services/excel.js';
-import { columnsNotInFile, mergeWithPrevious, missingCustomers } from '../src/features/importMerge.js';
+import { adoptNumbers, columnsNotInFile, mergeWithPrevious, missingCustomers } from '../src/features/importMerge.js';
+import { carryOverVisits, diffCustomerDatasets } from '../src/features/datasetDiff.js';
 import { confirmImportWithDiff } from '../src/ui/importDiff.js';
 import { state } from '../src/core/state.js';
 
@@ -142,5 +143,42 @@ describe('Änderungsbericht: fehlende Kunden behalten oder entfernen', () => {
         expect(wizard.indexOf('mergeWithPrevious(state.customers, customers, source)')).toBeLessThan(wizard.indexOf('await confirmImportWithDiff({'));
         expect(wizard).toContain('if (confirmed?.keepMissing) keptMissing = abgleich.missing;');
         expect(wizard).toContain('customers.push(...keptMissing);');
+    });
+});
+
+describe('Bestandskunde ohne Kundennummer, neue Liste mit Nummer (PO 23.10.2026)', () => {
+    // Erfundene Werte. Früher ohne Debitor eingelesen, jetzt mit.
+    const alt = () => ({ id: 'k-np:muster', name: 'Muster Mineral GmbH', plz: '45136', besuche: ['2026-09-01'], lat: 51.44, lng: 7.01, geo: 'strasse' });
+    const neu = () => ({ id: 'k-nr:7654321', nummer: '7654321', name: 'Muster Mineral GmbH', plz: '45136', besuche: [] });
+
+    it('gilt als derselbe Kunde – kein Doppel ohne Nummer, Besuche gehen mit', () => {
+        const incoming = [neu()];
+        const previous = adoptNumbers([alt()], incoming);
+        expect(previous[0].nummer).toBe('7654321');
+        expect(missingCustomers(previous, incoming)).toEqual([]);
+        expect(carryOverVisits(previous, incoming)).toBe(1);
+        expect(incoming[0].besuche).toEqual(['2026-09-01']);
+        expect(diffCustomerDatasets(previous, incoming).removed).toEqual([]);
+    });
+
+    it('räumt ein schon entstandenes Doppel beim nächsten Import ab', () => {
+        const zwilling = { ...neu(), besuche: ['2026-10-01'] };
+        const incoming = [neu()];
+        const previous = adoptNumbers([zwilling, alt()], incoming);
+        expect(missingCustomers(previous, incoming)).toEqual([]);
+        carryOverVisits(previous, incoming);
+        expect(incoming[0].besuche).toEqual(['2026-09-01', '2026-10-01']);
+    });
+
+    it('rät nicht: gleicher Name an gleicher PLZ zweimal, oder schon eine Nummer', () => {
+        const zwei = [neu(), { ...neu(), id: 'k-nr:7654322', nummer: '7654322' }];
+        expect(adoptNumbers([alt()], zwei)[0].nummer).toBeUndefined();
+        const mitUndOhne = [neu(), { ...neu(), id: 'k-np:x', nummer: '' }];
+        expect(adoptNumbers([alt()], mitUndOhne)[0].nummer).toBeUndefined();
+        const andereNummer = { ...alt(), nummer: '1112223' };
+        expect(adoptNumbers([andereNummer], [neu()])[0]).toBe(andereNummer);
+        const original = alt();
+        adoptNumbers([original], [neu()]);
+        expect(original.nummer).toBeUndefined();
     });
 });
