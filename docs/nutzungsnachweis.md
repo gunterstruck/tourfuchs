@@ -81,12 +81,40 @@ wird hierfür **nichts gebaut** (Baustopp, Roadmap 1a).
 privat zu halten und trotzdem zu veröffentlichen. Technisch braucht TourFuchs
 Vercel nicht – es ist eine rein statische Web-App (`dist/`), die auf jedem
 Webserver läuft. Dazu kommt: Der Vercel-**Hobby-Plan** ist nur für private,
-nicht-kommerzielle Nutzung gedacht. Ein Betrieb **durch den Konzern für seine
-Mitarbeiter** gehört nicht auf einen privaten Hobby-Account, sondern auf
-Infrastruktur des Konzerns.
+nicht-kommerzielle Nutzung gedacht (für die Erprobung deshalb seit 23.10.2026
+Pro, siehe unten). Ein Betrieb **durch den Konzern für seine Mitarbeiter**
+gehört nicht auf einen privaten Account, sondern auf Infrastruktur des
+Konzerns.
 
 **Bis dahin:** TourFuchs bleibt auf `tourfuchs.vercel.app`. Die dort gezählten
 Besucher pro Woche sind der erste Beleg für die Entscheidung im Konzern.
+
+**Seit 23.10.2026: Vercel-Team im Tarif Pro** (PO-Entscheidung, Anlass:
+Prüfung durch die Rechtsabteilung). TourFuchs wird als **privates, unbezahltes
+Projekt** von rund 15–20 Kolleginnen und Kollegen erprobt, angelegt auf etwa
+**drei Monate**. Danach gibt es zwei Wege: Der Konzern übernimmt (Umzug, siehe
+unten) oder der Dienst wird abgeschaltet.
+
+- **Warum Pro:** Vercel erlaubt den kostenlosen Hobby-Tarif nur für
+  nicht-gewerbliche Nutzung und fasst „gewerblich" weit (auch, wenn ein
+  bezahlter Angestellter den Code schreibt). Eine dienstlich genutzte
+  Erprobung ist damit eine Grauzone; Pro räumt sie aus. Zudem gilt im Tarif
+  Pro Vercels [Data Processing Addendum](https://vercel.com/legal/dpa) ohne
+  gesonderte Unterschrift (EU-Standardvertragsklauseln). Darin ist Vercel für
+  Inhalte des Kunden Auftragsverarbeiter, für eigene Nutzungs- und Metadaten
+  selbst Verantwortlicher; wohin die Zugriffsdaten der Besucher gehören, legt
+  der Text nicht ausdrücklich fest.
+- **Kosten:** 20 US-Dollar im Monat (netto), inklusive 20 US-Dollar Guthaben,
+  1 Mio. Abrufe und 1 TB Datenübertragung; monatlich kündbar (zurück auf
+  Hobby). Gilt für das ganze Vercel-Team, also auch für die anderen privaten
+  Projekte darin. Spend Management mit niedriger Grenze einrichten.
+- **Erwogen und verworfen (23.10.2026):** GitHub Pages während der Erprobung –
+  ebenfalls externer US-Anbieter, die Tester verlören ihre Daten (an die
+  Web-Adresse gebunden) und die Zählung entfiele; ein Umzug gehört an das Ende
+  der Erprobung, einmal.
+- Für die Rechtsabteilung gibt es ein Merkblatt „Hosting und Datenschutz"
+  (Claude Docs, Stand 23.10.2026): Rolle von Vercel, was Vercel sieht und was
+  nicht, Fragen und Antworten.
 
 ### Hosting im Konzern – Optionen
 

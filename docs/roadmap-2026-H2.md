@@ -1012,7 +1012,7 @@ diese Liste und spricht ein Thema an, wenn der Auslöser eingetreten sein könnt
 
 | Thema | Auslöser | Stand | Details |
 |---|---|---|---|
-| **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT. Für die Zählung im Konzern vorgemerkt (16.10.2026): **Plausible Analytics**, selbst betrieben – gleiche schmale Zählung, Zahlen bleiben im Konzern. Erst dann denkbar: Daten direkt aus SharePoint per Microsoft-Anmeldung (Graph) statt über OneDrive-Synchronisation (Release 15). |
+| **Umzug ins Konzern-GitHub** (Hosting + Nutzungszählung im Konzern) | Der Konzern entscheidet, TourFuchs selbst zu betreiben. | offen seit 03.10.2026 – bis dahin bleibt Vercel; die Besucherzahlen dort sind der Beleg für die Entscheidung. **Seit 23.10.2026 Vercel-Tarif Pro** für die private Erprobung (~3 Monate, ~15–20 Tester; Hobby nur nicht-gewerblich, DPA erst ab Pro); danach Umzug oder Abschalten. Merkblatt „Hosting und Datenschutz“ für die Rechtsabteilung liegt vor | [Nutzungsnachweis → Umzug ins Konzern-GitHub](nutzungsnachweis.md#umzug-ins-konzern-github-offenes-thema-stand-03102026): Optionen, technische To-dos, Fragen an die IT. Für die Zählung im Konzern vorgemerkt (16.10.2026): **Plausible Analytics**, selbst betrieben – gleiche schmale Zählung, Zahlen bleiben im Konzern. Erst dann denkbar: Daten direkt aus SharePoint per Microsoft-Anmeldung (Graph) statt über OneDrive-Synchronisation (Release 15). |
 | **Praxistest Firmen-KI-Kundenliste** | Der Verantwortliche hat den Prompt mit einem echten Firmen-Copilot getestet. | offen seit 03.10.2026 – Baustopp bis dahin | Abschnitt „Einstieg mit eigenen Daten" oben; Befund entscheidet über den nächsten Schritt |
 | **Tourvorschläge für Opportunities** (Release 16.8) | Der PO holt das Thema zurück – z. B. wenn Außendienstler mit der Arbeitsmappe fragen, welche Opportunity-Kunden sie auf der nächsten Tour mitnehmen sollen. | ⏸ zurückgestellt seit 10.10.2026 („zurückstellen, aber merken") | Idee: Kunden mit offener Opportunity in später Phase oder baldigem Abschluss in „In der Nähe" und Tourvorschlägen nach vorn; Begründung sichtbar („Opp. Phase 4, Abschluss 11/2026"). Daten liegen schon vor (16.3); bisher nur Filter „Opportunity"/„Opportunity-Phase". |
 | **Vercel-Zählung prüfen** | Einige Tage nach dem Einschalten (03.10.2026). | 24-Stunden-Zwischenstand am 09.10.2026: 29 Besucher, 61 Aufrufe. **Stand 16.10.2026 (Dashboard, Production, letzte 30 Tage): 163 Besucher, 542 Aufrufe** seit dem Einschalten. Aus dem Tagesverlauf abgelesen (ca.): **rund 80 Besucher pro Woche** in beiden ersten Wochen (03.–09.10. und 10.–16.10.), werktags meist 15–20, am Wochenende um 8; Spitze 22 am 08.10. Ausgangswert damit notiert; enthält eigene Aufrufe und Demo-Neugierige. Nächster Blick: Verlauf über die folgenden Wochen | Besucher/Woche im Vercel-Dashboard ansehen; erster Wochenwert als Ausgangspunkt notieren. Der vom Verantwortlichen geteilte Screenshot belegt Interesse, noch keine regelmäßige Nutzung. |
@@ -1367,3 +1367,17 @@ Die bisher mitgelieferte unveränderte DUVE-Vorlage wird auch aus lokal
 gespeicherten Einstellungen automatisch korrigiert. Eigene andere Vorlagen
 und die Deaktivierung bleiben erhalten. Guide 3.27, PDF und Uploadkopien
 nachgezogen; exakter Beispiel-Link und bestehende Vorlagen abgesichert.
+
+### Hosting: Vercel Pro für die Erprobung (23.10.2026)
+
+Anlass: Die Rechtsabteilung prüft TourFuchs und fragte nach der Rolle von
+Vercel (SaaS? KI-Training? Vertrag?). Antwort: Vercel liefert nur die
+statischen Programmdateien aus, Kundendaten erreichen Vercel nie. Befund beim
+Prüfen der Vercel-Unterlagen: Der kostenlose Hobby-Tarif ist nur für
+nicht-gewerbliche Nutzung erlaubt, Vercels Auftragsverarbeitungsvertrag (DPA)
+gilt erst ab Pro. **PO-Entscheidung:** für die Dauer der Erprobung Pro
+(20 US-Dollar/Monat, monatlich kündbar), danach Umzug in den Konzern oder
+Abschalten. GitHub Pages als Zwischenlösung verworfen (Tester-Daten an die
+Web-Adresse gebunden, Zählung entfiele, zweiter Umzug). Datenschutzerklärung 4a
+nennt den DPA. Details: [Nutzungsnachweis](nutzungsnachweis.md).
+
