@@ -2444,7 +2444,9 @@ export function customerPopupHtml(customer) {
         ? t('customer.geo.postalApprox')
         : customer.geo === 'strasse' ? t('customer.geo.streetApprox') : '';
     // Kopf: Name allein, darunter eine eigene Zeile für Kundennummer und CRM.
-    const idLine = nr || crmHtml || companyHtml ? `<p class="popup-idline">${nr}${nrWithName}${crmHtml}${companyHtml}</p>` : '';
+    // Links zu SieSales/DUVE als Gruppe: am Handy von vornherein in eigener Zeile (PO 23.10.2026).
+    const linksHtml = crmHtml || companyHtml ? `<span class="popup-links">${crmHtml}${companyHtml}</span>` : '';
+    const idLine = nr || linksHtml ? `<p class="popup-idline">${nr}${nrWithName}${linksHtml}</p>` : '';
     return `<div class="popup popup-customer">
         <h3>${escapeHtml(customer.name)}${demoBadge}</h3>
         ${idLine}
