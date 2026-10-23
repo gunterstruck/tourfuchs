@@ -203,6 +203,8 @@ Nach dem Konzept hat der PO fünf Wege zur Synchronisierung verglichen
   Verschlüsselung: Wer die Kundenliste hat, kann zuordnen – genau das soll das
   andere Gerät können. Endung `.txt`, weil das Teilen-Menü der Handys nur
   bekannte Typen annimmt; erkannt wird die Datei am Inhalt.
+  **PO-Entscheidung 23.10.2026: „Pseudonymisiert passt, so lassen."** Keine
+  Verschlüsselung mit Koppeln nachbauen.
 - **Gedächtnis:** „seit dem letzten Abgleich" = dasselbe Gedächtnis wie der
   Besuchsbericht; Empfangenes gilt als abgeglichen und wandert nicht zurück.
 - Abgesichert: `tests/visitSync.test.js`, smoke-check („Abgleichen: Datei
