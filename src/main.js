@@ -237,11 +237,19 @@ async function restorePersistedState() {
 const LARGE_DATASET = 2000;
 const nextPaint = () => new Promise((resolve) => requestAnimationFrame(() => setTimeout(resolve, 0)));
 
-// Kundendaten nach inhaltlichen Änderungen (Besuch, Rhythmus, Gebiete) speichern – gedrosselt
+// Kundendaten nach inhaltlichen Änderungen (Besuch, Rhythmus, Gebiete) speichern – gedrosselt.
+// Gespeichert wird nur ein geladener Bestand: Beim Sperren leert TourFuchs den
+// Arbeitsspeicher, nach dem Entsperren lädt er ihn erst nach. Ein Speichertimer,
+// der genau dazwischen fällig wurde, schrieb den leeren Stand verschlüsselt über
+// die Kundendaten (CI: „0 Kunde(n) im Klartext" beim Tresor-Deaktivieren).
 let saveTimer = null;
+let datasetLoaded = false;
 function scheduleSave() {
     clearTimeout(saveTimer);
-    saveTimer = setTimeout(() => saveDataset(datasetSnapshot()), 400);
+    saveTimer = setTimeout(() => {
+        if (datasetLoaded) saveDataset(datasetSnapshot());
+        else if (!vaultLocked()) scheduleSave();   // lädt gerade nach – danach speichern
+    }, 400);
 }
 
 // Gescannter Tour-Link (#t=…): Das Fragment trägt Kundennamen und Adressen.
@@ -346,6 +354,10 @@ async function init() {
     });
 
     on('dataset:dirty', scheduleSave);
+    // Gesperrt: Der Arbeitsspeicher ist geleert, nicht der Bestand.
+    on('vault:locked', () => { datasetLoaded = false; });
+    // Bewusst gelöscht (auch nach zu vielen Fehlversuchen): Leer ist jetzt der Bestand.
+    on('dataset:cleared', () => { datasetLoaded = true; });
 
     // Persistierte Daten laden (bei aktivem Tresor erst nach dem Entsperren).
     async function bootData() {
@@ -355,6 +367,7 @@ async function init() {
         } catch (error) {
             console.warn('Gespeicherter Zustand konnte nicht wiederhergestellt werden:', error);
         }
+        datasetLoaded = true;
         // QR-Übergabe: Wurde die App über einen gescannten Tour-Link geöffnet
         // (host/…#t=…), direkt den Empfangs-Dialog zeigen.
         handleSharedTourFromUrl();
