@@ -1410,4 +1410,6 @@ Die Bezeichnung folgt der eingelesenen Spalte – `AE …`, `Auftragseingang …
 mit Speicher, Tresor, Umzugsdatei und Reimport. Das Briefing sagt der KI
 ausdrücklich „Auftragseingang, nicht Umsatz". Gerechnet wird wie vorher. Tests:
 `tests/revenueTerm.test.js`; die Übergabeliste der Vertriebs-Arbeitsmappe
-(„Orders FY26") heißt jetzt „Auftragseingang (jüngstes GJ)".
+(„Orders FY26") heißt jetzt „Auftragseingang (jüngstes GJ)". Schon gespeicherte
+Bestände werden beim Laden aus den Original-Jahresspalten in `extra` nachgetragen
+– kein Reimport nötig.

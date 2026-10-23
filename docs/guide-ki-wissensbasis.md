@@ -1646,7 +1646,10 @@ sind. Eine Spalte, die nur `Auftragseingang` heißt, wird automatisch zugeordnet
 `Auftragseingang Datum` nicht. Bringt die Liste nur Jahresspalten (`AE GJ24` …
 `AE GJ26`), wird der jüngste Jahrgang automatisch als Betrag zugeordnet. Im Zuordnungsdialog heißt das Feld **"Umsatz /
 Auftragseingang (optional)"**. Gerechnet wird genau wie vorher; Beispieldaten und
-Live-Demos sprechen weiter von "Umsatz".
+Live-Demos sprechen weiter von "Umsatz". **Schon gespeicherte Listen** (vor dem
+23.10.2026 eingelesen) stellt TourFuchs beim Laden selbst um, wenn ihre
+Jahresspalten `AE …`, `Auftragseingang …` oder `Orders …` hießen; ein Reimport ist
+nicht nötig, die Zahlen bleiben unverändert.
 
 ### 7.10 Fehler und Hinweise
 

@@ -68,6 +68,17 @@ describe('Import merkt sich die Bezeichnung am Kunden', () => {
         expect(revenueKindOf(null)).toBe('umsatz');
     });
 
+    it('gespeicherte Bestände von vor dem 23.10.2026 heißen ohne Reimport Auftragseingang', () => {
+        // So liegt ein früher eingelesener Kunde im Speicher: ohne umsatzArt,
+        // die Original-Jahresspalten in `extra`.
+        setCustomers([{ id: 'k1', name: 'A', umsatz: 200, umsatzJahre: { 2026: 200 }, extra: { 'AE GJ26': '200', 'AE GJ25': '100' } }]);
+        expect(state.customers[0].umsatzArt).toBe('ae');
+        expect(state.revenueKind).toBe('ae');
+        setCustomers([{ id: 'k2', name: 'B', umsatz: 200, extra: { 'Umsatz 2025': '200', Bemerkung: 'AE prüfen' } }]);
+        expect(state.customers[0].umsatzArt).toBeUndefined();
+        expect(state.revenueKind).toBe('umsatz');
+    });
+
     it('Reimport mit Umsatz-Spalte nimmt die alte AE-Bezeichnung nicht mit', () => {
         const previous = [{ id: 'k-nr:1', nummer: '1', name: 'A', plz: '1', umsatz: 100, umsatzArt: 'ae' }];
         const incoming = [{ id: 'k-nr:1', nummer: '1', name: 'A', plz: '1', umsatz: 200 }];
