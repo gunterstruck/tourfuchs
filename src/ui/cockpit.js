@@ -17,6 +17,7 @@ import { CONFIG } from '../core/config.js';
 import { hasDemoCustomers } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, emit, on, attrColor, setCustomers, setTerritory, getTerritory, getCustomer, DIMENSIONS, UNASSIGNED } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { loadLevel, regionName, regionKey } from '../services/geodata.js';
 import { fairness, regionMembership } from '../features/territory.js';
 import { optionalModuleActive } from '../features/optionalModules.js';
@@ -953,7 +954,7 @@ function renderRegionList() {
             <span class="sim-region-name">${escapeHtml(region.name)}${empty ? ' <span class="muted small">(leer)</span>' : ''}</span>
             <span class="sim-region-meta">
                 <span class="sim-region-owner"><span class="dot" style="background:${valueColor(dom)}"></span>${escapeHtml(dom)}${empty ? '' : ` · ${ids.length}`}</span>
-                ${empty ? '' : `<span class="sim-region-revenue">${formatRevenue(regionRevenue(ids))} Umsatz</span>`}
+                ${empty ? '' : `<span class="sim-region-revenue">${formatRevenue(regionRevenue(ids))} ${revenueTerm(state.revenueKind).name}</span>`}
             </span>
         </label>
     `).join('') + (visible.length > MAX_ROWS
@@ -1090,7 +1091,7 @@ function renderChanges() {
             ${data.customers ? ` · ${data.customers} Kd. · ${formatRevenue(data.revenue)}` : ''}
         </span>`).join('');
 
-    el.innerHTML = `<p class="muted small">${pendingTerr.size} Gebiet${pendingTerr.size === 1 ? '' : 'e'} zugeordnet${overrides.size ? `, ${overrides.size} Kunden mit <b>${formatRevenue(totalRevenue)}</b> Umsatz umgebucht` : ''}:</p>
+    el.innerHTML = `<p class="muted small">${pendingTerr.size} Gebiet${pendingTerr.size === 1 ? '' : 'e'} zugeordnet${overrides.size ? `, ${overrides.size} Kunden mit <b>${formatRevenue(totalRevenue)}</b> ${revenueTerm(state.revenueKind).name} umgebucht` : ''}:</p>
         <div class="legend">${summary}</div>` +
         opsLog.map((op) => `
             <div class="change-row">

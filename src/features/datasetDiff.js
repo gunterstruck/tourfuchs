@@ -13,6 +13,7 @@
  */
 
 import { customerKey as identityKey } from './savedTourKeys.js';
+import { revenueTerm } from './revenueTerm.js';
 
 const OHNE_BEZIRK = 'Ohne Zuordnung';
 
@@ -123,7 +124,9 @@ function changedFields(before, after) {
     for (const { key, label } of COMPARED_FIELDS) {
         const a = NUMERIC_FIELDS.has(key) ? amount(before?.[key]) : text(before?.[key]);
         const b = NUMERIC_FIELDS.has(key) ? amount(after?.[key]) : text(after?.[key]);
-        if (a !== b) fields.push({ key, label, from: a, to: b });
+        // Auftragseingang heißt im Änderungsbericht auch so.
+        const shown = key === 'umsatz' ? revenueTerm(after?.umsatzArt).name : label;
+        if (a !== b) fields.push({ key, label: shown, from: a, to: b });
     }
     return fields;
 }

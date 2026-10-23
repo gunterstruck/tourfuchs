@@ -28,6 +28,8 @@ import { formatRevenueFull, formatRevenueShort } from '../core/format.js';
 import { DEMO_DATA_LABEL } from '../core/demoSafety.js';
 import { fairness } from './territory.js';
 import { openPrintView } from '../ui/printView.js';
+import { state } from '../core/state.js';
+import { revenueTerm } from './revenueTerm.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -140,7 +142,7 @@ export function reassignmentRows(model) {
         'Ort': move.ort ?? '',
         [`${label} – bisher`]: move.from ?? '',
         [`${label} – neu`]: move.to ?? '',
-        'Umsatz (€)': Math.round(Number(move.umsatz) || 0)
+        [`${revenueTerm(state.revenueKind).name} (€)`]: Math.round(Number(move.umsatz) || 0)
     }));
 }
 
@@ -154,7 +156,7 @@ function fairnessCell(entry) {
 function fairnessDetail(entry, kind) {
     if (!entry) return '';
     const source = kind === 'revenue' ? entry.revenue : entry.count;
-    if (!source) return '<td colspan="2" class="muted">keine Umsatzangaben</td>';
+    if (!source) return `<td colspan="2" class="muted">keine ${revenueTerm(state.revenueKind).dataPlural}</td>`;
     const value = (unit) => (kind === 'revenue'
         ? formatRevenueShort(unit.umsatz)
         : `${unit.count} Kunden`);
@@ -235,7 +237,7 @@ export function reportHtml(model) {
     <div class="cards">
         <div class="card"><b>${totals.territories}</b><span class="muted">Gebiete zugewiesen</span></div>
         <div class="card"><b>${totals.customersMoved}</b><span class="muted">Kunden umgebucht</span></div>
-        <div class="card"><b title="${escapeHtml(formatRevenueFull(totals.revenueMoved))}">${formatRevenueShort(totals.revenueMoved)}</b><span class="muted">Umsatz bewegt</span></div>
+        <div class="card"><b title="${escapeHtml(formatRevenueFull(totals.revenueMoved))}">${formatRevenueShort(totals.revenueMoved)}</b><span class="muted">${escapeHtml(revenueTerm(state.revenueKind).name)} bewegt</span></div>
         <div class="card"><b>${totals.unitsTouched}</b><span class="muted">betroffene ${escapeHtml(meta.attrLabel || 'Einheiten')}</span></div>
     </div>
 
@@ -256,14 +258,14 @@ export function reportHtml(model) {
         <thead><tr>
             <th>${escapeHtml(meta.attrLabel || 'Einheit')}</th>
             <th class="num">Kunden vorher</th><th class="num">nachher</th><th class="num">Δ</th>
-            <th class="num">Umsatz vorher</th><th class="num">nachher</th><th class="num">Δ</th>
+            <th class="num">${escapeHtml(revenueTerm(state.revenueKind).name)} vorher</th><th class="num">nachher</th><th class="num">Δ</th>
         </tr></thead>
         <tbody>${kpiRows}</tbody>
     </table>
 
     ${actionRows ? `<h2>Was getan wurde</h2>
     <table>
-        <thead><tr><th>Schritt</th><th class="num">Kunden</th><th class="num">Umsatz</th><th>Ziel</th></tr></thead>
+        <thead><tr><th>Schritt</th><th class="num">Kunden</th><th class="num">${escapeHtml(revenueTerm(state.revenueKind).short)}</th><th>Ziel</th></tr></thead>
         <tbody>${actionRows}</tbody>
     </table>` : ''}
 

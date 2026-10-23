@@ -10,6 +10,7 @@
  * Meldung, keine Hilfe.
  */
 import { state } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import {
     datasetInsight,
     insightHeadline,
@@ -37,7 +38,7 @@ function render(insight) {
     body.innerHTML = `
         <p class="insight-headline">${escapeHtml(insightHeadline(insight))}</p>
         ${insight.revenueTotal > 0
-        ? `<p class="insight-revenue" title="${escapeHtml(formatRevenueFull(insight.revenueTotal))}">Gesamtumsatz der Liste: <b>${escapeHtml(formatRevenueShort(insight.revenueTotal))}</b></p>`
+        ? `<p class="insight-revenue" title="${escapeHtml(formatRevenueFull(insight.revenueTotal))}">${escapeHtml(revenueTerm(state.revenueKind).total)} der Liste: <b>${escapeHtml(formatRevenueShort(insight.revenueTotal))}</b></p>`
         : ''}
         ${statements.length ? `<ul class="insight-lines">${statements.map(statementItem).join('')}</ul>` : ''}
         ${insight.districts.length >= 2

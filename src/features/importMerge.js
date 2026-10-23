@@ -23,6 +23,7 @@
 import { customerKey } from './datasetDiff.js';
 import { isColumnPromotor, promotorColumns } from './promotorColumns.js';
 import { revenueYearHeaders } from './revenueYears.js';
+import { revenueKindOf, revenueTerm } from './revenueTerm.js';
 
 /** Einfache Felder: Zuordnungsschlüssel = Eigenschaft am Kunden. */
 const SIMPLE_FIELDS = [
@@ -43,7 +44,7 @@ const CONTACT_PROPS = ['ansprechpartner', 'telefon', 'email', 'contacts', 'prima
 
 /** Eigenschaften, die der Import selbst setzt – alles andere pflegt TourFuchs. */
 const FILE_PROPS = new Set([
-    'id', 'nummer', 'name', 'plz', 'lat', 'lng', 'geo', 'extra', 'besuche', 'umsatzJahre',
+    'id', 'nummer', 'name', 'plz', 'lat', 'lng', 'geo', 'extra', 'besuche', 'umsatzJahre', 'umsatzArt',
     ...SIMPLE_FIELDS.map((field) => field.key), ...CONTACT_PROPS
 ]);
 
@@ -82,7 +83,7 @@ export function columnsNotInFile(previous = [], { mapping = {}, headers = [] } =
     const fileHeaders = new Set(headers);
     const missing = [];
     for (const { key, label } of SIMPLE_FIELDS) {
-        if (!mapping[key] && previous.some((customer) => filled(customer[key]))) missing.push(label);
+        if (!mapping[key] && previous.some((customer) => filled(customer[key]))) missing.push(key === 'umsatz' ? revenueTerm(revenueKindOf(previous)).name : label);
     }
     if (!CONTACT_MAPPING_KEYS.some((key) => mapping[key]) && previous.some(hasContacts)) missing.push('Ansprechpartner');
     const extraHeaders = new Set();

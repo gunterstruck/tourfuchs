@@ -19,6 +19,8 @@ import { customerMatchesRevenueFilter } from './customerFilters.js';
 import { isRoleHeader, teamDimensionDefs } from '../features/responsibilities.js';
 import { promotorDimensionDefs } from '../features/customerContacts.js';
 import { salesDimensionDefs } from '../features/salesWorkbook.js';
+import { revenueKindOf, revenueKindOfHeader } from '../features/revenueTerm.js';
+import { revenueYearOfHeader } from '../features/revenueYears.js';
 
 /**
  * Planungsrelevante Gebietsebenen. Der Vertriebsbezirk ist die führende Ebene,
@@ -39,6 +41,9 @@ const EXTRA_DIM_MAX_VALUES = 80;
 
 export const state = {
     customers: [],
+    // Wie heißt der Betrag je Kunde: 'umsatz' oder 'ae' (Auftragseingang),
+    // abgeleitet aus den Kunden – siehe features/revenueTerm.js.
+    revenueKind: 'umsatz',
     fileName: null,
     importedAt: null,
 
@@ -439,6 +444,18 @@ export function clearServiceVisits({ dirty = true } = {}) {
 }
 
 /**
+ * Vor dem 23.10.2026 eingelesene Bestände kennen `umsatzArt` noch nicht. Die
+ * Original-Jahresspalten („AE GJ25") liegen aber in `extra` – daraus wird
+ * nachgetragen, damit gespeicherte AE-Listen ohne Reimport „Auftragseingang" heißen.
+ */
+function inferRevenueKind(customer) {
+    if (!customer || customer.umsatzArt || !customer.extra) return;
+    if (Object.keys(customer.extra).some((header) => revenueYearOfHeader(header) !== null && revenueKindOfHeader(header) === 'ae')) {
+        customer.umsatzArt = 'ae';
+    }
+}
+
+/**
  * Kundenliste setzen und Vertriebsbeauftragte/Gruppen ableiten.
  * Bestehende Farb-/Sichtbarkeits-Einstellungen bleiben erhalten.
  */
@@ -448,6 +465,8 @@ export function setCustomers(customers, meta = {}) {
     // Touren und Verweise weiter gelten.
     for (const customer of customers || []) cleanCustomerTexts(customer);
     state.customers = normalizeDemoCustomers(customers);
+    for (const customer of state.customers) inferRevenueKind(customer);
+    state.revenueKind = revenueKindOf(state.customers);
     reindexCustomers();
     state.fileName = meta.fileName ?? state.fileName;
     state.importedAt = meta.importedAt ?? new Date().toISOString();

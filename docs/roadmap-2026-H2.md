@@ -1398,3 +1398,18 @@ Ersetzungen umgeschrieben und alle Commit-Adressen des PO auf die öffentliche
 Kontaktadresse tourfuchs@online.de gestellt (statt Firmen-, privater Mail- und
 Rechneradresse); Restbestände auf alten PR-Seiten entfernt nur der
 GitHub-Support (Antrag durch den PO).
+
+### Nutzer-Feedback: Auftragseingang statt Umsatz (23.10.2026)
+
+Meldung des PO: Die eingelesenen Zahlen je Geschäftsjahr sind Auftragseingang
+(AE), nicht Umsatz. Besonders heikel im KI-Briefing: „Umsatz nach Geschäftsjahr"
+lässt den Assistenten auf Rechnungen und Zahlungen schließen. **PO-Entscheidung:**
+Die Bezeichnung folgt der eingelesenen Spalte – `AE …`, `Auftragseingang …`,
+`Orders …` → überall „Auftragseingang" (eng: „AE"), sonst weiter „Umsatz"
+(andere Nutzer, Beispieldaten, Live-Demos). Gemerkt am Kunden (`umsatzArt`), reist
+mit Speicher, Tresor, Umzugsdatei und Reimport. Das Briefing sagt der KI
+ausdrücklich „Auftragseingang, nicht Umsatz". Gerechnet wird wie vorher. Tests:
+`tests/revenueTerm.test.js`; die Übergabeliste der Vertriebs-Arbeitsmappe
+(„Orders FY26") heißt jetzt „Auftragseingang (jüngstes GJ)". Schon gespeicherte
+Bestände werden beim Laden aus den Original-Jahresspalten in `extra` nachgetragen
+– kein Reimport nötig.

@@ -1,4 +1,5 @@
 import { state, on, emit } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { isPostalQuery, postalLabel, postalResponsibility, teamsChatUrl } from '../features/postalResponsibility.js';
 import { COMPANY_LINK_KEY, DUVE_TEMPLATE, readCompanyLink, validCompanyLink } from '../features/companyLink.js';
 
@@ -8,7 +9,7 @@ let dialog;
 let timer;
 
 function revenue(stats) {
-    return stats.count === stats.missingRevenue ? 'Kein Umsatz hinterlegt' : `${amount(stats.revenue)} erfasster Umsatz${stats.missingRevenue ? ` · ${stats.missingRevenue} ohne Umsatzangabe` : ''}`;
+    return stats.count === stats.missingRevenue ? `Kein ${revenueTerm(state.revenueKind).name} hinterlegt` : `${amount(stats.revenue)} erfasster ${revenueTerm(state.revenueKind).name}${stats.missingRevenue ? ` · ${stats.missingRevenue} ohne ${revenueTerm(state.revenueKind).data}` : ''}`;
 }
 
 export function customerFocusText(profile) {
@@ -23,9 +24,9 @@ export function responsibilityResultsHtml(result) {
     const assignments = result.assignments.length
         ? `<section class="postal-assignment"><h3>Hinterlegte PLZ-Gebietszuordnungen</h3><ul>${result.assignments.map((a) => `<li>PLZ ${esc(postalLabel(a.prefix))}: <b>${esc(a.district)}</b></li>`).join('')}</ul><p>Jede Zeile gilt für den genannten Bereich. Überschneidungen und Ausnahmen bitte vor der Neukundenanlage prüfen.</p></section>`
         : '<p>Keine hinterlegte PLZ-Gebietszuordnung für diesen Bereich. Landkreiszuordnungen werden hier nicht ausgewertet.</p>';
-    const years = result.years.length ? `Umsatzjahre im Bestand: ${result.years.join(', ')}${result.unknownYear ? '; teilweise ohne Jahresangabe' : ''}.` : 'Umsatzzeitraum nicht hinterlegt.';
+    const years = result.years.length ? `${revenueTerm(state.revenueKind).years} im Bestand: ${result.years.join(', ')}${result.unknownYear ? '; teilweise ohne Jahresangabe' : ''}.` : `Zeitraum (${revenueTerm(state.revenueKind).name}) nicht hinterlegt.`;
     return `<h3>PLZ ${esc(postalLabel(result.prefix))}</h3>
-        <p class="postal-total"><b>${result.count} Kunden</b> · ${esc(revenue(result))}</p><p class="muted">${esc(years)} Verwendet wird der importierte Umsatz je Kunde.</p>
+        <p class="postal-total"><b>${result.count} Kunden</b> · ${esc(revenue(result))}</p><p class="muted">${esc(years)} Verwendet wird der importierte ${esc(revenueTerm(state.revenueKind).name)} je Kunde.</p>
         ${assignments}<h3>In diesem Bereich vertreten</h3>
         <p>Bestandskunden zeigen die bisherige Verteilung, keine verbindliche Neukundenzuständigkeit. Zuordnung bitte abstimmen.</p>
         ${result.groups.length ? result.groups.map((group, index) => {
