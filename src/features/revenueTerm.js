@@ -38,6 +38,7 @@ const TERMS = {
         data: 'Umsatzangabe',
         dataPlural: 'Umsatzangaben',
         years: 'Umsatzjahre',
+        range: 'Umsatzintervall',
         trend: 'Umsatzentwicklung',
         perYear: 'Umsatz nach Geschäftsjahr',
         exportHeader: 'Umsatz'
@@ -52,6 +53,7 @@ const TERMS = {
         data: 'AE-Angabe',
         dataPlural: 'AE-Angaben',
         years: 'AE-Jahre',
+        range: 'AE-Intervall',
         trend: 'Entwicklung des Auftragseingangs',
         perYear: 'Auftragseingang nach Geschäftsjahr',
         exportHeader: 'Auftragseingang'

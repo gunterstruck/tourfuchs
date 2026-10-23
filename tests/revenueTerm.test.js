@@ -122,7 +122,7 @@ describe('Kachel und Briefing sagen „Auftragseingang"', () => {
 
     it('feste Beschriftungen im Seitengerüst sind markiert', () => {
         const html = read('index.html');
-        expect(html.match(/data-revenue-term=/g)?.length).toBeGreaterThanOrEqual(5);
+        expect(html.match(/data-revenue-(term|template)=/g)?.length).toBeGreaterThanOrEqual(5);
         expect(read('src/main.js')).toContain('initRevenueLabels()');
     });
 });

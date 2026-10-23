@@ -449,7 +449,7 @@
                 <p id="territory-filter-summary" class="territory-filter-summary" aria-live="polite"></p>
                 <h3>Auswertung</h3>
                 <button id="btn-cockpit" class="primary expert-only" style="width:100%">📊 Gebiets-Cockpit öffnen</button>
-                <p class="muted small expert-only">Kunden &amp; <span data-revenue-term="name">Umsatz</span> je Vertriebsbezirk, plus Was-wäre-wenn-Zuweisung von Gebieten.</p>
+                <p class="muted small expert-only" data-revenue-template="Kunden &amp; {name} je Vertriebsbezirk, plus Was-wäre-wenn-Zuweisung von Gebieten.">Kunden &amp; Umsatz je Vertriebsbezirk, plus Was-wäre-wenn-Zuweisung von Gebieten.</p>
 
                 <p class="muted small">Tipp: Gebiet anklicken zeigt Kunden und Team-Verteilung im Gebiet.</p>
 
@@ -462,7 +462,7 @@
                 <div class="revenue-range-filter">
                     <label class="revenue-filter-toggle" for="revenue-filter-enabled">
                         <input id="revenue-filter-enabled" type="checkbox">
-                        <span><b><span data-revenue-term="name">Umsatz</span> von–bis</b><small>Kunden nach <span data-revenue-term="name">Umsatz</span> filtern</small></span>
+                        <span><b data-revenue-template="{name} von–bis">Umsatz von–bis</b><small data-revenue-template="Kunden nach {range} filtern">Kunden nach Umsatzintervall filtern</small></span>
                     </label>
                     <div class="revenue-range-inputs">
                         <label>Von (€)
