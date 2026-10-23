@@ -190,3 +190,26 @@ export function missingCustomers(previous = [], incoming = []) {
     const now = new Set(incoming.map(customerKey));
     return [...byKey(previous).entries()].filter(([key]) => !now.has(key)).map(([, customer]) => customer);
 }
+
+/**
+ * Bestandskunden ohne Kundennummer, die die neue Datei mit Nummer führt
+ * (PO 23.10.2026): Gleicher Kunde ist sonst nur, wer dieselbe Nummer hat –
+ * der Kunde von früher ohne Nummer galt als „entfallen", seine Besuche gingen
+ * nicht mit, und „Behalten" ließ ihn als Doppel ohne Kundennummer auf der
+ * Karte stehen. Er bekommt für den Abgleich die Nummer aus der Datei, sofern
+ * Name + PLZ dort genau einen Kunden treffen.
+ * @returns {object[]} Bestand für den Abgleich – angepasste Kunden als Kopie
+ */
+export function adoptNumbers(previous = [], incoming = []) {
+    const byNamePlz = new Map();
+    for (const customer of incoming) {
+        const key = customerKey({ name: customer?.name, plz: customer?.plz });
+        // Zweimal derselbe Name an derselben PLZ: nicht raten.
+        byNamePlz.set(key, byNamePlz.has(key) || !text(customer?.nummer) ? null : customer);
+    }
+    return previous.map((customer) => {
+        if (text(customer?.nummer)) return customer;
+        const match = byNamePlz.get(customerKey(customer));
+        return match ? { ...customer, nummer: match.nummer } : customer;
+    });
+}
