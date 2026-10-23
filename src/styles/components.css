@@ -3498,5 +3498,9 @@ body.welcome-arriving #onboarding > .ob-action-sub { display: none; }
 .postal-settings summary { cursor: pointer; padding: 10px 0; }
 @media (max-width: 768px),
        (max-width: 1200px) and (orientation: portrait),
-       (max-width: 900px) and (max-height: 520px) { .postal-launcher span { display: none; } }
-@media (max-width: 600px) { .postal-launcher { padding: 4px; min-width: 36px; } .postal-body { padding: 14px; } .postal-dialog > header { padding: 12px 14px; } }
+       (max-width: 900px) and (max-height: 520px) {
+    /* Handy: kein eigener Knopf im Kopf – die Suche bietet bei einer PLZ
+       „Zuständigkeit für PLZ …" an (PO 23.10.2026). */
+    .postal-launcher { display: none; }
+}
+@media (max-width: 600px) { .postal-body { padding: 14px; } .postal-dialog > header { padding: 12px 14px; } }

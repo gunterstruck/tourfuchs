@@ -762,7 +762,11 @@ async function phone(browser, baseUrl) {
 
     await step('PLZ-Zuständigkeit: ab drei Ziffern, Eingrenzung und Firmenlink', async () => {
         await closeDialogs(page);
-        await page.locator('#btn-postal-responsibility').click();
+        // Am Handy kein eigener Knopf im Kopf – der Weg führt über die Suche (PO 23.10.2026).
+        if (await page.locator('#btn-postal-responsibility').isVisible()) throw new Error('Zuständigkeit-Knopf belegt den Handy-Kopf');
+        await page.locator('#global-search').fill('506');
+        await page.locator('[data-postal]').click();
+        await page.waitForSelector('#postal-dialog[open]');
         await page.locator('#postal-query').fill('50');
         await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('Bitte 3 bis 5'));
         await page.locator('#postal-query').fill('506');
