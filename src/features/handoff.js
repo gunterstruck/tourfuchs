@@ -7,6 +7,7 @@
 import { visitStatus, lastVisit, agoText, formatDateDe, STATUS_LABELS } from './visits.js';
 import { DEMO_DATA_LABEL, isDemoCustomer } from '../core/demoSafety.js';
 import { t } from '../core/i18n.js';
+import { revenueTerm } from './revenueTerm.js';
 
 /** Text in die Zwischenablage kopieren (mit Fallback für ältere Browser) */
 export async function copyText(text) {
@@ -75,7 +76,7 @@ export function customerText(c) {
         c.email && `E-Mail: ${c.email}`
     ].filter(Boolean);
     if (contact.length) lines.push(contact.join(' · '));
-    if (c.umsatz) lines.push(`Umsatz: ${c.umsatz.toLocaleString('de-DE')} €`);
+    if (c.umsatz) lines.push(`${revenueTerm(c.umsatzArt).name}: ${c.umsatz.toLocaleString('de-DE')} €`);
     if (c.rhythmusWochen) {
         const last = lastVisit(c);
         lines.push(`Rhythmus ${c.rhythmusWochen} Wochen · letzter Besuch ${last ? formatDateDe(last) : '—'} (${agoText(last)}) · ${STATUS_LABELS[visitStatus(c)]}`);

@@ -16,6 +16,8 @@
  * keine Kontakte mit Sperrvermerk. Reine Logik, ohne DOM.
  */
 
+import { revenueKindOf, revenueTerm } from './revenueTerm.js';
+
 export const SALES_SHEETS = Object.freeze({
     main: 'VBEZ Übersicht',
     files: 'Dateiübersicht',
@@ -349,6 +351,7 @@ function handoverFigures(customer) {
  * die Datei geht an die Beteiligten.
  */
 export function handoverRows(customers = []) {
+    const revenueHeader = `${revenueTerm(revenueKindOf(customers)).name} (jüngstes GJ)`;
     return customers
         .map((customer) => ({ customer, transfer: handover(customer) }))
         .filter(({ transfer }) => transfer)
@@ -367,7 +370,7 @@ export function handoverRows(customers = []) {
             'Straße': text(customer.strasse),
             'PLZ': text(customer.plz),
             'Ort': text(customer.ort),
-            'Umsatz (jüngstes GJ)': figures.revenue,
+            [revenueHeader]: figures.revenue,
             'Offene Opportunities': figures.openOpps,
             'Erwarteter AE offen': figures.openAmount,
             'Kontakte': figures.contacts,
@@ -377,15 +380,16 @@ export function handoverRows(customers = []) {
 
 /** Übersicht je Paar „VB alt → VB neu": Anzahl, Umsatz, offene Opportunities. */
 export function handoverSummary(customers = []) {
+    const revenueHeader = `${revenueTerm(revenueKindOf(customers)).name} (jüngstes GJ)`;
     const pairs = new Map();
     for (const customer of customers) {
         const transfer = handover(customer);
         if (!transfer) continue;
         const key = `${transfer.from}\u0000${transfer.to}`;
         const figures = handoverFigures(customer);
-        const entry = pairs.get(key) || { 'VB (Alt)': transfer.from, 'VB (Neu)': transfer.to, 'Kunden': 0, 'Umsatz (jüngstes GJ)': 0, 'Offene Opportunities': 0, 'Erwarteter AE offen': 0 };
+        const entry = pairs.get(key) || { 'VB (Alt)': transfer.from, 'VB (Neu)': transfer.to, 'Kunden': 0, [revenueHeader]: 0, 'Offene Opportunities': 0, 'Erwarteter AE offen': 0 };
         entry['Kunden'] += 1;
-        entry['Umsatz (jüngstes GJ)'] += figures.revenue;
+        entry[revenueHeader] += figures.revenue;
         entry['Offene Opportunities'] += figures.openOpps;
         entry['Erwarteter AE offen'] += figures.openAmount;
         pairs.set(key, entry);

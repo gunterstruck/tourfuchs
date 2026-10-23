@@ -5,6 +5,7 @@
 
 import { CONFIG } from '../core/config.js';
 import { state, on, emit, UNASSIGNED, visibleCustomers, setCustomers, setPlaces, clearServiceContracts, clearServiceVisits, filterDimensionDefs, dimensionValues, datasetSnapshot } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { exactGeocodeCandidates, groupExactGeocodeCandidates, abandonGeocodeRuns } from '../services/geocode.js';
 import { runExactGeocoding, cancelExactGeocoding, isExactGeocodingRunning, exactGeocodePreference } from './exactGeocoding.js';
 import { isDemoDataset, isDemoCustomer } from '../core/demoSafety.js';
@@ -1720,6 +1721,8 @@ export function initSidebar() {
 
     on('customers:changed', (info) => {
         renderDataStatus();
+        // „Aus – alle Kunden unabhängig vom Umsatz" folgt der eingelesenen Spalte.
+        syncRevenueFilterControls();
         // Adressgenaue Verortung verschiebt nur Punkte: Filter, Legende und Modus
         // bleiben. applyMode() hier löste sonst „mode:changed" aus – die Karte
         // zeichnete alle Punkte neu und schloss die offene Kundenkachel.
@@ -1793,7 +1796,7 @@ function renderTerritoryFilterSummary() {
                 : `${values.length} von ${filter.total}`;
         return `${filter.label}: ${selection}`;
     });
-    if (revenue.enabled) parts.push(`Umsatz: ${revenueRangeLabel(revenue)}`);
+    if (revenue.enabled) parts.push(`${revenueTerm(state.revenueKind).name}: ${revenueRangeLabel(revenue)}`);
     el.classList.add('is-active');
     el.textContent = `Filter aktiv – ${parts.join(' · ')}. Kunden, Gebietsflächen und Beschriftungen folgen der Auswahl.`;
 }
@@ -1808,8 +1811,8 @@ function renderLegend() {
         auto: 'Zoom bestimmt den Detailgrad: weit → Vertriebshauptgruppen, dann Vertriebsgruppen, mittel/nah → Vertriebsbezirke.',
         rep: 'Ruhige grüne Kundenkarten; fällige Besuche werden nur als kleine Ausnahme hervorgehoben.',
         channel: 'Gebiete nach Vertriebshauptgruppe bzw. Channel, mit Kundenanzahl und Volumen.',
-        bezirk: 'Gebiete flächig nach Vertriebsbezirk eingefärbt, mit Name und Umsatzsumme.',
-        gruppe: 'Gebiete flächig nach Vertriebsgruppe eingefärbt, mit Name und Umsatzsumme.',
+        bezirk: `Gebiete flächig nach Vertriebsbezirk eingefärbt, mit Name und ${revenueTerm(state.revenueKind).sum}.`,
+        gruppe: `Gebiete flächig nach Vertriebsgruppe eingefärbt, mit Name und ${revenueTerm(state.revenueKind).sum}.`,
         status: 'Kunden als Punkte, eingefärbt nach Besuchsstatus.',
         luecken: 'Abdeckung je Gebiet: rot = keine Kunden (weißer Fleck), gelb = zugeordnet aber leer, grün = abgedeckt (je kräftiger, desto mehr Kunden).'
     };
@@ -2128,7 +2131,7 @@ function revenueRangeLabel(filter = state.filters.revenue) {
     if (min !== null && max !== null) return `${formatRevenueFull(min)} bis ${formatRevenueFull(max)}`;
     if (min !== null) return `ab ${formatRevenueFull(min)}`;
     if (max !== null) return `bis ${formatRevenueFull(max)}`;
-    return 'vorhandener Umsatzwert';
+    return `vorhandener ${revenueTerm(state.revenueKind).value}`;
 }
 
 function syncRevenueFilterControls() {
@@ -2148,8 +2151,8 @@ function syncRevenueFilterControls() {
     if (reset) reset.disabled = !filter.enabled && filter.min === null && filter.max === null;
     if (summary) {
         summary.textContent = filter.enabled
-            ? `Aktiv: ${revenueRangeLabel(filter)}. Kunden ohne gültigen Umsatzwert werden ausgeblendet.`
-            : 'Aus – alle Kunden unabhängig vom Umsatz.';
+            ? `Aktiv: ${revenueRangeLabel(filter)}. Kunden ohne gültigen ${revenueTerm(state.revenueKind).value} werden ausgeblendet.`
+            : `Aus – alle Kunden unabhängig vom ${revenueTerm(state.revenueKind).name}.`;
     }
 }
 

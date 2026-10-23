@@ -17,6 +17,7 @@
       "telefon": "",
       "email": "",
       "umsatz": 990000,
+      "umsatzArt": "ae",
       "umsatzJahre": {
         "2024": 1000000,
         "2025": 1100000,
@@ -133,6 +134,7 @@
       "telefon": "",
       "email": "",
       "umsatz": 75000,
+      "umsatzArt": "ae",
       "umsatzJahre": {
         "2026": 75000
       },
@@ -198,6 +200,7 @@
       "telefon": "",
       "email": "",
       "umsatz": null,
+      "umsatzArt": "ae",
       "umsatzJahre": {},
       "rhythmusWochen": null,
       "besuche": [],

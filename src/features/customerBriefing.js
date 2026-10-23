@@ -100,6 +100,10 @@ function focusHints(customer, plan) {
     if (plan.some((line) => line.startsWith('- Umsatz nach Geschäftsjahr:'))) {
         hints.push('Berücksichtige die Umsatzentwicklung bei Chance und Risiko; wiederhole die Zahlen nicht, sondern ordne sie ein.');
     }
+    // Auftragseingang ist kein Umsatz: Sonst schließt die KI auf Rechnungen und Zahlungen.
+    if (plan.some((line) => line.startsWith('- Auftragseingang nach Geschäftsjahr:'))) {
+        hints.push('Die Zahlen sind Auftragseingang (bestellt), nicht Umsatz (berechnet): Berücksichtige die Entwicklung des Auftragseingangs bei Chance und Risiko; wiederhole die Zahlen nicht, sondern ordne sie ein.');
+    }
     return hints.length ? `\n${hints.join('\n')}` : '';
 }
 

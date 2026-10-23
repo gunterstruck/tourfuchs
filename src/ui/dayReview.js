@@ -9,6 +9,7 @@
  * besuchten Kunden, und erst eingeklappt, was liegen geblieben ist.
  */
 import { state, on } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { dayReview, dayReviewHeadline, dayReviewText } from '../features/dayReview.js';
 import { clearDayLog, recordDayReview } from '../features/dayLog.js';
 import { formatDateDe, agoText } from '../features/visits.js';
@@ -68,7 +69,7 @@ function render(review) {
             ${statTile(String(review.openStops.length), 'offen geblieben', review.openStops.length ? 'review-stat-open' : '')}
         </div>
         ${review.revenueVisited > 0
-        ? `<p class="review-revenue" title="${escapeHtml(formatRevenueFull(review.revenueVisited))}">Umsatz der besuchten Kunden: <b>${escapeHtml(formatRevenueShort(review.revenueVisited))}</b></p>`
+        ? `<p class="review-revenue" title="${escapeHtml(formatRevenueFull(review.revenueVisited))}">${escapeHtml(revenueTerm(state.revenueKind).name)} der besuchten Kunden: <b>${escapeHtml(formatRevenueShort(review.revenueVisited))}</b></p>`
         : ''}
         ${review.visited.length
         ? `<section class="review-block">

@@ -27,6 +27,7 @@ import { initCockpit } from './ui/cockpit.js';
 import { initRegionEditor } from './ui/regionEditor.js';
 import { initSearch } from './ui/search.js';
 import { initPostalResponsibility } from './ui/postalResponsibility.js';
+import { initRevenueLabels } from './ui/revenueLabels.js';
 import { initNearby } from './ui/nearby.js';
 import { initToasts } from './ui/toast.js';
 import { initMobilePreview } from './ui/mobilePreview.js';
@@ -313,6 +314,7 @@ async function init() {
     initCockpit();
     initRegionEditor();
     initPostalResponsibility();
+    initRevenueLabels();
     initSearch();
     initNearby();
     initMobilePreview();

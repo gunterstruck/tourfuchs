@@ -12,6 +12,8 @@
 import { diffCustomerDatasets, diffHeadline } from '../features/datasetDiff.js';
 import { formatRevenueFull, formatRevenueShort } from '../core/format.js';
 import { datasetReplacementMessage } from './datasetReplacement.js';
+import { state } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 
 // Lange Listen bleiben lesbar; der vollständige Bestand steht ohnehin danach
 // auf der Karte.
@@ -74,7 +76,7 @@ function districtTable(districts) {
         <summary>Wirkung je Vertriebsbezirk <span class="muted small">(${districts.length})</span></summary>
         <div class="table-scroll">
             <table class="diff-table">
-                <thead><tr><th>Vertriebsbezirk</th><th class="num">Kunden</th><th class="num">Δ</th><th class="num">Δ Umsatz</th></tr></thead>
+                <thead><tr><th>Vertriebsbezirk</th><th class="num">Kunden</th><th class="num">Δ</th><th class="num">Δ ${revenueTerm(state.revenueKind).short}</th></tr></thead>
                 <tbody>${rows}</tbody>
             </table>
         </div>
@@ -118,7 +120,7 @@ function render(body, diff, warning, abgleich = null) {
         <p class="diff-totals">
             <span>Kunden gesamt: <b>${diff.totals.beforeCount.toLocaleString('de-DE')} → ${diff.totals.afterCount.toLocaleString('de-DE')}</b>
                 <em class="${deltaClass(deltaCount)}">${escapeHtml(signed(deltaCount))}</em></span>
-            <span title="${escapeHtml(`${formatRevenueFull(diff.totals.beforeUmsatz)} → ${formatRevenueFull(diff.totals.afterUmsatz)}`)}">Umsatz gesamt:
+            <span title="${escapeHtml(`${formatRevenueFull(diff.totals.beforeUmsatz)} → ${formatRevenueFull(diff.totals.afterUmsatz)}`)}">${revenueTerm(state.revenueKind).name} gesamt:
                 <b>${escapeHtml(formatRevenueShort(diff.totals.beforeUmsatz))} → ${escapeHtml(formatRevenueShort(diff.totals.afterUmsatz))}</b>
                 <em class="${deltaClass(deltaUmsatz)}">${escapeHtml(signedRevenue(deltaUmsatz))}</em></span>
         </p>

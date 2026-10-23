@@ -235,21 +235,22 @@ describe('Übergaben (16.5)', () => {
         return [customers[0], extra, customers[1]];
     };
 
-    it('Übergabeliste: je Kunde, sortiert nach VB alt, VB neu, Umsatz', () => {
+    // „Orders FY26" ist Auftragseingang – so heißt die Spalte auch in der Liste (PO 23.10.2026).
+    it('Übergabeliste: je Kunde, sortiert nach VB alt, VB neu, Auftragseingang', () => {
         const rows = handoverRows(withHandovers());
         expect(rows.map((r) => [r['VB (Alt)'], r['VB (Neu)'], r.Accountname])).toEqual([
             ['Bernd Alt', 'Anna Neu', 'Nord GmbH & Co.'],
             ['Bernd Alt', 'Carla Neu', 'West KG']
         ]);
-        expect(rows[0]).toMatchObject({ Debitor: '0042', IFA: '000123', 'Umsatz (jüngstes GJ)': 990000, 'Offene Opportunities': 2, 'Erwarteter AE offen': 150000, Kontakte: 2 });
+        expect(rows[0]).toMatchObject({ Debitor: '0042', IFA: '000123', 'Auftragseingang (jüngstes GJ)': 990000, 'Offene Opportunities': 2, 'Erwarteter AE offen': 150000, Kontakte: 2 });
         // Ein unsicherer Link wird nicht in die Liste geschrieben.
         expect(rows[0]['SieSales Link']).toBe('');
     });
 
     it('Übersicht je VB-Paar', () => {
         expect(handoverSummary(withHandovers())).toEqual([
-            { 'VB (Alt)': 'Bernd Alt', 'VB (Neu)': 'Anna Neu', Kunden: 1, 'Umsatz (jüngstes GJ)': 990000, 'Offene Opportunities': 2, 'Erwarteter AE offen': 150000 },
-            { 'VB (Alt)': 'Bernd Alt', 'VB (Neu)': 'Carla Neu', Kunden: 1, 'Umsatz (jüngstes GJ)': 50000, 'Offene Opportunities': 0, 'Erwarteter AE offen': 0 }
+            { 'VB (Alt)': 'Bernd Alt', 'VB (Neu)': 'Anna Neu', Kunden: 1, 'Auftragseingang (jüngstes GJ)': 990000, 'Offene Opportunities': 2, 'Erwarteter AE offen': 150000 },
+            { 'VB (Alt)': 'Bernd Alt', 'VB (Neu)': 'Carla Neu', Kunden: 1, 'Auftragseingang (jüngstes GJ)': 50000, 'Offene Opportunities': 0, 'Erwarteter AE offen': 0 }
         ]);
     });
 

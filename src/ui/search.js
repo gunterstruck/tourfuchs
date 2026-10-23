@@ -25,6 +25,7 @@
  */
 
 import { state, getCustomer, on } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { t } from '../core/i18n.js';
 import { flyToCustomer, flyToPlace } from '../features/map.js';
 import { applyServiceCustomerScope } from '../features/customerScope.js';
@@ -191,7 +192,7 @@ export function initSearch() {
 
         const verdeckt = hits.totalCustomers - hits.customers.length;
         results.innerHTML = [
-            postal ? `<button type="button" class="result-row" data-postal><b>📍 Zuständigkeit für PLZ ${escapeHtml(postalLabel(raw))}</b><span class="muted">VBZ, Account Manager, Kunden und Umsatz</span></button>` : '',
+            postal ? `<button type="button" class="result-row" data-postal><b>📍 Zuständigkeit für PLZ ${escapeHtml(postalLabel(raw))}</b><span class="muted">VBZ, Account Manager, Kunden und ${escapeHtml(revenueTerm(state.revenueKind).name)}</span></button>` : '',
             groupHtml(t('customer.search.savedPlaces'), hits.own.map(placeRow)),
             groupHtml(
                 verdeckt > 0

@@ -14,6 +14,7 @@ import { customerContactGroups, showsCustomerContacts } from './customerContacts
 import { crmLink, crossSellFor, customerOpps, customerProducts, handover, productMix, safeLink } from './salesWorkbook.js';
 import { companyLink } from './companyLink.js';
 import { fiscalYearLabel, hasRevenueYears, revenueYearRows } from './revenueYears.js';
+import { revenueTerm } from './revenueTerm.js';
 import { isDemoCustomer, isDemoDataset } from '../core/demoSafety.js';
 import { formatRevenueShort, formatRevenueFull } from '../core/format.js';
 import { state, on, emit, repColor, attrColor, getCustomer, markDirty, clearServiceTourPlan, getTerritory, setTerritory, removePlace, filterDimensionDefs, UNASSIGNED } from '../core/state.js';
@@ -56,6 +57,10 @@ import { ownPlacesVisibleAtZoom, tourPointFromOwnPlace } from './places.js';
 import { isLightsBasemap, lightDotStyle, revenueReference } from './lightsMap.js';
 import { currentLocale, t } from '../core/i18n.js';
 import { copyCustomerNumber, copyCustomerNumberOnly, customerNumberClipboardText } from './handoff.js';
+
+/** Bezeichnung des Betrags: Bestand (Gebiete) bzw. je Kunde (Kachel). */
+const revenueWords = () => revenueTerm(state.revenueKind);
+const revenueKey = (customer, key) => (customer?.umsatzArt === 'ae' ? `${key}.ae` : key);
 
 let map = null;
 let regionLayer = null;
@@ -1878,7 +1883,7 @@ function regionPopupHtml(feature) {
                 <span class="simulation-arrow">→</span>
                 <div><span>Neu</span><b><i class="dot" style="background:${attrColor(simulationPreview.attr, info.newValue)}"></i>${escapeHtml(info.newValue)}</b></div>
             </div>
-            ${changed ? `<p><b>${customers.length}</b> Kunden · <b title="${formatRevenueFull(revenue)}">${formatRevenueShort(revenue)}</b> Umsatz</p>` : '<p class="muted small">Für dieses Gebiet ist keine Änderung vorgesehen.</p>'}
+            ${changed ? `<p><b>${customers.length}</b> Kunden · <b title="${formatRevenueFull(revenue)}">${formatRevenueShort(revenue)}</b> ${revenueWords().name}</p>` : '<p class="muted small">Für dieses Gebiet ist keine Änderung vorgesehen.</p>'}
         </div>`;
     }
     const assign = territoryAssignHtml(feature);
@@ -1909,7 +1914,7 @@ function regionPopupHtml(feature) {
     }
     // Überschriftenzeile: macht klar, dass die Zahlen Kundenanzahl und Umsatz sind.
     const districtHead = `
-        <li class="rep-head"><span class="dot" style="visibility:hidden"></span><span class="rl-name">Vertriebsbezirk</span><span class="rl-count">Kunden</span><span class="rl-rev">Umsatz</span></li>`;
+        <li class="rep-head"><span class="dot" style="visibility:hidden"></span><span class="rl-name">Vertriebsbezirk</span><span class="rl-count">Kunden</span><span class="rl-rev">${revenueWords().short}</span></li>`;
     const districtRows = [...bezirke.entries()].sort((a, b) => b[1].count - a[1].count).map(([bezirk, d]) => `
         <li><span class="dot" style="background:${attrColor('bezirk', bezirk)}"></span><span class="rl-name">${escapeHtml(bezirk)}</span><b class="rl-count">${d.count}</b><b class="rl-rev" title="${formatRevenueFull(d.revenue)}">${formatRevenueShort(d.revenue)}</b></li>
     `).join('');
@@ -2285,7 +2290,7 @@ function revenueYearsPanelHtml(customer, locale) {
         return `<li><span class="popup-revenue-year">${escapeHtml(label)}</span>${value}${change}</li>`;
     }).join('');
     return `<div class="popup-panel popup-revenue-years" data-popup-panel="revenue" hidden>
-        <p class="muted small">${escapeHtml(t('customer.revenue.yearsTitle'))}</p>
+        <p class="muted small">${escapeHtml(t(revenueKey(customer, 'customer.revenue.yearsTitle')))}</p>
         <ul>${rows}</ul>
     </div>`;
 }
@@ -2412,10 +2417,10 @@ export function customerPopupHtml(customer) {
     const locale = currentLocale();
     const years = hasRevenueYears(customer);
     const yearsToggle = years
-        ? `<button type="button" class="popup-chip popup-revenue-toggle" data-popup-section="revenue" aria-expanded="false" title="${escapeHtml(t('customer.revenue.yearsTitle'))}">📊 ${escapeHtml(t('customer.revenue.years'))}</button>`
+        ? `<button type="button" class="popup-chip popup-revenue-toggle" data-popup-section="revenue" aria-expanded="false" title="${escapeHtml(t(revenueKey(customer, 'customer.revenue.yearsTitle')))}">📊 ${escapeHtml(t('customer.revenue.years'))}</button>`
         : '';
     const revenueLine = hasRevenue || years
-        ? `<p class="popup-revenue"><span>${escapeHtml(t('customer.revenue'))}</span><span class="popup-revenue-value">${hasRevenue ? `<b class="popup-umsatz" title="${escapeHtml(formatRevenueFull(revenue, locale))}">${escapeHtml(formatRevenueShort(revenue, locale))}</b>` : ''}${yearsToggle}</span></p>`
+        ? `<p class="popup-revenue"><span>${escapeHtml(t(revenueKey(customer, 'customer.revenue')))}</span><span class="popup-revenue-value">${hasRevenue ? `<b class="popup-umsatz" title="${escapeHtml(formatRevenueFull(revenue, locale))}">${escapeHtml(formatRevenueShort(revenue, locale))}</b>` : ''}${yearsToggle}</span></p>`
         : '';
     const revenueHtml = years ? `<div class="popup-people">${revenueLine}${revenueYearsPanelHtml(customer, locale)}</div>` : revenueLine;
     const profi = state.ui.depth === 'profi';

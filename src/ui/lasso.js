@@ -26,6 +26,7 @@
  */
 import L from 'leaflet';
 import { state, emit, on } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { cardAnchorLatLng, customersOnMap, getMap, openMapCard } from '../features/map.js';
 import { isOpportunity } from '../features/visits.js';
 import { planningNow } from '../features/dayPlanner.js';
@@ -299,7 +300,7 @@ function cardHtml() {
 
     const meta = [];
     if (due > 0) meta.push(`<b>${due}</b> fällig`);
-    if (revenue > 0) meta.push(`${formatRevenueShort(revenue)} Umsatz`);
+    if (revenue > 0) meta.push(`${formatRevenueShort(revenue)} ${revenueTerm(state.revenueKind).name}`);
     if (places.length) {
         meta.push(places.length <= 3
             ? escapeHtml(places.join(' · '))

@@ -10,6 +10,7 @@
  * vom Nutzer abgeschickt. TourFuchs meldet sich nirgends an.
  */
 import { state } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import {
     AREA_BRIEFING_LIMIT,
     areaBriefingSelection,
@@ -70,7 +71,7 @@ function render(selection, areaLabel, { preview = false } = {}) {
                 <summary>Diese Kunden stehen im Prompt <span class="muted small">(${included.length})</span></summary>
                 <ul class="area-customer-list">${included.map(customerItem).join('')}</ul>
             </details>
-            <p class="briefing-manual-note"><b>Nicht enthalten:</b> Umsatz, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn du den Prompt absendest.</p>
+            <p class="briefing-manual-note"><b>Nicht enthalten:</b> ${escapeHtml(revenueTerm(state.revenueKind).name)}, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn du den Prompt absendest.</p>
             ${withChooser ? assistantChooserHtml(currentAssistant, 'area-briefing') : ''}
             ${briefingSourcesHtml()}
             <details class="briefing-prompt-visible">

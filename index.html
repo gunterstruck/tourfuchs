@@ -449,7 +449,7 @@
                 <p id="territory-filter-summary" class="territory-filter-summary" aria-live="polite"></p>
                 <h3>Auswertung</h3>
                 <button id="btn-cockpit" class="primary expert-only" style="width:100%">📊 Gebiets-Cockpit öffnen</button>
-                <p class="muted small expert-only">Kunden &amp; Umsatz je Vertriebsbezirk, plus Was-wäre-wenn-Zuweisung von Gebieten.</p>
+                <p class="muted small expert-only">Kunden &amp; <span data-revenue-term="name">Umsatz</span> je Vertriebsbezirk, plus Was-wäre-wenn-Zuweisung von Gebieten.</p>
 
                 <p class="muted small">Tipp: Gebiet anklicken zeigt Kunden und Team-Verteilung im Gebiet.</p>
 
@@ -462,7 +462,7 @@
                 <div class="revenue-range-filter">
                     <label class="revenue-filter-toggle" for="revenue-filter-enabled">
                         <input id="revenue-filter-enabled" type="checkbox">
-                        <span><b>Umsatz von–bis</b><small>Kunden nach Umsatzintervall filtern</small></span>
+                        <span><b><span data-revenue-term="name">Umsatz</span> von–bis</b><small>Kunden nach <span data-revenue-term="name">Umsatz</span> filtern</small></span>
                     </label>
                     <div class="revenue-range-inputs">
                         <label>Von (€)
@@ -1361,14 +1361,14 @@
                     <input id="cockpit-kpi-search" type="search" placeholder="filtern…" autocomplete="off">
                     <select id="cockpit-kpi-sort" aria-label="Sortierung">
                         <option value="count">Kunden ↓</option>
-                        <option value="umsatz">Umsatz ↓</option>
+                        <option value="umsatz" data-revenue-term="name" data-revenue-suffix=" ↓">Umsatz ↓</option>
                         <option value="name">Name A–Z</option>
                     </select>
                 </div>
             </div>
             <div class="table-scroll cockpit-kpi-scroll">
                 <table class="cockpit-table">
-                    <thead><tr><th id="cockpit-attr-head">Vertriebsbezirk</th><th>Kunden</th><th>Umsatz</th><th>Auslastung</th></tr></thead>
+                    <thead><tr><th id="cockpit-attr-head">Vertriebsbezirk</th><th>Kunden</th><th data-revenue-term="short">Umsatz</th><th>Auslastung</th></tr></thead>
                     <tbody id="cockpit-rows"></tbody>
                 </table>
             </div>

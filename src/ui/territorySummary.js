@@ -1,4 +1,5 @@
 import { emit, getCustomer, on } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { formatRevenueFull } from '../core/format.js';
 import { buildTerritorySummary } from '../features/territorySummary.js';
 
@@ -23,7 +24,7 @@ function render(detail) {
     const customers = (detail.customerIds || []).map(getCustomer).filter(Boolean);
     const summary = buildTerritorySummary(customers, detail);
     const revenueNote = summary.revenueKnownCount < summary.count
-        ? `${summary.revenueKnownCount} von ${summary.count} Kunden mit Umsatzangabe`
+        ? `${summary.revenueKnownCount} von ${summary.count} Kunden mit ${revenueTerm(state.revenueKind).data}`
         : 'für alle angezeigten Kunden vorhanden';
     const places = summary.topPlaces.length
         ? summary.topPlaces.map((place) => `<li><span>${escapeHtml(place.name)}</span><b>${place.customerCount}</b></li>`).join('')
@@ -35,7 +36,7 @@ function render(detail) {
     document.getElementById('territory-summary-body').innerHTML = `
         <div class="territory-summary-kpis">
             <article><span>Kunden</span><strong>${summary.count.toLocaleString('de-DE')}</strong><small>aktuell sichtbar</small></article>
-            <article><span>Umsatz</span><strong>${summary.revenue === null ? '–' : escapeHtml(formatRevenueFull(summary.revenue))}</strong><small>${escapeHtml(revenueNote)}</small></article>
+            <article><span>${escapeHtml(revenueTerm(state.revenueKind).name)}</span><strong>${summary.revenue === null ? '–' : escapeHtml(formatRevenueFull(summary.revenue))}</strong><small>${escapeHtml(revenueNote)}</small></article>
             <article><span>Ø je Kunde</span><strong>${summary.averageRevenue === null ? '–' : escapeHtml(formatRevenueFull(summary.averageRevenue))}</strong><small>mit Umsatzangabe</small></article>
             <article><span>${escapeHtml(detail.levelLabel || 'Teilgebiete')}</span><strong>${summary.regionCount.toLocaleString('de-DE')}</strong><small>${summary.placeCount} ${plural(summary.placeCount, 'Ort', 'Orte')}</small></article>
         </div>

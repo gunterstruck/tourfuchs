@@ -16,6 +16,8 @@
  * Reine Logik, ohne DOM.
  */
 
+import { revenueTerm } from './revenueTerm.js';
+
 const norm = (header) => String(header ?? '').toLowerCase().replace(/[._\-/]/g, ' ').replace(/\s+/g, ' ').trim();
 
 const REVENUE_WORD = /\b(umsatz|umsätze|umsaetze|ums|revenue|sales|ist|orders|ae)\b|umsatz|auftragseingang/;
@@ -113,5 +115,5 @@ export function revenueBriefingLine(customer, format, today = new Date()) {
         const change = row.change === null ? '' : ` (${row.change > 0 ? '+' : ''}${row.change} % zum Vorjahr)`;
         return `${fiscalYearLabel(row.year)}: ${format(row.value)}${change}`;
     });
-    return `- Umsatz nach Geschäftsjahr: ${parts.join('; ')}`;
+    return `- ${revenueTerm(customer?.umsatzArt).perYear}: ${parts.join('; ')}`;
 }

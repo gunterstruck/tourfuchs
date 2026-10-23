@@ -17,6 +17,7 @@
  * Profi:  zusätzlich Status-Punkt (fällig/überfällig) und „davon X fällig".
  */
 import { state, on, emit } from '../core/state.js';
+import { revenueTerm } from '../features/revenueTerm.js';
 import { customersOnMap, getMap, flyToCustomer } from '../features/map.js';
 import { visitStatus, isOpportunity, STATUS_COLORS } from '../features/visits.js';
 import { planningNow } from '../features/dayPlanner.js';
@@ -137,7 +138,7 @@ export function renderNearby() {
     const dueCount = pool.filter((c) => isOpportunity(c, planningNow())).length;
     const statParts = [`<b>${pool.length}</b> sichtbar`];
     if (profi && dueCount > 0) statParts.push(`<b>${dueCount}</b> fällig`);
-    if (revSum > 0) statParts.push(`${formatRevenueShort(revSum)} Umsatz`);
+    if (revSum > 0) statParts.push(`${formatRevenueShort(revSum)} ${revenueTerm(state.revenueKind).name}`);
     stats.innerHTML = statParts.join(' · ')
         + (originMode === 'gps' && !gpsPos && gpsError ? ` · <span class="near-gps-hint">${gpsError}</span>` : '');
 

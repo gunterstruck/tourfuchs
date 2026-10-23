@@ -1635,6 +1635,19 @@ Kundenkachel unter **"📊 Jahre"** (8.5a). Spalten mit Plan, Ziel, Budget,
 Forecast, Prognose oder Potenzial sind keine Ist-Umsätze und werden nicht als
 Jahr erkannt. Ein Reimport mit neueren Jahren behält ältere Jahre.
 
+**Auftragseingang statt Umsatz (seit 23.10.2026):** Die Bezeichnung folgt der
+eingelesenen Spalte. Heißt sie `AE …`, `Auftragseingang …` oder `Orders …`
+(z. B. `AE GJ25`, `Orders FY26`), steht in TourFuchs überall
+**"Auftragseingang"** statt "Umsatz" – in Kundenkachel ("Auftragseingang nach
+Geschäftsjahr"), Filter, Gebietskacheln, Cockpit, Simulation, Feierabend-Rückblick,
+Änderungsbericht, Excel-Export und KI-Briefing; wo es eng ist, kurz **"AE"**. Das
+Briefing sagt der KI ausdrücklich, dass die Zahlen Auftragseingang und kein Umsatz
+sind. Eine Spalte, die nur `Auftragseingang` heißt, wird automatisch zugeordnet;
+`Auftragseingang Datum` nicht. Bringt die Liste nur Jahresspalten (`AE GJ24` …
+`AE GJ26`), wird der jüngste Jahrgang automatisch als Betrag zugeordnet. Im Zuordnungsdialog heißt das Feld **"Umsatz /
+Auftragseingang (optional)"**. Gerechnet wird genau wie vorher; Beispieldaten und
+Live-Demos sprechen weiter von "Umsatz".
+
 ### 7.10 Fehler und Hinweise
 
 Gültige Zeilen werden importiert. Problematische Zeilen erscheinen in einer

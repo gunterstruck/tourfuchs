@@ -19,6 +19,7 @@ import { customerMatchesRevenueFilter } from './customerFilters.js';
 import { isRoleHeader, teamDimensionDefs } from '../features/responsibilities.js';
 import { promotorDimensionDefs } from '../features/customerContacts.js';
 import { salesDimensionDefs } from '../features/salesWorkbook.js';
+import { revenueKindOf } from '../features/revenueTerm.js';
 
 /**
  * Planungsrelevante Gebietsebenen. Der Vertriebsbezirk ist die führende Ebene,
@@ -39,6 +40,9 @@ const EXTRA_DIM_MAX_VALUES = 80;
 
 export const state = {
     customers: [],
+    // Wie heißt der Betrag je Kunde: 'umsatz' oder 'ae' (Auftragseingang),
+    // abgeleitet aus den Kunden – siehe features/revenueTerm.js.
+    revenueKind: 'umsatz',
     fileName: null,
     importedAt: null,
 
@@ -448,6 +452,7 @@ export function setCustomers(customers, meta = {}) {
     // Touren und Verweise weiter gelten.
     for (const customer of customers || []) cleanCustomerTexts(customer);
     state.customers = normalizeDemoCustomers(customers);
+    state.revenueKind = revenueKindOf(state.customers);
     reindexCustomers();
     state.fileName = meta.fileName ?? state.fileName;
     state.importedAt = meta.importedAt ?? new Date().toISOString();

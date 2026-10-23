@@ -8,6 +8,7 @@
 import * as XLSX from 'xlsx';
 import { normalizeCustomerName } from '../features/customerName.js';
 import { isPromotorColumn, promotorColumns, PROMOTOR_COLUMN_SOURCE } from '../features/promotorColumns.js';
+import { revenueKindOf, revenueKindOfHeader, revenueTerm } from '../features/revenueTerm.js';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
 import { isManagerContactHeader } from '../features/responsibilities.js';
 import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
@@ -37,7 +38,9 @@ export const FIELDS = [
     { key: 'ansprechpartner', label: 'Hauptansprechpartner', required: false, synonyms: ['hauptansprechpartner', 'haupt ansprechpartner', 'ansprechpartner', 'kontaktperson', 'kontakt', 'hauptkontakt', 'primary contact', 'main contact', 'contact', 'ap', 'ansprechpartner in'] },
     { key: 'telefon', label: 'Telefon',                required: false, synonyms: ['telefon', 'tel', 'telefonnummer', 'phone', 'mobil', 'handy', 'rufnummer', 'festnetz'] },
     { key: 'email',   label: 'E-Mail',                 required: false, synonyms: ['email', 'e-mail', 'mail', 'e mail', 'emailadresse', 'e-mail-adresse'] },
-    { key: 'umsatz',  label: 'Umsatz (optional)',      required: false, synonyms: ['umsatz', 'jahresumsatz', 'umsatz €', 'revenue', 'potenzial', 'potential'] },
+    { key: 'umsatz',  label: 'Umsatz / Auftragseingang (optional)', required: false, synonyms: ['umsatz', 'jahresumsatz', 'umsatz €', 'revenue', 'potenzial', 'potential'],
+        // Nur als ganzer Spaltenname: „Auftragseingang Datum“ ist kein Betrag.
+        exactSynonyms: ['auftragseingang'] },
     { key: 'kontaktPrimaer', label: 'Primärkontakt?',  required: false, synonyms: ['primärkontakt', 'primaerkontakt', 'hauptkontakt ja nein', 'hauptkontakt?', 'primary', 'primary contact flag', 'main contact flag', 'ist hauptkontakt', 'standardkontakt'] },
     { key: 'rhythmusWochen', label: 'Besuchsrhythmus (Wochen)', required: false, synonyms: ['besuchsrhythmus', 'rhythmus', 'rhythmus wochen', 'besuchsintervall', 'intervall', 'turnus', 'besuchsturnus', 'frequenz', 'zyklus wochen'] },
     { key: 'letzterBesuch', label: 'Letzter Besuch (Datum)', required: false, synonyms: ['letzter besuch', 'letzterbesuch', 'besuchsdatum', 'last visit', 'zuletzt besucht', 'letzter kontakt', 'letzter termin'] },
@@ -102,7 +105,7 @@ const cellText = (value) => String(value ?? '').trim();
 let knownLabels = null;
 function isKnownFieldLabel(label) {
     if (!knownLabels) {
-        knownLabels = new Set(FIELDS.flatMap((field) => field.synonyms.map(normalizeHeader)));
+        knownLabels = new Set(FIELDS.flatMap((field) => [...field.synonyms, ...(field.exactSynonyms || [])].map(normalizeHeader)));
     }
     const norm = normalizeHeader(label);
     if (!norm) return false;
@@ -489,10 +492,11 @@ export function autoDetectMapping(allHeaders) {
                 // Ein expliziter Kundentyp darf nicht über „kunde…“ als Name
                 // verbraucht werden; dasselbe gilt für andere exakte Feldnamen.
                 if (!matcher.exact && FIELDS.some((other) => other.key !== field.key
-                    && other.synonyms.some((synonym) => normalizeHeader(synonym) === norm))) continue;
+                    && [...other.synonyms, ...(other.exactSynonyms || [])].some((synonym) => normalizeHeader(synonym) === norm))) continue;
                 // Synonyme genauso normalisieren wie die Überschrift: „Kd-Nr." wird zu
                 // „kd nr" – das Synonym „kd-nr" muss dann ebenfalls „kd nr" heißen.
-                if (field.synonyms.some((s) => (matcher.exact || s.length > 2) && matcher.fn(norm, normalizeHeader(s)))) {
+                const synonyms = matcher.exact ? [...field.synonyms, ...(field.exactSynonyms || [])] : field.synonyms;
+                if (synonyms.some((s) => (matcher.exact || s.length > 2) && matcher.fn(norm, normalizeHeader(s)))) {
                     mapping[field.key] = header;
                     used.add(header);
                     break;
@@ -502,6 +506,9 @@ export function autoDetectMapping(allHeaders) {
     }
     // Mehrere Umsatzjahre („Umsatz 2023 … 2025"): der jüngste ist „der" Umsatz.
     mapping.umsatz = pickLatestRevenueHeader(mapping.umsatz, headers);
+    // Nur Jahresspalten ohne eigenes Wort fürs Feld („AE GJ26", „Orders FY26"):
+    // Auch dann ist der jüngste Jahrgang der Betrag (PO 23.10.2026).
+    if (!mapping.umsatz) mapping.umsatz = revenueYearHeaders(headers.filter((header) => !used.has(header)))[0]?.header ?? null;
     applyContactListMapping(mapping, headers);
     return mapping;
 }
@@ -846,6 +853,9 @@ export function parseRows(rows, mapping) {
         ? parseAmountColumn(rows.map((r) => r[mapping.umsatz]))
         : { values: [], format: 'auto' };
     const umsatzByRow = umsatzColumn.values.map((n) => scaleNumber(n, umsatzScale));
+    // „AE GJ25" ist Auftragseingang, kein Umsatz – das merkt sich jeder Kunde.
+    // Ohne zugeordnete Betragsspalte entscheiden die Jahresspalten (Kachel „GJ26 …").
+    const umsatzArt = revenueKindOfHeader(mapping.umsatz || yearHeaders[0]?.header);
     if (mapping.umsatz) {
         const total = umsatzByRow.reduce((sum, n) => sum + (n || 0), 0);
         const hinweise = [];
@@ -856,7 +866,7 @@ export function parseRows(rows, mapping) {
         const format = hinweise.length ? `${hinweise.join(', ')}. ` : '';
         errors.push({
             Zeile: '—', Typ: 'Hinweis',
-            Grund: `Umsatzspalte „${mapping.umsatz}": ${format}erkannte Gesamtsumme ${Math.round(total).toLocaleString('de-DE')} €. Bitte prüfen, ob das plausibel ist.`
+            Grund: `${revenueTerm(umsatzArt).column} „${mapping.umsatz}": ${format}erkannte Gesamtsumme ${Math.round(total).toLocaleString('de-DE')} €. Bitte prüfen, ob das plausibel ist.`
         });
     }
 
@@ -966,6 +976,7 @@ export function parseRows(rows, mapping) {
             telefon: get('telefon'),
             email: get('email'),
             umsatz: umsatzByRow[index] ?? null,
+            ...(umsatzArt === 'ae' ? { umsatzArt } : {}),
             ...(yearColumns.length ? { umsatzJahre: revenueYearsOfRow(yearColumns, index) } : {}),
             rhythmusWochen: parseWeeks(mapping.rhythmusWochen ? row[mapping.rhythmusWochen] : null),
             besuche: [...besuche].sort(),
@@ -1184,6 +1195,9 @@ function contactExportText(contact) {
  */
 export function customerExportRows(customers) {
     const list = customers || [];
+    // Auftragseingang bleibt beim Export Auftragseingang – und kommt beim
+    // Wiedereinlesen unter demselben Namen zurück.
+    const revenueHeader = revenueTerm(revenueKindOf(list)).exportHeader;
     // Originalspalten: Vereinigung über alle Kunden, in der Reihenfolge ihres
     // ersten Auftretens – jede Zeile bekommt jede Spalte (leer, wo nichts steht).
     const extraHeaders = [];
@@ -1217,7 +1231,7 @@ export function customerExportRows(customers) {
             'Hauptansprechpartner': c.ansprechpartner ?? '',
             'Telefon': c.telefon ?? '',
             'E-Mail': c.email ?? '',
-            'Umsatz': c.umsatz ?? '',
+            [revenueHeader]: c.umsatz ?? '',
             'Besuchsrhythmus (Wochen)': c.rhythmusWochen ?? '',
             'Letzter Besuch': visits.length ? visits[visits.length - 1] : '',
             'Lat': c.lat ?? '',
