@@ -13,7 +13,8 @@
  *   1b. Desktop: Besuch eintragen, dieselbe Liste neu einlesen – Besuch bleibt
  *   2. Desktop: Tresor einrichten, sperren, entsperren – Kunden wieder da,
  *      gespeicherte Tour im Rohspeicher verschlüsselt; Tresor deaktivieren –
- *      Kunden bleiben im Klartext erhalten, auch nach dem Neuladen
+ *      Kunden bleiben im Klartext erhalten, auch nach dem Neuladen; ein erst
+ *      nach dem Entsperren fälliger Speichertimer schreibt keinen leeren Stand
  *   3. Handy: Kunde suchen → als Start und Ziel in die Tour → Besuch eintragen
  *      → „Besuche weitergeben" erscheint
  *
@@ -617,6 +618,45 @@ async function desktop(browser, baseUrl) {
         if (await page.evaluate(() => document.getElementById('vault-lock')?.hidden === false)) throw new Error('Sperrbildschirm trotz deaktiviertem Tresor');
     });
     await page.evaluate(() => localStorage.removeItem('smoke_slow_decrypt'));
+
+    // Langsames Gerät, zweite Sorte: Der Speichertimer (400 ms) wird erst nach dem
+    // Entsperren fällig. Bis 23.10.2026 schrieb er dann den beim Sperren geleerten
+    // Arbeitsspeicher verschlüsselt über die Kunden – nach dem Neuladen waren sie weg.
+    await step('Tresor: Speichertimer nach dem Entsperren schreibt keinen leeren Stand', async () => {
+        await closeDialogs(page);
+        const before = await customerCount(page);
+        await page.evaluate(() => {
+            const plain = window.setTimeout;
+            window.setTimeout = (fn, ms, ...args) => plain(fn, ms === 400 ? 2500 : ms, ...args);
+        });
+        await page.evaluate(() => { const t = document.getElementById('btn-vault-toggle'); t.hidden = false; t.click(); });
+        await page.waitForSelector('#setup-pin', { timeout: TIMEOUT });
+        await page.fill('#setup-pin', 'Smoke-Test-2026');
+        await page.fill('#setup-pin2', 'Smoke-Test-2026');
+        await page.click('#vault-setup-form button[type=submit]');
+        await page.waitForSelector('.vault-done', { timeout: TIMEOUT });
+        await page.click('.vault-done');
+        await page.evaluate(() => document.getElementById('btn-vault-toggle').click());
+        await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === false, null, { timeout: TIMEOUT });
+        await page.fill('#vault-pin', 'Smoke-Test-2026');
+        await page.click('#vault-unlock');
+        await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === true, null, { timeout: TIMEOUT });
+        await sleep(3500);   // der gestreckte Timer ist sicher gelaufen
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForFunction(() => document.getElementById('vault-lock')?.hidden === false, null, { timeout: TIMEOUT });
+        await page.fill('#vault-pin', 'Smoke-Test-2026');
+        await page.click('#vault-unlock');
+        await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT })
+            .catch(async () => { throw new Error(`Nach Sperren, Entsperren und Neuladen: „${await customerCount(page)}" statt „${before}"`); });
+        // Aufräumen: Tresor wieder aus, wie für die folgenden Schritte erwartet.
+        const answer = (dialog) => dialog.type() === 'prompt' ? dialog.accept('Smoke-Test-2026') : dialog.accept();
+        page.on('dialog', answer);
+        await page.evaluate(() => { const b = document.getElementById('btn-vault-disable'); b.hidden = false; b.click(); });
+        await page.waitForFunction(() => !localStorage.getItem('tf_vault'), null, { timeout: TIMEOUT });
+        page.off('dialog', answer);
+        const plain = (raw) => Boolean(raw) && !raw.__enc && JSON.stringify(raw).includes('Smoke Test');
+        if (!plain(await waitForStored(page, 'kundendaten', plain))) throw new Error('Kundendaten nach dem Deaktivieren nicht im Klartext gespeichert');
+    });
 
     await step('Alle Daten löschen – auch Touren, Adress-Cache und Szenarien', async () => {
         await closeDialogs(page);
