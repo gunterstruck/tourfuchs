@@ -1428,3 +1428,13 @@ Nummer aus der Datei, wenn Name + PLZ dort genau einen Kunden treffen
 nicht. Schon entstandene Doppel verschwinden beim nächsten Import der Mappe,
 ihre Besuche gehen auf den Kunden mit Nummer über. Tests:
 `tests/importMerge.test.js`.
+
+### Nutzer-Feedback: Zuständigkeit-Knopf am Handy (23.10.2026)
+
+Meldung des PO: Der Knopf „📍 Zuständigkeit" im Kopf ergibt am Handy keinen
+Sinn und nimmt Platz weg. **PO-Entscheidung:** In der Handy-Ansicht entfällt
+der Knopf. Wer am Handy doch eine PLZ prüfen will, tippt sie in die Suche, die
+**„Zuständigkeit für PLZ …"** anbietet. Dort liegen auch die
+Firmenlink-Einstellungen (DUVE). Am Desktop bleibt alles, wie es ist. Der
+smoke-check öffnet die Auskunft am Handy über die Suche und meldet, wenn der
+Knopf zurückkommt.

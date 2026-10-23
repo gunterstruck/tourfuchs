@@ -5110,14 +5110,15 @@ Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dre
 
 ### 26.1 Zuständigkeit finden
 
-Neben der Suche steht **„📍 Zuständigkeit“**, auf schmalen Bildschirmen als
-Pin mit Beschriftung für Hilfstechnologien **„Zuständigkeit finden“**.
-Das Fenster enthält **„PLZ oder PLZ-Anfang“**. Ab **3 Ziffern** erscheint nach
+Am Desktop steht neben der Suche **„📍 Zuständigkeit“** (für Hilfstechnologien
+**„Zuständigkeit finden“**). In der Handy-Ansicht gibt es den Knopf nicht – er
+nahm im Kopf Platz weg; dort führt die Suche hin (siehe unten). Das Fenster enthält **„PLZ oder PLZ-Anfang“**. Ab **3 Ziffern** erscheint nach
 kurzer Eingabepause die Übersicht: `451` bedeutet `451xx`, `4512` bedeutet
 `4512x`, `45127` genau diese PLZ. Führende Nullen bleiben erhalten (`010`).
 Weniger als 3 oder mehr als 5 Ziffern sowie Buchstaben sind keine gültige
 Suche. Die vorhandene globale Suche bietet bei 3–5 Ziffern zusätzlich
-**„Zuständigkeit für PLZ …“** an – auch ohne Kundentreffer.
+**„Zuständigkeit für PLZ …“** an – auch ohne Kundentreffer, am Handy der Weg
+zur Auskunft und zu den Firmenlink-Einstellungen.
 
 Die Übersicht verwendet den **gesamten geladenen Kundenbestand** unabhängig
 von Kartenfiltern, Service-Fokus, Kartenzoom und simulierten Umverteilungen.
