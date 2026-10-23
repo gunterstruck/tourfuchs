@@ -180,6 +180,16 @@ describe('DUVE neben SieSales', () => {
         expect(customerPopupHtml(customer(100))).not.toContain('popup-company');
         expect(customerPopupHtml(customer(100, { nummer: '', extra: { 'SieSales Link': 'https://crm.example/customer' } }))).not.toContain('popup-company');
     });
+
+    it('steht mit SieSales als eigene Gruppe, die am Handy in einer neuen Zeile beginnt', () => {
+        vi.stubGlobal('localStorage', { getItem: () => null });
+        const html = customerPopupHtml(customer(100, { extra: { 'SieSales Link': 'https://crm.example/customer' } }));
+        expect(html).toMatch(/<span class="popup-links"><a class="popup-nr popup-crm"[^]*popup-company[^]*<\/a><\/span><\/p>/);
+        expect(customerPopupHtml(customer(100))).not.toContain('popup-links');
+        const css = readFileSync(resolve(process.cwd(), 'src/styles/map.css'), 'utf8');
+        const phone = css.slice(css.indexOf('.popup-customer .popup-links { display'));
+        expect(phone).toMatch(/@media \(max-width: 768px\),[^{]*\{\s*\.popup-customer \.popup-links \{ flex-basis: 100%; \}/);
+    });
 });
 
 describe('Zuständig und VB mit Telefonnummer', () => {
