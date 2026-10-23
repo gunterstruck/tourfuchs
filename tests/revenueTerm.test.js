@@ -74,6 +74,10 @@ describe('Import merkt sich die Bezeichnung am Kunden', () => {
         setCustomers([{ id: 'k1', name: 'A', umsatz: 200, umsatzJahre: { 2026: 200 }, extra: { 'AE GJ26': '200', 'AE GJ25': '100' } }]);
         expect(state.customers[0].umsatzArt).toBe('ae');
         expect(state.revenueKind).toBe('ae');
+        // So heißen die Spalten in der Liste unserer Außendienstler (PO 23.10.2026).
+        setCustomers([{ id: 'k3', name: 'C', umsatz: 5, extra: { 'Orders FY24': '1', 'Orders FY25': '2', 'Orders FY26': '5' } }]);
+        expect(state.customers[0].umsatzArt).toBe('ae');
+        expect(autoDetectMapping(['Accountname', 'PLZ', 'Orders FY24', 'Orders FY25', 'Orders FY26']).umsatz).toBe('Orders FY26');
         setCustomers([{ id: 'k2', name: 'B', umsatz: 200, extra: { 'Umsatz 2025': '200', Bemerkung: 'AE prüfen' } }]);
         expect(state.customers[0].umsatzArt).toBeUndefined();
         expect(state.revenueKind).toBe('umsatz');
