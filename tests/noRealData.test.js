@@ -11,8 +11,8 @@ import { readFileSync } from 'node:fs';
  * Namen mit Handynummer). Sie wurden verfremdet und die Git-Historie bereinigt.
  *
  * Dieser Test hält die auffälligste Sorte draußen: Handynummern. Erlaubt sind
- * nur die erfundenen unten. Wer eine neue braucht, erfindet sie (0170/0171 mit
- * Ziffernfolge wie 1112233) und trägt sie hier ein – niemals eine Nummer aus
+ * nur die erfundenen unten. Wer eine neue braucht, erfindet sie (Vorwahl 0170
+ * oder 0171, Ziffern wie 1112233) und trägt sie hier ein – niemals eine Nummer aus
  * einem Screenshot oder einer Kundenliste. Gleiches gilt ohne Prüfung für
  * Firmen, Personen und Kundennummern: vor dem Einchecken verfremden.
  */
