@@ -1394,6 +1394,7 @@ nirgends. Umgesetzt: alles durch erfundene Daten ersetzt, die dasselbe prüfen
 (z. B. die Umlaut-Suche „loew" ↔ „Löw" statt des echten Falls), Wissensbasis-PDF
 neu erzeugt, Regel in `AGENTS.md`, neuer Test `tests/noRealData.test.js`
 (lässt nur erfundene Handynummern zu). Danach die Git-Historie mit denselben
-Ersetzungen umgeschrieben und die Commit-Adressen auf die anonyme
-GitHub-Adresse gestellt; Restbestände auf alten PR-Seiten entfernt nur der
+Ersetzungen umgeschrieben und alle Commit-Adressen des PO auf die öffentliche
+Kontaktadresse tourfuchs@online.de gestellt (statt Firmen-, privater Mail- und
+Rechneradresse); Restbestände auf alten PR-Seiten entfernt nur der
 GitHub-Support (Antrag durch den PO).
