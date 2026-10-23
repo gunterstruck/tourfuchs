@@ -1381,3 +1381,19 @@ Abschalten. GitHub Pages als Zwischenlösung verworfen (Tester-Daten an die
 Web-Adresse gebunden, Zählung entfiele, zweiter Umzug). Datenschutzerklärung 4a
 nennt den DPA. Details: [Nutzungsnachweis](nutzungsnachweis.md).
 
+
+### Öffentliches Repo ohne echte Daten (23.10.2026)
+
+Anlass: Bei der Frage der Rechtsabteilung nach GitHub fiel auf, dass beim
+Beheben von Nutzer-Feedback echte Bruchstücke aus CRM-Exporten im Repo
+gelandet waren – in Tests, Code-Kommentaren, Wissensbasis, Roadmap und
+Commit-Texten (Firmennamen, Kundennummern, ein Vertriebsbezirk, zwei Namen mit
+Handynummer). **PO-Entscheidung:** Das Repo bleibt öffentlich – Transparenz
+ist Absicht, jeder soll den Code prüfen können. Dafür gilt: keine echten Daten,
+nirgends. Umgesetzt: alles durch erfundene Daten ersetzt, die dasselbe prüfen
+(z. B. die Umlaut-Suche „loew" ↔ „Löw" statt des echten Falls), Wissensbasis-PDF
+neu erzeugt, Regel in `AGENTS.md`, neuer Test `tests/noRealData.test.js`
+(lässt nur erfundene Handynummern zu). Danach die Git-Historie mit denselben
+Ersetzungen umgeschrieben und die Commit-Adressen auf die anonyme
+GitHub-Adresse gestellt; Restbestände auf alten PR-Seiten entfernt nur der
+GitHub-Support (Antrag durch den PO).

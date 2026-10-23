@@ -19,6 +19,11 @@
 
 **Grundsätze (nicht verhandelbar):**
 - Lokal-first: Kundendaten verlassen das Gerät nicht; keine Cloud, kein Login.
+- **Keine echten Daten im Repo.** Das Repo ist öffentlich (Absicht: Transparenz).
+  Was aus Nutzer-Feedback kommt (Screenshots, Kundenlisten, Fehlermeldungen), wird
+  vor dem Einchecken verfremdet: Firmen, Personen, Kundennummern, Vertriebsbezirke,
+  Telefonnummern erfinden – in Tests, Kommentaren, Doku **und Commit-Texten**.
+  Handynummern sichert `tests/noRealData.test.js` ab.
 - TourFuchs ruft keine KI auf – es bereitet Prompts nur vor (kopieren, Assistent öffnen).
 - Jede neue externe Verbindung wird in `public/datenschutz.html` und README offengelegt.
 - Nutzungszählung nur anonym und schmal (`docs/nutzungsnachweis.md`): keine eigenen
