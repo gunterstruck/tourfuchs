@@ -1321,7 +1321,8 @@ statt ersetzt; das Bestätigungsfenster sagt das. **B** – „🔄 Abgleichen" 
 Handy und Desktop: Abgleich-Datei mit den Besuchen seit dem letzten Abgleich
 senden bzw. öffnen, nur ergänzen; die Datei enthält nur Prüfsummen und Daten
 (Abweichung von der Vorlage: kein Koppeln, dafür Pseudonymisierung statt
-Verschlüsselung, siehe Konzept Abschnitt 7). Am Handy ersetzt „🔄 Abgleichen"
+Verschlüsselung, siehe Konzept Abschnitt 7; vom PO am 23.10.2026 bestätigt:
+„Pseudonymisiert passt, so lassen.“). Am Handy ersetzt „🔄 Abgleichen"
 den Knopf „📤 Besuche weitergeben" im Tour-Blatt; der Besuchsbericht bleibt im
 Fenster und im Feierabend-Rückblick. Größenbudget `index.js` roh +5 KB, gzip
 +1 KB, `index.css` gzip +1 KB.
