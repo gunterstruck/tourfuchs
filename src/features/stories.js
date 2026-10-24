@@ -97,8 +97,8 @@ export const STORIES = [
             { t: 'say', text: 'Hinein in den Bezirk: Aus der Fläche werden Kundenstapel – jeder Tipp geht eine Ebene näher.', sel: '.sc-focus-stack', ms: 3000 },
             { t: 'run', key: 'districtStackToCustomer' },
             { t: 'run', key: 'openCustomerCard' },
-            { t: 'say', text: 'Angekommen beim Kunden: Adresse, Kontakt, Umsatz und der letzte Besuch.', sel: '.leaflet-popup-content', ms: 3600, pos: 'bottom' },
-            { t: 'say', text: 'Für das ganze Gebiet liegen unten zwei Wege bereit: Briefing und Export – etwa fürs CRM.', sel: '#btn-territory-briefing', ms: 3400 }
+            { t: 'say', text: 'Angekommen beim Kunden: Adresse, Kontakt, Umsatz und der letzte Besuch.', sel: '.leaflet-popup-content', ms: 3600, pos: 'bottom' }
+            // Bis 24.10.2026 zeigte ein letzter Schritt die Pille „Briefing für mein Gebiet" – entfallen.
         ]
     },
     {

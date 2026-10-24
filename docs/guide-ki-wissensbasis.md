@@ -2254,7 +2254,8 @@ im Assistenten selbst absenden. Kein Login, kein API-Aufruf.
 
 *BILD-LASSO-06 - Mehrkunden-Briefing mit voreingestelltem Copilot: prüfen, kopieren, Assistent öffnen; eingefügt und gesendet wird vom Nutzer.*
 
-**Inhalt je Kunde - bewusst weniger als beim Einzelbriefing:**
+**Inhalt je Kunde bei "Wen zuerst?" (Tourvorschläge, "In der Nähe") - bewusst
+weniger als beim Einzelbriefing:**
 
 - Kundenname
 - Kundennummer
@@ -2262,14 +2263,26 @@ im Assistenten selbst absenden. Kein Login, kein API-Aufruf.
 - Fälligkeitsstand ("überfällig" bzw. "bald fällig")
 - Datum des letzten dokumentierten Besuchs
 
-**Nicht enthalten:** Umsatz, Telefonnummer, E-Mail-Adresse, Straße,
-Kartenkoordinaten. Beim Einzelbriefing ist das zugesagt - bei einer ganzen Liste
-wiegt es schwerer, nicht leichter.
+**Nicht enthalten:** Umsatz bzw. Auftragseingang, Telefonnummer, E-Mail-Adresse,
+Straße, Kartenkoordinaten.
 
-**Höchstens 12 Kunden.** Eine Liste mit vierzig Namen ist weder ein guter Prompt
-noch eine gute Idee: Es zählt das Gebiet, nicht der Bestand. Wurde gekürzt, steht
-das ausdrücklich im Prompt ("Es sind 37 Kunden im Gebiet; hier stehen die 12
-nächstgelegenen") und der Dialog weist darauf hin.
+**Lasso (seit 24.10.2026):** je Kunde **dieselben Angaben wie das
+Einzelbriefing** - Name, Kundennummer, Ort, Hauptansprechpartner, weitere
+Ansprechpartner und Zuständigkeiten mit Namen, Umsatz bzw. Auftragseingang nach
+Geschäftsjahr, offene Opportunities - dazu Fälligkeit und letzter Besuch. Auch
+hier ohne Telefon, E-Mail, Straße und Koordinaten. Die Reihenfolge: überfällig
+zuerst, dann bald fällig, dann die am längsten nicht Besuchten.
+
+**Höchstens 8 Kunden (seit 24.10.2026, vorher 12).** Eine Liste mit vierzig
+Namen ist weder ein guter Prompt noch eine gute Idee: Es zählt das Gebiet, nicht
+der Bestand. Wurde gekürzt, steht das ausdrücklich im Prompt ("Es sind 37 Kunden
+im Gebiet; hier stehen die 8 nächstgelegenen" bzw. beim Lasso "… die 8
+dringendsten") und der Dialog weist darauf hin.
+
+**Wo es Briefings gibt (PO 24.10.2026):** für einen Kunden (Kundenkachel,
+Tour-Stopp) und für höchstens 8 Kunden aus Lasso, Tourvorschlägen und "In der
+Nähe". Die frühere Pille **"📋 Briefing für mein Gebiet"** in der Gebietsplanung
+ist entfallen.
 
 **Ergebnisformat, maximal 200 Wörter:**
 
@@ -2319,8 +2332,8 @@ Ablauf:
 
    *BILD-LASSO-04 - Auswahl prüfen; erst „Briefing über alle" führt zur Prompt-Vorbereitung.*
 
-3. "Briefing über alle" öffnet das Mehrkunden-Briefing aus 9.6 - **unverändert**:
-   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt.
+3. "Briefing über alle" öffnet das Mehrkunden-Briefing aus 9.6 - mit den vollen
+   Angaben je Kunde und höchstens 8 Kunden, die dringendsten zuerst (9.6).
 
 **Der Rückweg:** Jede Zeile der Auswahlkarte trägt ein Häkchen.
 Ohne Häkchen heißt der Knopf "Alle zur Tour" und tut das auch; mit Häkchen heißt
@@ -3523,7 +3536,7 @@ Browserdaten durch den Nutzer verhindert das nicht.
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |
 | Kundenbriefing | Nutzer fügt Prompt ein und sendet | im Prompt sichtbare Identität und Tourkontext | Microsoft 365 Copilot |
 | Kundenbriefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | Name, Nummer, PLZ/Ort, Hauptkontakt, Tourkontext | vom Nutzer gewählter Assistent |
-| Mehrkunden-Briefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | je Kunde Name, Nummer, PLZ/Ort, Fälligkeit, letzter Besuch; höchstens 12 Kunden | vom Nutzer gewählter Assistent |
+| Mehrkunden-Briefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | je Kunde Name, Nummer, PLZ/Ort, Fälligkeit, letzter Besuch; beim Lasso zusätzlich die Angaben des Einzelbriefings (Ansprechpartner-Namen, Zuständigkeiten, Umsatz/AE nach GJ, offene Opportunities), nie Telefon/E-Mail/Straße; höchstens 8 Kunden | vom Nutzer gewählter Assistent |
 | Demo-Kontakt und Demo-Briefing | Klick auf sichtbare Demo-Aktion | keine externe Übertragung; lokale Simulation/Vorschau | nur TourFuchs im Browser |
 | Tour-QR | QR anzeigen/scannen | keine TourFuchs-Serverübertragung; Tour im QR/URL-Fragment | Bildschirm/Kamera |
 | Sicherer Umzug | Export/Import | TourFuchs lädt nichts hoch; Dateiweg vom Nutzer gewählt | lokales Dateisystem/gewählter Kanal |

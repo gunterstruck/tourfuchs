@@ -285,7 +285,8 @@ describe('Showcase-Stories: Guardrail', () => {
         const keys = first.steps.filter(s => s.t === 'run').map(s => s.key);
         expect(keys).toEqual(['overviewSetup', 'overviewDistrict', 'overviewDetail', 'districtFocus', 'districtStackToCustomer', 'openCustomerCard']);
         for (const key of keys) expect(showcaseSource).toContain(`async ${key}(`);
-        expect(first.steps.at(-1).sel).toBe('#btn-territory-briefing');
+        // Endet beim Kunden: Die Pille „Briefing für mein Gebiet" ist seit 24.10.2026 entfallen.
+        expect(first.steps.at(-1).sel).toBe('.leaflet-popup-content');
     });
 
     it('behält die Gebietsübersicht mit gesicherten Filtern und echten Detail-Klicks', () => {

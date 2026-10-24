@@ -1503,3 +1503,22 @@ verhindern.
    verschlüsseln in 40 statt 200 ms), was auch den Tresor beschleunigt.
    Offen: Merkblatt für die Rechtsabteilung um „verschlüsselt auf dem Gerät,
    kein Excel-Export" ergänzen.
+
+### Briefings begrenzen (PO 24.10.2026, Schritt 2 von „Excel nur hinein")
+
+Statt „nur Zahlen" (das hätte das Briefing nutzlos gemacht, weil die Firmen-KI
+ohne Namen nichts nachschlagen kann) entschied der PO:
+- Briefings gibt es nur für **einen Kunden** (Kundenkachel, Tour-Stopp) und
+  für **höchstens 8 Kunden** (vorher 12) aus Lasso, Tourvorschlägen und „In
+  der Nähe".
+- **Lasso:** je Kunde dieselben Angaben wie das Einzelbriefing
+  (`customerDetailLines`), die dringendsten zuerst. Weiterhin ohne Telefon,
+  E-Mail und Straße.
+- **Tourvorschläge und „In der Nähe":** Inhalt unverändert knapp (Name,
+  Nummer, Ort, Fälligkeit).
+- Die GeoFuchs-Pille „📋 Briefing für mein Gebiet" ist entfallen (sie wirkte auf
+  alle sichtbaren Kunden), samt letztem Schritt der Live-Demo „Vom Bezirk zum
+  Kunden". `territoryPills.js` ist aufgelöst, `briefingOrder` wohnt jetzt in
+  `areaBriefing.js`.
+Tests: `tests/areaBriefing.test.js` (Grenze 8, Lasso-Inhalt, kein Telefon,
+keine E-Mail, keine Straße, nur drei Einstiege).

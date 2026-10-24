@@ -52,6 +52,18 @@ function identityLines(customer) {
     return lines;
 }
 
+/**
+ * Alle Angaben eines Kunden, wie sie das Kundenbriefing nennt – ohne Tour-
+ * Kontext. Das Lasso-Briefing nutzt sie je Kunde (PO 24.10.2026).
+ */
+export function customerDetailLines(customer, { today = new Date(), crossSell = [] } = {}) {
+    return [
+        ...identityLines(customer),
+        ...revenueLines(customer, today),
+        ...salesBriefingLines(customer, crossSell)
+    ];
+}
+
 /** Umsatzentwicklung aus der eigenen Kundenliste – Gesprächsanlass, kein Zuordnungsmerkmal. */
 function revenueLines(customer, today) {
     const line = revenueBriefingLine(customer, (value) => formatRevenueShort(value, 'de'), today);

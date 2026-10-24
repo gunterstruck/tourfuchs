@@ -12,11 +12,15 @@
  *
  * Drei bewusste Grenzen, weil hier vieles auf einmal zusammenkommt:
  *
- *  1. **Kein Umsatz, keine Kontaktdaten, keine Straße.** Beim Kundenbriefing
- *     ist das zugesagt; bei einer ganzen Liste wiegt es schwerer, nicht
- *     leichter. Was TourFuchs lokal weiß, muss es nicht aus der Hand geben.
- *  2. **Gedeckelte Anzahl.** Eine Liste mit vierzig Kunden ist weder ein guter
- *     Prompt noch eine gute Idee. Es zählt der Umkreis, nicht der Bestand.
+ *  1. **Höchstens 8 Kunden** (PO 24.10.2026, vorher 12). Eine Liste mit
+ *     vierzig Kunden ist weder ein guter Prompt noch eine gute Idee – und kein
+ *     Weg, den Bestand in ein fremdes System zu tragen.
+ *  2. **Angaben je nach Einstieg.** Tourvorschläge und „In der Nähe": nur Name,
+ *     Kundennummer, Ort und Fälligkeit – kein Umsatz, keine Kontakte, keine
+ *     Straße. Lasso (`detailed`): je Kunde dieselben Angaben wie das
+ *     Kundenbriefing (Ansprechpartner und Zuständigkeiten mit Namen,
+ *     Auftragseingang nach Geschäftsjahr, offene Opportunities) – weiterhin
+ *     ohne Telefon, E-Mail und Straße.
  *  3. **Nie mit Beispielkunden.** Wie überall sonst auch.
  *
  * Reine Logik, ohne DOM.
@@ -25,9 +29,20 @@
 import { isDemoCustomer } from '../core/demoSafety.js';
 import { lastVisit, visitStatus } from './visits.js';
 import { briefingSourcesPromptBlock } from '../services/briefingSources.js';
+import { customerDetailLines } from './customerBriefing.js';
 
 /** Mehr Kunden ergeben kein besseres Briefing, nur einen längeren Prompt. */
-export const AREA_BRIEFING_LIMIT = 12;
+export const AREA_BRIEFING_LIMIT = 8;
+
+const STATUS_RANK = { ueberfaellig: 0, faellig: 1 };
+
+/** Überfällige zuerst, dann bald fällige, dann die am längsten nicht Besuchten. */
+export function briefingOrder(customers, now = new Date()) {
+    const rank = (c) => STATUS_RANK[visitStatus(c, now)] ?? 2;
+    // Besuche liegen als ISO-Datum vor („2026-05-01"); ohne Besuch zählt es als ältester.
+    const last = (c) => Date.parse(lastVisit(c) || '') || 0;
+    return [...customers].sort((a, b) => rank(a) - rank(b) || last(a) - last(b));
+}
 
 function value(input) {
     return String(input ?? '').trim();
@@ -73,28 +88,42 @@ export function areaBriefingSelection(customers = [], { limit = AREA_BRIEFING_LI
     };
 }
 
+/** Fälligkeit ist lokales Wissen und hilft dem Assistenten beim Sortieren. */
+function visitParts(customer, now) {
+    const parts = [];
+    const status = visitStatus(customer, now);
+    if (status === 'ueberfaellig') parts.push('überfällig');
+    else if (status === 'faellig') parts.push('bald fällig');
+    const last = lastVisit(customer);
+    if (last) parts.push(`zuletzt besucht ${formatLocalDate(last)}`);
+    return parts;
+}
+
 /** Eine Zeile je Kunde – knapp, aber eindeutig zuordenbar. */
 function customerLine(customer, index, now) {
     const parts = [`${index + 1}. ${value(customer.name) || 'ohne Namen'}`];
     if (value(customer.nummer)) parts.push(`Kundennummer ${value(customer.nummer)}`);
     const place = [value(customer.plz), value(customer.ort)].filter(Boolean).join(' ');
     if (place) parts.push(place);
+    return [...parts, ...visitParts(customer, now)].join(' · ');
+}
 
-    // Fälligkeit ist lokales Wissen und hilft dem Assistenten beim Sortieren.
-    const status = visitStatus(customer, now);
-    if (status === 'ueberfaellig') parts.push('überfällig');
-    else if (status === 'faellig') parts.push('bald fällig');
-    const last = lastVisit(customer);
-    if (last) parts.push(`zuletzt besucht ${formatLocalDate(last)}`);
-
-    return parts.join(' · ');
+/** Lasso: ein Block je Kunde mit denselben Angaben wie das Kundenbriefing. */
+function customerBlock(customer, index, now) {
+    const visits = visitParts(customer, now);
+    const details = customerDetailLines(customer, { today: now })
+        .filter((line) => !line.startsWith('- Kundenname:'));
+    if (visits.length) details.push(`- Besuch: ${visits.join(' · ')}`);
+    return [`${index + 1}. ${value(customer.name) || 'ohne Namen'}`, ...details.map((line) => `   ${line}`)].join('\n');
 }
 
 /**
  * @param {object[]} customers  bereits ausgewählte Kunden (siehe areaBriefingSelection)
- * @param {object} context      { areaLabel, plannedDate, total, preview }
+ * @param {object} context      { areaLabel, plannedDate, total, preview, detailed, order }
  *                              `preview`: nur für die Ansicht in der Vorführung –
  *                              dann dürfen Beispielkunden im Text stehen.
+ *                              `detailed`: je Kunde die Angaben des Kundenbriefings (Lasso).
+ *                              `order`: 'urgent' (dringendste zuerst) oder Entfernung (Standard).
  * @param {object} assistant    optional, liefert die Quellenzeile
  * @param {object[]} sources    eigene Nachschlagequellen des Nutzers (optional)
  */
@@ -121,8 +150,16 @@ export function buildAreaBriefingPrompt(customers = [], context = {}, assistant 
     const planned = value(context.plannedDate)
         ? `Geplanter Besuchstag: ${formatLocalDate(context.plannedDate)}. Fälligkeiten unten beziehen sich auf diesen Tag.\n`
         : '';
+    const chosen = context.order === 'urgent' ? 'dringendsten (überfällig, bald fällig, am längsten nicht besucht)' : 'nächstgelegenen';
     const truncated = Number(context.total) > list.length
-        ? `Es sind ${context.total} Kunden im Gebiet; hier stehen die ${list.length} nächstgelegenen.\n`
+        ? `Es sind ${context.total} Kunden im Gebiet; hier stehen die ${list.length} ${chosen}.\n`
+        : '';
+    const lines = context.detailed
+        ? list.map((customer, index) => customerBlock(customer, index, now))
+        : list.map((customer, index) => customerLine(customer, index, now));
+    // Auftragseingang ist kein Umsatz: Sonst schließt die KI auf Rechnungen und Zahlungen.
+    const orderIntake = lines.some((line) => line.includes('- Auftragseingang nach Geschäftsjahr:'))
+        ? '\nDie Zahlen „Auftragseingang" sind bestellt, nicht berechnet (kein Umsatz). Wiederhole sie nicht, sondern ordne sie ein.\n'
         : '';
 
     return `Du bist meine Vertriebsassistenz. Ich bin ${reference.label} in diesem Gebiet unterwegs und möchte wissen, wen ich zuerst besuchen sollte.
@@ -130,8 +167,8 @@ export function buildAreaBriefingPrompt(customers = [], context = {}, assistant 
 Gebiet: ${areaLabel}.
 ${planned}${truncated}
 Diese Kunden stehen zur Auswahl:
-${list.map((customer, index) => customerLine(customer, index, now)).join('\n')}
-
+${lines.join('\n')}
+${orderIntake}
 ${ownSources}${sourceInstruction} Ordne Treffer eindeutig dem jeweiligen Kunden zu – nutze dafür Kundenname, Kundennummer und Ort gemeinsam. Vermische keine ähnlich benannten Kunden.
 
 Zeitraum: die letzten 6 Monate, dazu bereits terminierte Ereignisse.
