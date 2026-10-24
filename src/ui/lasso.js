@@ -33,7 +33,7 @@ import { planningNow } from '../features/dayPlanner.js';
 import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
-import { areaLabelFor } from '../features/areaBriefing.js';
+import { areaLabelFor, briefingOrder } from '../features/areaBriefing.js';
 import {
     customersInLasso,
     isUsableLasso,
@@ -423,7 +423,10 @@ function wireCard() {
 
     root.querySelector('[data-lasso="brief"]')?.addEventListener('click', () => {
         const onlyDemo = selection.every((customer) => isDemoCustomer(customer));
-        openAreaBriefing(selection, areaLabelFor({ mode: 'lasso' }), { preview: briefingPreview && onlyDemo });
+        // Lasso: dringendste zuerst, je Kunde alle Angaben des Kundenbriefings, höchstens 8 (PO 24.10.2026).
+        openAreaBriefing(briefingOrder(selection), areaLabelFor({ mode: 'lasso' }), {
+            preview: briefingPreview && onlyDemo, detailed: true, order: 'urgent'
+        });
     });
     root.querySelector('[data-lasso="clear"]')?.addEventListener('click', clearLassoSelection);
     root.querySelector('[data-lasso="tour"]')?.addEventListener('click', () => {

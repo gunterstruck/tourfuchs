@@ -133,8 +133,10 @@ describe('Gebiets-Briefing: Prompt', () => {
     });
 
     it('sagt, dass die Liste gekürzt wurde – sonst hält man sie für vollständig', () => {
-        const cut = buildAreaBriefingPrompt(many(12), { areaLabel: 'Umkreis von 50 km', total: 37 });
-        expect(cut).toContain('Es sind 37 Kunden im Gebiet; hier stehen die 12 nächstgelegenen.');
+        const cut = buildAreaBriefingPrompt(many(8), { areaLabel: 'Umkreis von 50 km', total: 37 });
+        expect(cut).toContain('Es sind 37 Kunden im Gebiet; hier stehen die 8 nächstgelegenen.');
+        const lasso = buildAreaBriefingPrompt(many(8), { areaLabel: 'Lasso', total: 20, order: 'urgent', detailed: true });
+        expect(lasso).toContain('hier stehen die 8 dringendsten');
     });
 
     it('baut für Beispielkunden keinen Prompt', () => {
@@ -219,5 +221,47 @@ describe('Ein Tag, auf den sich alles bezieht', () => {
         const spaet = buildAreaBriefingPrompt([kunde], { areaLabel: 'U', plannedDate: '2026-09-15' });
         expect(frueh).not.toContain('überfällig');
         expect(spaet).toContain('überfällig');
+    });
+});
+
+describe('Höchstens 8 Kunden, Lasso mit allen Angaben (PO 24.10.2026)', () => {
+    const KUNDE = {
+        id: 'k1', name: 'Alpha GmbH', nummer: '4711', strasse: 'Geheime Straße 10', plz: '45127', ort: 'Essen',
+        ansprechpartner: 'Frau Muster', telefon: '0201 123456', email: 'intern@example.test',
+        umsatz: 125000, umsatzArt: 'ae', umsatzJahre: { 2025: 125000, 2024: 100000 },
+        rhythmusWochen: 4, besuche: ['2026-01-01']
+    };
+
+    it('die Grenze liegt bei 8', () => {
+        expect(AREA_BRIEFING_LIMIT).toBe(8);
+        expect(areaBriefingSelection(Array.from({ length: 9 }, (_, i) => ({ ...KUNDE, id: `k${i}` }))).included).toHaveLength(8);
+    });
+
+    it('Lasso: je Kunde die Angaben des Kundenbriefings – ohne Telefon, E-Mail und Straße', () => {
+        const prompt = buildAreaBriefingPrompt([KUNDE], { areaLabel: 'Lasso', detailed: true, now: NOW });
+        expect(prompt).toContain('1. Alpha GmbH');
+        expect(prompt).toContain('- Kundennummer: 4711');
+        expect(prompt).toContain('- Hauptansprechpartner: Frau Muster');
+        expect(prompt).toContain('- Auftragseingang nach Geschäftsjahr:');
+        expect(prompt).toContain('bestellt, nicht berechnet');
+        expect(prompt).toContain('überfällig');
+        for (const secret of ['0201 123456', 'intern@example.test', 'Geheime Straße']) expect(prompt).not.toContain(secret);
+    });
+
+    it('Tourvorschläge und „In der Nähe" bleiben knapp wie bisher', () => {
+        const prompt = buildAreaBriefingPrompt([KUNDE], { areaLabel: 'Umkreis', now: NOW });
+        expect(prompt).toContain('1. Alpha GmbH · Kundennummer 4711 · 45127 Essen');
+        expect(prompt).not.toContain('Auftragseingang');
+        expect(prompt).not.toContain('Frau Muster');
+    });
+
+    it('nur Lasso, Tourvorschläge und „In der Nähe" öffnen ein Mehrkunden-Briefing', () => {
+        const callers = ['src/ui/lasso.js', 'src/ui/tourPanel.js', 'src/ui/nearby.js'];
+        const html = readFileSync(resolve(process.cwd(), 'index.html'), 'utf8');
+        expect(html).not.toContain('id="btn-territory-briefing"');
+        for (const file of ['src/ui/mapPills.js', 'src/ui/sidebar.js', 'src/ui/cockpit.js']) {
+            expect(readFileSync(resolve(process.cwd(), file), 'utf8'), file).not.toContain('openAreaBriefing(');
+        }
+        for (const file of callers) expect(readFileSync(resolve(process.cwd(), file), 'utf8'), file).toContain('openAreaBriefing(');
     });
 });

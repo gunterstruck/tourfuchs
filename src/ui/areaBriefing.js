@@ -54,7 +54,7 @@ function renderDemoOnly() {
     footer.querySelector('[data-area-close]')?.addEventListener('click', () => dialog.close());
 }
 
-function render(selection, areaLabel, { preview = false } = {}) {
+function render(selection, areaLabel, { preview = false, detailed = false, order = 'near' } = {}) {
     const { included, total, truncated } = selection;
     // Dieselbe Zielwahl wie im Kundenbriefing, dieselbe gespeicherte Wahl.
     const withChooser = preview || customerBriefingFlow(state.ui.depth) === 'choice';
@@ -66,12 +66,14 @@ function render(selection, areaLabel, { preview = false } = {}) {
         <div class="briefing-state briefing-manual">
             <span class="briefing-kicker">${preview ? 'Demo · lokal kopierbar' : 'Direkt nutzbar'}</span>
             <h3>Wen zuerst besuchen?</h3>
-            ${truncated ? `<p class="area-truncated">Der Prompt enthält die ${AREA_BRIEFING_LIMIT} nächstgelegenen Kunden. Eine längere Liste macht das Briefing nicht besser, nur unschärfer.</p>` : ''}
+            ${truncated ? `<p class="area-truncated">Der Prompt enthält höchstens ${AREA_BRIEFING_LIMIT} Kunden – die ${order === 'urgent' ? 'dringendsten' : 'nächstgelegenen'}. Eine längere Liste macht das Briefing nicht besser, nur unschärfer.</p>` : ''}
             <details class="area-customers">
                 <summary>Diese Kunden stehen im Prompt <span class="muted small">(${included.length})</span></summary>
                 <ul class="area-customer-list">${included.map(customerItem).join('')}</ul>
             </details>
-            <p class="briefing-manual-note"><b>Nicht enthalten:</b> ${escapeHtml(revenueTerm(state.revenueKind).name)}, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn du den Prompt absendest.</p>
+            <p class="briefing-manual-note">${detailed
+                ? `<b>Nicht enthalten:</b> Telefon, E-Mail, Straße und Koordinaten. Je Kunde stehen dieselben Angaben drin wie im Kundenbriefing (Name, Kundennummer, Ort, Ansprechpartner und Zuständigkeiten mit Namen, ${escapeHtml(revenueTerm(state.revenueKind).name)} nach Geschäftsjahr, offene Opportunities) – übermittelt erst, wenn du den Prompt absendest.`
+                : `<b>Nicht enthalten:</b> ${escapeHtml(revenueTerm(state.revenueKind).name)}, Telefon, E-Mail, Straße und Koordinaten. Übermittelt werden nur Name, Kundennummer, Ort und die Fälligkeit – und das erst, wenn du den Prompt absendest.`}</p>
             ${withChooser ? assistantChooserHtml(currentAssistant, 'area-briefing') : ''}
             ${briefingSourcesHtml()}
             <details class="briefing-prompt-visible">
@@ -93,7 +95,7 @@ function render(selection, areaLabel, { preview = false } = {}) {
     const rebuild = () => {
         currentPrompt = buildAreaBriefingPrompt(
             included,
-            { areaLabel, plannedDate: plannedDate(), total, preview },
+            { areaLabel, plannedDate: plannedDate(), total, preview, detailed, order },
             currentAssistant,
             loadBriefingSources()
         );
@@ -134,8 +136,11 @@ async function openAssistant() {
  * Mehrkunden-Briefing für eine geografisch sinnvolle Auswahl öffnen.
  * @param {object[]} customers  Kunden des Gebiets, bereits sinnvoll sortiert
  * @param {string} areaLabel    Beschreibung des Gebiets („Umkreis von 25 km …")
+ * @param {{ preview?: boolean, detailed?: boolean, order?: 'near'|'urgent' }} options
+ *        `detailed`: je Kunde die Angaben des Kundenbriefings (Lasso);
+ *        `order`: wie die Liste sortiert ist – für den Hinweis bei mehr als 8 Kunden.
  */
-export function openAreaBriefing(customers, areaLabel, { preview = false } = {}) {
+export function openAreaBriefing(customers, areaLabel, { preview = false, detailed = false, order = 'near' } = {}) {
     previewActive = preview;
     if (!dialog) initAreaBriefing();
     if (!dialog) return;
@@ -155,11 +160,11 @@ export function openAreaBriefing(customers, areaLabel, { preview = false } = {})
     }
     currentPrompt = buildAreaBriefingPrompt(
         selection.included,
-        { areaLabel, plannedDate: plannedDate(), total: selection.total, preview },
+        { areaLabel, plannedDate: plannedDate(), total: selection.total, preview, detailed, order },
         currentAssistant,
         loadBriefingSources()
     );
-    render(selection, areaLabel, { preview });
+    render(selection, areaLabel, { preview, detailed, order });
 }
 
 export function initAreaBriefing() {

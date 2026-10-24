@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { briefingOrder, territoryLabel } from '../src/features/territoryPills.js';
+import { briefingOrder } from '../src/features/areaBriefing.js';
 
 const read = (file) => readFileSync(resolve(process.cwd(), file), 'utf8');
 
 describe('Pillen über der Karte', () => {
-    it('bringt im Gebiets-Briefing Überfällige zuerst, dann bald Fällige, dann die am längsten nicht Besuchten', () => {
+    it('bringt im Lasso-Briefing Überfällige zuerst, dann bald Fällige, dann die am längsten nicht Besuchten', () => {
         const now = new Date('2026-09-26T12:00:00');
         const customers = [
             { name: 'ohne Rhythmus, lange her', besuche: ['2025-01-01'] },
@@ -19,22 +19,16 @@ describe('Pillen über der Karte', () => {
         expect(order.slice(2)).toEqual(['ohne Rhythmus, lange her', 'ohne Rhythmus, kürzlich']);
     });
 
-    it('benennt das Gebiet ehrlich', () => {
-        expect(territoryLabel([{ bezirk: 'Bezirk West' }, { bezirk: 'Bezirk West' }])).toBe('Bezirk West');
-        expect(territoryLabel([{ bezirk: 'Rheinland' }])).toBe('Bezirk Rheinland');
-        expect(territoryLabel([{ bezirk: 'A' }, { bezirk: 'B' }])).toBe('2 Bezirke im aktuellen Kartenausschnitt');
-        expect(territoryLabel([{ bezirk: '' }])).toBe('Kunden ohne Bezirk');
-    });
-
-    it('zeigt Gebiets-Briefing im Gebiet und den Demo-Zugang dauerhaft in der Desktop-Kopfzeile', () => {
+    it('zeigt den Demo-Zugang dauerhaft in der Desktop-Kopfzeile – kein Gebiets-Briefing mehr', () => {
         const pills = read('src/ui/mapPills.js');
         const html = read('index.html');
-        expect(pills).toContain("state.ui.mode === 'gebietsplanung' && hasData");
+        expect(pills).not.toContain('openAreaBriefing');
         expect(pills).not.toContain('demos.hidden =');
         const header = html.slice(html.indexOf('<header class="topbar">'), html.indexOf('</header>'));
         expect(header).toContain('id="btn-demos-pill" class="demo-launcher only-desktop"');
         expect(header).toContain('data-i18n="shell.demos"');
-        expect(html).toContain('id="btn-territory-briefing"');
+        // PO 24.10.2026: Briefings nur für einen Kunden oder höchstens 8 (Lasso, Tour, In der Nähe).
+        expect(html).not.toContain('id="btn-territory-briefing"');
         // „Gebiet exportieren" ist entfallen, seit 24.10.2026 jeder Excel-Export
         // (Kundendaten verlassen TourFuchs nur verschlüsselt).
         expect(html).not.toContain('id="btn-territory-export"');

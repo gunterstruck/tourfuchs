@@ -537,7 +537,7 @@ describe('Briefing-Knopf in der Vorführung', () => {
         // Gemeldet: In der Demo fehlte der Knopf, und das Briefing ging ohne
         // sichtbaren Klick auf. Außerhalb der Demo bleibt die Sperre bestehen.
         expect(lassoSource).toContain('real.length >= 2 || previewBrief');
-        expect(lassoSource).toContain('{ preview: briefingPreview && onlyDemo }');
+        expect(lassoSource).toContain('preview: briefingPreview && onlyDemo, detailed: true');
         expect(showcaseSource).toContain('setLassoBriefingPreview(true);');
         expect(showcaseSource).toContain('setLassoBriefingPreview(false);');
     });
