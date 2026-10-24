@@ -1451,3 +1451,43 @@ Sitzung, sobald eigene Kunden da sind (`src/core/persistentStorage.js`,
 `navigator.storage.persist()`). Keine neue Verbindung, keine Daten nach außen.
 Tests: `tests/persistentStorage.test.js`. Offene Frage an die Tester: „Musstest
 du schon einmal ungewollt neu importieren?"
+
+### Konzept „Excel nur hinein" (PO 24.10.2026)
+
+Anlass: Viele Außendienstler haben vollständige Kunden- und Geschäftsdaten auf
+dem Handy. Mit „Als Excel exportieren" ließ sich daraus mit einem Tipp eine
+offene Datei machen, also beliebig weiterverteilen. Ziel: Die Daten werden in
+TourFuchs **angezeigt**, das Herauslösen in andere Formate bekommt eine Hürde.
+Das ist keine Sperre: Bildschirmfotos oder Abtippen kann eine Browser-App nicht
+verhindern.
+
+**Entscheidungen des PO:**
+- Excel und CSV gehen nur **hinein**. Heraus gehen Kundendaten nur
+  **verschlüsselt** per Sicherem Umzug, zum Verteilen durch den inneren Kreis,
+  als eigene Sicherung oder notfalls zum Weitergeben. Öffnen kann die Datei nur
+  TourFuchs mit dem Schlüssel.
+- **Keine Rollen**, gleiche Regeln für alle (kein Herkunftsmerkmal, keine
+  Weitergabesperre). So bleibt es einfach und ohne Konten.
+- Entfallen für alle: Excel-Export der Kundenliste, Übergabeliste (Excel),
+  Umbuchungsliste der Gebietsplanung (Excel). Die Entscheidungsvorlage der
+  Gebietsplanung nannte schon vorher nur Zahlen.
+- Es bleibt, was nur die eigene Arbeit betrifft: Besuchsbericht (Excel),
+  Besuchs-Abgleich, Tagesplan und Kalenderdatei der eigenen Tour, einzelne
+  Kundennummer, Einzelkunden-Briefing, Hinweise zum letzten Import, leere
+  Vorlage.
+- Kein Exportprotokoll an einen Server: Das passt zu den roten Linien in
+  `docs/positionierung.md` (keine Mitarbeiterkontrolle).
+
+**Umsetzung in drei Schritten (je ein PR):**
+1. **Excel nur hinein** (umgesetzt 24.10.2026): Die drei Excel-Exporte sind
+   entfernt. Der Hinweis unter „Weitergeben" erklärt den verschlüsselten Weg.
+   `tests/oneWayStreet.test.js` meldet, wenn ein Kunden-Export zurückkommt.
+   Früher exportierte Dateien lassen sich weiter einlesen.
+2. **KI-Gebietsbriefing nur mit Zahlen**: keine Kundennamen und keine
+   Ansprechpartner mehr im Gebietsbriefing. Das Einzelkunden-Briefing bleibt.
+3. **Geräteschlüssel**: Kundendaten liegen auf dem Gerät verschlüsselt, ohne
+   PIN. Ein nicht auslesbarer Schlüssel des Browsers ersetzt die PIN als
+   Hüllschlüssel. Das schützt vor dem Auslesen kopierter Datenbankdateien,
+   nicht vor dem entsperrten Gerät (dafür sind Gerätesperre und
+   Firmenverwaltung da). Der PIN-Tresor bleibt als freiwilliges Extra.
+   Doppelte Prüfung (DoD Nr. 8) wegen des Risikos von Datenverlust.

@@ -23,8 +23,7 @@ import { fairness, regionMembership } from '../features/territory.js';
 import { optionalModuleActive } from '../features/optionalModules.js';
 import {
     buildSimulationReport,
-    printSimulationReport,
-    reassignmentRows
+    printSimulationReport
 } from '../features/simulationReport.js';
 import {
     compareScenarios,
@@ -40,7 +39,6 @@ import {
 import { loadScenarios, saveScenarios } from '../services/storage.js';
 import { showToast } from './toast.js';
 import { desktopPlanningAvailable, mobilePlanningMediaQuery } from './planningViewport.js';
-import { excelModule } from './lazyModules.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -303,7 +301,6 @@ export function initCockpit() {
     });
     document.getElementById('sim-apply').addEventListener('click', assignSelected);
     document.getElementById('sim-report-print')?.addEventListener('click', openReport);
-    document.getElementById('sim-report-xlsx')?.addEventListener('click', downloadReassignments);
     document.getElementById('sim-undo').addEventListener('click', undoSimulationStep);
     document.getElementById('sim-redo').addEventListener('click', redoSimulationStep);
     document.getElementById('sim-scenario-store')?.addEventListener('click', storeScenario);
@@ -1121,8 +1118,8 @@ function reportModel() {
             plz: customer.plz,
             ort: customer.ort,
             // Der Ist-Wert des Kunden, nicht der des Gebiets: Ein Gebiet kann
-            // gemischt sein, und „bisher" muss je Kunde stimmen, sonst ist die
-            // Umbuchungsliste beim Ausführen falsch.
+            // gemischt sein, und „bisher" muss je Kunde stimmen, sonst stimmt
+            // die Bilanz vorher/nachher in der Vorlage nicht.
             from: attrValueOf(customer),
             to,
             umsatz: customer.umsatz || 0
@@ -1162,19 +1159,6 @@ function openReport() {
     if (!printSimulationReport(reportModel())) {
         showToast('Der Browser hat das Fenster blockiert – bitte Pop-ups für TourFuchs erlauben.', 'error');
     }
-}
-
-async function downloadReassignments() {
-    const model = reportModel();
-    // Excel-Bibliothek erst beim Klick laden – sie gehört nicht ins Startpaket.
-    const { exportReassignments } = await excelModule();
-    if (!exportReassignments(reassignmentRows(model), { demo: model.meta.demo })) {
-        // Gebiete lassen sich auch ohne einen einzigen Kundenwechsel zuweisen –
-        // etwa leere Flächen. Dann gibt es eine Vorlage, aber keine Liste.
-        showToast('Keine umgebuchten Kunden – die Liste wäre leer.', 'info');
-        return;
-    }
-    showToast('Umbuchungsliste als Excel gespeichert.', 'success');
 }
 
 function commitSimulation() {

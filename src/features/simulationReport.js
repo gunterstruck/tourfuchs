@@ -15,10 +15,9 @@
  * **Aufteilung nach Adressat – und das ist eine Datenschutz-Entscheidung:**
  * Die Druckansicht ist **aggregiert** (Einheiten, Summen, Aktionen) und nennt
  * keinen einzigen Kundennamen. Sie geht in eine Sitzung, wird kopiert und
- * herumgereicht. Die namentliche Umbuchungsliste gibt es getrennt als
- * Excel-Datei für die Person, die die Umbuchung anschließend ausführt.
- * Wer beides in ein Dokument legt, verteilt Kundendaten an einen Verteiler,
- * der sie nicht braucht.
+ * herumgereicht. Die frühere namentliche Umbuchungsliste (Excel) ist seit
+ * 24.10.2026 entfallen: Kundendaten verlassen TourFuchs nur verschlüsselt.
+ * Wer die Umbuchung im CRM ausführt, sieht die Kunden in der Simulation.
  *
  * Bis auf `printSimulationReport()` ist alles hier DOM-frei und in Node
  * testbar: Der Rechenweg gehört geprüft, das Fenster nicht.
@@ -124,26 +123,6 @@ export function buildSimulationReport({
         territories,
         moves
     };
-}
-
-/**
- * Zeilen für den Excel-Export der Umbuchungsliste.
- *
- * Bewusst mit sprechenden deutschen Spaltenköpfen statt der internen
- * Feldnamen: Diese Datei wird in Excel geöffnet und weiterverarbeitet, nicht
- * von TourFuchs wieder eingelesen.
- */
-export function reassignmentRows(model) {
-    const label = model?.meta?.attrLabel || 'Ziel';
-    return (model?.moves ?? []).map((move) => ({
-        'Kunde': move.name ?? '',
-        'Kd.-Nr.': move.nummer ?? '',
-        'PLZ': move.plz ?? '',
-        'Ort': move.ort ?? '',
-        [`${label} – bisher`]: move.from ?? '',
-        [`${label} – neu`]: move.to ?? '',
-        [`${revenueTerm(state.revenueKind).name} (€)`]: Math.round(Number(move.umsatz) || 0)
-    }));
 }
 
 function fairnessCell(entry) {
@@ -276,8 +255,7 @@ export function reportHtml(model) {
     </table>` : ''}
 
     <p class="foot">Umsätze stammen aus dem geladenen Datensatz und sind nicht nachgerechnet.
-    Diese Vorlage nennt bewusst keine Kundennamen – die namentliche Umbuchungsliste
-    gibt es im Cockpit als getrennte Excel-Datei. Erstellt mit TourFuchs Vertrieb.</p>
+    Diese Vorlage nennt bewusst keine Kundennamen. Erstellt mit TourFuchs Vertrieb.</p>
 
     <div class="toolbar noprint">
         <button onclick="window.print()" style="padding:8px 16px;">Drucken / als PDF sichern</button>

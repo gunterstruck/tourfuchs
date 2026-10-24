@@ -2,15 +2,14 @@
  * Entscheidungsvorlage (Roadmap 3.1).
  *
  * Geprüft wird der Rechenweg und das, was die Vorlage zusagt: beide Stände
- * nebeneinander, keine Kundennamen im Druckbild, und die Trennung zwischen
- * aggregierter Vorlage und namentlicher Umbuchungsliste.
+ * nebeneinander und keine Kundennamen im Druckbild. Eine namentliche
+ * Umbuchungsliste gibt es seit 24.10.2026 nicht mehr.
  */
 import { describe, expect, it } from 'vitest';
 import { CONFIG } from '../src/core/config.js';
 import { fairness } from '../src/features/territory.js';
 import {
     buildSimulationReport,
-    reassignmentRows,
     reportHtml,
     printSimulationReport
 } from '../src/features/simulationReport.js';
@@ -121,20 +120,6 @@ describe('Modell der Entscheidungsvorlage', () => {
         expect(empty.rows).toEqual([]);
         expect(empty.totals.revenueMoved).toBe(0);
         expect(empty.fairness.before).toBeNull();
-    });
-});
-
-describe('Umbuchungsliste für Excel', () => {
-    it('nennt bisherigen und neuen Wert unter dem Namen des Attributs', () => {
-        const rows = reassignmentRows(model());
-        expect(rows[0]['Kunde']).toBe('Meier GmbH');
-        expect(rows[0]['Vertriebsbezirk – bisher']).toBe('Nord');
-        expect(rows[0]['Vertriebsbezirk – neu']).toBe('Süd');
-        expect(rows[0]['Umsatz (€)']).toBe(25000);
-    });
-
-    it('ist leer, wenn nur Gebiete ohne Kunden zugewiesen wurden', () => {
-        expect(reassignmentRows(model({ moves: [] }))).toEqual([]);
     });
 });
 

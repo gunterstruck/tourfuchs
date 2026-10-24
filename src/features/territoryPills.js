@@ -25,14 +25,3 @@ export function territoryLabel(customers) {
     }
     return `${districts.size} Bezirke im aktuellen Kartenausschnitt`;
 }
-
-/** Dateiname-tauglich: „Bezirk West" → „bezirk-west". */
-export function fileSlug(label) {
-    return String(label || 'gebiet')
-        .toLowerCase()
-        .replace(/ä/g, 'ae').replace(/ö/g, 'oe').replace(/ü/g, 'ue').replace(/ß/g, 'ss')
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
-        .slice(0, 40) || 'gebiet';
-}
-

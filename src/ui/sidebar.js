@@ -20,12 +20,9 @@ import { normalizeMinimumRegionCustomers, normalizeRevenueFilter } from '../core
 import { formatRevenueFull } from '../core/format.js';
 import { modeTourCustomers, modeVisibleCustomers, servicePlanningCustomerCount, servicePlanningVisitCount, normalizedServiceCustomerScope } from '../features/customerScope.js';
 import { showToast } from './toast.js';
-import { fileSlug, territoryLabel } from '../features/territoryPills.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
 import { isPhoneUi, onFaceChange } from '../core/viewport.js';
-import { t, currentLocale } from '../core/i18n.js';
-import { handover } from '../features/salesWorkbook.js';
-import { excelModule } from './lazyModules.js';
+import { t } from '../core/i18n.js';
 
 const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => (
     { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]
@@ -561,7 +558,7 @@ export function applyDataPanelLayout() {
     const nodes = {
         upload: el('btn-upload-more'), compliance: el('compliance-row'),
         template: el('btn-template-2'), geocode: el('btn-geocode'), progress: el('geocode-progress'),
-        exportBtn: el('btn-export'), clear: el('btn-clear'),
+        clear: el('btn-clear'),
         safeTitle: el('safe-transfer-title'), safeNote: el('safe-transfer-note'),
         safeActions: el('safe-transfer-actions'), safeExport: el('btn-safe-export'),
         safeReceive: el('btn-safe-receive')
@@ -573,7 +570,7 @@ export function applyDataPanelLayout() {
     const importNotes = el('btn-import-notes');
     const extras = {
         explainer: el('data-explainer'), sources: el('data-sources'), templates: el('import-templates'),
-        handover: el('btn-export-handover'), visitReport: el('btn-visit-report-data'), sync: el('btn-sync-data')
+        visitReport: el('btn-visit-report-data'), sync: el('btn-sync-data')
     };
     const present = (...list) => list.filter(Boolean);
 
@@ -583,11 +580,11 @@ export function applyDataPanelLayout() {
             for (const part of [d.load.wrap, d.share.wrap, d.protect, d.more, d.danger]) part.remove();
             // Zurück an ihre HTML-Plätze, damit das Handy unverändert bleibt.
             dataActions.before(...present(extras.explainer, extras.sources, extras.templates));
-            primary.append(...present(extras.handover, extras.visitReport, extras.sync));
+            primary.append(...present(extras.visitReport, extras.sync));
         }
         const g = ensureDataPanelGroups();
         g.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive);
-        g.save.col.append(nodes.exportBtn, nodes.safeExport);
+        g.save.col.append(nodes.safeExport);
         g.tools.col.append(nodes.template, nodes.geocode, nodes.progress);
         if (importNotes) g.tools.col.append(importNotes);
         nodes.safeNote.classList.add('data-group-note');
@@ -605,7 +602,7 @@ export function applyDataPanelLayout() {
         }
         const d = ensureDesktopDataGroups();
         d.load.col.append(nodes.upload, nodes.compliance, nodes.safeReceive, ...present(extras.sources));
-        d.share.col.append(nodes.safeExport, ...present(extras.sync, extras.visitReport), nodes.exportBtn, ...present(extras.handover));
+        d.share.col.append(nodes.safeExport, ...present(extras.sync, extras.visitReport));
         nodes.safeNote.classList.add('data-group-note');
         d.share.wrap.append(nodes.safeNote);
         d.moreCol.append(...present(extras.templates), nodes.template, nodes.geocode, nodes.progress,
@@ -1675,19 +1672,9 @@ export function initSidebar() {
         emit('cockpit:open');
     });
 
-    // Daten-Aktionen
-    document.getElementById('btn-export').addEventListener('click', () => {
-        if (state.customers.length === 0) return showToast('Keine Kundendaten vorhanden.', 'info');
-        chooseExportScope();
-    });
+    // Daten-Aktionen. Kein Excel-Export (PO 24.10.2026): Kundendaten verlassen
+    // TourFuchs nur verschlüsselt per „Sicherer Umzug".
     document.getElementById('btn-clear').addEventListener('click', clearAllData);
-    // Übergabeliste (Release 16.5): folgt den aktiven Filtern – ohne Filter alle Übergaben.
-    document.getElementById('btn-export-handover')?.addEventListener('click', async () => {
-        const { exportHandovers } = await excelModule();
-        const count = exportHandovers(visibleCustomers());
-        showToast(count ? t('export.handoverDone', { count: count.toLocaleString(currentLocale()) }) : t('export.handoverNone'), count ? 'success' : 'info', 5000);
-    });
-    initExportChoice();
 
     document.getElementById('btn-mobile-clear-data')?.addEventListener('click', clearAllData);
 
@@ -2002,8 +1989,6 @@ function persistSettings() {
 // ---- Daten-Tab ----
 
 function renderDataStatus() {
-    const handoverButton = document.getElementById('btn-export-handover');
-    if (handoverButton) handoverButton.hidden = !state.customers.some((c) => handover(c));
     const onboarding = document.getElementById('onboarding');
     const loaded = document.getElementById('data-loaded');
     const el = document.getElementById('data-status');
@@ -2455,44 +2440,4 @@ function initTeamFilters() {
             renderSectionRows(se.dataset.search);
         }
     });
-}
-
-// ---- Excel-Export: alle oder nur die gefilterten? ----
-//
-// Es gibt genau einen Export. Ist ein Filter aktiv (Bezirk, Umsatz …), fragt
-// er, was gemeint ist – so ersetzt er die frühere Pille „Gebiet exportieren",
-// ohne dass ein zweiter Weg zum selben Ziel auf der Karte steht.
-async function runExport(customers, { filtered = false } = {}) {
-    const { exportCustomers } = await excelModule();
-    const label = filtered ? fileSlug(territoryLabel(customers).replace(/ im aktuellen Kartenausschnitt$/, '')) : '';
-    exportCustomers(customers, { fileLabel: label });
-    showToast(`⬇ ${customers.length.toLocaleString('de-DE')} Kunden als Excel exportiert – mit allen Spalten.`, 'success', 5000);
-}
-
-function chooseExportScope() {
-    const all = state.customers;
-    const visible = visibleCustomers();
-    const dialog = document.getElementById('export-choice-dialog');
-    // Kein Filter aktiv (oder nichts sichtbar): ohne Rückfrage alles.
-    if (!dialog || visible.length === 0 || visible.length >= all.length) { runExport(all); return; }
-    const fmt = (n) => n.toLocaleString(currentLocale());
-    document.getElementById('export-choice-lead').textContent = t('export.choice.lead', { visible: fmt(visible.length), all: fmt(all.length) });
-    document.getElementById('export-choice-filtered').textContent = t('export.choice.filteredCount', { count: fmt(visible.length) });
-    document.getElementById('export-choice-all').textContent = t('export.choice.allCount', { count: fmt(all.length) });
-    dialog.showModal();
-}
-
-function initExportChoice() {
-    const dialog = document.getElementById('export-choice-dialog');
-    if (!dialog || dialog.dataset.wired) return;
-    dialog.dataset.wired = '1';
-    document.getElementById('export-choice-filtered')?.addEventListener('click', () => {
-        dialog.close();
-        runExport(visibleCustomers(), { filtered: true });
-    });
-    document.getElementById('export-choice-all')?.addEventListener('click', () => {
-        dialog.close();
-        runExport(state.customers);
-    });
-    document.getElementById('export-choice-cancel')?.addEventListener('click', () => dialog.close());
 }

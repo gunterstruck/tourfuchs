@@ -1,17 +1,28 @@
 import { describe, expect, it } from 'vitest';
-import { autoDetectMapping, customerExportRows, parseRows } from '../src/services/excel.js';
+import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 
-const roundTrip = (customers) => {
-    const rows = customerExportRows(customers);
+/**
+ * Den Excel-Export gibt es seit 24.10.2026 nicht mehr (Kundendaten verlassen
+ * TourFuchs nur verschlüsselt). Früher exportierte Dateien liegen aber noch
+ * bei Nutzern – sie müssen sich weiter verlustfrei einlesen lassen.
+ */
+const readBack = (rows) => {
     const mapping = autoDetectMapping(Object.keys(rows[0]));
     return { mapping, ...parseRows(rows, mapping) };
 };
 
-const base = { id: 'a', nummer: '4711', name: 'Muster GmbH', strasse: 'Domkloster 4', plz: '50667', ort: 'Köln' };
+// Eine Zeile im Format des früheren Exports (Spalten wie damals).
+const oldExport = (overrides = {}) => ({
+    'Datenstatus': '', 'Kundennummer': '4711', 'Kundenname': 'Muster GmbH', 'Straße': 'Domkloster 4',
+    'PLZ': '50667', 'Ort': 'Köln', 'Vertriebsbeauftragter': '', 'Vertriebschannel': '', 'Vertriebsgruppe': '',
+    'Vertriebsbezirk': '', 'Kundentyp': '', 'Hauptansprechpartner': '', 'Telefon': '', 'E-Mail': '', 'Umsatz': '',
+    'Besuchsrhythmus (Wochen)': '', 'Letzter Besuch': '', 'Lat': '', 'Lng': '', 'Verortung': 'nicht verortet',
+    'Anzahl Besuche': 0, 'Alle Besuche': '', 'Weitere Ansprechpartner': '', ...overrides
+});
 
-describe('Eigener Excel-Export lässt sich verlustfrei wieder einlesen', () => {
+describe('Früher exportierte TourFuchs-Dateien lassen sich weiter verlustfrei einlesen', () => {
     it('erkennt „Alle Besuche" und „Verortung" automatisch', () => {
-        const { mapping } = roundTrip([{ ...base, besuche: ['2026-09-01'], lat: 50.94, lng: 6.96, geo: 'exakt' }]);
+        const { mapping } = readBack([oldExport({ 'Letzter Besuch': '2026-09-01', Lat: 50.94, Lng: 6.96, Verortung: 'adressgenau', 'Anzahl Besuche': 1, 'Alle Besuche': '2026-09-01' })]);
         expect(mapping.alleBesuche).toBe('Alle Besuche');
         expect(mapping.verortung).toBe('Verortung');
         expect(mapping.ort).toBe('Ort');
@@ -19,16 +30,16 @@ describe('Eigener Excel-Export lässt sich verlustfrei wieder einlesen', () => {
     });
 
     it('behält die ganze Besuchshistorie', () => {
-        const { customers } = roundTrip([{ ...base, besuche: ['2026-07-03', '2026-08-14', '2026-09-30'] }]);
+        const { customers } = readBack([oldExport({ 'Letzter Besuch': '2026-09-30', 'Anzahl Besuche': 3, 'Alle Besuche': '2026-07-03; 2026-08-14; 2026-09-30' })]);
         expect(customers[0].besuche).toEqual(['2026-07-03', '2026-08-14', '2026-09-30']);
         expect(customers[0].extra).not.toHaveProperty('Anzahl Besuche');
         expect(customers[0].extra).not.toHaveProperty('Alle Besuche');
     });
 
     it('PLZ-Mitte bleibt PLZ-Mitte – und damit Kandidat für die adressgenaue Verortung', () => {
-        const { customers } = roundTrip([
-            { ...base, lat: 50.94, lng: 6.96, geo: 'plz' },
-            { ...base, id: 'b', nummer: '4712', lat: 50.9413, lng: 6.9583, geo: 'exakt' }
+        const { customers } = readBack([
+            oldExport({ Lat: 50.94, Lng: 6.96, Verortung: 'PLZ-Mitte' }),
+            oldExport({ Kundennummer: '4712', Lat: 50.9413, Lng: 6.9583, Verortung: 'adressgenau' })
         ]);
         expect(customers.map((c) => c.geo)).toEqual(['plz', 'exakt']);
         expect(customers[0].extra).not.toHaveProperty('Verortung');

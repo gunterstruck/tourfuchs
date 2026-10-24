@@ -1033,7 +1033,8 @@ TourFuchs!".
 2. **„Daten laden"**: andere Excel-/CSV-Liste, **„Daten empfangen (Datei +
    Schlüssel)"** und **„🔄 Datenquellen & Aktualisieren"**.
 3. **„Weitergeben"**: **„Verschlüsselt exportieren (Datei + QR)"**,
-   Besuchsbericht, Excel-Export und – falls vorhanden – die Übergabeliste.
+   Besuchsbericht und „🔄 Abgleichen". Einen Excel-Export der Kundenliste gibt
+   es seit 24.10.2026 bewusst nicht (7.12).
 4. **„Schützen"**: der eingeklappte **„🔐 Datentresor"**.
 5. **„⋯ Mehr: Vorlagen, Verortung, Hinweise"** (eingeklappt): gemerkte
    Importvorlagen, Excel-Vorlage, **„🎯 Adressen exakt verorten"**, Hinweise
@@ -1441,7 +1442,8 @@ Nach Bestätigung werden gemeinsam ersetzt:
   neu aufgebaut
 
 Abbrechen lässt den gesamten Altbestand unverändert. Vor einem Vollimport bei
-Bedarf **"Als Excel exportieren"**, weil nicht in der neuen Datei enthaltene
+Bedarf eine Sicherung anlegen: **"Verschlüsselt exportieren (Datei + QR)"**
+(Sicherer Umzug an sich selbst), weil nicht in der neuen Datei enthaltene
 Informationen danach nur aus einer Sicherung wiederherstellbar sind.
 
 Zwei Spezialfälle bleiben bewusst ergänzend:
@@ -1544,10 +1546,10 @@ Ohne Treffer erscheint die Zeile in der Fehlerliste.
 - Kontakte werden ergänzt; dieselbe Person (Name, Telefon, E-Mail, Art) wird
   nicht doppelt angelegt. Ein späterer Reimport des Kundenstamms lässt
   Promotoren und Kontakte aus einer Kontaktliste stehen.
-- Der Excel-Export schreibt sie in **"Weitere Ansprechpartner"** bzw.
-  **"Promotoren"** (`Name · Abteilung/Thema · Telefon · E-Mail`), die
-  Abteilung des Hauptansprechpartners in **"Abteilung"** – beides nur, wenn es
-  solche Angaben gibt. Die Datei lässt sich so wieder einlesen.
+- Eine früher mit TourFuchs exportierte Excel-Datei (Export bis 24.10.2026)
+  lässt sich weiter einlesen: **"Weitere Ansprechpartner"** bzw.
+  **"Promotoren"** (`Name · Abteilung/Thema · Telefon · E-Mail`) und
+  **"Abteilung"** werden wieder zu Kontakten.
 
 **Seit 19.10.2026: Promotoren als nummerierte Spalten.** Eine Kunden- oder
 Zuständigkeitsliste (eine Zeile je Kunde) darf Promotoren auch paarweise in
@@ -1640,7 +1642,7 @@ eingelesenen Spalte. Heißt sie `AE …`, `Auftragseingang …` oder `Orders …
 (z. B. `AE GJ25`, `Orders FY26`), steht in TourFuchs überall
 **"Auftragseingang"** statt "Umsatz" – in Kundenkachel ("Auftragseingang nach
 Geschäftsjahr"), Filter, Gebietskacheln, Cockpit, Simulation, Feierabend-Rückblick,
-Änderungsbericht, Excel-Export und KI-Briefing; wo es eng ist, kurz **"AE"**. Das
+Änderungsbericht und KI-Briefing; wo es eng ist, kurz **"AE"**. Das
 Briefing sagt der KI ausdrücklich, dass die Zahlen Auftragseingang und kein Umsatz
 sind. Eine Spalte, die nur `Auftragseingang` heißt, wird automatisch zugeordnet;
 `Auftragseingang Datum` nicht. Bringt die Liste nur Jahresspalten (`AE GJ24` …
@@ -1679,21 +1681,22 @@ Begründung wird nicht automatisch zur Tour oder zum Besuchsstatus.
 
 ### 7.12 Export und Löschen
 
-- **"Als Excel exportieren"** (`"Daten" -> "Als Excel exportieren"`) ist der
-  **eine** Excel-Export. Ist gerade ein Filter aktiv (Bezirk, Umsatz …), fragt
-  er: **„Nur die N gefilterten"** oder **„Alle M Kunden"**. Ohne Filter
-  exportiert er direkt alles. Die gefilterte Datei trägt das Gebiet im Namen
-  (z. B. `tourfuchs-kunden-bezirk-west-2026-09-28.xlsx`).
-- Der Export enthält **alle Spalten**: die bekannten Felder (Kundennummer, Name,
-  Adresse, Vertrieb, Kontakt, Umsatz, Rhythmus, letzter Besuch, Lat/Lng), dazu
-  **„Verortung"** (adressgenau / PLZ-Mitte / nicht verortet), **„Anzahl
-  Besuche"** und **„Alle Besuche"** (ganze Besuchshistorie),
-  **„Weitere Ansprechpartner"** und **jede Originalspalte der Importdatei**, die
-  keinem Feld zugeordnet war (heißt sie wie eine TourFuchs-Spalte, erscheint sie
-  als „… (Original)"). Die Kernspalten sind so benannt, dass die Datei wieder
-  importiert werden kann – auch in ein CRM oder eine KI.
-- Die frühere Pille **„⬇ Gebiet exportieren"** über der Karte gibt es seit
-  28.09.2026 nicht mehr; ihren Zweck erfüllt die Abfrage „nur die gefilterten".
+- **Kein Excel-Export (seit 24.10.2026, PO-Entscheidung „Excel nur hinein"):**
+  Excel- und CSV-Listen gehen nur **in** TourFuchs hinein. Heraus gehen
+  Kundendaten nur **verschlüsselt** per **"Verschlüsselt exportieren (Datei +
+  QR)"** (Sicherer Umzug, 14.6) – zum Weitergeben, auf ein anderes Gerät oder
+  als eigene Sicherung; öffnen kann die Datei nur TourFuchs mit dem Schlüssel.
+  Entfallen sind „Als Excel exportieren", die Übergabeliste (Excel) und die
+  Umbuchungsliste der Gebietsplanung (Excel). Grund: Vollständige Kundenlisten
+  sollen sich nicht bequem in offene Formate vervielfältigen lassen.
+- Was weiter als Datei herausgeht, betrifft nur die eigene Arbeit: der
+  **Besuchsbericht** (besuchte Kunden mit Datum, zum Nachtragen ins CRM), der
+  **Besuchs-Abgleich**, Tagesplan und Kalenderdatei der eigenen Tour, die
+  **Hinweise zum letzten Import** (Problemzeilen der gerade gelesenen Datei)
+  und die leere **Excel-Vorlage**.
+- Ehrliche Grenze: Das ist eine Hürde, keine Sperre. Bildschirmfotos oder
+  Abtippen kann eine Browser-App nicht verhindern.
+- Früher exportierte TourFuchs-Dateien lassen sich weiter einlesen.
 - **"Daten löschen"** entfernt lokale Daten nach Bestätigung und deaktiviert
   auch den Tresor.
 - mobil gibt es im Tour-Panel **"Datenbank zurücksetzen"**.
@@ -2054,12 +2057,8 @@ erscheinen nur, wenn es dazu Daten gibt.
   fälligen Besuchen gehören; ein Kunde in der Tour behält den Tour-Rahmen). Filter **"Übergabe"**
   (mit/ohne) und **"Übergabe von (VB alt)"**: "Welche Kunden übernehme ich?" =
   Übergabe "mit" plus eigener Bezirk; "Wen gebe ich ab?" = "Übergabe von".
-- **"🔁 Übergabeliste (Excel)"** im Reiter **"Daten"** (nur sichtbar, wenn es
-  Übergaben gibt): folgt den aktiven Filtern. Blatt **"Übergaben"** je Kunde (VB
-  alt/neu, VBEZ alt/neu, Debitor, IFA, Accountname, Anschrift, Umsatz jüngstes
-  GJ, offene Opportunities mit erwartetem AE, Kontakte, SieSales Link), sortiert
-  nach VB alt → VB neu → Umsatz; Blatt **"Übersicht je VB"** je Paar VB alt → neu
-  mit Kunden, Umsatz und offenen Opportunities.
+- Eine Excel-Übergabeliste gibt es seit 24.10.2026 nicht mehr (7.12). Übergaben
+  zeigen Karte und Filter.
 - **"↗ SieSales"** neben der Kundennummer (eigene Zeile unter dem Namen) öffnet den CRM-Link der Zeile in einem
   neuen Tab (nur http/https).
 
@@ -3202,13 +3201,12 @@ Aktionen:
 In **"Änderungen"** zeigt die Füllung die neue Farbe und die Umrandung die alte
 Farbe.
 
-### 13.7 Entscheidungsvorlage und Umbuchungsliste
+### 13.7 Entscheidungsvorlage
 
 **Klickpfad:** Cockpit -> **"Was-wäre-wenn: Gebiete zuweisen"** -> mindestens
-eine Zuweisung -> **"📄 Entscheidungsvorlage"** bzw.
-**"⤓ Umbuchungsliste (Excel)"**.
+eine Zuweisung -> **"📄 Entscheidungsvorlage"**.
 
-Beide Knöpfe stehen erst da, **sobald eine Simulation läuft**. Ohne Zuweisung
+Der Knopf steht erst da, **sobald eine Simulation läuft**. Ohne Zuweisung
 gibt es nichts auszugeben, und ein Knopf, der nichts tun kann, ist eine Frage,
 die niemand gestellt hat.
 
@@ -3227,13 +3225,11 @@ Die Vorlage nennt **keine Kundennamen**. Das ist Absicht: Sie wird in einer
 Sitzung herumgereicht, und ein Verteiler, der über Gebietszuschnitte
 entscheidet, braucht keine namentliche Kundenliste.
 
-**"⤓ Umbuchungsliste (Excel)"** lädt die namentliche Gegenliste für die
-Person, die die Umbuchung ausführt: je Kunde Name, Kundennummer, PLZ, Ort,
-bisheriger und neuer Wert sowie Umsatz. Sind nur Gebiete ohne Kunden zugewiesen
-worden, meldet TourFuchs **"Keine umgebuchten Kunden - die Liste wäre leer."**
-und lädt nichts.
+Die frühere namentliche **Umbuchungsliste (Excel)** ist seit 24.10.2026
+entfallen (7.12). Wer die Umbuchung im CRM ausführt, sieht die betroffenen
+Kunden in der Simulation auf der Karte (13.6).
 
-Enthält der Bestand Demo-Kunden, tragen beide Ausgaben die Warnung
+Enthält der Bestand Demo-Kunden, trägt die Vorlage die Warnung
 **"DEMO - NICHT PRODUKTIV"**.
 
 **Was die Vorlage nicht enthält:** kein Kartenbild Alt/Neu. Für den Blick auf
@@ -3601,7 +3597,7 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Excel-Vorlage | `Daten -> "Excel-Vorlage herunterladen"` |
 | Kundenbestand ersetzen | `Daten -> "Andere Excel- oder CSV-Liste laden" -> Datei prüfen -> "Importieren" -> Ersetzungswarnung bestätigen` |
 | Exakte Adressen | `Daten -> "Adressen exakt verorten"` |
-| Export | `Daten -> "Als Excel exportieren"` |
+| Sicherung / Weitergabe | `Daten -> "Verschlüsselt exportieren (Datei + QR)"` |
 | Kunde suchen | `Topbar -> "Kunde, Ort, PLZ suchen..." -> Kundentreffer` |
 | Mobile Ansicht prüfen | `Topbar -> Smartphone-Symbol "Mobile Außendienst & Tour"` |
 | Kundenbriefing | `Kundenmarker -> "Briefing" -> "Prompt kopieren & Microsoft 365 Copilot öffnen"` |
@@ -3626,7 +3622,6 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 | Simulation | `Cockpit -> Ebene -> Gebiete markieren -> Ziel -> "Auswahl zuweisen"` |
 | Simulationskarte | `Cockpit -> "Simulation auf Karte prüfen" -> Alt/Neu/Änderungen` |
 | Entscheidungsvorlage | `Simulation -> "📄 Entscheidungsvorlage" -> Drucken / als PDF sichern` |
-| Umbuchungsliste | `Simulation -> "⤓ Umbuchungsliste (Excel)"` |
 | dauerhaft übernehmen | `Simulation -> "Zuweisung übernehmen" -> bestätigen` |
 | Tresor | `Daten -> "Tresor aktivieren (PIN)"` |
 | sicher senden | `Daten -> "Verschlüsselt exportieren (Datei + QR)"` |
@@ -3797,7 +3792,7 @@ Möglichkeiten:
 
 - kompletter sicherer Umzug mit `.tfsafe` + getrenntem Schlüssel.
 - nur geplante Tour per QR.
-- Excel-Export und bewusster Neuimport.
+- Neuimport der Original-Excel-Liste.
 
 ### 18.19 PWA aktualisiert sich nicht
 
@@ -4291,7 +4286,7 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 9. **Wozu dient die Kundennummer?**
    Eindeutige Zuordnung für getrennte Kontaktdateien und QR-Touren.
 10. **Was vor Datenlöschung tun?**
-    Bei Bedarf Excel-Export.
+    Bei Bedarf eine verschlüsselte Sicherung (Sicherer Umzug an sich selbst).
 11. **Was bedeutet Alt/Neu/Änderungen?**
     Ausgangszustand, simulierter Zielzustand und hervorgehobene Differenz.
 12. **Wann ist der letzte Kunde automatisch Ziel?**
@@ -4509,7 +4504,8 @@ Zeichen; ab 7.700 Zeichen weist die Prüfung auf eine knappe Reserve hin.
 - **Videos der Live-Demos** für Präsentationen: Desktop im Monitor-Rahmen, Handy
   im Smartphone-Rahmen, jeweils mit Thema links (6.6).
 - **Excel-Export** mit allen Spalten und Abfrage „nur gefilterte / alle"; Pille
-  „Gebiet exportieren" entfällt (7.12).
+  „Gebiet exportieren" entfällt (7.12). *Seit 24.10.2026 entfallen: Excel nur
+  hinein, heraus nur verschlüsselt.*
 - **Adressgenaue Verortung**: Fortschritt „427 von 3.441", Zwischenstand einmal
   pro Minute, Lasso-Auswahl bleibt stehen, Pause während Live-Demos; kein
   Einfrieren mehr nach dem Entsperren großer Bestände (8.1).

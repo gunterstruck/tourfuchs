@@ -225,13 +225,14 @@ Auf Tabs mit wenig Inhalt bleibt alles stehen – dort wäre nichts gewonnen.
 - Google Maps erhält Daten erst bei bewusster Übergabe.
 - Beim Briefing erzeugt und kopiert TourFuchs den Prompt lokal. Übertragen wird
   er erst, wenn der Nutzer ihn im Assistenten selbst einfügt und absendet.
-- Vor Daten löschen bei Bedarf Excel-Export erstellen. Der Export enthält alle
-  Spalten (auch Originalspalten der Importdatei, alle Besuche, Verortung); bei
-  aktivem Filter fragt er „nur die gefilterten" oder „alle Kunden".
+- Vor Daten löschen bei Bedarf eine verschlüsselte Sicherung anlegen
+  („Verschlüsselt exportieren (Datei + QR)"). Einen Excel-Export gibt es
+  bewusst nicht: Excel geht nur hinein, Kundendaten gehen nur verschlüsselt
+  heraus.
 
 ![Daten-Reiter mit Export und vollständigem Ersatzweg](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
 
-*BILD-DATEN-01 - Vor „Andere Excel- oder CSV-Liste laden" oder „Daten löschen" bei Bedarf „Als Excel exportieren".*
+*BILD-DATEN-01 - Vor „Andere Excel- oder CSV-Liste laden" oder „Daten löschen" bei Bedarf verschlüsselt sichern.*
 
 ## 11. Häufige Probleme
 

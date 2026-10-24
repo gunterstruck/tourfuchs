@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { briefingOrder, fileSlug, territoryLabel } from '../src/features/territoryPills.js';
+import { briefingOrder, territoryLabel } from '../src/features/territoryPills.js';
 
 const read = (file) => readFileSync(resolve(process.cwd(), file), 'utf8');
 
@@ -26,11 +26,6 @@ describe('Pillen über der Karte', () => {
         expect(territoryLabel([{ bezirk: '' }])).toBe('Kunden ohne Bezirk');
     });
 
-    it('macht aus dem Gebiet einen brauchbaren Dateinamen', () => {
-        expect(fileSlug('Bezirk Düsseldorf-Süd')).toBe('bezirk-duesseldorf-sued');
-        expect(fileSlug('')).toBe('gebiet');
-    });
-
     it('zeigt Gebiets-Briefing im Gebiet und den Demo-Zugang dauerhaft in der Desktop-Kopfzeile', () => {
         const pills = read('src/ui/mapPills.js');
         const html = read('index.html');
@@ -40,21 +35,14 @@ describe('Pillen über der Karte', () => {
         expect(header).toContain('id="btn-demos-pill" class="demo-launcher only-desktop"');
         expect(header).toContain('data-i18n="shell.demos"');
         expect(html).toContain('id="btn-territory-briefing"');
-        // „Gebiet exportieren" ist entfallen – der eine Excel-Export fragt
-        // bei aktivem Filter „alle oder nur die gefilterten?".
+        // „Gebiet exportieren" ist entfallen, seit 24.10.2026 jeder Excel-Export
+        // (Kundendaten verlassen TourFuchs nur verschlüsselt).
         expect(html).not.toContain('id="btn-territory-export"');
-        expect(html).toContain('id="export-choice-dialog"');
+        expect(html).not.toContain('id="export-choice-dialog"');
     });
 
     it('vergibt jede id in index.html nur einmal', () => {
         const ids = [...read('index.html').matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]);
         expect(ids.filter((id, i) => ids.indexOf(id) !== i)).toEqual([]);
-    });
-
-    it('exportiert gefilterte Kunden mit Gebiet im Dateinamen – über den einen Excel-Export', () => {
-        expect(read('src/services/excel.js')).toContain("const prefix = fileLabel ? `${base}-${fileLabel}` : base;");
-        const sidebar = read('src/ui/sidebar.js');
-        expect(sidebar).toContain("runExport(visibleCustomers(), { filtered: true });");
-        expect(sidebar).toContain('if (!dialog || visible.length === 0 || visible.length >= all.length) { runExport(all); return; }');
     });
 });

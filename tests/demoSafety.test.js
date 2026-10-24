@@ -10,7 +10,6 @@ import {
     isDemoCustomer,
     normalizeDemoCustomer
 } from '../src/core/demoSafety.js';
-import { customerExportRows } from '../src/services/excel.js';
 import { exactGeocodeCandidates } from '../src/services/geocode.js';
 import { customerText, tourText } from '../src/features/handoff.js';
 import { customerPopupHtml } from '../src/features/map.js';
@@ -76,12 +75,11 @@ describe('Demo-Sicherheitsnetz', () => {
         expect(realHtml).toContain('href="mailto:');
     });
 
-    it('kennzeichnet Excel- und Textübergaben eindeutig als nicht produktiv', () => {
+    it('kennzeichnet Textübergaben eindeutig als nicht produktiv', () => {
         const demo = normalizeDemoCustomer({
             id: 'demo-2', nummer: '20002', name: 'Logistik Zufall', plz: '45127', ort: 'Essen',
             telefon: 'x', email: 'x', besuche: [], lat: 51.4, lng: 7.0
         });
-        expect(customerExportRows([demo])[0].Datenstatus).toBe(DEMO_DATA_LABEL);
         expect(customerText(demo)).toContain(DEMO_DATA_LABEL);
         expect(tourText({ ...demo, label: demo.name }, [demo], null)).toContain(DEMO_DATA_LABEL);
     });

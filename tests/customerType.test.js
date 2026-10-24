@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { FIELDS, autoDetectMapping, parseRows, customerExportRows } from '../src/services/excel.js';
+import { FIELDS, autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { state, setCustomers, visibleCustomers, datasetSnapshot, filterDimensionDefs, DIMENSIONS } from '../src/core/state.js';
 
 beforeEach(() => {
@@ -49,9 +49,8 @@ describe('Kundentyp vom Import bis zum Filter', () => {
         expect(state.dims.kundentyp.active).toBe(false);
     });
 
-    it('erhält Kundentyp beim Excel-Export und Wiederimport', () => {
-        const rows = customerExportRows([{ id: 'a', name: 'A', plz: '44135', kundentyp: 'Partner' }]);
-        expect(rows[0].Kundentyp).toBe('Partner');
+    it('liest den Kundentyp aus einer früheren Export-Datei', () => {
+        const rows = [{ Kundenname: 'A', PLZ: '44135', Kundentyp: 'Partner', 'Anzahl Besuche': 0 }];
         expect(parseRows(rows, autoDetectMapping(Object.keys(rows[0]))).customers[0].kundentyp).toBe('Partner');
     });
 });
