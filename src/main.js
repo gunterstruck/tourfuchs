@@ -66,6 +66,7 @@ import { upgradeDemoServiceVisits } from './features/demoServiceVisits.js';
 import { fitToCustomers } from './features/map.js';
 import { normalizeMinimumRegionCustomers, normalizeRevenueFilter } from './core/customerFilters.js';
 import { prefetchWhenIdle } from './ui/lazyModules.js';
+import { initPersistentStorage } from './core/persistentStorage.js';
 
 async function restorePersistedState() {
     const settings = await loadSettings();
@@ -315,6 +316,7 @@ async function init() {
     initRegionEditor();
     initPostalResponsibility();
     initRevenueLabels();
+    initPersistentStorage();
     initSearch();
     initNearby();
     initMobilePreview();

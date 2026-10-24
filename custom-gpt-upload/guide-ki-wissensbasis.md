@@ -3493,6 +3493,14 @@ Sicherheitsmetadaten liegen lokal. Der Betreiber erhält den Kundendatensatz
 nicht. Bewusst gestartete Funktionen können klar begrenzte Daten an externe
 Dienste übergeben.
 
+**Speicher dauerhaft halten (seit 24.10.2026):** Sobald eigene Kunden geladen
+sind (nicht bei Beispieldaten), bittet TourFuchs den Browser einmal je Sitzung,
+den Speicher dauerhaft zu halten. Sonst darf der Browser lokale Daten bei
+Speicherknappheit verwerfen, Safari auch nach sieben Tagen ohne Besuch, wenn
+TourFuchs nicht als App installiert ist. Chrome und Edge entscheiden still,
+Firefox fragt einmal nach. Es geht nichts nach außen. Das Löschen der
+Browserdaten durch den Nutzer verhindert das nicht.
+
 ### 16.2 Verbindliche Datenflussmatrix
 
 | Funktion | Auslöser | Übertragene Daten | Ziel |

@@ -1438,3 +1438,16 @@ der Knopf. Wer am Handy doch eine PLZ prüfen will, tippt sie in die Suche, die
 Firmenlink-Einstellungen (DUVE). Am Desktop bleibt alles, wie es ist. Der
 smoke-check öffnet die Auskunft am Handy über die Suche und meldet, wenn der
 Knopf zurückkommt.
+
+### Speicher dauerhaft halten (24.10.2026)
+
+Anlass: Die Vercel-Zahlen der ersten Erprobungswoche (17.–24.10.2026) zeigten
+etwa 115–120 Komplettdownloads der App-Grunddateien (PLZ-Karten, Icons) bei nur
+90 Besuchstagen. Ein Teil davon sind wahrscheinlich Erstbesuche und eine
+geblockte Zählung. Möglich ist aber auch geleerter Browserspeicher, und der
+träfe lokal-first besonders: Die Kundendaten liegen nur dort. TourFuchs bat den
+Browser bisher nicht, den Speicher zu halten. Jetzt geschieht das einmal je
+Sitzung, sobald eigene Kunden da sind (`src/core/persistentStorage.js`,
+`navigator.storage.persist()`). Keine neue Verbindung, keine Daten nach außen.
+Tests: `tests/persistentStorage.test.js`. Offene Frage an die Tester: „Musstest
+du schon einmal ungewollt neu importieren?"
