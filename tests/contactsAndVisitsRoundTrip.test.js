@@ -1,26 +1,19 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { autoDetectMapping, customerExportRows, parseRows } from '../src/services/excel.js';
+import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { lastVisit, markVisitedToday } from '../src/features/visits.js';
 
 afterEach(() => vi.useRealTimers());
 
-const roundTrip = (customers) => {
-    const rows = customerExportRows(customers);
-    return parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
-};
+// Früher exportierte Dateien (Export entfallen seit 24.10.2026) lassen sich weiter einlesen.
+const readBack = (rows) => parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
 
-describe('Weitere Ansprechpartner überstehen Export und Wiederimport', () => {
+describe('Weitere Ansprechpartner aus einer früheren Export-Datei', () => {
     it('Anna bleibt Hauptkontakt, Bernd und Clara kommen als Kontakte zurück', () => {
-        const kunde = {
-            id: 'a', nummer: '100', name: 'Muster GmbH', plz: '45127',
-            ansprechpartner: 'Anna', telefon: '0201 1', email: 'anna@muster.de',
-            contacts: [
-                { id: 'c1', name: 'Anna', telefon: '0201 1', email: 'anna@muster.de', primary: true },
-                { id: 'c2', name: 'Bernd Kurz', telefon: '0201 2', email: '', primary: false },
-                { id: 'c3', name: 'Clara', telefon: '', email: 'clara@muster.de', primary: false }
-            ]
-        };
-        const { customers } = roundTrip([kunde]);
+        const { customers } = readBack([{
+            'Kundennummer': '100', 'Kundenname': 'Muster GmbH', 'PLZ': '45127',
+            'Hauptansprechpartner': 'Anna', 'Telefon': '0201 1', 'E-Mail': 'anna@muster.de',
+            'Weitere Ansprechpartner': 'Bernd Kurz · 0201 2 | Clara · clara@muster.de'
+        }]);
         const back = customers[0];
         expect(back.contacts.map((c) => [c.name, c.telefon, c.email, c.primary])).toEqual([
             ['Anna', '0201 1', 'anna@muster.de', true],

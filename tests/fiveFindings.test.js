@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { autoDetectMapping, customerExportRows, parseRows } from '../src/services/excel.js';
+import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { downloadIcs } from '../src/features/tourExport.js';
 import { decodeTourPayload, encodeTourPayload } from '../src/features/tourShare.js';
 import { googleMapsLink } from '../src/features/tour.js';
@@ -20,19 +20,12 @@ describe('Offene Service-Vorschau nach Einsatzimport', () => {
 });
 
 describe('Telefonnummern zusätzlicher Kontakte', () => {
-    const roundTrip = (contacts) => {
-        const rows = customerExportRows([{ id: 'a', nummer: '100', name: 'Muster GmbH', plz: '45127', ansprechpartner: 'Anna', contacts }]);
-        return parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
-    };
-
     it('Klammer-, Schrägstrich- und Plus-Schreibweisen bleiben Telefon', () => {
-        const contacts = [
-            { id: 'c1', name: 'Anna', primary: true },
-            { id: 'c2', name: 'Bernd', telefon: '(0234) 123456', primary: false },
-            { id: 'c3', name: 'Clara', telefon: '0234/98765', primary: false },
-            { id: 'c4', name: 'Dora', telefon: '+49 (0)234 12-34', primary: false }
-        ];
-        const { customers } = roundTrip(contacts);
+        const rows = [{
+            'Kundennummer': '100', 'Kundenname': 'Muster GmbH', 'PLZ': '45127', 'Hauptansprechpartner': 'Anna',
+            'Weitere Ansprechpartner': 'Bernd · (0234) 123456 | Clara · 0234/98765 | Dora · +49 (0)234 12-34'
+        }];
+        const { customers } = parseRows(rows, autoDetectMapping(Object.keys(rows[0])));
         expect(customers[0].contacts.slice(1).map((c) => [c.name, c.telefon])).toEqual([
             ['Bernd', '(0234) 123456'], ['Clara', '0234/98765'], ['Dora', '+49 (0)234 12-34']
         ]);

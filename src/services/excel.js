@@ -8,15 +8,13 @@
 import * as XLSX from 'xlsx';
 import { normalizeCustomerName } from '../features/customerName.js';
 import { isPromotorColumn, promotorColumns, PROMOTOR_COLUMN_SOURCE } from '../features/promotorColumns.js';
-import { revenueKindOf, revenueKindOfHeader, revenueTerm } from '../features/revenueTerm.js';
+import { revenueKindOfHeader, revenueTerm } from '../features/revenueTerm.js';
 import { pickLatestRevenueHeader, revenueYearHeaders } from '../features/revenueYears.js';
 import { isManagerContactHeader } from '../features/responsibilities.js';
-import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, handoverRows, handoverSummary, isSalesWorkbook } from '../features/salesWorkbook.js';
+import { SALES_SHEETS, SALES_SIDE_COLUMNS, SALES_SIDE_SHEETS, isSalesWorkbook } from '../features/salesWorkbook.js';
 import {
     DEMO_DATA_LABEL,
-    demoCustomerIdentity,
-    hasDemoCustomers,
-    isDemoCustomer
+    demoCustomerIdentity
 } from '../core/demoSafety.js';
 // Beispieldaten-Erzeugung wohnt in demoCustomers.js (ohne Excel-Bibliothek,
 // damit der Start sie nicht mitlädt); hier weiter erreichbar wie bisher.
@@ -1172,112 +1170,6 @@ function geoFromExportLabel(label) {
     return 'exakt';
 }
 
-function contactExportText(contact) {
-    // Name zuerst, dann Abteilung bzw. Thema: Der Rückweg erkennt die freien
-    // Teile an ihrer Reihenfolge, Telefon und E-Mail an ihrer Form.
-    return [contact?.name, contact?.art === 'promotor' ? contact?.thema : contact?.abteilung, contact?.telefon, contact?.email]
-        .map((value) => String(value ?? '').trim())
-        .filter(Boolean)
-        .join(' · ');
-}
-
-/**
- * Eine Zeile je Kunde – **alles**, was TourFuchs über ihn weiß.
- *
- * Neben den bekannten Feldern gehören dazu: jede Spalte der Originaldatei,
- * die keinem Feld zugeordnet war (`extra` – sonst ginge sie beim Weitergeben
- * ins CRM verloren), die ganze Besuchshistorie statt nur des letzten Besuchs,
- * wie genau der Kunde verortet ist (nach der Hintergrund-Verortung
- * „adressgenau") und weitere Ansprechpartner aus einer Kontaktdatei.
- *
- * Die ersten Spaltennamen sind bewusst die, die der Import wiedererkennt: Die
- * Datei lässt sich wieder einlesen.
- */
-export function customerExportRows(customers) {
-    const list = customers || [];
-    // Auftragseingang bleibt beim Export Auftragseingang – und kommt beim
-    // Wiedereinlesen unter demselben Namen zurück.
-    const revenueHeader = revenueTerm(revenueKindOf(list)).exportHeader;
-    // Originalspalten: Vereinigung über alle Kunden, in der Reihenfolge ihres
-    // ersten Auftretens – jede Zeile bekommt jede Spalte (leer, wo nichts steht).
-    const extraHeaders = [];
-    const seenHeaders = new Set();
-    for (const c of list) {
-        for (const header of Object.keys(c?.extra || {})) {
-            if (!seenHeaders.has(header)) { seenHeaders.add(header); extraHeaders.push(header); }
-        }
-    }
-    const allContacts = list.flatMap((c) => (c?.contacts || []).filter(Boolean));
-    const withDepartment = allContacts.some((contact) => contact.primary && contact.abteilung);
-    const withPromotors = allContacts.some((contact) => contact.art === 'promotor');
-    return list.map((c) => {
-        const visits = [...new Set((c.besuche || []).filter(Boolean))].sort();
-        const contacts = (c.contacts || []).filter(Boolean);
-        const others = contacts.filter((contact) => !contact.primary && contact.art !== 'promotor').map(contactExportText).filter(Boolean);
-        const promotors = contacts.filter((contact) => contact.art === 'promotor').map(contactExportText).filter(Boolean);
-        const primary = contacts.find((contact) => contact.primary);
-        const row = {
-            'Datenstatus': isDemoCustomer(c) ? DEMO_DATA_LABEL : '',
-            'Kundennummer': c.nummer,
-            'Kundenname': c.name,
-            'Straße': c.strasse,
-            'PLZ': c.plz,
-            'Ort': c.ort,
-            'Vertriebsbeauftragter': c.vb,
-            'Vertriebschannel': c.channel ?? '',
-            'Vertriebsgruppe': c.gruppe,
-            'Vertriebsbezirk': c.bezirk ?? '',
-            'Kundentyp': c.kundentyp ?? '',
-            'Hauptansprechpartner': c.ansprechpartner ?? '',
-            'Telefon': c.telefon ?? '',
-            'E-Mail': c.email ?? '',
-            [revenueHeader]: c.umsatz ?? '',
-            'Besuchsrhythmus (Wochen)': c.rhythmusWochen ?? '',
-            'Letzter Besuch': visits.length ? visits[visits.length - 1] : '',
-            'Lat': c.lat ?? '',
-            'Lng': c.lng ?? '',
-            'Verortung': GEO_EXPORT_LABEL[c.geo] || (c.lat !== null && c.lat !== undefined ? 'verortet' : 'nicht verortet'),
-            'Anzahl Besuche': visits.length,
-            'Alle Besuche': visits.join('; '),
-            'Weitere Ansprechpartner': others.join(' | ')
-        };
-        // Nur wenn es sie im Bestand gibt – die übliche Liste bleibt schmal.
-        if (withDepartment) row['Abteilung'] = primary?.abteilung ?? '';
-        if (withPromotors) row['Promotoren'] = promotors.join(' | ');
-        for (const header of extraHeaders) {
-            // Eine Originalspalte, die wie eine TourFuchs-Spalte heißt, überschreibt sie nicht.
-            const key = header in row ? `${header} (Original)` : header;
-            row[key] = c.extra?.[header] ?? '';
-        }
-        return row;
-    });
-}
-
-/**
- * Umbuchungsliste einer Gebietssimulation als Excel (Roadmap 3.1).
- *
- * Gegenstück zur gedruckten Entscheidungsvorlage: Die Vorlage bleibt
- * aggregiert und geht in die Sitzung, diese Datei nennt die Kunden namentlich
- * und geht an die Person, die die Umbuchung ausführt.
- *
- * @param {Array<object>} rows  aus `reassignmentRows()` – bereits mit
- *                              sprechenden deutschen Spaltenköpfen
- * @param {{ demo?: boolean }} options
- * @returns {boolean} false, wenn es nichts zu exportieren gibt
- */
-export function exportReassignments(rows, { demo = false } = {}) {
-    if (!Array.isArray(rows) || rows.length === 0) return false;
-    const marked = demo
-        ? rows.map((row) => ({ 'Datenstatus': DEMO_DATA_LABEL, ...row }))
-        : rows;
-    const ws = XLSX.utils.json_to_sheet(marked);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, demo ? 'DEMO-Umbuchungen' : 'Umbuchungen');
-    const prefix = demo ? 'tourfuchs-DEMO-nicht-produktiv-umbuchungen' : 'tourfuchs-umbuchungen';
-    XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
-    return true;
-}
-
 /**
  * Besuchsbericht als Excel-Datei im Speicher (zum Teilen oder Herunterladen).
  * @param {Array<object>} rows  aus `visitReportRows()`
@@ -1291,37 +1183,4 @@ export function visitReportFile(rows, { demo = false, today = new Date().toISOSt
     const data = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
     const file = new File([data], fileName, { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
     return { file, fileName };
-}
-
-/** Aktuelle Kundenliste als Excel exportieren (inkl. Besuchsdaten) */
-export function exportCustomers(customers, { fileLabel = '' } = {}) {
-    const demo = hasDemoCustomers(customers);
-    const rows = customerExportRows(customers);
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, demo ? 'DEMO-Kunden' : 'Kunden');
-    // Gebietsexport: „tourfuchs-kunden-bezirk-west-2026-09-26.xlsx"
-    const base = demo ? 'tourfuchs-DEMO-nicht-produktiv' : 'tourfuchs-kunden';
-    const prefix = fileLabel ? `${base}-${fileLabel}` : base;
-    XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
-}
-
-/**
- * Übergabeliste (Release 16.5): Blatt „Übergaben" (je Kunde) und Blatt
- * „Übersicht je VB" (je Paar VB alt → VB neu).
- * @returns {number} Anzahl der Übergaben (0 = nichts exportiert)
- */
-export function exportHandovers(customers, { fileLabel = '' } = {}) {
-    const rows = handoverRows(customers);
-    if (!rows.length) return 0;
-    const wb = XLSX.utils.book_new();
-    const sheet = XLSX.utils.json_to_sheet(rows);
-    sheet['!cols'] = [18, 18, 14, 14, 12, 12, 30, 24, 8, 18, 14, 10, 14, 9, 30].map((wch) => ({ wch }));
-    XLSX.utils.book_append_sheet(wb, sheet, 'Übergaben');
-    const summary = XLSX.utils.json_to_sheet(handoverSummary(customers));
-    summary['!cols'] = [18, 18, 8, 16, 12, 14].map((wch) => ({ wch }));
-    XLSX.utils.book_append_sheet(wb, summary, 'Übersicht je VB');
-    const prefix = fileLabel ? `tourfuchs-uebergaben-${fileLabel}` : 'tourfuchs-uebergaben';
-    XLSX.writeFile(wb, `${prefix}-${new Date().toISOString().slice(0, 10)}.xlsx`);
-    return rows.length;
 }

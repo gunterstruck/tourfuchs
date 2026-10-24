@@ -2,7 +2,7 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { revenueKindOf, revenueKindOfHeader, revenueTerm } from '../src/features/revenueTerm.js';
-import { autoDetectMapping, customerExportRows, parseRows } from '../src/services/excel.js';
+import { autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { setCustomers, state } from '../src/core/state.js';
 import { customerPopupHtml } from '../src/features/map.js';
 import { revenueBriefingLine } from '../src/features/revenueYears.js';
@@ -88,15 +88,6 @@ describe('Import merkt sich die Bezeichnung am Kunden', () => {
         const incoming = [{ id: 'k-nr:1', nummer: '1', name: 'A', plz: '1', umsatz: 200 }];
         mergeWithPrevious(previous, incoming, { mapping: { umsatz: 'Umsatz' }, headers: ['Umsatz'] });
         expect(incoming[0].umsatzArt).toBeUndefined();
-    });
-
-    it('Export heißt „Auftragseingang" und kommt beim Wiedereinlesen als AE zurück', () => {
-        const [row] = customerExportRows([{ id: 'k1', name: 'A', plz: '1', umsatz: 100, umsatzArt: 'ae', besuche: [] }]);
-        expect(row.Auftragseingang).toBe(100);
-        expect(row).not.toHaveProperty('Umsatz');
-        expect(revenueKindOfHeader(autoDetectMapping(Object.keys(row)).umsatz)).toBe('ae');
-        const [plain] = customerExportRows([{ id: 'k2', name: 'B', plz: '1', umsatz: 5, besuche: [] }]);
-        expect(plain.Umsatz).toBe(5);
     });
 });
 

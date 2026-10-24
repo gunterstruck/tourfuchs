@@ -49,7 +49,7 @@ describe('Daten-Tab nach Aufgaben', () => {
         expect(groupOf('btn-safe-receive')).toBe('Daten laden');
         expect(groupOf('data-sources')).toBe('Daten laden');
         expect($('vault-details').contains($('btn-safe-receive'))).toBe(false);
-        for (const id of ['btn-safe-export', 'btn-sync-data', 'btn-visit-report-data', 'btn-export', 'btn-export-handover', 'safe-transfer-note']) {
+        for (const id of ['btn-safe-export', 'btn-sync-data', 'btn-visit-report-data', 'safe-transfer-note']) {
             expect(groupOf(id)).toBe('Weitergeben');
         }
         const more = $('data-more');

@@ -66,7 +66,7 @@ TourFuchs läuft im Browser und kann als App installiert werden. Die App nutzt l
 - localStorage für Einstellungen
 - Service Worker für App-Shell, Offline-Fähigkeit und Updates
 
-Wichtig: Ein Browserwechsel, Gerätewechsel oder das Löschen der Browserdaten kann lokale Daten entfernen. Vor größeren Änderungen sollte ein Excel-Export erstellt werden.
+Wichtig: Ein Browserwechsel, Gerätewechsel oder das Löschen der Browserdaten kann lokale Daten entfernen. Vor größeren Änderungen sollte eine verschlüsselte Sicherung („Verschlüsselt exportieren (Datei + QR)“) angelegt werden.
 
 ### Desktop und Smartphone haben unterschiedliche Aufgaben
 
@@ -688,7 +688,7 @@ absendet, werden die darin sichtbaren Daten an diesen Anbieter übertragen.
 
 ## 21. Daten löschen und neu beginnen
 
-![Daten-Reiter mit „Als Excel exportieren" vor Ersatz oder Löschen](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
+![Daten-Reiter mit verschlüsselter Sicherung vor Ersatz oder Löschen](../public/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png)
 
 *BILD-DATEN-01 - Vor vollständigem Ersatz oder Löschen bei Bedarf zuerst den aktuellen Bestand sichern.*
 
@@ -699,7 +699,7 @@ Wenn neu gestartet werden soll:
 3. Bestätigung sorgfältig prüfen.
 4. Neue Excel-Datei importieren.
 
-Vorher empfiehlt sich ein Excel-Export, wenn die Daten noch gebraucht werden.
+Vorher empfiehlt sich eine verschlüsselte Sicherung, wenn die Daten noch gebraucht werden.
 
 ## 22. Typische Fehler und Lösungen
 
@@ -952,7 +952,7 @@ Plane eine Tour:
 5. Relative Stärke zum stärksten sichtbaren Wert, abhängig von der Sortierung.
 6. Auswahl zuweisen ist Simulation; Zuweisung übernehmen schreibt dauerhaft.
 7. Nur Straße, PLZ und Ort; keine Kundenidentität oder Geschäftsdaten.
-8. Bei Bedarf einen Excel-Export erstellen.
+8. Bei Bedarf eine verschlüsselte Sicherung anlegen (Sicherer Umzug).
 9. Am Desktop unter `🧩 Erweiterungen`.
 10. Nein. Den Basis-/Profi-Umschalter gibt es nicht mehr; der volle Außendienstumfang ist verfügbar. Optionale Module werden gesondert aktiviert.
 

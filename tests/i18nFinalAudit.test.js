@@ -28,14 +28,14 @@ function documentFor(device, stored) {
 
 describe('Abschluss-Audit der automatischen Sprache', () => {
     it.each([
-        ['en-GB', 'en', 'Export as Excel'],
-        ['fr-CH', 'fr', 'Exporter vers Excel'],
-        ['es-MX', 'es', 'Exportar a Excel']
-    ])('wendet %s auf die echte Dokumentstruktur an', (device, locale, exportLabel) => {
+        ['en-GB', 'en', 'Visit report (Excel)'],
+        ['fr-CH', 'fr', 'Rapport de visites (Excel)'],
+        ['es-MX', 'es', 'Informe de visitas (Excel)']
+    ])('wendet %s auf die echte Dokumentstruktur an', (device, locale, reportLabel) => {
         const { dom, language } = documentFor(device);
         expect(language.locale).toBe(locale);
         expect(dom.window.document.documentElement.lang).toBe(locale);
-        expect(dom.window.document.getElementById('btn-export').textContent).toContain(exportLabel);
+        expect(dom.window.document.getElementById('btn-visit-report-data').textContent).toContain(reportLabel);
         expect(dom.window.document.querySelector('.info-omitted summary').textContent).not.toContain('Was wir weggelassen haben');
         expect(dom.window.document.querySelector('#visit-report-dialog h2').textContent).not.toContain('Besuche weitergeben');
     });
@@ -44,13 +44,13 @@ describe('Abschluss-Audit der automatischen Sprache', () => {
         const { dom, language } = documentFor('it-IT');
         expect(language.locale).toBe('de');
         expect(dom.window.document.documentElement.lang).toBe('de');
-        expect(dom.window.document.getElementById('btn-export').textContent).toBe('💾 Als Excel exportieren');
+        expect(dom.window.document.getElementById('btn-visit-report-data').textContent).toBe('📤 Besuchsbericht (Excel)');
         expect(dom.window.document.querySelector('.info-omitted summary').textContent.trim()).toBe('🪦 Was wir weggelassen haben');
     });
 
     it('lässt eine gespeicherte Wahl die Gerätesprache überstimmen', () => {
         const { dom, language } = documentFor('fr-FR', 'es');
         expect(language.locale).toBe('es');
-        expect(dom.window.document.getElementById('btn-export').textContent).toBe('💾 Exportar a Excel');
+        expect(dom.window.document.getElementById('btn-visit-report-data').textContent).toBe('📤 Informe de visitas (Excel)');
     });
 });

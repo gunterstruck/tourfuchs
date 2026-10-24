@@ -284,13 +284,13 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 - **App-Version / Aufnahme:** 3.7.0 / 13.10.2026
 - **Öffentliche Vorschau-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-DATEN-01-export-vor-ersatz-preview.webp`
 - **Öffentliche Original-URL:** `https://tourfuchs.vercel.app/docs/screenshots/BILD-DATEN-01-export-vor-ersatz.png`
-- **Sichtbarer Bereich:** Daten-Reiter mit Bestandszahlen, „Andere Excel- oder CSV-Liste laden", Export und Löschaktion.
-- **Zweck:** Zeigt die Sicherung vor einem vollständigen Kundenbasis-Ersatz oder Löschen.
-- **Relevante Schaltflächen:** „Andere Excel- oder CSV-Liste laden", „Als Excel exportieren", „Daten löschen".
-- **Klickpfad:** `Tab „Daten" -> „Als Excel exportieren" -> erst danach neue vollständige Liste laden`.
+- **Sichtbarer Bereich:** Daten-Reiter mit Bestandszahlen, „Andere Excel- oder CSV-Liste laden", verschlüsselter Export und Löschaktion.
+- **Zweck:** Zeigt die Sicherung vor einem vollständigen Kundenbasis-Ersatz oder Löschen. Einen Excel-Export gibt es seit 24.10.2026 nicht mehr; gesichert wird verschlüsselt.
+- **Relevante Schaltflächen:** „Andere Excel- oder CSV-Liste laden", „Verschlüsselt exportieren (Datei + QR)", „Daten löschen".
+- **Klickpfad:** `Tab „Daten" -> „Verschlüsselt exportieren (Datei + QR)" -> erst danach neue vollständige Liste laden`.
 - **Erwartetes Ergebnis:** Eine Sicherung des aktuellen Bestands liegt vor; ein späterer Vollimport zeigt zusätzlich „Was ändert sich?" und ersetzt erst nach Bestätigung.
 - **Hilft bei Fragen:** „Wie sichere ich vor einem Ersatz?", „Ist ein Reimport ein Delta?", „Was muss ich vor Daten löschen tun?"
-- **Alternativtext:** TourFuchs-Daten-Reiter mit fünf synthetischen Kunden, einem Bezirk und einer Gruppe. Unter den Bestandsangaben stehen „Andere Excel- oder CSV-Liste laden", „Als Excel exportieren" und die rote Aktion „Daten löschen"; die Karte bleibt rechts sichtbar.
+- **Alternativtext:** TourFuchs-Daten-Reiter mit fünf synthetischen Kunden, einem Bezirk und einer Gruppe. Unter den Bestandsangaben stehen „Andere Excel- oder CSV-Liste laden", „Verschlüsselt exportieren (Datei + QR)" und die rote Aktion „Daten löschen"; die Karte bleibt rechts sichtbar.
 - **Datenschutzstatus:** ausschließlich synthetische Testdaten
 
 ## Verbindliche Grenzen zum Bildsatz

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest';
-import { attachContacts, autoDetectMapping, customerExportRows, parseRows } from '../src/services/excel.js';
+import { attachContacts, autoDetectMapping, parseRows } from '../src/services/excel.js';
 import { mergeWithPrevious } from '../src/features/importMerge.js';
 import { customerContactGroups, promotorDimensionDefs, showsCustomerContacts } from '../src/features/customerContacts.js';
 import { teamDimensionDefs } from '../src/features/responsibilities.js';
@@ -110,27 +110,22 @@ describe('Reimport des Kundenstamms', () => {
     });
 });
 
-describe('Export und Wiedereinlesen', () => {
+// Den Excel-Export gibt es seit 24.10.2026 nicht mehr; früher exportierte
+// Dateien lassen sich weiter einlesen.
+describe('Wiedereinlesen einer früheren Export-Datei', () => {
     it('Promotoren mit Thema und Abteilungen bleiben erhalten', () => {
-        const customers = stamm();
-        attachContacts(customers, read(['Kd-Nr.', 'Name', 'Telefon', 'Thema'], [['1001', 'Paul Prom', '0171 5550001', 'Akku']]).contactRows);
-        attachContacts(customers, read(['Kd-Nr.', 'Ansprechpartner', 'Abteilung', 'E-Mail'], [['1001', 'Herr Groß', 'Einkauf', 'g@nord.test']]).contactRows);
-        customers[0].contacts.find((c) => c.primary).abteilung = 'Geschäftsführung';
-        const rows = customerExportRows(customers);
-        expect(rows[0]['Promotoren']).toBe('Paul Prom · Akku · 0171 5550001');
-        expect(rows[0]['Weitere Ansprechpartner']).toBe('Herr Groß · Einkauf · g@nord.test');
+        const rows = [{
+            'Kundennummer': '1001', 'Kundenname': 'Nord GmbH', 'PLZ': '50667', 'Ort': 'Köln',
+            'Hauptansprechpartner': 'Frau Klein', 'Telefon': '0221 1',
+            'Weitere Ansprechpartner': 'Herr Groß · Einkauf · g@nord.test',
+            'Abteilung': 'Geschäftsführung', 'Promotoren': 'Paul Prom · Akku · 0171 5550001'
+        }];
         const again = parseRows(rows, autoDetectMapping(Object.keys(rows[0]))).customers[0];
         const groups = customerContactGroups(again);
         expect(groups.promotors.map((p) => [p.name, p.thema, p.phone])).toEqual([['Paul Prom', 'Akku', '0171 5550001']]);
         expect(groups.customerContacts.map((c) => [c.name, c.abteilung])).toEqual([
             ['Frau Klein', 'Geschäftsführung'], ['Herr Groß', 'Einkauf']
         ]);
-    });
-
-    it('ohne Promotoren und Abteilungen bleibt die Exportliste wie bisher', () => {
-        const row = customerExportRows(stamm())[0];
-        expect(row).not.toHaveProperty('Promotoren');
-        expect(row).not.toHaveProperty('Abteilung');
     });
 });
 

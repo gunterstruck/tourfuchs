@@ -40,8 +40,7 @@ const TERMS = {
         years: 'Umsatzjahre',
         range: 'Umsatzintervall',
         trend: 'Umsatzentwicklung',
-        perYear: 'Umsatz nach Geschäftsjahr',
-        exportHeader: 'Umsatz'
+        perYear: 'Umsatz nach Geschäftsjahr'
     },
     ae: {
         name: 'Auftragseingang',
@@ -55,8 +54,7 @@ const TERMS = {
         years: 'AE-Jahre',
         range: 'AE-Intervall',
         trend: 'Entwicklung des Auftragseingangs',
-        perYear: 'Auftragseingang nach Geschäftsjahr',
-        exportHeader: 'Auftragseingang'
+        perYear: 'Auftragseingang nach Geschäftsjahr'
     }
 };
 

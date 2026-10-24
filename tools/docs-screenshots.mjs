@@ -295,7 +295,7 @@ async function desktopShots(browser, baseUrl) {
     await page.locator('.tab-button[data-tab="tour"]').click();
     await screenshot(page, 'BILD-TOUR-01-tourplanung.png');
     await page.locator('.tab-button[data-tab="daten"]').click();
-    await page.locator('#btn-export').scrollIntoViewIfNeeded();
+    await page.locator('#btn-safe-export').scrollIntoViewIfNeeded();
     await screenshot(page, 'BILD-DATEN-01-export-vor-ersatz.png');
 
     await context.close();

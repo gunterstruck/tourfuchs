@@ -13,7 +13,7 @@
 
 Das optionale Importfeld `kundentyp` erscheint bei den wichtigen Zuordnungsfeldern. Automatisch erkannt werden u. a. „Kundentyp“, „Kundenart“, „Customer Type“ und „Account Type“. Kategorien werden getrimmt und als normaler Kundenfilter aktiviert, sobald mindestens ein Wert vorhanden ist. Auch eine einzige oder rein numerische Kategorie ist zulässig; leere Werte laufen unter „Ohne Zuordnung“.
 
-Der Filter wirkt zusammen mit den bestehenden Bezirks-, Gruppen- und Umsatzfiltern. Der Wert liegt im Kundendatensatz und bleibt bei Speicherung, Datentransfer und Excel-Export erhalten. Er ist keine neue Gebietshierarchie und wird deshalb nicht als Ziel für Gebietszuweisungen angeboten. Die Excel-Vorlage enthält Beispiele.
+Der Filter wirkt zusammen mit den bestehenden Bezirks-, Gruppen- und Umsatzfiltern. Der Wert liegt im Kundendatensatz und bleibt bei Speicherung und Datentransfer erhalten. Er ist keine neue Gebietshierarchie und wird deshalb nicht als Ziel für Gebietszuweisungen angeboten. Die Excel-Vorlage enthält Beispiele.
 
 ## Datenschutz-FAQ
 
