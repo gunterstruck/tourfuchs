@@ -1,4 +1,4 @@
-import { emit, getCustomer, on } from '../core/state.js';
+import { emit, getCustomer, on, state } from '../core/state.js';
 import { revenueTerm } from '../features/revenueTerm.js';
 import { formatRevenueFull } from '../core/format.js';
 import { buildTerritorySummary } from '../features/territorySummary.js';
