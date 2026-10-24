@@ -25,10 +25,15 @@ export const DEK_BYTES = 32; // AES-256
 
 // ---- Base64 ----
 export function toB64(bytes) {
-    let bin = '';
     const arr = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
-    for (const b of arr) bin += String.fromCharCode(b);
-    return btoa(bin);
+    // In Blöcken statt Byte für Byte: Seit dem Geräteschlüssel (24.10.2026)
+    // läuft das bei jedem Speichern des ganzen Bestands – Byte für Byte hielt
+    // es die Seite bei 5.000 Kunden spürbar an.
+    const parts = [];
+    for (let i = 0; i < arr.length; i += 0x8000) {
+        parts.push(String.fromCharCode.apply(null, arr.subarray(i, i + 0x8000)));
+    }
+    return btoa(parts.join(''));
 }
 export function fromB64(str) {
     const bin = atob(str);

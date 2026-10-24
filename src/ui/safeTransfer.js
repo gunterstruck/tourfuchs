@@ -523,7 +523,7 @@ async function applyImported(dataset) {
         count: customers.length,
         contractCount: serviceContracts.length,
         visitCount: serviceVisits.length
-    })}) und lokal gespeichert. Ohne Datentresor liegen sie auf diesem Gerät unverschlüsselt – du kannst ihn jederzeit unter „Daten" aktivieren.`, 'info', 9000);
+    })}) und lokal gespeichert, verschlüsselt mit dem Geräteschlüssel. Zusätzlichen PIN-Schutz bietet der Datentresor unter „Daten".`, 'info', 9000);
 }
 
 /**

@@ -63,9 +63,18 @@ direkt an den Import übergeben. Es findet <strong>kein Upload</strong> statt; e
 beteiligt.
 </p>
 
-<h2>3a. Optionaler Datentresor (Verschlüsselung, Data at Rest)</h2>
+<h2>3a. Verschlüsselung der lokalen Daten (Data at Rest) und optionaler Datentresor</h2>
 <p>
-Sie können einen <strong>Datentresor</strong> aktivieren. Ist er aktiv, werden die lokal gespeicherten
+<strong>Immer verschlüsselt:</strong> Kundendaten einschließlich Gebietszuordnungen, eigener Orte, Verträge
+und Einsätze sowie Adress-Cache, separat gespeicherte Touren und Simulations-Szenarien liegen in der
+IndexedDB stets mit <strong>AES-256-GCM</strong> verschlüsselt. Ohne PIN verwendet TourFuchs dafür einen
+<strong>Geräteschlüssel</strong>, den der Browser einmalig erzeugt und als nicht exportierbaren Schlüssel
+verwahrt &ndash; auch TourFuchs kann ihn nicht auslesen. Das schützt kopierte Datenbankdateien (etwa aus
+einer Sicherung oder Profilkopie), nicht aber ein entsperrtes Gerät; dafür sind Gerätesperre und
+Geräteverwaltung zuständig.
+</p>
+<p>
+Zusätzlich können Sie einen <strong>Datentresor</strong> mit PIN aktivieren. Ist er aktiv, werden die lokal gespeicherten
 Kundendaten einschließlich Gebietszuordnungen, eigener Orte, Verträge und Einsätze sowie der
 Adress-Cache, separat gespeicherte Touren und Simulations-Szenarien mit
 <strong>AES-256-GCM</strong> verschlüsselt in der IndexedDB abgelegt. Der zufällige Datenschlüssel

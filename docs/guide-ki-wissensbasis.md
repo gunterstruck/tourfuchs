@@ -1262,8 +1262,8 @@ Flächenzeilen (Gebietszuordnung ohne Kunde) verlangen weiterhin einen Bezirk.
 7. Liste bei Bedarf herunterladen – im Dialog oder jederzeit unter
    **Daten → "Hinweise/Fehlerliste zum letzten Import (.xlsx)"**.
 8. Nach eigenen Kundendaten weist ein Kurzhinweis darauf hin, dass die Daten
-   unverschlüsselt auf diesem Gerät liegen. Er hält **nicht** auf; wer will,
-   richtet den Tresor über das hervorgehobene Schloss oben ein (14.1).
+   verschlüsselt, aber ohne PIN auf diesem Gerät liegen. Er hält **nicht** auf;
+   wer will, richtet den PIN-Tresor über das hervorgehobene Schloss oben ein (14.1).
 
 **Merksatz:** Automatisch erkannt bedeutet nicht automatisch geprüft.
 
@@ -3258,10 +3258,20 @@ Klickpfade:
 
 Nach dem Import eigener Kundendaten **unterbricht TourFuchs nicht mehr**. Die
 Daten sind gespeichert; ein einmaliger Kurzhinweis sagt, dass sie
-unverschlüsselt auf diesem Gerät liegen, und nennt den Weg. Solange eigene
-Daten ohne Tresor hier liegen, bleibt das **offene Schloss in der Kopfzeile
-hervorgehoben** – der Zustand ist dauerhaft sichtbar, ohne aufzuhalten.
-Verschlüsselt wird, wenn der Nutzer sich dafür entscheidet.
+verschlüsselt, aber ohne PIN auf diesem Gerät liegen, und nennt den Weg.
+Solange eigene Daten ohne Tresor hier liegen, bleibt das **offene Schloss in
+der Kopfzeile hervorgehoben** – der Zustand ist dauerhaft sichtbar, ohne
+aufzuhalten. Die PIN kommt dazu, wenn der Nutzer sich dafür entscheidet.
+
+**Geräteschlüssel (seit 24.10.2026):** Auch ohne Tresor liegen Kundendaten,
+Adress-Cache, Touren und Szenarien nie im Klartext. TourFuchs verschlüsselt sie
+mit AES-256-GCM und einem Schlüssel, den der Browser einmalig erzeugt und nicht
+herausgibt (auch nicht an TourFuchs). Wer die Datenbankdateien kopiert (Sicherung,
+Profilkopie, ausgemustertes Gerät), sieht nur Zeichensalat. Das entsperrte
+Gerät schützt das nicht – dafür sind Gerätesperre und Firmenverwaltung da, oder
+zusätzlich die PIN des Tresors. Ältere, unverschlüsselt gespeicherte Daten
+werden beim ersten Start einmalig verschlüsselt. Lässt sich ein gespeicherter
+Bestand nicht öffnen, überschreibt TourFuchs ihn nicht.
 
 Das gilt ebenso beim **sicheren Umzug** (14.7): Die verschlüsselte Datei schützt
 den Transport, verpflichtet auf dem Zielgerät aber nicht zu einem lokalen
@@ -3289,6 +3299,8 @@ sicher aufbewahrt werden.
   Adress-Cache der Verortung, gespeicherte Touren und Simulations-Szenarien.
   Das gilt auch für separat gespeicherte Touren; die Datenschutz-FAQ im
   Info-Dialog beschreibt diesen Schutzumfang in allen vier Sprachen.
+  Ohne Tresor geschieht das mit dem Geräteschlüssel (14.1), mit Tresor mit
+  dem aus der PIN abgeleiteten Schlüssel.
   Allgemeine App-Einstellungen bleiben unverschlüsselt. Bereits exportierte
   Dateien, kopierte Prompts, die ursprüngliche Excel-Datei und während der
   Nutzung entschlüsselte Inhalte werden durch den Tresor nicht geschützt.
@@ -3326,7 +3338,7 @@ Biometrische Daten verlassen das Gerät nicht. Die PIN bleibt der Rückfallweg.
 - Topbar-Tresorsymbol sperrt sofort.
 - **"PIN ändern"** verlangt die aktuelle PIN.
 - **"Tresor deaktivieren"** verlangt Bestätigung und PIN; danach werden Daten
-  wieder unverschlüsselt lokal gespeichert.
+  weiter verschlüsselt gespeichert, mit dem Geräteschlüssel statt der PIN.
 
 ### 14.6 Sicherer Umzug senden
 

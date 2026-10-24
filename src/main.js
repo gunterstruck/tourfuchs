@@ -11,7 +11,7 @@ import { currentLocale, t } from './core/i18n.js';
 import { applyDemoStreets, demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
 import { customerTextsNeedCleaning } from './features/customerName.js';
 import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
-import { loadDataset, saveDataset, loadSettings, hasStoredDataset } from './services/storage.js';
+import { loadDataset, saveDataset, loadSettings, hasStoredDataset, sealStoredData } from './services/storage.js';
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
 import { enrichPlacesByPlz, geocodeByPlz, loadDemoStreets } from './services/geocode.js';
 import { initMap } from './features/map.js';
@@ -105,6 +105,9 @@ async function restorePersistedState() {
     }
 
     const dataset = await loadDataset();
+    // Altbestand aus der Zeit vor dem Geräteschlüssel einmalig verschlüsseln
+    // (im Hintergrund, in der Schreibreihenfolge; mit Tresor regelt der das).
+    if (!vaultEnabled()) sealStoredData();
     // Viele Kunden: Die nächsten Schritte rechnen am Stück. Vorher sagen, was
     // passiert, und den Hinweis zeichnen lassen.
     const storedCount = dataset?.customers?.length || 0;

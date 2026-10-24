@@ -1485,9 +1485,21 @@ verhindern.
    Früher exportierte Dateien lassen sich weiter einlesen.
 2. **KI-Gebietsbriefing nur mit Zahlen**: keine Kundennamen und keine
    Ansprechpartner mehr im Gebietsbriefing. Das Einzelkunden-Briefing bleibt.
-3. **Geräteschlüssel**: Kundendaten liegen auf dem Gerät verschlüsselt, ohne
-   PIN. Ein nicht auslesbarer Schlüssel des Browsers ersetzt die PIN als
-   Hüllschlüssel. Das schützt vor dem Auslesen kopierter Datenbankdateien,
+3. **Geräteschlüssel** (umgesetzt 24.10.2026): Kundendaten, Adress-Cache,
+   Touren und Szenarien liegen ohne PIN-Tresor mit AES-256-GCM verschlüsselt.
+   Der Schlüssel ist ein nicht auslesbarer Schlüssel des Browsers in derselben
+   Datenbank. Er wird nur angelegt, wenn noch keiner da ist (atomar), und
+   immer aus der Datenbank gelesen, damit Daten und Schlüssel nie
+   auseinanderlaufen. Altbestand im Klartext wird beim ersten Start einmalig
+   verschlüsselt. Lässt sich ein Bestand nicht öffnen, wird er nicht
+   überschrieben. Das schützt vor dem Auslesen kopierter Datenbankdateien,
    nicht vor dem entsperrten Gerät (dafür sind Gerätesperre und
    Firmenverwaltung da). Der PIN-Tresor bleibt als freiwilliges Extra.
-   Doppelte Prüfung (DoD Nr. 8) wegen des Risikos von Datenverlust.
+   Doppelte Prüfung (DoD Nr. 8): `tests/deviceKey.test.js` mit Gegenprobe
+   (ohne Verschlüsselung schlagen 5 von 8 Tests an); im smoke-check werden
+   Daten nach dem Abschalten des Tresors geräteverschlüsselt gespeichert,
+   nie im Klartext, und sind nach dem Neuladen vollständig da. Nebenbei
+   schneller: Die Base64-Umwandlung läuft in Blöcken (5.000 Kunden
+   verschlüsseln in 40 statt 200 ms), was auch den Tresor beschleunigt.
+   Offen: Merkblatt für die Rechtsabteilung um „verschlüsselt auf dem Gerät,
+   kein Excel-Export" ergänzen.

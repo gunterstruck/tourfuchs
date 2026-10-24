@@ -2,10 +2,17 @@
  * Storage Service
  * IndexedDB für Kundendaten (Persistenz über Reloads) und Caches.
  * Alle Daten bleiben lokal im Browser – nichts verlässt das Gerät.
+ *
+ * Kundendaten liegen nie im Klartext (PO 24.10.2026, „Geräteschlüssel"):
+ * Mit PIN-Tresor verschlüsselt der Tresor, sonst ein Schlüssel, den der
+ * Browser einmalig erzeugt und nicht herausgibt. Wer die Datenbankdateien
+ * kopiert, sieht nur Zeichensalat. Das entsperrte Gerät schützt das nicht –
+ * dafür sind Gerätesperre und Firmenverwaltung da (oder zusätzlich die PIN).
  */
 
 import { CONFIG } from '../core/config.js';
 import { isEnabled, isUnlocked, encryptForStore, decryptFromStore, isEncryptedPayload } from './vault.js';
+import { decryptJson, encryptJson } from './crypto.js';
 
 const { dbName, dbVersion, storeName } = CONFIG.storage;
 
@@ -14,7 +21,8 @@ const KEYS = {
     geocodeCache: 'geocode-cache',
     settings: 'einstellungen',
     tours: 'gespeicherte-touren',
-    scenarios: 'simulations-szenarien'
+    scenarios: 'simulations-szenarien',
+    deviceKey: 'geraeteschluessel'
 };
 
 function openDatabase() {
@@ -52,6 +60,19 @@ export async function loadFromCache(key) {
     });
 }
 
+/** Nur anlegen, wenn der Schlüssel noch fehlt. @returns {Promise<boolean>} angelegt? */
+function addToCache(key, value) {
+    return openDatabase().then((db) => new Promise((resolve, reject) => {
+        let added = true;
+        const tx = db.transaction([storeName], 'readwrite');
+        const request = tx.objectStore(storeName).add(value, key);
+        // Schon vorhanden: kein Fehler der Transaktion, nur „nicht angelegt".
+        request.onerror = (event) => { added = false; event.preventDefault?.(); event.stopPropagation?.(); };
+        tx.oncomplete = () => { db.close(); resolve(added); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+    }));
+}
+
 export async function removeFromCache(key) {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
@@ -60,6 +81,51 @@ export async function removeFromCache(key) {
         tx.oncomplete = () => { db.close(); resolve(); };
         tx.onerror = () => { db.close(); reject(tx.error); };
     });
+}
+
+// ---- Geräteschlüssel ----
+//
+// AES-256-GCM, nicht extrahierbar: Der Browser legt den Schlüssel als Objekt in
+// derselben Datenbank ab und gibt seine Bytes nie heraus – auch nicht an
+// TourFuchs. Daten und Schlüssel verschwinden deshalb immer gemeinsam.
+
+/**
+ * Immer den gespeicherten Schlüssel nehmen, nie einen nur im Arbeitsspeicher:
+ * Löscht jemand die Browserdaten bei offener App oder starten zwei Fenster
+ * gleichzeitig zum ersten Mal, passten Daten und Schlüssel sonst nicht mehr
+ * zusammen. Neu angelegt wird nur, wenn noch keiner da ist (atomar per `add`).
+ */
+async function deviceKey() {
+    const stored = await loadFromCache(KEYS.deviceKey);
+    if (stored) return stored;
+    const key = await globalThis.crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    if (await addToCache(KEYS.deviceKey, key)) return key;
+    return loadFromCache(KEYS.deviceKey);   // ein anderes Fenster war schneller
+}
+
+export function isDeviceSealed(value) {
+    return Boolean(value && typeof value === 'object' && value.__dev);
+}
+
+/** Speicherform: mit Tresor dessen Schlüssel, sonst der Geräteschlüssel. */
+async function seal(value) {
+    if (isEnabled() && isUnlocked()) return encryptForStore(value);
+    try {
+        return { __dev: 1, ...(await encryptJson(await deviceKey(), value)) };
+    } catch (error) {
+        // Lieber unverschlüsselt speichern als die Arbeit des Tages verlieren.
+        console.warn('Geräteschlüssel nicht verfügbar – Daten ohne Verschlüsselung gespeichert:', error);
+        return value;
+    }
+}
+
+const LOCKED = Symbol('gesperrt');
+
+/** Lesbare Form; LOCKED bei gesperrtem Tresor. Wirft, wenn der Geräteschlüssel nicht passt. */
+async function unseal(raw) {
+    if (isEncryptedPayload(raw)) return isUnlocked() ? decryptFromStore(raw) : LOCKED;
+    if (isDeviceSealed(raw)) return decryptJson(await deviceKey(), raw);
+    return raw;
 }
 
 // ---- Schreibreihenfolge ----
@@ -83,12 +149,16 @@ export function saveDataset(dataset) {
     return inOrder(() => writeDataset(dataset));
 }
 
+// Ließ sich ein gespeicherter Bestand in dieser Sitzung nicht öffnen, wird er
+// nicht überschrieben: Vielleicht klappt es beim nächsten Start wieder.
+let unreadableDataset = false;
+
 async function writeDataset(dataset) {
     try {
         // Aktiver, gesperrter Tresor: niemals im Klartext schreiben – lieber gar nicht.
         if (isEnabled() && !isUnlocked()) return false;
-        const payload = (isEnabled() && isUnlocked()) ? await encryptForStore(dataset) : dataset;
-        await saveToCache(KEYS.dataset, payload);
+        if (unreadableDataset) return false;
+        await saveToCache(KEYS.dataset, await seal(dataset));
         return true;
     } catch (error) {
         console.warn('Kundendaten konnten nicht gespeichert werden:', error);
@@ -100,19 +170,21 @@ export async function loadDataset() {
     try {
         const raw = (await loadFromCache(KEYS.dataset)) ?? null;
         if (!raw) return null;
-        if (isEncryptedPayload(raw)) {
-            // Verschlüsselt gespeichert – nur bei entsperrtem Tresor lesbar.
-            return isUnlocked() ? await decryptFromStore(raw) : null;
-        }
-        return raw;
+        // Mit Tresor nur bei entsperrtem Tresor lesbar.
+        const value = await unseal(raw);
+        return value === LOCKED ? null : value;
     } catch (error) {
+        unreadableDataset = true;
         console.warn('Kundendaten konnten nicht geladen werden:', error);
         return null;
     }
 }
 
 export function clearDataset() {
-    return inOrder(() => removeFromCache(KEYS.dataset));
+    return inOrder(async () => {
+        await removeFromCache(KEYS.dataset);
+        unreadableDataset = false;
+    });
 }
 
 /** Gibt es überhaupt einen gespeicherten Datensatz? (unabhängig von Ver-/Entschlüsselung) */
@@ -143,42 +215,71 @@ function saveProtected(key, value) {
 
 async function writeProtected(key, value) {
     if (isEnabled() && !isUnlocked()) return false;
-    const payload = (isEnabled() && isUnlocked()) ? await encryptForStore(value) : value;
-    await saveToCache(KEYS[key], payload);
+    await saveToCache(KEYS[key], await seal(value));
     return true;
 }
 
 async function loadProtected(key, fallback) {
     const raw = (await loadFromCache(KEYS[key])) ?? null;
     if (raw == null) return fallback;
-    if (isEncryptedPayload(raw)) return isUnlocked() ? await decryptFromStore(raw) : fallback;
-    return raw;
+    const value = await unseal(raw);
+    return value === LOCKED ? fallback : value;
 }
 
 /**
  * Nebenspeicher im aktuellen Tresor-Zustand neu schreiben: nach dem
- * Einrichten bzw. Entsperren verschlüsselt, nach dem Deaktivieren (DEK noch im
- * Speicher, Metadaten schon weg) im Klartext.
+ * Einrichten bzw. Entsperren mit dem Tresor, nach dem Deaktivieren (DEK noch
+ * im Speicher, Metadaten schon weg) mit dem Geräteschlüssel.
  */
 export function reprotectStores() {
     return inOrder(rewriteProtectedStores);
 }
 
+/** Wie ein Wert gerade liegt: 'vault' · 'device' · 'plain'. */
+function sealKind(raw) {
+    if (isEncryptedPayload(raw)) return 'vault';
+    return isDeviceSealed(raw) ? 'device' : 'plain';
+}
+
+/** Wie er liegen soll; null = gesperrter Tresor, nichts anfassen. */
+function targetKind() {
+    if (!isEnabled()) return 'device';
+    return isUnlocked() ? 'vault' : null;
+}
+
+async function rewriteStored(storeKey) {
+    const raw = (await loadFromCache(storeKey)) ?? null;
+    const target = targetKind();
+    if (raw == null || !target || sealKind(raw) === target) return;
+    const value = await unseal(raw);
+    if (value === LOCKED) return;
+    await saveToCache(storeKey, await seal(value));
+}
+
 async function rewriteProtectedStores() {
     for (const key of PROTECTED_KEYS) {
         try {
-            const raw = (await loadFromCache(KEYS[key])) ?? null;
-            if (raw == null) continue;
-            const encrypted = isEncryptedPayload(raw);
-            const shouldEncrypt = isEnabled() && isUnlocked();
-            if (encrypted === shouldEncrypt) continue;
-            if (encrypted && !isUnlocked()) continue;
-            const value = encrypted ? await decryptFromStore(raw) : raw;
-            await saveToCache(KEYS[key], shouldEncrypt ? await encryptForStore(value) : value);
+            await rewriteStored(KEYS[key]);
         } catch (error) {
             console.warn(`Speicher „${key}" konnte nicht umgeschlüsselt werden:`, error);
         }
     }
+}
+
+/**
+ * Altbestand aus der Zeit vor dem Geräteschlüssel (Klartext) einmalig
+ * verschlüsseln – Kundendaten und Nebenspeicher. Beim Start aufrufen.
+ */
+export function sealStoredData() {
+    return inOrder(async () => {
+        if (unreadableDataset) return;
+        try {
+            await rewriteStored(KEYS.dataset);
+        } catch (error) {
+            console.warn('Kundendaten konnten nicht verschlüsselt werden:', error);
+        }
+        await rewriteProtectedStores();
+    });
 }
 
 /** Nach einem Tresor-Wipe: verschlüsselte Nebenspeicher sind ohne Schlüssel wertlos. */
