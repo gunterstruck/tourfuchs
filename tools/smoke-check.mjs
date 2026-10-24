@@ -13,7 +13,8 @@
  *   1b. Desktop: Besuch eintragen, dieselbe Liste neu einlesen – Besuch bleibt
  *   2. Desktop: Tresor einrichten, sperren, entsperren – Kunden wieder da,
  *      gespeicherte Tour im Rohspeicher verschlüsselt; Tresor deaktivieren –
- *      Kunden bleiben im Klartext erhalten, auch nach dem Neuladen; ein erst
+ *      Kunden bleiben erhalten (mit dem Geräteschlüssel verschlüsselt, nie im
+ *      Klartext), auch nach dem Neuladen; ein erst
  *      nach dem Entsperren fälliger Speichertimer schreibt keinen leeren Stand
  *   3. Handy: Kunde suchen → als Start und Ziel in die Tour → Besuch eintragen
  *      → „Besuche weitergeben" erscheint
@@ -132,10 +133,41 @@ async function rawStore(page, key) {
     }), key);
 }
 
+/**
+ * Gespeicherten Wert lesbar holen: Mit dem Geräteschlüssel versiegelte Werte
+ * (seit 24.10.2026, `__dev`) entschlüsselt der Browser selbst – der Schlüssel
+ * ist nicht auslesbar, aber in der Seite benutzbar. Tresor-Werte bleiben zu.
+ */
+async function openedStore(page, key) {
+    return page.evaluate((wanted) => new Promise((resolve) => {
+        const req = indexedDB.open('geofuchs-db');
+        req.onsuccess = () => {
+            const db = req.result;
+            const name = db.objectStoreNames[0];
+            const tx = db.transaction([name], 'readonly');
+            const value = tx.objectStore(name).get(wanted);
+            const key = tx.objectStore(name).get('geraeteschluessel');
+            tx.oncomplete = async () => {
+                db.close();
+                const raw = value.result ?? null;
+                if (!raw?.__dev) { resolve(raw); return; }
+                try {
+                    const bytes = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+                    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(raw.iv) }, key.result, bytes(raw.ct));
+                    resolve(JSON.parse(new TextDecoder().decode(plain)));
+                } catch { resolve(null); }
+            };
+            tx.onerror = () => { db.close(); resolve(null); };
+        };
+        req.onerror = () => resolve(null);
+    }), key);
+}
+
 /** Was liegt gespeichert? – für Fehlermeldungen, die den Zustand nennen statt nur „falsch". */
 function describeStored(raw) {
     if (raw == null) return 'nichts gespeichert';
-    if (raw.__enc) return 'verschlüsselt';
+    if (raw.__enc) return 'verschlüsselt (Tresor)';
+    if (raw.__dev) return 'verschlüsselt (Geräteschlüssel)';
     const customers = Array.isArray(raw.customers) ? raw.customers : [];
     return `${customers.length} Kunde(n) im Klartext${customers.length ? ` (${customers.slice(0, 2).map((c) => c.name).join(', ')} …)` : ''}`;
 }
@@ -530,7 +562,7 @@ async function desktop(browser, baseUrl) {
         await page.locator('#import-diff-dialog[open] [data-diff-confirm]').click();
         await page.waitForFunction(() => !document.getElementById('import-diff-dialog')?.open, null, { timeout: TIMEOUT });
         await sleep(1500);
-        const raw = await rawStore(page, 'kundendaten');
+        const raw = await openedStore(page, 'kundendaten');
         const nord = (raw?.customers || []).find((c) => c.nummer === 'SMOKE-1');
         if (!nord?.besuche?.includes(today)) throw new Error(`Besuch vom ${today} nach dem Reimport verloren`);
     });
@@ -602,16 +634,19 @@ async function desktop(browser, baseUrl) {
         await page.evaluate(() => { const b = document.getElementById('btn-vault-disable'); b.hidden = false; b.click(); });
         await page.waitForFunction(() => !localStorage.getItem('tf_vault'), null, { timeout: TIMEOUT });
         page.off('dialog', answer);
-        // Auf den Zustand warten, nicht auf eine feste Zeit: Klartext mit den Kunden
-        // gespeichert (auf langsamen Rechnern dauert schon die PIN-Prüfung).
-        const plain = (raw) => Boolean(raw) && !raw.__enc && JSON.stringify(raw).includes('Smoke Test');
-        let raw = await waitForStored(page, 'kundendaten', plain);
-        if (!plain(raw)) throw new Error(`Kundendaten nach dem Deaktivieren nicht im Klartext gespeichert – ${describeStored(raw)}`);
+        // Auf den Zustand warten, nicht auf eine feste Zeit: mit dem Geräteschlüssel
+        // gespeichert (auf langsamen Rechnern dauert schon die PIN-Prüfung) – nie im Klartext.
+        const deviceSealed = (raw) => Boolean(raw) && raw.__dev === 1 && !raw.__enc;
+        let raw = await waitForStored(page, 'kundendaten', deviceSealed);
+        if (!deviceSealed(raw)) throw new Error(`Kundendaten nach dem Deaktivieren nicht mit dem Geräteschlüssel gespeichert – ${describeStored(raw)}`);
+        if (JSON.stringify(raw).includes('Smoke Test')) throw new Error('Kundendaten im Klartext gespeichert');
+        const withCustomers = (value) => JSON.stringify(value ?? null).includes('Smoke Test');
+        if (!withCustomers(await openedStore(page, 'kundendaten'))) throw new Error('Gespeicherte Kundendaten nach dem Deaktivieren ohne Kunden');
         // Danach darf kein Speichervorgang mehr dazwischenfunken: Früher schrieb der
         // Speichertimer hier den geleerten Bestand weg.
         await sleep(2500);
-        raw = await rawStore(page, 'kundendaten');
-        if (!plain(raw)) throw new Error(`Kundendaten nach dem Deaktivieren überschrieben – ${describeStored(raw)}`);
+        raw = await openedStore(page, 'kundendaten');
+        if (!withCustomers(raw)) throw new Error(`Kundendaten nach dem Deaktivieren überschrieben – ${describeStored(raw)}`);
         await page.reload({ waitUntil: 'domcontentloaded' });
         await page.waitForSelector('#map', { timeout: TIMEOUT });
         await page.waitForFunction((text) => (document.getElementById('data-status')?.textContent || '') === text, before, { timeout: TIMEOUT });
@@ -654,8 +689,9 @@ async function desktop(browser, baseUrl) {
         await page.evaluate(() => { const b = document.getElementById('btn-vault-disable'); b.hidden = false; b.click(); });
         await page.waitForFunction(() => !localStorage.getItem('tf_vault'), null, { timeout: TIMEOUT });
         page.off('dialog', answer);
-        const plain = (raw) => Boolean(raw) && !raw.__enc && JSON.stringify(raw).includes('Smoke Test');
-        if (!plain(await waitForStored(page, 'kundendaten', plain))) throw new Error('Kundendaten nach dem Deaktivieren nicht im Klartext gespeichert');
+        const deviceSealed = (raw) => Boolean(raw) && raw.__dev === 1 && !raw.__enc;
+        if (!deviceSealed(await waitForStored(page, 'kundendaten', deviceSealed))) throw new Error('Kundendaten nach dem Deaktivieren nicht mit dem Geräteschlüssel gespeichert');
+        if (!JSON.stringify(await openedStore(page, 'kundendaten')).includes('Smoke Test')) throw new Error('Kundendaten nach dem Deaktivieren ohne Kunden');
     });
 
     await step('Alle Daten löschen – auch Touren, Adress-Cache und Szenarien', async () => {
@@ -679,13 +715,16 @@ async function desktop(browser, baseUrl) {
             .catch(async () => { throw new Error(`Bestand nach „Alle Daten löschen" nicht leer – ${await page.locator('#data-status').textContent().catch(() => '')}`.slice(0, 300)); });
         page.off('dialog', answer);
         for (const key of ['gespeicherte-touren', 'geocode-cache', 'simulations-szenarien']) {
+            // Gelesen wird entschlüsselt: Versiegelt ist nicht gelöscht.
             const gone = (raw) => !raw || !JSON.stringify(raw).includes('Rosenweg');
-            if (!gone(await waitForStored(page, key, gone))) throw new Error(`${key} nach „Alle Daten löschen" noch vorhanden`);
+            let opened = await openedStore(page, key);
+            for (const deadline = Date.now() + TIMEOUT; !gone(opened) && Date.now() < deadline;) { await sleep(250); opened = await openedStore(page, key); }
+            if (!gone(opened)) throw new Error(`${key} nach „Alle Daten löschen" noch vorhanden`);
         }
         // Gegenprobe: Schreibt ein verspäteter Speichervorgang die Daten zurück?
         await sleep(1000);
         for (const key of ['gespeicherte-touren', 'geocode-cache', 'simulations-szenarien']) {
-            const raw = await rawStore(page, key);
+            const raw = await openedStore(page, key);
             if (raw && JSON.stringify(raw).includes('Rosenweg')) throw new Error(`${key} nach „Alle Daten löschen" wieder aufgetaucht`);
         }
     });
@@ -764,9 +803,18 @@ async function phone(browser, baseUrl) {
         await closeDialogs(page);
         // Am Handy kein eigener Knopf im Kopf – der Weg führt über die Suche (PO 23.10.2026).
         if (await page.locator('#btn-postal-responsibility').isVisible()) throw new Error('Zuständigkeit-Knopf belegt den Handy-Kopf');
-        await page.locator('#global-search').fill('506');
-        await page.locator('[data-postal]').click();
-        await page.waitForSelector('#postal-dialog[open]');
+        // Beim Start schließt das Nachladen der Beispieldaten die Trefferliste
+        // gelegentlich wieder (z. B. „service-contracts:changed") – wie ein
+        // Nutzer einfach noch einmal tippen.
+        for (let attempt = 0; ; attempt++) {
+            await page.locator('#global-search').fill('');
+            await page.locator('#global-search').fill('506');
+            const opened = await page.locator('[data-postal]').click({ timeout: 3000 })
+                .then(() => page.waitForSelector('#postal-dialog[open]', { timeout: 3000 }))
+                .then(() => true, () => false);
+            if (opened) break;
+            if (attempt === 9) throw new Error('„Zuständigkeit für PLZ" in der Suche nicht antippbar');
+        }
         await page.locator('#postal-query').fill('50');
         await page.waitForFunction(() => document.getElementById('postal-results')?.textContent.includes('Bitte 3 bis 5'));
         await page.locator('#postal-query').fill('506');

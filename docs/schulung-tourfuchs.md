@@ -982,7 +982,7 @@ Kundenkarten zeigen bei vorhandenen Daten den VB-Namen. **Nr. …** kopiert die 
 
 Unter „ⓘ Info -> 🌐 Sprache“ gilt Automatisch oder die lokale Wahl DE/EN/FR/ES. Import, Suche, Kundenkarte, Tour, QR, Ausgaben und die dokumentierten Service-/Info-Bereiche folgen der Sprache. Nicht unterstützte Gerätesprachen fallen auf Deutsch zurück. Nutzerdaten werden nicht übersetzt.
 
-Der Tresor ist freiwillig, auch nach sicherem Umzug. .tfsafe schützt den Transport; ohne vorhandenen Tresor erfolgt die Speicherung am Zielgerät zunächst unverschlüsselt. Ein bereits aktiver Tresor wird weiterverwendet.
+Der Tresor ist freiwillig, auch nach sicherem Umzug. .tfsafe schützt den Transport; ohne vorhandenen Tresor speichert das Zielgerät verschlüsselt mit dem Geräteschlüssel, aber ohne PIN. Ein bereits aktiver Tresor wird weiterverwendet.
 
 TourFuchs ist das persönliche lokale Außendienst-Cockpit mit freigegebener Unternehmens-KI, ohne zentrale Mitarbeiterkontrolle. Anonyme Seitenaufrufzählung ist offengelegt; Kundendaten und Bedienhandlungen werden dabei nicht übertragen. Für die offizielle Einführung bleibt eine betriebliche Prüfung erforderlich.
 

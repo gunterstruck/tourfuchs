@@ -106,6 +106,7 @@ describe('Datentresor: Angebot statt Pflicht nach dem Import', () => {
         expect(transfer).not.toContain('openSetupDialog');
         expect(transfer).not.toContain('forced: true');
         expect(transfer).toContain('Datentresor ist eine getrennte Entscheidung');
-        expect(transfer).toContain('Ohne Datentresor liegen sie auf diesem Gerät unverschlüsselt');
+        // Seit 24.10.2026 immer verschlüsselt (Geräteschlüssel); der Tresor bringt die PIN dazu.
+        expect(transfer).toContain('und lokal gespeichert, verschlüsselt mit dem Geräteschlüssel. Zusätzlichen PIN-Schutz bietet der Datentresor');
     });
 });

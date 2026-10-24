@@ -143,7 +143,7 @@ async function healLeftoverDemoVault() {
             return false;
         }
         vault.removeVaultMeta();
-        if (dataset) await saveDataset(dataset);   // jetzt im Klartext
+        if (dataset) await saveDataset(dataset);   // jetzt mit dem Geräteschlüssel
         await reprotectStores();
         vault.discardKey();
         hideError();
@@ -467,8 +467,8 @@ function onDataImported(payload) {
         : isVisits ? 'Serviceeinsätze' : 'Kunden';
     const subject = count ? `Deine ${count} ${importedLabel}` : `Deine ${importedLabel}`;
     showToast(
-        `${subject} liegen jetzt nur auf diesem Gerät – noch unverschlüsselt. `
-        + 'Mit dem 🔓 oben richtest du jederzeit den Tresor ein (PIN, AES-256).',
+        `${subject} liegen jetzt nur auf diesem Gerät – verschlüsselt, aber ohne PIN. `
+        + 'Mit dem 🔓 oben richtest du jederzeit zusätzlich einen PIN-Tresor ein.',
         'info',
         9000
     );
@@ -696,7 +696,7 @@ async function datasetToKeep() {
 }
 
 async function disableVault() {
-    if (!confirm('Tresor deaktivieren? Deine Daten werden danach wieder unverschlüsselt in diesem Browser gespeichert.')) return;
+    if (!confirm('Tresor deaktivieren? Deine Daten bleiben verschlüsselt in diesem Browser gespeichert (Geräteschlüssel), nur ohne PIN.')) return;
     const pin = prompt('Zur Bestätigung bitte die aktuelle PIN eingeben:');
     if (pin == null) return;
     try {
@@ -712,14 +712,14 @@ async function disableVault() {
         await reloadAfterUnlock;
         const dataset = await datasetToKeep();   // solange der Schlüssel da ist
         vault.removeVaultMeta();                 // Tresor aus – DEK bleibt noch im Speicher
-        await saveDataset(dataset);              // jetzt im Klartext neu speichern
+        await saveDataset(dataset);              // jetzt mit dem Geräteschlüssel neu speichern
         await reprotectStores();                 // Nebenspeicher ebenso
         // Nur den Schlüssel verwerfen – NICHT lock(): Das meldet „gesperrt",
         // leert Kunden, Verträge, Besuche und Gebiete im Speicher, und der
         // Speichertimer schriebe danach den leeren Stand als Klartext weg.
         vault.discardKey();
         renderControls();
-        showToast('Tresor deaktiviert. Daten sind wieder unverschlüsselt gespeichert.', 'info', 6000);
+        showToast('Tresor deaktiviert. Daten bleiben verschlüsselt gespeichert, jetzt ohne PIN.', 'info', 6000);
     } catch (error) {
         console.warn('Tresor deaktivieren abgebrochen:', error);
         showToast('Tresor bleibt aktiv – die gespeicherten Daten ließen sich gerade nicht lesen. Bitte neu laden und erneut versuchen.', 'error', 8000);

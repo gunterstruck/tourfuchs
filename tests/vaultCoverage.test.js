@@ -15,6 +15,12 @@ function fakeIndexedDb() {
             const tx = {};
             tx.objectStore = () => ({
                 put(value, key) { RAW.set(key, structuredClone(value)); later(() => tx.oncomplete?.()); },
+                add(value, key) {
+                    const request = {};
+                    if (RAW.has(key)) later(() => { request.onerror?.({ preventDefault() {}, stopPropagation() {} }); tx.oncomplete?.(); });
+                    else { RAW.set(key, structuredClone(value)); later(() => tx.oncomplete?.()); }
+                    return request;
+                },
                 delete(key) { RAW.delete(key); later(() => tx.oncomplete?.()); },
                 get(key) {
                     const request = {};
@@ -98,9 +104,20 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
         expect(await storage.loadTours()).toEqual(TOUR);
     });
 
-    it('verschlüsselt Altbestand im Klartext beim Einrichten/Entsperren (reprotectStores)', async () => {
+    it('schlüsselt beim Einrichten vom Geräteschlüssel auf den Tresor um (reprotectStores)', async () => {
         await storage.saveTours(TOUR);
         await storage.saveGeocodeCache(GEO);
+        expect(RAW.get('gespeicherte-touren').__dev).toBe(1);
+        await vault.setup('123456', OPTS);
+        await storage.reprotectStores();
+        expect(RAW.get('gespeicherte-touren').__enc).toBe(1);
+        expect(RAW.get('geocode-cache').__enc).toBe(1);
+        expect(JSON.stringify([...RAW.values()])).not.toContain('Rosenweg');
+        expect(await storage.loadTours()).toEqual(TOUR);
+    });
+
+    it('verschlüsselt Altbestand im Klartext beim Einrichten (reprotectStores)', async () => {
+        RAW.set('gespeicherte-touren', structuredClone(TOUR));
         expect(JSON.stringify([...RAW.values()])).toContain('Rosenweg');
         await vault.setup('123456', OPTS);
         await storage.reprotectStores();
@@ -108,12 +125,13 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
         expect(await storage.loadTours()).toEqual(TOUR);
     });
 
-    it('entschlüsselt beim Deaktivieren wieder in Klartext', async () => {
+    it('schlüsselt beim Deaktivieren auf den Geräteschlüssel um', async () => {
         await vault.setup('123456', OPTS);
         await storage.saveTours(TOUR);
         vault.removeVaultMeta(); // DEK noch im Speicher – wie in disableVault()
         await storage.reprotectStores();
         vault.discardKey();
+        expect(RAW.get('gespeicherte-touren').__dev).toBe(1);
         expect(await storage.loadTours()).toEqual(TOUR);
     });
 
@@ -126,7 +144,7 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
         expect(disable).not.toMatch(/vault\.lock\(\)/);
     });
 
-    it('Deaktivieren: ein noch laufender verschlüsselter Speichervorgang überschreibt den Klartext nicht', async () => {
+    it('Deaktivieren: ein noch laufender Tresor-Speichervorgang überschreibt den neuen Stand nicht', async () => {
         await vault.setup('123456', OPTS);
         // Speichertimer feuert kurz vor dem Deaktivieren – verschlüsselt noch.
         const stale = storage.saveDataset({ customers: [{ name: 'Alt' }] });
@@ -138,7 +156,8 @@ describe('Tresor schützt auch Adress-Cache, Touren und Szenarien', () => {
         await new Promise((r) => setTimeout(r, 20));
         const raw = RAW.get('kundendaten');
         expect(raw.__enc).toBeUndefined();
-        expect(JSON.stringify(raw)).toContain('Smoke Test');
+        expect(raw.__dev).toBe(1);
+        expect(await storage.loadDataset()).toEqual({ customers: [{ name: 'Smoke Test' }] });
     });
 
     it('räumt die Nebenspeicher beim Wipe mit ab', async () => {

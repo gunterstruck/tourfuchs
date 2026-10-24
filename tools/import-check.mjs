@@ -51,16 +51,31 @@ async function startPreview(port) {
     throw new Error('Vorschau-Server ist nicht gestartet. Vorher `npm run build` ausführen?');
 }
 
-/** Gespeicherter Bestand („kundendaten") aus IndexedDB. */
+/**
+ * Gespeicherter Bestand („kundendaten") aus IndexedDB. Seit 24.10.2026 liegt er
+ * mit dem Geräteschlüssel verschlüsselt (`__dev`); der Browser entschlüsselt ihn
+ * hier selbst – der Schlüssel ist nicht auslesbar, aber in der Seite benutzbar.
+ */
 function storedDataset(page) {
     return page.evaluate(() => new Promise((resolve) => {
         const req = indexedDB.open('geofuchs-db');
         req.onsuccess = () => {
             const db = req.result;
             const name = db.objectStoreNames[0];
-            const get = db.transaction([name], 'readonly').objectStore(name).get('kundendaten');
-            get.onsuccess = () => { db.close(); resolve(get.result ?? null); };
-            get.onerror = () => { db.close(); resolve(null); };
+            const tx = db.transaction([name], 'readonly');
+            const value = tx.objectStore(name).get('kundendaten');
+            const key = tx.objectStore(name).get('geraeteschluessel');
+            tx.oncomplete = async () => {
+                db.close();
+                const raw = value.result ?? null;
+                if (!raw?.__dev) { resolve(raw); return; }
+                try {
+                    const bytes = (b64) => Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+                    const plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: bytes(raw.iv) }, key.result, bytes(raw.ct));
+                    resolve(JSON.parse(new TextDecoder().decode(plain)));
+                } catch { resolve(null); }
+            };
+            tx.onerror = () => { db.close(); resolve(null); };
         };
         req.onerror = () => resolve(null);
     }));
