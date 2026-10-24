@@ -1,6 +1,6 @@
 # TourFuchs Vertrieb - Wissensbasis für den KI-Guide
 
-**Version 3.27 · Stand: 22.10.2026 · App-Version: 3.7.0**
+**Version 3.28 · Stand: 24.10.2026 · App-Version: 3.7.0**
 
 **Zweck:** Verbindliche Produkt-, Bedien-, Schulungs- und Supportgrundlage für
 einen angepassten TourFuchs-Guide. Die Markdown-Datei ist die primäre
@@ -11,7 +11,7 @@ Weitergabe.
 Screenshots, Präsentationen oder Schulungsunterlagen. Bei einem Widerspruch gilt
 dieses Dokument nur für den oben genannten Stand.
 
-**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `2c51cfa444fbb1bfdf69dec6be11c534c68e477b` (PR #441), ergänzt um DUVE-Automatik, eindeutige Kopierknöpfe und VBZ-Kundenschwerpunkte dieses Dokumentationsstands (22.10.2026). App-Version 3.7.0; zusätzlich ist der Quellstand maßgeblich.
+**Geprüfter Quellstand:** GitHub `gunterstruck/tourfuchs`, Basis `main`, Commit `2c51cfa444fbb1bfdf69dec6be11c534c68e477b` (PR #441), ergänzt um DUVE-Automatik, eindeutige Kopierknöpfe und VBZ-Kundenschwerpunkte (22.10.2026) sowie „Excel nur hinein", Geräteschlüssel und Briefings mit höchstens 8 Kunden (PR #453–#456, 24.10.2026). App-Version 3.7.0; zusätzlich ist der Quellstand maßgeblich.
 
 **Klickpfad-Konvention:** `Modus -> Tab -> Bereich -> Aktion`. Sichtbare
 Beschriftungen stehen in Anführungszeichen. Beispiel:
@@ -1696,6 +1696,8 @@ Begründung wird nicht automatisch zur Tour oder zum Besuchsstatus.
   und die leere **Excel-Vorlage**.
 - Ehrliche Grenze: Das ist eine Hürde, keine Sperre. Bildschirmfotos oder
   Abtippen kann eine Browser-App nicht verhindern.
+- Warum das gegenüber offenen Excel-Listen auf gemeinsamen Laufwerken ein
+  deutlicher Gewinn ist, steht in 16.7.
 - Früher exportierte TourFuchs-Dateien lassen sich weiter einlesen.
 - **"Daten löschen"** entfernt lokale Daten nach Bestätigung und deaktiviert
   auch den Tresor.
@@ -2254,7 +2256,8 @@ im Assistenten selbst absenden. Kein Login, kein API-Aufruf.
 
 *BILD-LASSO-06 - Mehrkunden-Briefing mit voreingestelltem Copilot: prüfen, kopieren, Assistent öffnen; eingefügt und gesendet wird vom Nutzer.*
 
-**Inhalt je Kunde - bewusst weniger als beim Einzelbriefing:**
+**Inhalt je Kunde bei "Wen zuerst?" (Tourvorschläge, "In der Nähe") - bewusst
+weniger als beim Einzelbriefing:**
 
 - Kundenname
 - Kundennummer
@@ -2262,14 +2265,26 @@ im Assistenten selbst absenden. Kein Login, kein API-Aufruf.
 - Fälligkeitsstand ("überfällig" bzw. "bald fällig")
 - Datum des letzten dokumentierten Besuchs
 
-**Nicht enthalten:** Umsatz, Telefonnummer, E-Mail-Adresse, Straße,
-Kartenkoordinaten. Beim Einzelbriefing ist das zugesagt - bei einer ganzen Liste
-wiegt es schwerer, nicht leichter.
+**Nicht enthalten:** Umsatz bzw. Auftragseingang, Telefonnummer, E-Mail-Adresse,
+Straße, Kartenkoordinaten.
 
-**Höchstens 12 Kunden.** Eine Liste mit vierzig Namen ist weder ein guter Prompt
-noch eine gute Idee: Es zählt das Gebiet, nicht der Bestand. Wurde gekürzt, steht
-das ausdrücklich im Prompt ("Es sind 37 Kunden im Gebiet; hier stehen die 12
-nächstgelegenen") und der Dialog weist darauf hin.
+**Lasso (seit 24.10.2026):** je Kunde **dieselben Angaben wie das
+Einzelbriefing** - Name, Kundennummer, Ort, Hauptansprechpartner, weitere
+Ansprechpartner und Zuständigkeiten mit Namen, Umsatz bzw. Auftragseingang nach
+Geschäftsjahr, offene Opportunities - dazu Fälligkeit und letzter Besuch. Auch
+hier ohne Telefon, E-Mail, Straße und Koordinaten. Die Reihenfolge: überfällig
+zuerst, dann bald fällig, dann die am längsten nicht Besuchten.
+
+**Höchstens 8 Kunden (seit 24.10.2026, vorher 12).** Eine Liste mit vierzig
+Namen ist weder ein guter Prompt noch eine gute Idee: Es zählt das Gebiet, nicht
+der Bestand. Wurde gekürzt, steht das ausdrücklich im Prompt ("Es sind 37 Kunden
+im Gebiet; hier stehen die 8 nächstgelegenen" bzw. beim Lasso "… die 8
+dringendsten") und der Dialog weist darauf hin.
+
+**Wo es Briefings gibt (PO 24.10.2026):** für einen Kunden (Kundenkachel,
+Tour-Stopp) und für höchstens 8 Kunden aus Lasso, Tourvorschlägen und "In der
+Nähe". Die frühere Pille **"📋 Briefing für mein Gebiet"** in der Gebietsplanung
+ist entfallen.
 
 **Ergebnisformat, maximal 200 Wörter:**
 
@@ -2319,8 +2334,8 @@ Ablauf:
 
    *BILD-LASSO-04 - Auswahl prüfen; erst „Briefing über alle" führt zur Prompt-Vorbereitung.*
 
-3. "Briefing über alle" öffnet das Mehrkunden-Briefing aus 9.6 - **unverändert**:
-   Das Lasso liefert nur die Auswahl, keinen eigenen Prompt.
+3. "Briefing über alle" öffnet das Mehrkunden-Briefing aus 9.6 - mit den vollen
+   Angaben je Kunde und höchstens 8 Kunden, die dringendsten zuerst (9.6).
 
 **Der Rückweg:** Jede Zeile der Auswahlkarte trägt ein Häkchen.
 Ohne Häkchen heißt der Knopf "Alle zur Tour" und tut das auch; mit Häkchen heißt
@@ -3523,7 +3538,7 @@ Browserdaten durch den Nutzer verhindert das nicht.
 | Google Maps Navigation | bewusster Klick | Start, Ziel, Zwischenziele als Adresse/Koordinate | Google Maps |
 | Kundenbriefing | Nutzer fügt Prompt ein und sendet | im Prompt sichtbare Identität und Tourkontext | Microsoft 365 Copilot |
 | Kundenbriefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | Name, Nummer, PLZ/Ort, Hauptkontakt, Tourkontext | vom Nutzer gewählter Assistent |
-| Mehrkunden-Briefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | je Kunde Name, Nummer, PLZ/Ort, Fälligkeit, letzter Besuch; höchstens 12 Kunden | vom Nutzer gewählter Assistent |
+| Mehrkunden-Briefing | Prompt wird nur kopiert; Übertragung erst durch das Absenden im Assistenten | je Kunde Name, Nummer, PLZ/Ort, Fälligkeit, letzter Besuch; beim Lasso zusätzlich die Angaben des Einzelbriefings (Ansprechpartner-Namen, Zuständigkeiten, Umsatz/AE nach GJ, offene Opportunities), nie Telefon/E-Mail/Straße; höchstens 8 Kunden | vom Nutzer gewählter Assistent |
 | Demo-Kontakt und Demo-Briefing | Klick auf sichtbare Demo-Aktion | keine externe Übertragung; lokale Simulation/Vorschau | nur TourFuchs im Browser |
 | Tour-QR | QR anzeigen/scannen | keine TourFuchs-Serverübertragung; Tour im QR/URL-Fragment | Bildschirm/Kamera |
 | Sicherer Umzug | Export/Import | TourFuchs lädt nichts hoch; Dateiweg vom Nutzer gewählt | lokales Dateisystem/gewählter Kanal |
@@ -3581,6 +3596,53 @@ Vor diesen Aktionen immer Wirkung nennen und bei Bedarf Export empfehlen:
 - zehnter falscher PIN-Versuch
 - **"Zuweisung übernehmen"**
 - vollständiger Kundenimport
+
+### 16.7 Offene Excel-Listen auf Laufwerken: was TourFuchs entschärft
+
+**Ausgangslage (allgemein, in vielen Vertriebsorganisationen):** Kundenlisten
+liegen als Excel-Dateien je Vertriebsbezirk auf gemeinsamen Laufwerken – mit
+Ansprechpartnern, Telefonnummern und Umsätzen. Sie dienen zwei Zwecken: Der
+Außendienst schaut selbst hinein, und er lädt sie in den KI-Assistenten, um ein
+Briefing zu bekommen. Der Preis: Wer Zugriff auf das Laufwerk hat, kann alle
+Bezirke kopieren, als ZIP-Datei packen und weitergeben – vollständig, lesbar,
+unbemerkt. Und für ein einziges Briefing landet oft die ganze Bezirksliste im
+KI-Dienst.
+
+**Mit TourFuchs (seit 24.10.2026):**
+
+| | Heute: Excel auf dem Laufwerk | Mit TourFuchs |
+|---|---|---|
+| Wer hat die Excel-Listen? | Viele Mitarbeiter, oft für alle Bezirke | Nur eine beauftragte Vertrauensperson; sie liest die Listen ein und erstellt per **„Sicherer Umzug"** eine verschlüsselte Gesamtdatei |
+| Was bekommt der Außendienst? | Offene Dateien, beliebig kopier- und versendbar | Die verschlüsselte Datei (`.tfsafe`), lesbar nur in TourFuchs; als Excel kommt nichts mehr heraus (7.12) |
+| Selbst nachsehen | In Excel | Auf Karte und Kundenkachel |
+| KI-Briefing | Oft die ganze Bezirksliste, mit Telefon und E-Mail | Ein Kunde oder höchstens 8, ohne Telefon, E-Mail und Straße; der Prompt ist vor dem Absenden vollständig sichtbar (9.6, 9.7) |
+| Weitergabe | Als offene Datei, in beliebiger Menge | Nur verschlüsselt; ohne den getrennt verteilten Schlüssel wertlos (14.6) |
+| Kopierte Dateien | Sofort lesbar | Kopierte Datenbankdateien sind unlesbar (Geräteschlüssel, 14.1) |
+
+**Die richtige Aussage lautet „deutlich entschärft", nicht „gelöst":** Aus
+vielen offenen Kopien wird eine einzige Quelle bei einer Person, was im Umlauf
+ist, ist verschlüsselt, und an den KI-Dienst gehen nur noch wenige ausgewählte
+Kunden. Dazu gehören zwei organisatorische Schritte, die TourFuchs nicht
+erzwingen kann:
+
+1. **Die Excel-Listen verlassen die gemeinsamen Laufwerke**, oder der Zugriff
+   wird auf die Vertrauensperson beschränkt. Solange sie offen dort liegen,
+   schließt TourFuchs die Lücke nicht.
+2. **Datei und Schlüssel reisen getrennt.** Ein Schlüssel im selben Ordner oder
+   in derselben Mail wie die Datei macht die Verschlüsselung wertlos.
+
+**Was bleibt:** Wer Datei und Schlüssel hat, sieht in TourFuchs den gesamten
+Bestand. Bildschirmfotos kann keine Browser-App verhindern.
+
+**Vorgemerkt, nicht umgesetzt:** eine verschlüsselte Datei je Bezirk (jeder
+sieht nur sein Gebiet), eine weiche Bremse bei sehr vielen Kundenkacheln in
+kurzer Zeit, ein sichtbarer Gerätename auf der Kundenkachel. Eine harte
+Tagesgrenze für angesehene Kunden ist bewusst verworfen. Der Guide stellt
+nichts davon als vorhanden dar.
+
+**Guide-Regeln:** Immer allgemein formulieren („in vielen Organisationen"),
+nie eine konkrete Firma, ein konkretes Laufwerk oder einen Ordnerpfad nennen.
+Nie behaupten, mit TourFuchs könnten keine Kundendaten mehr abfließen.
 
 ---
 
@@ -3842,6 +3904,17 @@ aufs Gerät herunterladen und aus „Downloads" wählen.
 ---
 
 ## 19. Häufige Fragen mit Musterantworten
+
+### Ist TourFuchs sicherer als unsere Excel-Listen auf dem Laufwerk?
+
+> Es entschärft das Problem deutlich, löst es aber nicht ganz. Statt offener
+> Excel-Listen für viele hält nur noch eine beauftragte Person die Quelle; alle
+> anderen bekommen eine verschlüsselte Datei, die nur TourFuchs lesen kann und
+> aus der nichts mehr als Excel herauskommt. Ein KI-Briefing nennt höchstens 8
+> Kunden ohne Telefon, E-Mail und Straße statt der ganzen Bezirksliste. Dazu
+> gehört, die Excel-Listen vom Laufwerk zu nehmen und den Schlüssel getrennt
+> von der Datei zu verteilen. Bildschirmfotos kann keine Browser-App
+> verhindern. Einzelheiten: 16.7.
 
 ### Ist TourFuchs eine Cloud-Anwendung?
 
@@ -5115,6 +5188,14 @@ Zusatzsignal, nicht entscheidend: `planStabilitaet` und `spontanAnteil`.
 ### Bedienverbesserungen vom 12.10.2026
 
 Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dreistelligen PLZ-Gebieten (`plz3`). Die Desktop-Automatik und die dort gespeicherte Ebenenwahl bleiben erhalten; ausdrücklich ausgeschaltete Gebietsebenen bleiben aus. Die Kundennummer-Kopie lautet jetzt `Kundenname [Kundennummer]`. Der angehobene Griff erleichtert das Ziehen bei Gestennavigation. Beim sicheren Umzug sind Datendatei und Schlüsseldatei zwei sichtbare Schritte; die Live-Demo führt genau diesen Weg vor.
+
+### Änderungen in Guide 3.28 (24.10.2026)
+
+- **Excel nur hinein:** kein Excel-Export der Kundenliste, keine Übergabe- und Umbuchungsliste; heraus gehen Kundendaten nur verschlüsselt per „Sicherer Umzug" (7.12).
+- **Geräteschlüssel:** Kundendaten liegen auch ohne PIN verschlüsselt im Browser; kopierte Datenbankdateien sind unlesbar.
+- **Briefings:** höchstens 8 Kunden; das Lasso nennt je Kunde dieselben Angaben wie das Kundenbriefing; die Pille „Briefing für mein Gebiet" entfällt (9.6, 9.7).
+- **Neues Argument 16.7 und Musterantwort in 19:** Offene Excel-Listen auf gemeinsamen Laufwerken werden mit TourFuchs deutlich entschärft – mit den zwei organisatorischen Schritten und der ehrlichen Grenze.
+- **Gebietskachel:** Die große Gebietskachel öffnet wieder (Fehler seit 23.10.2026 behoben).
 
 ### Änderungen in Guide 3.24 (13.10.2026)
 
