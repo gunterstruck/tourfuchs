@@ -210,8 +210,8 @@ export const STORIES = [
             { t: 'run', key: 'revealAreaPrompt' },
             { t: 'say', text: 'Er entsteht auf deinem Gerät. Und du siehst ihn vollständig, bevor irgendetwas kopiert wird.', sel: '.briefing-prompt-visible', ms: 3800 },
             { t: 'run', key: 'scrollPromptThrough' },
-            { t: 'say', text: 'Das ist alles: Gebiet, die Kunden mit Nummer, Ort und Fälligkeit – und die Aufgabe, eine Reihenfolge zu begründen.', ms: 4200 },
-            { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: kein Umsatz, keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600 },
+            { t: 'say', text: 'Das ist alles: höchstens 8 Kunden, je Kunde dieselben Angaben wie im Kundenbriefing – und die Aufgabe, eine Reihenfolge zu begründen.', ms: 4200 },
+            { t: 'say', text: 'Genauso wichtig ist, was nicht drinsteht: keine Telefonnummer, keine E-Mail, keine Straße.', sel: '.briefing-manual-note', ms: 4600 },
             ...PROMPT_WAY,
             { t: 'run', key: 'closeLassoBriefing' },
 

@@ -1,6 +1,6 @@
 # TourFuchs – Produktpositionierung
 
-**Stand: 07.10.2026 · Rolle: Product Owner · Status: verbindliche Leitplanke**
+**Stand: 24.10.2026 · Rolle: Product Owner · Status: verbindliche Leitplanke**
 
 Dieses Dokument hält fest, **wofür TourFuchs im Markt stehen soll**. Es ist
 keine weitere Funktionsliste. Es entscheidet, welche Stärken in Produkt,
@@ -60,7 +60,7 @@ dazu, wenn diese Menschen den Nutzen durch Empfehlungen und Praxisbeispiele
 sichtbar machen und GeoFuchs in einem bewusst bereitgestellten Planungskontext
 auf demselben Datenmodell eine zweite Aufgabe löst.
 
-## 3. Die fünf Kernstärken
+## 3. Die sechs Kernstärken
 
 ### 3.1 Die Lichterkarte macht ein Gebiet fühlbar
 
@@ -122,6 +122,42 @@ Routenhistorien und Teamsteuerung liegt. TourFuchs wählt bewusst die andere
 Seite: **ein Arbeitsraum des Mitarbeiters, aus dem operative Arbeitsdaten nur
 durch eine bewusste Nutzeraktion nach außen übergeben werden.**
 
+### 3.6 Ein verbreitetes Problem entschärfen statt ein neues zu schaffen
+
+In vielen Vertriebsorganisationen liegen die Kundenlisten als Excel-Dateien je
+Vertriebsbezirk auf gemeinsamen Laufwerken – mit Ansprechpartnern,
+Telefonnummern und Umsätzen. Sie dienen zwei Zwecken: selbst hineinschauen und
+sie in den KI-Assistenten laden, um ein Briefing zu bekommen. Der Preis: Wer
+Zugriff auf das Laufwerk hat, kann alle Bezirke kopieren, zippen und
+weitergeben – vollständig, lesbar, unbemerkt. Und für ein einziges Briefing
+landet oft die ganze Bezirksliste im KI-Dienst.
+
+TourFuchs behält beide Zwecke und nimmt diesem Weg einen großen Teil seines
+Risikos (seit 24.10.2026, „Excel nur hinein"):
+
+| | Heute: Excel auf dem Laufwerk | Mit TourFuchs |
+|---|---|---|
+| Wer hat die Excel-Listen? | Viele Mitarbeiter, oft für alle Bezirke | Nur eine beauftragte Vertrauensperson |
+| Was bekommt der Außendienst? | Offene Dateien, beliebig kopier- und versendbar | Eine verschlüsselte Datei, lesbar nur in TourFuchs; als Excel kommt nichts mehr heraus |
+| Selbst nachsehen | In Excel | Auf Karte und Kundenkachel |
+| KI-Briefing | Oft die ganze Bezirksliste, mit Telefon und E-Mail | Ein Kunde oder höchstens 8, ohne Telefon, E-Mail und Straße; vor dem Absenden vollständig sichtbar |
+| Weitergabe | Als offene Datei, in beliebiger Menge | Nur verschlüsselt; ohne den getrennt verteilten Schlüssel wertlos |
+| Kopierte Dateien | Sofort lesbar | Kopierte Datenbankdateien sind unlesbar |
+
+Die Aussage heißt **„deutlich entschärft"**, nicht „gelöst": Aus vielen offenen
+Kopien wird eine einzige Quelle bei einer Person, was im Umlauf ist, ist
+verschlüsselt, und an den KI-Dienst gehen nur noch wenige ausgewählte Kunden.
+Dazu gehören zwei organisatorische Schritte, die TourFuchs nicht erzwingen kann:
+**die Excel-Listen verlassen die gemeinsamen Laufwerke** (oder der Zugriff wird
+auf die Vertrauensperson beschränkt), und **Datei und Schlüssel reisen
+getrennt**. Was bleibt: Wer Datei und Schlüssel hat, sieht den ganzen Bestand;
+Bildschirmfotos kann keine Browser-App verhindern.
+
+Für Präsentationen das stärkste Sicherheitsargument, weil es die Frage umdreht:
+nicht „Welches Risiko bringt TourFuchs?", sondern „Welches Risiko, das heute
+schon besteht, entschärft TourFuchs?" Immer allgemein formulieren („in vielen
+Organisationen") – nie eine konkrete Firma oder ein konkretes Laufwerk nennen.
+
 ## 4. Die genaue Zusage – und ihre Grenze
 
 Die belastbare Aussage lautet:
@@ -138,6 +174,7 @@ Nicht behaupten:
 - „TourFuchs ist vollständig offline."
 - „Niemand kann jemals auf lokale Daten zugreifen."
 - „TourFuchs hat keinerlei Statistik."
+- „Mit TourFuchs können keine Kundendaten mehr abfließen."
 
 Warum diese Grenze wichtig ist: Eine offizielle Einführung durch den
 Arbeitgeber bleibt rechtlich und organisatorisch prüfbar. Firmenbrowser,
@@ -238,6 +275,12 @@ eine sichtbare, bewusste Übergabe.
 
 > Eine statische, überprüfbare PWA ohne Kundendaten-Backend; vorhandene
 > Unternehmens-KI und bestehende CRM-Daten werden genutzt, nicht dupliziert.
+
+**Für Rechtsabteilung und IT-Sicherheit**
+
+> Statt offener Excel-Listen auf dem Laufwerk eine verschlüsselte Datei, die
+> nur in TourFuchs lesbar ist – und ein KI-Briefing mit höchstens 8 Kunden
+> statt der ganzen Bezirksliste.
 
 **Emotional**
 
