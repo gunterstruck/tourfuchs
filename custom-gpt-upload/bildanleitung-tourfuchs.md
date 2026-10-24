@@ -295,7 +295,7 @@ Das **Lasso erzeugt ausschließlich die Kundenauswahl**. Erst der bewusste Klick
 
 ## Verbindliche Grenzen zum Bildsatz
 
-- **„Briefing über alle" erscheint erst ab mindestens zwei echten Kunden.** Technisch markierte Demo-Kunden zählen dafür nicht.
+- **„Briefing über alle" erscheint erst ab mindestens zwei echten Kunden.** Technisch markierte Demo-Kunden zählen dafür nicht. Bei mehr als 8 Kunden heißt der Knopf „Briefing über 8 von N“; die 8 dringendsten gehen in den Prompt.
 - **Bei genau einem echten Kunden** ist das Kundenbriefing über den Kundenmarker der passende Weg; siehe BILD-KUNDE-01.
 - **Reine Demo-Kunden erzeugen keinen echten Prompt** und öffnen keinen externen Assistenten.
 - **TourFuchs bereitet den Prompt vor und kopiert ihn.** Der Nutzer fügt ihn im Assistenten ein, prüft ihn und sendet ihn selbst ab.

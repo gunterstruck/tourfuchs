@@ -111,8 +111,9 @@ export function customersInLasso(customers = [], polygon = [], project) {
         if (!pointInPolygon(point, polygon)) continue;
         hits.push({ customer, distance: Math.hypot(point.x - centroid.x, point.y - centroid.y) });
     }
-    // Von der Mitte nach außen: Das Gebiets-Briefing nimmt die ersten zwölf,
-    // und „am nächsten an dem, was ich markiert habe" ist die richtige Reihung.
+    // Von der Mitte nach außen: „am nächsten an dem, was ich markiert habe" ist
+    // die richtige Reihung für die Liste. Das Briefing sortiert selbst um –
+    // nach Dringlichkeit (briefingOrder).
     return hits.sort((a, b) => a.distance - b.distance).map((hit) => hit.customer);
 }
 
@@ -120,6 +121,21 @@ export function customersInLasso(customers = [], polygon = [], project) {
 export function lassoSelectionLabel(count) {
     if (count === 0) return 'Keine Kunden in dieser Fläche';
     return `${count} ${count === 1 ? 'Kunde' : 'Kunden'} ausgewählt`;
+}
+
+/**
+ * Beschriftung des Briefing-Knopfs. Bei mehr Kunden, als ein Briefing fasst,
+ * sagt der Knopf ehrlich, wie viele davon in den Prompt gehen
+ * (PO 24.10.2026: „8 von 52" statt „über alle").
+ */
+export function lassoBriefingLabel(count, limit) {
+    if (count > limit) {
+        return {
+            text: `📋 Briefing über ${limit} von ${count}`,
+            title: `Prompt für ein Briefing über die ${limit} dringendsten dieser ${count} Kunden vorbereiten`
+        };
+    }
+    return { text: '📋 Briefing über alle', title: 'Prompt für ein Briefing über diese Kunden vorbereiten' };
 }
 
 /**

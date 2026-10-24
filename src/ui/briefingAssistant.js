@@ -80,12 +80,22 @@ export function wireAssistantChooser(root, prefix, onChange, { persist = true } 
     urlField?.addEventListener('blur', () => apply('custom'));
 }
 
+// Während einer Live-Demo öffnet TourFuchs nie einen Assistenten – egal,
+// welcher Dialog den Knopf anbietet (24.10.2026: Mit eigenen Kunden lief das
+// Lasso-Briefing der Demo nicht als Ansicht und öffnete Copilot über Edge).
+let launchBlocked = false;
+
+export function setAssistantLaunchBlocked(on) {
+    launchBlocked = Boolean(on);
+}
+
 /**
  * Copilot ist unter Windows meist als Edge-App installiert; dort führt der
  * edge-Protokolllink direkt in die installierte App statt in einen zweiten
  * Browser. Alle anderen Ziele werden schlicht als Tab geöffnet.
  */
 export function launchAssistant(assistant) {
+    if (launchBlocked) return;
     if (assistant.preferEdge && /Windows/i.test(navigator.userAgent)) {
         const link = document.createElement('a');
         link.href = `microsoft-edge:${assistant.url}`;

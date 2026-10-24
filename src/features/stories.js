@@ -186,9 +186,10 @@ export const STORIES = [
         // 26.09.2026 bleibt nur diese, mit dem Hinweis, was NICHT im Prompt
         // steht. Die Frage kommt in jedem Konzern als zweite.
         //
-        // Der Knopf „📋 Briefing über alle" wird sichtbar angetippt – auch mit
-        // Beispielkunden (in der Vorführung lokal kopierbar, siehe
-        // setLassoBriefingPreview).
+        // Der Knopf „📋 Briefing über alle" (bei mehr als 8 Kunden „📋 Briefing
+        // über 8 von N") wird sichtbar angetippt – auch mit Beispielkunden und
+        // auch mit eigenen Kunden immer als Ansicht: lokal kopierbar, nie ein
+        // Assistent (setLassoBriefingPreview, setAssistantLaunchBlocked).
         id: 'briefing',
         icon: '📋',
         title: 'Kunde(n) wählen / Briefing / Entscheiden / Tour wählen',
@@ -202,7 +203,7 @@ export const STORIES = [
             { t: 'say', text: 'Du bist in einer Gegend unterwegs. Statt Regler zu schieben: einfach die Fläche umfahren.', sel: '#btn-lasso', ms: 2800 },
             { t: 'run', key: 'drawLasso' },
             { t: 'say', text: 'Die Kunden stehen da. Wer davon ist wirklich dran? Das weiß TourFuchs nicht – das weiß deine Ablage.', sel: '.popup-lasso', ms: 3600, pos: 'top' },
-            { t: 'say', text: 'Deshalb: „📋 Briefing über alle".', sel: '#btn-lasso-brief', ms: 2000 },
+            { t: 'say', text: 'Deshalb: „📋 Briefing" – bei mehr als 8 Kunden über die 8 dringendsten.', sel: '#btn-lasso-brief', ms: 3000 },
             { t: 'run', key: 'openLassoBriefing' },
 
             // ---- Ab hier liegt der Schwerpunkt: der Prompt ----

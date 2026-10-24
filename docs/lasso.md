@@ -34,7 +34,8 @@ Dass zwei Wege zum selben Dialog führen, ist Absicht: **geplant** am Schreibtis
    man zurückkommen muss. Beim Loslassen schließt sich die Form, die getroffenen
    Kunden leuchten auf – und es erscheint eine **Auswahlkarte im Gewand der
    Kundenkarte**: Anzahl, fällige Kunden, Umsatz, Orte, die ersten Namen.
-3. **📋 Briefing über alle.** Öffnet das [Mehrkunden-Briefing](./kundenbriefing.md)
+3. **📋 Briefing über alle** (bei mehr als 8 Kunden **📋 Briefing über 8 von N** –
+   in den Prompt gehen die 8 dringendsten). Öffnet das [Mehrkunden-Briefing](./kundenbriefing.md)
    als Modal – genau wie beim einzelnen Kunden. Dort steht der fertige Prompt,
    wird kopiert, und der Assistent wird geöffnet.
 
@@ -189,6 +190,14 @@ Briefing öffnet sich dann als reine Ansicht, der Kopier-Knopf ist gesperrt.
 Außerhalb der Vorführung bleibt es dabei: Für Beispielkunden gibt es keinen
 Prompt. Mit eigenen Kunden zeigt dieselbe Demo den echten Prompt – gefilmt wird
 dieser Fall: siehe [Der Film: Lasso + Briefing](./film-lasso-briefing.md).
+
+**Nie ein Assistent in der Vorführung (24.10.2026):** Auch mit eigenen Kunden
+läuft das Briefing der Demo als Ansicht – der Prompt wird nur lokal kopiert.
+Vorher war das an „nur Beispielkunden" geknüpft; mit eigenen Kunden öffnete der
+Knopf Copilot (Edge blockte den Sprung). Zusätzlich sperrt
+`setAssistantLaunchBlocked` jedes Öffnen eines Assistenten, solange eine
+Vorführung läuft, und `npm run demo-check` meldet jeden Versuch als Fehler
+(mit `--file=` auch für eigene Listen).
 
 Bis zum 26.09.2026 gab es dazu zwei Demos („Fläche umfahren, Briefing bekommen"
 und „Ein Prompt, deine KI"). Inhaltlich waren sie fast gleich; übrig ist die

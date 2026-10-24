@@ -33,10 +33,11 @@ import { planningNow } from '../features/dayPlanner.js';
 import { formatRevenueShort } from '../core/format.js';
 import { collapseSheetForDemo, restoreSheetAfterDemo } from './sidebar.js';
 import { isDemoCustomer } from '../core/demoSafety.js';
-import { areaLabelFor, briefingOrder } from '../features/areaBriefing.js';
+import { AREA_BRIEFING_LIMIT, areaLabelFor, briefingOrder } from '../features/areaBriefing.js';
 import {
     customersInLasso,
     isUsableLasso,
+    lassoBriefingLabel,
     lassoSelectionLabel,
     polygonCentroid,
     simplifyPath,
@@ -333,6 +334,8 @@ function cardHtml() {
     const tourLabel = tourAdditionLabel(targets.length, picked.size > 0);
 
     const previewBrief = briefingPreview && real.length === 0 && selection.length >= 2;
+    // So viele Kunden zählt das Briefing (ohne Beispielkunden, außer in der Demo).
+    const brief = lassoBriefingLabel(briefingPreview ? selection.length : real.length, AREA_BRIEFING_LIMIT);
     const demoNote = real.length < 2 && !previewBrief
         ? `<p class="popup-lasso-note">${real.length === 0
             ? 'Hier liegen nur Beispielkunden – dafür wird bewusst kein Briefing erzeugt.'
@@ -349,7 +352,7 @@ function cardHtml() {
         ${demoNote}
         <div class="popup-actions">
             ${real.length >= 2 || previewBrief
-                ? '<button data-lasso="brief" id="btn-lasso-brief" title="Prompt für ein Briefing über diese Kunden vorbereiten">📋 Briefing über alle</button>'
+                ? `<button data-lasso="brief" id="btn-lasso-brief" title="${brief.title}">${brief.text}</button>`
                 : ''}
             ${profi && targets.length > 0
                 ? `<button data-lasso="tour" title="${picked.size > 0 ? 'Nur die angehakten Kunden in die Tour übernehmen' : 'Alle Kunden dieser Auswahl in die Tour übernehmen'}">${tourLabel}</button>`
@@ -422,10 +425,11 @@ function wireCard() {
     if (!root) return;
 
     root.querySelector('[data-lasso="brief"]')?.addEventListener('click', () => {
-        const onlyDemo = selection.every((customer) => isDemoCustomer(customer));
         // Lasso: dringendste zuerst, je Kunde alle Angaben des Kundenbriefings, höchstens 8 (PO 24.10.2026).
+        // In der Live-Demo immer als Ansicht – auch mit eigenen Kunden: Dort
+        // wird nur lokal kopiert, nie ein Assistent geöffnet.
         openAreaBriefing(briefingOrder(selection), areaLabelFor({ mode: 'lasso' }), {
-            preview: briefingPreview && onlyDemo, detailed: true, order: 'urgent'
+            preview: briefingPreview, detailed: true, order: 'urgent'
         });
     });
     root.querySelector('[data-lasso="clear"]')?.addEventListener('click', clearLassoSelection);
