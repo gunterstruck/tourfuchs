@@ -2336,6 +2336,9 @@ Ablauf:
 
 3. "Briefing über alle" öffnet das Mehrkunden-Briefing aus 9.6 - mit den vollen
    Angaben je Kunde und höchstens 8 Kunden, die dringendsten zuerst (9.6).
+   Bei mehr als 8 Kunden heißt der Knopf **"📋 Briefing über 8 von N"** (z. B.
+   "über 8 von 52"), damit vor dem Klick klar ist, wie viele in den Prompt gehen
+   (seit 24.10.2026).
 
 **Der Rückweg:** Jede Zeile der Auswahlkarte trägt ein Häkchen.
 Ohne Häkchen heißt der Knopf "Alle zur Tour" und tut das auch; mit Häkchen heißt
@@ -5196,6 +5199,8 @@ Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dre
 - **Briefings:** höchstens 8 Kunden; das Lasso nennt je Kunde dieselben Angaben wie das Kundenbriefing; die Pille „Briefing für mein Gebiet" entfällt (9.6, 9.7).
 - **Neues Argument 16.7 und Musterantwort in 19:** Offene Excel-Listen auf gemeinsamen Laufwerken werden mit TourFuchs deutlich entschärft – mit den zwei organisatorischen Schritten und der ehrlichen Grenze.
 - **Gebietskachel:** Die große Gebietskachel öffnet wieder (Fehler seit 23.10.2026 behoben).
+- **Lasso-Knopf:** Bei mehr als 8 Kunden heißt er „📋 Briefing über 8 von N" (9.7).
+- **Live-Demos:** Öffnen nie einen Assistenten – auch nicht, wenn eigene Kunden geladen sind; der Prompt wird dort nur lokal kopiert.
 
 ### Änderungen in Guide 3.24 (13.10.2026)
 

@@ -385,7 +385,7 @@ Der Ablauf wird in der Schulung bewusst in zwei fachliche Stufen getrennt:
 
 Verbindliche Grenzen:
 
-- „Briefing über alle" erscheint erst ab mindestens zwei echten Kunden.
+- „Briefing über alle" erscheint erst ab mindestens zwei echten Kunden. Bei mehr als 8 heißt er „Briefing über 8 von N" – die 8 dringendsten gehen in den Prompt.
 - Bei einem Kunden führt dessen Kundenkarte mit „Briefing" weiter.
 - Für reine Demo-Kunden erzeugt TourFuchs keinen echten Prompt und öffnet
   keinen Assistenten.

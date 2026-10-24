@@ -82,7 +82,7 @@ Monitor-, Handy im Smartphone-Rahmen).
 
 Wichtig:
 
-- „Briefing über alle" erscheint ab mindestens zwei echten Kunden.
+- „Briefing über alle" erscheint ab mindestens zwei echten Kunden. Bei mehr als 8 heißt er „Briefing über 8 von N" – die 8 dringendsten gehen in den Prompt.
 - Bei einem Kunden dessen Marker öffnen und „Briefing" wählen.
 - Für reine Demo-Kunden gibt es keinen echten Prompt und keinen Assistenten-Start.
 - Ein Popup-Blocker kann das Öffnen verhindern; der Prompt kann trotzdem in der Zwischenablage liegen.

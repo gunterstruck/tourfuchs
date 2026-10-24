@@ -38,6 +38,7 @@ import { showMapView, showRouteView, showTourView, captureSheetForDemo, expandSh
 import { beginReceiveDemo } from './safeTransfer.js';
 import { createSafeTransfer } from '../features/safeTransfer.js';
 import { openCustomerBriefing as openBriefingDialog, setCustomerBriefingPreview } from './customerBriefing.js';
+import { setAssistantLaunchBlocked } from './briefingAssistant.js';
 import { clearLassoSelection, lassoSelection, setLassoActive, setLassoBriefingPreview } from './lasso.js';
 import { openAreaBriefing as openAreaBriefingDialog } from './areaBriefing.js';
 import { areaLabelFor } from '../features/areaBriefing.js';
@@ -2174,6 +2175,7 @@ function cleanup(story) {
     restoreFilters?.();
     setLassoBriefingPreview(false);
     setCustomerBriefingPreview(false);
+    setAssistantLaunchBlocked(false);
     restoreFilters = null;
     resetView();
 }
@@ -2207,6 +2209,7 @@ async function play(story) {
     restoreFilters = captureShowcaseFilters();
     setLassoBriefingPreview(true);
     setCustomerBriefingPreview(true);
+    setAssistantLaunchBlocked(true);
     holdAutoLock(true);
     let completed = false;
     let failure = null;

@@ -5,6 +5,7 @@ import {
     MIN_LASSO_AREA,
     customersInLasso,
     isUsableLasso,
+    lassoBriefingLabel,
     lassoSelectionLabel,
     pointInPolygon,
     polygonArea,
@@ -113,6 +114,20 @@ describe('Beschriftung des Auswahlstreifens', () => {
     });
 });
 
+describe('Beschriftung des Briefing-Knopfs', () => {
+    it('sagt „über alle", solange alle in den Prompt passen', () => {
+        expect(lassoBriefingLabel(2, 8).text).toBe('📋 Briefing über alle');
+        expect(lassoBriefingLabel(8, 8).text).toBe('📋 Briefing über alle');
+    });
+
+    it('nennt bei mehr Kunden, wie viele davon ins Briefing gehen', () => {
+        // Gemeldet 24.10.2026: 52 Kunden im Lasso, der Knopf sagte „über alle".
+        const label = lassoBriefingLabel(52, 8);
+        expect(label.text).toBe('📋 Briefing über 8 von 52');
+        expect(label.title).toContain('die 8 dringendsten dieser 52 Kunden');
+    });
+});
+
 describe('Von der Auswahl zurück in die Tour', () => {
     const auswahl = [
         { id: 'a', name: 'Alpha' },
@@ -206,7 +221,8 @@ describe('Verdrahtung des Lasso-Werkzeugs', () => {
         expect(ui).toContain('openMapCard');
         expect(ui).toContain('popup popup-lasso');
         expect(ui).toContain('popup-actions');
-        expect(ui).toContain('📋 Briefing über alle');
+        expect(ui).toContain('lassoBriefingLabel(');
+        expect(ui).toContain('AREA_BRIEFING_LIMIT');
         expect(map).toContain('export function openMapCard');
         expect(map).toContain('popupOptions(');
     });
@@ -537,8 +553,16 @@ describe('Briefing-Knopf in der Vorführung', () => {
         // Gemeldet: In der Demo fehlte der Knopf, und das Briefing ging ohne
         // sichtbaren Klick auf. Außerhalb der Demo bleibt die Sperre bestehen.
         expect(lassoSource).toContain('real.length >= 2 || previewBrief');
-        expect(lassoSource).toContain('preview: briefingPreview && onlyDemo, detailed: true');
         expect(showcaseSource).toContain('setLassoBriefingPreview(true);');
         expect(showcaseSource).toContain('setLassoBriefingPreview(false);');
+    });
+
+    it('bleibt in der Demo auch mit eigenen Kunden eine Ansicht und öffnet keinen Assistenten', () => {
+        // Gemeldet 24.10.2026: Mit eigenen Kunden lief das Lasso-Briefing der
+        // Demo nicht als Ansicht – der Knopf öffnete Copilot (Edge blockte).
+        expect(lassoSource).toContain('preview: briefingPreview, detailed: true');
+        expect(lassoSource).not.toContain('onlyDemo');
+        expect(showcaseSource).toContain('setAssistantLaunchBlocked(true);');
+        expect(showcaseSource).toContain('setAssistantLaunchBlocked(false);');
     });
 });

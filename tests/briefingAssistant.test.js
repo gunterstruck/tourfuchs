@@ -1,12 +1,33 @@
 import { describe, expect, it, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { assistantChooserHtml, wireAssistantChooser } from '../src/ui/briefingAssistant.js';
+import { assistantChooserHtml, launchAssistant, setAssistantLaunchBlocked, wireAssistantChooser } from '../src/ui/briefingAssistant.js';
 import { assistantForDepth, loadAssistantChoice } from '../src/services/assistant.js';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
 
 beforeEach(() => { localStorage.clear(); });
+
+describe('Assistent öffnen – nie während einer Live-Demo', () => {
+    it('öffnet im Alltag einen Tab, während der Demo gar nichts', () => {
+        const opened = [];
+        const original = window.open;
+        window.open = (...args) => { opened.push(args[0]); return null; };
+        try {
+            const assistant = { url: 'https://example.invalid/assistent', preferEdge: false };
+            launchAssistant(assistant);
+            expect(opened).toEqual(['https://example.invalid/assistent']);
+
+            setAssistantLaunchBlocked(true);
+            launchAssistant(assistant);
+            launchAssistant({ ...assistant, preferEdge: true });
+            expect(opened).toHaveLength(1);
+        } finally {
+            setAssistantLaunchBlocked(false);
+            window.open = original;
+        }
+    });
+});
 
 describe('Zielwahl im Kunden- und Mehrkunden-Briefing', () => {
     it('zeigt genau die beiden Firmenoptionen mit Copilot als Vorauswahl', () => {

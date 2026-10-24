@@ -75,6 +75,22 @@ document.addEventListener('click', (ev) => {
         size: Math.round(r.width) + 'x' + Math.round(r.height)
     });
 }, true);
+// Eine Vorführung öffnet nie einen Assistenten, Kartendienst oder ein anderes
+// Fenster (24.10.2026: Mit eigenen Kunden öffnete die Lasso-Demo Copilot über
+// den Edge-Protokolllink). Mitschreiben statt ausführen.
+window.__scLaunches = [];
+const realOpen = window.open;
+window.open = function (url, ...rest) {
+    if (document.querySelector('.sc-shield')) { window.__scLaunches.push(String(url)); return null; }
+    return realOpen.call(window, url, ...rest);
+};
+const realClick = HTMLAnchorElement.prototype.click;
+HTMLAnchorElement.prototype.click = function () {
+    const href = this.getAttribute('href') || '';
+    const local = /^(blob:|data:|#|$)/.test(href) || this.hasAttribute('download');
+    if (document.querySelector('.sc-shield') && !local) { window.__scLaunches.push(href); return; }
+    return realClick.call(this);
+};
 `;
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
@@ -171,7 +187,19 @@ async function importOwnFile(page, file) {
     await page.setInputFiles('#file-input', file);
     for (let attempt = 0; attempt < 60; attempt++) {
         await sleep(1000);
-        // Ergebnisfenster, Befund, Tresor- und Verortungsangebot: wegklicken.
+        // Zusicherung, Spaltenzuordnung und Änderungsbericht bestätigen – wie ein
+        // Nutzer. Erst danach Ergebnisfenster, Befund, Tresor- und
+        // Verortungsangebot wegklicken (früher wurde auch die Zuordnung
+        // weggeklickt, und der Import brach ab).
+        const confirmed = await page.evaluate(() => {
+            for (const sel of ['#consent-dialog[open] #consent-confirm', '#import-dialog[open] #mapping-confirm',
+                '#import-diff-dialog[open] [data-diff-confirm]']) {
+                const button = document.querySelector(sel);
+                if (button) { button.click(); return true; }
+            }
+            return false;
+        }).catch(() => false);
+        if (confirmed) continue;
         await page.evaluate(() => document.querySelectorAll('dialog[open]').forEach((d) => d.close())).catch(() => {});
         const own = await page.evaluate(() => document.getElementById('demo-banner')?.hidden === true
             && /\d/.test(document.getElementById('data-status')?.textContent || '')).catch(() => false);
@@ -218,7 +246,7 @@ async function runFormat(browser, format, baseUrl, onlyStories, ownFile = '', dr
     if (onlyStories.length) ids = ids.filter((id) => onlyStories.includes(id));
 
     for (const id of ids) {
-        await page.evaluate(() => { window.__scClicks = []; });
+        await page.evaluate(() => { window.__scClicks = []; window.__scLaunches = []; });
         if (!await page.locator(`#showcase-dialog .sc-tile[data-story="${id}"]`).count()) await openPanel(page);
         // Wie ein Nutzer vorher die Karte verschieben: Leaflet merkt sich das
         // Ziehen bis zum nächsten Mausdruck und schluckt bis dahin Klicks auf
@@ -239,6 +267,12 @@ async function runFormat(browser, format, baseUrl, onlyStories, ownFile = '', dr
             }
         } catch {
             reason = 'kein Ergebnis-Dialog nach 240 s';
+        }
+
+        const launches = await page.evaluate(() => window.__scLaunches);
+        if (launches.length) {
+            outcome = 'FEHLER';
+            reason = `${reason ? reason + '; ' : ''}öffnete ${launches.length}× ein Fenster/einen Assistenten: ${launches[0]}`;
         }
 
         const clicks = await page.evaluate(() => window.__scClicks);
