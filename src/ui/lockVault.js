@@ -10,7 +10,7 @@ import * as vault from '../services/vault.js';
 import {
     state, setCustomers, clearServiceContracts, clearServiceVisits, emit, on, datasetSnapshot, setPlaces
 } from '../core/state.js';
-import { saveDataset, loadDataset, hasStoredDataset, reprotectStores, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
+import { saveDataset, loadDataset, hasStoredDataset, reprotectStores, moveToDeviceKey, loadTours, loadGeocodeCache, loadScenarios } from '../services/storage.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { isPlatformAuthenticatorAvailable, registerBiometric, evaluatePrf } from '../services/biometric.js';
 import { showToast } from './toast.js';
@@ -142,9 +142,14 @@ async function healLeftoverDemoVault() {
             vault.lock();
             return false;
         }
-        vault.removeVaultMeta();
-        if (dataset) await saveDataset(dataset);   // jetzt mit dem Geräteschlüssel
-        await reprotectStores();
+        // Erst umschlüsseln, dann die Metadaten entfernen (siehe disableVault).
+        try {
+            await moveToDeviceKey(dataset, () => vault.removeVaultMeta());
+        } catch (error) {
+            console.warn('Demo-Tresor bleibt – Umschlüsseln fehlgeschlagen:', error);
+            vault.lock();
+            return false;
+        }
         vault.discardKey();
         hideError();
         hideLockScreen();
@@ -554,7 +559,9 @@ export function openSetupDialog(opts = {}) {
             done = true;
             showRecoveryCode(recoveryCode, opts.onDone);
         } catch (e2) {
-            err.textContent = 'Aktivierung fehlgeschlagen.';
+            // Nichts verändert: Ohne dauerhaft gespeicherte Schlüssel-Metadaten
+            // bricht vault.setup ab, bevor etwas verschlüsselt wird.
+            err.textContent = 'Aktivierung fehlgeschlagen – nichts wurde verändert. Ist der Browser-Speicher voll oder gesperrt?';
             err.hidden = false;
             console.warn(e2);
         }
@@ -711,9 +718,12 @@ async function disableVault() {
         // im Klartext über die verschlüsselten Daten – danach war alles weg.
         await reloadAfterUnlock;
         const dataset = await datasetToKeep();   // solange der Schlüssel da ist
-        vault.removeVaultMeta();                 // Tresor aus – DEK bleibt noch im Speicher
-        await saveDataset(dataset);              // jetzt mit dem Geräteschlüssel neu speichern
-        await reprotectStores();                 // Nebenspeicher ebenso
+        // Erst alles mit dem Geräteschlüssel neu schreiben, dann die Tresor-
+        // Metadaten entfernen. Bis 25.10.2026 umgekehrt – scheiterte das
+        // Speichern (z. B. Speicher voll), war der Schlüssel weg und die Daten
+        // blieben damit verschlüsselt: unlesbar. Jetzt wirft jeder Fehler, und
+        // der Tresor bleibt aktiv.
+        await moveToDeviceKey(dataset, () => vault.removeVaultMeta());
         // Nur den Schlüssel verwerfen – NICHT lock(): Das meldet „gesperrt",
         // leert Kunden, Verträge, Besuche und Gebiete im Speicher, und der
         // Speichertimer schriebe danach den leeren Stand als Klartext weg.
@@ -722,7 +732,7 @@ async function disableVault() {
         showToast('Tresor deaktiviert. Daten bleiben verschlüsselt gespeichert, jetzt ohne PIN.', 'info', 6000);
     } catch (error) {
         console.warn('Tresor deaktivieren abgebrochen:', error);
-        showToast('Tresor bleibt aktiv – die gespeicherten Daten ließen sich gerade nicht lesen. Bitte neu laden und erneut versuchen.', 'error', 8000);
+        showToast('Tresor bleibt aktiv – die Daten ließen sich gerade nicht umschlüsseln (z. B. Speicher voll). Bitte neu laden und erneut versuchen.', 'error', 8000);
     }
 }
 

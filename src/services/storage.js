@@ -88,6 +88,24 @@ export async function removeFromCache(key) {
 // AES-256-GCM, nicht extrahierbar: Der Browser legt den Schlüssel als Objekt in
 // derselben Datenbank ab und gibt seine Bytes nie heraus – auch nicht an
 // TourFuchs. Daten und Schlüssel verschwinden deshalb immer gemeinsam.
+//
+// Lässt sich der Geräteschlüssel nicht nutzen, wird nicht gespeichert – nie
+// im Klartext (Prüfbefund 25.10.2026: Bis dahin fiel TourFuchs still auf
+// Klartext zurück, die Zusage „immer verschlüsselt" galt dann nicht). Der
+// Nutzer erfährt es einmal je Sitzung über `onEncryptionUnavailable`.
+let encryptionUnavailableListener = null;
+let encryptionUnavailableReported = false;
+
+export function onEncryptionUnavailable(listener) {
+    encryptionUnavailableListener = listener;
+}
+
+function reportEncryptionUnavailable(error) {
+    console.warn('Geräteschlüssel nicht verfügbar – nichts gespeichert:', error);
+    if (encryptionUnavailableReported) return;
+    encryptionUnavailableReported = true;
+    encryptionUnavailableListener?.(error);
+}
 
 /**
  * Immer den gespeicherten Schlüssel nehmen, nie einen nur im Arbeitsspeicher:
@@ -98,7 +116,13 @@ export async function removeFromCache(key) {
 async function deviceKey() {
     const stored = await loadFromCache(KEYS.deviceKey);
     if (stored) return stored;
-    const key = await globalThis.crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    let key;
+    try {
+        key = await globalThis.crypto.subtle.generateKey({ name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+    } catch (error) {
+        reportEncryptionUnavailable(error);
+        throw error;
+    }
     if (await addToCache(KEYS.deviceKey, key)) return key;
     return loadFromCache(KEYS.deviceKey);   // ein anderes Fenster war schneller
 }
@@ -107,16 +131,21 @@ export function isDeviceSealed(value) {
     return Boolean(value && typeof value === 'object' && value.__dev);
 }
 
-/** Speicherform: mit Tresor dessen Schlüssel, sonst der Geräteschlüssel. */
+/** Ein voller oder gesperrter Speicher wirft ebenfalls – gemeldet wird nur, was an der Verschlüsselung scheitert. */
+async function sealForDevice(value) {
+    const key = await deviceKey();
+    try {
+        return { __dev: 1, ...(await encryptJson(key, value)) };
+    } catch (error) {
+        reportEncryptionUnavailable(error);
+        throw error;
+    }
+}
+
+/** Speicherform: mit Tresor dessen Schlüssel, sonst der Geräteschlüssel. Wirft statt Klartext. */
 async function seal(value) {
     if (isEnabled() && isUnlocked()) return encryptForStore(value);
-    try {
-        return { __dev: 1, ...(await encryptJson(await deviceKey(), value)) };
-    } catch (error) {
-        // Lieber unverschlüsselt speichern als die Arbeit des Tages verlieren.
-        console.warn('Geräteschlüssel nicht verfügbar – Daten ohne Verschlüsselung gespeichert:', error);
-        return value;
-    }
+    return sealForDevice(value);
 }
 
 const LOCKED = Symbol('gesperrt');
@@ -219,6 +248,25 @@ async function writeProtected(key, value) {
     return true;
 }
 
+/**
+ * Tresor deaktivieren, ohne Daten zu verlieren: erst Kundendaten und
+ * Nebenspeicher mit dem Geräteschlüssel neu schreiben, dann – über
+ * `removeVaultMeta` – die Tresor-Metadaten entfernen. Alles in einem Zug der
+ * Schreibreihenfolge, damit kein Speichertimer dazwischen noch mit dem Tresor
+ * verschlüsselt. Scheitert ein Schritt (z. B. Speicher voll), wirft die
+ * Funktion und der Tresor bleibt aktiv; Halbfertiges ist trotzdem lesbar,
+ * denn `unseal` erkennt beide Formen.
+ */
+export function moveToDeviceKey(dataset, removeVaultMeta) {
+    return inOrder(async () => {
+        if (unreadableDataset) throw new Error('stored-unreadable');
+        if (dataset) await saveToCache(KEYS.dataset, await sealForDevice(dataset));
+        else await rewriteStored(KEYS.dataset, 'device');
+        for (const key of PROTECTED_KEYS) await rewriteStored(KEYS[key], 'device');
+        removeVaultMeta();
+    });
+}
+
 async function loadProtected(key, fallback) {
     const raw = (await loadFromCache(KEYS[key])) ?? null;
     if (raw == null) return fallback;
@@ -247,13 +295,15 @@ function targetKind() {
     return isUnlocked() ? 'vault' : null;
 }
 
-async function rewriteStored(storeKey) {
+async function rewriteStored(storeKey, target = targetKind()) {
     const raw = (await loadFromCache(storeKey)) ?? null;
-    const target = targetKind();
     if (raw == null || !target || sealKind(raw) === target) return;
     const value = await unseal(raw);
+    // Beim Umzug auf den Geräteschlüssel darf nichts im Tresor liegen bleiben –
+    // sonst wäre es nach dem Entfernen der Metadaten unlesbar (moveToDeviceKey).
+    if (value === LOCKED && target === 'device') throw new Error('locked');
     if (value === LOCKED) return;
-    await saveToCache(storeKey, await seal(value));
+    await saveToCache(storeKey, target === 'device' ? await sealForDevice(value) : await seal(value));
 }
 
 async function rewriteProtectedStores() {
