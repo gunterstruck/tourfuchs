@@ -11,7 +11,7 @@ import { currentLocale, t } from './core/i18n.js';
 import { applyDemoStreets, demoCustomersNeedNormalization, normalizeDemoCustomers } from './core/demoSafety.js';
 import { customerTextsNeedCleaning } from './features/customerName.js';
 import { state, on, emit, setCustomers, setServiceContracts, setServiceVisits, setPlaces, datasetSnapshot } from './core/state.js';
-import { loadDataset, saveDataset, loadSettings, hasStoredDataset, sealStoredData } from './services/storage.js';
+import { loadDataset, saveDataset, loadSettings, hasStoredDataset, sealStoredData, onEncryptionUnavailable } from './services/storage.js';
 import { isEnabled as vaultEnabled, isLocked as vaultLocked, removeVaultMeta } from './services/vault.js';
 import { enrichPlacesByPlz, geocodeByPlz, loadDemoStreets } from './services/geocode.js';
 import { initMap } from './features/map.js';
@@ -29,7 +29,7 @@ import { initSearch } from './ui/search.js';
 import { initPostalResponsibility } from './ui/postalResponsibility.js';
 import { initRevenueLabels } from './ui/revenueLabels.js';
 import { initNearby } from './ui/nearby.js';
-import { initToasts } from './ui/toast.js';
+import { initToasts, showToast } from './ui/toast.js';
 import { initMobilePreview } from './ui/mobilePreview.js';
 import { initShowcase } from './ui/showcase.js';
 import { initVault } from './ui/lockVault.js';
@@ -104,6 +104,8 @@ async function restorePersistedState() {
         emit('colormode:changed');
     }
 
+    // Ohne nutzbaren Geräteschlüssel speichert TourFuchs nicht – das muss man sehen.
+    onEncryptionUnavailable(() => showToast(t('storage.encryptionUnavailable'), 'error', 12000));
     const dataset = await loadDataset();
     // Altbestand aus der Zeit vor dem Geräteschlüssel einmalig verschlüsseln
     // (im Hintergrund, in der Schreibreihenfolge; mit Tresor regelt der das).

@@ -3291,6 +3291,13 @@ zusätzlich die PIN des Tresors. Ältere, unverschlüsselt gespeicherte Daten
 werden beim ersten Start einmalig verschlüsselt. Lässt sich ein gespeicherter
 Bestand nicht öffnen, überschreibt TourFuchs ihn nicht.
 
+**Nie still im Klartext (seit 25.10.2026):** Kann der Browser nicht
+verschlüsseln, speichert TourFuchs **gar nicht** und meldet einmal: „Verschlüsselung
+in diesem Browser nicht verfügbar – TourFuchs speichert deine Kundendaten deshalb
+nicht dauerhaft …". Die Daten bleiben bis zum Neuladen sichtbar; Abhilfe ist ein
+aktueller Browser. (Bis dahin fiel TourFuchs in diesem Fall still auf Klartext
+zurück.)
+
 Das gilt ebenso beim **sicheren Umzug** (14.7): Die verschlüsselte Datei schützt
 den Transport, verpflichtet auf dem Zielgerät aber nicht zu einem lokalen
 Tresor. Nach dem Entschlüsseln werden die Daten direkt gespeichert; das offene
@@ -3357,6 +3364,14 @@ Biometrische Daten verlassen das Gerät nicht. Die PIN bleibt der Rückfallweg.
 - **"PIN ändern"** verlangt die aktuelle PIN.
 - **"Tresor deaktivieren"** verlangt Bestätigung und PIN; danach werden Daten
   weiter verschlüsselt gespeichert, mit dem Geräteschlüssel statt der PIN.
+  TourFuchs schlüsselt erst alles um und gibt den Tresor-Schlüssel erst danach
+  auf. Scheitert das (z. B. Browser-Speicher voll), **bleibt der Tresor aktiv**
+  und die Meldung lautet „Tresor bleibt aktiv – die Daten ließen sich gerade
+  nicht umschlüsseln …" (seit 25.10.2026; vorher konnten die Daten dabei
+  unlesbar werden).
+- Lässt sich beim **Einrichten** der Tresor-Schlüssel nicht dauerhaft im Browser
+  ablegen (Speicher voll oder gesperrt), bricht die Einrichtung ab, bevor etwas
+  verschlüsselt wird: „Aktivierung fehlgeschlagen – nichts wurde verändert …".
 
 ### 14.6 Sicherer Umzug senden
 
@@ -5201,6 +5216,7 @@ Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dre
 - **Gebietskachel:** Die große Gebietskachel öffnet wieder (Fehler seit 23.10.2026 behoben).
 - **Lasso-Knopf:** Bei mehr als 8 Kunden heißt er „📋 Briefing über 8 von N" (9.7).
 - **Live-Demos:** Öffnen nie einen Assistenten – auch nicht, wenn eigene Kunden geladen sind; der Prompt wird dort nur lokal kopiert.
+- **Tresor und Geräteschlüssel (25.10.2026):** Deaktivieren schlüsselt erst um und gibt den Tresor-Schlüssel danach auf; Einrichten bricht ab, wenn der Schlüssel nicht dauerhaft gespeichert werden kann; ohne Verschlüsselung im Browser speichert TourFuchs nicht und meldet es, statt still Klartext abzulegen (14.1, 14.5).
 
 ### Änderungen in Guide 3.24 (13.10.2026)
 

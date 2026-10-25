@@ -41,6 +41,29 @@ function writeMeta(meta) {
     try { globalThis.localStorage?.setItem(VAULT_KEY, s); } catch { /* egal */ }
     memStore.set(VAULT_KEY, s);
 }
+/**
+ * Wie writeMeta, aber nur erfolgreich, wenn die Metadaten wirklich dauerhaft
+ * liegen. Für die Einrichtung: Sonst verschlüsselte TourFuchs die Kundendaten
+ * mit einem Schlüssel, der nach dem Neuladen fehlt – auch PIN und
+ * Wiederherstellungscode hülfen dann nicht (Prüfbefund 25.10.2026, z. B.
+ * localStorage voll). Ohne Browser (Node-Tests) genügt der Arbeitsspeicher.
+ */
+function persistMeta(meta) {
+    const s = JSON.stringify(meta);
+    const store = localStore();
+    if (store) {
+        try {
+            store.setItem(VAULT_KEY, s);   // wirft z. B. bei vollem Speicher
+            if (store.getItem(VAULT_KEY) !== s) throw new Error('vault-meta-not-saved');
+        } catch (error) {
+            try { store.removeItem(VAULT_KEY); } catch { /* nichts mehr zu retten */ }
+            throw error;
+        }
+    } else if (typeof window !== 'undefined') {
+        throw new Error('vault-meta-not-saved');   // Website-Daten gesperrt
+    }
+    memStore.set(VAULT_KEY, s);
+}
 function clearMeta() {
     try { globalThis.localStorage?.removeItem(VAULT_KEY); } catch { /* egal */ }
     memStore.delete(VAULT_KEY);
@@ -133,7 +156,7 @@ export async function setup(pin, { recovery = true, iterations = PBKDF2_ITERATIO
         meta.recoverySalt = toB64(recSalt);
         meta.wrapRecovery = await wrapDek(recKek, raw);
     }
-    writeMeta(meta);
+    persistMeta(meta);   // wirft, bevor irgendetwas mit dem neuen Schlüssel verschlüsselt wird
     dek = await importDek(raw);
     scheduleAutoLock();
     emit('unlocked');
