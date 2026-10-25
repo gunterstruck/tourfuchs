@@ -11,10 +11,6 @@ export const CONFIG = {
         hosts: ['tourfuchs.vercel.app'],
         scriptSrc: '/_vercel/insights/script.js'
     },
-    // TourFuchs-Guide: eigener GPT bei ChatGPT (OpenAI) – läuft AUSSERHALB der
-    // Organisation. TourFuchs verlinkt ihn nur (Einbetten verbietet ChatGPT) und
-    // warnt vor jedem Öffnen; es werden keine Daten übergeben.
-    guideUrl: 'https://chatgpt.com/g/g-6a782d7e7e9c8191a551f64905b5f184-tourfuchs-guide',
     // Farbpalette für Vertriebsbeauftragte (kontrastreiche, unterscheidbare Farben)
     repPalette: [
         '#2563eb', // blau

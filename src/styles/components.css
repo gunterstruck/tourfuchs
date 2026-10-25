@@ -1612,7 +1612,6 @@ body:not(.depth-profi) .profi-only { display: none !important; }
 .module-optin span { min-width: 0; line-height: 1.3; }
 .module-optin small { display: block; margin-top: 2px; font-weight: 400; }
 .module-optin .pkg-icon { margin: 0 8px 0 2px; }
-.optional-modules .modules-subhead { margin: 10px 0 2px; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-text-muted, #64748b); }
 .tour-mode { display: flex; align-items: center; gap: 8px; margin: 18px 0 4px; padding-top: 10px; border-top: 1px solid var(--color-surface-2); }
 .tour-mode .seg-toggle { flex: 1; margin: 0; }
 .expert-reset {
@@ -3286,41 +3285,6 @@ body.lasso-active .mobile-next-step { display: none; }
     border: 1px solid var(--color-border); border-radius: 999px; padding: 1px 7px; white-space: nowrap;
 }
 .omitted-list dd { margin: 3px 0 0; font-size: 0.82rem; line-height: 1.45; color: var(--color-text); }
-
-/* TourFuchs-Guide (externer GPT bei ChatGPT) – nur sichtbar, wenn unter
-   „Optionale Module" eingeschaltet (ab Werk aus). */
-body:not(.guide-on) .guide-open { display: none !important; }
-.guide-optin-dialog { max-width: min(560px, calc(100vw - 24px)); }
-.guide-optin-body { max-height: min(62vh, 560px); overflow-y: auto; padding-right: 4px; }
-.guide-optin-body h3 { margin: 14px 0 4px; font-size: 0.98rem; }
-.guide-optin-body p, .guide-optin-body li { font-size: 0.9rem; line-height: 1.45; }
-.guide-optin-body ul { margin: 4px 0; padding-left: 20px; }
-.guide-open small { font-weight: 500; opacity: .75; }
-.guide-warning {
-    margin: 10px 0;
-    padding: 10px 12px;
-    border: 1px solid #f59e0b;
-    border-left-width: 4px;
-    border-radius: 10px;
-    background: #fffbeb;
-    color: #78350f;
-    font-size: 0.9rem;
-    line-height: 1.45;
-}
-.guide-warning b:first-child { display: block; margin-bottom: 4px; }
-.guide-dialog .geocode-offer-actions a.button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 44px;
-    border-radius: 10px;
-    background: var(--color-primary, #0d9488);
-    color: #fff;
-    font-weight: 700;
-    text-decoration: none;
-    text-align: center;
-    padding: 6px 12px;
-}
 
 /* Erster Start: Die Begrüßung steht sofort in der Mitte, die Beispieldaten
    kommen dahinter. Das Panel wiederholt sie nicht – es zeigt nur die ruhige

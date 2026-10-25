@@ -208,9 +208,6 @@
 :where(.aurora-dark) .privacy-faq summary:focus-visible {
     outline: 2px solid var(--color-primary, rgba(152, 113, 244, 0.7));
 }
-:where(.aurora-dark) .optional-modules .modules-subhead {
-    color: var(--color-text-muted, var(--color-text-muted));
-}
 :where(.aurora-dark) .start-chip .chip-x:hover {
     color: rgb(239, 149, 149);
 }
@@ -389,13 +386,6 @@
 }
 :where(.aurora-dark) .sim-compare-conflict {
     color: var(--color-danger, rgb(238, 150, 150));
-}
-:where(.aurora-dark) .guide-warning {
-    background: rgba(240, 208, 76, 0.18);
-    color: rgb(241, 181, 146);
-}
-:where(.aurora-dark) .guide-dialog .geocode-offer-actions a.button {
-    background: var(--color-primary, rgb(85, 21, 234));
 }
 :where(.aurora-dark) .print-view-overlay {
     background: var(--color-surface);

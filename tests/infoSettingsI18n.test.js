@@ -34,7 +34,7 @@ describe('Info-Einstellungen in vier Sprachen', () => {
         const html = read('index.html');
         const geocoding = read('src/ui/exactGeocoding.js');
         for (const key of [
-            'info.showcase', 'info.guide', 'info.firstSteps',
+            'info.showcase', 'info.firstSteps',
             'theme.title', 'theme.hint', 'theme.auto', 'theme.light', 'theme.dark',
             'info.geocode.title', 'info.geocode.hint', 'info.geocode.now',
             'info.summary', 'info.privateTitle', 'info.privateBody',

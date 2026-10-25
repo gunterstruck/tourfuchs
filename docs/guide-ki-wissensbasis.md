@@ -35,8 +35,8 @@ Pakete bleiben davon getrennt: **GeoFuchs** (Gebietsplanung & -management) und
 **ServiceFuchs** (Serviceverträge & Einsatzplanung), am Desktop unter
 „🧩 Erweiterungen". Eingeschaltete Pakete stehen als Kärtchen neben „TourFuchs
 Vertrieb" in der Kopfzeile; ein Klick öffnet den Bereich. Am Handy gibt es die
-Pakete nicht. Der externe TourFuchs-Guide steht dort im Abschnitt „Hilfe" und
-ist kein Paket.
+Pakete nicht. Einen Zugang zu einem externen Guide gibt es in der App nicht mehr
+(seit 25.10.2026).
 
 **Begriffsregel:** Die aktuelle App verwendet sichtbar **Vertriebsbezirk**. Der
 Import akzeptiert **Betriebsbezirk** als Synonym. Der Guide soll in Antworten den
@@ -5221,6 +5221,7 @@ Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dre
 - **Dritte Prüfrunde (25.10.2026):** „PIN ändern" und „Neue PIN per Wiederherstellungscode" melden einen Fehler, wenn die neue PIN nicht dauerhaft gespeichert werden kann – die bisherige PIN (bzw. der Code) gilt dann weiter. Bricht „Tresor deaktivieren" mittendrin ab, kommt bereits Umgeschlüsseltes zurück unter die PIN (spätestens beim nächsten Entsperren). Gespeicherte Touren finden einen Kunden wieder, der inzwischen eine Kundennummer hat (bei eindeutigem Namen + PLZ). Scheitert eine Straßenroute (z. B. kurz offline), fragt TourFuchs nach etwa 30 Sekunden erneut statt erst nach dem Neuladen.
 - **Vierte Prüfrunde (25.10.2026):** „Tour übernehmen" nach dem QR-Empfang brach seit 04.10.2026 ab, sobald ein Stopp einem vorhandenen Kunden zugeordnet wurde – behoben. Liegt ein Kunde lokal nur auf der PLZ-Mitte, übernimmt TourFuchs die genauere Position und fehlende Straße aus dem QR-Code, damit die Navigation zur Anschrift führt. Ein neuer Umsatzimport bleibt „Umsatz", auch wenn alte AE-Spalten im Bestand liegen. „Tresor deaktivieren" schreibt alles in einem Zug: Scheitert ein Teil, bleibt alles unter der PIN.
 - **Fünfte Prüfrunde (25.10.2026):** Der Tour-QR-Code meldet mit, wenn ein Stopp nur PLZ-genau verortet ist – der Empfänger hält solche Koordinaten nicht mehr für exakt, der Kunde bleibt Kandidat für die adressgenaue Verortung. Fehlen lokal Straße, PLZ oder Ort, ergänzt die Übernahme sie aus dem QR-Code; damit führt die Navigation zur Anschrift.
+- **Externer Guide entfernt (25.10.2026):** Unter „🧩 Erweiterungen" gibt es den Abschnitt „Hilfe" mit dem „Externen TourFuchs-Guide" nicht mehr, im Info-Dialog keinen Knopf „🦊 Frag den TourFuchs-Guide". Grund: OpenAI schaltet Custom GPTs am 11.12.2026 ab, und der Nachfolger lässt sich nicht öffentlich teilen. TourFuchs verlinkt nicht mehr auf ChatGPT.
 
 ### Änderungen in Guide 3.24 (13.10.2026)
 
