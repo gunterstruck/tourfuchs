@@ -28,7 +28,7 @@ describe('Sperren schließt offene Dialoge und leert sie', () => {
         expect(locked).toContain('closeSensitiveDialogs();');
         const wiped = ui.slice(ui.indexOf('function onWiped()'), ui.indexOf('const SENSITIVE_CONTENT'));
         expect(wiped).toContain('closeSensitiveDialogs();');
-        expect(read('src/ui/safeTransfer.js')).toContain("on('vault:locked', () => { receiveSequence++; lastExport = null; pendingContainer = null; stopCamera(); });");
+        expect(read('src/ui/safeTransfer.js')).toContain("on('vault:locked', () => { receiveSequence++; exportSequence++; lastExport = null; pendingContainer = null; stopCamera(); });");
     });
 });
 

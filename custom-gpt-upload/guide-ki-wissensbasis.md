@@ -5217,6 +5217,7 @@ Im mobilen Außendienst bleiben farbige Kartenflächen beim Herauszoomen auf dre
 - **Lasso-Knopf:** Bei mehr als 8 Kunden heißt er „📋 Briefing über 8 von N" (9.7).
 - **Live-Demos:** Öffnen nie einen Assistenten – auch nicht, wenn eigene Kunden geladen sind; der Prompt wird dort nur lokal kopiert.
 - **Tresor und Geräteschlüssel (25.10.2026):** Deaktivieren schlüsselt erst um und gibt den Tresor-Schlüssel danach auf; Einrichten bricht ab, wenn der Schlüssel nicht dauerhaft gespeichert werden kann; ohne Verschlüsselung im Browser speichert TourFuchs nicht und meldet es, statt still Klartext abzulegen (14.1, 14.5).
+- **Weitere Prüfbefunde (25.10.2026):** Wird der Tresor während „Verschlüsselt exportieren" gesperrt, bricht der Export ab (kein Download, kein Schlüssel über dem Sperrbildschirm). Ein Reimport markiert nur die Besuche aus der Datei als weitergegeben – unterwegs erfasste bleiben in „Seit dem letzten Bericht". Der sichere Umzug behält Besuche auch, wenn ein Kunde erst in der empfangenen Datei eine Kundennummer hat. Eine ergänzende Liste ohne Betragsspalte lässt „Auftragseingang" Auftragseingang bleiben.
 
 ### Änderungen in Guide 3.24 (13.10.2026)
 

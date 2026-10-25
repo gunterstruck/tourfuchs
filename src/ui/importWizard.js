@@ -41,7 +41,7 @@ import { confirmImportWithDiff } from './importDiff.js';
 import { carryOverVisits } from '../features/datasetDiff.js';
 import { cleanCustomerTexts } from '../features/customerName.js';
 import { adoptNumbers, columnsNotInFile, mergeWithPrevious, missingCustomers } from '../features/importMerge.js';
-import { isVisitReportHeaders } from '../features/visitReport.js';
+import { isVisitReportHeaders, visitReportEntries } from '../features/visitReport.js';
 import { applyVisitReport } from './visitReport.js';
 import { applySyncFile, looksLikeSyncFile } from './visitSync.js';
 import { isDemoWelcomeOpen } from './demoWelcome.js';
@@ -1018,6 +1018,9 @@ async function runImport(mapping, { sales = null, template = null, remember = fa
     // Bestandskunden ohne Nummer, die die Datei mit Nummer führt, gelten als
     // derselbe Kunde – sonst entstünde ein Doppel ohne Kundennummer.
     const previous = adoptNumbers(state.customers, customers);
+    // Nur Besuche aus der Datei gelten danach als weitergegeben – nicht die
+    // lokal erfassten, die gleich übernommen werden (Prüfbefund 25.10.2026).
+    const visitsFromFile = visitReportEntries(customers, { range: 'unsent' });
     // Eigene, lokal erfasste Besuche bleiben beim Reimport erhalten – vor dem
     // Änderungsbericht, damit er nur noch echten Verlust (entfallene Kunden) zeigt.
     // Beispielbesuche wandern nie in echte Daten.
@@ -1149,7 +1152,7 @@ async function runImport(mapping, { sales = null, template = null, remember = fa
     if (customers.length > 0) {
         const offerVault = async () => {
             if (firstOwnData) await showImportInsight();
-            emit('data:imported', { count: customers.length });
+            emit('data:imported', { count: customers.length, visitEntries: visitsFromFile });
         };
         if (resultDialog?.open) resultDialog.addEventListener('close', offerVault, { once: true });
         else offerVault();

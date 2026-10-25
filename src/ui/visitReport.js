@@ -148,9 +148,13 @@ export function applyVisitReport(rows) {
     return true;
 }
 
-/** Besuche aus einem Import stammen aus der Quelle – sie gelten als weitergegeben. */
-function markImportedVisitsSent() {
-    rememberSentVisits(visitReportEntries(state.customers, { range: 'unsent' }));
+/**
+ * Besuche aus einem Import stammen aus der Quelle – sie gelten als weitergegeben.
+ * `entries`: genau die Besuche der eingelesenen Datei. Lokal erfasste Besuche,
+ * die ein Reimport übernimmt, bleiben offen. Ohne Angabe (Beispieldaten) alle.
+ */
+function markImportedVisitsSent(entries) {
+    rememberSentVisits(entries ?? visitReportEntries(state.customers, { range: 'unsent' }));
     refreshUnsentVisits();
 }
 
@@ -179,8 +183,8 @@ export function initVisitReport() {
         openVisitReport();
     });
 
-    on('data:imported', (payload) => { if (!payload?.type) markImportedVisitsSent(); });
-    on('demo:loaded', markImportedVisitsSent);
+    on('data:imported', (payload) => { if (!payload?.type) markImportedVisitsSent(payload?.visitEntries); });
+    on('demo:loaded', () => markImportedVisitsSent());
     // Empfangene Datei vom anderen Gerät: deren Besuche kennt es schon. Eigene,
     // beim Empfang erhaltene Besuche bleiben offen (safeTransfer.js).
     on('visits:received', (payload) => {
