@@ -90,6 +90,10 @@ function packStop(customer) {
     // Präzise gesetzter Pin: Das Handy soll zur Koordinate navigieren, nicht zur
     // Adresse – genau wie beim Startpunkt.
     if (customer.coordinateSource === 'map-pin') stop.m = 1;
+    // Nur PLZ-genau verortet: Das muss mitreisen, sonst hielte der Empfänger
+    // die Koordinate wegen der Straße in der Adresse für exakt (Prüfbefund
+    // 25.10.2026) – und der Kunde fiele aus der adressgenauen Verortung.
+    else if (customer.geo === 'plz') stop.g = 1;
     if (customer.telefon) stop.t = customer.telefon;
     if (customer.nummer) stop.k = customer.nummer;
     if (customer.plz) stop.p = customer.plz;
@@ -223,6 +227,7 @@ export function decodeTourPayload(text) {
             nummer: p.k || '',
             plz: p.p || '',
             ...(p.m === 1 ? { coordinateSource: 'map-pin' } : {}),
+            ...(p.g === 1 ? { approx: true } : {}),
             ...(p.d === 1 ? { demo: true, dataOrigin: DEMO_DATA_ORIGIN } : {})
         }));
     if (stops.length === 0) return null;
@@ -296,25 +301,37 @@ export function parseStopAddress(adresse, plzHint = '') {
 }
 
 /**
- * Position eines bekannten Kunden aus einem empfangenen QR-Stopp übernehmen,
- * wenn sie genauer ist: Lokal keine Position oder nur die PLZ-Mitte, der Stopp
- * trägt eine Straße oder einen gesetzten Pin (Prüfbefund 25.10.2026 – vorher
- * navigierte das Handy zur lokalen PLZ-Mitte statt zur übertragenen Anschrift).
- * Fehlt lokal die Straße, kommt sie mit. Ändert `customer` an Ort und Stelle.
- * @returns {boolean} übernommen?
+ * Einen bekannten Kunden mit einem empfangenen QR-Stopp ergänzen (Prüfbefunde
+ * 25.10.2026 – vorher navigierte das Handy zur lokalen PLZ-Mitte statt zur
+ * übertragenen Anschrift):
+ *  - Fehlende Adressteile (Straße, PLZ, Ort) kommen mit – die Navigation nimmt
+ *    die Anschrift erst, wenn Straße und Ort da sind.
+ *  - Die Position gilt, wenn lokal keine da ist oder nur die PLZ-Mitte und der
+ *    Stopp genauer ist: gesetzter Pin oder Straße – außer der Absender meldet
+ *    selbst nur PLZ-Genauigkeit (`approx`). Exakt heißt sie nur, wenn sie es ist.
+ * Ändert `customer` an Ort und Stelle.
+ * @returns {boolean} etwas übernommen?
  */
 export function adoptStopPosition(customer, stop) {
     if (!customer || !hasValidCoords(stop)) return false;
+    let changed = false;
+    const parsed = parseStopAddress(stop.adresse, stop.plz);
+    for (const key of ['strasse', 'plz', 'ort']) {
+        if (!String(customer[key] ?? '').trim() && parsed[key]) {
+            customer[key] = parsed[key];
+            changed = true;
+        }
+    }
+    const precise = stop.coordinateSource === 'map-pin' || (Boolean(parsed.strasse) && !stop.approx);
     const located = hasValidCoords(customer);
-    const { strasse } = parseStopAddress(stop.adresse, stop.plz);
-    const precise = stop.coordinateSource === 'map-pin' || Boolean(strasse);
-    if (located && !(customer.geo === 'plz' && precise)) return false;
-    customer.lat = Number(stop.lat);
-    customer.lng = Number(stop.lng);
-    customer.geo = 'exakt';
-    if (stop.coordinateSource) customer.coordinateSource = stop.coordinateSource;
-    if (!String(customer.strasse ?? '').trim() && strasse) customer.strasse = strasse;
-    return true;
+    if (!located || (customer.geo === 'plz' && precise)) {
+        customer.lat = Number(stop.lat);
+        customer.lng = Number(stop.lng);
+        customer.geo = precise ? 'exakt' : 'plz';
+        if (stop.coordinateSource) customer.coordinateSource = stop.coordinateSource;
+        changed = true;
+    }
+    return changed;
 }
 
 // Mehrere Kandidaten: erst Name + PLZ, dann die Lage entscheiden lassen. Bleibt

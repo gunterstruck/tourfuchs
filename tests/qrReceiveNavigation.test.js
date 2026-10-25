@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { adoptStopPosition, matchStopsToCustomers, hasValidCoords } from '../src/features/tourShare.js';
+import { adoptStopPosition, decodeTourPayload, encodeTourPayload, matchStopsToCustomers, hasValidCoords } from '../src/features/tourShare.js';
 import { googleMapsLegs, googleMapsCapacity } from '../src/features/tour.js';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
@@ -87,5 +87,37 @@ describe('Navigation aus dem QR-Empfang lässt keinen Stopp weg', () => {
         expect(ui).toContain('const legs = googleMapsLegs(received.start, received.stops, received.roundTrip);');
         expect(ui).toContain('renderLegButtons(legs);');
         expect(ui).not.toContain('googleMapsLink(received.start');
+    });
+});
+
+describe('QR-Übernahme: Genauigkeit reist mit, Anschrift wird vollständig (Prüfbefund 25.10.2026, Runde 5)', () => {
+    const plzCenter = () => ({ id: 'k1', nummer: 'K1', name: 'Muster GmbH', strasse: '', plz: '45136', ort: '', lat: 51.43, lng: 7.03, geo: 'plz' });
+
+    it('der Absender meldet „nur PLZ-genau" mit, auch wenn eine Straße bekannt ist', () => {
+        const sender = { name: 'Muster GmbH', nummer: 'K1', strasse: 'Testweg 12', plz: '45136', ort: 'Essen', lat: 51.43, lng: 7.03, geo: 'plz' };
+        const exact = { ...sender, nummer: 'K2', lat: 51.44, lng: 7.04, geo: 'exakt' };
+        const decoded = decodeTourPayload(encodeTourPayload({ start: START, stops: [sender, exact] }));
+        expect(decoded.stops[0].approx).toBe(true);
+        expect(decoded.stops[1].approx).toBeUndefined();
+    });
+
+    it('PLZ-genaue Koordinaten werden nicht zu „exakt" – die Anschrift kommt trotzdem mit', () => {
+        const local = plzCenter();
+        const changed = adoptStopPosition(local, { lat: 51.4301, lng: 7.0301, adresse: 'Testweg 12, 45136 Essen', plz: '45136', approx: true });
+        expect(changed).toBe(true);
+        expect(local.geo).toBe('plz');
+        expect(local.lat).toBe(51.43);
+        expect([local.strasse, local.ort]).toEqual(['Testweg 12', 'Essen']);
+    });
+
+    it('fehlt lokal der Ort, navigiert das Handy danach zur Anschrift statt zur Koordinate', () => {
+        const local = { ...plzCenter(), strasse: 'Testweg 12' };
+        adoptStopPosition(local, { lat: 51.4412, lng: 7.0456, adresse: 'Testweg 12, 45136 Essen', plz: '45136' });
+        const [leg] = googleMapsLegs(START, [local], false);
+        expect(new URL(leg.link).searchParams.get('destination')).toBe('Testweg 12, 45136 Essen');
+    });
+
+    it('der Empfang legt unbekannte, nur PLZ-genaue Stopps auch so an', () => {
+        expect(read('src/ui/tourQr.js')).toContain("geo: stop.approx ? 'plz' : 'exakt'");
     });
 });
