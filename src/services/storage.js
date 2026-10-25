@@ -49,6 +49,23 @@ export async function saveToCache(key, value) {
     });
 }
 
+/**
+ * Mehrere Werte in **einer** Transaktion schreiben: alle oder keiner. Scheitert
+ * ein Teil (z. B. Speicher voll), verwirft der Browser die ganze Transaktion.
+ * @param {Array<[string, *]>} entries  [Schlüssel, Wert]
+ */
+async function saveAllToCache(entries) {
+    const db = await openDatabase();
+    return new Promise((resolve, reject) => {
+        const tx = db.transaction([storeName], 'readwrite');
+        const store = tx.objectStore(storeName);
+        for (const [key, value] of entries) store.put(value, key);
+        tx.oncomplete = () => { db.close(); resolve(); };
+        tx.onerror = () => { db.close(); reject(tx.error); };
+        tx.onabort = () => { db.close(); reject(tx.error || new Error('abgebrochen')); };
+    });
+}
+
 export async function loadFromCache(key) {
     const db = await openDatabase();
     return new Promise((resolve, reject) => {
@@ -260,19 +277,28 @@ async function writeProtected(key, value) {
 export function moveToDeviceKey(dataset, removeVaultMeta) {
     return inOrder(async () => {
         if (unreadableDataset) throw new Error('stored-unreadable');
-        try {
-            if (dataset) await saveToCache(KEYS.dataset, await sealForDevice(dataset));
-            else await rewriteStored(KEYS.dataset, 'device');
-            for (const key of PROTECTED_KEYS) await rewriteStored(KEYS[key], 'device');
-        } catch (error) {
-            // Was schon umgeschlüsselt ist, läge sonst ohne PIN-Schutz bei aktivem
-            // Tresor (Prüfbefund 25.10.2026). Zurück in den Tresor, so weit es geht;
-            // was jetzt nicht klappt, heilt das nächste Entsperren (reprotectStores).
-            await rewriteAllStored();
-            throw error;
-        }
+        // Erst alles im Arbeitsspeicher vorbereiten, dann in einer Transaktion
+        // schreiben: Scheitert ein Teil, bleibt alles unter der PIN – auch wenn
+        // vorher schon etwas gelungen wäre (Prüfbefund 25.10.2026; zuvor lagen
+        // bei einem Teilabbruch Kundendaten ohne PIN-Schutz bei aktivem Tresor).
+        const entries = [];
+        if (dataset) entries.push([KEYS.dataset, await sealForDevice(dataset)]);
+        else await prepareForDevice(KEYS.dataset, entries);
+        for (const key of PROTECTED_KEYS) await prepareForDevice(KEYS[key], entries);
+        if (entries.length) await saveAllToCache(entries);
         removeVaultMeta();
     });
+}
+
+/** Gespeicherten Wert für den Geräteschlüssel vorbereiten (ohne zu schreiben). */
+async function prepareForDevice(storeKey, entries) {
+    const raw = (await loadFromCache(storeKey)) ?? null;
+    if (raw == null || sealKind(raw) === 'device') return;
+    const value = await unseal(raw);
+    // Nichts darf im Tresor liegen bleiben – sonst wäre es nach dem Entfernen
+    // der Metadaten unlesbar (z. B. Auto-Sperre mitten im Deaktivieren).
+    if (value === LOCKED) throw new Error('locked');
+    entries.push([storeKey, await sealForDevice(value)]);
 }
 
 /** Datensatz und Nebenspeicher in die Form bringen, die der Tresor-Zustand verlangt – ohne zu werfen. */
@@ -316,15 +342,13 @@ function targetKind() {
     return isUnlocked() ? 'vault' : null;
 }
 
-async function rewriteStored(storeKey, target = targetKind()) {
+async function rewriteStored(storeKey) {
     const raw = (await loadFromCache(storeKey)) ?? null;
+    const target = targetKind();
     if (raw == null || !target || sealKind(raw) === target) return;
     const value = await unseal(raw);
-    // Beim Umzug auf den Geräteschlüssel darf nichts im Tresor liegen bleiben –
-    // sonst wäre es nach dem Entfernen der Metadaten unlesbar (moveToDeviceKey).
-    if (value === LOCKED && target === 'device') throw new Error('locked');
     if (value === LOCKED) return;
-    await saveToCache(storeKey, target === 'device' ? await sealForDevice(value) : await seal(value));
+    await saveToCache(storeKey, await seal(value));
 }
 
 async function rewriteProtectedStores() {

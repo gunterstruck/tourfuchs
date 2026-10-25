@@ -84,3 +84,17 @@ describe('Befund 4: Ergänzungsimport behält „Auftragseingang"', () => {
         expect(incoming[0].umsatzArt).toBeUndefined();
     });
 });
+
+describe('Neuer Umsatzimport, alte AE-Spalten im Bestand (Prüfbefund 25.10.2026)', () => {
+    it('bleibt Umsatz – die Altbestands-Ergänzung macht daraus keinen Auftragseingang', async () => {
+        const { state, setCustomers } = await import('../src/core/state.js');
+        const previous = [{ nummer: '4711', name: 'Muster GmbH', plz: '44787', umsatz: 80000, umsatzArt: 'ae', extra: { 'AE GJ25': 80000 } }];
+        const incoming = [{ id: 'k-nr:4711', nummer: '4711', name: 'Muster GmbH', plz: '44787', umsatz: 90000, extra: {} }];
+        mergeWithPrevious(previous, incoming, { mapping: { name: 'Kunde', plz: 'PLZ', umsatz: 'Umsatz' }, headers: ['Kunde', 'PLZ', 'Umsatz'] });
+        expect(incoming[0].extra['AE GJ25']).toBe(80000);   // Zusatzspalte bleibt erhalten
+        setCustomers(incoming);
+        expect(state.customers[0].umsatz).toBe(90000);
+        expect(state.customers[0].umsatzArt).not.toBe('ae');
+        expect(state.revenueKind).toBe('umsatz');
+    });
+});

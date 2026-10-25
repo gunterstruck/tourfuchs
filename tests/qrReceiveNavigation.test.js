@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { matchStopsToCustomers, hasValidCoords } from '../src/features/tourShare.js';
+import { adoptStopPosition, matchStopsToCustomers, hasValidCoords } from '../src/features/tourShare.js';
 import { googleMapsLegs, googleMapsCapacity } from '../src/features/tour.js';
 
 const read = (f) => readFileSync(resolve(process.cwd(), f), 'utf8');
@@ -22,9 +22,38 @@ describe('QR-Stopp behält seine gültige Position', () => {
         const local = { id: 'k1', nummer: 'K1', name: 'Ohne Position', lat: null, lng: null };
         const { matched } = matchStopsToCustomers([{ ...stop(1), nummer: 'K1' }], [local]);
         expect(matched[0].customer.id).toBe('k1');
-        const ui = read('src/ui/tourQr.js');
-        expect(ui).toContain('if (hasValidCoords(customer) || !hasValidCoords(stop)) continue;');
-        expect(ui).toContain('customer.lat = Number(stop.lat);');
+        expect(adoptStopPosition(local, { ...stop(1), nummer: 'K1' })).toBe(true);
+        expect([local.lat, local.lng]).toEqual([51.01, 7.01]);
+        expect(read('src/ui/tourQr.js')).toContain('if (adoptStopPosition(customer, stop)) positioned += 1;');
+    });
+});
+
+describe('QR-Übernahme: genauere übertragene Anschrift schlägt lokale PLZ-Mitte (Prüfbefund 25.10.2026)', () => {
+    const plzCenter = () => ({ id: 'k1', nummer: 'K1', name: 'Muster GmbH', strasse: '', plz: '45136', ort: 'Essen', lat: 51.43, lng: 7.03, geo: 'plz' });
+    const received = { name: 'Muster GmbH', nummer: 'K1', lat: 51.4412, lng: 7.0456, adresse: 'Testweg 12, 45136 Essen', plz: '45136' };
+
+    it('übernimmt Position und Straße, damit die Navigation zur Anschrift führt', () => {
+        const local = plzCenter();
+        expect(adoptStopPosition(local, received)).toBe(true);
+        expect([local.lat, local.lng, local.geo, local.strasse]).toEqual([51.4412, 7.0456, 'exakt', 'Testweg 12']);
+    });
+
+    it('überschreibt keine genaue lokale Position', () => {
+        const local = { ...plzCenter(), strasse: 'Hauptstraße 1', lat: 51.45, lng: 7.01, geo: 'exakt' };
+        expect(adoptStopPosition(local, received)).toBe(false);
+        expect([local.lat, local.strasse]).toEqual([51.45, 'Hauptstraße 1']);
+    });
+
+    it('ist auch der Stopp nur PLZ-genau, bleibt alles wie es ist', () => {
+        const local = plzCenter();
+        expect(adoptStopPosition(local, { ...received, adresse: '45136 Essen' })).toBe(false);
+        expect(local.lat).toBe(51.43);
+    });
+
+    it('ein gesetzter Pin gilt auch ohne Straße', () => {
+        const local = plzCenter();
+        expect(adoptStopPosition(local, { ...received, adresse: '45136 Essen', coordinateSource: 'map-pin' })).toBe(true);
+        expect(local.coordinateSource).toBe('map-pin');
     });
 });
 

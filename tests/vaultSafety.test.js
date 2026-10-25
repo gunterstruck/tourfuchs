@@ -10,6 +10,8 @@ import { readFileSync } from 'node:fs';
  *  3. Geräteschlüssel nicht nutzbar: nicht im Klartext speichern, sondern melden.
  */
 // Minimale IndexedDB im Speicher, mit abschaltbarem Schreiben („Speicher voll").
+// Transaktionen wie im Browser: Schreibvorgänge gelten erst, wenn die ganze
+// Transaktion gelingt; scheitert einer, wird keiner übernommen.
 const RAW = new Map();
 let failWrites = false;
 const failKeys = new Set();   // nur diese Schlüssel scheitern
@@ -22,23 +24,44 @@ function fakeIndexedDb() {
         close() {},
         transaction() {
             const tx = {};
-            const fail = () => later(() => { tx.error = new Error('QuotaExceededError'); tx.onerror?.(); });
+            const writes = [];   // [key, value | undefined (löschen)]
+            let failed = false;
+            let finishing = false;
+            const finish = () => {
+                if (finishing) return;
+                finishing = true;
+                later(() => {
+                    if (failed) {
+                        tx.error = new Error('QuotaExceededError');
+                        tx.onerror?.();
+                        return;
+                    }
+                    for (const [key, value] of writes) {
+                        if (value === undefined) RAW.delete(key);
+                        else RAW.set(key, value);
+                    }
+                    tx.oncomplete?.();
+                });
+            };
             tx.objectStore = () => ({
                 put(value, key) {
-                    if (failWrites || failKeys.has(key) || failPut?.(key)) return fail();
-                    RAW.set(key, structuredClone(value)); later(() => tx.oncomplete?.());
+                    if (failWrites || failKeys.has(key) || failPut?.(key)) failed = true;
+                    else writes.push([key, structuredClone(value)]);
+                    finish();
                 },
                 add(value, key) {
                     const request = {};
-                    if (failWrites) { fail(); return request; }
-                    if (RAW.has(key)) later(() => { request.onerror?.({ preventDefault() {}, stopPropagation() {} }); tx.oncomplete?.(); });
-                    else { RAW.set(key, structuredClone(value)); later(() => tx.oncomplete?.()); }
+                    if (failWrites) failed = true;
+                    else if (RAW.has(key)) later(() => request.onerror?.({ preventDefault() {}, stopPropagation() {} }));
+                    else writes.push([key, structuredClone(value)]);
+                    finish();
                     return request;
                 },
-                delete(key) { RAW.delete(key); later(() => tx.oncomplete?.()); },
+                delete(key) { writes.push([key, undefined]); finish(); },
                 get(key) {
                     const request = {};
-                    later(() => { request.result = structuredClone(RAW.get(key)); request.onsuccess?.(); tx.oncomplete?.(); });
+                    later(() => { request.result = structuredClone(RAW.get(key)); request.onsuccess?.(); });
+                    finish();
                     return request;
                 }
             });
@@ -177,14 +200,15 @@ describe('Befund 1, Randfall: Auto-Sperre mitten im Deaktivieren', () => {
 });
 
 describe('Teilabbruch beim Deaktivieren: nichts bleibt ohne PIN-Schutz', () => {
-    it('schlägt ein späterer Schritt fehl, kommen schon umgeschlüsselte Kundendaten zurück in den Tresor', async () => {
+    it('scheitert ein Teil, wird nichts übernommen – alles bleibt unter der PIN', async () => {
         await vault.setup(PIN, { recovery: false, iterations: 1000 });
         await storage.saveDataset(DATA);
         await storage.saveTours(TOUR);
-        failKeys.add('gespeicherte-touren');   // Kundendaten gelingen, Touren nicht
+        failKeys.add('gespeicherte-touren');   // Kundendaten gingen, Touren nicht
         await expect(storage.moveToDeviceKey(DATA, () => vault.removeVaultMeta())).rejects.toThrow();
         expect(vault.isEnabled()).toBe(true);
-        expect(RAW.get('kundendaten').__enc).toBe(1);   // nicht __dev: wieder unter der PIN
+        expect(RAW.get('kundendaten').__enc).toBe(1);   // nie __dev, auch nicht kurz
+        expect(RAW.get('gespeicherte-touren').__enc).toBe(1);
         failKeys.clear();
         vault.discardKey();
         await vault.unlock(PIN);
@@ -192,16 +216,28 @@ describe('Teilabbruch beim Deaktivieren: nichts bleibt ohne PIN-Schutz', () => {
         expect(await storage.loadTours()).toEqual(TOUR);
     });
 
-    it('was dabei nicht zurückging, holt das nächste Entsperren in den Tresor', async () => {
+    it('auch wenn danach jeder weitere Schreibversuch scheitert (Rückweg unmöglich)', async () => {
         await vault.setup(PIN, { recovery: false, iterations: 1000 });
         await storage.saveDataset(DATA);
         await storage.saveTours(TOUR);
-        // Kundendaten gelingen (Geräteschlüssel), Touren scheitern, und auch der Rückweg der Kundendaten scheitert.
         let datasetWrites = 0;
         failPut = (key) => key === 'gespeicherte-touren' || (key === 'kundendaten' && ++datasetWrites > 1);
         await expect(storage.moveToDeviceKey(DATA, () => vault.removeVaultMeta())).rejects.toThrow();
-        expect(RAW.get('kundendaten').__dev).toBe(1);   // läge jetzt ohne PIN-Schutz
-        failPut = null;
+        expect(vault.isEnabled()).toBe(true);
+        expect(RAW.get('kundendaten').__enc).toBe(1);
+    });
+
+    it('Altlast aus einem früheren Abbruch holt das nächste Entsperren in den Tresor', async () => {
+        await vault.setup(PIN, { recovery: false, iterations: 1000 });
+        await storage.saveDataset(DATA);
+        // So lag es nach einem Teilabbruch vor dem 25.10.2026: Kundendaten mit
+        // dem Geräteschlüssel, Tresor aktiv.
+        vault.removeVaultMeta();
+        await storage.saveDataset(DATA);
+        const deviceSealed = RAW.get('kundendaten');
+        expect(deviceSealed.__dev).toBe(1);
+        await vault.setup(PIN, { recovery: false, iterations: 1000 });
+        RAW.set('kundendaten', deviceSealed);
 
         vault.discardKey();
         await vault.unlock(PIN);

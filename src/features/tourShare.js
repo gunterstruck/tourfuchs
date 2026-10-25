@@ -284,6 +284,39 @@ export function hasValidCoords(point) {
     return Boolean(point) && ok(point.lat) && ok(point.lng);
 }
 
+/** „Testweg 12, 45136 Essen" → { strasse, plz, ort }; ohne Komma nur Ort/PLZ. */
+export function parseStopAddress(adresse, plzHint = '') {
+    const parts = String(adresse || '').split(',').map((s) => s.trim()).filter(Boolean);
+    const strasse = parts.length > 1 ? parts.slice(0, -1).join(', ') : (parts[0] || '');
+    const cityPart = parts.length > 1 ? parts[parts.length - 1] : '';
+    const cityMatch = cityPart.match(/^(\d{4,5})\s+(.+)$/);
+    const plz = String(plzHint || (cityMatch ? cityMatch[1] : '')).trim();
+    const ort = cityMatch ? cityMatch[2] : (plz ? cityPart.replace(plz, '').trim() : cityPart);
+    return { strasse: parts.length > 1 ? strasse : '', plz, ort, streetOnly: parts.length > 1 ? '' : strasse };
+}
+
+/**
+ * Position eines bekannten Kunden aus einem empfangenen QR-Stopp übernehmen,
+ * wenn sie genauer ist: Lokal keine Position oder nur die PLZ-Mitte, der Stopp
+ * trägt eine Straße oder einen gesetzten Pin (Prüfbefund 25.10.2026 – vorher
+ * navigierte das Handy zur lokalen PLZ-Mitte statt zur übertragenen Anschrift).
+ * Fehlt lokal die Straße, kommt sie mit. Ändert `customer` an Ort und Stelle.
+ * @returns {boolean} übernommen?
+ */
+export function adoptStopPosition(customer, stop) {
+    if (!customer || !hasValidCoords(stop)) return false;
+    const located = hasValidCoords(customer);
+    const { strasse } = parseStopAddress(stop.adresse, stop.plz);
+    const precise = stop.coordinateSource === 'map-pin' || Boolean(strasse);
+    if (located && !(customer.geo === 'plz' && precise)) return false;
+    customer.lat = Number(stop.lat);
+    customer.lng = Number(stop.lng);
+    customer.geo = 'exakt';
+    if (stop.coordinateSource) customer.coordinateSource = stop.coordinateSource;
+    if (!String(customer.strasse ?? '').trim() && strasse) customer.strasse = strasse;
+    return true;
+}
+
 // Mehrere Kandidaten: erst Name + PLZ, dann die Lage entscheiden lassen. Bleibt
 // es offen, wird nichts geraten – der Stopp kommt mit seinen eigenen Daten
 // (Name, Adresse, Koordinaten aus dem QR-Code) und landet sicher am richtigen Ort.

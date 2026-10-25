@@ -22,8 +22,8 @@
  */
 import { customerKey } from './datasetDiff.js';
 import { isColumnPromotor, promotorColumns } from './promotorColumns.js';
-import { revenueYearHeaders } from './revenueYears.js';
-import { revenueKindOf, revenueTerm } from './revenueTerm.js';
+import { revenueYearHeaders, revenueYearOfHeader } from './revenueYears.js';
+import { revenueKindOf, revenueKindOfHeader, revenueTerm } from './revenueTerm.js';
 
 /** Einfache Felder: Zuordnungsschlüssel = Eigenschaft am Kunden. */
 const SIMPLE_FIELDS = [
@@ -173,6 +173,13 @@ export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, 
             if (!fileHeaders.has(header)) extra[header] = value;
         }
         customer.extra = { ...extra, ...(customer.extra || {}) };
+        // Die Datei bringt eigene Beträge als Umsatz, aber übernommene alte
+        // Spalten wie „AE GJ25" liegen noch in `extra`: Ohne ausdrückliche Art
+        // machte die Altbestands-Ergänzung (state.js) daraus wieder
+        // Auftragseingang (Prüfbefund 25.10.2026).
+        const fileHasRevenue = Boolean(mapping.umsatz) || revenueYearHeaders(headers).length > 0;
+        const oldAeColumns = Object.keys(extra).some((header) => revenueYearOfHeader(header) !== null && revenueKindOfHeader(header) === 'ae');
+        if (fileHasRevenue && !customer.umsatzArt && oldAeColumns) customer.umsatzArt = 'umsatz';
 
         // Genaue Position behalten, solange die Anschrift dieselbe ist – sonst
         // sprängen adressgenau verortete Kunden zurück auf die PLZ-Mitte.

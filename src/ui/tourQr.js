@@ -8,7 +8,7 @@
 
 import { state, emit, getCustomer, on, setCustomers } from '../core/state.js';
 import { currentLocale, t } from '../core/i18n.js';
-import { decodeTourText, matchStopsToCustomers, encodeTourUrlPacked } from '../features/tourShare.js';
+import { decodeTourText, matchStopsToCustomers, encodeTourUrlPacked, adoptStopPosition, parseStopAddress } from '../features/tourShare.js';
 import { googleMapsLegs } from '../features/tour.js';
 import { downloadIcs } from '../features/tourExport.js';
 import { combinePlanStart } from '../features/dayPlanner.js';
@@ -358,13 +358,9 @@ function renderReceived() {
  * verloren gehen. Die Kundennummer kommt mit, sofern übertragen.
  */
 function customerFromStop(stop, i) {
-    const addr = String(stop.adresse || '');
-    const parts = addr.split(',').map((s) => s.trim()).filter(Boolean);
-    const strasse = parts.length > 1 ? parts.slice(0, -1).join(', ') : (parts[0] || '');
-    const cityPart = parts.length > 1 ? parts[parts.length - 1] : '';
-    const cityMatch = cityPart.match(/^(\d{4,5})\s+(.+)$/);
-    const plz = String(stop.plz || (cityMatch ? cityMatch[1] : '')).trim();
-    const ort = cityMatch ? cityMatch[2] : (plz ? cityPart.replace(plz, '').trim() : cityPart);
+    const parsed = parseStopAddress(stop.adresse, stop.plz);
+    const strasse = parsed.strasse || parsed.streetOnly;
+    const { plz, ort } = parsed;
     return {
         id: `qr-${Date.now().toString(36)}-${i}`,
         nummer: String(stop.nummer || '').trim(),
@@ -384,15 +380,11 @@ function adoptReceivedTour() {
     if (!received || received.stops.length === 0) return;
     const { matched } = matchStopsToCustomers(received.stops, state.customers);
     const idByStop = new Map(matched.map(({ stop, customer }) => [stop, customer.id]));
-    // Lokaler Kunde ohne Position: Die QR-Position ist gültig – übernehmen,
-    // sonst fiele der Stopp aus Karte und Route.
+    // Lokal ohne Position oder nur PLZ-Mitte: Die genauere QR-Position gilt –
+    // sonst fiele der Stopp aus Karte und Route bzw. navigierte zur PLZ-Mitte.
     let positioned = 0;
     for (const { stop, customer } of matched) {
-        if (hasValidCoords(customer) || !hasValidCoords(stop)) continue;
-        customer.lat = Number(stop.lat);
-        customer.lng = Number(stop.lng);
-        customer.geo = 'exakt';
-        positioned += 1;
+        if (adoptStopPosition(customer, stop)) positioned += 1;
     }
 
     state.tour.bezirk = '__all__'; // Stopps können außerhalb des gewählten Bezirks liegen
