@@ -76,6 +76,9 @@ ohnehin in der Organisation).
 3. *Plugins* → *Persönlich* → installieren; mit „@TourFuchs Guide" testen:
    Bildanzeige aus der PDF, Annahme der großen PDF, drei typische Fragen.
 4. Gesprächsaufhänger von oben wieder eintragen.
-5. Teilen klären (je nach ChatGPT-Tarif) und den neuen Link in
-   `src/core/config.js` (`guideUrl`) und `index.html` (`#guide-open`)
-   eintragen; Texte von „GPT" auf „Plugin" umstellen.
+
+**Entscheidung PO (25.10.2026):** Weil der Guide künftig nur noch für den PO
+selbst nutzbar wäre, ist der Zugang **aus der App entfernt** (Schalter unter
+„🧩 Erweiterungen", Hinweisdialoge, Knopf im Info-Dialog, Link). Die
+Wissensbasis, der Systemprompt und das Upload-Paket bleiben – als
+Dokumentation und für einen möglichen Firmen-Assistenten.

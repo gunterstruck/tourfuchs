@@ -64,7 +64,6 @@ const EXTERNAL_TARGETS = {
     'router.project-osrm.org': 'OSRM',             // Straßenrouten, Opt-in (6)
     'www.google.com': 'Google Maps',               // Navigation, nur auf Klick (7)
     'zanobo.vercel.app': 'Zanobo',                 // Link zur Schwester-App, nur auf Klick (7)
-    'chatgpt.com': 'ChatGPT',                      // optionaler externer Bedien-Guide, nur auf Klick
     'm365.cloud.microsoft': 'Copilot',             // Firmen-Briefing-Assistent, nur auf Klick (8)
     'duve.siemens.com': 'DUVE',                    // optional konfigurierte Kundensuche, nur auf Klick
     'teams.microsoft.com': 'Teams'                // Mitarbeiter-Chat, nur auf Klick

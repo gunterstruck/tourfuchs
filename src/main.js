@@ -43,7 +43,6 @@ import { initContextHelp } from './ui/contextHelp.js';
 import { initFirstSteps } from './ui/firstSteps.js';
 import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
-import { initGuide } from './ui/guide.js';
 import { initTheme } from './ui/theme.js';
 import { initLanguage } from './ui/language.js';
 import { initNightToggle } from './ui/nightToggle.js';
@@ -336,7 +335,6 @@ async function init() {
     initFirstSteps();
     initOfferAutoHide();
     initDemoWelcome();
-    initGuide();
     initExactGeocoding();
     initMapPills();
     initDataSources();
