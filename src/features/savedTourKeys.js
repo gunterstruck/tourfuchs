@@ -17,6 +17,10 @@ export function customerKey(customer) {
     if (!customer) return null;
     const nummer = String(customer.nummer ?? '').trim();
     if (nummer) return `nr:${nummer}`;
+    return nameKey(customer);
+}
+
+function nameKey(customer) {
     const name = normalizeCustomerName(customer.name).trim().toLowerCase();
     const plz = String(customer.plz ?? '').trim();
     return name || plz ? `np:${name}|${plz}` : null;
@@ -58,10 +62,18 @@ export function stampTourKeys(tour, getCustomer) {
 export function resolveTour(tour, customers) {
     const byId = new Map();
     const byKey = new Map();
+    // Gespeichert ohne Nummer (Name + PLZ), inzwischen mit Nummer importiert:
+    // derselbe Kunde, wenn Name + PLZ eindeutig sind – dieselbe Regel wie beim
+    // Import (adoptNumbers). Mehrdeutig: null, der Stopp fällt mit Hinweis weg.
+    const numberedByName = new Map();
     for (const c of customers || []) {
         byId.set(c.id, c);
         const key = customerKey(c);
         if (key && !byKey.has(key)) byKey.set(key, c);
+        if (key?.startsWith('nr:')) {
+            const named = nameKey(c);
+            if (named) numberedByName.set(named, numberedByName.has(named) ? null : c);
+        }
     }
     let lost = 0;
     let remapped = 0;
@@ -71,7 +83,7 @@ export function resolveTour(tour, customers) {
         const current = byId.get(id);
         if (!key) return current ? id : null;          // Alttour ohne Schlüssel: wie bisher
         if (current && customerKey(current) === key) return id;
-        return byKey.get(key)?.id ?? null;
+        return byKey.get(key)?.id ?? (key.startsWith('np:') ? numberedByName.get(key)?.id : null) ?? null;
     };
     const stopIds = [];
     (tour.stopIds || []).forEach((id, i) => {

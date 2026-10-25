@@ -93,3 +93,26 @@ describe('Gespeicherte Touren nach Reimport', () => {
         expect(changed).toBe(false);
     });
 });
+
+describe('Gespeicherte Tour, Kunde inzwischen mit Kundennummer (Prüfbefund 25.10.2026)', () => {
+    const before = [{ id: 'a1', nummer: '', name: 'Beispiel Bau KG', plz: '99999' }];
+    const tour = stampTourKeys({ stopIds: ['a1'] }, (id) => before.find((c) => c.id === id)).tour;
+
+    it('findet ihn über Name + PLZ wieder, wenn das eindeutig ist', () => {
+        const after = [{ id: 'b7', nummer: '4711', name: 'Beispiel Bau KG', plz: '99999' }];
+        const resolved = resolveTour(tour, after);
+        expect(resolved.stopIds).toEqual(['b7']);
+        expect(resolved.lost).toBe(0);
+        expect(resolved.remapped).toBe(1);
+    });
+
+    it('ist Name + PLZ mehrdeutig, fällt der Stopp mit Hinweis weg', () => {
+        const after = [
+            { id: 'b7', nummer: '4711', name: 'Beispiel Bau KG', plz: '99999' },
+            { id: 'b8', nummer: '4712', name: 'Beispiel Bau KG', plz: '99999' }
+        ];
+        const resolved = resolveTour(tour, after);
+        expect(resolved.stopIds).toEqual([]);
+        expect(resolved.lost).toBe(1);
+    });
+});

@@ -260,11 +260,31 @@ async function writeProtected(key, value) {
 export function moveToDeviceKey(dataset, removeVaultMeta) {
     return inOrder(async () => {
         if (unreadableDataset) throw new Error('stored-unreadable');
-        if (dataset) await saveToCache(KEYS.dataset, await sealForDevice(dataset));
-        else await rewriteStored(KEYS.dataset, 'device');
-        for (const key of PROTECTED_KEYS) await rewriteStored(KEYS[key], 'device');
+        try {
+            if (dataset) await saveToCache(KEYS.dataset, await sealForDevice(dataset));
+            else await rewriteStored(KEYS.dataset, 'device');
+            for (const key of PROTECTED_KEYS) await rewriteStored(KEYS[key], 'device');
+        } catch (error) {
+            // Was schon umgeschlüsselt ist, läge sonst ohne PIN-Schutz bei aktivem
+            // Tresor (Prüfbefund 25.10.2026). Zurück in den Tresor, so weit es geht;
+            // was jetzt nicht klappt, heilt das nächste Entsperren (reprotectStores).
+            await rewriteAllStored();
+            throw error;
+        }
         removeVaultMeta();
     });
+}
+
+/** Datensatz und Nebenspeicher in die Form bringen, die der Tresor-Zustand verlangt – ohne zu werfen. */
+async function rewriteAllStored() {
+    if (!unreadableDataset) {
+        try {
+            await rewriteStored(KEYS.dataset);
+        } catch (error) {
+            console.warn('Kundendaten konnten nicht umgeschlüsselt werden:', error);
+        }
+    }
+    await rewriteProtectedStores();
 }
 
 async function loadProtected(key, fallback) {
@@ -275,12 +295,13 @@ async function loadProtected(key, fallback) {
 }
 
 /**
- * Nebenspeicher im aktuellen Tresor-Zustand neu schreiben: nach dem
- * Einrichten bzw. Entsperren mit dem Tresor, nach dem Deaktivieren (DEK noch
- * im Speicher, Metadaten schon weg) mit dem Geräteschlüssel.
+ * Gespeichertes im aktuellen Tresor-Zustand neu schreiben: nach dem
+ * Einrichten bzw. Entsperren mit dem Tresor. Seit 25.10.2026 auch der
+ * Datensatz – lag er nach einem abgebrochenen Deaktivieren noch mit dem
+ * Geräteschlüssel, kommt er so wieder unter die PIN.
  */
 export function reprotectStores() {
-    return inOrder(rewriteProtectedStores);
+    return inOrder(rewriteAllStored);
 }
 
 /** Wie ein Wert gerade liegt: 'vault' · 'device' · 'plain'. */
