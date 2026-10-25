@@ -1042,6 +1042,21 @@ async function phone(browser, baseUrl) {
         }
     });
 
+    // Bis 25.10.2026 brach „Als Tour übernehmen" ab (ReferenceError), sobald ein
+    // QR-Stopp einem vorhandenen Kunden zugeordnet wurde – hier die Bäckerei.
+    await step('QR-Tour mit bekanntem Kunden übernehmen', async () => {
+        const payload = { v: 1, s: { lat: 51.45, lng: 7.01, l: 'Start' },
+            x: [{ n: 'Bäckerei Krümel GmbH', lat: 51.4561, lng: 7.0121, a: 'Testweg 12, 45127 Essen', k: '000101', p: '45127' }] };
+        const hash = `#t=${Buffer.from(`TF1:${JSON.stringify(payload)}`, 'utf8').toString('base64url')}`;
+        await page.goto('about:blank');
+        await page.goto(`${baseUrl}${hash}`);
+        await page.waitForSelector('#qr-scan-dialog[open]', { timeout: TIMEOUT });
+        const info = await page.locator('#qr-scan-matchinfo').textContent();
+        if (/0 von|nicht/i.test(info || '')) throw new Error(`Stopp nicht zugeordnet: „${info}"`);
+        await page.evaluate(() => document.getElementById('qr-received-adopt').click());
+        await page.waitForFunction(() => !document.getElementById('qr-scan-dialog').open, null, { timeout: TIMEOUT });
+    });
+
     await step('keine Skriptfehler', async () => {
         if (errors.length) throw new Error(errors.join(' | '));
     });

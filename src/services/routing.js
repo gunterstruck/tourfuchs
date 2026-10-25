@@ -7,6 +7,12 @@ import { CONFIG } from '../core/config.js';
 
 const routeCache = new Map();
 const pendingRoutes = new Map();
+// Fehlschläge (offline, Zeitüberschreitung, Dienst gestört) gelten nur kurz:
+// Bis 25.10.2026 blieben sie bis zum Neuladen im Cache – nach wiederhergestellter
+// Verbindung kam keine Straßenroute mehr. Die Frist verhindert Dauerfeuer bei
+// jedem Neuzeichnen der Karte.
+const failedRoutes = new Map();   // Schlüssel -> Zeitpunkt des Fehlschlags
+const RETRY_AFTER_MS = 30000;
 const CONSENT_KEY = 'gf_routing_consent';
 
 /**
@@ -80,10 +86,16 @@ export async function getRoadRoute(points) {
     if (!hasRoutingConsent()) return null;
     if (routeCache.has(key)) return routeCache.get(key);
     if (pendingRoutes.has(key)) return pendingRoutes.get(key);
+    if (Date.now() - (failedRoutes.get(key) ?? -Infinity) < RETRY_AFTER_MS) return null;
 
     const pending = fetchRoadRoute(points).then((route) => {
-        routeCache.set(key, route);
         pendingRoutes.delete(key);
+        if (route) {
+            routeCache.set(key, route);
+            failedRoutes.delete(key);
+        } else {
+            failedRoutes.set(key, Date.now());
+        }
         return route;
     });
     pendingRoutes.set(key, pending);

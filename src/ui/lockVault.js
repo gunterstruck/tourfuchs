@@ -637,8 +637,10 @@ function openChangePinDialog() {
             await vault.changePin(oldPin, nw);
             dialog.close();
             showToast('PIN geändert.', 'success');
-        } catch {
-            err.textContent = 'Die aktuelle PIN ist falsch.';
+        } catch (error) {
+            err.textContent = error?.message === 'vault-meta-not-saved'
+                ? 'Neue PIN konnte nicht gespeichert werden (Browser-Speicher voll oder gesperrt). Die bisherige PIN gilt weiter.'
+                : 'Die aktuelle PIN ist falsch.';
             err.hidden = false;
         }
     });
@@ -673,8 +675,10 @@ function openResetPinDialog(recoveryCode) {
             await vault.resetPinWithRecovery(recoveryCode, nw);
             dialog.close();
             showToast('Neue PIN gespeichert – ab jetzt damit entsperren.', 'success', 6000);
-        } catch {
-            err.textContent = 'Neue PIN konnte nicht gesetzt werden.';
+        } catch (error) {
+            err.textContent = error?.message === 'vault-meta-not-saved'
+                ? 'Neue PIN konnte nicht gespeichert werden (Browser-Speicher voll oder gesperrt). Bisherige PIN und Wiederherstellungscode gelten weiter.'
+                : 'Neue PIN konnte nicht gesetzt werden.';
             err.hidden = false;
         }
     });

@@ -43,21 +43,30 @@ function writeMeta(meta) {
 }
 /**
  * Wie writeMeta, aber nur erfolgreich, wenn die Metadaten wirklich dauerhaft
- * liegen. Für die Einrichtung: Sonst verschlüsselte TourFuchs die Kundendaten
- * mit einem Schlüssel, der nach dem Neuladen fehlt – auch PIN und
- * Wiederherstellungscode hülfen dann nicht (Prüfbefund 25.10.2026, z. B.
- * localStorage voll). Ohne Browser (Node-Tests) genügt der Arbeitsspeicher.
+ * liegen – sonst wirft es `vault-meta-not-saved`, und die bisherigen
+ * Metadaten bleiben, wie sie waren (Prüfbefunde 25.10.2026):
+ *  - Einrichtung: Sonst verschlüsselte TourFuchs mit einem Schlüssel, der nach
+ *    dem Neuladen fehlt – auch PIN und Wiederherstellungscode hülfen nicht.
+ *  - PIN ändern / per Code zurücksetzen: Sonst meldete TourFuchs Erfolg,
+ *    obwohl weiter die alte PIN galt.
+ * Ohne Browser (Node-Tests) genügt der Arbeitsspeicher.
  */
 function persistMeta(meta) {
     const s = JSON.stringify(meta);
     const store = localStore();
     if (store) {
+        let previous = null;
+        try { previous = store.getItem(VAULT_KEY); } catch { /* unten gemeldet */ }
         try {
             store.setItem(VAULT_KEY, s);   // wirft z. B. bei vollem Speicher
-            if (store.getItem(VAULT_KEY) !== s) throw new Error('vault-meta-not-saved');
-        } catch (error) {
-            try { store.removeItem(VAULT_KEY); } catch { /* nichts mehr zu retten */ }
-            throw error;
+            if (store.getItem(VAULT_KEY) !== s) throw new Error('nicht gelesen wie geschrieben');
+        } catch (cause) {
+            // Nie Bestehendes verlieren: alten Stand zurück, sonst nichts.
+            try {
+                if (previous === null) store.removeItem(VAULT_KEY);
+                else if (store.getItem(VAULT_KEY) !== previous) store.setItem(VAULT_KEY, previous);
+            } catch { /* der alte Stand liegt dann noch unverändert */ }
+            throw new Error('vault-meta-not-saved', { cause });
         }
     } else if (typeof window !== 'undefined') {
         throw new Error('vault-meta-not-saved');   // Website-Daten gesperrt
@@ -325,7 +334,7 @@ export async function changePin(oldPin, newPin) {
     meta.wrapPin = await wrapDek(kek, raw);
     meta.attempts = 0;
     meta.pinNumeric = /^\d+$/.test(String(newPin));
-    writeMeta(meta);
+    persistMeta(meta);   // wirft, wenn die neue PIN nicht dauerhaft gilt – die alte bleibt
     return true;
 }
 
@@ -343,7 +352,7 @@ export async function resetPinWithRecovery(recoveryCode, newPin) {
     meta.wrapPin = await wrapDek(kek, raw);
     meta.attempts = 0;
     meta.pinNumeric = /^\d+$/.test(String(newPin));
-    writeMeta(meta);
+    persistMeta(meta);   // wirft – alte PIN und Wiederherstellungscode gelten weiter
     if (!dek) {
         dek = await importDek(raw);
         scheduleAutoLock();
