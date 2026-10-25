@@ -10,6 +10,7 @@ const sources = [
   ['docs/kurzanleitung-tourfuchs.md', 'kurzanleitung-tourfuchs.md'],
   ['docs/bildanleitung-tourfuchs.md', 'bildanleitung-tourfuchs.md'],
   ['docs/custom-gpt-systemprompt.txt', 'custom-gpt-systemprompt.txt'],
+  ['docs/custom-gpt-einstellungen.md', 'EINSTELLUNGEN.md'],
   ['TourFuchs_KI-Agent_Wissensbasis.pdf', 'TourFuchs_KI-Agent_Wissensbasis.pdf'],
 ];
 
@@ -28,8 +29,10 @@ writeFileSync(
     `Diese Kopien nicht direkt bearbeiten. Die Quellen liegen unter \`docs/\` sowie im Repository-Stamm. ` +
     `Nach jeder Aenderung zuerst \`npm run docs:pdf\` und danach \`npm run docs:gpt-upload\` ausfuehren.\n\n` +
     `1. Den Inhalt von \`custom-gpt-systemprompt.txt\` in das Feld fuer die Anweisungen kopieren.\n` +
-    `2. Die vier Markdown-Dateien und die PDF als Wissen hochladen.\n` +
-    `3. Eine kurze Testfrage stellen, zum Beispiel: \"Wie plane ich unterwegs eine Tour und hole mir davor ein Briefing?\"\n\n` +
+    `2. Die vier Markdown-Dateien und die PDF als Wissen hochladen (nicht \`EINSTELLUNGEN.md\` und nicht diese README).\n` +
+    `3. Name, Beschreibung und Gespraechsaufhaenger aus \`EINSTELLUNGEN.md\` uebernehmen.\n` +
+    `4. Eine kurze Testfrage stellen, zum Beispiel: \"Wie plane ich unterwegs eine Tour und hole mir davor ein Briefing?\"\n\n` +
+    `Custom GPTs werden am 11.12.2026 abgeschaltet; die Umstellung auf ein Plugin steht in \`EINSTELLUNGEN.md\`.\n\n` +
     `Die PDF enthaelt zusaetzlich den visuellen Bildanhang. Alle Schulungsbilder verwenden ausschliesslich Demo- oder synthetische Daten.\n`,
   'utf8',
 );
