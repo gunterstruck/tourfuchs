@@ -369,7 +369,7 @@ function customerFromStop(stop, i) {
         vb: '', channel: '', gruppe: '', bezirk: '',
         ansprechpartner: '', telefon: String(stop.telefon || '').trim(), email: '',
         umsatz: null, rhythmusWochen: null, besuche: [],
-        lat: Number(stop.lat), lng: Number(stop.lng), geo: 'exakt',
+        lat: Number(stop.lat), lng: Number(stop.lng), geo: stop.approx ? 'plz' : 'exakt',
         ...(stop.coordinateSource ? { coordinateSource: stop.coordinateSource } : {}),
         extra: { Herkunft: t('qr.customer.source') },
         fromQr: true
