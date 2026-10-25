@@ -111,7 +111,7 @@ describe('Besuchsbericht – Oberfläche', () => {
     it('zählt Besuche aus einer empfangenen .tfsafe-Datei nicht als „noch weiterzugeben"', () => {
         const receive = read('src/ui/safeTransfer.js');
         // Nur die Besuche aus der Datei gelten als abgeglichen; eigene bleiben offen.
-        expect(receive.indexOf("visitReportEntries(customers, { range: 'unsent' })")).toBeLessThan(receive.indexOf('carryOverVisits(state.customers, customers)'));
+        expect(receive.indexOf("visitReportEntries(customers, { range: 'unsent' })")).toBeLessThan(receive.indexOf('carryOverVisits(adoptNumbers(state.customers, customers), customers)'));
         expect(receive.indexOf("emit('visits:received', { entries: fromFile })")).toBeGreaterThan(receive.indexOf('replaceCustomers(customers'));
         expect(ui).toContain('if (payload?.entries?.length) rememberSentVisits(payload.entries);');
     });

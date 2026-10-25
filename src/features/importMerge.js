@@ -127,6 +127,13 @@ export function mergeWithPrevious(previous = [], incoming = [], { mapping = {}, 
         for (const { key } of SIMPLE_FIELDS) {
             if (!mapping[key] && match[key] !== undefined) customer[key] = match[key];
         }
+        // Betrag und seine Art gehören zusammen: Bleibt der bisherige Betrag,
+        // bleibt auch „Auftragseingang" – sofern die Datei keine eigenen
+        // Betrags- oder Jahresspalten mitbringt (Prüfbefund 25.10.2026).
+        if (!mapping.umsatz && match.umsatz !== undefined && revenueYearHeaders(headers).length === 0) {
+            if (match.umsatzArt) customer.umsatzArt = match.umsatzArt;
+            else delete customer.umsatzArt;
+        }
         const ownPromotors = fileHasPromotorColumns ? (customer.contacts || []).filter(isColumnPromotor) : [];
         if (!fileHasContacts) {
             for (const prop of CONTACT_PROPS) {

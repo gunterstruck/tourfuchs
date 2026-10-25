@@ -12,7 +12,7 @@ import {
 } from '../core/state.js';
 import { mergeOwnPlaces } from '../features/places.js';
 import { saveDataset } from '../services/storage.js';
-import { isEnabled } from '../services/vault.js';
+import { isEnabled, isLocked } from '../services/vault.js';
 import { geocodeByPlz } from '../services/geocode.js';
 import { fitToCustomers } from '../features/map.js';
 import {
@@ -24,6 +24,7 @@ import { hideBusy, showBusy } from './busyIndicator.js';
 import { loadQrReaderModule, loadQrWriterModule } from './lazyModules.js';
 import { confirmDatasetReplacement } from './datasetReplacement.js';
 import { carryOverVisits } from '../features/datasetDiff.js';
+import { adoptNumbers } from '../features/importMerge.js';
 import { visitReportEntries } from '../features/visitReport.js';
 import { isDemoDataset } from '../core/demoSafety.js';
 import { t } from '../core/i18n.js';
@@ -53,6 +54,7 @@ let lastExport = null;     // { container, keyQr, count } zum erneuten Download
 let pendingContainer = null; // im Empfang gewählte, noch nicht entschlüsselte Datei
 let receiveDemo = null; // isolierte Vorführung, niemals im eigenen Datenbestand speichern
 let receiveSequence = 0; // verworfene Datei-Lesevorgänge dürfen keinen späteren Dialog befüllen
+let exportSequence = 0;  // Sperre mitten im Export: kein Download, kein Schlüssel, kein Dialog
 let keyFileSequence = 0;
 let decrypting = false;
 
@@ -61,7 +63,7 @@ export function initSafeTransfer() {
     receiveDialog = document.getElementById('safe-receive-dialog');
     if (!exportDialog || !receiveDialog) return;
     // Gesperrt: Export-Schlüssel und gewählte Datei nicht im Speicher halten.
-    on('vault:locked', () => { receiveSequence++; lastExport = null; pendingContainer = null; stopCamera(); });
+    on('vault:locked', () => { receiveSequence++; exportSequence++; lastExport = null; pendingContainer = null; stopCamera(); });
 
     exportDialog.querySelector('.dialog-close').addEventListener('click', () => exportDialog.close());
     receiveDialog.querySelector('.dialog-close').addEventListener('click', () => receiveDialog.close());
@@ -110,6 +112,11 @@ async function openExportDialog() {
         return;
     }
     let bundle;
+    // Wird der Tresor gesperrt, während verschlüsselt oder der QR-Erzeuger
+    // geladen wird, endet der Export: Sonst lud er danach noch die Datei herunter
+    // und zeigte den Schlüssel über dem Sperrbildschirm (Prüfbefund 25.10.2026).
+    const sequence = ++exportSequence;
+    const stillAllowed = () => sequence === exportSequence && !isLocked();
     // Großer Bestand: Verschlüsseln dauert – sonst wirkt TourFuchs eingefroren
     // (PO, 11.10.2026).
     showBusy('safe-export', 'Umzugsdatei wird verschlüsselt …');
@@ -122,6 +129,7 @@ async function openExportDialog() {
     } finally {
         hideBusy('safe-export');
     }
+    if (!stillAllowed()) return;
     lastExport = bundle;
     downloadContainer(bundle.container);   // durch Button-Klick ausgelöst -> Download erlaubt
 
@@ -130,10 +138,16 @@ async function openExportDialog() {
     try {
         // Kurzer Text, daher hohe Fehlerkorrektur (H) für robustes Scannen.
         const QRCode = await loadQrWriter();
+        if (!stillAllowed()) { canvas.hidden = true; return; }
         await QRCode.toCanvas(canvas, bundle.keyQr, { errorCorrectionLevel: 'H', width: 300, margin: 2 });
     } catch {
         canvas.hidden = true;
         showToast('Schlüssel-QR konnte nicht erzeugt werden. Die Schlüsseldatei kann heruntergeladen werden.', 'info');
+    }
+    if (!stillAllowed()) {
+        canvas.getContext?.('2d')?.clearRect(0, 0, canvas.width, canvas.height);
+        canvas.hidden = true;
+        return;
     }
     document.getElementById('safe-export-info').textContent = t('safeExport.info', { count: transferCountText(bundle) });
     const keyText = document.getElementById('safe-export-keytext');
@@ -485,7 +499,9 @@ async function applyImported(dataset) {
         // als abgeglichen. Besuche dieses Geräts gehen nicht verloren: Sie werden
         // mit denen aus der Datei vereinigt (wie beim Reimport) und bleiben offen.
         const fromFile = visitReportEntries(customers, { range: 'unsent' });
-        if (!isDemoDataset(state.customers)) carryOverVisits(state.customers, customers);
+        // Wie beim Excel-Import: Bestandskunden ohne Nummer, die die Datei mit
+        // Nummer führt, sind derselbe Kunde – sonst gingen ihre Besuche verloren.
+        if (!isDemoDataset(state.customers)) carryOverVisits(adoptNumbers(state.customers, customers), customers);
         replaceCustomers(customers, {
             fileName: dataset?.fileName,
             importedAt: dataset?.importedAt,
