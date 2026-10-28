@@ -362,7 +362,10 @@ Bei eigenen Kunden mit gültigem SieSales-Link und Kundennummer erscheint DUVE
 automatisch daneben. Der Firmenlink lässt sich lokal ändern oder ausblenden.
 Erst ein bewusster Klick übergibt die Kundennummer an die konfigurierte
 HTTPS-Zieladresse. Telefonlinks öffnen die Telefonanwendung; Teams-Chat-Links
-übergeben die importierte Mitarbeiterkennung an Microsoft Teams. Keine API,
+übergeben die importierte Mitarbeiterkennung an Microsoft Teams. Ab 30.10.2026
+fragt die App einmal „Arbeitest du bei Siemens?“ (Antwort nur lokal); bei „Ja“
+führt ein Link nur auf Klick zur Viva-Engage-Gruppe „TourFuchs User Community“
+(Microsoft Viva Engage), die interne Version startet dort. Keine API,
 kein Hintergrundabruf und kein automatischer Nachrichtenversand. Ohne
 SieSales-Link oder Kundennummer erscheint kein Firmenlink. Konfiguration lokal
 je Browser; Details im KI-Guide,
