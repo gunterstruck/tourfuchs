@@ -45,7 +45,6 @@ import { initOfferAutoHide } from './ui/offerAutoHide.js';
 import { initDemoWelcome } from './ui/demoWelcome.js';
 import { initTheme } from './ui/theme.js';
 import { initLanguage } from './ui/language.js';
-import { runSiemensCutover } from './ui/siemensCutover.js';
 import { initNightToggle } from './ui/nightToggle.js';
 import { initViewportGuard } from './ui/viewportGuard.js';
 import { startUsageCount } from './services/usageCount.js';
@@ -290,10 +289,6 @@ async function init() {
     // Fensterhöhe zuerst: iOS liefert nach dem Entsperren teils ein falsches 100dvh.
     initViewportGuard();
     const language = initLanguage();
-    // Harter Schnitt für Siemens (ab 30.10.2026, ui/siemensCutover.js): Wer
-    // „bei Siemens" sagt, bekommt nur den Weg zur internen Version – die App
-    // startet dann gar nicht erst (keine Demo, keine Daten, kein Tresor).
-    if (await runSiemensCutover()) return;
     // Der Hinweis steht schon im HTML; ab hier gehört er dem Busy-Baustein.
     showBusy('start', t('busy.starting'));
     language.onChange((locale) => emit('locale:changed', locale));
