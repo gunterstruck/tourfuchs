@@ -640,24 +640,6 @@ Kunden sitzen: ‚✨ Lichterkarte' – jeder Kunde ein Lichtpunkt."
 
 ## 5. Onboarding beim ersten Start
 
-### 5.0 Siemens: Umzug in die interne Version (ab 30.10.2026)
-
-Die Erprobung bei Siemens läuft ab dem 30.10.2026 in einer eigenen, internen
-Version (harter Schnitt, PO 28.10.2026). Diese externe Version fragt deshalb
-ab dem Stichtag einmal beim Start: **„Arbeitest du bei Siemens?“**
-
-- **„Ja, ich bin bei Siemens“**: TourFuchs startet hier nicht mehr. Es erscheint
-  nur **„TourFuchs für Siemens ist umgezogen“** mit dem Knopf **„Zur „TourFuchs
-  User Community““** (Viva-Engage-Gruppe, dort steht der neue Link). In der
-  internen Version wird die verschlüsselte Team-Datei (.tfsafe) neu geladen;
-  hier geplante Touren gehen nicht mit. **„Daten auf diesem Gerät löschen“**
-  entfernt alle TourFuchs-Daten dieser Version aus dem Browser. Wer sich
-  verklickt hat: **„Doch nicht bei Siemens? Antwort ändern“**.
-- **„Nein, ich bin extern“**: Alles bleibt wie bisher.
-
-Die Antwort bleibt nur in diesem Browser; nichts wird übertragen oder
-gezählt. Vorab ansehen: `?siemens-hinweis` an die Adresse anhängen.
-
 ### 5.1 Ruhiger Einstieg ohne Daten
 
 Beim ersten Start oder nach dem Löschen aller Daten zeigt die Sidebar zunächst:
