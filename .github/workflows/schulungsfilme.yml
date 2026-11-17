@@ -11,7 +11,7 @@ permissions:
   contents: read
 jobs:
   katalog:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.plan.outputs.matrix }}
     steps:
@@ -29,7 +29,7 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix: ${{ fromJSON(needs.katalog.outputs.matrix) }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 45
     steps:
       - uses: actions/checkout@v7
@@ -70,7 +70,7 @@ jobs:
   veroeffentlichen:
     if: github.ref == 'refs/heads/main'
     needs: aufnehmen
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: write
     steps:
