@@ -1,7 +1,8 @@
 /** Only fixed training sentences, served by the app itself. No speech API. */
+export const SHOWCASE_SPEECH_ROOT = '/audio/thorsten';
 export class ShowcaseSpeech {
     constructor({ createAudio = () => new Audio(), onChange = () => {}, loadClips = async () => {
-        const response = await fetch('/audio/thorsten/index.json');
+        const response = await fetch(`${SHOWCASE_SPEECH_ROOT}/index.json`);
         if (!response.ok) throw new Error('Missing narration index');
         return response.json();
     } } = {}) {
@@ -24,7 +25,7 @@ export class ShowcaseSpeech {
         else {
             // Unlock the SAME element synchronously in the user's tap (Safari).
             this.audio ||= this.createAudio();
-            this.audio.src = '/audio/thorsten/ready.mp3';
+            this.audio.src = `${SHOWCASE_SPEECH_ROOT}/ready.mp3`;
             try { Promise.resolve(this.audio.play()).catch(() => {}); } catch { /* next sentence falls back */ }
             // An optional data file, not part of the application startup bundle.
             // Never wait for it in the demo: while loading, the bubble remains readable.
@@ -42,7 +43,7 @@ export class ShowcaseSpeech {
         if (!this.enabled || !clip) return false;
         this.audio ||= this.createAudio();
         this.audio.pause();
-        this.audio.src = `/audio/thorsten/${clip}`;
+        this.audio.src = `${SHOWCASE_SPEECH_ROOT}/${clip}`;
         this.error = '';
         let result;
         try {

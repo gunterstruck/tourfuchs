@@ -3,6 +3,7 @@ import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative, resolve } from 'node:path';
 import { CONFIG } from '../src/core/config.js';
 import { SHOWCASE_MUSIC_URL } from '../src/features/showcaseMusic.js';
+import { SHOWCASE_SPEECH_ROOT } from '../src/features/showcaseSpeech.js';
 
 /**
  * Netzwerk-Wächter (Release 17.0d) – der Grundsatz aus AGENTS.md als Test:
@@ -50,6 +51,7 @@ const NETWORK_CALLERS = {
     'src/ui/showcase.js': 'eigene Demo-Routen (/geodata)',
     'src/services/usageCount.js': 'anonyme Zählung: eigenes Skript /_vercel/insights (Datenschutz 4a)',
     'src/features/showcaseMusic.js': 'Musik der Live-Demo, eigene Datei (/audio)',
+    'src/features/showcaseSpeech.js': 'optionale feste Schulungssätze und Index vom App-Host (/audio/thorsten), offengelegt in README und Datenschutz',
     'src/services/workbookReader.js': 'Excel-Leser als Hintergrundprozess, eigenes Paket',
     'src/features/map.js': 'Kartenkacheln der gewählten Karte (Anbieter in Liste 3, Datenschutz 4)',
     'src/ui/mobilePreview.js': 'Handy-Vorschau: die eigene App im Rahmen (gleiche Adresse)'
@@ -97,7 +99,7 @@ describe('Netzwerk-Wächter', () => {
     it('eigene Daten kommen vom eigenen Server, nicht von fremden', () => {
         const own = [
             CONFIG.plzCentroidsUrl, CONFIG.plzPlacesUrl, CONFIG.demoStreetsUrl, CONFIG.demoRoutesUrl,
-            CONFIG.usageCount.scriptSrc, SHOWCASE_MUSIC_URL,
+            CONFIG.usageCount.scriptSrc, SHOWCASE_MUSIC_URL, SHOWCASE_SPEECH_ROOT,
             ...Object.values(CONFIG.levels).map((level) => level.file).filter(Boolean)
         ];
         expect(own.length).toBeGreaterThan(5);
