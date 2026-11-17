@@ -849,6 +849,7 @@ Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
 |---|---|
 | **Zähler „3 / 24"** | aktueller Schritt; „↺ 3 / 24" beim Zurückblättern, „⏭ 5 / 24" im Schritt-Modus |
 | **♫ Musik** | Hintergrundmusik ein/aus; am Desktop mit Lautstärkeregler |
+| **🗣 Thorsten ein / Thorsten aus** | schaltet die künstlich erzeugte Männerstimme ab der nächsten Erklärung ein bzw. aus; zunächst aus, Auswahl bleibt bis zum Neuladen der App erhalten |
 | **Tacho + Tempo („1,2×")** | öffnet ein Menü mit **1,2× (normal) · 1,0× · 0,8× · 0,6×**; die gewählte Stufe hat einen Haken und wird pro Gerät gemerkt. Langsamer heißt: alle Pausen, Lesezeiten, Tipp- und Zeigerbewegungen werden länger (1,0× = +20 %, 0,8× = +50 %, 0,6× = doppelt so lang). **Die Musik läuft unverändert weiter.** |
 | **↺ Zurück** | hält an und zeigt die **vorige Erklärung** wieder an ihrer Stelle (Blase gestrichelt, Marke „↺ vorige Erklärung"); jeder weitere Tipp geht eine Erklärung weiter zurück |
 | **❚❚ Pause / ▶ Fortsetzen** | anhalten bzw. **normal durchlaufen lassen** (beendet auch den Schritt-Modus und das Zurückblättern) |
@@ -856,6 +857,18 @@ Knöpfe Symbol und Wort, am Handy nur das Symbol (Name als Tooltip/Vorlesetext).
 | **✕ Beenden** | bricht die Vorführung ab und stellt den vorherigen Zustand wieder her |
 
 **Wichtige Grenzen für Guide-Antworten:**
+
+- Thorsten liest die festen Schulungstexte in allen Desktop- und Handy-Demos.
+  Während der Stimme tritt die Sprechblase zurück. Ohne Stimme, bei Pause,
+  beim Zurückblättern oder bei einem Ladefehler bleibt die Erklärung lesbar.
+  Gerätelautstärke und Lautlos-Schalter kann die App nicht erkennen.
+- Die Vorführung wartet bis zum Satzende. Pause, Weiter und Beenden steuern
+  auch die Stimme; beim Wechsel in einen anderen Tab pausiert die Vorführung.
+  Das Tempo-Menü ändert die Stimme nicht. Die Hintergrundmusik wird während
+  der Sprache automatisch leiser.
+- Die Aufnahmen stammen vom App-Host, werden bei Bedarf geladen und enthalten
+  ausschließlich feste Schulungstexte. Keine Sprach-API, keine Vertonung von
+  Kundendaten. Ohne verfügbare Aufnahme läuft die Schulung mit Sprechblasen.
 
 - **Zurückspulen gibt es nicht.** Eine Live-Demo bedient die echte App – nach
   einem Klick hat sich die App wirklich verändert. „↺ Zurück" blättert deshalb

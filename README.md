@@ -10,6 +10,13 @@
 
 ## Was macht TourFuchs Vertrieb?
 
+**Schulungen zum Anhören:** In allen Live-Demos auf Desktop und Smartphone
+liest auf Wunsch die künstlich erzeugte Stimme **Thorsten** die Erklärungen.
+In der Steuerleiste **🗣 Thorsten ein** wählen; ohne Ton bleiben die
+Sprechblasen. Pause, Weiter und Beenden steuern auch die Stimme. Die festen
+Aufnahmen werden vom App-Host geladen, ohne Sprach-API und ohne Kundendaten
+zu vertonen. [Bedienung und Herkunft](docs/mini-schulungen.md#thorsten-direkt-in-der-app).
+
 TourFuchs beantwortet die drei Kernfragen im Vertriebsalltag:
 
 1. **„Wo sind meine Kunden?“** – Excel-Liste hochladen, fertig. Kunden erscheinen

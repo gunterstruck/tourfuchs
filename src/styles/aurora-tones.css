@@ -827,7 +827,8 @@
     background: rgba(134, 85, 246, 0.2);
     color: var(--color-primary-dark);
 }
-:where(.aurora-dark) .sc-toolbar .sc-music[aria-pressed="true"] {
+:where(.aurora-dark) .sc-toolbar .sc-music[aria-pressed="true"],
+:where(.aurora-dark) .sc-toolbar .sc-speech[aria-pressed="true"] {
     background: rgba(134, 85, 246, 0.2);
     color: var(--color-primary-dark);
 }
