@@ -4,8 +4,8 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { ShowcasePlayback, ShowcaseAbortError } from '../src/features/showcasePlayback.js';
 import { ShowcaseSpeech } from '../src/features/showcaseSpeech.js';
-import clips from '../src/features/showcaseSpeechClips.json';
 import { speechTexts } from '../tools/speech-texts.mjs';
+const clips = JSON.parse(readFileSync(resolve('public/audio/thorsten/index.json'), 'utf8'));
 
 function fakeAudio() {
     const listeners = new Map();
@@ -31,9 +31,11 @@ it('ships every fixed desktop/mobile/helper sentence with a content-addressed MP
 });
 it('loads nothing without opt-in and never synthesizes unknown/customer text', async () => {
     const createAudio = vi.fn(fakeAudio);
-    const speech = new ShowcaseSpeech({ createAudio });
+    const loadClips = vi.fn(async () => clips);
+    const speech = new ShowcaseSpeech({ createAudio, loadClips });
     expect(await speech.speak(Object.keys(clips)[0], new ShowcasePlayback())).toBe(false);
     expect(createAudio).not.toHaveBeenCalled();
+    expect(loadClips).not.toHaveBeenCalled();
     speech.setEnabled(true);
     expect(await speech.speak('A private customer text', new ShowcasePlayback())).toBe(false);
     speech.stop();
@@ -90,12 +92,21 @@ it('falls back after blocked playback, missing audio and a hung request', async 
     expect(hung.paused).toBe(true);
 });
 it('turning Thorsten off cancels the current sentence and restores reading', async () => {
-    const audio = fakeAudio(), speech = new ShowcaseSpeech({ createAudio: () => audio });
+    const audio = fakeAudio(), speech = new ShowcaseSpeech({ createAudio: () => audio, loadClips: async () => clips });
     speech.setEnabled(true);
+    await speech.loading;
     const result = speech.speak(Object.keys(clips)[0], new ShowcasePlayback());
     speech.setEnabled(false);
     expect(await result).toBe(false);
     expect(audio.paused).toBe(true);
     expect(speech.speaking).toBe(false);
     expect(speech.error).toBe('');
+});
+it('a missing or still-loading index never blocks a training step', async () => {
+    const speech = new ShowcaseSpeech({ createAudio: fakeAudio, loadClips: async () => { throw new Error('offline'); } });
+    speech.setEnabled(true);
+    expect(await speech.speak(Object.keys(clips)[0], new ShowcasePlayback())).toBe(false);
+    await speech.loading;
+    expect(speech.error).toContain('Sprechblase');
+    speech.stop();
 });

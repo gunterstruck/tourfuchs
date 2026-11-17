@@ -32,5 +32,5 @@ for (const text of speechTexts()) {
     console.log(`Thorsten: ${Object.keys(manifest).length} ${text.slice(0, 55)}`);
 }
 await run(process.env.FFMPEG_PATH || 'ffmpeg', ['-y', '-f', 'lavfi', '-i', 'anullsrc=r=22050:cl=mono', '-t', '0.15', '-codec:a', 'libmp3lame', join(output, 'ready.mp3')]);
-writeFileSync('src/features/showcaseSpeechClips.json', JSON.stringify(manifest, null, 2) + '\n');
+writeFileSync(join(output, 'index.json'), JSON.stringify(manifest, null, 2) + '\n');
 console.log(`${Object.keys(manifest).length} training sentences ready.`);
