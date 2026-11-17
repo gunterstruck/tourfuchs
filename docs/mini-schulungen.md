@@ -89,6 +89,25 @@ Die Schulung „Kunde(n) wählen / Briefing / Entscheiden / Tour wählen“ tipp
 
 ## Wartung und Prüfung
 
+### Thorsten direkt in der App
+
+Alle Live-Demos am Desktop und Smartphone bieten **🗣 Thorsten ein** in der
+Steuerleiste. Die künstlich erzeugte Stimme liest ab der nächsten Erklärung;
+die Einstellung gilt bis zum Neuladen. **Thorsten aus** kehrt zu den
+Sprechblasen zurück. Pause, Weiter, Zurück und Beenden steuern auch die Stimme.
+Während der Sprache tritt die Blase zurück und die Musik wird leiser.
+Bei Pause, ausgeschalteter Stimme oder nicht verfügbarer Aufnahme bleibt der
+Text lesbar. Beim Tabwechsel pausiert die Vorführung. Das Tempo-Menü verändert
+die Stimme nicht; die bisher angegebenen Dauern gelten für die stumme Fassung.
+Gerätelautstärke und Lautlos-Schalter kann die App nicht erkennen.
+
+Es werden ausschließlich vorab erzeugte MP3-Dateien vom App-Host geladen,
+keine Kundendaten verarbeitet und keine Sprach-API aufgerufen. Ohne Netzwerk
+können nicht geladene Aufnahmen fehlen; dann greifen die Sprechblasen.
+Erzeugung und Herkunft: [Thorsten-Voice](licenses/thorsten-voice.md).
+`node tools/build-showcase-speech.mjs` erneuert die Aufnahmen; der Test
+`tests/showcaseSpeech.test.js` prüft die Vollständigkeit aller festen Sätze.
+
 Story-Definitionen: `src/features/stories.js`. Wiedergabesteuerung: `src/features/showcasePlayback.js`. UI-Engine: `src/ui/showcase.js`.
 Musiksteuerung: `src/features/showcaseMusic.js`; Quelldatei: `public/audio/tropical-island-house-2024.mp3`. Lizenzbelege unter `docs/licenses/tropical-island-house-2024/`; sichtbare Attribution in Informationen und `public/license.html`.
 

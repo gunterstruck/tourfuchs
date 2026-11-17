@@ -45,3 +45,4 @@ videos/
 
 # Temporäre Arbeitsdateien der Dokumentationserzeugung
 work/
+.speech-build/

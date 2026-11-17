@@ -47,6 +47,7 @@ import { ShowcasePlayback, ShowcaseAbortError as AbortError, showcaseTempo, show
 import { captureShowcaseFilters } from './sidebar.js';
 import { chooseToolbarLayout, focusWeight } from '../features/showcaseToolbar.js';
 import { ShowcaseMusic, shouldShowSoundHint, SOUND_HINT_KEY } from '../features/showcaseMusic.js';
+import { ShowcaseSpeech } from '../features/showcaseSpeech.js';
 
 // Beispieltabelle für die Einfüge-Vorführung: bewusst klein, mit
 // Überschriftenzeile und Tabulatoren – genau das, was Excel beim Kopieren in
@@ -121,6 +122,7 @@ let progressAt = null;        // { i, n } – für die Anzeige des Schritt-Modus
 let sayHistory = [];          // bisherige Erklärungen – für „Zurück"
 let replayAt = -1;            // Index in sayHistory beim Zurückblättern, -1 = live
 const music = new ShowcaseMusic({ onChange: syncMusicControls });
+const speech = new ShowcaseSpeech({ onChange: syncSpeechControls });
 
 // ---- Tempo ----
 // Gemerkt pro Gerät: Wer die Filme lieber ruhiger sieht, will das auch beim
@@ -639,7 +641,8 @@ async function selectValue(sel, value) {
 }
 
 // ---- Sprechblase ----
-async function say(text, sel, pos) {
+async function say(text, sel, pos, readingMs = 1800) {
+    bubbleEl.classList.remove('sc-speaking');
     bubbleEl.textContent = text;
     bubbleEl.hidden = false;
     bubbleEl.classList.remove('sc-show');
@@ -669,6 +672,9 @@ async function say(text, sel, pos) {
     bubbleEl.classList.remove('sc-replaying');
     // Erklärt die Blase etwas anderes als den letzten Klick, gilt ab jetzt das.
     if (anchor) setToolbarFocus(anchor); else scheduleToolbarPlacement();
+    if (!(import.meta.env.MODE === 'schulungsfilm' && window.__tfFilmSpeech)) {
+        if (!await speech.speak(text, playback)) await playback.wait(readingMs, { reading: true });
+    }
 }
 /** Blase neben ihr Ziel (oder mittig) setzen – ohne Warten. */
 function placeBubble(anchor, pos) {
@@ -1180,14 +1186,11 @@ const HELPERS = {
             state.tour.routeLineMode = 'road';
             emit('tour:changed');
             await sleep(1400);
-            await say(`Und das ist die echte Straßenroute: ${Math.round(road.distanceKm)} km, etwa ${Math.round(road.durationMin)} Minuten.`, '#btn-route-mode', 'top');
-            await playback.wait(3600, { reading: true });
-            await say('Für die Vorführung ist sie vorberechnet. Mit deinen Kunden berechnet sie der Dienst OSRM – erst nach deiner Zustimmung.', null, 'bottom');
-            await playback.wait(4400, { reading: true });
+            await say('Und das ist die echte Straßenroute. Entfernung und Fahrzeit siehst du in der Tourübersicht.', '#btn-route-mode', 'top', 3600);
+            await say('Für die Vorführung ist sie vorberechnet. Mit deinen Kunden berechnet sie der Dienst OSRM – erst nach deiner Zustimmung.', null, 'bottom', 4400);
             return;
         }
-        await say('Die Tour liegt auf der Karte – als Luftlinie. Die Straßenroute berechnet der Dienst OSRM, erst nach deiner Zustimmung; die Demo schaltet sie nicht ein.', '#btn-route-mode', 'top');
-        await playback.wait(5000, { reading: true });
+        await say('Die Tour liegt auf der Karte – als Luftlinie. Die Straßenroute berechnet der Dienst OSRM, erst nach deiner Zustimmung; die Demo schaltet sie nicht ein.', '#btn-route-mode', 'top', 5000);
     },
     async gotoTour() {
         await clickEl('.mode-btn[data-mode="aussendienst"]');
@@ -1496,8 +1499,7 @@ const HELPERS = {
         const located = visibleCustomers().filter(c => Number.isFinite(c.lat) && Number.isFinite(c.lng));
         const amounts = located.map(c => c.umsatz).filter(v => v !== null && v !== '' && v !== undefined && Number.isFinite(Number(v))).map(Number);
         if (!amounts.length) {
-            await say('Hier fehlen Umsatzangaben. Mit importiertem Umsatz kannst du Von und Bis setzen; fehlende Werte werden dann ausgeblendet.', '#revenue-filter-enabled');
-            await playback.wait(4500, { reading: true });
+            await say('Hier fehlen Umsatzangaben. Mit importiertem Umsatz kannst du Von und Bis setzen; fehlende Werte werden dann ausgeblendet.', '#revenue-filter-enabled', undefined, 4500);
             return;
         }
         const value = amounts.find(v => v > 5) ?? amounts[0];
@@ -1833,10 +1835,7 @@ async function runStep(step) {
     if (step.t !== 'say') hideBubble();
     switch (step.t) {
         case 'say':
-            await say(step.text, step.sel, step.pos);
-            if (!(import.meta.env.MODE === 'schulungsfilm' && window.__tfFilmSpeech)) {
-                await playback.wait(step.ms ?? 1800, { reading: true });
-            }
+            await say(step.text, step.sel, step.pos, step.ms ?? 1800);
             break;
         case 'move': if (!await moveToEl(step.sel)) throw new Error('Demo-Ziel nicht sichtbar.'); break;
         case 'click': if (!await clickEl(step.sel)) throw new Error('Demo-Aktion nicht erreichbar.'); break;
@@ -1945,6 +1944,7 @@ function showChrome(story) {
     // placeToolbar) bleibt nur das Symbol stehen, der Name bleibt als aria-label.
     toolbarEl.innerHTML = `<span class="sc-story-label">${story.icon} <b>${story.title}</b></span>
         <span class="sc-progress"></span>
+        <button type="button" class="sc-speech" aria-pressed="false" aria-label="Thorsten einschalten"><span class="sc-ico" aria-hidden="true">🗣</span><span class="sc-txt">Thorsten ein</span></button>
         <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten"><span class="sc-ico" aria-hidden="true">♫</span><span class="sc-txt">Musik aus</span></button>
         <label class="sc-music-volume" hidden><span class="sc-sr">Lautstärke</span><input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /><output>18 %</output></label>
         <button type="button" class="sc-tempo" aria-haspopup="menu" aria-expanded="false">${GAUGE_SVG}<span class="sc-tempo-value">1,2×</span></button>
@@ -1993,9 +1993,11 @@ function showChrome(story) {
         playback.stepForward();
     });
     toolbarEl.querySelector('.sc-music').addEventListener('click', () => music.setEnabled(!music.enabled));
+    toolbarEl.querySelector('.sc-speech').addEventListener('click', () => speech.setEnabled(!speech.enabled));
     toolbarEl.querySelector('.sc-music-volume input').addEventListener('input', (event) => music.setVolume(Number(event.target.value) / 100));
     music.setPlayback({ active: true, paused: false, hidden: document.hidden });
     showSoundHint();
+    syncSpeechControls();
     cursorEl.hidden = false;
     placeCursor(window.innerWidth / 2, window.innerHeight / 2);
 }
@@ -2065,10 +2067,22 @@ function syncMusicControls() {
     volume.querySelector('input').value = String(Math.round(music.volume * 100));
     volume.querySelector('output').textContent = `${Math.round(music.volume * 100)} %`;
     const status = toolbarEl.querySelector('.sc-music-status');
-    const note = music.error || (soundHintVisible && music.enabled ? SOUND_HINT_TEXT : '');
+    const note = speech.error || music.error || (soundHintVisible && music.enabled ? SOUND_HINT_TEXT : '');
     status.textContent = note;
     status.hidden = !note;
     scheduleToolbarPlacement();
+}
+function syncSpeechControls() {
+    // Retain the text for accessibility and for Pause / Zurück / audio failure.
+    bubbleEl?.classList.toggle('sc-speaking', speech.speaking);
+    music.setDucked(speech.speaking);
+    const button = toolbarEl?.querySelector('.sc-speech');
+    if (!button) return;
+    button.setAttribute('aria-pressed', String(speech.enabled));
+    button.setAttribute('aria-label', speech.enabled ? 'Thorsten ausschalten' : 'Thorsten einschalten');
+    button.title = speech.enabled ? 'Thorsten ausschalten – Sprechblasen lesen' : 'Ab der nächsten Erklärung mit Thorsten anhören';
+    button.querySelector('.sc-txt').textContent = speech.enabled ? 'Thorsten aus' : 'Thorsten ein';
+    syncMusicControls();
 }
 function setProgress(i, n) {
     progressAt = { i, n };
@@ -2086,6 +2100,7 @@ function setStepMode(on) {
     if (progressAt) setProgress(progressAt.i, progressAt.n);
 }
 function cleanup(story) {
+    speech.stop();
     music.setPlayback({ active: false });
     hideBubble();
     // Overlays zurück in den Body holen (falls sie in einem Dialog hingen)
@@ -2621,10 +2636,11 @@ export function initShowcase() {
     window.addEventListener('keydown', (e) => { if (e.key === 'Escape' && running) { e.preventDefault(); abortNow(); } }, true);
     document.addEventListener('visibilitychange', () => {
         music.setPlayback({ hidden: document.hidden });
+        if (document.hidden && running && playback && !playback.paused) playback.togglePause();
         // Bildschirm aus oder anderer Tab: Die Schleife endet hier.
         if (document.hidden) stopAutoAdvance();
     });
-    window.addEventListener('pagehide', () => music.dispose());
+    window.addEventListener('pagehide', () => { speech.stop(); music.dispose(); });
     // Selbststart ohne Tipp: Der Browser verweigert den Ton. Der erste echte
     // Tipp (oder Tastendruck) während der Demo holt ihn nach – außer er gilt
     // dem Musik-Knopf selbst, der sonst sofort wieder ausschalten würde.

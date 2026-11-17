@@ -76,6 +76,62 @@ export class ShowcasePlayback {
         this.onChange();
     }
 
+    /** A narration is a skippable reading step, with the same pause/abort controls. */
+    waitForAudio(audio, { onSpeaking = () => {}, onCancel = () => {} } = {}) {
+        if (this.aborted) return Promise.reject(new ShowcaseAbortError());
+        if (this.stepMode) this.paused = true;
+        return new Promise((resolve, reject) => {
+            let settled = false;
+            let starting = false;
+            let stalled = 0;
+            let position = 0;
+            const source = audio.src;
+            const finish = (error, spoken = true) => {
+                if (settled) return;
+                settled = true;
+                clearInterval(timer);
+                audio.removeEventListener('ended', ended);
+                audio.removeEventListener('error', failed);
+                audio.removeEventListener('playing', playing);
+                audio.pause();
+                this.pending = null;
+                onSpeaking(false);
+                this.onChange();
+                if (error) reject(error); else resolve(spoken);
+            };
+            const ended = () => finish();
+            const failed = () => finish(null, false);
+            const playing = () => { if (!this.paused && !settled) onSpeaking(true); };
+            const sync = () => {
+                if (settled) return;
+                if (this.paused) { audio.pause(); onSpeaking(false); return; }
+                if (!audio.paused || starting) return;
+                starting = true;
+                try {
+                    Promise.resolve(audio.play()).then(() => {
+                        starting = false;
+                        if ((settled || this.paused) && audio.src === source) audio.pause();
+                    }).catch(failed);
+                } catch { failed(); }
+            };
+            const timer = setInterval(() => {
+                sync();
+                if (this.paused || settled) return;
+                stalled = audio.currentTime > position ? 0 : stalled + 100;
+                position = audio.currentTime;
+                // Offline, unsupported audio or a hung play promise must never block a demo.
+                if (stalled >= 8000) failed();
+            }, 100);
+            audio.addEventListener('ended', ended);
+            audio.addEventListener('error', failed);
+            audio.addEventListener('playing', playing);
+            this.pending = { reading: true, finish, sync, restart: () => { audio.currentTime = 0; stalled = 0; position = 0; } };
+            onCancel(failed);
+            this.onChange();
+            sync();
+        });
+    }
+
     /** Läuft gerade eine Lesezeit, die „Weiter" überspringen darf? */
     get canSkip() {
         return Boolean(this.pending?.reading);
@@ -104,6 +160,7 @@ export class ShowcasePlayback {
 
     togglePause() {
         this.paused = !this.paused;
+        this.pending?.sync?.();
         this.onChange();
     }
 

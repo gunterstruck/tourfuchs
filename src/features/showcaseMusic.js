@@ -137,7 +137,13 @@ export class ShowcaseMusic {
     }
 
     targetVolume() {
-        return this.active ? this.volume : this.volume * MUSIC_BREAK_VOLUME_FACTOR;
+        return (this.active ? this.volume : this.volume * MUSIC_BREAK_VOLUME_FACTOR) * (this.ducked ? 0.25 : 1);
+    }
+
+    setDucked(ducked) {
+        if (this.ducked === ducked) return;
+        this.ducked = ducked;
+        if (this.wanted && !this.loading) this.fade(this.targetVolume());
     }
 
     setVolume(value) {
