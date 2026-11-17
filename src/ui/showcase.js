@@ -1834,7 +1834,9 @@ async function runStep(step) {
     switch (step.t) {
         case 'say':
             await say(step.text, step.sel, step.pos);
-            await playback.wait(step.ms ?? 1800, { reading: true });
+            if (!(import.meta.env.MODE === 'schulungsfilm' && window.__tfFilmSpeech)) {
+                await playback.wait(step.ms ?? 1800, { reading: true });
+            }
             break;
         case 'move': if (!await moveToEl(step.sel)) throw new Error('Demo-Ziel nicht sichtbar.'); break;
         case 'click': if (!await clickEl(step.sel)) throw new Error('Demo-Aktion nicht erreichbar.'); break;

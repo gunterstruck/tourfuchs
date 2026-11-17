@@ -1,3 +1,4 @@
+import { STORIES } from '../src/features/stories.js';
 import { recordVoice, narrationArgs } from './video-voice.mjs';
 /**
  * Alle Live-Demos als Videos – für Präsentationen (Teams, PowerPoint) und
@@ -188,7 +189,7 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     page.on('pageerror', (e) => fehler.push(String(e).slice(0, 300)));
     let filmStart = 0;
     let filmEnde = 0;
-    const cues = process.env.PIPER_MODEL ? await recordVoice(page, rohOrdner, () => (Date.now()-filmStart)/1000) : null;
+    const cues = process.env.PIPER_MODEL ? await recordVoice(page, rohOrdner, () => (Date.now()-filmStart)/1000, STORIES.find(s => s.id === storyId)) : null;
     let story = { icon: '🦊', title: storyId, blurb: '' };
     let ergebnis = 'FEHLER';
     try {

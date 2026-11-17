@@ -29,11 +29,18 @@ export function wavDuration(bytes) {
     throw new Error('Unvollständige Sprecheraufnahme');
 }
 
-export async function recordVoice(page, folder, clock) {
+export async function recordVoice(page, folder, clock, story) {
     const cues = [];
-    await page.exposeFunction('__tfFilmSpeech', async text => {
+    async function fileFor(text) {
         const file = join(folder, createHash('sha256').update(text).digest('hex') + '.wav');
         if (!existsSync(file)) await synthesize(text, file);
+        return file;
+    }
+    // Prepare fixed speech before the title card: synthesis time must not
+    // appear as an unexplained pause in the finished recording.
+    for (const step of story.steps) if (step.t === 'say') await fileFor(step.text);
+    await page.exposeFunction('__tfFilmSpeech', async text => {
+        const file = await fileFor(text);
         const seconds = wavDuration(readFileSync(file));
         cues.push({ text, file, seconds, start: clock() });
         await new Promise(resolve => setTimeout(resolve, seconds * 1000 + 150));
