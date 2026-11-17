@@ -1,3 +1,5 @@
+import { STORIES } from '../src/features/stories.js';
+import { recordVoice, narrationArgs } from './video-voice.mjs';
 /**
  * Alle Live-Demos als Videos – für Präsentationen (Teams, PowerPoint) und
  * Social Media.
@@ -168,6 +170,7 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     });
     // Normales Tempo, egal was auf diesem Rechner zuletzt eingestellt war.
     await context.addInitScript(() => { try { localStorage.removeItem('tf_showcase_tempo'); } catch { /* egal */ } });
+    await context.addInitScript(() => { localStorage.setItem('gf_service_enabled','1'); localStorage.setItem('gf_territory_planning_enabled','1'); });
     const page = await context.newPage();
     const aufnahmeStart = Date.now();
     const bilder = [];   // { t: Sekunden (Wanduhr), datei }
@@ -186,6 +189,7 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     page.on('pageerror', (e) => fehler.push(String(e).slice(0, 300)));
     let filmStart = 0;
     let filmEnde = 0;
+    const cues = process.env.PIPER_MODEL ? await recordVoice(page, rohOrdner, () => (Date.now()-filmStart)/1000, STORIES.find(s => s.id === storyId)) : null;
     let story = { icon: '🦊', title: storyId, blurb: '' };
     let ergebnis = 'FEHLER';
     try {
@@ -215,7 +219,7 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
         await page.locator(`#showcase-dialog .sc-tile[data-story="${storyId}"]`).click();
         await blendeKarteAus(page);
         try {
-            await page.waitForSelector('#showcase-dialog .sc-outcome-head', { timeout: 300000 });
+            await page.waitForSelector('#showcase-dialog .sc-outcome-head', { timeout: 900000 });
             ergebnis = await page.locator('#showcase-dialog .sc-outcome-failed').count() ? 'FEHLER' : 'ok';
         } catch { /* Abspann kommt trotzdem */ }
         // Erst den Abspann über das Bild legen, DANN die Demo-Auswahl schließen:
@@ -243,15 +247,17 @@ async function nimmAuf({ browser, port, format, storyId, ffmpeg, zielOrdner }) {
     }
     // Handy auf 1080 Pixel Breite, Desktop bleibt 1920 × 1080; gerade Maße für H.264.
     const skalieren = format.name === 'handy' ? 'scale=1080:-2:flags=lanczos' : 'scale=1920:1080:flags=lanczos';
+    const voice = cues ? narrationArgs(cues, ziel.replace(/\.mp4$/, '.srt'), dauer) : null;
     const fadeOut = Math.max(0, dauer - 2.5).toFixed(2);
     await run(ffmpeg, [
         '-y',
         ...eingabe,
         '-stream_loop', '-1', '-i', MUSIK,
+        ...(voice?.inputs || []),
         '-t', dauer.toFixed(2),
-        '-map', '0:v:0', '-map', '1:a:0',
+        '-map', '0:v:0', ...(voice?.maps || ['-map', '1:a:0']),
         '-vf', `${skalieren},setsar=1,fps=30,fade=t=in:st=0:d=0.6,fade=t=out:st=${Math.max(0, dauer - 0.8).toFixed(2)}:d=0.8`,
-        '-af', `volume=${MUSIK_LAUTSTAERKE},afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOut}:d=2.5`,
+        ...(voice ? [] : ['-af', `volume=${MUSIK_LAUTSTAERKE},afade=t=in:st=0:d=1.5,afade=t=out:st=${fadeOut}:d=2.5`]),
         '-c:v', 'libx264', '-preset', 'slow', '-crf', '20', '-pix_fmt', 'yuv420p',
         '-c:a', 'aac', '-b:a', '160k',
         '-movflags', '+faststart',
@@ -376,7 +382,7 @@ async function imRahmen({ browser, ffmpeg, video, story, zielOrdner, storyId, ar
         '-i', video,
         '-loop', '1', '-i', geraet,
         '-filter_complex', `[1:v]scale=${lage.bildB}:${lage.bildH}:flags=lanczos,setsar=1[v];[0:v][v]overlay=${lage.bildX}:${lage.bildY}:shortest=1[b];[b][2:v]overlay=0:0:shortest=1,format=yuv420p[out]`,
-        '-map', '[out]', '-map', '1:a:0',
+        '-map', '[out]', '-map', '1:a:0', '-map', '1:s?', '-c:s', 'copy',
         '-r', '30', '-c:v', 'libx264', '-preset', 'slow', '-crf', '20',
         '-c:a', 'copy', '-movflags', '+faststart',
         ziel
@@ -400,6 +406,7 @@ async function storyVonKachel(page, storyId) {
 /** Welche Filme gibt es in diesem Format? Genau die Kacheln der Demo-Auswahl. */
 async function filmeImFormat(browser, port, format) {
     const context = await browser.newContext({ viewport: format.viewport, hasTouch: format.hasTouch, isMobile: format.isMobile, locale: 'de-DE' });
+    await context.addInitScript(() => { localStorage.setItem('gf_service_enabled','1'); localStorage.setItem('gf_territory_planning_enabled','1'); });
     const page = await context.newPage();
     try {
         await page.goto(`http://localhost:${port}/`, { waitUntil: 'domcontentloaded' });
@@ -459,6 +466,7 @@ let code = 0;
 try {
     for (const format of formate) {
         const alle = await filmeImFormat(browser, port, format);
+        if (gewuenscht.some(id => !alle.includes(id))) throw new Error('Angeforderte Schulung fehlt: '+gewuenscht);
         const filme = gewuenscht.length ? alle.filter((id) => gewuenscht.includes(id)) : alle;
         console.log(`\n=== ${format.name}: ${filme.join(', ')} ===`);
         for (const storyId of filme) {

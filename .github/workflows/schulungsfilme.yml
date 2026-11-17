@@ -1,0 +1,85 @@
+name: Schulungsfilme mit Thorsten
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/schulungsfilme.yml'
+      - 'tools/video-voice.mjs'
+      - 'tools/videos.mjs'
+permissions:
+  contents: read
+jobs:
+  katalog:
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.plan.outputs.matrix }}
+    steps:
+      - uses: actions/checkout@v7
+      - id: plan
+        run: |
+          node --input-type=module <<'JS' >> "$GITHUB_OUTPUT"
+          import {visibleStories} from './src/features/stories.js';
+          const include = ['desktop','handy'].flatMap(format => visibleStories({isDesktop:format==='desktop',territoryPlanningEnabled:true,serviceEnabled:true}).map(({id})=>({format,id})));
+          console.log('matrix='+JSON.stringify({include}));
+          JS
+  aufnehmen:
+    needs: katalog
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix: ${{ fromJSON(needs.katalog.outputs.matrix) }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - run: npm ci && npm install --no-save --package-lock=false playwright@1.60.0 && npx playwright install --with-deps chromium
+      - name: Sprecher und Videowerkzeuge einrichten
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+          cd "$RUNNER_TEMP"
+          curl -fsSL --retry 3 https://github.com/rhasspy/piper/releases/download/2023.11.14-2/piper_linux_x86_64.tar.gz -o piper.tar.gz
+          tar xzf piper.tar.gz
+          base=https://huggingface.co/rhasspy/piper-voices/resolve/main/de/de_DE/thorsten/high/de_DE-thorsten-high.onnx
+          curl -fsSL --retry 3 "$base" -o thorsten.onnx
+          curl -fsSL --retry 3 "$base.json" -o thorsten.onnx.json
+          echo '9df1c43c61149ef9b39e618e2b861fbe41e1fcea9390b2dac62e8761573ea4f1  thorsten.onnx' | sha256sum -c
+          echo '6de734444e4c3f9e33b7ebe2746dbc19b71e85f613e79c65acf623200b99a76a  thorsten.onnx.json' | sha256sum -c
+          echo "PIPER_BIN=$RUNNER_TEMP/piper/piper" >> "$GITHUB_ENV"
+          echo "PIPER_MODEL=$RUNNER_TEMP/thorsten.onnx" >> "$GITHUB_ENV"
+          echo "FFMPEG_PATH=$(command -v ffmpeg)" >> "$GITHUB_ENV"
+      - run: npm run build -- --mode schulungsfilm
+      - run: npm run videos -- --format=${{ matrix.format }} --demo=${{ matrix.id }}
+      - name: Beide Fassungen vollständig dekodieren und Spuren prüfen
+        run: |
+          set -eu
+          for f in videos/*.mp4; do
+            ffmpeg -v error -xerror -i "$f" -map 0:v:0 -map 0:a:0 -f null -
+            test "$(ffprobe -v error -select_streams s:0 -show_entries stream=codec_name -of csv=p=0 "$f")" = mov_text
+          done
+          test "$(find videos -name '*.mp4' | wc -l)" -eq 2
+          test -s videos/*.srt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.id }}-${{ matrix.format }}
+          path: videos/
+  veroeffentlichen:
+    if: github.ref == 'refs/heads/main'
+    needs: aufnehmen
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: videos
+          merge-multiple: true
+      - name: Geprüfte Reihe als versioniertes GitHub-Release hinterlegen
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "schulungsfilme-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}" videos/* --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --latest=false --title "TourFuchs-Schulungen mit Thorsten (${GITHUB_SHA:0:7})" --notes "Schulungsvideos für Desktop und Handy mit deutscher Thorsten-Stimme, lesbaren Sprechblasen und deutschen Untertiteln. Musik: Tropical Island House 2024 von Sascha Ende (ende.app), CC BY 4.0, für die Filme gemischt und gekürzt."
