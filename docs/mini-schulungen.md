@@ -2,6 +2,23 @@
 
 Die Mini-Schulungen zeigen echte Bedienhandlungen direkt in TourFuchs. Sie sind keine Videodateien. Der Bereich „Erste Schritte“ startet weiterhin eingeklappt; alle Schulungen sind auch über die Informationen erreichbar.
 
+## Schulungsfilme mit Thorsten
+
+Die interaktiven Schulungen lassen sich auch als MP4 für Präsentationen exportieren.
+Der GitHub-Workflow **Schulungsfilme mit Thorsten** ermittelt die Themen getrennt
+für Desktop und Handy, einschließlich der optionalen Planung und des Service-Moduls.
+Pro Kombination erzeugt er den Bildschirmmitschnitt und eine Version im
+Geräterahmen. Beide enthalten die lokal synthetisierte deutsche Stimme
+Thorsten (Piper, Modell de_DE-thorsten-high), leise Musik und deutsche
+Untertitel. Die Sprechblasen sind auch bei stummer Wiedergabe lesbar.
+
+Erfolgreiche Gesamtläufe von main stehen unter
+[GitHub-Releases](https://github.com/gunterstruck/tourfuchs/releases)
+als „TourFuchs-Schulungen mit Thorsten“. Ein unvollständiger Lauf veröffentlicht
+kein Release. Die MP4s werden nicht in die Git-Historie eingecheckt.
+Der Aufnahme-Build verwendet ausschließlich den temporären Demo-Browser.
+Im normalen App-Build ist die Anbindung für den Sprecher-Export entfernt.
+
 ## Bedienung
 
 - **Pause / Fortsetzen** unterbricht die Wiedergabe. Eine bereits gestartete Kartenanimation kann noch zu Ende laufen; weitere Demo-Schritte warten.

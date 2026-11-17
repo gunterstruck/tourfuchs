@@ -660,6 +660,9 @@ async function say(text, sel, pos) {
     bubbleEl.textContent = text;
     bubbleEl.classList.remove('sc-replaying');
     placeBubble(anchor, pos);
+    if (import.meta.env.MODE === 'schulungsfilm' && window.__tfFilmSpeech) {
+        await window.__tfFilmSpeech(text);
+    }
     sayHistory.push({ text, sel, pos, progress: toolbarEl?.querySelector('.sc-progress')?.textContent || '' });
     if (sayHistory.length > 60) sayHistory.shift();
     replayAt = -1;
