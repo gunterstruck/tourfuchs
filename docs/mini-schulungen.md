@@ -91,13 +91,14 @@ Die Schulung „Kunde(n) wählen / Briefing / Entscheiden / Tour wählen“ tipp
 
 ### Thorsten direkt in der App
 
-Alle Live-Demos am Desktop und Smartphone bieten **🗣 Thorsten ein** in der
-Steuerleiste. Die künstlich erzeugte Stimme liest ab der nächsten Erklärung;
-die Einstellung gilt bis zum Neuladen. **Thorsten aus** kehrt zu den
-Sprechblasen zurück. Pause, Weiter, Zurück und Beenden steuern auch die Stimme.
-Während der Sprache tritt die Blase zurück und die Musik wird leiser.
-Bei Pause, ausgeschalteter Stimme oder nicht verfügbarer Aufnahme bleibt der
-Text lesbar. Beim Tabwechsel pausiert die Vorführung. Das Tempo-Menü verändert
+In allen Live-Demos am Desktop und Smartphone ist **Thorsten standardmäßig
+eingeschaltet**. **🗣 Thorsten aus / ein** in der Steuerleiste schaltet die
+künstlich erzeugte Stimme um; die Auswahl gilt bis zum Neuladen, auch für
+weitere Schulungen. **Die Sprechblasen bleiben immer sichtbar**, unabhängig
+von der Stimme. Pause, Weiter, Zurück und Beenden steuern auch die Stimme.
+Während der Sprache wird die Musik leiser. Blockiert der Browser den Ton
+oder fehlt eine Aufnahme, läuft die Erklärung als Sprechblase weiter.
+Beim Tabwechsel pausiert die Vorführung. Das Tempo-Menü verändert
 die Stimme nicht; die bisher angegebenen Dauern gelten für die stumme Fassung.
 Gerätelautstärke und Lautlos-Schalter kann die App nicht erkennen.
 

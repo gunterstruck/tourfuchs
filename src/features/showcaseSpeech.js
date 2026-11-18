@@ -11,11 +11,16 @@ export class ShowcaseSpeech {
         this.loadClips = loadClips;
         this.clips = null;
         this.loading = null;
-        this.enabled = false;
+        this.enabled = true;
         this.audio = null;
         this.cancel = null;
         this.speaking = false;
         this.error = '';
+    }
+
+    /** Start in the tutorial's user gesture; keep a deliberate switch-off. */
+    start() {
+        if (this.enabled) this.setEnabled(true);
     }
 
     setEnabled(enabled) {

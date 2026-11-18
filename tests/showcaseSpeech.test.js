@@ -29,16 +29,28 @@ it('ships every fixed desktop/mobile/helper sentence with a content-addressed MP
     }
     expect(existsSync(resolve('public/audio/thorsten/ready.mp3'))).toBe(true);
 });
-it('loads nothing without opt-in and never synthesizes unknown/customer text', async () => {
+it('defaults to enabled, loads only when a tutorial starts and never speaks customer text', async () => {
     const createAudio = vi.fn(fakeAudio);
     const loadClips = vi.fn(async () => clips);
     const speech = new ShowcaseSpeech({ createAudio, loadClips });
+    expect(speech.enabled).toBe(true);
     expect(await speech.speak(Object.keys(clips)[0], new ShowcasePlayback())).toBe(false);
     expect(createAudio).not.toHaveBeenCalled();
     expect(loadClips).not.toHaveBeenCalled();
-    speech.setEnabled(true);
+    speech.start();
+    expect(createAudio).toHaveBeenCalledOnce();
+    await speech.loading;
     expect(await speech.speak('A private customer text', new ShowcasePlayback())).toBe(false);
     speech.stop();
+});
+it('keeps a deliberate switch-off when the next tutorial starts', () => {
+    const createAudio = vi.fn(fakeAudio), loadClips = vi.fn(async () => clips);
+    const speech = new ShowcaseSpeech({ createAudio, loadClips });
+    speech.setEnabled(false);
+    speech.start();
+    expect(speech.enabled).toBe(false);
+    expect(createAudio).not.toHaveBeenCalled();
+    expect(loadClips).not.toHaveBeenCalled();
 });
 it('waits for the spoken sentence, pauses/resumes and lets Next stop it', async () => {
     vi.useFakeTimers();
