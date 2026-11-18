@@ -642,7 +642,6 @@ async function selectValue(sel, value) {
 
 // ---- Sprechblase ----
 async function say(text, sel, pos, readingMs = 1800) {
-    bubbleEl.classList.remove('sc-speaking');
     bubbleEl.textContent = text;
     bubbleEl.hidden = false;
     bubbleEl.classList.remove('sc-show');
@@ -1944,7 +1943,7 @@ function showChrome(story) {
     // placeToolbar) bleibt nur das Symbol stehen, der Name bleibt als aria-label.
     toolbarEl.innerHTML = `<span class="sc-story-label">${story.icon} <b>${story.title}</b></span>
         <span class="sc-progress"></span>
-        <button type="button" class="sc-speech" aria-pressed="false" aria-label="Thorsten einschalten"><span class="sc-ico" aria-hidden="true">🗣</span><span class="sc-txt">Thorsten ein</span></button>
+        <button type="button" class="sc-speech" aria-pressed="true" aria-label="Thorsten ausschalten"><span class="sc-ico" aria-hidden="true">🗣</span><span class="sc-txt">Thorsten aus</span></button>
         <button type="button" class="sc-music" aria-pressed="true" title="Hintergrundmusik ausschalten"><span class="sc-ico" aria-hidden="true">♫</span><span class="sc-txt">Musik aus</span></button>
         <label class="sc-music-volume" hidden><span class="sc-sr">Lautstärke</span><input type="range" min="0" max="50" step="1" value="18" aria-label="Musiklautstärke" /><output>18 %</output></label>
         <button type="button" class="sc-tempo" aria-haspopup="menu" aria-expanded="false">${GAUGE_SVG}<span class="sc-tempo-value">1,2×</span></button>
@@ -2073,14 +2072,12 @@ function syncMusicControls() {
     scheduleToolbarPlacement();
 }
 function syncSpeechControls() {
-    // Retain the text for accessibility and for Pause / Zurück / audio failure.
-    bubbleEl?.classList.toggle('sc-speaking', speech.speaking);
     music.setDucked(speech.speaking);
     const button = toolbarEl?.querySelector('.sc-speech');
     if (!button) return;
     button.setAttribute('aria-pressed', String(speech.enabled));
     button.setAttribute('aria-label', speech.enabled ? 'Thorsten ausschalten' : 'Thorsten einschalten');
-    button.title = speech.enabled ? 'Thorsten ausschalten – Sprechblasen lesen' : 'Ab der nächsten Erklärung mit Thorsten anhören';
+    button.title = speech.enabled ? 'Thorsten ausschalten – die Sprechblasen bleiben sichtbar' : 'Ab der nächsten Erklärung zusätzlich mit Thorsten anhören';
     button.querySelector('.sc-txt').textContent = speech.enabled ? 'Thorsten aus' : 'Thorsten ein';
     syncMusicControls();
 }
@@ -2332,6 +2329,7 @@ function endRound() {
 
 function startStory(story) {
     if (!story || running) return;
+    if (import.meta.env.MODE !== 'schulungsfilm') speech.start();
     // Jede neu gestartete Demo beginnt mit Musik – auch wenn sie in einer
     // früheren Runde ausgeschaltet wurde. Innerhalb einer laufenden Runde
     // (nächster Film) bleibt die eigene Wahl stehen.
